@@ -1,0 +1,2584 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 사용자 코드 -->
+<mapper namespace="g20Procedure">
+	<select id="g20Procedure.selectGisuCloseCheck" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectGisuCloseCheck */
+		/* ERP 기수 상세 정보 조회 */
+		/* 원본프로시저 [1.0] -  [dbo].[P_GWG20_COMMON_BCLOSE_CHECK] */
+		/* params[  erpCompSeq, erpGisu, erpDivSeq  ] */
+		
+		USE DZICUBE;
+		DECLARE @CO_CD			NVARCHAR(4)
+				, @GISU 		NVARCHAR(10)
+				, @DIV_CD 		NVARCHAR(10)
+		SELECT	@CO_CD			= '${erpCompSeq}'
+				, @GISU 		= '${erpGisu}'
+				, @DIV_CD		= '${erpDivSeq}'		
+		
+		/************************************************************/
+		
+		SELECT	CO_CD		AS 'erpCompSeq'
+				, GISU		AS 'gisu'
+				, CLOSE_CD	AS 'closeSeq'
+				, CLOSE_NM	AS 'closeName'
+				, DIV_CD	AS 'divSeq'
+				, CLOSE_DT	AS 'closeDate'
+				, CLOSE_YN	AS 'closeYn'
+				, CLOSE_NMK	AS 'closeNameKor'
+		FROM	BCLOSE    
+		WHERE	CO_CD	= @CO_CD    
+			AND GISU	= @GISU 
+			AND DIV_CD	= @DIV_CD
+			AND CLOSE_CD = '1'	
+	</select>
+	
+	<select id="g20Procedure.selectSyscfg" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectSycsfg */
+		/* ERP 시스템 환경설정 정보 조회 */
+		/* 원본프로시저 [1.0] - 없음  */	
+		/* params[  erpCompSeq, moduleSeq, ctrSeq  ] */
+		
+		USE DZICUBE;
+		DECLARE @CO_CD			NVARCHAR(4)
+				, @MODULE_CD 	NVARCHAR(10)
+				, @CTR_CD 		NVARCHAR(10)
+		SELECT	@CO_CD			= '${erpCompSeq}'
+				, @MODULE_CD 	= '${moduleSeq}'
+				, @CTR_CD		= '${ctrSeq}'
+		
+		/************************************************************/
+			
+		SELECT 	CO_CD		AS 'erpCompSeq'
+				, MODULE_CD	AS 'moduleSeq'
+				, CTR_CD	AS 'ctrSeq'
+				, CTR_NM	AS 'ctrName'
+				, CTR_FG	AS 'ctrFg'
+				, CTR_NB	AS 'ctrNb'
+				, USE_YN	AS 'useYN'
+				, FG_TY		AS 'fgType'
+				, CTR_NMK	AS 'ctrName'
+				, SEL_DOCK	AS 'selDock'
+		FROM	SYSCFG
+		WHERE	CO_CD		= ${erpCompSeq}
+		 <if test="moduleSeq != null and moduleSeq != ''">
+		 AND	MODULE_CD	= @MODULE_CD
+		 </if>
+		 <if test="ctrSeq != null and ctrSeq != ''">
+		 AND	CTR_CD		= @CTR_CD	
+		 </if>
+	</select>
+	
+	<select id="g20Procedure.selectEmpList" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectEmpList */
+		/* ERP 사원정보 조회 */
+		/* 원본프로시저 [1.0] -  [dbo].[P_GWG20_COMMON_EMP_LIST] / [dbo].[P_GWG20_COMMON_USER_INFO]  */
+		/* params[  erpCompSeq, subUseYN, erpEmpSeq, toDate, erpDivSeq, erpDeptSeq, baseDate, empName  ] */
+		USE DZICUBE;
+		DECLARE @CO_CD			NVARCHAR(4)
+				, @SUB_USE_YN 	TINYINT
+				, @EMP_CD		NVARCHAR(10)
+				, @DIV_CD		NVARCHAR(10)
+				, @DEPT_CD		NVARCHAR(10)
+				, @TO_DT		NVARCHAR(8)
+				, @BASE_DT		NVARCHAR(8)
+				, @EMP_NM		NVARCHAR(10)
+		SELECT	@CO_CD			= '${erpCompSeq}'
+				, @SUB_USE_YN 	= '${subUseYN}'
+				, @EMP_CD		= '${erpEmpSeq}'
+				, @DIV_CD		= '${erpDivSeq}'
+				, @DEPT_CD		= '${erpDeptSeq}'
+				, @TO_DT		= '${toDate}'
+				, @BASE_DT		= '${baseDate}'
+				, @EMP_NM		= '${empName}'
+		
+		/************************************************************/
+		
+		SELECT     
+			EMP_CD    		AS 'erpEmpSeq'
+			, KOR_NM		AS 'korName'
+			, ENLS_NM  		AS 'enlsName'
+			, DEPT_CD  		AS 'erpDeptSeq'
+			, DEPT_NM  		AS 'erpDeptName'
+			, DIV_CD		AS 'erpDivSeq'
+			, DIV_NM		AS 'erpDivName'
+			, ( CASE IN_TAX WHEN '1' THEN '0' ELSE '1' END ) AS 'vatControl'
+			, BANK_CD		AS 'btrSeq'
+			, BANK_NM		AS 'btrName'
+			, ACCT_NO		AS 'baNb'
+			, DPST_NM		AS 'deposit'
+			, PRTT_CD		AS 'prttSeq'
+			, HTYP_CD		AS 'htypSeq'
+			, ( CASE WHEN @SUB_USE_YN = '1' THEN USE_FG ELSE 1 END)AS USE_FG
+			, CO_CD
+			<if test="subUseYN == '1'"> 	
+			, CO_NM 
+			</if>
+			, PYTB_CD
+		    , DPST_NM
+		    , ACCT_NO
+		FROM (    
+			SELECT	E.PRTY_CD 
+				AS PRTT_CD
+				, E.HTYP_CD
+				, E.EMP_CD
+				, E.KOR_NM
+				, E.KOR_NMK
+				, E.ENLS_NM
+				, D.DEPT_CD
+				, D.DEPT_NM
+				, D.DEPT_NMK
+				, V.DIV_CD
+				, V.DIV_NM
+				, V.DIV_NMK
+				, V.IN_TAX
+				, B.BANK_CD
+				, B.BANK_NM
+				, B.BANK_NMK				   
+				,ISNULL(NULLIF(E.RTR_DT,''),'99991231') AS RTR_DT   /* 퇴사일(값이 없는 경우,조회를 위해서 발생할 수 없는 일자로 변경) */    
+				, E.USE_FG 
+				, E.CO_CD
+				<if test="subUseYN == '1'">
+				, C.CO_NM         
+				</if>
+                , ISNULL(NULLIF(E.PYTB_CD,''), E.PYTB_CD3)            AS PYTB_CD 
+                , ISNULL(NULLIF(E.DPST_NM,''), E.DPST_NM3)            AS DPST_NM
+                , ISNULL(NULLIF(E.ACCT_NO,''), E.ACCT_NO3)            AS ACCT_NO
+			FROM	SEMP E WITH(NOLOCK)    
+				LEFT OUTER JOIN SDEPT D WITH(NOLOCK) 
+				 ON (D.CO_CD	= E.CO_CD  AND D.DEPT_CD = E.DEPT_CD )
+				LEFT OUTER JOIN SDIV V WITH(NOLOCK)
+				 ON (D.CO_CD	= V.CO_CD AND D.DIV_CD = V.DIV_CD )
+				LEFT OUTER JOIN SBANK B WITH(NOLOCK) 
+				 ON (ISNULL(NULLIF(E.PYTB_CD,''), E.PYTB_CD3)	= B.BANK_CD)    
+				
+				<if test="subUseYN == '1'">
+				LEFT OUTER JOIN SCO C WITH(NOLOCK) 
+				 ON (C.CO_CD = E.CO_CD)
+				</if> 
+				 
+			WHERE 	E.CO_CD =  @CO_CD
+			AND (NULLIF( D.TO_DT,'') IS NULL OR D.TO_DT = '00000000' OR D.TO_DT &gt;= ISNULL( @TO_DT,''))  
+			
+			<if test="subUseYN == '1'">
+			AND (NULLIF( @DIV_CD,'') IS NULL OR V.DIV_CD = @DIV_CD )    
+			AND (NULLIF( @DEPT_CD,'') IS NULL OR D.DEPT_CD= @DEPT_CD )
+			</if>
+		) A 
+		<![CDATA[   
+		WHERE	RTR_DT	>= @BASE_DT
+		]]>
+		 AND	(NULLIF( @EMP_NM,'')	IS NULL 
+			 OR	KOR_NM	LIKE '%' + @EMP_NM + '%'  
+			 OR	ENLS_NM	LIKE '%' + @EMP_NM + '%' 
+			 OR	EMP_CD	LIKE '%' + @EMP_CD + '%' 
+		 )      
+		ORDER BY EMP_CD 
+	</select>
+	
+	<select id="g20Procedure.selectGisuList" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectGisuList */
+		/* 기수 리스트 조회 */
+		/* 원본프로시저 [1.0] -  [dbo].[P_GWG20_COMMON_GISU_LIST] */
+		/* params[  erpCompSeq, gisu  ] */
+		
+		USE DZICUBE;
+		DECLARE @GISU 		TINYINT
+				, @diff 	TINYINT
+				, @CO_CD	NVARCHAR(4)
+		SELECT	@CO_CD		= '${erpCompSeq}'
+				, @GISU		= '${gisu}'
+		
+		/************************************************************/
+		
+		SELECT	@GISU	= (
+							CASE	WHEN ISNUMERIC(@GISU) = 0  THEN GISU
+									WHEN ISNULL(@GISU,0) &gt; GISU THEN GISU
+									WHEN ISNULL(@GISU,0) &lt;=0      THEN  1      
+									ELSE @GISU 
+							END 
+						)
+				,@diff	= GISU - (
+							CASE	WHEN ISNUMERIC(@GISU) = 0  THEN GISU        
+									WHEN ISNULL(@GISU,0) &gt; GISU THEN GISU        
+									ELSE @GISU 
+							END 
+						)
+		FROM	SCO WITH( NOLOCK )      
+		WHERE	CO_CD = @CO_CD
+		
+		SELECT 
+			GISU		'gisu'		/* 기수 */
+			,FROM_DT	'fromDate'	/* 기수 시작일 */
+			,TO_DT		'toDate'	/* 기수 종료일 */
+			,CURRENT_YN	'currentYN'	/* 현재 기수 여부 */
+		FROM (      
+			SELECT	@GISU -1 AS GISU
+					,CONVERT(NVARCHAR(8),DATEADD(yy, @diff*(-1)-1,CONVERT(DATETIME,FR_DT)),112) AS FROM_DT
+					,CONVERT(NVARCHAR(8),DATEADD(yy, @diff*(-1)-1,CONVERT(DATETIME,TO_DT)),112) AS TO_DT
+					,'N' AS CURRENT_YN
+			FROM	SCO WITH(NOLOCK)      
+			WHERE	CO_CD = @CO_CD
+			 AND 	(@GISU -1) &gt; 0
+			
+			UNION ALL
+		
+			SELECT	@GISU AS GISU
+					,CONVERT(NVARCHAR(8),DATEADD(yy, @diff*(-1),CONVERT(DATETIME,FR_DT)),112) AS ORG_FR_DT      
+					,CONVERT(NVARCHAR(8),DATEADD(yy, @diff*(-1),CONVERT(DATETIME,TO_DT)),112) AS ORG_TO_DT       
+					,'Y' AS CURRENT_YN       
+			FROM	SCO WITH(NOLOCK)      
+			WHERE	CO_CD = @CO_CD
+		
+			UNION ALL
+			
+			SELECT	@GISU +1AS GISU         
+					,CONVERT(NVARCHAR(8),DATEADD(yy, @diff*(-1)+1,CONVERT(DATETIME,FR_DT)),112) AS ORG_FR_DT      
+					,CONVERT(NVARCHAR(8),DATEADD(yy, @diff*(-1)+1,CONVERT(DATETIME,TO_DT)),112) AS ORG_TO_DT       
+					,'N' AS CURRENT_YN       
+			FROM	SCO WITH(NOLOCK)      
+			WHERE CO_CD = @CO_CD
+		)A       
+		ORDER BY GISU   	
+	</select> 
+	
+	<select id="g20Procedure.selectBankList" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectBankList */
+		/* 은행 리스트 조회 조회 */
+		/* 원본프로시저 [1.0] -  [dbo].[P_GWG20_COMMON_BANK_LIST] */
+		/* params[  bankSeq, bankName  ] */
+		
+		USE DZICUBE;
+		DECLARE	@BANK_CD	NVARCHAR(3)
+				, @BANK_NM	NVARCHAR(20)
+		SELECT	@BANK_CD 	= '${btrSeq}'
+				, @BANK_NM 	= '${btrName}'
+				
+		/************************************************************/
+		
+		SELECT	A.BANK_CD
+				,	ISNULL(A.BANK_NM, A.BANK_NMK)	AS 'BANK_NM' 
+		FROM	SBANK A      
+		WHERE	1 = 1
+		 AND	( NULLIF(@BANK_CD, '' ) IS NULL OR  A.BANK_CD LIKE '%' + @BANK_CD + '%'  )
+		 OR	( NULLIF(@BANK_NM, '') IS NULL OR  A.BANK_NM LIKE '%' + @BANK_NM + '%' )
+		ORDER BY A.BANK_CD      
+	</select>
+	
+	<select id="g20Procedure.selectAbsdocuInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectAbsdocuInfo */
+		/* 회사별 결의서 환경설정 정보 조회 */
+		/* 원본프로시저 [1.0] -  [dbo].[P_GWG20_COMMON_ABSDOCU_INFO] */	
+		/* params[  erpCompSeq  ] */
+		
+		USE DZICUBE;
+		DECLARE	@CO_CD		NVARCHAR(4)
+		SELECT	@CO_CD 		= '${erpCompSeq}'
+		
+		/************************************************************/
+		
+		SELECT	A.NDEP_RT		AS 'ndepRate'	/* 필요경비율 */    
+    			, A.STA_RT		AS 'staRate'	/* 기타소득세율 */    
+			    , A.JTA_RT		AS 'jtaRate'	/* 주민세율 */    
+			    , A.MTAX_AM		AS 'mtaxAmt'	/* 과세최저한 */  
+				, A.TAX_TY		AS 'taxType'	/* 급여 상세입력 여부 */
+     	FROM	ABSDOCU	A 
+     	 INNER JOIN	SCO S 
+     	 ON		A.CO_CD	= S.CO_CD 
+     	 AND	A.ACCTDEF_FG = S.ACCT_FG    
+  		WHERE	A.CO_CD = @CO_CD
+	</select>
+	
+	<select id="g20Procedure.selectBottomList" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectBottomList */
+		/* 하위사업 리스트 조회 */
+		/* 원본프로시저 [1.0] -  [dbo].[P_GWG20_COMMON_ABGT_BOTTOM_LIST] */
+		/* params[  erpCompSeq, mgtSeq  ] */
+		
+		USE DZICUBE;
+		DECLARE	@CO_CD		NVARCHAR(4)
+				, @MGT_CD		NVARCHAR(10)
+		SELECT	@CO_CD 		= '${erpCompSeq}'
+				, @MGT_CD	= '${erpMgtSeq}'
+				
+		/************************************************************/
+		
+		SELECT 
+			BOTTOM.BOTTOM_CD AS 'bottomSeq' 
+			, ISNULL(BOTTOM.BOTTOM_NM, BOTTOM.BOTTOM_NMK) AS 'bottomName' 
+			, ISNULL(BA_NB, '')	AS 'btrSeq'
+			, ISNULL(TR_CD, '') AS 'trSeq'
+			, ISNULL(TR_NM, '') AS 'btrName'
+		FROM ABGT_BOTTOM	BOTTOM
+		LEFT JOIN STRADE	TR
+		 ON		BOTTOM.BTR_CD = TR.TR_CD
+		 AND	BOTTOM.CO_CD = TR.CO_CD
+		WHERE BOTTOM.CO_CD = @CO_CD 
+		 AND BOTTOM.MGT_CD = @MGT_CD 
+		 AND BOTTOM.USE_YN = '1'
+	</select>
+	
+	<select id="g20Procedure.selectBottomListBumin" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectBottomListBumin */
+		/* 하위사업 리스트 조회 (부민병원 전용) */
+			USE DZICUBE;
+		DECLARE	@CO_CD		NVARCHAR(4)
+				, @MGT_CD		NVARCHAR(32)
+				, @EMP_CD		NVARCHAR(32)
+		SELECT	@CO_CD 		= '${erpCompSeq}'
+				, @MGT_CD	= '${erpMgtSeq}'
+				, @EMP_CD	= '${erpEmpSeq}'
+				
+		/************************************************************/
+		
+		SELECT BOTTOM.BOTTOM_CD AS 'bottomSeq' 
+				, ISNULL(BOTTOM.BOTTOM_NM, BOTTOM.BOTTOM_NMK) AS 'bottomName' 
+				, ISNULL(BA_NB, '')	AS 'btrSeq'
+				, ISNULL(TR_CD, '') AS 'trSeq'
+				, ISNULL(TR_NM, '') AS 'btrName'
+	    FROM   ABGT_BOTTOM BOTTOM
+		LEFT JOIN STRADE	TR
+		ON		BOTTOM.BTR_CD = TR.TR_CD
+		AND		BOTTOM.CO_CD = TR.CO_CD
+	    WHERE  BOTTOM.CO_CD = @CO_CD
+	    AND    MGT_CD = @MGT_CD
+	    AND    ISNULL(BOTTOM_AUTH, '1') = '1'
+	    AND BOTTOM.USE_YN = '1' 
+	    
+	    UNION ALL
+	    
+		SELECT BOTTOM.BOTTOM_CD AS 'bottomSeq' 
+				, ISNULL(BOTTOM.BOTTOM_NM, BOTTOM.BOTTOM_NMK) AS 'bottomName' 
+				, ISNULL(BA_NB, '')	AS 'btrSeq'
+				, ISNULL(TR_CD, '') AS 'trSeq'
+				, ISNULL(TR_NM, '') AS 'btrName'
+		FROM (
+	    SELECT A.*
+			FROM   ABGT_BOTTOM AS A
+				   LEFT OUTER JOIN SPJT_D AS B
+				   ON  A.CO_CD = B.CO_CD
+				   AND A.MGT_CD = B.PJT_CD
+				   AND A.BOTTOM_CD = B.BOTTOM_CD
+			WHERE  A.CO_CD = @CO_CD
+			AND    A.MGT_CD = @MGT_CD
+			AND    A.BOTTOM_AUTH = '2'
+			AND    B.EMP_CD = @EMP_CD
+		) BOTTOM
+		LEFT JOIN STRADE	TR
+		ON		BOTTOM.BTR_CD = TR.TR_CD
+		AND		BOTTOM.CO_CD = TR.CO_CD
+	    WHERE  BOTTOM.CO_CD = @CO_CD
+	    AND BOTTOM.USE_YN = '1'
+
+		</select>
+	
+	<select id="g20Procedure.selectBottomList2" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectBottomList2 */
+		/* 다중 프로젝트 하위사업 리스트 조회 - 예실대비 현황 전용 */
+		/* 원본프로시저 [1.0] -  [dbo].[P_GWG20_COMMON_ABGT_BOTTOM_LIST] */
+		/* params[  erpCompSeq, mgtSeq  ] */
+		
+		USE DZICUBE;
+		DECLARE	@CO_CD		NVARCHAR(4)
+				, @MGT_CD		NVARCHAR(1024)
+		SELECT	@CO_CD 		= '${erpCompSeq}'
+				, @MGT_CD	= '${erpMgtSeq}'
+				
+		/************************************************************/
+		
+		SELECT 
+			BOTTOM.BOTTOM_CD AS 'bottomSeq' 
+			, ISNULL(BOTTOM.BOTTOM_NM, BOTTOM.BOTTOM_NMK) AS 'bottomName' 
+			, ISNULL(BA_NB, '')	AS 'btrSeq'
+			, ISNULL(TR_CD, '') AS 'trSeq'
+			, ISNULL(TR_NM, '') AS 'btrName'
+		FROM ABGT_BOTTOM	BOTTOM
+		LEFT JOIN STRADE	TR
+		 ON		BOTTOM.BTR_CD = TR.TR_CD
+		 AND	BOTTOM.CO_CD = TR.CO_CD
+		WHERE 	BOTTOM.CO_CD = @CO_CD 
+		 AND 	CHARINDEX('|' + BOTTOM.MGT_CD + '|', @MGT_CD) != 0
+		 AND 	BOTTOM.USE_YN = '1'
+	</select>	
+	
+	<select id="g20Procedure.selectGisuInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectFuncCommonGisuinfo */
+		/* 공통기수 정보 조회 */
+		/* 원본함수 [1.0] -  [dbo].[F_GWG20_COMMON_GISU_INFO] */
+		/* params[  erpCompSeq  ] */
+		
+		USE DZICUBE;
+		DECLARE	@CO_CD		NVARCHAR(4)
+				, @FR_DT 	NVARCHAR(8)    
+				, @TO_DT 	NVARCHAR(8)    
+				, @GI_SU_N	SMALLINT
+   				, @diff 	SMALLINT
+   				, @GISU 	SMALLINT
+   		SELECT	@CO_CD 		= ${erpCompSeq}
+   				, @GISU		= ${gisu}
+   				
+   		SELECT	@GI_SU_N 	= GISU
+   				, @FR_DT 	= FR_DT
+   				, @TO_DT 	= TO_DT    
+     	FROM	SCO WITH(NOLOCK)    
+    	WHERE	CO_CD = @CO_CD  
+		
+		/************************************************************/
+		
+		SET @diff = @GI_SU - @GI_SU_N
+		
+		SELECT 
+			@GI_SU																	AS gisu     
+			, CONVERT(NVARCHAR(8), DATEADD(yy,@diff,CONVERT(DATETIME,FR_DT)),112)	AS fromDate
+			, CONVERT(NVARCHAR(8), DATEADD(yy,@diff,CONVERT(DATETIME,TO_DT)),112)	AS toDate
+		FROM	SCO WITH(NOLOCK)  
+		WHERE	CO_CD = @CO_CD		
+	</select>
+	
+	<select id="g20Procedure.selectGisuForDate" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectCommonGisuForDate */
+		/* 일자에 따른 기수 정보 조회 */
+		/* 원본함수 [1.0] -  [dbo].[F_GWG20_COMMON_GET_GISU] */
+		/* params[  erpCompSeq, date(yyyyMMdd)  ] */
+		
+		USE DZICUBE;
+  		DECLARE	@CO_CD		NVARCHAR(4)
+          		, @DATE		NVARCHAR(8)
+				, @FR_DT	NVARCHAR(8)    
+        		, @TO_DT 	NVARCHAR(8)    
+        		, @GI_SU	SMALLINT       
+        		, @I 		SMALLINT 
+		
+		SELECT	@CO_CD = '${erpCompSeq}'
+				, @DATE = '${date}'
+				
+    	/************************************************************/
+    	
+  		SELECT
+  			@GI_SU = GISU
+  			, @FR_DT = FR_DT
+  			, @TO_DT = TO_DT    
+    	FROM	SCO WITH(NOLOCK)    
+    	WHERE	CO_CD = @CO_CD    
+
+		WHILE 0 &lt; 1    
+		BEGIN     
+			SET @i = 0 ;    
+			IF	@DATE &lt; @FR_DT     
+				SET @i = -1    
+			ELSE IF	@DATE &gt; @TO_DT    
+				SET @i = 1    
+			ELSE 
+				BREAK     /* 현재 기수의 경우 LOOP 종료 */    
+		             
+			/* 기수와 기수시작일 데이터 변경 */   
+			SET		@GI_SU	= @GI_SU + @i     
+			SELECT	@FR_DT	= CONVERT(NVARCHAR(8), DATEADD(yy,@i,CONVERT(DATETIME,@FR_DT)),112)    
+			SELECT	@TO_DT	= CONVERT(NVARCHAR(8), DATEADD(yy,@i,CONVERT(DATETIME,@TO_DT)),112)    
+		
+			/* under/over flow 처리 */      
+			IF (@GI_SU &lt; 1) OR (@GI_SU &gt; 19999)    
+				BREAK;    
+		END     
+		
+		SELECT	@GI_SU AS gisu
+				, @FR_DT AS gisuFromDate
+				, @TO_DT AS gisuToDate 
+	</select>
+	
+	<select id="g20Procedure.selectBtrList" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectBtrList */
+		/* 프로젝트 입출금 계좌 리스트 조회 */
+		/* 원본 프로시저 [1.0] -  [dbo].[P_GWG20_COMMON_BTR_CD_LIST] */
+		/* params[  erpCompSeq  ] */
+		
+		USE DZICUBE;
+		DECLARE 
+			@CO_CD			NVARCHAR(4)		/* ERP 회사 코드 */
+			, @LANGKIND		NVARCHAR(3)		/* 언어종류( 필수, KOR, CHS, ENG, JPN 등 ) */
+			, @P_HELP_TY	NVARCHAR(20)	/* 도움창 타입 */
+			, @P_CODE		NVARCHAR(10)	/* 코드값1(코드검색시에만 사용) */
+			, @P_CODE2		NVARCHAR(4000)	/* 코드값2 */
+			, @P_CODE3		NVARCHAR(10)	/* 코드값3 */
+			, @P_USE_YN		NVARCHAR(1)		/* 사용여부 */
+			, @P_NAME		NVARCHAR(50)	/* 코드명(도움창에서 키워드 검색시만 사용) */
+			, @P_STD_DT		NVARCHAR(8)		/* 기준일 */
+			, @P_WHERE		NVARCHAR(4000)	/* 추가WHERE절 */
+			, @P_CO_CD		NVARCHAR(4)
+				
+		SELECT 
+			@CO_CD			= '${erpCompSeq}'
+			, @LANGKIND		= N'KOR'
+			, @P_HELP_TY	= N'STRADE_CODE'
+			, @P_CO_CD		= @CO_CD
+			, @P_CODE		= NULL
+			, @P_CODE2		= NULL
+			, @P_CODE3		= NULL
+			, @P_USE_YN		= NULL
+			, @P_NAME		= NULL
+			, @P_STD_DT		= NULL
+			, @P_WHERE		= N'TR_FG $gt;= ''5'' AND USE_YN = ''1'' '
+			
+		/************************************************************/		
+						
+		BEGIN  
+		DECLARE @P_ERR_MSG NVARCHAR(400)  
+		DECLARE @P_RETURN  INT
+				 
+		SET NOCOUNT ON  
+				 
+		EXEC @P_RETURN = DBO.USP_GET_HELPCODE_COMMON @LANGKIND, @P_HELP_TY, @P_CO_CD, @P_CODE, @P_CODE2, @P_CODE3, @P_USE_YN, @P_NAME, @P_STD_DT, @P_WHERE
+				 
+		IF( @P_RETURN = 2 )
+			EXEC @P_RETURN = DBO.USP_GET_HELPCODE_ACCOUNT @LANGKIND, @P_HELP_TY, @P_CO_CD, @P_CODE, @P_CODE2, @P_CODE3, @P_USE_YN, @P_NAME, @P_STD_DT, @P_WHERE 
+		IF( @P_RETURN = 2 )
+			EXEC @P_RETURN = DBO.USP_GET_HELPCODE_HUMAN @LANGKIND, @P_HELP_TY, @P_CO_CD, @P_CODE, @P_CODE2, @P_CODE3, @P_USE_YN, @P_NAME, @P_STD_DT, @P_WHERE 
+		IF( @P_RETURN = 2 )
+			EXEC @P_RETURN = DBO.USP_GET_HELPCODE_BPM @LANGKIND, @P_HELP_TY, @P_CO_CD, @P_CODE, @P_CODE2, @P_CODE3, @P_USE_YN, @P_NAME, @P_STD_DT, @P_WHERE 
+		IF( @P_RETURN = 2 )
+			EXEC @P_RETURN = DBO.USP_GET_HELPCODE_MCORE @LANGKIND, @P_HELP_TY, @P_CO_CD, @P_CODE, @P_CODE2, @P_CODE3, @P_USE_YN, @P_NAME, @P_STD_DT, @P_WHERE 
+		IF( @P_RETURN = 2 )
+		BEGIN
+			SET @P_ERR_MSG = DBO.UFN_GET_STRING_BY_LANGKIND( @LANGKIND, 'HELP ID가 존재하지 않습니다.' ) + CHAR(10) + 'HELP ID : ' + ISNULL(@P_HELP_TY, 'NULL')  
+		END  
+		
+		SET NOCOUNT OFF  
+		RETURN  
+		END	
+	</select>
+	
+	<select id="g20Procedure.selectDivList" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectDivList */
+		/* 프로젝트 회계단위(사업장) 리스트 조회 */
+		/* 원본 프로시저 [1.0] -  [dbo].[P_GWG20_COMMON_DIV_LIST] */
+		/* params[  erpCompSeq, baseDate(yyyyMMdd)  ] */
+		
+		USE DZICUBE;
+		DECLARE
+			@CO_CD			NVARCHAR(4)
+			, @BASE_DATE	NVARCHAR(8)
+		SELECT	
+			@CO_CD = '${erpCompSeq}'
+			, @BASE_DATE = '${baseDate}'
+			
+		/************************************************************/
+		SELECT	
+				DIV_CD						AS divSeq
+				, ISNULL(DIV_NM, DIV_NMK)	AS divName
+				, CASE IN_TAX WHEN '1' THEN '0' ELSE '1' END AS vatControl
+		FROM	SDIV
+		WHERE	CO_CD =  @CO_CD		
+		 AND	(	CASE WHEN CLOSE_DT = '00000000' OR CLOSE_DT = '' 
+						THEN '99999999' 
+					ELSE 
+						ISNULL(CLOSE_DT, '99999999') 
+					END
+				)	&gt;= @BASE_DATE		
+	</select>
+	
+	<select id="g20Procedure.selectTrList" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectTrList */
+		/* 프로젝트 거래처 리스트 조회 */
+		/* 원본 프로시저 [1.0] -  [dbo].[P_GWG20_COMMON_TR_LIST] */
+		/* params[ erpCompSeq, trType, trSeq, trName, trDetailType ] */		
+		
+		USE DZICUBE;
+		DECLARE   
+			@CO_CD			NVARCHAR(4)    
+			, @TR_CD		NVARCHAR(10)    
+			, @TR_NM		NVARCHAR(60)    
+			, @TYPE			NVARCHAR(1)			
+			, @DETAIL_TYPE  NVARCHAR(1)    
+			, @LANGKIND		NVARCHAR(10) 
+			, @USE_YN		NVARCHAR(1)
+			, @REG_NB		NVARCHAR(13)
+		SELECT
+			@CO_CD	= '${erpCompSeq}'
+			, @TYPE	= '${trType}'					/* 1: 일반거래처, 2: 금융거래처*/
+			, @TR_CD = '${trSeq}'					/* 거래처 코드 일치 검색 */
+			, @TR_NM = '${trName}'				/* 거래처명 LIKE 검색 */
+			, @DETAIL_TYPE = '${trDetailType}'	/* 상세 구분(TR_FG) */
+			, @LANGKIND = 'KR'
+			, @USE_YN = '${useYN}'				/* 사용여부 (1:사용, '':전체) */
+			, @REG_NB = '${businessNb}'				/* 사업자 번호 */
+			
+		/************************************************************/
+		
+		SELECT 
+				A.CO_CD										AS erpCompSeq	/* 회사 코드 */
+				, A.TR_CD									AS trSeq		/* 거래처 코드 */
+				, ISNULL(A.TR_NM, A.TR_NM)					AS trName		/* 거래처 명 */
+				, A.TR_FG									AS trFg			/* 거래구분 */
+				, (
+					CASE 
+						WHEN A.TR_FG ='1' THEN N'일반'    
+						WHEN A.TR_FG ='2' THEN N'무역'    
+						WHEN A.TR_FG ='3' THEN N'주민'    
+						WHEN A.TR_FG ='4' THEN N'기타'    
+						WHEN A.TR_FG ='5' THEN N'금융기관'    
+						WHEN A.TR_FG ='6' THEN N'정기예금'    
+						WHEN A.TR_FG ='7' THEN N'정기적금'    
+						WHEN A.TR_FG ='8' THEN N'카드사'    
+						WHEN A.TR_FG ='9' THEN N'신용카드'    
+						ELSE ''    
+					END		
+				)											AS trFgName		/* 거래처 구분 명칭 */
+				, ISNULL(A.ATTR_NM, ATTR_NMK)				AS atTrName		/* 거래처 약칭 */
+				, A.REG_NB									AS trRegNumber	/* 사업자 등록번호 */
+				, A.PPL_NB									AS pplNumber	/* 주민등록 번호 */
+				, A.DEPOSITOR								AS depositor	/* 예금주 */
+				, ISNULL(A.CEO_NM, A.CEO_NMK)				AS ceoName		/* 대표자 성명 */
+				, A.JIRO_CD									AS btrSeq		/* 은행 코드 */
+				, ISNULL(C.BANK_NM, C.BANK_NMK)				AS btrName		/* 은행 명 */
+				, A.BA_NB									AS baNb			/* 계좌번호 */
+				, ISNULL(A.DIV_ADDR1, '') + ' ' 
+					+ ISNULL(A.ADDR2, '')					AS addr			/* 주소 */	
+				, D.TRCHARGE_EMP							AS trChargeEmp
+				, A.TEL    									AS tel
+				, A.USE_YN									AS useYN
+		FROM	STRADE A WITH(NOLOCK) 
+		 INNER JOIN	(   
+			SELECT '1' AS TR_FG    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=1    /* 일반거래처 1,2,3,4 */    
+			UNION ALL    
+			SELECT '2'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=1    
+			UNION ALL    
+			SELECT '3'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=1                
+			UNION ALL    
+			SELECT '4'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=1    
+			UNION ALL    
+			SELECT '5'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=2		/* 금융거래처 5,6,7,8,9 */    
+			UNION ALL    
+			SELECT '6'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=2    
+			UNION ALL    
+			SELECT '7'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=2    
+			UNION ALL    
+			SELECT '8'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=2    
+			UNION ALL    
+			SELECT '9'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=2    
+		 )	B    
+		 ON	( A.TR_FG = B.TR_FG )    
+		 LEFT OUTER JOIN SBANK C 
+		 ON	( A.JIRO_CD = C.BANK_CD)    
+		 LEFT OUTER JOIN ( 
+			SELECT
+				CO_CD
+				, TR_CD
+				, TRCHARGE_EMP
+				, TRCHARGE_TEL 
+			FROM	STRADE_REC 
+			WHERE	REC_SQ = '1'
+		 ) D  
+		 ON (A.CO_CD = D.CO_CD AND A.TR_CD = D.TR_CD)    
+		WHERE A.CO_CD = @CO_CD     
+			AND ( NULLIF(@TR_CD,'') 		IS NULL OR	A.TR_CD = @TR_CD)    
+			AND ( NULLIF(@TR_NM,'')			IS NULL OR	A.TR_NM LIKE '%' + @TR_NM + '%')    
+			AND ( NULLIF(@DETAIL_TYPE,'')	IS NULL OR	A.TR_FG = @DETAIL_TYPE)  
+			AND ( NULLIF(@USE_YN, '') 		IS NULL OR  A.USE_YN = @USE_YN)
+			AND ( NULLIF(@REG_NB,'') 		IS NULL OR	A.REG_NB = @REG_NB)
+	</select>
+	
+	<select id="g20Procedure.selectCommonGisuInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectCommonGisuInfo */
+		/* 사용자 기수정보 상세 조회 */
+		/* 원본 프로시저 [1.0] -  [dbo].[P_GWG20_COMMON_GISU_INFO] */
+		/* params[ erpCompSeq, baseDate(yyyyMMdd) ] */
+
+		USE DZICUBE;
+		DECLARE   
+			@CO_CD		NVARCHAR(4)    
+			, @DATE		NVARCHAR(8)
+			, @FR_DT	NVARCHAR(8)    
+			, @TO_DT 	NVARCHAR(8)    
+			, @GI_SU	SMALLINT       
+			, @I 		SMALLINT 
+		SELECT
+			@CO_CD		= '${erpCompSeq}'
+			, @DATE		= '${baseDate}'
+					
+		/************************************************************/
+			
+		BEGIN  
+		  SET NOCOUNT ON  
+				DECLARE @GISU		INT 
+						, @GI_SU_N	SMALLINT
+						, @diff 	SMALLINT
+		    	SELECT
+		  			@GI_SU = GISU
+		  			, @FR_DT = FR_DT
+		  			, @TO_DT = TO_DT    
+		    	FROM	SCO WITH(NOLOCK)    
+		    	WHERE	CO_CD = @CO_CD    
+		
+				WHILE 0 &lt; 1    
+				BEGIN     
+					SET @i = 0 ;    
+					IF	@DATE &lt; @FR_DT     
+						SET @i = -1    
+					ELSE IF	@DATE &gt; @TO_DT    
+						SET @i = 1    
+					ELSE 
+						BREAK     /* 현재 기수의 경우 LOOP 종료 */    
+				             
+					/* 기수와 기수시작일 데이터 변경 */   
+					SET		@GI_SU	= @GI_SU + @i     
+					SELECT	@FR_DT	= CONVERT(NVARCHAR(8), DATEADD(yy,@i,CONVERT(DATETIME,@FR_DT)),112)    
+					SELECT	@TO_DT	= CONVERT(NVARCHAR(8), DATEADD(yy,@i,CONVERT(DATETIME,@TO_DT)),112)    
+				
+					/* under/over flow 처리 */      
+					IF (@GI_SU &lt; 1) OR (@GI_SU &gt; 19999)    
+						BREAK;    
+				END     
+		
+				SELECT	@GI_SU_N 	= GISU
+		   				, @FR_DT 	= FR_DT
+		   				, @TO_DT 	= TO_DT    
+		     	FROM	SCO WITH(NOLOCK)    
+		    	WHERE	CO_CD = @CO_CD  
+	
+				SET @diff = @GI_SU - @GI_SU_N
+				
+				SELECT 
+					@GI_SU																	AS gisu     
+					, CONVERT(NVARCHAR(8), DATEADD(yy,@diff,CONVERT(DATETIME,FR_DT)),112) 	AS fromDate
+					, CONVERT(NVARCHAR(8), DATEADD(yy,@diff,CONVERT(DATETIME,TO_DT)),112) 	AS toDate
+				FROM	SCO WITH(NOLOCK)  
+				WHERE	CO_CD = @CO_CD	
+		
+		  SET NOCOUNT OFF  
+		END  
+
+	</select>
+	
+	<select id="g20Procedure.selectProjectList" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectProjectList */
+		/* 프로젝트 리스트 조회 */
+		/* 원본 프로시저 [1.0] -  [dbo].[P_GWG20_COMMON_SPROJECT_LIST] */
+		/* params[ erpCompSeq, erpPjtSeq, erpPjtName, erpPjtStatus, erpPjtType, baseDate, erpEmpSeq ] */	
+
+		USE DZICUBE;
+		DECLARE
+		   @CO_CD   NVARCHAR(4)     
+		 , @PJT_CD   NVARCHAR(10)
+		 , @PJT_NM   NVARCHAR(30)
+		 , @PJT_PROC   NCHAR(3)
+		 , @PJT_WORKTY  NCHAR(1)
+		 , @BAST_DT   NVARCHAR(8)
+		 , @EMP_CD   NVARCHAR(10)
+		
+		SELECT	
+			@CO_CD 			= '${erpCompSeq}'		/* 회사코드 */
+			, @PJT_CD 		= '${erpPjtSeq}'		/* 프로젝트 코드 */
+			, @PJT_NM 		= '${erpPjtName}'		/* 프로젝트 명 */
+			, @PJT_PROC 	= '${erpPjtStatus}'	/* 프로젝트 진행 상태 (0:완료, 1:진행, 9:미사용) */
+			, @PJT_WORKTY 	= '${erpPjtType}'		/* 프로젝트 유형 */ 
+			, @BAST_DT 		= '${baseDate}'		/* 기준일자 */
+			, @EMP_CD 		= '${erpEmpSeq}'		/* 프로젝트 조회 권한 사용자 */		
+		/************************************************************/
+		
+		SELECT    
+			A.PJT_CD    					AS pjtSeq 
+			, ISNULL(PJT_NM, A.PJT_NMK) 	AS pjtName    
+			, A.PROG_FG    					AS progFg
+			, CASE WHEN A.FR_DT IN ('00000000', '99991231') THEN '' ELSE CONVERT(NVARCHAR(10), CONVERT(DATETIME, A.FR_DT), 120) END AS pjtFromDate    
+			, CASE WHEN A.TO_DT IN ('00000000', '99991231') THEN '' ELSE CONVERT(NVARCHAR(10), CONVERT(DATETIME, A.TO_DT), 120) END AS pjtToDate    
+			, ISNULL(B.DEPT_NM, B.DEPT_NMK) AS pjtDeptName    
+			, ISNULL(C.KOR_NM, C.KOR_NMK)	AS pjtName    
+			, T.ATTR_NM						AS atTrName
+			, T.BA_NB						AS bankNumber
+			, T.TR_CD						AS trSeq
+			, ( 
+				SELECT	COUNT(1) 
+				FROM	IT_BUSINESSLINK I 
+				WHERE	I.CO_CD = @CO_CD 
+				 AND	A.PJT_CD = I.PJT_CD 
+			)								AS itBusinessLink
+		FROM	SPJT A WITH(NOLOCK)    
+			LEFT OUTER JOIN SDEPT B WITH(NOLOCK) 
+			 ON (B.CO_CD = @CO_CD AND A.DEPT_CD = B.DEPT_CD)    
+			LEFT OUTER JOIN SEMP C WITH(NOLOCK) 
+			 ON (C.CO_CD = @CO_CD AND A.EMP_CD = C.EMP_CD)    
+			LEFT OUTER JOIN STRADE T WITH(NOLOCK) 
+			 ON (T.CO_CD = @CO_CD AND A.TR_CD = T.TR_CD)    
+		WHERE	A.CO_CD = @CO_CD    
+		 AND	charindex((CASE @PJT_PROC WHEN '' THEN ' ' ELSE prog_fg END), @PJT_PROC) > 0 
+		 AND    ISNULL(A.PJT_NM, PJT_NMK) LIKE '%'+ @PJT_NM +'%'  
+		 AND	( 
+					CASE 
+						WHEN A.PJT_AUTH ='0' THEN ( 
+													CASE 
+														WHEN '' + @EMP_CD + '' IN ( 
+															SELECT	EMP_CD 
+															FROM	SPJT_D 
+															WHERE	CO_CD = A.CO_CD 
+															 AND	PJT_CD = A.PJT_CD 
+														)	THEN	'1' 
+														ELSE		'0' 
+													END 
+											)
+						ELSE '1' 
+					END 
+				) = '1'    	
+	]]>
+	</select>
+	
+	
+	<select id="g20Procedure.selectDeptList" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectDeptList */
+		/* 부서 리스트 조회 */
+		/* 원본 프로시저 [1.0] -  [dbo].[P_GWG20_COMMON_MGT_SDEPT_LIST] */
+		/* params[ erpCompSeq, erpEmpSeq ] */
+		
+		USE DZICUBE;
+		DECLARE
+			@CO_CD			NVARCHAR(10)  
+			, @EMP_CD		NVARCHAR(10)
+			, @JOB_OPTION	NVARCHAR(1)
+		
+		SELECT	
+			@CO_CD			= '${erpCompSeq}'		/* ERP 회사 코드 */
+			, @EMP_CD		= '${erpEmpSeq}'		/* ERP 사번 */
+			, @JOB_OPTION	= '0'				/* 0: 모든 부서, 1: 사원의 부서  [ 현재 0 고정 */
+		
+		/************************************************************/	
+
+		IF (@JOB_OPTION = '0')  
+		BEGIN  
+			SELECT  
+				DEPT_CD  						AS deptSeq
+				, ISNULL(DEPT_NM, DEPT_NMK) 	AS deptName  
+			FROM	SDEPT  
+			WHERE	CO_CD = @CO_CD
+			 AND (NULLIF(TO_DT,'') IS NULL 
+			 OR TO_DT = '00000000' 
+			 OR TO_DT &gt;= SUBSTRING(REPLACE(CONVERT(VARCHAR,GETDATE(),120),'-',''),1, 8) )   
+		END  
+		ELSE IF (@JOB_OPTION = '1')  
+		BEGIN  
+			SELECT  
+				A.DEPT_CD  
+				, ISNULL(DEPT_NM, DEPT_NMK) AS DEPT_NM  
+				, A.DEPT_NMK  
+			FROM	SDEPT A WITH(NOLOCK)  
+				INNER JOIN SEMP B WITH(NOLOCK) 
+				 ON (A.CO_CD = B.CO_CD AND A.DEPT_CD = B.DEPT_CD)  
+			WHERE	A.CO_CD = @CO_CD  
+			 AND	B.EMP_CD = @EMP_CD
+			 AND	(NULLIF(TO_DT,'') IS NULL OR TO_DT = '00000000' OR TO_DT &gt;= SUBSTRING(REPLACE(CONVERT(VARCHAR,GETDATE(),120),'-',''),1, 8) )         
+		END  	
+	</select>
+	
+	<select id="g20Procedure.selectBudgetInfo" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectCommonBudgetInfo */
+		/* 예산 정보 조회 */
+		/* 원본 함수 [1.0] -  [dbo].[F_GWG20_COMMON_BY_BUDGET_INFO]  /   [dbo].[P_GWG20_COMMON_BUDGET_INFO] */  
+		/* params[ erpCompSeq, erpDivSeq, erpMgtSeq, erpBudgetSeq, erpGisuDate, sumAm, erpBottomSeq, gisu ] */
+		
+		USE DZICUBE;
+		DECLARE
+			@CO_CD			NVARCHAR(4)
+			, @DIV_CD		NVARCHAR(4)
+			, @MGT_CD		NVARCHAR(10)
+			, @BGT_CD		NVARCHAR(10)
+			, @GISU_DT		NVARCHAR(16)
+			, @SUM_CT_AM	NUMERIC(21, 4)
+			, @BOTTOM_CD	NVARCHAR(10)
+			, @GISU			INT				/* 여기까지 입력 파라미터 */
+		
+			, @CTL_FG		NVARCHAR(2)        
+			, @ISU_YM_FR 	NVARCHAR(16)        
+			, @ISU_YM_TO 	NVARCHAR(16)        
+			, @GISU_YEAR 	NVARCHAR(8)        
+			, @GISU_MON  	NVARCHAR(12)         
+			, @GISU_FR_DT 	NVARCHAR(8)    
+			, @GISU_TO_DT 	NVARCHAR(8)  
+			, @YEAR_FR  	NVARCHAR(6)
+			, @YEAR_TO  	NVARCHAR(6)			
+			, @LANGKIND		NVARCHAR(10)
+		
+		SELECT	
+			@CO_CD			= '${erpCompSeq}'
+			, @DIV_CD		= '${erpDivSeq}'
+			, @MGT_CD		= '${erpMgtSeq}'
+			, @BGT_CD		= '${erpBudgetSeq}'
+			, @GISU_DT		= '${erpGisuDate}'
+			, @SUM_CT_AM	= '${sumAm}'
+			, @BOTTOM_CD	= REPLACE('${erpBottomSeq}', '|', '')
+			, @LANGKIND		= 'KR'
+			, @GISU			= '${gisu}'
+		
+		/************************************************************/	
+		
+		/* 기수정보 초기화 */
+		SELECT	
+			@GISU_FR_DT		= SUBSTRING(FR_DT, 1, 6)
+			, @GISU_TO_DT	= SUBSTRING(TO_DT, 1, 6)    
+		FROM	SCO    
+		WHERE	CO_CD = @CO_CD    
+		 AND	GISU = @GISU    
+		
+		/* 회계 기수 년도 조회 */
+		SELECT	@YEAR_FR = CONVERT(nvarchar(6),DATEADD(yy, @GISU-GISU ,CONVERT(datetime,FR_DT)),112)
+				,@YEAR_TO = CONVERT(nvarchar(6),DATEADD(yy, @GISU-GISU ,CONVERT(datetime,TO_DT)),112)
+		FROM	SCO    
+		WHERE	CO_CD = @CO_CD
+		        
+		/* 
+			예산 통제 여부 확인 (CTL_FG)
+			1. 통제 안함
+			2. 월별 조회
+			3. 분기별 조회
+			4. 년 누적 조회
+			5. 월별 통제
+			6. 분기별 통제
+			7. 년 누적 통제 
+			8. 월 누적 통제
+			9. 프로젝트별 통제
+		*/  
+		SELECT	@CTL_FG	= CTL_FG         
+		FROM	SBGTCD (NOLOCK)         
+		WHERE	CO_CD	= @CO_CD 
+		 AND	BGT_CD	= @BGT_CD        
+		
+		/* 년도와 달 분리 */
+		SET @GISU_YEAR = SUBSTRING(@GISU_DT, 1, 4)        
+		SET @GISU_MON  = SUBSTRING(@GISU_DT, 1, 6)        
+		
+		/* 예산 시작, 끝날짜 없는 경우 기수 기본일 적용 */
+		IF (@GISU_FR_DT IS NULL)    
+		BEGIN    
+			SET @GISU_FR_DT = @YEAR_FR 
+		END    
+		IF (@GISU_TO_DT IS NULL)    
+		BEGIN    
+			SET @GISU_TO_DT = @YEAR_TO    
+		END    
+		          
+		/* 통제 구분에 따른 통제 기준일 변경 (년 기준 or 월 기준) */
+		IF	@CTL_FG = '1'        
+		BEGIN               
+			SET @ISU_YM_FR = @GISU_FR_DT    
+			SET @ISU_YM_TO = @GISU_TO_DT    
+		END        
+		ELSE IF	@CTL_FG = '2' OR @CTL_FG = '5'        
+		BEGIN        
+			SET @ISU_YM_FR = @GISU_MON        
+			SET @ISU_YM_TO = @GISU_MON        
+		END        
+		ELSE IF	@CTL_FG = '3' OR @CTL_FG = '6'        
+		BEGIN        
+		
+		
+		DECLARE	@MON INT
+		SET		@MON = CAST(SUBSTRING(@GISU_MON, 5, 2)  AS INT)             
+		            
+		IF @MON >= 1 AND @MON <= 3        
+		BEGIN        
+			SET @ISU_YM_FR = @GISU_YEAR + '01'        
+			SET @ISU_YM_TO = @GISU_YEAR + '03'        
+		END         
+		ELSE IF @MON >= 4 AND @MON <= 6        
+		BEGIN        
+			SET @ISU_YM_FR = @GISU_YEAR + '04'        
+			SET @ISU_YM_TO = @GISU_YEAR + '06'        
+		END           
+		ELSE IF @MON >= 7 AND @MON <= 9        
+		BEGIN        
+			SET @ISU_YM_FR = @GISU_YEAR + '07'        
+			SET @ISU_YM_TO = @GISU_YEAR + '09'        
+		END            
+		ELSE IF @MON >= 10 AND @MON <= 12        
+		BEGIN        
+			SET @ISU_YM_FR = @GISU_YEAR + '10'        
+			SET @ISU_YM_TO = @GISU_YEAR + '12'        
+		END         
+		END            
+		ELSE IF @CTL_FG = '4' OR @CTL_FG = '7'        
+		BEGIN        
+			/* 년 누적 */
+			SET @ISU_YM_FR = @GISU_FR_DT    
+			SET @ISU_YM_TO = @GISU_TO_DT    
+		END         
+		ELSE IF @CTL_FG = '8'        
+		BEGIN        
+			/* 월 누적 */
+			SET @ISU_YM_FR = @GISU_FR_DT    
+			SET @ISU_YM_TO = @GISU_MON        
+		END             
+		ELSE IF @CTL_FG = '9'        
+		BEGIN        
+			/* 월 누적 */
+			SET @ISU_YM_FR = @GISU_FR_DT    
+			SET @ISU_YM_TO = @GISU_TO_DT    
+		END              
+		            
+		DECLARE 
+			@BJ_YN			NVARCHAR(1)
+			, @BGT01_CD		NVARCHAR(10)        
+			, @BGT02_CD		NVARCHAR(10)        
+			, @BGT03_CD		NVARCHAR(10)        
+			, @BGT04_CD		NVARCHAR(10)        
+			, @BGT01_NM		NVARCHAR(30)        
+			, @BGT02_NM		NVARCHAR(30)        
+			, @BGT03_NM		NVARCHAR(30)        
+			, @BGT04_NM		NVARCHAR(30)  
+			, @BGT_NM		NVARCHAR(30)        
+			, @SUM_AM		NUMERIC(21,4)         
+			, @CONTROL_FG	NVARCHAR(1)        
+			, @BOTTOM_YN	NVARCHAR(1)        
+			, @BULYONG_YN	NVARCHAR(1)   
+			, @SYSCFG_4_63	NVARCHAR(1)               
+			, @GR_FG		NVARCHAR(2) 
+			, @LEVEL01_CD	NVARCHAR(10)
+			, @LEVEL02_CD	NVARCHAR(10)
+			, @LEVEL03_CD	NVARCHAR(10)
+			, @LEVEL04_CD	NVARCHAR(10)
+			, @LEVEL05_CD	NVARCHAR(10)
+			, @LEVEL06_CD	NVARCHAR(10)
+			, @LEVEL01_NM	NVARCHAR(30)  
+			, @LEVEL02_NM	NVARCHAR(30)  
+			, @LEVEL03_NM	NVARCHAR(30)  
+			, @LEVEL04_NM	NVARCHAR(30)  
+			, @LEVEL05_NM	NVARCHAR(30)  
+			, @LEVEL06_NM	NVARCHAR(30)                  
+			, @P_ERR_MSG	NVARCHAR(255)
+		         
+		SELECT @BJ_YN		= USE_YN FROM SYSCFG WHERE CO_CD=@CO_CD AND MODULE_CD='4' AND CTR_CD='10'	/* 배정사용여부 0.배정미사용 1.배정사용 */
+		SELECT @CONTROL_FG	= USE_YN FROM SYSCFG WHERE CO_CD=@CO_CD AND MODULE_CD='4' AND CTR_CD='12'	/* 예산통제 사용여부 */
+		SELECT @BOTTOM_YN	= USE_YN FROM SYSCFG WHERE CO_CD=@CO_CD AND MODULE_CD='4' AND CTR_CD='14'	/* 하위사업 사용여부 0.미사용 1.사용 */
+		SELECT @BULYONG_YN	= USE_YN FROM SYSCFG WHERE CO_CD=@CO_CD AND MODULE_CD='4' AND CTR_CD='11'	/* 불용금액 사용여부 0.미사용 1.사용 */
+		SELECT @SYSCFG_4_63	= ISNULL( USE_YN, '0' ) FROM SYSCFG WHERE CO_CD = @CO_CD AND MODULE_CD = '4' AND CTR_CD = '63'         
+		          
+		
+		/* 품의 예산 통제 여부 */
+		IF ( @CONTROL_FG = '0' )        
+		BEGIN         
+			SET @SUM_AM = 0        
+		END         
+		ELSE         
+		BEGIN           
+			/* 해당 기간 전체전송인 데이터의 금액 SUM */         
+			SELECT 
+				@SUM_AM	= ISNULL(SUM(D.CT_AM),0)        
+			FROM	ABIN AS H        
+			 LEFT OUTER JOIN	ABIND AS D        
+			 ON		H.CO_CD		= D.CO_CD        
+			  AND	H.DIV_CD	= D.DIV_CD        
+			  AND	H.GET_NO	= D.GET_NO        
+			WHERE	H.CO_CD		= @CO_CD        
+			 AND	H.DIV_CD	= @DIV_CD        
+			 AND	H.MGT_CD	= @MGT_CD        
+			 AND	( 
+						CASE 
+							WHEN @BOTTOM_YN = '0' THEN 1        
+							WHEN @BOTTOM_YN = '1' AND H.BOTTOM_CD = @BOTTOM_CD THEN 1        
+							ELSE 0 
+						END 
+					) = 1        
+			 AND H.BGT_CD = @BGT_CD        
+			 AND SUBSTRING(H.GET_DT, 1, 6) >= @ISU_YM_FR 
+			 AND SUBSTRING(H.GET_DT, 1, 6) <= @ISU_YM_TO        
+			 AND ISNULL(H.GISU_DT, '') = ''        
+			 AND H.ADMIT_YN = '1'        
+		         
+			/* 해당 기간 부분 전송 결의전송된 데이터의 금액 SUM 빼기 */
+			SELECT 
+				@SUM_AM = ISNULL(@SUM_AM, 0) - ISNULL(SUM(D.TR_PART_AM),0)        
+			FROM	ABIN AS T        
+			 INNER JOIN	ABIN_PART_H AS H        
+			 ON		H.CO_CD		= T.CO_CD        
+			  AND	H.DIV_CD	= T.DIV_CD        
+			  AND	H.GET_NO	= T.GET_NO                               
+			  AND ISNULL(H.GISU_DT, '') <> ''        
+			 LEFT OUTER JOIN	ABIN_PART_D AS D        
+			 ON		H.CO_CD		= D.CO_CD        
+			  AND	H.DIV_CD	= D.DIV_CD        
+			  AND	H.GET_NO	= D.GET_NO        
+			  AND	H.PART_DT	= D.PART_DT        
+			  AND	H.PART_SQ	= D.PART_SQ        
+			WHERE	T.CO_CD		= @CO_CD        
+			 AND	T.DIV_CD	= @DIV_CD        
+			 AND	T.MGT_CD	= @MGT_CD        
+			 AND	( 
+						CASE	WHEN @BOTTOM_YN = '0' THEN 1        
+								WHEN @BOTTOM_YN = '1' AND T.BOTTOM_CD = @BOTTOM_CD THEN 1        
+								ELSE 0 
+						END 
+					)	= 1        
+			 AND T.BGT_CD	= @BGT_CD        
+			 AND SUBSTRING(	T.GET_DT, 1, 6) >= @ISU_YM_FR AND SUBSTRING(T.GET_DT, 1, 6) <= @ISU_YM_TO        
+			 AND ISNULL(T.GISU_DT, '') = ''        
+			 AND T.ADMIT_YN	= '1'        
+			 AND T.PART_YN	= '2'           
+		END             
+		         
+		/* 예산과목 기본명칭 조회 */
+		SELECT 
+			@BGT01_CD = CASE WHEN B.DIV_FG = 1 THEN B.BGT_CD  ELSE B1.BGT_CD   END,       
+			@BGT01_NM = CASE WHEN B.DIV_FG = 1 THEN B.BGT_NM  ELSE B1.BGT_NM   END,  
+			@BGT02_CD = CASE WHEN B.DIV_FG = 2 THEN B.BGT_CD  ELSE B2.BGT_CD   END,        
+			@BGT02_NM = CASE WHEN B.DIV_FG = 2 THEN B.BGT_NM  ELSE B2.BGT_NM   END,
+			@BGT03_CD = CASE WHEN B.DIV_FG = 3 THEN B.BGT_CD  ELSE B3.BGT_CD   END,        
+			@BGT03_NM = CASE WHEN B.DIV_FG = 3 THEN B.BGT_NM  ELSE B3.BGT_NM   END,
+			@BGT04_CD = CASE WHEN B.DIV_FG = 4 THEN B.BGT_CD  ELSE NULL END,         
+			@BGT04_NM = CASE WHEN B.DIV_FG = 4 THEN B.BGT_NM  ELSE NULL END,  
+			@BGT_NM = B.BGT_NM,      
+			@GR_FG = B.GR_FG,
+			@LEVEL01_CD = CASE WHEN ISNULL( LM.DIV_FG, '' ) = '1' THEN LM.LEVEL_CD ELSE L1.LEVEL_CD END,  
+			@LEVEL02_CD = CASE WHEN ISNULL( LM.DIV_FG, '' ) = '2' THEN LM.LEVEL_CD ELSE L2.LEVEL_CD END,  
+			@LEVEL03_CD = CASE WHEN ISNULL( LM.DIV_FG, '' ) = '3' THEN LM.LEVEL_CD ELSE L3.LEVEL_CD END,  
+			@LEVEL04_CD = CASE WHEN ISNULL( LM.DIV_FG, '' ) = '4' THEN LM.LEVEL_CD ELSE L4.LEVEL_CD END,  
+			@LEVEL05_CD = CASE WHEN ISNULL( LM.DIV_FG, '' ) = '5' THEN LM.LEVEL_CD ELSE L5.LEVEL_CD END,  
+			@LEVEL06_CD = CASE WHEN ISNULL( LM.DIV_FG, '' ) = '6' THEN LM.LEVEL_CD ELSE NULL END,  
+			@LEVEL01_NM = CASE WHEN ISNULL( LM.DIV_FG, '' ) = '1' THEN LM.LEVEL_NM ELSE L1.LEVEL_NM END,  
+			@LEVEL02_NM = CASE WHEN ISNULL( LM.DIV_FG, '' ) = '2' THEN LM.LEVEL_NM ELSE L2.LEVEL_NM END,  
+			@LEVEL03_NM = CASE WHEN ISNULL( LM.DIV_FG, '' ) = '3' THEN LM.LEVEL_NM ELSE L3.LEVEL_NM END,  
+			@LEVEL04_NM = CASE WHEN ISNULL( LM.DIV_FG, '' ) = '4' THEN LM.LEVEL_NM ELSE L4.LEVEL_NM END,  
+			@LEVEL05_NM = CASE WHEN ISNULL( LM.DIV_FG, '' ) = '5' THEN LM.LEVEL_NM ELSE L5.LEVEL_NM END,  
+			@LEVEL06_NM = CASE WHEN ISNULL( LM.DIV_FG, '' ) = '6' THEN LM.LEVEL_NM ELSE NULL END
+		FROM	SBGTCD B        
+		 LEFT OUTER JOIN SBGTCD B1        
+		 ON		B.CO_CD    = B1.CO_CD        
+		  AND	B.HBGT_CD1 = B1.BGT_CD        
+		LEFT OUTER JOIN SBGTCD B2        
+		 ON		B.CO_CD    = B2.CO_CD        
+		  AND	B.HBGT_CD2 = B2.BGT_CD        
+		 LEFT OUTER JOIN SBGTCD B3        
+		 ON		B.CO_CD    = B3.CO_CD        
+		  AND	B.HBGT_CD3 = B3.BGT_CD
+		 LEFT OUTER JOIN ZN_SBGTLEVEL_D LD  
+		 ON		@SYSCFG_4_63 = '1'  
+		  AND	B.CO_CD	= LD.CO_CD  
+		  AND	LD.GISU	= @GISU  
+		  AND ( B.BGT_CD = LD.BGT_CD OR B.HBGT_CD1 = LD.BGT_CD )  
+		 LEFT OUTER JOIN ZN_SBGTLEVEL LM  
+		 ON		LD.CO_CD= LM.CO_CD  
+		  AND	LD.GISU	= LM.GISU  
+		  AND	LD.LEVEL_CD	= LM.LEVEL_CD  
+		 LEFT OUTER JOIN ZN_SBGTLEVEL L1  
+		 ON		ISNULL( LM.HLEVEL_CD1, '' ) <> ''  
+		  AND	LM.CO_CD= L1.CO_CD  
+		  AND	LM.GISU	= L1.GISU  
+		  AND	LM.HLEVEL_CD1 = L1.LEVEL_CD  
+		 LEFT OUTER JOIN ZN_SBGTLEVEL L2  
+		 ON  ISNULL( LM.HLEVEL_CD2, '' ) <> ''  
+		  AND LM.CO_CD	= L2.CO_CD  
+		  AND LM.GISU	= L2.GISU  
+		  AND LM.HLEVEL_CD2 = L2.LEVEL_CD  
+		 LEFT OUTER JOIN ZN_SBGTLEVEL L3  
+		 ON  ISNULL( LM.HLEVEL_CD3, '' ) <> ''  
+		  AND LM.CO_CD	= L3.CO_CD  
+		  AND LM.GISU	= L3.GISU  
+		  AND LM.HLEVEL_CD3 = L3.LEVEL_CD  
+		 LEFT OUTER JOIN ZN_SBGTLEVEL L4  
+		 ON  ISNULL( LM.HLEVEL_CD4, '' ) <> ''  
+		  AND LM.CO_CD	= L4.CO_CD  
+		  AND LM.GISU	= L4.GISU  
+		  AND LM.HLEVEL_CD4 = L4.LEVEL_CD  
+		 LEFT OUTER JOIN ZN_SBGTLEVEL L5  
+		 ON  ISNULL( LM.HLEVEL_CD5, '' ) <> ''  
+		  AND LM.CO_CD	= L5.CO_CD  
+		  AND LM.GISU	= L5.GISU  
+		  AND LM.HLEVEL_CD5 = L5.LEVEL_CD                   
+		WHERE  B.CO_CD	= @CO_CD        
+		 AND  B.BGT_CD	= @BGT_CD        
+		          
+		/* 법인카드 사용내역 연동 예산 조회 */
+		SELECT	@SUM_AM = @SUM_AM + ISNULL(SUM(A.SUNGIN_AM), 0)    
+		FROM	ACARD_SUNGIN A    
+		 INNER JOIN (    
+			SELECT	
+				AH.CO_CD
+				, AH.BANK_DT
+				, AH.BANK_SQ    
+			FROM	ABDOCU_CMS_H AH    
+			 INNER JOIN ABDOCU_CMS_B AB 
+			  ON (
+					AH.CO_CD		= AB.CO_CD 
+					AND AH.BANK_DT	= AB.BANK_DT 
+					AND AH.BANK_SQ	= AB.BANK_SQ 
+					AND AH.TRAN_CD	= AB.TRAN_CD)    
+			WHERE	AH.CO_CD = @CO_CD    
+			 AND	AH.MGT_CD = @MGT_CD    
+			 AND	AB.ABGT_CD = @BGT_CD    
+			 AND	AH.TRAN_CD = '301'    
+			 AND	SUBSTRING(AH.GISU_DT, 1, 6) >= @ISU_YM_FR AND SUBSTRING(AH.GISU_DT, 1, 6) <= @ISU_YM_TO        
+		 ) B 
+		 ON	(A.CO_CD = B.CO_CD AND A.ISS_DT = B.BANK_DT AND A.ISS_SQ = B.BANK_SQ)    
+		WHERE	A.GW_STATE IS NOT NULL AND A.GW_STATE <> ''    
+		 AND	A.GW_ID IS NOT NULL AND A.GW_ID <> ''    
+		 AND	(A.GISU_DT IS NULL OR A.GISU_DT = '')    
+		 AND	(A.GISU_SQ IS NULL OR A.GISU_DT = 0)    
+		
+		
+		SELECT 
+			@SUM_AM = @SUM_AM + ISNULL(SUM(A.DR_AM), 0)    
+		FROM	SACBANKH A    
+		 INNER JOIN (    
+				SELECT	AH.CO_CD, AH.BANK_DT, AH.BANK_SQ    
+				FROM	ABDOCU_CMS_H AH    
+				 INNER JOIN ABDOCU_CMS_B AB 
+				 ON (
+					AH.CO_CD		= AB.CO_CD 
+					AND AH.BANK_DT	= AB.BANK_DT 
+					AND AH.BANK_SQ	= AB.BANK_SQ 
+					AND AH.TRAN_CD	= AB.TRAN_CD
+				)    
+				WHERE AH.CO_CD	= @CO_CD    
+				 AND AH.MGT_CD	= @MGT_CD    
+				 AND AB.ABGT_CD	= @BGT_CD    
+				 AND AH.TRAN_CD	= '000'    
+				 AND SUBSTRING(AH.GISU_DT, 1, 6) >= @ISU_YM_FR 
+				 AND SUBSTRING(AH.GISU_DT, 1, 6) <= @ISU_YM_TO        
+		 ) B 
+		 ON		(
+			A.CO_CD			= B.CO_CD 
+			AND A.BANK_DT	= B.BANK_DT 
+			AND A.BANK_SQ	= B.BANK_SQ
+		 )    
+		WHERE	A.GW_STATE IS NOT NULL AND A.GW_STATE <> ''    
+		 AND	A.GW_ID IS NOT NULL AND A.GW_ID <> ''    
+		 AND	(A.GISU_DT IS NULL OR A.GISU_DT = '')    
+		 AND	(A.GISU_SQ IS NULL OR A.GISU_DT = 0)         
+		 AND	(A.GISU_SQ IS NULL OR A.GISU_DT = 0)         
+		         
+		/* 실제 예산액 조회 */
+		SELECT
+			@CTL_FG				AS ctlFg
+			, @ISU_YM_FR		AS isuFromYM
+			, @ISU_YM_TO		AS isuToYM
+			, @BGT01_CD			AS budget01Seq
+			, @BGT01_NM			AS budget01Name
+			, @BGT02_CD			AS budget02Seq
+			, @BGT02_NM			AS budget02Name
+			, @BGT03_CD			AS budget03Seq
+			, @BGT03_NM			AS budget03Name
+			, @BGT04_CD			AS budget04Seq
+			, @BGT04_NM			AS budget04Name
+			, @BGT_CD			AS budgetSeq
+			, @BGT_NM			AS budgetName
+			, @GR_FG			AS grFg
+			, @LEVEL01_CD		AS level01Seq
+			, @LEVEL02_CD		AS level02Seq
+			, @LEVEL03_CD		AS level03Seq
+			, @LEVEL04_CD		AS level04Seq
+			, @LEVEL05_CD		AS level05Seq
+			, @LEVEL06_CD		AS level06Seq
+			, @LEVEL01_NM		AS level01Name
+			, @LEVEL02_NM		AS level02Name
+			, @LEVEL03_NM		AS level03Name
+			, @LEVEL04_NM		AS level04Name
+			, @LEVEL05_NM		AS level05Name
+			, @LEVEL06_NM		AS level06Name
+			, SUM(ISNULL(ACCT_AM4,0)) 
+				- 
+				CASE	WHEN @BULYONG_YN='0' THEN SUM(ISNULL(ACCT_AM6,0)) 
+						ELSE 0 
+				END         
+				+ 
+				CASE	WHEN @BULYONG_YN='1' THEN SUM(ISNULL(ACCT_AM6,0)) 
+						ELSE 0 
+				END        
+											AS sunginAm			/* 기 집행액 */
+			, SUM(ISNULL(ACCT_AM1,0)) 
+				+ SUM(ISNULL(ACCT_AM2,0)) 
+				+ SUM(ISNULL(ACCT_AM3,0))	AS sunginDelayAm	/* 승인 대기액 */
+			, 	ISNULL(@SUM_CT_AM, 0)		AS sumCtAm			/* 금회승인요청액 */
+			, CASE WHEN @BJ_YN='0' THEN SUM(ISNULL(A.CARR_AM,0)) +  SUM(ISNULL(A.BUD_AM,0))        
+										- (
+											SUM(ISNULL(ACCT_AM4,0)) 
+											- 
+											CASE	WHEN @BULYONG_YN='0' THEN SUM(ISNULL(ACCT_AM6,0)) 
+													ELSE 0 
+											END         
+											+ 
+											CASE	WHEN @BULYONG_YN='1' THEN SUM(ISNULL(ACCT_AM6,0)) 
+													ELSE 0 
+											END
+										)        
+										- (SUM(ISNULL(ACCT_AM1,0)) + SUM(ISNULL(ACCT_AM2,0)) + SUM(ISNULL(ACCT_AM3,0)))        
+										- ISNULL(@SUM_CT_AM, 0)
+			  ELSE 	SUM(
+					CASE 
+						WHEN @BJ_YN='0' THEN ISNULL(A.CARR_AM,0) + ISNULL(A.BUD_AM,0) 
+						ELSE ISNULL(ALLOC_AM,0) 
+					END 
+					)         
+					- ( 
+						SUM(ISNULL(ACCT_AM1,0)) 
+						+ SUM(ISNULL(ACCT_AM2,0)) 
+						+ SUM(ISNULL(ACCT_AM3,0)) 
+						+ SUM(ISNULL(ACCT_AM4,0))         
+						- ( 
+							CASE WHEN @BULYONG_YN='0' THEN SUM(ISNULL(ACCT_AM6,0)) 
+								ELSE 0 
+							END         
+						) + ( 
+							CASE 
+								WHEN @BULYONG_YN='1' THEN SUM(ISNULL(ACCT_AM6,0)) 
+								ELSE 0 
+							END
+						) + ISNULL(@SUM_AM,0) 
+					)
+				END	
+			AS leftAmt2			/* 예산잔액2 */
+			, CASE WHEN @BJ_YN='0' THEN SUM(ISNULL(A.CARR_AM,0)) +  SUM(ISNULL(A.BUD_AM,0))
+			ELSE SUM(ISNULL(ALLOC_AM,0))
+			END	AS openAmt			/* 예산액 ( 이월예산 + 편성예산 ) */
+			, SUM(
+				CASE 
+					WHEN @BJ_YN='0' THEN 0 
+					ELSE ISNULL(ALLOC_AM,0) 
+				END 
+			  )								AS acceptAmt		/* 배정액 */
+			, SUM(ISNULL(ACCT_AM1,0)) 
+				+ SUM(ISNULL(ACCT_AM2,0)) 
+				+ SUM(ISNULL(ACCT_AM3,0)) 
+				+ SUM(ISNULL(ACCT_AM4,0))         
+				+ ( CASE 
+                                        WHEN @BULYONG_YN = '0' THEN Sum( 
+                                        Isnull(acct_am6, 0))
+                                        ELSE 0 
+                                      END )        
+				+ ISNULL(@SUM_AM,0)			AS applyAmt			/* 집행액 ( 지출 + 원인 + 미결 + 승인 +(-) 불용 + 품의총금액) */
+			, SUM(
+					CASE 
+						WHEN @BJ_YN='0' THEN ISNULL(A.CARR_AM,0) + ISNULL(A.BUD_AM,0) 
+						ELSE ISNULL(ALLOC_AM,0) 
+					END 
+				)         
+				- ( 
+					SUM(ISNULL(ACCT_AM1,0)) 
+					+ SUM(ISNULL(ACCT_AM2,0)) 
+					+ SUM(ISNULL(ACCT_AM3,0)) 
+					+ SUM(ISNULL(ACCT_AM4,0))
+				)         
+					-  ( ( 
+						CASE WHEN @BULYONG_YN='0' THEN SUM(ISNULL(ACCT_AM6,0)) 
+							ELSE 0 
+						END         
+					) + ( 
+						CASE 
+							WHEN @BULYONG_YN='1' THEN SUM(ISNULL(ACCT_AM6,0)) 
+							ELSE 0 
+						END
+					) ) + ISNULL(@SUM_AM,0) 
+										AS leftAmt			/* 예산잔액 ( 예산액 OR 배정액 - 집행액 ) */
+		FROM	( 
+			SELECT 
+				SUM (V.CARR_AM)	AS CARR_AM
+				, SUM ( 
+					CASE 
+						WHEN @BJ_YN ='0' THEN	( CASE 
+													WHEN V.BJ_YN='0' THEN (V.CF_AM    + V.ADD_AM0 + V.ADD_AM1 + V.ADD_AM2 + V.ADD_AM3) 
+													ELSE 0 
+												END )         
+						ELSE					( CASE 
+													WHEN V.BJ_YN='1' THEN (V.REQCF_AM + V.ADD_AM0 + V.ADD_AM1 + V.ADD_AM2 + V.ADD_AM3) 
+													ELSE 0 
+												END ) 
+					END  
+				)				AS BUD_AM
+				, SUM ( 
+					CASE 
+						WHEN V.BJ_YN='1' THEN  V.CF_AM  
+						ELSE 0 
+					END 
+				)				AS ALLOC_AM
+				, SUM (
+					(
+						CASE 
+							WHEN V.ACCT_GB IN ( '23' ) AND V.FILL_DT <> ''		
+								THEN	CASE 
+											WHEN D.IN_TAX = '0' THEN V.ACCT_AM 
+											ELSE V.ACCT_AM-V.VAT_AM 
+										END  
+							ELSE 0 
+						END
+					)
+				)				AS ACCT_AM1
+				, SUM (
+					(	CASE 
+							WHEN V.ACCT_GB IN ( '24' ) AND V.FILL_DT <> ''  
+								THEN	CASE	
+											WHEN D.IN_TAX = '0' THEN V.ACCT_AM 
+											ELSE V.ACCT_AM-V.VAT_AM 
+										END  
+							ELSE 0 
+						END
+					)
+				)				AS ACCT_AM2
+				, SUM (
+					(	CASE 
+							WHEN V.ACCT_GB IN ( '22' ) AND V.FILL_DT <> ''  
+								THEN	CASE 
+											WHEN D.IN_TAX = '0' THEN V.ACCT_AM 
+											ELSE V.ACCT_AM-V.VAT_AM 
+										END  
+							ELSE 0 
+						END
+					)
+				)				AS ACCT_AM3
+				, SUM (
+					(	CASE 
+							WHEN V.ACCT_GB IN ('21' ) 
+								THEN  CASE 
+											WHEN D.IN_TAX = '0' THEN V.ACCT_AM 
+											ELSE V.ACCT_AM-V.VAT_AM 
+										END  
+								ELSE 0 
+						END
+					)
+				)				AS ACCT_AM4 
+				, SUM (
+					(	CASE WHEN V.ACCT_GB IN ('31') 
+								THEN	CASE 
+											WHEN D.IN_TAX = '0' THEN V.ACCT_AM 
+											ELSE V.ACCT_AM-V.VAT_AM 
+										END  
+								ELSE 0 
+						END
+					)
+				)				AS ACCT_AM6
+				, SUM (
+					(	CASE WHEN V.ACCT_GB IN ('31') 
+								THEN	CASE 
+											WHEN D.IN_TAX = '0' THEN V.ACCT_AM 
+											ELSE V.ACCT_AM-V.VAT_AM 
+										END  
+								ELSE 0 END
+					)
+				)				AS ACCT_AM7
+			FROM	BUDGETSUM V          
+			 INNER JOIN SDIV D 
+			 ON		V.CO_CD		= D.CO_CD 
+			  AND	V.DIV_CD	= D.DIV_CD          
+			WHERE	V.CO_CD		= @CO_CD         
+			 AND	V.DIV_CD	= @DIV_CD        
+			 AND	V.MGT_CD	= @MGT_CD           
+			 AND	V.ISU_YM	>= @ISU_YM_FR        
+			 AND	V.ISU_YM	<= @ISU_YM_TO         
+			 AND	V.BGT_CD	IN ( 
+				SELECT DISTINCT (
+					CASE 
+						WHEN SB.DIV_FG <= AB.CTR_FG THEN SB.BGT_CD         
+						WHEN AB.CTR_FG ='1' THEN SB.HBGT_CD1         
+						WHEN AB.CTR_FG ='2' THEN SB.HBGT_CD2         
+						WHEN AB.CTR_FG ='3' THEN SB.HBGT_CD3        
+						ELSE SB.BGT_CD 
+					END
+				)         
+				FROM	SBGTCD SB         
+					INNER JOIN SCO SC 
+					ON SB.CO_CD	= SC.CO_CD         
+					LEFT OUTER JOIN ABSDOCU AB 
+					ON SB.CO_CD		= AB.CO_CD 
+					AND AB.ACCTDEF_FG	= SC.ACCT_FG        
+				WHERE	SB.CO_CD =@CO_CD 
+					AND	SB.BGT_CD =@BGT_CD 
+			)            
+			AND ( 
+				CASE	
+					WHEN @BOTTOM_YN = '1' AND V.BOTTOM_CD <> @BOTTOM_CD THEN '0'         
+					ELSE '1' 
+				END 
+			) = '1'           
+		) A        		
+		
+	]]></select>
+	
+	<select id="g20Procedure.selectCardSunginList" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectCardSunginList */
+		/* 카드 승인 리스트 조회 */
+		/* 원본 함수 [1.0] -  [dbo].[P_GWG20_ACARD_SUNGIN_SELECT]       
+		/* params[ erpCompSeq, cardNumber, fromDate, toDate ] */
+		
+		USE DZICUBE;
+		DECLARE
+			@CO_CD			NVARCHAR(8)
+			, @CARD_NB		NVARCHAR(50)
+			, @ISS_DT_FROM	NVARCHAR(8) /* 승인일자 FROM */
+			, @ISS_DT_TO	NVARCHAR(8) /* 승인일자 TO */
+		
+		SELECT	
+			@CO_CD			= '${erpCompSeq}'	
+			, @CARD_NB		= '${cardNumber}'
+			, @ISS_DT_FROM	= '${fromDate}'		/* 승인일자 조회 시작일 */
+			, @ISS_DT_TO	= '${toDate}'		/* 승인이랒 조회 종료일 */
+
+		/************************************************************/
+		
+		SELECT  
+			H.ISS_DT 
+				+ '_' 
+				+ CAST(ISS_SQ AS VARCHAR) 
+				+ '_' 
+				+ H.CO_CD				AS pKey
+			, H.CARD_NB					AS cardNumber	/* 카드 번호 */
+		    , H.ISS_DT					AS issDate		/* 승인 일자 erpKey*/
+		    , H.ISS_SQ					AS issSeq		/* 승인 순번 erpKey*/
+		    , H.USER_DETAIL				AS userDetail	/* 카드 사용내역 */
+		    , H.CHAIN_NAME				AS trName		/* 가맹점 명 */
+		    , H.CHAIN_REGNB				AS trRegNumber	/* 가맹점 등록 번호 */
+		    , H.SUNGIN_NB				AS sunginNumber	/* 카드 승인 번호 */
+		    , H.ACCT_CD					AS acctSeq		/* 상대계정코드 */
+		    , ISNULL( H.SUNGIN_AM, 0 )	AS sunginAm		/* 승인 금액 */
+		    , ISNULL( H.VAT_AM, 0 )		AS vatAm		/* 부가세 */
+		    , H.USER_TYPE				AS userType		/* 할부개월 수 */
+		    , (
+				CASE 
+					WHEN	( H.ISU_DT = '' OR ISNULL( H.ISU_DT, '00000000' ) = '00000000' )  
+							 AND ISNULL( H.ISU_SQ, 0 ) = 0 
+							THEN '0'  
+					ELSE	'1' END
+			)							AS sendYn		/* 처리 구분 */
+		    , H.ISU_DT					AS isuDate		/* 결의번호 erpKey */
+		    , H.ISU_SQ					AS isuSeq		/* 결의 순번 erpKey */
+		    , ISNULL( H.DATA_FG, '0' )	AS dataFg		
+		    , (
+				CASE 
+					WHEN	ISNULL( H.DATA_FG, '0' ) = '0' 
+							THEN 'CMS' 
+					ELSE	'EXCEL' 
+				END
+			)							AS dataFgName	
+		    , H.INSERT_ID				AS insertId
+			, H.INSERT_DT				AS insertDate
+			, H.INSERT_IP				AS insaertIp
+		    , H.MODIFY_ID				AS modifyId
+			, H.MODIFY_DT				AS modifyDate
+			, H.MODIFY_IP				AS modifyIp
+			, ISNULL( H.SUNGIN_AM, 0 ) 
+				+ ISNULL( H.VAT_AM, 0 )	AS totAm
+		    , H.MEMO_CD					AS memoSeq
+			, H.CHECK_PEN				AS checkPen
+		    , H.GISU_DT					AS gisuDate
+			, H.GISU_SQ					AS gisuSeq
+		    , ISNULL(H.GW_STATE, '')	AS gwState
+		    , ( 
+				CASE 
+					WHEN H.GW_STATE = '1' THEN '결재중'
+					WHEN H.GW_STATE = '2' THEN '결재완료'
+					ELSE '미상신' 
+				END 
+			) AS GW_STATE_HAN
+		FROM      
+			ACARD_SUNGIN H (NOLOCK)  
+		WHERE	H.CO_CD		= @CO_CD  
+		 AND	H.CARD_NB	= @CARD_NB  
+		 AND	H.ISS_DT	BETWEEN REPLACE(@ISS_DT_FROM, '-', '') AND REPLACE(@ISS_DT_TO, '-', '')   
+		ORDER BY H.ISS_DT, H.ISS_SQ  			
+	]]></select>
+	
+	<select id="g20Procedure.selectErpHpmeticList" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectErpHpmeticList */
+		/* 기타소득자 리스트 조회 */
+		/* params[ erpCompSeq, baseDate ] */
+		
+		USE DZICUBE;
+		DECLARE
+			@CO_CD			NVARCHAR(8)
+			, @BASE_DT	NVARCHAR(8)
+		
+		SELECT	
+			@CO_CD			= '${erpCompSeq}'	
+			, @BASE_DT		= '${resDate}'
+
+		/************************************************************/
+		exec USP_ANA0006_BY_HPMETIC_SELECT @LANGKIND=N'KOR', @CO_CD = @CO_CD, @BASE_DT = @BASE_DT 
+	</select>
+	
+	<select id="g20Procedure.selectErpHincomeList" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectErpHincomeList */
+		/* 사업소득자 리스트 조회 */
+		/* params[ erpCompSeq ] */
+		
+		USE DZICUBE;
+		DECLARE
+			@CO_CD			NVARCHAR(8)
+		
+		SELECT	
+			@CO_CD			= '${erpCompSeq}'	
+
+		/************************************************************/
+		exec USP_ANA0005_BY_HINCOME_TRFG9_SELECT @LANGKIND=N'KOR', @CO_CD = @CO_CD 
+	</select>
+	
+	<select id="g20Procedure.selectBgtList" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectBgtList */
+		/* 예산과목 리스트 조회 */
+		/* params[ erpCompSeq, gisu, frDate, toDate, grFg, divSeqs, mgtSeqs, bottomSeqs, bottomSeqs, bgtSeq, bgtName, opt01, opt02, opt03, bgtFrDate,  ] */
+		
+		USE DZICUBE;
+		EXEC	USP_COMMON_ACC_CUSTOMHELP_SBGTCD_SELECT 
+			@CO_CD			= '${erpCompSeq}'		/* ERP 회사 코드 */
+			,@GISU			= '${gisu}'				/* ERP 기수 */
+			,@FR_DT			= '${frDate}'			/* 기수 시작일 */
+			,@TO_DT			= '${toDate}'			/* 기수 종료일 */
+			,@GR_FG			= '${grFg}'				/*  */ 
+			,@DIV_CDS		= '${erpDivSeq}'		/* 회계통제단위 구분값 '|' */
+			,@MGT_CDS		= '${erpMgtSeq}'		/* 예산통제단위 구분값 '|' */
+			,@BOTTOM_CDS	= '${erpBottomSeq}'		/* 하위 사업 코드 구분값 '|' */
+			,@BGT_CD		= '${bgtSeq}'			/* 검색 예산과목 코드 */
+			,@BGT_NM		= '${bgtName}'			/* 예산과목 명 */ 
+			,@OPT_01		= '${opt01}'			/* 1: 모든 예산과목, 2: 당기편성, 3: 프로젝트 기간 예산 */
+			,@OPT_02		= '${opt02}'			/* 1: 모두표시, 2: 사용기한결과분 숨김 */
+			,@OPT_03		= '${opt03}'	
+			,@BGT_FR_DT		= '${bgtFrDate}'		/* 오늘 날짜 */
+			,@GROUP_CD		= ''
+			,@LANGKIND		= 'KOR' 
+	]]></select>
+	
+	<select id="g20Procedure.selectBgtlabelList" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectBgtList */
+		/* 예산과목 사용자 명칭 조회 */
+		/* params[ erpCompSeq ] */
+		
+		USE DZICUBE;
+		SELECT 
+			ID_NO	AS labelNameSeq
+			, ISNULL(USER_NM, USER_NMK) AS	labelName 
+		FROM	ZN_SBGTLEVEL_TERM 
+		WHERE	CO_CD = ${erpCompSeq} 	
+	]]></select>
+	    
+    <select id="g20Procedure.selectIncomeList" parameterType="java.util.Map" resultType="java.util.Map">
+        /* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectIncomeList */
+		/* 소득구분 리스트 조회 */
+		/* params[ erpCompSeq, dataCd{ G, BI } ] */
+		
+		USE DZICUBE;
+        EXEC	USP_GET_HELPCODE 
+        	@LANGKIND		= N'KOR'
+        	, @P_HELP_TY	= N'SCTRL_D_CODE'
+        	, @P_CO_CD		= '${erpCompSeq}'
+        	, @P_CODE		= NULL
+        	, @P_CODE2		= NULL
+        	, @P_CODE3		= NULL
+        	, @P_USE_YN		= N'1'
+        	, @P_NAME		= NULL
+        	, @P_STD_DT		= NULL
+            <choose>
+              <when test='dataCd == null'>
+                  , @P_WHERE=N'CTRL_CD =''G'' AND MODULE_CD =''H'' AND CTD_CD IN (''60'',''61'', ''62'',''63'', ''64'', ''65'', ''68'', ''69'',''71'',''72'',''73'',''74'',''75'',''76'', ''78'', ''79'')  '
+              </when>
+              <otherwise>
+                <choose>
+                  <when test='dataCd == ""'>
+                  , @P_WHERE=N'CTRL_CD =''G'' AND MODULE_CD =''H'' AND CTD_CD IN (''60'',''61'', ''62'',''63'', ''64'', ''65'', ''68'', ''69'',''71'',''72'',''73'',''74'',''75'',''76'', ''78'', ''79'')  '
+                  </when>
+                  <otherwise>
+                  <if test='dataCd == "G"'>   <!-- 거주 -->
+	              , @P_WHERE=N'CTRL_CD =''G'' AND MODULE_CD =''H'' AND CTD_CD IN (''60'',''61'', ''62'',''63'', ''64'', ''65'', ''68'', ''69'',''71'',''72'',''73'',''74'',''75'',''76'', ''78'', ''79'')  '
+	              </if>
+	              <if test='dataCd == "BI"'>  <!-- 비거주 -->
+	              , @P_WHERE=N'CTRL_CD =''BI'' AND MODULE_CD =''H'' AND CTD_CD IN (''40'', ''41'',''42'',''61'',''62'' ) '
+	              </if>
+                  </otherwise>
+                </choose>	            
+              </otherwise>
+            </choose>
+    </select>
+	
+	<select id="g20Procedure.selectERPAbdocuKey" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+        /* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectERPAbdocuKey */
+		/* ERP 결의서 키 조회 */
+		/* params[ resDate, erpCompSeq ] */
+		
+		USE DZICUBE;
+		SELECT	ISNULL(MAX(GISU_SQ) + 1 , 1)	AS 'gisuSeq'
+		FROM	ABDOCU 
+		WHERE	GISU_DT = '${resDate}'
+		 AND	CO_CD	= '${erpCompSeq}';
+	]]></select>
+	
+	 <select id="g20Procedure.insertCauseDt" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.insertCauseDt */
+		/* ERP ABDOCU CAUSE INSERT */
+		/* params[  ] */
+		
+		USE DZICUBE;
+        EXEC	USP_ANA0005_CAUSESEQ_DML 
+        	    @LANGKIND      = N'KOR'
+			    ,@CO_CD         = '${erpCompSeq}'
+			    ,@GISU_DT       = '${erpGisuDate}'
+			    ,@GISU_SQ       = '${erpGisuSeq}'
+			    ,@D_CAUSE_DT    = '${causeDate}'
+			    ,@I_CAUSE_DT    = '${causeDate}'
+			    ,@D_DOCU_FG     = '${docuFgCode}'
+			    ,@I_DOCU_FG     = '${docuFgCode}'
+			    ,@D_DIV_CD      = '${erpDivSeq}'
+			    ,@I_DIV_CD      = '${erpDivSeq}'
+			    ,@D_MGT_CD      = '${mgtSeq}'
+			    ,@I_MGT_CD      = '${mgtSeq}'
+    </select>
+	
+	<insert id="g20Procedure.insertABDOCU" parameterType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.insertABDOCU */
+		/* ERP ABDOCU INSERT */
+		/* params[  ] */
+		
+		USE DZICUBE;
+		INSERT INTO ABDOCU                   
+		(                   
+			   CO_CD			, DIV_CD   			, DEPT_CD   		, EMP_CD    
+			 , GISU_DT			, GISU_SQ   		, DOCU_FG   		, MGT_CD    
+			 , RMK_DC  			, RMK_DCK   		, ACISU_DT   		, EXEC_DT    
+			 , REG_DT  			, CAUSE_DT   		, SIGN_DT   		, INSPECT_DT    
+			 , BTR_CD  			, GW_STATE   		, INSERT_ID   		, INSERT_IP    
+			 , INSERT_DT  		, EXTER_FG   		, BOTTOM_CD   		, DUMMY2 
+			 , CAUSE_ID   		, DOC_ID  
+		)                   
+		VALUES    
+		(                  
+			 '${erpCompSeq}'	, '${erpDivSeq}'	, '${erpDeptSeq}'	, '${erpEmpSeq}'    
+			 , '${erpGisuDate}'	, ${erpGisuSeq}		, '${docuFgCode}'	, '${mgtSeq}'    
+			 , '${resNote}'		, '${resNote}'		, ''				, ''    
+			 , '${regDate}'		, '${causeDate}'	, '${signDate}'		, '${inspectDate}'    
+			 , '${btrSeq}' 	 	, '1'				, '${erpEmpSeq}'	, ''    
+			 , GETDATE()		, 'GW'				, '${bottomSeq}'	, NULL 
+			 , '${causeEmpSeq}' , '${docSeq}'   
+		)
+	]]></insert>
+	
+	<select id="g20Procedure.selectERPAbdocuBKey" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+        /* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectERPAbdocuBKey */
+		/* ERP 예산 키 조회 */
+		/* params[ resDate, erpCompSeq ] */
+		
+		USE DZICUBE;
+		SELECT	ISNULL(MAX(BG_SQ) + 1 , 1)	AS 'bgSeq'
+		FROM	ABDOCU_B 
+		WHERE	GISU_DT = '${resDate}'
+		 AND	CO_CD	= '${erpCompSeq}';
+	]]></select>	
+	
+	<insert id="g20Procedure.insertABDOCU_B" parameterType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.insertABDOCU_B */
+		/* ERP ABDOCU_B INSERT */
+		/* params[  ] */
+		
+		USE DZICUBE;
+		INSERT INTO ABDOCU_B      
+		(       
+			   CO_CD			, GISU_DT			, GISU_SQ			, BG_SQ    
+			 , ABGT_CD			, SET_FG			, VAT_FG			, TR_FG    
+			 , DIV_CD2			, INSERT_ID			, INSERT_IP			, INSERT_DT    
+			 , RMK_DC			, IT_USE_WAY		, RMK_DCK    		, CHECK_FG
+		  )       
+		VALUES (      
+			   '${erpCompSeq}'	, '${erpGisuDate}'	, ${erpGisuSeq}	, ${erpBgSeq}    
+			 , '${erpBudgetSeq}', '${setFgCode}'	, '${vatFgCode}'	, '${trFgCode}'    
+			 , '${erpDivSeq}'	, '${erpEmpSeq}'	, ''				, GETDATE()    
+			 , '${budgetNote}'  , ''				, '${budgetNote}'   , 0
+		)     
+	]]></insert>
+
+	<insert id="g20Procedure.insertABDOCU_T" parameterType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.insertABDOCU_T */
+		/* ERP ABDOCU_T INSERT */
+		/* params[  ] */
+		
+		USE DZICUBE;
+		INSERT INTO ABDOCU_T
+		(
+			CO_CD					, ISU_DT				, ISU_SQ			, BG_SQ			, LN_SQ			, TR_CD
+			, TR_NM					, CEO_NM				, UNIT_AM			, SUP_AM		, VAT_AM		, BTR_CD
+			, BTR_NM				, BA_NB					, DEPOSITOR			, RMK_DC		, JIRO_CD		, INSERT_ID
+			, INSERT_IP				, INSERT_DT				, CTR_CD			, CTR_NM		, ETCRVRS_YM	, ETCDUMMY1		
+			, ETCDUMMY2				
+			, NDEP_AM				, INAD_AM				, INTX_AM			, RSTX_AM		, WD_AM			, TAX_DT
+			, ETCDIV_CD				, ET_YN					, ETCDATA_CD		, ETCRATE		, IT_USE_DT		, IT_USE_NO		
+			, IT_CARD_NO			, TR_NMK				, CEO_NMK		, RMK_DCK		, BTR_NMK		, CTR_NMK
+			, BUEMPICLPAY_AM		, DDCT_AM				, IACT_AM
+		)
+		VALUES
+		(
+			'${erpCompSeq}'			, '${erpGisuDate}'		, '${erpGisuSeq}'	, '${erpBgSeq}'	, '${erpLnSeq}'	, '${trSeq}'
+			, '${trName}'			, '${ceoName}'			
+			, CAST(CONVERT(MONEY,'${amt}') AS NUMERIC(17, 4))
+			, CAST(CONVERT(MONEY,'${stdAmt}') AS NUMERIC(17, 4))		
+			, CAST(CONVERT(MONEY,'${vatAmt}') AS NUMERIC(17, 4))
+			, '${btrSeq}'
+			, '${btrName}'			, '${baNb}'				, '${depositor}'	, '${tradeNote}', '${btrSeq}'	, '${erpEmpSeq}'
+			, '0'					, GETDATE()				, '${ctrSeq}'		, '${ctrName}'	, '${etcRvrsYM}', '${etcIncomeSeq}'		
+			, SUBSTRING('${etcBelongYear}',  1,  4)
+			, CAST(CONVERT(MONEY,'${etcRequiredAmt}') AS NUMERIC(17, 4)) 
+			, CAST(CONVERT(MONEY,'${etcIncomeAmt}') AS NUMERIC(17, 4)) 			
+			, CAST(CONVERT(MONEY,'${etcIncomeVatAmt}') AS NUMERIC(17, 4))
+			, CAST(CONVERT(MONEY,'${etcResidentVatAmt}') AS NUMERIC(17, 4))
+			, CAST(CONVERT(MONEY,'${salaryEtcAmt}') AS NUMERIC(17, 4))
+			, '${taxDate}'
+			, '${erpDivSeq}'					
+			, '${etYN}'				
+			, '${etcDataCd}'	
+			, CAST(CONVERT(MONEY,'${etcRequiredRate}') AS NUMERIC(17, 4))	
+			, '${itUseDate}', '${itUseNumber}'		
+			, '${itCardNumber}'		
+			, '${trName}'		, '${ceoName}'	, '${tradeNote}', '${btrName}'		
+			, '${ctrName}'
+			, CAST(CONVERT(MONEY,'${etcSchoolAmt}') AS NUMERIC(17, 4))
+			, CAST(CONVERT(MONEY,'${etcEmploymentAmt}') AS NUMERIC(17, 4))
+			, CAST(CONVERT(MONEY,'${etcEmploymentInsuranceAmt}') AS NUMERIC(17, 4))
+		)  
+	]]></insert>
+	
+	<insert id="g20Procedure.insertABDOCU_D" parameterType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.insertABDOCU_D */
+		/* ERP ABDOCU_D INSERT */
+		/* params[  ] */
+		USE DZICUBE;
+		INSERT INTO ABDOCU_D      
+		(       
+			   CO_CD			, ISU_DT			, ISU_SQ			, LN_SQ    
+			 , ITEM_NM			, ITEM_DC			, UNIT_DC			, CT_QT    
+			 , UNIT_AM			, CT_AM				, RMK_DC			
+		  )       
+		VALUES (      
+			   '${erpCompSeq}'	, '${erpGisuDate}'	, ${erpGisuSeq}	, ${erpLnSeq}    
+			 , '${itemName}', '${itemSize}'	, '${itemUnit}'	, '${itemCnt}'    
+			 , '${unitAmt}'	, '${itemAmt}'	, '${itemNote}'    
+		)     
+	]]></insert>
+	
+	<select id="g20Procedure.selectERPIsuKey" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectERPIsuKey */
+		/* params[ erpCompSeq, erpGisuDt, erpGisuSq ] */
+		
+		USE DZICUBE;
+		DECLARE
+			@CO_CD				NVARCHAR(8)
+			, @GISU_DT			NVARCHAR(8)		
+			, @GISU_SQ			NVARCHAR(8)		
+			
+		SELECT	
+			@CO_CD				= '${erpCompSeq}'
+			, @GISU_DT			= '${erpGisuDt}'	
+			, @GISU_SQ			= '${erpGisuSq}'	
+		/************************************************************/
+		
+		SELECT	ISNULL(MIN(ISNULL(ISU_DT, 0)), 0)	AS 'isuDt'
+				, ISNULL(MIN(ISNULL(ISU_SQ, 0)), 0)	AS 'isuSq'
+		FROM	ABDOCU_B 
+		WHERE	GISU_DT	= @GISU_DT
+		AND		GISU_SQ	= @GISU_SQ
+		AND		CO_CD	= @CO_CD
+
+	]]></select>
+	
+	<select id="g20Procedure.selectERPSendCnt" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectERPSendCnt */
+		/* params[ erpCompSeq, erpGisuDt, docNo ] */
+		
+		USE DZICUBE;
+		DECLARE
+			@CO_CD				NVARCHAR(8)
+			, @GISU_DT			NVARCHAR(8)		
+			, @RMK_DC			NVARCHAR(8)		
+			
+		SELECT	
+			@CO_CD				= '${erpCompSeq}'
+			, @GISU_DT			= '${erpGisuDt}'	
+			, @RMK_DC			= '${docNo}'	
+		/************************************************************/
+		
+		SELECT  count(*) as resSendCount
+		FROM	ABDOCU_B 
+		WHERE	GISU_DT	= @GISU_DT
+		AND		RMK_DC	like '%@RMK_DC%'
+		AND		CO_CD	= @CO_CD
+
+	]]></select>
+	
+	
+	<delete id="g20Procedure.deleteABDOCU" parameterType="java.util.Map" ><![CDATA[
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.deleteABDOCU */
+		/* params[ erpCompSeq, erpGisuDt, erpGisuSq ] */
+		
+		USE DZICUBE;
+		DECLARE
+			@CO_CD				NVARCHAR(8)
+			, @GISU_DT			NVARCHAR(8)		
+			, @GISU_SQ			NVARCHAR(8)		
+			
+		SELECT	
+			@CO_CD				= '${erpCompSeq}'
+			, @GISU_DT			= '${erpGisuDt}'	
+			, @GISU_SQ			= '${erpGisuSq}'	
+		/************************************************************/
+		
+		DELETE
+		FROM	ABDOCU
+		WHERE	CO_CD	= @CO_CD
+		 AND	GISU_DT = @GISU_DT
+		 AND	GISU_SQ = @GISU_SQ
+	]]></delete>
+	
+	<select id="g20Procedure.selectTradeInfo" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectTradeInfo */
+		/* [iCUBE ] iCUBE거래처 단건 정보 조회  */
+		USE DZICUBE;
+		DECLARE
+			@CO_CD				NVARCHAR(4)
+			, @REG_NB			NVARCHAR(30)
+			, @PAY_TR_CD	    NVARCHAR(10)
+			
+		SELECT	
+			@CO_CD				= #{erpCompSeq}
+			, @REG_NB			= #{trRegNb}	
+			, @PAY_TR_CD		= #{payTrSeq}
+		/************************************************************/
+		
+		SELECT	
+			T.CO_CD												AS erpCompSeq
+			, T.TR_CD												AS trSeq
+			, ISNULL(T.TR_NM, '')									AS trName
+			, T.TR_FG												AS	trFgCode
+			, (
+					CASE 
+						WHEN T.TR_FG ='1' THEN N'일반'    
+						WHEN T.TR_FG ='2' THEN N'무역'    
+						WHEN T.TR_FG ='3' THEN N'주민'    
+						WHEN T.TR_FG ='4' THEN N'기타'    
+						WHEN T.TR_FG ='5' THEN N'금융기관'    
+						WHEN T.TR_FG ='6' THEN N'정기예금'    
+						WHEN T.TR_FG ='7' THEN N'정기적금'    
+						WHEN T.TR_FG ='8' THEN N'카드사'    
+						WHEN T.TR_FG ='9' THEN N'신용카드'    
+						ELSE ''    
+					END		
+				)												AS trFgName
+				, ISNULL(T.ATTR_NM, T.ATTR_NMK)						AS attrName 
+				, T.REG_NB										AS businessNb
+				, ISNULL(T.PPL_NB, '')							AS PPL_NB
+				, ISNULL(T.DEPOSITOR, '')							AS depositor
+				, ISNULL(T.CEO_NM, T.CEO_NMK)						AS ceoName
+				, ISNULL(T.JIRO_CD, '')							AS jiroSeq
+				, ISNULL(ISNULL(B.BANK_NM, B.BANK_NMK), '')		AS jiroName
+				, ISNULL(T.BA_NB, '')								AS baNb
+				, ISNULL(T.DIV_ADDR1, '') + ' ' + ISNULL(T.ADDR2, '')					AS addr			/* 주소 */
+				, (SELECT DEPOSITOR FROM STRADE WHERE CO_CD = @CO_CD AND TR_CD = @PAY_TR_CD)					    AS payTrDepositor
+				, (SELECT BA_NB FROM STRADE WHERE CO_CD = @CO_CD AND TR_CD = @PAY_TR_CD)						    AS payTrBaNb
+				, (SELECT CEO_NM FROM STRADE WHERE CO_CD = @CO_CD AND TR_CD = @PAY_TR_CD)   						AS payTrCeoName
+				, (SELECT JIRO_CD FROM STRADE WHERE CO_CD = @CO_CD AND TR_CD = @PAY_TR_CD)					  		AS payTrBtrSeq
+				, ( SELECT	BANK_NM 
+				    FROM	STRADE TRADE
+				    INNER JOIN SBANK BANK
+					ON		TRADE.JIRO_CD = BANK.BANK_CD
+					AND		TRADE.TR_CD = @PAY_TR_CD
+					AND		CO_CD = @CO_CD
+				   ) AS payTrBtrName
+		FROM	STRADE	T
+		LEFT OUTER JOIN SBANK B 
+		 ON		T.JIRO_CD = B.BANK_CD
+		WHERE	T.CO_CD = @CO_CD
+		AND		REPLACE(ISNULL( T.REG_NB, ''), '-', '') = REPLACE( @REG_NB, '-', '')
+		AND		T.USE_YN != '0'
+		ORDER BY T.TR_CD desc
+		
+	]]></select>
+	
+	<select id="g20Procedure.selectCustTradeInfo" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectTradeInfo */ /* [iCUBE ] iCUBE거래처 단건 정보 조회 */ 
+			USE dzicube; 
+			
+			DECLARE @CO_CD     NVARCHAR(4), 
+			        @PAY_TR_CD NVARCHAR(10) 
+			
+			SELECT
+			@CO_CD				= #{erpCompSeq}
+			, @PAY_TR_CD		= #{payTrSeq}
+			
+			/************************************************************/ 
+			
+			SELECT T.co_cd                                   AS erpCompSeq, 
+			       T.tr_cd                                   AS trSeq, 
+			       Isnull(T.tr_nm, '')                       AS trName, 
+			       T.tr_fg                                   AS trFgCode, 
+			       Isnull(depositor,'')								 AS payTrDepositor, 
+			       Isnull(ba_nb,'')							     AS payTrBaNb, 
+			       Isnull(ceo_nm,'')									 AS payTrCeoName, 
+			       Isnull(jiro_cd,'')									 AS payTrBtrSeq, 
+				   Isnull(bank_nm,'')									 AS payTrBtrName 
+			FROM   strade T 
+			       LEFT OUTER JOIN sbank B 
+			                    ON T.jiro_cd = B.bank_cd 
+			WHERE  T.co_cd = @CO_CD 
+			       AND TR_CD = @PAY_TR_CD
+			ORDER  BY T.tr_cd DESC 
+	]]></select>
+	
+	<!-- 거래서 생성 및 조회 -->
+	<select id="g20Procedure.USP_C0MMON_GET_TR_CD_FOR_NOT_EXIST_INSERT" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.USP_C0MMON_GET_TR_CD_FOR_NOT_EXIST_INSERT */
+		
+		USE DZICUBE;
+		DECLARE @LANGKIND	nvarchar(3)		
+		DECLARE @CO_CD		nvarchar(4)		
+		DECLARE @TR_FG		nvarchar(1)		
+		DECLARE @TR_NM		nvarchar(60)	
+		DECLARE @REG_NB		nvarchar(30)	
+		DECLARE @CEO_NM		nvarchar(30)	
+		DECLARE @BUSINESS	nvarchar(40)	
+		DECLARE @JONGMOK	nvarchar(40)	
+		DECLARE @TEL		nvarchar(20)	
+		DECLARE @ZIP		nvarchar(7)		
+		DECLARE @DIV_ADDR1	nvarchar(150)	
+		DECLARE @ADDR2		nvarchar(150)	
+		DECLARE @PAY_TR_CD		nvarchar(10)
+		
+		SELECT
+			@LANGKIND		= 'KOR'
+			, @CO_CD		= #{erpCompSeq}
+			, @TR_FG		= '1'
+			, @TR_NM		= #{trName}
+			, @REG_NB		= #{trRegNb}
+			, @CEO_NM		= #{ceoName}
+			, @BUSINESS		= ''
+			, @JONGMOK		= ''
+			, @TEL			= #{tel}
+			, @ZIP			= #{zip}
+			, @DIV_ADDR1	= #{addr1}
+			, @ADDR2		= #{addr2}
+			, @PAY_TR_CD	= #{payTrSeq}
+		/************************************************************/
+		
+		DECLARE @trade TABLE (
+			TR_CD NVARCHAR(10),
+			TR_NM NVARCHAR(60),
+			REG_NB NVARCHAR(30)
+		)
+		
+		INSERT INTO @trade ( TR_CD, TR_NM, REG_NB )
+		EXECUTE [dbo].[USP_C0MMON_GET_TR_CD_FOR_NOT_EXIST_INSERT] 
+			 @LANGKIND
+			,@CO_CD
+			,@TR_FG
+			,@TR_NM
+			,@REG_NB
+			,@CEO_NM
+			,@BUSINESS
+			,@JONGMOK
+			,@TEL
+			,@ZIP
+			,@DIV_ADDR1
+			,@ADDR2
+		
+		SELECT	A.CO_CD AS erpCompSeq
+				, A.TR_CD AS trSeq
+				, ISNULL(A.TR_NM, '') AS trName
+				, B.TR_FG AS trFgCode
+				, (
+					CASE 
+						WHEN B.TR_FG ='1' THEN N'일반'    
+						WHEN B.TR_FG ='2' THEN N'무역'    
+						WHEN B.TR_FG ='3' THEN N'주민'    
+						WHEN B.TR_FG ='4' THEN N'기타'    
+						WHEN B.TR_FG ='5' THEN N'금융기관'    
+						WHEN B.TR_FG ='6' THEN N'정기예금'    
+						WHEN B.TR_FG ='7' THEN N'정기적금'    
+						WHEN B.TR_FG ='8' THEN N'카드사'    
+						WHEN B.TR_FG ='9' THEN N'신용카드'    
+						ELSE ''    
+					END		
+				) AS trFgName
+				, ISNULL(B.ATTR_NM, B.ATTR_NMK) AS attrName /* 거래처 약칭 */
+				, B.REG_NB AS businessNb /* 사업자 등록번호 */
+				, ISNULL(B.PPL_NB, '') AS PPL_NB /* 주민등록 번호 */
+				, ISNULL(B.DEPOSITOR, '') AS depositor /* 예금주 */
+				, ( 
+					CASE	ISNULL(B.CEO_NM, B.CEO_NMK) 
+					WHEN	''	THEN @CEO_NM 
+					ELSE	ISNULL(B.CEO_NM, B.CEO_NMK) 
+					END
+				)	AS ceoName /* 대표자 성명 */
+				, ISNULL(B.JIRO_CD, '') AS jiroSeq /* 은행 코드 */
+				, ISNULL(ISNULL(C.BANK_NM, C.BANK_NMK), '') AS jiroName /* 은행 명 */
+				, ISNULL(B.BA_NB, '') AS baNb /* 계좌번호 */
+				/* , ISNULL(D.TRCHARGE_EMP, '') AS TRCHARGE_EMP */
+				/* , B.TEL AS TEL */
+				/* , B.USE_YN */
+				, ISNULL(B.DIV_ADDR1, '') + ' ' + ISNULL(B.ADDR2, '')					AS addr			/* 주소 */
+			    , (SELECT DEPOSITOR FROM STRADE WHERE CO_CD = @CO_CD AND TR_CD = @PAY_TR_CD)					    AS payTrDepositor
+				, (SELECT BA_NB FROM STRADE WHERE CO_CD = @CO_CD AND TR_CD = @PAY_TR_CD)						    AS payTrBaNb
+				, (SELECT CEO_NM FROM STRADE WHERE CO_CD = @CO_CD AND TR_CD = @PAY_TR_CD)   AS payTrCeoName
+				, (SELECT JIRO_CD FROM STRADE WHERE CO_CD = @CO_CD AND TR_CD = @PAY_TR_CD)					  		AS payTrBtrSeq
+				, ( SELECT	BANK_NM 
+						FROM	STRADE TRADE
+						INNER JOIN SBANK BANK
+						ON		TRADE.JIRO_CD = BANK.BANK_CD
+						AND		TRADE.TR_CD = @PAY_TR_CD
+						AND		CO_CD = @CO_CD
+				 ) AS payTrBtrName
+		FROM	(
+					SELECT	@CO_CD AS CO_CD
+							, TR_CD
+							, TR_NM
+							, REG_NB
+					FROM	@trade
+				) A INNER JOIN STRADE B ON A.CO_CD = B.CO_CD AND A.TR_CD = B.TR_CD
+				LEFT OUTER JOIN SBANK C ON B.JIRO_CD = C.BANK_CD
+				LEFT OUTER JOIN (
+					SELECT	CO_CD
+							, TR_CD
+							, TRCHARGE_EMP
+							, TRCHARGE_TEL 
+					FROM	STRADE_REC 
+					WHERE	REC_SQ = '1'
+				) D ON (A.CO_CD = D.CO_CD AND A.TR_CD = D.TR_CD)
+	]]></select>
+	
+	
+	<select id="g20Procedure.selectYesilList" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectYesilList */
+		/* 예실대비 현황 리스트 조회, 원본프로시저 - USP_ANC0040_BY_SELECT_01D*/
+		/* params[ ] */
+		
+		USE DZICUBE;
+		DECLARE @LANGKIND		nvarchar(3)		
+		DECLARE @CO_CD			nvarchar(4)		
+		DECLARE @GISU			numeric(3,0)	
+		DECLARE @DIV_CDS		nvarchar(256)	
+		DECLARE @MGT_CDS		nvarchar(4000)	
+		DECLARE @ZEROLINE_FG	nvarchar(1)		
+		DECLARE @GR_FG			nvarchar(1)		
+		DECLARE @BGT_CNT		nvarchar(2)		
+		DECLARE @DIV_FG			nvarchar(4)		
+		DECLARE @BGT_CD_FROM	nvarchar(10)	
+		DECLARE @BGT_CD_TO		nvarchar(10)	
+		DECLARE @OPT12			nvarchar(1)		
+		DECLARE @OPT13			nvarchar(1)		
+		DECLARE @OPT14			nvarchar(1)		
+		DECLARE @DATE_FROMS		nvarchar(256)	
+		DECLARE @DATE_TOS		nvarchar(256)	
+		DECLARE @FR_DT			nvarchar(8)		
+		DECLARE @LOGIN_EMP_CD	nvarchar(10)	
+		DECLARE @BOTTOM_CDS		nvarchar(256)	
+		
+		SELECT	
+			@LANGKIND		= 'KOR'				/* 다국어 설정 한국어 고정 */
+			, @CO_CD		= #{erpCompSeq}		/* erp 회사 코드 */	
+			, @GISU			= #{erpGisu}		/* erp 기수 */
+			, @DIV_CDS		= #{erpDivSeq}		/* erp 회계단위 		[ divSeq|divSeq| ] */
+			, @MGT_CDS		= #{erpMgtSeq}		/* erp 프로젝트 코드 	[ mgtSeq|mgtSeq| ] */
+			, @ZEROLINE_FG	= #{zeroLineCode} 	/* 금액없는 라인 표기 여부 [ 표시:1 / 감춤:2] */
+			, @GR_FG		= #{grCode}			/* 입출구분 [전체 : 0 / 수입 : 1 / 지출 : 2] */	
+			, @BGT_CNT		= #{budgetCnt}		/* 차수 */
+			, @DIV_FG		= #{divCode}		/* 과목구분 [관 : 1, 항 : 2, 목 : 3, 세 : 4] */	
+			, @BGT_CD_FROM	= #{fromBudgetSeq}	/* 예산과목 범위 검색 시작 코드 */
+			, @BGT_CD_TO	= #{toBudgetSeq}	/* 예산과목 범위 검색 끝 코드 */	
+			, @OPT12		= #{option12}		/* 집행액 [결의집행 : 1, 승인집행 : 2, 현금집행 : 3] */	
+			, @OPT13		= #{option13}		/* 집계일자 [결의서일자 : 1, 승인일자 : 2, 입출일자 : 3] */	
+			, @OPT14		= #{option14}		/* 예산현액 [승인예산 : 1, 신청예산 : 2] */	
+			, @DATE_FROMS	= #{fromDate}		/* 조회기간 시작일(기수 시작일) */	
+			, @DATE_TOS		= #{toDate}			/* 조회기간 종료일(기수 종료일) */
+			, @FR_DT		= #{fromDate}		/* 조회기간 시작일 */	
+			, @LOGIN_EMP_CD	= #{erpEmpSeq}		/* ERP 사용자 코드 */
+			, @BOTTOM_CDS	= #{bottomSeq} 		/* 하위 사업 코드 */	
+		
+		/************************************************************/
+		EXECUTE USP_ANC0040_BY_SELECT_01D 
+			@LANGKIND		
+			, @CO_CD			
+			, @GISU			
+			, @DIV_CDS		
+			, @MGT_CDS		
+			, @ZEROLINE_FG	
+			, @GR_FG			
+			, @BGT_CNT		
+			, @DIV_FG		
+			, @BGT_CD_FROM	
+			, @BGT_CD_TO		
+			, @OPT12			
+			, @OPT13			
+			, @OPT14			
+			, @DATE_FROMS	
+			, @DATE_TOS		
+			, @FR_DT			
+			, @LOGIN_EMP_CD	
+			, @BOTTOM_CDS
+	</select>
+	
+	<select id="g20Procedure.selectERPResList" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectERPResList */
+		/* 예실대비 현황 리스트 조회, 원본프로시저 - USP_ANC0040_BY_SELECT_01D*/
+		
+		USE DZICUBE;
+		EXECUTE USP_ANC0090_BY_BUDGET_SELECT 
+			@LANGKIND		= N'KOR'
+			, @CO_CD		= #{erpCompSeq} 	/* ERP 회사 코드 */
+			, @DIV_CD_STR	= #{erpDivSeq}		/* ERP 예산 회계 단위 */
+			, @MGT_CD_STR	= #{erpMgtSeq}		/* ERP 프로젝트/부서 코드 */
+			, @BGT_CD		= #{erpBudgetSeq}	/* 예산과목 코드 */ 
+			, @GISU_DT_FROM	= #{fromDate}		/* 조회기간 시작일(기수 시작일) */
+			, @GISU_DT_TO	= #{toDate}			/* 조회기간 종료일(기수 종료일) */
+			, @EMP_CD		= #{erpEmpSeq}		/* ERP 사용자 코드 */
+			, @TYPE			= #{erpResGbn}
+			, @CAUSE_TY		= N'0'
+			, @FILL_TY		= N'0'
+			, @BOTTOM_CD_STR= #{erpBottomSeq}	
+	</select>
+	
+	<select id="g20Procedure.selectCtrList" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectCtrList */
+		/* 카드 거래처 리스트 조회 */
+		/* 원본 프로시저 [1.0] -  [dbo].[P_GWG20_COMMON_TR_LIST] */
+		/* params[ erpCompSeq, trType, trSeq, trName, trDetailType ] */		
+		
+		USE DZICUBE;
+		DECLARE   
+			@CO_CD			NVARCHAR(4)    
+			, @TR_CD		NVARCHAR(10)    
+			, @TR_NM		NVARCHAR(60)    
+			, @TYPE			NVARCHAR(1)			
+			, @DETAIL_TYPE  NVARCHAR(1)    
+			, @LANGKIND		NVARCHAR(10) 
+			, @USE_YN		NVARCHAR(1)
+		SELECT
+			@CO_CD	= '${erpCompSeq}'
+			, @TYPE	= ''			/* 카드 거래처 미사용 */
+			, @TR_CD = ''			/* 카드 거래처 미사용 */
+			, @TR_NM = '${trName}'	/* 거래처명 LIKE 검색 */
+			, @DETAIL_TYPE = '9'	/* 상세 구분(TR_FG) */
+			, @LANGKIND = 'KR'
+			, @USE_YN = '${useYn}'			/* 카드 거래처 미사용 */
+			
+		/************************************************************/
+		
+		SELECT 
+				A.TR_CD									AS cardCode		/* 거래처 코드 */
+				, A.BA_NB								AS cardNum		/* 계좌번호 */
+				, ISNULL(A.TR_NM, A.TR_NM)				AS cardName		/* 거래처 명 */
+				, REPLACE(A.BA_NB, '-', '')				AS repCardNum	/* 보정 카드번호 */
+				, A.TR_FG								AS trFg			/* 거래구분 */
+				, A.USE_YN								AS useYN
+				, A.PAYTR_CD							AS payTrSeq
+	   			, PAY_A.TR_NM						    AS payTrName
+				, PAY_A.DEPOSITOR					    AS payTrDepositor
+				, PAY_A.BA_NB						    AS payTrBaNb
+				, ISNULL(PAY_A.CEO_NM, PAY_A.CEO_NMK)   AS payTrCeoName
+				, PAY_A.JIRO_CD					  		AS payTrBtrSeq
+				, (SELECT BANK_NM FROM SBANK BANK WHERE PAY_A.JIRO_CD = BANK.BANK_CD) AS payTrBtrName
+		FROM	STRADE A WITH(NOLOCK)
+		LEFT JOIN	STRADE PAY_A
+		ON			A.PAYTR_CD = PAY_A.TR_CD
+		AND		PAY_A.CO_CD = @CO_CD
+		INNER JOIN	(   
+			SELECT '1' AS TR_FG    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=1    /* 일반거래처 1,2,3,4 */    
+			UNION ALL    
+			SELECT '2'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=1    
+			UNION ALL    
+			SELECT '3'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=1                
+			UNION ALL    
+			SELECT '4'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=1    
+			UNION ALL    
+			SELECT '5'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=2		/* 금융거래처 5,6,7,8,9 */    
+			UNION ALL    
+			SELECT '6'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=2    
+			UNION ALL    
+			SELECT '7'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=2    
+			UNION ALL    
+			SELECT '8'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=2    
+			UNION ALL    
+			SELECT '9'    
+			WHERE  NULLIF(@TYPE ,'') IS NULL OR @TYPE=2    
+		 )	B    
+		 ON	( A.TR_FG = B.TR_FG )    
+		 LEFT OUTER JOIN SBANK C 
+		 ON	( A.JIRO_CD = C.BANK_CD)    
+		 LEFT OUTER JOIN ( 
+			SELECT
+				CO_CD
+				, TR_CD
+				, TRCHARGE_EMP
+				, TRCHARGE_TEL 
+			FROM	STRADE_REC 
+			WHERE	REC_SQ = '1'
+		 ) D  
+		 ON (A.CO_CD = D.CO_CD AND A.TR_CD = D.TR_CD)    
+		WHERE A.CO_CD = @CO_CD     
+			AND ( NULLIF(@TR_CD,'') 		IS NULL OR	A.TR_CD = @TR_CD)    
+			AND ( NULLIF(@TR_NM,'')			IS NULL 
+				OR	A.TR_NM LIKE '%' + @TR_NM + '%'
+				OR Replace(A.ba_nb, '-', '') LIKE '%' + Replace(@TR_NM, '-', '') + '%' 
+			)    
+			AND ( NULLIF(@DETAIL_TYPE,'')	IS NULL OR	A.TR_FG = @DETAIL_TYPE)  
+			AND ( A.USE_YN = '1' OR A.USE_YN = NULLIF(@USE_YN,'1') ) 
+	</select>		
+	
+
+	<update id="g20Procedure.updateG20SendCardList" parameterType="java.util.Map">
+		/* expend/np/user/NpUserResSQL.xml - NpUserResA.updateG20SendCardList */
+		/* 결의서 전송 / 법인카드 승인내역 정보 연동 */
+		UPDATE ACARD_SUNGIN
+		SET
+			GISU_DT	= #{erpGisuDate}
+			, GISU_SQ = #{erpGisuSq}
+			, GW_EMP_CD = #{erpEmpSeq}
+			, GW_DIV_CD = #{erpDivSeq}
+			, GW_DEPT_CD = #{erpDeptSeq}
+		WHERE	iss_dt = #{issDate}
+		 AND iss_sq = #{issSq}
+	</update>		
+	
+	<update id="g20Procedure.updateG20DeSendCardList" parameterType="java.util.Map">
+		/* expend/np/user/NpUserResSQL.xml - NpUserResA.updateG20DeSendCardList */
+		/* 결의서 전송 / 법인카드 승인내역 정보 연동 취소 */
+		UPDATE ACARD_SUNGIN
+		SET
+			GISU_DT	= ''
+			, GISU_SQ = 0
+			, GW_EMP_CD = ''
+			, GW_DIV_CD = ''
+			, GW_DEPT_CD = ''
+		WHERE	iss_dt = #{issDate}
+		 AND iss_sq = #{issSq}
+	</update>		
+	
+	<update id="g20Procedure.updateG20DeleteCardList" parameterType="java.util.Map">
+		/* expend/np/user/NpUserResSQL.xml - NpUserResA.updateG20DeleteCardList */
+		/* 결의서 삭제 / 법인카드 승인내역 정보 연동 취소 */
+		UPDATE ACARD_SUNGIN
+		SET
+			GISU_DT	= ''
+			, GISU_SQ = 0
+			, GW_EMP_CD = ''
+			, GW_DIV_CD = ''
+			, GW_DEPT_CD = ''
+			, GW_STATE = ''
+			, GW_ID = ''
+			, DOC_NO = ''
+			, DOC_ID = ''
+			, SYNC_ID = ''
+		WHERE	iss_dt = #{issDate}
+		 AND iss_sq = #{issSq}
+	</update>			
+	
+	<select id="g20Procedure.selectTradeCodeExistsCheck" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectTradeCodeExistsCheck */
+		/* 거래처 코드 중복 조회 */
+		/* params[ erpCompSeq, trSeq ] */
+		USE DZICUBE;
+		DECLARE   
+			@CO_CD			NVARCHAR(4)    
+			, @TR_CD		NVARCHAR(10)
+			, @LANGKIND		NVARCHAR(4)
+			, @IS_INSERT	NVARCHAR(2)
+		SELECT
+			@LANGKIND = N'KOR'
+			, @CO_CD	= '${erpCompSeq}'
+			, @TR_CD = '${trSeq}'
+			, @IS_INSERT = N'0'	
+			
+		/************************************************************/		
+		EXEC	USP_ACA0010_STRADE_REG_SELECT
+			@LANGKIND
+			, @CO_CD
+			, @TR_CD
+			, @IS_INSERT
+	</select>
+	
+	<select id="g20Procedure.selectTradeRegNbCheck" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectTradeCodeExistsCheck */
+		/* 거래처 코드 중복 조회 */
+		/* params[ erpCompSeq, trSeq ] */
+		USE DZICUBE;
+		DECLARE   
+			@CO_CD			NVARCHAR(4)    
+			, @TR_CD		NVARCHAR(10)
+			, @LANGKIND		NVARCHAR(4)
+			, @REG_NB		NVARCHAR(40)
+		SELECT
+			@LANGKIND = N'KOR'
+			, @CO_CD	= '${erpCompSeq}'
+			, @TR_CD = '${trSeq}'
+			, @REG_NB = '${businessNb}'
+			
+		/************************************************************/		
+		EXECUTE USP_SYB0010_PPL_REG_CHECK @LANGKIND, @CO_CD, @REG_NB, @PPL_NB=NULL, @FG=N'R'
+
+	</select>
+	
+	
+	
+	
+	<select id="g20Procedure.selectTradeAutoTrSeq" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.selectTradeAutoTrSeq */
+		/* 거래처 코드 자동 채번 조회 */
+		/* params[ erpCompSeq ] */
+		USE DZICUBE;
+		DECLARE   
+			@CO_CD			NVARCHAR(4)    
+			, @TR_CD		NVARCHAR(10)
+			, @LANGKIND		NVARCHAR(4)
+			, @IS_INSERT	NVARCHAR(2)
+		SELECT
+			@LANGKIND = N'KOR'
+			, @CO_CD	= '${erpCompSeq}'
+			, @TR_CD = ''
+			, @IS_INSERT = N'1'	
+			
+		/************************************************************/		
+		EXEC	USP_ACA0010_STRADE_REG_SELECT
+			@LANGKIND
+			, @CO_CD
+			, @TR_CD
+			, @IS_INSERT
+	</select>
+	
+	<select id="g20Procedure.insertTradeInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/common/procedure/G20ProcedureSQL - g20Procedure.insertTradeInfo */
+		/* 거래처 정보 생성 */
+		/* params[  ] */
+		USE DZICUBE;
+		DECLARE @RC int
+		DECLARE @LANGKIND nvarchar(3)
+		DECLARE @CO_CD nvarchar(4)
+		DECLARE @TR_CD nvarchar(10)
+		DECLARE @IS_INSERT nvarchar(1)
+		DECLARE @TR_FG nvarchar(1)
+		DECLARE @TR_NM nvarchar(60)
+		DECLARE @TR_NMK nvarchar(60)
+		DECLARE @ATTR_NM nvarchar(60)
+		DECLARE @ATTR_NMK nvarchar(60)
+		DECLARE @REG_NB nvarchar(30)
+		DECLARE @PPL_NB nvarchar(100)
+		DECLARE @CEO_NM nvarchar(30)
+		DECLARE @CEO_NMK nvarchar(30)
+		DECLARE @BUSINESS nvarchar(40)
+		DECLARE @JONGMOK nvarchar(40)
+		DECLARE @ZIP nvarchar(7)
+		DECLARE @DIV_ADDR1 nvarchar(60)
+		DECLARE @ADDR2 nvarchar(60)
+		DECLARE @TEL nvarchar(20)
+		DECLARE @FAX nvarchar(20)
+		DECLARE @EMAIL nvarchar(30)
+		DECLARE @CLTTR_CD nvarchar(10)
+		DECLARE @REPTR_CD nvarchar(10)
+		DECLARE @APPR_NB nvarchar(4)
+		DECLARE @JEONJA_YN nvarchar(1)
+		DECLARE @JIRO_CD nvarchar(10)
+		DECLARE @DUMMY2 nvarchar(20)
+		DECLARE @BA_NB_TR nvarchar(20)
+		DECLARE @DEPOSITOR nvarchar(40)
+		DECLARE @SETTLE_PAY nvarchar(10)
+		DECLARE @SETTLE_CD nvarchar(10)
+		DECLARE @SETTLE_RCP nvarchar(10)
+		DECLARE @ADDR_FG nvarchar(1)
+		DECLARE @STRADE_REC_DEPT_CD nvarchar(4)
+		DECLARE @STRADE_REC_EMP_CD nvarchar(10)
+		DECLARE @STRADE_REC_TEL_DC nvarchar(20)
+		DECLARE @STRADE_REC_HP_DC nvarchar(20)
+		DECLARE @STRADE_REC_EMAIL_DC nvarchar(40)
+		DECLARE @STRADE_REC_EMPGRP_CD nvarchar(3)
+		DECLARE @STRADE_REC_TRCHARGE_EMP nvarchar(30)
+		DECLARE @STRADE_REC_TRCHARGE_DEPT nvarchar(30)
+		DECLARE @STRADE_REC_TRCHARGE_TEL nvarchar(30)
+		DECLARE @STRADE_REC_TRCHARGE_EXT nvarchar(10)
+		DECLARE @STRADE_REC_TRCHARGE_HP nvarchar(30)
+		DECLARE @STRADE_REC_TRCHARGE_EMAIL nvarchar(40)
+		DECLARE @INSMOD_IP nvarchar(15)
+		DECLARE @INSMOD_ID nvarchar(10)
+		DECLARE @PJT_CD nvarchar(10)
+		DECLARE @TRGRP_CD nvarchar(10)
+		DECLARE @ACCT1_FG nvarchar(4)
+		DECLARE @TAX1_FG nvarchar(2)
+		DECLARE @DOUDATE1_FG nvarchar(2)
+		DECLARE @DOUDATE1_DD nvarchar(2)
+		DECLARE @ACCT2_FG nvarchar(4)
+		DECLARE @TAX2_FG nvarchar(2)
+		;
+		SELECT
+			@TR_CD = '${trSeq}'
+			, @TR_NM = '${trName}'
+			, @TR_FG = '${trGbn}'
+			, @ATTR_NM = '${trName}'
+			, @REG_NB = '${businessNb}'
+			, @BUSINESS = '${businessGbn}'
+			, @JONGMOK = '${businessType}'
+			, @CO_CD = '${erpCompSeq}'
+			, @BA_NB_TR ='${baNb}'
+			, @JIRO_CD = '${jiroCd}'
+			, @DEPOSITOR ='${depositor}';
+		
+		EXEC USP_ACA0010_STRADE_REG_SAVE 
+		   @LANGKIND
+		  ,@CO_CD
+		  ,@TR_CD OUTPUT
+		  ,@IS_INSERT
+		  ,@TR_FG
+		  ,@TR_NM
+		  ,@TR_NMK
+		  ,@ATTR_NM
+		  ,@ATTR_NMK
+		  ,@REG_NB
+		  ,@PPL_NB
+		  ,@CEO_NM
+		  ,@CEO_NMK
+		  ,@BUSINESS
+		  ,@JONGMOK
+		  ,@ZIP
+		  ,@DIV_ADDR1
+		  ,@ADDR2
+		  ,@TEL
+		  ,@FAX
+		  ,@EMAIL
+		  ,@CLTTR_CD
+		  ,@REPTR_CD
+		  ,@APPR_NB
+		  ,@JEONJA_YN
+		  ,@JIRO_CD
+		  ,@DUMMY2
+		  ,@BA_NB_TR
+		  ,@DEPOSITOR
+		  ,@SETTLE_PAY
+		  ,@SETTLE_CD
+		  ,@SETTLE_RCP
+		  ,@ADDR_FG
+		  ,@STRADE_REC_DEPT_CD
+		  ,@STRADE_REC_EMP_CD
+		  ,@STRADE_REC_TEL_DC
+		  ,@STRADE_REC_HP_DC
+		  ,@STRADE_REC_EMAIL_DC
+		  ,@STRADE_REC_EMPGRP_CD
+		  ,@STRADE_REC_TRCHARGE_EMP
+		  ,@STRADE_REC_TRCHARGE_DEPT
+		  ,@STRADE_REC_TRCHARGE_TEL
+		  ,@STRADE_REC_TRCHARGE_EXT
+		  ,@STRADE_REC_TRCHARGE_HP
+		  ,@STRADE_REC_TRCHARGE_EMAIL
+		  ,@INSMOD_IP
+		  ,@INSMOD_ID
+		  ,@PJT_CD
+		  ,@TRGRP_CD
+		  ,@ACCT1_FG
+		  ,@TAX1_FG
+		  ,@DOUDATE1_FG
+		  ,@DOUDATE1_DD
+		  ,@ACCT2_FG
+		  ,@TAX2_FG
+		 ;
+	
+	</select>
+	
+</mapper>
+
+
+

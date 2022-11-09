@@ -1,0 +1,806 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- iCUBE mssql -->
+<mapper namespace="CommonBatchCmsiCUBEServiceDAO">
+	<!-- /* Batch - CMS - iCUBE */ -->
+	<!-- /* Batch - CMS - iCUBE - Select */ -->
+	<!-- /* Batch - CMS - iCUBE - Select - 하나은행 */ /* VA_ZA_HANACMSCARDAPPR */ -->
+	<select id="CommonBatchCmsiCUBEServiceDAO.CommonCmsiCUBEInfoListSelect_HANA" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+        /* CommonBatchCmsiCUBEServiceDAO.CommonCmsiCUBEInfoListSelect_HANA - iCUBE - mssql */
+        USE DZICUBE;
+		SELECT  CARD_NO AS cardNo /* 카드번호 */
+		        , APPR_DATE AS apprDate /* 승인일자 */
+		        , APPR_NO AS apprNo /* 승인번호 */
+		        , APPR_AMT AS apprAmt /* 승인금액 */
+		        , APPR_SEQ AS apprSeq /* 일련번호 */
+		        
+		        /* card_aq_tmp data */
+		        , CARD_NO AS cardNum /* 카드번호 */
+		        , APPR_NO AS authNum /* 승인번호 */
+		        , APPR_DATE AS authDate /* 승인일자 */
+		        , APPR_TIME AS authTime /* 승인시간 */
+		        , REPLACE ( CARD_NO + APPR_DATE + APPR_NO + APPR_SEQ, ' ', '' ) AS georaeColl /* 거래번호 */
+		        , CANCEL_YN AS georaeStat /* 거래상태 */
+		        , ( CASE WHEN CANCEL_YN = 'y' THEN APPR_DATE ELSE '' END ) AS georaeCand /* 승인취소일자 */
+		        , ISNULL(APPR_AMT,0) + ISNULL(APPR_TAX,0) AS requestAmount /* 총금액 */
+		        , ISNULL(APPR_AMT,0) AS amtAmount /* 공급가액 */
+		        , ISNULL(APPR_TAX,0) AS vatAmount /* 부가세액 */
+		        , ISNULL(SERVICE_AM,0) AS serAmount /* 서비스금액 */
+		        , '0.0' AS freAmount
+		        , ISNULL(APPR_AMT,0) AS amtMdAmount /* 공급가액 */
+		        , ISNULL(APPR_TAX,0) AS vatMdAmount /* 부가세액 */
+		        , 'KRW' AS georaeGukga /* 거래국가 */
+		        , '0.0' AS forAmount
+		        , '0.0' AS usdAmount
+		        , CHAIN_NAME AS mercName /* 거래처명 */
+		        , CHAIN_REG_NB AS mercSaupNo /* 거래처사업자등록번호 */
+		        , '' AS mercAddr /* 거래처주소 */
+		        , '' AS mercRepr /* 거래처대표자명 */
+		        , '' AS mercTel /* 거래처연락처 */
+		        , '' AS mercZip /* 거래처우편번호 */
+		        , '' AS mccName
+		        , '' AS mccCode
+		        , '' AS mccStat
+		        , '' AS vatStat
+		        , DEDUCT_YN AS gongjeNoChk
+		        , 'A' AS abroad /* 해외사용구분 */
+		        , '' AS editedAction
+		FROM    VA_ZA_HANACMSCARDAPPR
+		WHERE   APPR_DATE >= ( CASE WHEN '${cmsBaseDate}' > CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) THEN '${cmsBaseDate}' ELSE CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) END )
+    ]]></select>
+
+	<!-- /* Batch - CMS - iCUBE - Select - 기업은행 */ /* VA_ZA_IBKCMSCARDAPPR */ -->
+	<select id="CommonCmsiCUBEInfoListSelect_IBK" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		USE DZICUBE;
+        /* CommonBatchCmsiCUBEServiceDAO.CommonCmsiCUBEInfoListSelect_IBK - iCUBE - mssql */
+		SELECT	BANK_CODE AS bankCode /* 금융기관코드 */
+				, CARD_NO AS cardNo /* 카드번호 */
+				, APPR_DATE AS apprDate /* 승인일자 */
+				, APPR_SEQ AS apprSeq /* 승인일자별 순번 */
+				
+		        /* card_aq_tmp data */
+		        , CARD_NO AS cardNum /* 카드번호 */
+		        , APPR_NO AS authNum /* 승인번호 */
+		        , APPR_DATE AS authDate /* 승인일자 */
+		        , APPR_TIME AS authTime /* 승인시간 */
+		        , REPLACE ( ( '' + ISNULL(BANK_CODE, '') + ISNULL(CARD_NO,'') + ISNULL(APPR_DATE,'') + ISNULL(CAST(APPR_SEQ as varchar(10)),'') ), ' ', '' ) AS georaeColl /* 거래번호 */
+		        , (CASE WHEN CANCEL_YN = '' THEN 'N' ELSE CANCEL_YN END) AS georaeStat /* 거래상태 */
+		        , (CASE WHEN UPPER(CANCEL_YN) = 'Y' THEN APPR_DATE ELSE '' END ) AS georaeCand /* 승인취소일자 */
+		        , ISNULL(APPR_AMT,0) AS requestAmount /* 총금액 */
+		        , ISNULL(APPR_AMT,0) - ISNULL(APPR_TAX,0) AS amtAmount /* 공급가액 */
+		        , ISNULL(APPR_TAX,0) AS vatAmount /* 부가세액 */
+		        , '0.00' AS serAmount /* 서비스금액 */
+		        , '0.0' AS freAmount
+		        , ISNULL(APPR_AMT,0) - ISNULL(APPR_TAX,0) AS amtMdAmount /* 공급가액 */
+		        , ISNULL(APPR_TAX,0) AS vatMdAmount /* 부가세액 */
+		        , 'KRW' AS georaeGukga /* 거래국가 */
+		        , '0.0' AS forAmount
+		        , '0.0' AS usdAmount
+		        , CHAIN_NAME AS mercName /* 거래처명 */
+		        , CHAIN_REG_NB AS mercSaupNo /* 거래처사업자등록번호 */
+		        , '' AS mercAddr /* 거래처주소 */
+		        , '' AS mercRepr /* 거래처대표자명 */
+		        , '' AS mercTel /* 거래처연락처 */
+		        , '' AS mercZip /* 거래처우편번호 */
+		        , '' AS mccName
+		        , '' AS mccCode
+		        , '' AS mccStat
+		        , '' AS vatStat
+		        , DEDUCT_YN AS gongjeNoChk
+		        , 'A' AS abroad /* 해외사용구분 */
+		        , '' AS editedAction
+		FROM	VA_ZA_IBKCMSCARDAPPR
+		WHERE   APPR_DATE >= ( CASE WHEN '${cmsBaseDate}' > CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) THEN '${cmsBaseDate}' ELSE CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) END )
+    ]]></select>
+
+	<!-- /* Batch - CMS - iCUBE - Select - 국민은행 */ /* VA_ZA_KBCMSCARDAPPR */ -->
+	<select id="CommonCmsiCUBEInfoListSelect_KB" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		USE DZICUBE;
+        /* CommonBatchCmsiCUBEServiceDAO.CommonCmsiCUBEInfoListSelect_KB - iCUBE - mssql */
+		SELECT	REG_NB
+				, BANK_CODE
+				, DEPT_NM
+				, CARD_NO
+				, APPR_DATE
+				, APPR_SEQ
+				
+		        /* card_aq_tmp data */
+		        , CARD_NO AS cardNum /* 카드번호 */
+		        , APPR_NO AS authNum /* 승인번호 */
+		        , APPR_DATE AS authDate /* 승인일자 */
+		        , APPR_TIME AS authTime /* 승인시간 */
+		        , REPLACE ( CONVERT ( NVARCHAR, CARD_NO ) + CONVERT ( NVARCHAR, APPR_DATE) + CONVERT ( NVARCHAR, APPR_NO) + CONVERT ( NVARCHAR, APPR_SEQ), ' ', '' ) AS georaeColl /* 거래번호 */
+		        , CANCEL_YN AS georaeStat /* 거래상태 */
+		        , ( CASE WHEN CANCEL_YN = 'y' THEN APPR_DATE ELSE '' END ) AS georaeCand /* 승인취소일자 */
+		        , ISNULL(APPR_AMT,0) + ISNULL(APPR_TAX,0) AS requestAmount /* 총금액 */
+		        , ISNULL(APPR_AMT,0) AS amtAmount /* 공급가액 */
+		        , ISNULL(APPR_TAX,0) AS vatAmount /* 부가세액 */
+		        , '0.00' AS serAmount /* 서비스금액 */
+		        , '0.0' AS freAmount
+		        , ISNULL(APPR_AMT,0) AS amtMdAmount /* 공급가액 */
+		        , ISNULL(APPR_TAX,0) AS vatMdAmount /* 부가세액 */
+		        , 'KRW' AS georaeGukga /* 거래국가 */
+		        , '0.0' AS forAmount
+		        , '0.0' AS usdAmount
+		        , CHAIN_NAME AS mercName /* 거래처명 */
+		        , CHAIN_REG_NB AS mercSaupNo /* 거래처사업자등록번호 */
+		        , '' AS mercAddr /* 거래처주소 */
+		        , '' AS mercRepr /* 거래처대표자명 */
+		        , '' AS mercTel /* 거래처연락처 */
+		        , '' AS mercZip /* 거래처우편번호 */
+		        , '' AS mccName
+		        , '' AS mccCode
+		        , '' AS mccStat
+		        , '' AS vatStat
+		        , DEDUCT_YN AS gongjeNoChk
+		        , 'A' AS abroad /* 해외사용구분 */
+		        , '' AS editedAction
+		FROM	VA_ZA_KBCMSCARDAPPR
+		WHERE   APPR_DATE >= ( CASE WHEN '${cmsBaseDate}' > CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) THEN '${cmsBaseDate}' ELSE CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) END )
+    ]]></select>
+
+	<!-- /* Batch - CMS - iCUBE - Select - 스마트증빙 */ /* VA_ZA_SMARTCMSCARDAPPR */ -->
+	<select id="CommonBatchCmsiCUBEServiceDAO.CommonCmsiCUBEInfoListSelect_SMART" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		USE DZICUBE;
+		IF EXISTS (SELECT 1 FROM sysobjects WHERE id = OBJECT_ID('VA_ZA_SMARTCMSCARDAPPR_ORG') and xtype='V')
+		BEGIN
+			SELECT	BANK_CODE /* 금융기관코드(KEY) */
+						, CARD_NO /* 카드번호(KEY) */
+						, APPR_DATE /* 승인일자(KEY) */
+						, '' AS APPR_SEQ /* 승인일자별순번(KEY) */
+						/* card_aq_tmp data */
+						, CARD_NO AS cardNum /* 카드번호(KEY) */
+						, ISNULL(APPR_NO, '') AS authNum /* 승인번호 */
+						, APPR_DATE AS authDate /* 승인일자(KEY) */
+						, ISNULL(APPR_TIME, '000000') AS authTime /* 승인시간 */
+						, GUID AS georaeColl /* 거래번호 */
+						, ( CASE WHEN CANCEL_YN = '1' THEN 'N' WHEN CANCEL_YN = '2' THEN 'Y' ELSE CANCEL_YN END ) AS georaeStat /* 승인/취소구분 */
+						, ( CASE WHEN CANCEL_YN = '2' THEN APPR_DATE ELSE '' END ) AS georaeCand /* 승인취소일자 */
+						, ISNULL(APPR_AMT, '0') AS requestAmount /* 승인금액 */
+						, ISNULL(APPR_SUP, '0') AS amtAmount /* 공급가 */
+						, ISNULL(APPR_TAX, '0') AS vatAmount /* 부가세 */
+						, '0.00' AS serAmount /* 서비스금액 */
+						, '0.0' AS freAmount
+						, ISNULL(APPR_SUP, '0') AS amtMdAmount /* 공급가 */
+						, ISNULL(APPR_TAX, '0') AS vatMdAmount /* 부가세 */
+						, 'KRW' AS georaeGukga /* 거래국가 */
+						, '0.0' AS forAmount
+						, '0.0' AS usdAmount
+						, ISNULL(CHAIN_NAME, '') AS mercName /* 가맹점명 */
+						, ISNULL(CHAIN_REG_NB, '') AS mercSaupNo /* 가맹점사업자번호 */
+						, REPLACE(ISNULL(CHAIN_ADDR, ''),'''','`') AS mercAddr /* 가맹점사업자주소 */
+						, ISNULL(CEO_NM, '') AS mercRepr /* 거래처대표자명 */
+						, ISNULL(CHAIN_TEL, '') AS mercTel /* 가맹점사업장전화번호 */
+						, '' AS mercZip /* 거래처우편번호 */
+						, '' AS mccName
+				        , '' AS mccCode
+				        , '' AS mccStat
+				        , '' AS vatStat
+				        , CASE WHEN ISNULL(APPR_TAX, 0) > 0 THEN 'N'
+				          ELSE 'Y' END AS gongjeNoChk /* 공제여부 ( 부가세 금액이 존재( > 0 ) 공제, 그외는 불공제 )  */
+				FROM	VA_ZA_SMARTCMSCARDAPPR_ORG
+				WHERE   APPR_DATE >= ( CASE WHEN '${cmsBaseDate}' > CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) THEN '${cmsBaseDate}' ELSE CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) END )
+		
+		END
+		ELSE
+		BEGIN
+			
+			SELECT	BANK_CODE /* 금융기관코드(KEY) */
+						, CARD_NO /* 카드번호(KEY) */
+						, APPR_DATE /* 승인일자(KEY) */
+						, APPR_SEQ /* 승인일자별순번(KEY) */
+						/* card_aq_tmp data */
+						, CARD_NO AS cardNum /* 카드번호(KEY) */
+						, ISNULL(APPR_NO, '') AS authNum /* 승인번호 */
+						, APPR_DATE AS authDate /* 승인일자(KEY) */
+						, ISNULL(APPR_TIME, '000000') AS authTime /* 승인시간 */
+						, REPLACE ( CONVERT(NVARCHAR, BANK_CODE) + CONVERT(NVARCHAR, CARD_NO) + CONVERT(NVARCHAR, APPR_DATE) + CONVERT(NVARCHAR, APPR_SEQ), ' ', '' ) AS georaeColl /* 거래번호 */
+						, ISNULL(CANCEL_YN, '') AS georaeStat /* 승인/취소구분 */
+						, ( CASE WHEN CANCEL_YN = 'Y' THEN APPR_DATE ELSE '' END ) AS georaeCand /* 승인취소일자 */
+						, ISNULL(APPR_AMT, '0') AS requestAmount /* 승인금액 */
+						, ISNULL(APPR_SUP, '0') AS amtAmount /* 공급가 */
+						, ISNULL(APPR_TAX, '0') AS vatAmount /* 부가세 */
+						, '0.00' AS serAmount /* 서비스금액 */
+						, '0.0' AS freAmount
+						, ISNULL(APPR_SUP, '0') AS amtMdAmount /* 공급가 */
+						, ISNULL(APPR_TAX, '0') AS vatMdAmount /* 부가세 */
+						, 'KRW' AS georaeGukga /* 거래국가 */
+						, '0.0' AS forAmount
+						, '0.0' AS usdAmount
+						, ISNULL(CHAIN_NAME, '') AS mercName /* 가맹점명 */
+						, ISNULL(CHAIN_REG_NB, '') AS mercSaupNo /* 가맹점사업자번호 */
+						, REPLACE(ISNULL(CHAIN_ADDR, ''),'''','`') AS mercAddr /* 가맹점사업자주소 */
+						, '' AS mercRepr /* 거래처대표자명 */
+						, ISNULL(CHAIN_TEL, '') AS mercTel /* 가맹점사업장전화번호 */
+						, '' AS mercZip /* 거래처우편번호 */
+						, '' AS mccName
+				        , '' AS mccCode
+				        , '' AS mccStat
+				        , '' AS vatStat
+				        , CASE
+							WHEN DEDUCT_YN = '0' THEN 'Y' /* 불공제 */
+							WHEN DEDUCT_YN = '1' THEN 'N' /* 공제 */
+							WHEN DEDUCT_YN = '2' THEN 'N' /* 미확인 > 공제 */
+						END AS gongjeNoChk /* 공제여부 */
+				FROM	VA_ZA_SMARTCMSCARDAPPR
+				WHERE   APPR_DATE >= ( CASE WHEN '${cmsBaseDate}' > CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) THEN '${cmsBaseDate}' ELSE CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) END )
+		
+		END
+    ]]></select>
+    
+    
+    <!-- /* Batch - CMS - iCUBE - Select - procedure */ /* Z_GWA_EXPCMS_S */ -->
+    <select id="CommonBatchCmsiCUBEServiceDAO.CommonCmsiCUBEInfoListSelect_Procedure" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+    	USE DZICUBE;
+    	if exists(select 1 from sysobjects where id=object_id('Z_GWA_EXPCMS_S_iCUBE') and xtype='P')
+   			exec Z_GWA_EXPCMS_S_iCUBE '${cmsBaseDate}', '${cmsBaseDay}' 
+    ]]></select>
+
+	<!-- /* Batch - CMS - iCUBE - Select - 농협은행 */ /* VA_ZA_NHCMSCARDAPPR */ -->
+	<select id="CommonCmsiCUBEInfoListSelect_NH" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[ 
+	/* CommonBatchCmsiCUBEServiceDAO.CommonCmsiCUBEInfoListSelect_NH - ERPiU - mssql */
+		USE DZICUBE;
+		SELECT	'011' AS bankCode /* 금융기관코드 */
+			, CARD_NO AS cardNo /* 카드번호 */
+			, APPR_DATE AS apprDate /* 승인일자 */
+			, APPR_SEQ AS apprSeq /* 승인일자별 순번 */
+	        /* card_aq_tmp data */
+	        , CARD_NO AS cardNum /* 카드번호 */
+	        , APPR_NO AS authNum /* 승인번호 */
+	        , APPR_DATE AS authDate /* 승인일자 */
+	        , replace(APPR_TIME,':','') AS authTime /* 승인시간 */
+	        , REPLACE ( ( '' + ISNULL('020', '') + ISNULL(CARD_NO,'') + ISNULL(APPR_DATE,'') + ISNULL(CAST(APPR_SEQ as varchar(10)),'') ), ' ', '' ) AS georaeColl /* 거래번호 */
+	        , CANCEL_YN AS georaeStat /* 거래상태 */
+	        , ( CASE WHEN CANCEL_YN = 'Y' THEN APPR_DATE ELSE '' END ) AS georaeCand /* 승인취소일자 */
+			, APPR_AMT  AS requestAmount /* 총금액 */
+			, ISNULl(APPR_AMT, 0) - ISNULL(APPR_TAX, 0) AS amtAmount /* 공급가액 */
+	        , ISNULL(APPR_TAX, 0) AS vatAmount /* 부가세액 */
+	        , '0.0' AS serAmount /* 서비스금액 */
+	        , '0.0' AS freAmount
+	        , ISNULl(APPR_AMT, 0) - ISNULL(APPR_TAX, 0) AS amtMdAmount /* 공급가액 */
+	        , ISNULL(APPR_TAX, 0) AS vatMdAmount /* 부가세액 */
+	        , 'KRW' AS georaeGukga /* 거래국가 */
+	        , '0.0' AS forAmount
+	        , '0.0' AS usdAmount
+	        , CHAIN_NAME AS mercName /* 거래처명 */
+	        , CHAIN_REG_NB AS mercSaupNo /* 거래처사업자등록번호 */
+	        , '' AS mercAddr /* 거래처주소 */
+	        , '' AS mercRepr /* 거래처대표자명 */
+	        , '' AS mercTel /* 거래처연락처 */
+	        , '' AS mercZip /* 거래처우편번호 */
+	        , '' AS mccName
+	        , '' AS mccCode
+	        , '' AS mccStat
+	        , '' AS vatStat
+	        , '' AS gongjeNoChk
+	        , '' AS abroad /* 해외사용구분 */
+	        , '' AS editedAction
+	FROM	VA_ZA_NHCMSCARDAPPR
+	WHERE   APPR_DATE >= ( 
+					CASE	WHEN '${cmsBaseDate}' > CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) 
+								THEN '${cmsBaseDate}' 
+							ELSE CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) 
+							END 
+				)
+	 
+	]]>
+	</select>
+
+	<!-- /* Batch - CMS - iCUBE - Select - 신한은행 */ /* VA_ZA_SHINHANCMSCARDBUY */ -->
+	<select id="CommonCmsiCUBEInfoListSelect_SHINHAN" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[ 
+		/* CommonBatchCmsiCUBEServiceDAO.CommonCmsiCUBEInfoListSelect_SHINHAN - ERPiU - mssql */
+		USE DZICUBE;
+		SELECT	FR_CO_REG_NB
+				, BANK_ID
+				, CARD_NB
+				, APPR_DATE
+				, APPR_BUY_NB
+				
+		        /* card_aq_tmp data */
+		        , CARD_NB AS cardNum /* 카드번호 */
+		        , APPR_BUY_NB AS authNum /* 승인번호 */
+		        , APPR_DATE AS authDate /* 승인일자 */
+		        , APPR_TIME AS authTime /* 승인시간 */
+		        , REPLACE ( CARD_NB + APPR_DATE + APPR_BUY_NB + APPR_BUY_NB_SEQ, ' ', '' ) AS georaeColl /* 거래번호 */
+		        , APPR_BUY_CANCEL_YN AS georaeStat /* 거래상태 */
+		        , ( CASE WHEN UPPER(APPR_BUY_CANCEL_YN) = N'Y' THEN APPR_DATE ELSE '' END ) AS georaeCand /* 승인취소일자 */
+		        , ISNULL(APPR_BUY_AMT,0) AS requestAmount /* 총금액 */
+		        , ISNULL(APPR_BUY_AMT_SUPPLY,0) AS amtAmount /* 공급가액 */
+		        , ISNULL(APPR_BUY_AMT_SURTAX,0) AS vatAmount /* 부가세액 */
+		        , '0.00' AS serAmount /* 서비스금액 */
+		        , '0.0' AS freAmount
+		        , ISNULL(APPR_BUY_AMT_SUPPLY,0) AS amtMdAmount /* 공급가액 */
+		        , ISNULL(APPR_BUY_AMT_SURTAX,0) AS vatMdAmount /* 부가세액 */
+		        , 'KRW' AS georaeGukga /* 거래국가 */
+		        , '0.0' AS forAmount
+		        , '0.0' AS usdAmount
+		        , FR_NM AS mercName /* 거래처명 */
+		        , FR_CD AS mercSaupNo /* 거래처사업자등록번호 */
+		        , '' AS mercAddr /* 거래처주소 */
+		        , '' AS mercRepr /* 거래처대표자명 */
+		        , '' AS mercTel /* 거래처연락처 */
+		        , '' AS mercZip /* 거래처우편번호 */
+		        , '' AS mccName
+		        , '' AS mccCode
+		        , '' AS mccStat
+		        , '' AS vatStat
+		        , '' AS gongjeNoChk
+		        , 'A' AS abroad /* 해외사용구분 */
+		        , '' AS editedAction
+		FROM	VA_ZA_SHINHANCMSCARDBUY
+		WHERE   APPR_DATE >= ( 
+					CASE	WHEN '${cmsBaseDate}' > CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) 
+								THEN '${cmsBaseDate}' 
+							ELSE CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) 
+							END 
+				) 
+	]]></select>
+	
+	<!-- /* Batch - CMS - iCUBE - Select - 신한은행InsideBank */ /* VA_ZA_SHINHANCMSCARDAPPR */ -->
+	<select id="CommonCmsiCUBEInfoListSelect_SHINHANInsideBank" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[ 
+		/* CommonBatchCmsiCUBEServiceDAO.CommonCmsiCUBEInfoListSelect_SHINHANInsideBank - mssql */
+		USE DZICUBE;
+		SELECT	REG_NB
+				, CARD_COM_CD
+				, TAX_CD
+		        /* card_aq_tmp data */
+		        , CARD_NO AS cardNum /* 카드번호 */
+		        , APPR_NO AS authNum /* 승인번호 */
+		        , APPR_DATE AS authDate /* 승인일자 */
+		        , ISNULL(APPR_TIME,'000000') AS authTime /* 승인시간 */
+		        , REPLACE ( CARD_NO + APPR_DATE + APPR_NO + APPR_SEQ, ' ', '' ) AS georaeColl /* 거래번호(카드번호 + 승인일자 + 승인번호 + 승인일자별순번)*/
+		        , CANCEL_YN AS georaeStat /* 거래상태 */
+		        , ( CASE WHEN UPPER(CANCEL_YN) = N'Y' THEN APPR_DATE ELSE '' END ) AS georaeCand /* 승인취소일자 */
+		        , (ISNULL(APPR_AMT,0) + ISNULL(APPR_TAX,0)) AS requestAmount /* 총금액 */
+		        , ISNULL(APPR_AMT,0) AS amtAmount /* 공급가액 */
+		        , ISNULL(APPR_TAX,0) AS vatAmount /* 부가세액 */
+		        , '0.00' AS serAmount /* 서비스금액 */
+		        , '0.0' AS freAmount
+		        , ISNULL(APPR_AMT,0) AS amtMdAmount /* 공급가액 */
+		        , ISNULL(APPR_TAX,0) AS vatMdAmount /* 부가세액 */
+		        , 'KRW' AS georaeGukga /* 거래국가 */
+		        , '0.0' AS forAmount
+		        , '0.0' AS usdAmount
+		        , CHAIN_NAME AS mercName /* 거래처명 */
+		        , ( CASE WHEN ISNULL(ABROAD,'') = '해외' THEN '' ELSE CHAIN_REG_NB END ) AS mercSaupNo /* 거래처사업자등록번호 */
+		        , REPLACE(ISNULL(CHAIN_ADDR1, ''), '''','`') AS mercAddr /* 거래처주소 */
+		        , MASTER AS mercRepr /* 거래처대표자명 */
+		        , CHAIN_TEL AS mercTel /* 거래처연락처 */
+		        , '' AS mercZip /* 거래처우편번호 */
+		        , '' AS mccName
+		        , '' AS mccCode
+		        , '' AS mccStat
+		        , '' AS vatStat
+		        , ( CASE WHEN DEDUCT_YN = 'Y' THEN 'N' ELSE 'Y' END ) AS gongjeNoChk
+		        , ( CASE WHEN ABROAD IS NULL THEN 'A' WHEN ABROAD = '국내' THEN 'A' ELSE 'B' END ) AS abroad /* 해외사용구분 */
+		        , '' AS editedAction
+		FROM	VA_ZA_SHINHANCMSCARDAPPR
+		WHERE   APPR_DATE >= ( 
+				CASE	
+						WHEN '${cmsBaseDate}' > CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) 
+						THEN '${cmsBaseDate}' 
+						ELSE CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) 
+				END 
+		)
+	]]></select>
+
+	<!-- /* Batch - CMS - iCUBE - Select - 우리은행 */ /* VA_ZA_WOORICMSCARDAPPR */ -->
+	<select id="CommonCmsiCUBEInfoListSelect_WOORI" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[ 
+	USE DZICUBE;
+	SELECT	'020' AS bankCode /* 금융기관코드 */
+			, CARD_NO AS cardNo /* 카드번호 */
+			, TRANS_DATE AS apprDate /* 승인일자 */
+			, IF_KEY AS apprSeq /* 승인일자별 순번 */
+			
+	        /* card_aq_tmp data */
+	        , CARD_NO AS cardNum /* 카드번호 */
+	        , APPR_NO AS authNum /* 승인번호 */
+	        , TRANS_DATE AS authDate /* 승인일자 */
+	        , TRANS_TIME AS authTime /* 승인시간 */
+	        , REPLACE ( ( '' + ISNULL('020', '') + ISNULL(CARD_NO,'') + ISNULL(TRANS_DATE,'') + ISNULL(CAST(IF_KEY as varchar(10)),'') ), ' ', '' ) AS georaeColl /* 거래번호 */
+	        , ( case when APPR_CLASS = 'A' THEN 'N' else 'Y'end ) AS georaeStat /* 거래상태 */
+	        , ( CASE WHEN APPR_CLASS = 'B' THEN TRANS_DATE ELSE '' END ) AS georaeCand /* 승인취소일자 */
+			, APPR_TOT  AS requestAmount /* 총금액 */
+			, ISNULl(APPR_TOT, 0) - ISNULL(VAT, 0) AS amtAmount /* 공급가액 */
+	        , ISNULL(VAT, 0) AS vatAmount /* 부가세액 */
+	        , TIPS AS serAmount /* 서비스금액 */
+	        , '0.0' AS freAmount
+	        , ISNULl(APPR_TOT, 0) - ISNULL(VAT, 0) AS amtMdAmount /* 공급가액 */
+	        , ISNULL(VAT, 0) AS vatMdAmount /* 부가세액 */
+	        , 'KRW' AS georaeGukga /* 거래국가 */
+	        , '0.0' AS forAmount
+	        , '0.0' AS usdAmount
+	        , CHAIN_NAME AS mercName /* 거래처명 */
+	        , CHAIN_BIZ_NO AS mercSaupNo /* 거래처사업자등록번호 */
+	        , CHAIN_ADDR1 + ' ' + CHAIN_ADDR2 AS mercAddr /* 거래처주소 */
+	        , MASTER AS mercRepr /* 거래처대표자명 */
+	        , CHAIN_TEL AS mercTel /* 거래처연락처 */
+	        , CHAIN_ZIP_CODE AS mercZip /* 거래처우편번호 */
+	        , '' AS mccName
+	        , '' AS mccCode
+	        , '' AS mccStat
+	        , '' AS vatStat
+	        , '' AS gongjeNoChk
+	        , ISNULL(ABROAD,'A') AS abroad /* 해외사용구분 */
+	        , '' AS editedAction
+	FROM	VA_ZA_WOORICMSCARDAPPR
+	WHERE   TRANS_DATE >= ( CASE WHEN '${cmsBaseDate}' > CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) THEN '${cmsBaseDay}' ELSE CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) END )
+	
+	 ]]>
+	</select>
+	
+	<select id="CommonCmsiCUBEInfoListSelect_All" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+	BEGIN TRY
+	
+		/* ############################################################
+		 * 0. 변수 정의
+		 * ############################################################ */
+		DECLARE @LANGKIND NVARCHAR(3)  /*  */
+		DECLARE @CO_CD NVARCHAR(8) /* ERP 회사코드 */
+		DECLARE @DIV_CD NVARCHAR(4) /* DIV_CD 값 */
+		DECLARE @CARD_NBS NVARCHAR(MAX) /* 카드번호 멀티 ( 데이터간 구분자 '|' ) */
+		DECLARE @ISS_DT_FROM NVARCHAR(8) /* 시작일 */
+		DECLARE @ISS_DT_TO NVARCHAR(8) /* 종료일 */
+		DECLARE @EBANK_CD NVARCHAR(4) /* FG_TY 값 */
+		DECLARE @INSERT_ID NVARCHAR(20)  /*  */
+		DECLARE @INSERT_IP NVARCHAR(30)  /*  */
+		DECLARE @COPY_USER_DETAIL NVARCHAR(1)  /*  */
+		
+		DECLARE @CMS_BASE_DATE NVARCHAR(8)  /* CMS 동기화 기준 최소일자 */
+		DECLARE @CMS_BASE_DAY NVARCHAR(3)  /* CMS 동기화 기준 이전 시작일 */
+		DECLARE @CMS_PERIOD_SYNC NVARCHAR(1)  /* CMS 기간 동기화 처리 플래그 */
+		
+		SELECT @LANGKIND = N'KOR'
+		SELECT @ISS_DT_FROM = #{issDtFrom}
+		SELECT @ISS_DT_TO = #{issDtTo}
+		SELECT @INSERT_ID = N'GW-ALPHA'
+		SELECT @INSERT_IP = N'GW_127.0.0.1'
+		SELECT @COPY_USER_DETAIL = N'N'
+		SELECT @CMS_BASE_DATE = #{cmsBaseDate}
+		SELECT @CMS_BASE_DAY = #{cmsBaseDay}
+		SELECT @CMS_PERIOD_SYNC = #{cmsPeriodSync}
+	
+		/* 값이 존재하지 않는 경우에 대한 예외처리 ( 기준일 : 해당연도 01월 01일 / 동기화 시작일 기준 : 31일 ) */
+		SELECT	@CMS_BASE_DATE = ( CASE WHEN ISNULL(@CMS_BASE_DATE, '') = '' THEN CONVERT(NVARCHAR(4), GETDATE(), 112) + '0101' ELSE ISNULL(@CMS_BASE_DATE, '') END )
+				, @CMS_BASE_DAY = ( CASE WHEN ISNULL(@CMS_BASE_DAY, '') = '' THEN '31' ELSE @CMS_BASE_DAY END )
+	
+	
+		/* 조회 시작일, 조회 종료일 지정 ( 기준일과 동기화 시작일 기준으로 산정 ) */
+		IF @CMS_PERIOD_SYNC = ''
+			BEGIN
+				SELECT	@ISS_DT_FROM = ( CASE WHEN @CMS_BASE_DATE > CONVERT ( NVARCHAR, DATEADD ( DAY, @CMS_BASE_DAY * -1, GETDATE() ), 112 ) THEN @CMS_BASE_DATE ELSE CONVERT ( NVARCHAR, DATEADD ( DAY, @CMS_BASE_DAY * -1, GETDATE() ), 112 ) END )
+						, @ISS_DT_TO = ( CONVERT(NVARCHAR(8), GETDATE(), 112) )
+			END
+
+	
+	
+	
+		/* ############################################################
+		 * 1. 카드 정보 구하기
+		 * ############################################################ */
+	
+		DECLARE @cardTabel TABLE(
+			CO_CD NVARCHAR(4) /* 회사코드 */
+			, CO_NM NVARCHAR(30) /* 회사명 */
+			, REG_NB NVARCHAR(30) /* 회사사업자번호 */
+			, TR_CD NVARCHAR(10) /* 거래처코드 */
+			, TR_NM NVARCHAR(60) /* 거래처명 */
+			, BA_NB NVARCHAR(40) /* 카드번호 */
+			, CEO_NM NVARCHAR(30) /* 대표자명 */
+		)
+	
+		INSERT INTO @cardTabel ( CO_CD, CO_NM, REG_NB, TR_CD, TR_NM, BA_NB, CEO_NM )
+		SELECT	STRADE.CO_CD
+				, SCO.CO_NM
+				, SCO.REG_NB
+				, STRADE.TR_CD
+				, STRADE.TR_NM
+				, REPLACE ( LTRIM( RTRIM( ISNULL( STRADE.BA_NB, '' ) ) ) , '-', '') AS BA_NB
+				, ISNULL(STRADE.CEO_NM, '') AS CEO_NM
+		FROM	STRADE STRADE
+				INNER JOIN SCO SCO ON STRADE.CO_CD = SCO.CO_CD
+		WHERE	STRADE.TR_FG = '9'
+		AND		ISNULL(STRADE.BA_NB, '') != ''
+		AND		STRADE.USE_YN = '1'
+		ORDER	BY STRADE.CO_CD, REPLACE ( LTRIM( RTRIM( ISNULL( STRADE.BA_NB, '' ) ) ) , '-', '')
+	
+	
+	
+	
+	
+		/* ############################################################
+		 * 2. 산출된 회사들의 CMS연동 은행이 어디인지 구하기
+		 * ############################################################ */
+	
+		 DECLARE @optionTabel TABLE(
+			CO_CD NVARCHAR(4) /* 회사코드 */
+			, CO_NM NVARCHAR(30) /* 회사명 */
+			, REG_NB NVARCHAR(30) /* 회사사업자번호 */
+			, FG_TY NVARCHAR(3) /* 연동은행코드 */
+			, SEL_DOC NVARCHAR(300) /* 연동은행종류 */
+			, DIV_CD NVARCHAR(4) /* 주사업장코드 */
+		)
+	
+		DECLARE CUR CURSOR FOR
+			SELECT	CO_CD
+			FROM	SCO
+			WHERE	USE_YN = '1'
+			GROUP	BY CO_CD
+	
+		OPEN CUR
+		FETCH NEXT FROM CUR INTO @CO_CD
+	
+		WHILE ( @@FETCH_STATUS = 0 )
+		BEGIN
+			INSERT INTO @optionTabel ( CO_CD, CO_NM, REG_NB, FG_TY, SEL_DOC, DIV_CD )
+			SELECT	SYSCFG.CO_CD
+					, TBL.CO_NM
+					, TBL.REG_NB
+					,(	CASE
+                   			WHEN (SELECT CUST_CD FROM SDBCFG) IN ( 'S7033', 'P0521', 'P0522') THEN 'Z1' ELSE SYSCFG.FG_TY
+                 		END 
+                 	  ) AS FG_TY
+					, SYSCFG.SEL_DOC
+					, TBL.DIV_CD
+			FROM	SYSCFG SYSCFG
+					INNER JOIN (
+						SELECT	STRADE.CO_CD
+								, SCO.CO_NM
+								, SCO.REG_NB
+								, MIN(ISNULL(SDIV.DIV_CD, '1000')) AS DIV_CD
+						FROM	STRADE STRADE
+								INNER JOIN SCO SCO ON STRADE.CO_CD = SCO.CO_CD
+								LEFT OUTER JOIN SDIV SDIV ON SCO.CO_CD = SDIV.CO_CD AND SDIV.FILL_YN = '1'
+						WHERE	STRADE.TR_FG = '9'
+						AND		ISNULL(STRADE.BA_NB, '') <> ''
+						AND		STRADE.USE_YN = '1'
+						AND		REPLACE ( LTRIM( RTRIM( ISNULL( STRADE.BA_NB, '' ) ) ) , '-', '') IN (
+									SELECT	BA_NB
+									FROM	@cardTabel
+									GROUP	BY BA_NB
+								)
+						GROUP	BY STRADE.CO_CD, SCO.CO_NM, SCO.REG_NB
+					) TBL ON SYSCFG.CO_CD = TBL.CO_CD AND SYSCFG.MODULE_CD = 'A' AND SYSCFG.CTR_CD = '35'
+			WHERE	SYSCFG.CO_CD = @CO_CD
+			GROUP	BY SYSCFG.CO_CD, TBL.CO_NM, TBL.REG_NB, SYSCFG.FG_TY, SYSCFG.SEL_DOC, TBL.DIV_CD
+			ORDER	BY SYSCFG.CO_CD
+	
+			FETCH NEXT FROM CUR INTO @CO_CD
+		END
+	
+		CLOSE CUR
+		DEALLOCATE CUR
+	
+	
+	
+	
+	
+		/* ############################################################
+		 * 3. 카드 내역 불러오기 PROC 호출 ( USP_ACK0035_BY_REFRESH_AND_INSERT )
+		 * 4. 동기화 대상 카드 내역 조회 ( USP_ACK0035_BY_GW_SELECT )
+		 * ############################################################ */
+	
+		DECLARE @cardListTable TABLE(
+			PK1 NVARCHAR(100)
+			, PK2 NVARCHAR(100)
+			, PK3 NVARCHAR(100)
+			, PK4 NVARCHAR(100)
+			, PK5 NVARCHAR(100)
+			, PK6 NVARCHAR(100)
+			, PK7 NVARCHAR(100)
+			, BANK_NM NVARCHAR(100)
+			, CANCEL_YN NVARCHAR(100)
+			, CARD_NO NVARCHAR(100)
+			, APPR_NO NVARCHAR(100)
+			, APPR_DT NVARCHAR(100)
+			, APPR_TM NVARCHAR(100)
+			, CARD_TY NVARCHAR(100)
+			, CUR_CD NVARCHAR(100)
+			, APPRTOT_AM NVARCHAR(100)
+			, SUPPLY_AM NVARCHAR(100)
+			, VAT_AM NVARCHAR(100)
+			, SERVICE_AM NVARCHAR(100)
+			, FEE_AM NVARCHAR(100)
+			, EXCH_YN NVARCHAR(100)
+			, EXCH_RT NVARCHAR(100)
+			, EXCH_APPRTOT_AM NVARCHAR(100)
+			, INST_TY NVARCHAR(100)
+			, MONTHLY_PLAN NVARCHAR(100)
+			, CHAIN_REG_NO NVARCHAR(100)
+			, CHAIN_NO NVARCHAR(100)
+			, CHAIN_NM NVARCHAR(100)
+			, CHAIN_CEO_NM NVARCHAR(100)
+			, CHAIN_TEL NVARCHAR(100)
+			, CHAIN_ZIP_CD NVARCHAR(100)
+			, CHAIN_ADDR1 NVARCHAR(100)
+			, CHAIN_ADDR2 NVARCHAR(100)
+			, BUSINESS_NM NVARCHAR(100)
+			, DEDUCT_YN NVARCHAR(100)
+			, TAX_TY NVARCHAR(100)
+			, CHAIN_CESS_DT NVARCHAR(100)
+			, MEMO_DC NVARCHAR(100)
+			, EBANK_KEY NVARCHAR(100)
+			, CO_CD NVARCHAR(100)
+			, ISS_DT NVARCHAR(100)
+			, ISS_SQ NVARCHAR(100)
+		)
+	
+		DECLARE CUR CURSOR FOR
+			SELECT	CO_CD
+					, DIV_CD
+					, FG_TY
+			FROM	@optionTabel
+	
+		OPEN CUR
+		FETCH NEXT FROM CUR INTO @CO_CD, @DIV_CD, @EBANK_CD
+	
+		WHILE ( @@FETCH_STATUS = 0 )
+		BEGIN
+			SELECT	@CARD_NBS = (
+						SELECT	BA_NB + ('|')
+						FROM	@cardTabel
+						WHERE	CO_CD = @CO_CD
+						FOR		XML PATH('')
+					)
+	
+			/* iCUBE 카드 데이터 생성 */
+			EXECUTE	USP_ACK0035_BY_REFRESH_AND_INSERT 
+					@LANGKIND
+					, @CO_CD
+					, @DIV_CD
+					, @CARD_NBS
+					, @ISS_DT_FROM
+					, @ISS_DT_TO
+					, @EBANK_CD
+					, @INSERT_ID
+					, @INSERT_IP
+					, @COPY_USER_DETAIL
+	
+			/* 동기화 대상 조회 */
+			INSERT INTO @cardListTable ( 
+				PK1,					PK2,					PK3,					PK4,				PK5
+				, PK6,					PK7,					BANK_NM,				CANCEL_YN,			CARD_NO
+				, APPR_NO,				APPR_DT,				APPR_TM,				CARD_TY,			CUR_CD
+				, APPRTOT_AM,			SUPPLY_AM,				VAT_AM,					SERVICE_AM,			FEE_AM
+				, EXCH_YN,				EXCH_RT,				EXCH_APPRTOT_AM,		INST_TY,			MONTHLY_PLAN
+				, CHAIN_REG_NO,			CHAIN_NO,				CHAIN_NM,				CHAIN_CEO_NM,		CHAIN_TEL
+				, CHAIN_ZIP_CD,			CHAIN_ADDR1,			CHAIN_ADDR2,			BUSINESS_NM,		DEDUCT_YN
+				, TAX_TY,				CHAIN_CESS_DT,			MEMO_DC, 				EBANK_KEY,			CO_CD
+				, ISS_DT,				ISS_SQ
+			)
+			EXECUTE	USP_ACK0035_BY_GW_SELECT
+					@CO_CD
+					, @CARD_NBS
+					, @ISS_DT_FROM
+					, @ISS_DT_TO
+	
+			FETCH NEXT FROM CUR INTO @CO_CD, @DIV_CD, @EBANK_CD
+		END
+	
+		CLOSE CUR
+		DEALLOCATE CUR
+	
+	
+	
+	
+	
+		/* ############################################################
+		 * 4. 동기화 대상 카드 내역 조회
+		 * ############################################################ */
+		
+	
+	END TRY
+	BEGIN CATCH
+		DELETE
+		FROM	@cardListTable
+	
+	END CATCH
+	
+	SELECT	ISNULL(PK1, '') AS PK1
+			, ISNULL(PK2, '') AS PK2
+			, ISNULL(PK3, '') AS PK3
+			, ISNULL(PK4, '') AS PK4
+			, ISNULL(PK5, '') AS PK5
+			, ISNULL(PK6, '') AS PK6
+			, ISNULL(PK7, '') AS PK7
+			, ISNULL(BANK_NM, '') AS BANK_NM
+			, ISNULL(CANCEL_YN, '') AS CANCEL_YN
+			, ISNULL(CARD_NO, '') AS CARD_NO
+			, ISNULL(APPR_NO, '') AS APPR_NO
+			, ISNULL(APPR_DT, '') AS APPR_DT
+			, ISNULL(APPR_TM, '') AS APPR_TM
+			, ISNULL(CARD_TY, '') AS CARD_TY
+			, ISNULL(CUR_CD, '') AS CUR_CD
+			, ISNULL(APPRTOT_AM, 0.0000) AS APPRTOT_AM
+			, ISNULL(SUPPLY_AM, 0.0000) AS SUPPLY_AM
+			, ISNULL(VAT_AM, 0.0000) AS VAT_AM
+			, ISNULL(SERVICE_AM, 0.0000) AS SERVICE_AM
+			, ISNULL(FEE_AM, 0.0000) AS FEE_AM
+			, ISNULL(EXCH_YN, '') AS EXCH_YN
+			, ISNULL(EXCH_RT, '') AS EXCH_RT
+			, ISNULL(EXCH_APPRTOT_AM, 0.0000) AS EXCH_APPRTOT_AM
+			, ISNULL(INST_TY, '') AS INST_TY
+			, ISNULL(MONTHLY_PLAN, '') AS MONTHLY_PLAN
+			, ISNULL(CHAIN_REG_NO, '') AS CHAIN_REG_NO
+			, ISNULL(CHAIN_NO, '') AS CHAIN_NO
+			, ISNULL(CHAIN_NM, '') AS CHAIN_NM
+			, ISNULL(CHAIN_CEO_NM, '') AS CHAIN_CEO_NM
+			, ISNULL(CHAIN_TEL, '') AS CHAIN_TEL
+			, ISNULL(CHAIN_ZIP_CD, '') AS CHAIN_ZIP_CD
+			, ISNULL(CHAIN_ADDR1, '') AS CHAIN_ADDR1
+			, ISNULL(CHAIN_ADDR2, '') AS CHAIN_ADDR2
+			, ISNULL(BUSINESS_NM, '') AS BUSINESS_NM
+			, ISNULL(DEDUCT_YN, '') AS DEDUCT_YN
+			, ISNULL(TAX_TY, '') AS TAX_TY
+			, ISNULL(CHAIN_CESS_DT, '') AS CHAIN_CESS_DT
+			, ISNULL(MEMO_DC, '') AS MEMO_DC
+			, ISNULL(EBANK_KEY, '') AS EBANK_KEY
+			, ISNULL(CO_CD, '') AS CO_CD
+			, ISNULL(ISS_DT, '') AS ISS_DT
+			, ISNULL(ISS_SQ, '') AS ISS_SQ
+	FROM	@cardListTable
+	WHERE	PK1 NOT IN ( '00' )
+	AND		ISNULL(CO_CD, '') != ''
+	AND		ISNULL(ISS_DT, '') != ''
+	
+	UNION
+	
+	SELECT	ISNULL(PK1, '') AS PK1
+			, ISNULL(PK2, '') AS PK2
+			, ISNULL(PK3, '') AS PK3
+			, ISNULL(PK4, '') AS PK4
+			, ISNULL(PK5, '') AS PK5
+			, ISNULL(PK6, '') AS PK6
+			, ISNULL(PK7, '') AS PK7
+			, ISNULL(BANK_NM, '') AS BANK_NM
+			, ISNULL(CANCEL_YN, '') AS CANCEL_YN
+			, ISNULL(CARD_NO, '') AS CARD_NO
+			, ISNULL(APPR_NO, '') AS APPR_NO
+			, ISNULL(APPR_DT, '') AS APPR_DT
+			, ISNULL(APPR_TM, '') AS APPR_TM
+			, ISNULL(CARD_TY, '') AS CARD_TY
+			, ISNULL(CUR_CD, '') AS CUR_CD
+			, ISNULL(APPRTOT_AM, 0.0000) AS APPRTOT_AM
+			, ISNULL(SUPPLY_AM, 0.0000) AS SUPPLY_AM
+			, ISNULL(VAT_AM, 0.0000) AS VAT_AM
+			, ISNULL(SERVICE_AM, 0.0000) AS SERVICE_AM
+			, ISNULL(FEE_AM, 0.0000) AS FEE_AM
+			, ISNULL(EXCH_YN, '') AS EXCH_YN
+			, ISNULL(EXCH_RT, '') AS EXCH_RT
+			, ISNULL(EXCH_APPRTOT_AM, 0.0000) AS EXCH_APPRTOT_AM
+			, ISNULL(INST_TY, '') AS INST_TY
+			, ISNULL(MONTHLY_PLAN, '') AS MONTHLY_PLAN
+			, ISNULL(CHAIN_REG_NO, '') AS CHAIN_REG_NO
+			, ISNULL(CHAIN_NO, '') AS CHAIN_NO
+			, ISNULL(CHAIN_NM, '') AS CHAIN_NM
+			, ISNULL(CHAIN_CEO_NM, '') AS CHAIN_CEO_NM
+			, ISNULL(CHAIN_TEL, '') AS CHAIN_TEL
+			, ISNULL(CHAIN_ZIP_CD, '') AS CHAIN_ZIP_CD
+			, ISNULL(CHAIN_ADDR1, '') AS CHAIN_ADDR1
+			, ISNULL(CHAIN_ADDR2, '') AS CHAIN_ADDR2
+			, ISNULL(BUSINESS_NM, '') AS BUSINESS_NM
+			, ISNULL(DEDUCT_YN, '') AS DEDUCT_YN
+			, ISNULL(TAX_TY, '') AS TAX_TY
+			, ISNULL(CHAIN_CESS_DT, '') AS CHAIN_CESS_DT
+			, ISNULL(MEMO_DC, '') AS MEMO_DC
+			, ISNULL(EBANK_KEY, '') AS EBANK_KEY
+			, ISNULL(CO_CD, '') AS CO_CD
+			, ISNULL(ISS_DT, '') AS ISS_DT
+			, ISNULL(ISS_SQ, '') AS ISS_SQ
+	FROM	@cardListTable
+	WHERE	PK1 IN ( '00' )
+	AND		ISNULL(CO_CD, '') != ''
+	AND		ISNULL(ISS_DT, '') != ''
+	]]>
+	</select>
+
+	<!-- /* Batch - CMS - iCUBE - Select - 스마트증빙 */ /* USP_ACY0050_BY_GWA_SELECT */ -->
+	<!-- <select id="CommonCmsiCUBEInfoListSelect_SMART" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"> { call USP_ACY0050_BY_GWA_SELECT ( #{CO_CD,mode=IN,jdbcType=VARCHAR} , #{ISS_DT_FROM,mode=IN,jdbcType=VARCHAR} , #{ISS_DT_FROM,mode=IN,jdbcType=VARCHAR} , #{CARD_NBS,mode=IN,jdbcType=VARCHAR} ) } </select> -->
+
+	<!-- /* Batch - CMS - iCUBE - Update - 스마트증빙 */ /* USP_ACY0050_BY_GWA_UPDATE */ -->
+	<!-- <update id="CommonCmsiCUBEInfoListSelect_SMART" statementType="CALLABLE" parameterType="java.util.Map"> { call USP_ACY0050_BY_GWA_UPDATE ( #{CO_CD,mode=IN,jdbcType=VARCHAR} , #{DTSQ_KEY,mode=IN,jdbcType=VARCHAR} , #{GET_FG,mode=IN,jdbcType=VARCHAR} , #{APPRO_STATE,mode=IN,jdbcType=VARCHAR} , #{DOCU_ID,mode=IN,jdbcType=VARCHAR} , #{DOCU_NO,mode=IN,jdbcType=VARCHAR} , #{IN_DT,mode=IN,jdbcType=VARCHAR} , #{IN_SQ,mode=IN,jdbcType=VARCHAR} , #{MODIFY_DT,mode=IN,jdbcType=VARCHAR} , #{MODIFY_IP,mode=IN,jdbcType=VARCHAR} ) } </update> -->
+</mapper>

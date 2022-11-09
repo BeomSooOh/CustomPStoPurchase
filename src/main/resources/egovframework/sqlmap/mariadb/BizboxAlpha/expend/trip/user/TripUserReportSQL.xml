@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="TripUserReportA">
+
+	<select	id="TripUserReportA.selectConsHeadInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  TripAdminReportA.selectConsHeadInfo */
+		/* 양식 정보 조회 - 출장품의내역 정보 */
+		SELECT	*
+		FROM	(
+			SELECT	trip_cons_doc_seq	AS tripConsDocSeq
+				, (CASE domestic_code WHEN '0' THEN '국내' ELSE '국외' END) AS domesticCode
+				, LEFT(trip_from_date,16)	AS  tripFromDateALL
+				, LEFT(trip_from_date,10)	AS  tripFromDate
+				, SUBSTRING(trip_from_date,12,5) AS tripFromTime
+				, LEFT(trip_to_date,16)	AS  tripToDateALL
+				, LEFT(trip_to_date,10)	AS  tripToDate
+				, SUBSTRING(trip_to_date,12,5) AS tripToTime
+				, IFNULL(calendar_name,'')	AS calendarName
+				, IFNULL(location_name,'') AS locationName
+				, IFNULL(location_adv,'')	AS locationAdv
+				, IFNULL(transport_name,'') AS transportName
+				, IFNULL(purpose,'')	AS purpose
+				, (CASE trip_expense_code WHEN '0' THEN '대상' ELSE '비대상' END) AS tripExpenseCode
+			FROM	$DB_NEOS$t_exnp_trip_cons_attend
+			WHERE	trip_cons_doc_seq = #tripConsDocSeq#
+			LIMIT	1
+			) tripConsAttend
+		INNER JOIN
+			(
+			SELECT  IFNULL(doc_no,'') AS docNo
+				, create_date	AS createDate
+				, comp_name	AS compName
+			FROM	$DB_NEOS$t_exnp_trip_cons_doc
+			WHERE	trip_cons_doc_seq = #tripConsDocSeq#
+			LIMIT	1
+			) tripConsDoc
+		ON	1=1
+		INNER JOIN
+			(
+			SELECT  GROUP_CONCAT(emp_name) AS tripEmpName
+				, GROUP_CONCAT(duty_name) AS dutyName
+			FROM	$DB_NEOS$t_exnp_trip_cons_traveler
+			WHERE	trip_cons_doc_seq = #tripConsDocSeq#
+			LIMIT	1
+			) tripConsTraveler
+		ON	1=1
+		INNER JOIN
+			(
+			SELECT  budget_amt	AS budgetAmt
+			FROM	$DB_NEOS$t_exnp_trip_cons_budget
+			WHERE	trip_cons_doc_seq = #tripConsDocSeq#
+			LIMIT	1
+			) tripConsBudget
+		ON	1=1
+		INNER JOIN
+			(
+			SELECT  GROUP_CONCAT(erp_mgt_name) AS erpMgtName
+				, GROUP_CONCAT(erp_budget_name) AS erpBudgetName
+			FROM	$DB_NEOS$t_exnp_trip_cons_budget_erp
+			WHERE	trip_cons_doc_seq = #tripConsDocSeq#
+			LIMIT	1
+			) tripConsBudgetErp
+		ON	1=1
+	</select>
+	
+	<select	id="TripUserReportA.selectResHeadInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  TripAdminReportA.selectResHeadInfo */
+		/* 양식 정보 조회 - 출장결의내역 정보 */
+		SELECT	*
+		FROM	(
+			SELECT	trip_res_doc_seq	AS tripResDocSeq
+				, (CASE domestic_code WHEN '0' THEN '국내' ELSE '국외' END) AS domesticCode
+				, LEFT(trip_from_date,16)	AS  tripFromDateALL
+				, LEFT(trip_from_date,10)	AS  tripFromDate
+				, SUBSTRING(trip_from_date,12,5) AS tripFromTime
+				, LEFT(trip_to_date,16)	AS  tripToDateALL
+				, LEFT(trip_to_date,10)	AS  tripToDate
+				, SUBSTRING(trip_to_date,12,5) AS tripToTime
+				, IFNULL(calendar_name,'')	AS calendarName
+				, IFNULL(location_name,'') AS locationName
+				, IFNULL(location_adv,'')	AS locationAdv
+				, IFNULL(transport_name,'') AS transportName
+				, IFNULL(purpose,'')	AS purpose
+				, (CASE trip_expense_code WHEN '0' THEN '대상' ELSE '비대상' END) AS tripExpenseCode
+			FROM	$DB_NEOS$t_exnp_trip_res_attend
+			WHERE	trip_res_doc_seq = #tripResDocSeq#
+			LIMIT	1
+			) tripResAttend
+		INNER JOIN
+			(
+			SELECT  IFNULL(doc_no,'') AS docNo
+				, create_date	AS createDate
+				, comp_name	AS compName
+			FROM	$DB_NEOS$t_exnp_trip_res_doc
+			WHERE	trip_res_doc_seq = #tripResDocSeq#
+			LIMIT	1
+			) tripResDoc
+		ON	1=1
+		INNER JOIN
+			(
+			SELECT  GROUP_CONCAT(emp_name) AS tripEmpName
+				, GROUP_CONCAT(duty_name) AS dutyName
+			FROM	$DB_NEOS$t_exnp_trip_res_traveler
+			WHERE	trip_res_doc_seq = #tripResDocSeq#
+			LIMIT	1
+			) tripResTraveler
+		ON	1=1
+		INNER JOIN
+			(
+			SELECT  budget_amt	AS budgetAmt
+			FROM	$DB_NEOS$t_exnp_trip_res_budget
+			WHERE	trip_res_doc_seq = #tripResDocSeq#
+			LIMIT	1
+			) tripResBudget
+		ON	1=1
+		INNER JOIN
+			(
+			SELECT  GROUP_CONCAT(erp_mgt_name) AS erpMgtName
+				, GROUP_CONCAT(erp_budget_name) AS erpBudgetName
+			FROM	$DB_NEOS$t_exnp_trip_res_budget_erp
+			WHERE	trip_res_doc_seq = #tripResDocSeq#
+			LIMIT	1
+			) tripResBudgetErp
+		ON	1=1
+	</select>
+	
+	<select	id="TripUserReportA.selectConsBudgetInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  TripAdminReportA.selectConsBudgetInfo */
+		/* 양식 정보 조회 - 품의내역 정보 */
+		SELECT	*
+		FROM		(
+				SELECT 	
+					budget.budget_amt	AS budgetAmt
+					, budget.erp_open_amt	AS erpOpenAmt
+					, budget.erp_apply_amt	AS erpApplyAmt
+					, budget.erp_res_amt	AS erpResAmt
+					, budget.erp_left_amt	AS erpLeftAmt
+					, budget.erp_budget_seq	AS erpBudgetSeq
+					, budget.erp_budget_name	AS erpBudgetName
+					, budget.erp_div_name		AS erpDivName
+					, budget.erp_bgt1_name  AS erpBugetName1
+					, budget.erp_bgt2_name  AS erpBugetName2
+					, budget.erp_bgt3_name  AS erpBugetName3
+					, budget.erp_bgt4_name  AS erpBugetName4
+					, budget.erp_level01_name  AS erpLevelName1
+					, budget.erp_level02_name  AS erpLevelName2
+					, budget.erp_level03_name  AS erpLevelName3
+					, budget.erp_level04_name  AS erpLevelName4
+					, budget.erp_level05_name  AS erpLevelName5
+					, budget.erp_level06_name  AS erpLevelName6
+					, set_fg_name		AS setFgName
+					, vat_fg_name		AS vatFgName
+					, tr_fg_name		AS trFgName
+					, budget_note		AS budgetNote
+					, conffer_budget_return_emp_name	AS confferBudgetReturnEmpName
+					, head.mgt_name		AS mgtName
+					, docu_fg_name		AS docuFgName
+					, cons_date		AS consDate
+					, btr_nb		AS btrNb
+					, btr_name		AS btrName
+					, bottom_name		AS bottomName
+					, tripBudget.budget_amt	AS totalBudgetAmt
+				FROM	$DB_NEOS$t_exnp_trip_cons_budget tripBudget
+				INNER JOIN $DB_NEOS$t_exnp_consbudget budget
+				ON	 tripBudget.cons_doc_seq = budget.cons_doc_seq
+				INNER JOIN $DB_NEOS$t_exnp_conshead head
+				ON	head.cons_seq = budget.cons_seq
+				WHERE	tripBudget.trip_cons_doc_seq = #tripConsDocSeq#
+				) consBudget
+		LEFT JOIN (
+				SELECT	trip_cons_doc_seq	AS tripConsDocSeq
+					, (CASE domestic_code WHEN '0' THEN '국내' ELSE '국외' END) AS domesticCode
+					, LEFT(trip_from_date,16)	AS  tripFromDateALL
+					, LEFT(trip_from_date,10)	AS  tripFromDate
+					, SUBSTRING(trip_from_date,12,5) AS tripFromTime
+					, LEFT(trip_to_date,16)	AS  tripToDateALL
+					, LEFT(trip_to_date,10)	AS  tripToDate
+					, SUBSTRING(trip_to_date,12,5) AS tripToTime
+					, IFNULL(calendar_name,'')	AS calendarName
+					, IFNULL(location_name,'') AS locationName
+					, IFNULL(location_adv,'')	AS locationAdv
+					, IFNULL(transport_name,'') AS transportName
+					, IFNULL(purpose,'')	AS purpose
+					, (CASE trip_expense_code WHEN '0' THEN '대상' ELSE '비대상' END) AS tripExpenseCode
+				FROM	$DB_NEOS$t_exnp_trip_cons_attend
+				WHERE	trip_cons_doc_seq = #tripConsDocSeq#
+			  ) tripAttend
+		ON 1=1
+		LEFT JOIN  (
+				SELECT  IFNULL(doc_no,'') AS docNo
+					, create_date	AS createDate
+					, comp_name	AS compName
+				FROM	$DB_NEOS$t_exnp_trip_cons_doc
+				WHERE	trip_cons_doc_seq = #tripConsDocSeq#
+				LIMIT	1
+			) tripConsDoc
+		ON	1=1
+		INNER JOIN
+			(
+				SELECT  GROUP_CONCAT(emp_name) AS tripEmpName
+					, GROUP_CONCAT(duty_name) AS dutyName
+				FROM	$DB_NEOS$t_exnp_trip_cons_traveler
+				WHERE	trip_cons_doc_seq = #tripConsDocSeq#
+				LIMIT	1
+			) tripConsTraveler
+		ON	1=1
+	</select>
+	
+	<select	id="TripUserReportA.selectResBudgetInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  TripAdminReportA.selectResBudgetInfo */
+		/* 양식 정보 조회 - 결의내역 정보 */
+		SELECT	*
+		FROM		(
+				SELECT 	
+					budget.budget_amt	AS budgetAmt
+					, budget.erp_open_amt	AS erpOpenAmt
+					, budget.erp_apply_amt	AS erpApplyAmt
+					, budget.erp_res_amt	AS erpResAmt
+					, budget.erp_left_amt	AS erpLeftAmt
+					, budget.erp_budget_seq	AS erpBudgetSeq
+					, budget.erp_budget_name	AS erpBudgetName
+					, budget.erp_div_name		AS erpDivName
+					, budget.erp_bgt1_name  AS erpBugetName1
+					, budget.erp_bgt2_name  AS erpBugetName2
+					, budget.erp_bgt3_name  AS erpBugetName3
+					, budget.erp_bgt4_name  AS erpBugetName4
+					, budget.erp_level01_name  AS erpLevelName1
+					, budget.erp_level02_name  AS erpLevelName2
+					, budget.erp_level03_name  AS erpLevelName3
+					, budget.erp_level04_name  AS erpLevelName4
+					, budget.erp_level05_name  AS erpLevelName5
+					, budget.erp_level06_name  AS erpLevelName6
+					, set_fg_name		AS setFgName
+					, vat_fg_name		AS vatFgName
+					, tr_fg_name		AS trFgName
+					, budget_note		AS budgetNote
+					, head.mgt_name		AS mgtName
+					, docu_fg_name		AS docuFgName
+					, res_date		AS resDate
+					, btr_nb		AS btrNb
+					, btr_name		AS btrName
+					, bottom_name		AS bottomName
+					, tripBudget.budget_amt	AS totalBudgetAmt
+				FROM	$DB_NEOS$t_exnp_trip_res_budget tripBudget
+				INNER JOIN $DB_NEOS$t_exnp_resbudget budget
+				ON	 tripBudget.res_doc_seq = budget.res_doc_seq
+				INNER JOIN $DB_NEOS$t_exnp_reshead head
+				ON	head.res_seq = budget.res_seq
+				WHERE	tripBudget.trip_res_doc_seq = #tripResDocSeq#
+				) resBudget
+		LEFT JOIN (
+				SELECT	trip_res_doc_seq	AS tripResDocSeq
+					, (CASE domestic_code WHEN '0' THEN '국내' ELSE '국외' END) AS domesticCode
+					, LEFT(trip_from_date,16)	AS  tripFromDateALL
+					, LEFT(trip_from_date,10)	AS  tripFromDate
+					, SUBSTRING(trip_from_date,12,5) AS tripFromTime
+					, LEFT(trip_to_date,16)	AS  tripToDateALL
+					, LEFT(trip_to_date,10)	AS  tripToDate
+					, SUBSTRING(trip_to_date,12,5) AS tripToTime
+					, IFNULL(calendar_name,'')	AS calendarName
+					, IFNULL(location_name,'') AS locationName
+					, IFNULL(location_adv,'')	AS locationAdv
+					, IFNULL(transport_name,'') AS transportName
+					, IFNULL(purpose,'')	AS purpose
+					, (CASE trip_expense_code WHEN '0' THEN '대상' ELSE '비대상' END) AS tripExpenseCode
+				FROM	$DB_NEOS$t_exnp_trip_res_attend
+				WHERE	trip_res_doc_seq = #tripResDocSeq#
+			  ) tripAttend
+		ON 1=1
+		LEFT JOIN  (
+				SELECT  IFNULL(doc_no,'') AS docNo
+					, create_date	AS createDate
+					, comp_name	AS compName
+				FROM	$DB_NEOS$t_exnp_trip_res_doc
+				WHERE	trip_res_doc_seq = #tripResDocSeq#
+				LIMIT	1
+			) tripResDoc
+		ON	1=1
+		INNER JOIN
+			(
+				SELECT  GROUP_CONCAT(emp_name) AS tripEmpName
+					, GROUP_CONCAT(duty_name) AS dutyName
+				FROM	$DB_NEOS$t_exnp_trip_res_traveler
+				WHERE	trip_res_doc_seq = #tripResDocSeq#
+				LIMIT	1
+			) tripResTraveler
+		ON	1=1
+	</select>
+	
+	<select	id="TripUserReportA.selectConsTradeInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  TripAdminReportA.selectConsTradeInfo */
+		/* 양식 정보 조회 - 경비내역 정보 */	
+		SELECT	tripConsDocSeq
+		    , amtClass1Code
+		    , amtClass1Name
+		    , amtClass1Amt
+		    , maxAmt1
+		    , amtClass1Seq
+		    , amtClass1DomesticCode
+		    , amtClass1HoldCode
+		    , amtClass2Code
+		    , amtClass2Name
+		    , amtClass2Amt
+		    , maxAmt2
+		    , amtClass2Seq
+		    , amtClass2DomesticCode
+		    , amtClass2HoldCode
+		    , amtClass3Code
+		    , amtClass3Name
+		    , amtClass3Amt
+		    , maxAmt3
+		    , amtClass3Seq
+		    , amtClass3DomesticCode
+		    , amtClass3HoldCode
+		    , amtClass4Code
+		    , amtClass4Name
+		    , amtClass4Amt
+		    , maxAmt4
+		    , amtClass4Seq
+		    , amtClass4DomesticCode
+		    , amtClass4HoldCode
+		    , amtClass5Code
+		    , amtClass5Name
+		    , amtClass5Amt
+		    , maxAmt5
+		    , amtClass5Seq
+		    , amtClass5DomesticCode
+		    , amtClass5HoldCode
+		    , amtClass6Code
+		    , amtClass6Name
+		    , amtClass6Amt
+		    , maxAmt6
+		    , amtClass6Seq
+		    , amtClass6DomesticCode
+		    , amtClass6HoldCode
+		    , compSeq
+		    , compName
+		    , empSeq
+		    , empName
+		    , dutyItemSeq
+		    , dutyGroupSeq
+		    , transportSeq
+		    , locationSeq
+		    , dutyName
+		    , amtClassSum
+		    , tripAttend.*
+		    , tripConsDoc.*
+		    , tripConsTraveler.*
+		FROM	(
+		    SELECT	
+		        trip_cons_doc_seq AS tripConsDocSeq
+		        , MAX( CASE WHEN expense.amt_class_code='1' THEN expense.amt_class_code ELSE '0'  END) 			AS amtClass1Code
+		        , MAX( CASE WHEN expense.amt_class_code='1' THEN expense.amt_class_name ELSE '일비'  END) 		AS amtClass1Name
+		        , MAX( CASE WHEN expense.amt_class_code='1' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass1Amt
+		        , MAX( CASE WHEN amt.amt_class_code='1' THEN amt.amt ELSE '0'  END) 							AS maxAmt1
+		        , MAX( CASE WHEN expense.amt_class_code='1' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass1Seq
+		        , MAX( CASE WHEN expense.amt_class_code='1' THEN expense.domestic_code ELSE '0'  END) 			AS amtClass1DomesticCode
+		        , MAX( CASE WHEN expense.amt_class_code='1' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass1HoldCode
+		        , MAX( CASE WHEN expense.amt_class_code='2' THEN expense.amt_class_code ELSE '1'  END) 			AS amtClass2Code
+		        , MAX( CASE WHEN expense.amt_class_code='2' THEN expense.amt_class_name ELSE '식비'  END) 		AS amtClass2Name
+		        , MAX( CASE WHEN expense.amt_class_code='2' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass2Amt
+		        , MAX( CASE WHEN amt.amt_class_code='2' THEN amt.amt ELSE '0'  END) 							AS maxAmt2
+		        , MAX( CASE WHEN expense.amt_class_code='2' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass2Seq
+		        , MAX( CASE WHEN expense.amt_class_code='2' THEN expense.domestic_code ELSE '0'  END) 			AS amtClass2DomesticCode
+		        , MAX( CASE WHEN expense.amt_class_code='2' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass2HoldCode
+		        , MAX( CASE WHEN expense.amt_class_code='3' THEN expense.amt_class_code ELSE '2'  END) 			AS amtClass3Code
+		        , MAX( CASE WHEN expense.amt_class_code='3' THEN expense.amt_class_name ELSE '숙빅비'  END) 	AS amtClass3Name
+		        , MAX( CASE WHEN expense.amt_class_code='3' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass3Amt
+		        , MAX( CASE WHEN amt.amt_class_code='3' THEN amt.amt ELSE '0'  END) 							AS maxAmt3
+		        , MAX( CASE WHEN expense.amt_class_code='3' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass3Seq
+		        , MAX( CASE WHEN expense.amt_class_code='3' THEN expense.domestic_code ELSE '0'  END) 			AS amtClass3DomesticCode
+		        , MAX( CASE WHEN expense.amt_class_code='3' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass3HoldCode
+		        , MAX( CASE WHEN expense.amt_class_code='4' THEN expense.amt_class_code ELSE '3'  END) 			AS amtClass4Code
+		        , MAX( CASE WHEN expense.amt_class_code='4' THEN expense.amt_class_name ELSE '운임비'  END) 	AS amtClass4Name
+		        , MAX( CASE WHEN expense.amt_class_code='4' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass4Amt
+		        , MAX( CASE WHEN amt.amt_class_code='4' THEN amt.amt ELSE '0'  END) 							AS maxAmt4
+		        , MAX( CASE WHEN expense.amt_class_code='4' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass4Seq
+		        , MAX( CASE WHEN expense.amt_class_code='4' THEN expense.domestic_code ELSE '0'  END) 			AS amtClass4DomesticCode
+		        , MAX( CASE WHEN expense.amt_class_code='4' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass4HoldCode
+		        , MAX( CASE WHEN expense.amt_class_code='5' THEN expense.amt_class_code ELSE '4'  END) 			AS amtClass5Code
+		        , MAX( CASE WHEN expense.amt_class_code='5' THEN expense.amt_class_name ELSE '기타여비'  END) 	AS amtClass5Name
+		        , MAX( CASE WHEN expense.amt_class_code='5' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass5Amt
+		        , MAX( CASE WHEN amt.amt_class_code='5' THEN amt.amt ELSE '0'  END) 							AS maxAmt5
+		        , MAX( CASE WHEN expense.amt_class_code='5' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass5Seq
+		        , MAX( CASE WHEN expense.amt_class_code='5' THEN expense.domestic_code ELSE '0'  END) 			AS amtClass5DomesticCode
+		        , MAX( CASE WHEN expense.amt_class_code='5' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass5HoldCode
+		        , MAX( CASE WHEN expense.amt_class_code='6' THEN expense.amt_class_code ELSE '5'  END) 			AS amtClass6Code
+		        , MAX( CASE WHEN expense.amt_class_code='6' THEN expense.amt_class_name ELSE '기타여비2'  END) 	AS amtClass6Name
+		        , MAX( CASE WHEN expense.amt_class_code='6' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass6Amt
+		        , MAX( CASE WHEN amt.amt_class_code='6' THEN amt.amt ELSE '0'  END) 							AS maxAmt6
+		        , MAX( CASE WHEN expense.amt_class_code='6' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass6Seq
+		        , MAX( CASE WHEN expense.amt_class_code='6' THEN expense.domestic_code ELSE '0' END) 			AS amtClass6DomesticCode
+		        , MAX( CASE WHEN expense.amt_class_code='6' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass6HoldCode
+		        , SUM(expense_amt) 																AS amtClassSum
+		        , expense.comp_seq				AS compSeq
+		        , expense.comp_name				AS compName
+		        , expense.emp_seq				AS empSeq
+		        , expense.emp_name				AS empName
+		        , expense.duty_item_seq 		AS dutyItemSeq
+		        , expense.duty_group_seq 		AS dutyGroupSeq
+		        , expense.transport_seq			AS transportSeq
+		        , expense.location_seq			AS locationSeq
+		        , expense.duty_name				AS dutyName
+		    FROM	$DB_NEOS$t_exnp_trip_cons_expense expense
+		    LEFT JOIN $DB_NEOS$t_exnp_trip_set_amt amt
+		    ON	amt.amt_seq = expense.amt_seq
+		    WHERE	trip_cons_doc_seq = #tripConsDocSeq#
+		    AND	emp_seq IS NOT NULL
+		    GROUP BY emp_seq,trip_cons_doc_seq,expense.comp_seq,expense.comp_name,expense.emp_name,expense.duty_item_seq,expense.duty_group_seq,expense.transport_seq,expense.location_seq,expense.duty_name
+		)	expense
+		LEFT JOIN (
+				SELECT	
+					 (CASE domestic_code WHEN '0' THEN '국내' ELSE '국외' END) AS domesticCode
+					, LEFT(trip_from_date,16)	AS  tripFromDateALL
+					, LEFT(trip_from_date,10)	AS  tripFromDate
+					, SUBSTRING(trip_from_date,12,5) AS tripFromTime
+					, LEFT(trip_to_date,16)	AS  tripToDateALL
+					, LEFT(trip_to_date,10)	AS  tripToDate
+					, SUBSTRING(trip_to_date,12,5) AS tripToTime
+					, IFNULL(calendar_name,'')	AS calendarName
+					, IFNULL(location_name,'') AS locationName
+					, IFNULL(location_adv,'')	AS locationAdv
+					, IFNULL(transport_name,'') AS transportName
+					, IFNULL(purpose,'')	AS purpose
+					, (CASE trip_expense_code WHEN '0' THEN '대상' ELSE '비대상' END) AS tripExpenseCode
+				FROM	$DB_NEOS$t_exnp_trip_cons_attend
+				WHERE	trip_cons_doc_seq = #tripConsDocSeq#
+			  ) tripAttend
+		ON 1=1
+		LEFT JOIN  (
+				SELECT  IFNULL(doc_no,'') AS docNo
+					, create_date	AS createDate
+					, dept_name		AS deptName
+				FROM	$DB_NEOS$t_exnp_trip_cons_doc
+				WHERE	trip_cons_doc_seq = #tripConsDocSeq#
+				LIMIT	1
+			) tripConsDoc
+		ON	1=1
+		INNER JOIN
+			(
+				SELECT  GROUP_CONCAT(emp_name) AS tripEmpName
+				FROM	$DB_NEOS$t_exnp_trip_cons_traveler
+				WHERE	trip_cons_doc_seq = #tripConsDocSeq#
+				LIMIT	1
+			) tripConsTraveler
+		ON	1=1
+	</select>
+	
+	<select	id="TripUserReportA.selectResTradeInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  TripAdminReportA.selectResTradeInfo */
+		/* 양식 정보 조회 - 경비내역 정보 */		
+		SELECT	tripResDocSeq
+		    , amtClass1Code
+		    , amtClass1Name
+		    , amtClass1Amt
+		    , maxAmt1
+		    , amtClass1Seq
+		    , amtClass1DomesticCode
+		    , amtClass1HoldCode
+		    , amtClass2Code
+		    , amtClass2Name
+		    , amtClass2Amt
+		    , maxAmt2
+		    , amtClass2Seq
+		    , amtClass2DomesticCode
+		    , amtClass2HoldCode
+		    , amtClass3Code
+		    , amtClass3Name
+		    , amtClass3Amt
+		    , maxAmt3
+		    , amtClass3Seq
+		    , amtClass3DomesticCode
+		    , amtClass3HoldCode
+		    , amtClass4Code
+		    , amtClass4Name
+		    , amtClass4Amt
+		    , maxAmt4
+		    , amtClass4Seq
+		    , amtClass4DomesticCode
+		    , amtClass4HoldCode
+		    , amtClass5Code
+		    , amtClass5Name
+		    , amtClass5Amt
+		    , maxAmt5
+		    , amtClass5Seq
+		    , amtClass5DomesticCode
+		    , amtClass5HoldCode
+		    , amtClass6Code
+		    , amtClass6Name
+		    , amtClass6Amt
+		    , maxAmt6
+		    , amtClass6Seq
+		    , amtClass6DomesticCode
+		    , amtClass6HoldCode
+		    , compSeq
+		    , compName
+		    , empSeq
+		    , empName
+		    , dutyItemSeq
+		    , dutyGroupSeq
+		    , transportSeq
+		    , locationSeq
+		    , dutyName
+		    , amtClassSum
+		    , tripAttend.*
+		    , tripResDoc.*
+		    , tripResTraveler.*
+		FROM	(
+		    SELECT	
+		        trip_res_doc_seq AS tripResDocSeq
+		        , MAX( CASE WHEN expense.amt_class_code='1' THEN expense.amt_class_code ELSE '0'  END) 			AS amtClass1Code
+		        , MAX( CASE WHEN expense.amt_class_code='1' THEN expense.amt_class_name ELSE '일비'  END) 		AS amtClass1Name
+		        , MAX( CASE WHEN expense.amt_class_code='1' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass1Amt
+		        , MAX( CASE WHEN amt.amt_class_code='1' THEN amt.amt ELSE '0'  END) 							AS maxAmt1
+		        , MAX( CASE WHEN expense.amt_class_code='1' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass1Seq
+		        , MAX( CASE WHEN expense.amt_class_code='1' THEN expense.domestic_code ELSE '0'  END) 			AS amtClass1DomesticCode
+		        , MAX( CASE WHEN expense.amt_class_code='1' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass1HoldCode
+		        , MAX( CASE WHEN expense.amt_class_code='2' THEN expense.amt_class_code ELSE '1'  END) 			AS amtClass2Code
+		        , MAX( CASE WHEN expense.amt_class_code='2' THEN expense.amt_class_name ELSE '식비'  END) 		AS amtClass2Name
+		        , MAX( CASE WHEN expense.amt_class_code='2' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass2Amt
+		        , MAX( CASE WHEN amt.amt_class_code='2' THEN amt.amt ELSE '0'  END) 							AS maxAmt2
+		        , MAX( CASE WHEN expense.amt_class_code='2' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass2Seq
+		        , MAX( CASE WHEN expense.amt_class_code='2' THEN expense.domestic_code ELSE '0'  END) 			AS amtClass2DomesticCode
+		        , MAX( CASE WHEN expense.amt_class_code='2' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass2HoldCode
+		        , MAX( CASE WHEN expense.amt_class_code='3' THEN expense.amt_class_code ELSE '2'  END) 			AS amtClass3Code
+		        , MAX( CASE WHEN expense.amt_class_code='3' THEN expense.amt_class_name ELSE '숙빅비'  END) 	AS amtClass3Name
+		        , MAX( CASE WHEN expense.amt_class_code='3' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass3Amt
+		        , MAX( CASE WHEN amt.amt_class_code='3' THEN amt.amt ELSE '0'  END) 							AS maxAmt3
+		        , MAX( CASE WHEN expense.amt_class_code='3' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass3Seq
+		        , MAX( CASE WHEN expense.amt_class_code='3' THEN expense.domestic_code ELSE '0'  END) 			AS amtClass3DomesticCode
+		        , MAX( CASE WHEN expense.amt_class_code='3' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass3HoldCode
+		        , MAX( CASE WHEN expense.amt_class_code='4' THEN expense.amt_class_code ELSE '3'  END) 			AS amtClass4Code
+		        , MAX( CASE WHEN expense.amt_class_code='4' THEN expense.amt_class_name ELSE '운임비'  END) 	AS amtClass4Name
+		        , MAX( CASE WHEN expense.amt_class_code='4' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass4Amt
+		        , MAX( CASE WHEN amt.amt_class_code='4' THEN amt.amt ELSE '0'  END) 							AS maxAmt4
+		        , MAX( CASE WHEN expense.amt_class_code='4' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass4Seq
+		        , MAX( CASE WHEN expense.amt_class_code='4' THEN expense.domestic_code ELSE '0'  END) 			AS amtClass4DomesticCode
+		        , MAX( CASE WHEN expense.amt_class_code='4' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass4HoldCode
+		        , MAX( CASE WHEN expense.amt_class_code='5' THEN expense.amt_class_code ELSE '4'  END) 			AS amtClass5Code
+		        , MAX( CASE WHEN expense.amt_class_code='5' THEN expense.amt_class_name ELSE '기타여비'  END) 	AS amtClass5Name
+		        , MAX( CASE WHEN expense.amt_class_code='5' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass5Amt
+		        , MAX( CASE WHEN amt.amt_class_code='5' THEN amt.amt ELSE '0'  END) 							AS maxAmt5
+		        , MAX( CASE WHEN expense.amt_class_code='5' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass5Seq
+		        , MAX( CASE WHEN expense.amt_class_code='5' THEN expense.domestic_code ELSE '0'  END) 			AS amtClass5DomesticCode
+		        , MAX( CASE WHEN expense.amt_class_code='5' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass5HoldCode
+		        , MAX( CASE WHEN expense.amt_class_code='6' THEN expense.amt_class_code ELSE '5'  END) 			AS amtClass6Code
+		        , MAX( CASE WHEN expense.amt_class_code='6' THEN expense.amt_class_name ELSE '기타여비2'  END) 	AS amtClass6Name
+		        , MAX( CASE WHEN expense.amt_class_code='6' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass6Amt
+		        , MAX( CASE WHEN amt.amt_class_code='6' THEN amt.amt ELSE '0'  END) 							AS maxAmt6
+		        , MAX( CASE WHEN expense.amt_class_code='6' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass6Seq
+		        , MAX( CASE WHEN expense.amt_class_code='6' THEN expense.domestic_code ELSE '0' END) 			AS amtClass6DomesticCode
+		        , MAX( CASE WHEN expense.amt_class_code='6' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass6HoldCode
+		        , SUM(expense_amt) 																AS amtClassSum
+		        , expense.comp_seq				AS compSeq
+		        , expense.comp_name				AS compName
+		        , expense.emp_seq				AS empSeq
+		        , expense.emp_name				AS empName
+		        , expense.duty_item_seq 		AS dutyItemSeq
+		        , expense.duty_group_seq 		AS dutyGroupSeq
+		        , expense.transport_seq			AS transportSeq
+		        , expense.location_seq			AS locationSeq
+		        , expense.duty_name				AS dutyName
+		    FROM	$DB_NEOS$t_exnp_trip_res_expense expense
+		    LEFT JOIN $DB_NEOS$t_exnp_trip_set_amt amt
+		    ON	amt.amt_seq = expense.amt_seq
+		    WHERE	trip_res_doc_seq = #tripResDocSeq#
+		    AND	emp_seq IS NOT NULL
+		    GROUP BY emp_seq,trip_res_doc_seq,expense.comp_seq,expense.comp_name,expense.emp_name,expense.duty_item_seq,expense.duty_group_seq,expense.transport_seq,expense.location_seq,expense.duty_name
+		)	expense
+		LEFT JOIN (
+				SELECT	
+					 (CASE domestic_code WHEN '0' THEN '국내' ELSE '국외' END) AS domesticCode
+					, LEFT(trip_from_date,16)	AS  tripFromDateALL
+					, LEFT(trip_from_date,10)	AS  tripFromDate
+					, SUBSTRING(trip_from_date,12,5) AS tripFromTime
+					, LEFT(trip_to_date,16)	AS  tripToDateALL
+					, LEFT(trip_to_date,10)	AS  tripToDate
+					, SUBSTRING(trip_to_date,12,5) AS tripToTime
+					, IFNULL(calendar_name,'')	AS calendarName
+					, IFNULL(location_name,'') AS locationName
+					, IFNULL(location_adv,'')	AS locationAdv
+					, IFNULL(transport_name,'') AS transportName
+					, IFNULL(purpose,'')	AS purpose
+					, (CASE trip_expense_code WHEN '0' THEN '대상' ELSE '비대상' END) AS tripExpenseCode
+				FROM	$DB_NEOS$t_exnp_trip_res_attend
+				WHERE	trip_res_doc_seq = #tripResDocSeq#
+			  ) tripAttend
+		ON 1=1
+		LEFT JOIN  (
+				SELECT  IFNULL(doc_no,'') AS docNo
+					, create_date	AS createDate
+					, dept_name		AS deptName
+				FROM	$DB_NEOS$t_exnp_trip_res_doc
+				WHERE	trip_res_doc_seq = #tripResDocSeq#
+				LIMIT	1
+			) tripResDoc
+		ON	1=1
+		INNER JOIN
+			(
+				SELECT  GROUP_CONCAT(emp_name) AS tripEmpName
+				FROM	$DB_NEOS$t_exnp_trip_res_traveler
+				WHERE	trip_res_doc_seq = #tripResDocSeq#
+				LIMIT	1
+			) tripResTraveler
+		ON	1=1
+	</select>
+</sqlMap>

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ExUserERPiUETax">
+	
+	<select id="ExTaxListCompOption" parameterType="java.util.Map" resultType="java.util.Map">
+		/*
+         * [ ERPiU - MSSQL ] ExTaxListCompOption - 세금계산서 조회 테이블 옵션 조회
+         * 작성자 : 권오광
+         * 작성일 : 2019-09-04
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT	ISNULL(CD_ENV,'N') AS tpTbTaxCompany
+		FROM	NEOE.MA_ENVD
+		WHERE	CD_COMPANY = #{erpCompSeq}
+		AND		TP_ENV = 'TP_TBTAXCOMPANY'
+	</select>
+	
+<!-- 매입전자세금계산서 - 내역 목록 조회 -->
+	<select id="ExETaxListInfoSelect" parameterType="HashMap" resultType="common.vo.ex.ExCodeETaxVO">
+		/*
+         * [ ERPiU - MSSQL ] ExETaxListInfoSelect - 매입전자세금계산서 - 내역 목록 조회
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-28
+         * 변경이력
+         * - 2020-02-07 / 김상겸 : ERPiU의 FI_TB_TAXDOWN2를 사용하는 경우 CD_COMPANY의 조건이 필요하지만, 적용되지 않은 문제점 확인 보완
+         */
+		
+		SELECT	DISTINCT
+				NO_TAX AS issNo /* 승인번호 */
+				, NO_ISS AS hometaxIssNo	/* 국세청 번호 */
+				, YMD_WRITE AS issDt /* 발행일자 */
+				, BUY_NO_BIZ AS divregNb /* 공급받는자 사업자번호 */
+				, BUY_NM_CORP AS divNm /* 공급받는자 사업장상호명 */
+				, BUY_NM_CEO AS divceoNm /* 공급받는자 대표자명 */
+				, SELL_NO_BIZ AS trregNb /* 공급자 사업자번호 */
+				, SELL_NM_CORP AS trNm /* 공급자 거래처명 */
+				, SELL_NM_CEO AS trceoNm /* 공급자 거래처대표자명 */
+				, AMT AS sumAm /* 합계액 */
+				, AM AS supAm /* 공급가액 */
+				, AM_VAT AS vatAm /* 부가세액 */
+				, DC_RMK AS dummy1 /* 비고 */
+				, CASE WHEN FG_BILL = '1' THEN '청구' ELSE '영수' END AS dummy2 /* 기타(영수/청구 구분) >> 영수 OR 청구 */
+				, ISNULL(SELL_DAM_EMAIL, '') AS emailDc /* 공급자이메일 */
+				, ISNULL(BUY_DAM_EMAIL, '') AS trchargeEmail /* 공급받는자이메일 */
+		<if test='tpTbTaxCompany == "Y"'>
+		FROM	NEOE.FI_TB_TAXDOWN2 tax WITH ( NOLOCK )
+				INNER JOIN NEOE.MA_BIZAREA biz WITH ( NOLOCK ) ON tax.CD_COMPANY = biz.CD_COMPANY AND tax.BUY_NO_BIZ = biz.NO_BIZAREA
+		</if>
+		<if test='tpTbTaxCompany == "N"'>
+		FROM	NEOE.FI_TB_TAXDOWN tax WITH ( NOLOCK )
+				INNER JOIN NEOE.MA_BIZAREA biz WITH ( NOLOCK ) ON tax.BUY_NO_BIZ = biz.NO_BIZAREA
+		</if>
+		WHERE	FG_IO = '2' /* 기본 검색조건 - 매입매출구분 */
+		AND		biz.CD_COMPANY = '${coCd}'
+		AND		YMD_WRITE BETWEEN '${searchFromDt}' AND '${searchToDt}' /* 기본 검색조건 - 기간 */
+		AND		NO_TAX NOT IN ('${notInsertIssNo}') /* 기본 검색조건 - 작성중인 지출결의 계산서는 제외 */
+		AND		(
+					SELL_NO_BIZ LIKE '%${searchPartnerNo}%' /* 검색조건 - 공급자 등록번호 */
+					AND ISNULL(SELL_NM_CORP, '') LIKE '%${searchPartnerNm}%' /* 검색조건 - 공급자명 */
+					AND NO_ISS LIKE '%${searchIssNo}%' /* 검색조건 - 국세청승인번호 */
+				)
+		AND		(
+					NO_TAX IN ('${transferIssNo}') /* 이관받은 세금계산서 조회 */
+					/* 권한있는 세금계산서 조회 */
+					OR (
+						<if test="trchargeEmail !=''">		
+						BUY_DAM_EMAIL IN ('${trchargeEmail}') /* 기본 검색조건 - 공급받는자 이메일주소 */
+						OR	
+						</if>
+						SELL_NO_BIZ IN ('${trregNb}') /* 기본 검색조건 - 공급받는 등록번호 */
+						OR	BUY_DAM_EMAIL LIKE '${baseEmailAddr}%' /* 기본 검색조건 - 로그인 사용자 이메일 주소(도메인 필터 X) */
+					)
+				)
+		ORDER	BY YMD_WRITE						
+    </select>
+
+	<!-- 매입전자세금계산서 - 내역 상세 조회 -->
+	<select id="ExETaxDetailInfoSelect" parameterType="HashMap" resultType="HashMap">
+		
+		<![CDATA[
+		/* ExETaxDetailInfoSelect - ERPiU - mssql */
+        
+			SELECT  
+	        	TOP 1 
+	        	NO_TAX AS issNo
+	        ,	NO_ISS AS hometaxIssNo	/* 국세청 번호  */
+	        , 	YMD_WRITE AS issDt
+	        , 	BUY_NO_BIZ AS divregNb /* 공급받는자 사업자번호 */
+			, 	BUY_NM_CORP AS divNm /* 공급받는자 사업장상호명 */
+			, 	BUY_NM_CEO AS divceoNm /* 공급받는자 대표자명 */
+			, 	SELL_NO_BIZ AS trregNb /* 공급자 사업자번호 */
+			, 	SELL_NM_CORP AS trNm /* 공급자 거래처명 */
+			, 	SELL_NM_CEO AS trceoNm /* 공급자 거래처대표자명 */
+	        , 	AMT AS sumAm /* 합계액 */
+			, 	AM AS supAm /* 공급가액 */
+			, 	AM_VAT AS vatAm /* 부가세액 */
+			, 	DC_RMK AS dummy1 /* 비고 */
+			, 	CASE WHEN FG_BILL = '1' THEN '청구' ELSE '영수' END AS "dummy2" /* 기타(영수/청구 구분) >> 영수 OR 청구 */
+	        , 	ISNULL(SELL_DAM_EMAIL, '') AS emailDc /* 공급자이메일 */
+			, 	ISNULL(BUY_DAM_EMAIL, '') AS trchargeEmail /* 공급받는자이메일 */
+		]]>
+		<if test='tpTbTaxCompany == "Y"'>
+		FROM NEOE.FI_TB_TAXDOWN2 WITH ( NOLOCK )
+		</if>
+		<if test='tpTbTaxCompany == "N"'>
+		FROM NEOE.FI_TB_TAXDOWN WITH ( NOLOCK )
+		</if>
+		<![CDATA[
+        WHERE   
+        	FG_IO = '2' /* 검색조건 - 매입매출구분 */
+        AND NO_TAX = '${issNo}' /* 검색조건 - 승인번호 */	
+        ]]>
+		<if test='tpTbTaxCompany == "Y"'>
+		AND		CD_COMPANY = #{erpCompSeq}
+		</if>
+	</select>
+        
+        
+	<select id="ExETaxListInfoSelectMap" parameterType="HashMap" resultType="HashMap">
+		/*
+         * [ ERPiU - MSSQL ] ExETaxListInfoSelectMap - ERPiU 세금계산서 현황 조회
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-28
+         * 변경이력
+         * - 변경내역 없음.
+         */
+		
+		SELECT	
+			DISTINCT 
+			NO_TAX AS issNo /* 승인번호 */
+		,	NO_ISS AS hometaxIssNo /* 국세청 번호 */
+		, 	YMD_WRITE AS issDt /* 발행일자 */
+		, 	BUY_NO_BIZ AS divregNb /* 공급받는자 사업자번호 */
+		, 	BUY_NM_CORP AS divNm /* 공급받는자 사업장상호명 */
+		, 	BUY_NM_CEO AS divceoNm /* 공급받는자 대표자명 */
+		, 	SELL_NO_BIZ AS trregNb /* 공급자 사업자번호 */
+		, 	SELL_NM_CORP AS trNm /* 공급자 거래처명 */
+		, 	SELL_NM_CEO AS trceoNm /* 공급자 거래처대표자명 */
+		, 	AMT AS sumAm /* 합계액 */
+		, 	AM AS supAm /* 공급가액 */
+		, 	AM_VAT AS vatAm /* 부가세액 */
+		, 	DC_RMK AS dummy1 /* 비고 */
+		, 	CASE WHEN FG_BILL = '1' THEN '청구' ELSE '영수' END AS "dummy2" /* 기타(영수/청구 구분) >> 영수 OR 청구 */
+		, 	ISNULL(SELL_DAM_EMAIL, '') AS emailDc /* 공급자이메일 */
+		, 	ISNULL(BUY_DAM_EMAIL, '') AS trchargeEmail /* 공급받는자이메일 */
+		<if test='tpTbTaxCompany == "Y"'>
+		FROM NEOE.FI_TB_TAXDOWN2 tax WITH ( NOLOCK )
+		INNER JOIN NEOE.MA_BIZAREA biz WITH ( NOLOCK ) ON tax.CD_COMPANY = biz.CD_COMPANY AND tax.BUY_NO_BIZ = biz.NO_BIZAREA
+		</if>
+		<if test='tpTbTaxCompany == "N"'>
+		FROM NEOE.FI_TB_TAXDOWN tax WITH ( NOLOCK )
+		INNER JOIN NEOE.MA_BIZAREA biz WITH ( NOLOCK ) ON tax.BUY_NO_BIZ = biz.NO_BIZAREA
+		</if>
+		WHERE   
+			FG_IO = '2' /* 기본 검색조건 - 매입매출구분 */
+		AND	biz.CD_COMPANY = '${erpCompSeq}'
+		AND YMD_WRITE BETWEEN '${searchFromDt}' AND '${searchToDt}' /* 기본 검색조건 - 기간 */
+		AND	NO_TAX NOT IN ('${notInsertIssNo}') /* 기본 검색조건 - 작성중인 지출결의 계산서는 제외 */
+		AND     
+		(
+				SELL_NO_BIZ LIKE '%${searchPartnerNo}%' /* 검색조건 - 공급자 등록번호 */
+			AND ISNULL(SELL_NM_CORP, '') LIKE '%' + #{searchPartnerNm} + '%' /* 검색조건 - 공급자명 */
+			AND NO_ISS LIKE '%${searchIssNo}%' /* 검색조건 - 국세청승인번호 */
+			AND	ISNULL(BUY_DAM_EMAIL, '') LIKE '%' + ISNULL(#{emailDc}, '') + '%' /* 검색조건 - 공급받는자 이메일 */
+		)
+		AND	(
+			NO_TAX IN ('${transferIssNo}')
+			OR	
+			(
+				<if test="trchargeEmail !=''">		
+				BUY_DAM_EMAIL IN ('${trchargeEmail}') /* 기본 검색조건 - 공급받는자 이메일주소 */
+				OR	
+				</if>
+				SELL_NO_BIZ IN ('${trregNb}') /* 기본 검색조건 - 공급받는 등록번호 */
+				OR	BUY_DAM_EMAIL LIKE '${baseEmailAddr}%' /* 기본 검색조건 - 로그인 사용자 이메일 주소(도메인 필터 X) */
+			)
+		)
+		order by YMD_WRITE	
+	
+	</select>
+	
+	<select id="ExETaxBizareaInfoSelectMap" parameterType="HashMap" resultType="HashMap"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExETaxBizareaInfoSelectMap - ERPiU 매입전자세금계산서 사업장 정보 조회
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-28
+         * 변경이력
+         * - 변경내역 없음.
+         */
+		
+		SELECT	
+				TOP 1
+				B.CD_BIZAREA AS erpBizareaSeq
+		,		B.NM_BIZAREA AS erpBizareaName
+		FROM	(
+					SELECT	
+							BUY_NO_BIZ
+					FROM	(
+								SELECT	
+										REPLACE(ISNULL(BUY_NO_BIZ, ''), '-', '') AS BUY_NO_BIZ
+								FROM	NEOE.FI_TB_TAXDOWN
+								WHERE	
+									 	FG_IO = '2'
+								AND		NO_TAX = #{issNo}
+								AND		YMD_WRITE = #{issDt}
+		
+								UNION
+		
+								SELECT	
+										REPLACE(ISNULL(BUY_NO_BIZ, ''), '-', '') AS BUY_NO_BIZ
+								FROM	NEOE.FI_TB_TAXDOWN2
+								WHERE	
+										CD_COMPANY = #{erpCompSeq}
+								AND		FG_IO = '2'
+								AND		NO_TAX = #{issNo}
+								AND		YMD_WRITE = #{issDt}
+							) A
+				) A INNER JOIN (
+					SELECT	CD_BIZAREA
+							, NM_BIZAREA
+							, REPLACE(ISNULL(NO_BIZAREA, ''), '-', '') AS NO_BIZAREA
+					FROM	NEOE.MA_BIZAREA
+					WHERE	CD_COMPANY = #{erpCompSeq}
+				) B ON A.BUY_NO_BIZ = B.NO_BIZAREA
+				ORDER BY
+					(CASE WHEN B.CD_BIZAREA = #{userErpBizSeq} THEN 1 ELSE 9 END) , B.CD_BIZAREA 
+	]]></select>
+</mapper>

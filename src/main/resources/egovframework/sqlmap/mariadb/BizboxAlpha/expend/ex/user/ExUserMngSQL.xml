@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- Bizbox Alpha mariadb -->
+<sqlMap namespace="ExUserMngSQL">
+<!-- 지출결의 -->
+	<!-- 지출결의 - 지출결의 항목 분개 관리항목 생성 -->
+	<insert id="ExMngInfoInsert" parameterClass="HashMap">
+		/* ExMngInfoInsert - BizboxA - mariaDB */
+		INSERT INTO $DB_NEOS$t_ex_expend_mng (expend_seq, list_seq, slip_seq, mng_seq, mng_code, mng_name, mng_form_code, mng_child_yn, mng_stat, ctd_code, ctd_name, json_str, create_seq, create_date, modify_seq, modify_date, real_mng_code)
+		VALUES('$expendSeq$', '$listSeq$', '$slipSeq$', '$mngSeq$', '$mngCode$', #mngName#, '$mngFormCode$', '$mngChildYN$', '$mngStat$', '$ctdCode$', #ctdName#, '$jsonStr$', '$createSeq$', NOW(),'$modifySeq$', NOW(), '$realMngCode$');
+	</insert>
+
+	<!-- 지출결의 - 지출결의 항목 분개 관리항목 수정 -->
+	<update id="ExMngInfoUpdate" parameterClass="HashMap">
+		/* ExMngInfoUpdate - BizboxA - mariaDB */
+		UPDATE $DB_NEOS$t_ex_expend_mng
+		SET ctd_code = '$ctdCode$', ctd_name = #ctdName#, json_str = '$jsonStr$', modify_seq = '$modifySeq$', modify_date = NOW()
+		WHERE expend_seq = '$expendSeq$' AND list_seq = '$listSeq$' AND slip_seq = '$slipSeq$' AND mng_seq = '$mngSeq$' ;
+	</update>
+
+	<!-- 지출결의 - 지출결의 항목 분개 관리항목 조회 -->
+	<select id="ExMngInfoSelect" parameterClass="HashMap" resultClass="common.vo.ex.ExExpendMngVO">
+		/* ExMngInfoSelect - BizboxA - mariaDB */
+		SELECT 	expend_seq AS expendSeq
+				, list_seq AS listSeq
+				, slip_seq AS slipSeq
+				, mng_seq AS mngSeq
+				, mng_code AS mngCode 
+				, mng_name AS mngName
+				, mng_form_code AS mngFormCode
+				, mng_child_yn AS mngChildYN
+				, mng_stat AS mngStat
+				, ctd_code AS ctdCode
+				, ctd_name AS ctdName
+				, json_str AS jsonStr
+				, IFNULL(real_mng_code, mng_code) AS realMngCode
+		FROM 	$DB_NEOS$t_ex_expend_mng
+		WHERE 	expend_seq = '$expendSeq$'
+		AND 	list_seq = '$listSeq$'
+		AND 	slip_seq = '$slipSeq$'
+		AND 	mng_seq = '$mngSeq$'
+	</select>
+
+	<!-- 지출결의 - 지출결의 항목 분개 관리항목 조회 -->
+	<select id="ExMngListInfoSelect" parameterClass="HashMap" resultClass="common.vo.ex.ExExpendMngVO">
+		/* ExMngListInfoSelect - BizboxA - mariaDB */
+		SELECT 	expend_seq AS expendSeq
+				, list_seq AS listSeq
+				, slip_seq AS slipSeq
+				, mng_seq AS mngSeq
+				, mng_code AS mngCode
+				, mng_name AS mngName
+				, mng_form_code AS mngFormCode
+				, mng_child_yn AS mngChildYN
+				, mng_stat AS mngStat
+				, ctd_code AS ctdCode
+				, ctd_name AS ctdName
+				, json_str AS jsonStr
+				, real_mng_code AS realMngCode
+		FROM 	$DB_NEOS$t_ex_expend_mng
+		WHERE 	expend_seq = '$expendSeq$'
+		AND 	list_seq = '$listSeq$'
+		AND 	slip_seq = '$slipSeq$'
+	</select>
+
+	<!-- 지출결의 - 지출결의 항목 분개 관리항목 삭제 -->
+	<delete id="ExMngInfoDelete" parameterClass="HashMap">
+		/* ExMngInfoDelete - BizboxA - mariaDB */
+		DELETE FROM $DB_NEOS$t_ex_expend_mng
+		WHERE expend_seq = '$expendSeq$' AND list_seq = '$listSeq$' AND slip_seq = '$slipSeq$' AND mng_seq = '$mngSeq$' ;
+	</delete>
+
+	<!-- 지출결의 - 지출결의 항목 분개 관리항목 하위 내역 모두 삭제 -->
+	<delete id="ExMngDInfoDelete" parameterClass="HashMap">
+		DELETE FROM $DB_NEOS$t_ex_expend_mng
+		WHERE expend_seq = '$expendSeq$'
+		AND list_seq = '$listSeq$'
+		AND slip_seq = '$slipSeq$'
+	</delete>
+
+	<!-- 지출결의 - 지출겨르이 항목 분개 관리항목 그리드 바인딩 목록 -->
+	<select id="ExMngGridInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		/* ExMngGridInfoSelect - BizboxA - mariaDB */
+		SELECT expend_seq, list_seq, slip_seq, mng_seq, mng_code, mng_name, mng_form_code, mng_child_yn, mng_stat, ctd_code, ctd_name, json_str
+		FROM $DB_NEOS$t_ex_expend_mng
+		WHERE expend_seq = '$expendSeq$'
+		AND list_seq = '$listSeq$'
+		AND slip_seq = '$slipSeq$'
+		ORDER BY expend_seq, list_seq, slip_seq, mng_seq
+	</select>
+</sqlMap>

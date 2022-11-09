@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN" "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<!-- interlock eap -->
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/interlock/interlockEAP_SQL.xml" />
+	<!-- interlock ea -->
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/interlock/interlockEA_SQL.xml" />
+</sqlMapConfig>

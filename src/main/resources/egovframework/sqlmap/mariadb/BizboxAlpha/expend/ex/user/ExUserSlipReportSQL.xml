@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="ExUserSlipReportA">
+
+	<sql id="refExUserExpendSlipReportListInfoSelect">
+		SELECT	expend.expend_seq AS 'expendSeq'
+				,expend.doc_seq AS 'docSeq'
+				,IFNULL(appdoc.doc_no,'')  AS 'appDocNo'
+				,appdoc.doc_sts AS 'docSts'
+				,IFNULL(dmulti.detail_name,'') AS 'docStsName'
+				,form.form_id AS 'formSeq'
+				,form.form_d_tp AS 'formDTp'
+				,form.form_nm AS 'formName'
+				,DATE_FORMAT(appdoc.rep_dt ,'%Y-%m-%d') AS 'appRepDate'
+				,IFNULL(appdoc.doc_title,'') AS 'appDocTitle'
+				,DATE_FORMAT(expend.expend_date ,'%Y-%m-%d') AS 'expendDate'
+				,DATE_FORMAT(expend.expend_req_date ,'%Y-%m-%d') AS 'expendReqDate'
+				,IFNULL(appdoc.user_nm,'') AS 'appUserName'
+				, (
+					CASE 
+						WHEN IFNULL(expend.emp_seq,'') !=0 THEN IFNULL(expend.emp_seq,'')
+						WHEN IFNULL(expend.emp_seq,'') = 0 THEN IFNULL(list.emp_seq,'')
+						WHEN IFNULL(list.emp_seq,'') = 0 THEN IFNULL(slip.emp_seq,'')
+				   END
+				   ) AS'expendEmpSeq'
+				, CASE WHEN IFNULL(emp.emp_name,'') != '' THEN emp.emp_name WHEN IFNULL(emp.erp_emp_name,'') != '' THEN emp.erp_emp_name ELSE '' END AS 'expendUseEmpName'
+				, CASE WHEN IFNULL(emp.dept_seq,'') != '' THEN emp.dept_seq WHEN IFNULL(emp.erp_dept_seq,'') != '' THEN emp.erp_dept_seq ELSE '' END AS 'expendUseDeptCode'
+				, CASE WHEN IFNULL(emp.dept_name,'') != '' THEN emp.dept_name WHEN IFNULL(emp.erp_dept_name,'') != '' THEN emp.erp_dept_name ELSE '' END AS 'expendUseDeptName'
+				, (	
+					CASE	IFNULL( expend.erp_send_yn  , '' ) 
+						WHEN ''	THEN 'N' 
+						ELSE		expend.erp_send_yn  
+						END 
+				)	AS 'expendErpSendYn'
+				, IFNULL(expend.erp_send_seq,'') AS 'expendErpSendSeq'
+				, (
+					CASE 
+						WHEN IFNULL( expend.erp_send_yn  , '' ) = 'Y' THEN IFNULL(empm.emp_name,'')
+						WHEN IFNULL(expend.erp_send_yn, '') = '' OR expend.erp_send_yn = 'N' THEN ''
+				  	END
+				   ) AS 'expendErpSendName'
+				, IFNULL(expend.row_id,'')  AS 'expendErpiuAdocuId'
+				, IFNULL(expend.in_dt,'')  AS 'expendIcubeAdocuId'
+				, IFNULL(expend.in_sq,'')  AS 'expendIcubeAdocuSeq'
+				, IFNULL(slip.list_seq,'') AS 'expendSlipListSeq'
+				, IFNULL(slip.slip_seq,'') AS 'expendSlipSlipSeq'
+				, IFNULL(summary.summary_code,'')		AS 'expendSlipSummaryCode'
+				, IFNULL(summary.summary_name,'')    	AS 'expendSlipSummaryName'
+				, IFNULL(auth.auth_code,'')		AS 'expendSlipAuthCode'
+				, IFNULL(auth.auth_name,'')       	AS 'expendSlipAuthName'
+				, CASE 
+					WHEN slip.emp_seq !=0 THEN slip.emp_seq
+					WHEN slip.emp_seq = 0 AND slip.emp_seq !=0 THEN slip.emp_seq !=0
+					ELSE 0
+				 END AS 'expendSlipEmpName'
+				, slip.note           		AS 'expendSlipNote'
+				, (	
+					CASE	IFNULL( DATE_FORMAT(slip.auth_date, '%Y-%m-%d') , '' ) 
+						WHEN ''	THEN '' 
+						ELSE		DATE_FORMAT(slip.auth_date, '%Y-%m-%d')
+						END 
+				)	AS 'expendSlipAuthDate'
+				, IFNULL(project.project_code,'')	AS 'expendSlipProjectCode'
+				, IFNULL(project.project_name,'')    	AS 'expendSlipProjectName'
+				, IFNULL(card.card_num,'')		AS 'expendSlipCardNum'
+				, IFNULL(card.card_name,'')       	AS 'expendSlipCardName'
+				, partner.partner_code		AS 'expendSlipPartnerCode'
+				, partner.partner_name    	AS 'expendSlipPartnerName'
+				, slip.acct_code AS 'expendSlipAcctCode'
+				, slip.acct_name AS 'expendSlipAcctName'
+				, (	
+					CASE	slip.drcr_gbn
+						WHEN 'dr'	THEN '차변'
+						WHEN 'vat'	THEN '부가세'
+						WHEN 'cr'	THEN '대변'
+						ELSE		slip.drcr_gbn
+						END 
+				 )	AS 'expendSlipDrcrGbn'	
+				 , slip.amt AS 'expendSlipAmt'
+				 , list.order_seq
+				 , list.list_seq
+				 , appDoc.rep_dt
+				 , expend.erpSendSeq AS 'erpSendSeq'
+				FROM		(	SELECT 		comp_seq
+										,expend_seq
+										,doc_seq
+										,emp_seq
+										,expend_date
+										,expend_req_date
+										,erp_send_yn
+										,IFNULL(erp_send_seq,'') AS erp_send_seq
+										, IFNULL(row_id,'') AS row_id
+		                    			, IFNULL(in_dt,'') AS in_dt
+		                    			, IFNULL(in_sq,'') AS in_sq
+		                    			, CASE
+											WHEN IFNULL(row_id,'') ='' THEN CASE WHEN CONCAT(IFNULL(in_dt,''),IFNULL(in_sq,'')) = '0' THEN '' ELSE CONCAT(IFNULL(in_dt,''),IFNULL(in_sq,'')) END
+											ELSE	IFNULL(row_id,'')
+										END AS  erpSendSeq
+							   	FROM 		$DB_NEOS$t_ex_expend 
+							  	WHERE   	comp_seq = '$compSeq$'
+							      AND     	IFNULL(DATE_FORMAT(expend_date, '%Y%m%d'),'00000000') BETWEEN '$searchexpendDateStartDate$' AND '$searchexpendDateEndtDate$'   
+							      AND     	IFNULL(DATE_FORMAT(expend_req_date, '%Y%m%d'),'00000000') BETWEEN '$searchexpendReqDateStartDate$' AND '$searchexpendReqDatendDate$'
+								<isNotEqual property="erpSendYN" compareValue="A">
+								  AND 		(CASE WHEN IFNULL(erp_send_yn, '') = '' THEN 'N' ELSE erp_send_yn END) = '$erpSendYN$'
+								</isNotEqual>
+							) expend 
+				LEFT OUTER JOIN	$DB_NEOS$t_ex_expend_emp emp ON emp.seq = expend.emp_seq AND emp.comp_seq = expend.comp_seq
+				LEFT OUTER JOIN $DB_NEOS$t_co_emp_multi empm ON empm.emp_seq = expend.erp_send_seq AND empm.lang_code = '$langCode$'
+				INNER JOIN $DB_NEOS$t_ex_expend_list LIST ON expend.expend_seq = list.expend_seq
+				INNER JOIN $DB_NEOS$t_ex_expend_slip slip ON slip.expend_seq = list.expend_seq AND slip.list_seq = list.list_seq
+				INNER JOIN (
+						SELECT	doc_id
+							,doc_title
+							,doc_no
+							,doc_sts
+							, CASE
+		                          WHEN '$langCode$' = 'kr' THEN IFNULL(USER_NM, '')
+		                          WHEN '$langCode$' = 'en' THEN CASE WHEN IFNULL(USER_NM_EN, '') = '' THEN IFNULL(USER_NM, '') END
+		                          WHEN '$langCode$' = 'jp' THEN CASE WHEN IFNULL(USER_NM_JP, '') = '' THEN IFNULL(USER_NM, '') END
+		                          WHEN '$langCode$' = 'cn' THEN CASE WHEN IFNULL(USER_NM_CN, '') = '' THEN IFNULL(USER_NM, '') END
+		                          ELSE IFNULL(USER_NM, '')
+		                      END AS USER_NM
+		                     , co_id
+		                     , dept_id
+		                     , user_id
+		                     , rep_dt
+		                     , form_id              
+						FROM		$DB_NEOS$teag_appdoc
+						WHERE     	IFNULL(co_id,'0') = '$compSeq$'        
+							AND     	IFNULL(user_id,'0') = '$empSeq$'  
+						    AND     	IFNULL(use_yn,'0') = '1' 
+						    AND     	IFNULL(doc_sts,'') LIKE CONCAT('%','$searchDocStatus$','%') 
+						    AND     	IFNULL(doc_no,'') LIKE CONCAT('%','$appDocNo$','%') 
+						    AND     	IFNULL(user_nm,'') LIKE CONCAT('%','$appUserName$','%')
+						    AND     	IFNULL(doc_title,'') LIKE CONCAT('%','$appDocTitle$','%')
+							)appdoc ON appdoc.doc_id = expend.doc_seq
+				LEFT OUTER JOIN $DB_NEOS$t_ex_expend_summary summary ON summary.seq = slip.summary_seq
+				LEFT OUTER JOIN $DB_NEOS$t_ex_expend_auth auth ON auth.seq = slip.auth_seq
+				LEFT OUTER JOIN $DB_NEOS$t_ex_expend_project project ON project.seq = slip.project_seq
+				LEFT OUTER JOIN $DB_NEOS$t_ex_expend_card card ON card.seq = slip.card_seq
+				LEFT OUTER JOIN $DB_NEOS$t_ex_expend_partner partner ON partner.seq = slip.partner_seq
+				LEFT OUTER JOIN (
+					SELECT form_id
+						, IFNULL(FORM_SHORT_NM, '') AS FORM_SHORT_NM
+		                , FORM_MODE
+		                ,form_d_tp 
+		                , CASE
+		                    WHEN '$langCode$' = 'kr' THEN IFNULL(FORM_NM, '')
+		                    WHEN '$langCode$' = 'en' THEN CASE WHEN IFNULL(FORM_NM_EN, '') = '' THEN IFNULL(FORM_NM, '') END
+		                    WHEN '$langCode$' = 'jp' THEN CASE WHEN IFNULL(FORM_NM_JP, '') = '' THEN IFNULL(FORM_NM, '') END
+		                    WHEN '$langCode$' = 'cn' THEN CASE WHEN IFNULL(FORM_NM_CN, '') = '' THEN IFNULL(FORM_NM, '') END
+		                     ELSE IFNULL(FORM_NM, '')
+		                END AS FORM_NM
+					FROM $DB_NEOS$teag_form
+					WHERE (form_tp = 'ea0060' OR (form_tp = 'ea0000' AND (form_d_tp IN ('EXPENDA', 'EXPENDI', 'EXPENDU'))))
+				
+				) form ON appdoc.form_id = form.form_id
+				LEFT OUTER JOIN $DB_NEOS$t_co_dept dept ON appdoc.dept_id = dept.dept_seq
+				LEFT OUTER JOIN $DB_NEOS$t_co_biz biz ON dept.biz_seq = biz.biz_seq
+				LEFT OUTER JOIN $DB_NEOS$t_co_biz_multi bizm ON dept.biz_seq = bizm.biz_seq AND bizm.lang_code = '$langCode$'
+				LEFT OUTER JOIN $DB_NEOS$t_co_code_detail_multi dmulti ON dmulti.detail_code = appdoc.doc_sts AND dmulti.code = 'ea0015'  AND dmulti.lang_code = '$langCode$'
+			WHERE 		IFNULL(slip.note, '') LIKE CONCAT('%','$slipNote$','%')
+			  AND     	IFNULL(DATE_FORMAT(slip.auth_date, '%Y%m%d'),'19000101') BETWEEN '$searchauthDateStartDate$' AND '$searchauthDateEndDate$' 	
+			 	<isNotEqual property="drcrGbn" compareValue="A">
+               AND		drcr_gbn = '$drcrGbn$'
+              </isNotEqual>
+			  AND     	IFNULL(DATE_FORMAT(appDoc.rep_dt, '%Y%m%d'),'00000000') BETWEEN '$searchrepDateStartDate$' AND '$searchrepDateEndDate$'  
+			  <isNotEmpty property="bizCd">
+			  AND 		IFNULL(biz.biz_seq, '') = '$bizCd$'	
+			  </isNotEmpty>
+			  AND 		IFNULL(expend.erpSendSeq, '') LIKE CONCAT('%','$erpSendSeq$','%')
+			  AND 		IFNULL(empm.emp_name, '') LIKE CONCAT('%','$erpSendName$','%')
+			  AND   	IFNULL(form_nm, '') LIKE CONCAT('%', '$formName$','%')
+			  AND   	IFNULL(emp.erp_dept_name,'') LIKE CONCAT('%', '$erpUseDeptName$','%')
+			  AND   	IFNULL(emp.erp_emp_name,'') LIKE CONCAT('%', '$erpUseEmpName$','%')
+			  AND   	IFNULL(summary.summary_name,'')  LIKE CONCAT('%', '$summaryName$' ,'%')
+			  AND   	IFNULL(auth.auth_name,'') LIKE CONCAT('%', '$authName$' ,'%')
+			  AND   	IFNULL(project.project_name,'') LIKE CONCAT('%', '$projectName$','%')
+			  AND   	IFNULL(card.card_name,'') LIKE CONCAT('%', '$cardName$','%')  
+			  AND   	IFNULL(partner.partner_name,'') LIKE CONCAT('%', '$partnerName$' ,'%') 
+			  AND   	IFNULL(slip.acct_name,'') LIKE CONCAT('%','$acctName$','%')		
+	</sql>
+
+
+	<select id="ExUserSlipReportA.ExReportSlipExpendListed" parameterClass="HashMap" resultClass="HashMap">
+		
+		SELECT X.*
+		  FROM (
+					<include refid="refExUserExpendSlipReportListInfoSelect"/>
+		       ) X
+		ORDER BY X.rep_dt DESC, X.expendSeq ,( CASE WHEN IFNULL(X.order_seq,'0') = '0' OR IFNULL(X.order_seq,'') = '' THEN X.list_seq ELSE X.order_seq END ), X.expendSlipSlipSeq
+		 <isNotEmpty property="startNum">
+		   <isNotEmpty property="endNum">
+		   LIMIT $startNum$, $endNum$
+		   </isNotEmpty>
+		 </isNotEmpty>
+	</select>
+	
+	
+	<select id="ExUserSlipReportA.ExReportSlipExpendListed_TOTALCOUNT"  parameterClass="HashMap" resultClass= "String">	
+		SELECT COUNT(*) AS totalCount
+		  FROM (<include refid="refExUserExpendSlipReportListInfoSelect"/>
+		       ) X
+	</select>
+
+</sqlMap>

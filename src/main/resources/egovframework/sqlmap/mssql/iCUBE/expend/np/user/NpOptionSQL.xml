@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 사용자 코드 -->
+<mapper namespace="npUserOptionI">
+	
+	<select id="NpTestQuery" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpOptionSQL.xml - NpTestQuery */
+		USE DZICUBE;
+		/* iCUBE 테스트 쿼리 */
+		SELECT	* 
+		FROM	ABDOCU;
+	</select>
+	
+	<select id="npUserOptionI.optionSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpOptionSQL.xml - iCUBEG20_optionSelect */
+		/* iCUBE 환경설정 정보 조회 */
+		USE DZICUBE;
+		SELECT	* 
+		FROM	SYSCFG 
+		WHERE	CO_CD	=	'${erpCompSeq}'
+		
+		/* 필요 경비율 최소 금액 조회 */
+		UNION
+		SELECT	
+				'${erpCompSeq}'	AS	CO_CD
+				, 'GW'	AS	MODULE_CD
+				, '01'	AS	CTR_CD
+				, '필요경비율 최소금액'	AS	CTR_NM
+				, '0'	AS	CTR_FG
+				, '0'	AS	CTR_NB
+				, '0'	AS	USE_YN
+				, '0'	AS	FG_TY
+				, '0'	AS	SEL_DOC
+				, '0'	AS	EDIT_YN
+				, '0'	AS	REG_DT
+				, CAST(ISNULL(MIN(MTAX_AM), 50000) AS nvarchar)	AS	CT_VAL
+				, '0'	AS	DUMMY1
+				, '0'	AS	CTR_NMK
+				, '0'	AS	SEL_DOCK
+				, '0'	AS	INSERT_ID
+				, GETDATE()	AS	INSERT_DT
+				, '0'	AS	INSERT_IP
+				, '0'	AS	MODIFY_ID
+				, GETDATE()	AS	MODIFY_DT
+				, '0'	AS	MODIFY_IP
+				, '0'	AS	UNIT_FG
+				, '0'	AS	UNIT_TR
+				, '0'	AS	DUMMY2
+		FROM	ABSDOCU 
+		WHERE	CO_CD = '${erpCompSeq}'		
+	</select>
+	
+	<select id="npUserOptionI.certainOptionSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpOptionSQL.xml - iCUBEG20_optionSelect */
+		/* iCUBE 환경설정 특정 정보 조회 */
+		USE DZICUBE;
+		SELECT	* 
+		FROM	SYSCFG 
+		WHERE	CO_CD		=	'${erpCompSeq}'
+			AND	MODULE_CD	= 	'${moduleCode}' 
+			and CTR_CD 		= 	'${ctrCode}'
+	</select>
+	
+	<select id="npUserOptionI.projectTypeSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpOptionSQL.xml - npUserOptionI.projectTypeSelect */
+		/* iCUBE 프로젝트 타입 조회 */
+		USE DZICUBE;
+		SELECT	
+			PJT_WORKTY	/* 1 : 고유목적사업(부가세 미통제) */
+		FROM	SPJT 
+		WHERE	CO_CD	= '${erpCompSeq}' 
+		 AND	PJT_CD	= '${erpMgtSeq}'	
+	</select>
+	
+	<select id="npUserOptionI.selectBaseDataUserInfoType1" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/expend/np/user/NpOptionSQL.xml - npUserOptionI.selectBaseDataUserInfoType1 */
+		/* iCUBE G20 사용자 기본정보 조회 */
+		USE DZICUBE;
+		SELECT	TOP 1     
+			EMP_CD    	AS	'erpEmpSeq'
+			, KOR_NM	AS	'erpEmpName'
+			, DEPT_CD	AS	'erpDeptSeq'
+			, DEPT_NM	AS	'erpDeptName'
+			, DIV_CD	AS	'erpDivSeq'
+			, DIV_NM	AS	'erpDivName'
+			, ( CASE IN_TAX WHEN '1' THEN '0' ELSE '1' END ) AS 'vatControl'
+			, BANK_CD	AS	'bankSeq'
+			, BANK_NM	AS	'bankName'
+			, ACCT_NO	AS	'acctNo'
+			, DPST_NM   AS	'dpstName'
+			, PRTT_CD	AS	'prttCode'
+			, HTYP_CD	AS	'htypCode'
+			, USE_FG	AS	'useFg'
+			, CO_CD		AS	'erpCompSeq'
+			, CO_NM		AS	'erpCompName'
+		FROM (    
+			SELECT 
+				E.PRTY_CD AS PRTT_CD, E.HTYP_CD, E.EMP_CD, E.KOR_NM, E.KOR_NMK, E.ENLS_NM, D.DEPT_CD, D.DEPT_NM, D.DEPT_NMK, V.DIV_CD, V.DIV_NM, V.DIV_NMK, V.IN_TAX
+				, B.BANK_CD, B.BANK_NM, B.BANK_NMK, E.ACCT_NO, E.DPST_NM,ISNULL(NULLIF(E.RTR_DT,''),'99991231') AS RTR_DT, E.USE_FG , E.CO_CD, C.CO_NM         
+			FROM SEMP E WITH(NOLOCK)    
+				LEFT OUTER JOIN SDEPT D	WITH(NOLOCK) ON (D.CO_CD = E.CO_CD AND D.DEPT_CD = E.DEPT_CD)    
+				LEFT OUTER JOIN SDIV V	WITH(NOLOCK) ON (D.CO_CD = V.CO_CD AND D.DIV_CD = V.DIV_CD)    
+				LEFT OUTER JOIN SBANK B	WITH(NOLOCK) ON (E.PYTB_CD = B.BANK_CD)    
+				LEFT OUTER JOIN SCO C	WITH(NOLOCK) ON (C.CO_CD = E.CO_CD)    
+			WHERE	E.CO_CD =  #{erpCompSeq} 
+				AND E.EMPL_FG <> '002' 
+				AND E.ENRL_FG <> 'J05'
+				AND E.EMP_CD = #{erpEmpSeq}
+				AND (NULLIF(D.TO_DT,'') IS NULL OR D.TO_DT = '00000000' OR D.TO_DT >= '')    
+			) A    
+		WHERE	RTR_DT >= CONVERT(VARCHAR(8), GETDATE(), 112) 
+		ORDER BY EMP_CD  
+	]]></select>
+	
+	<select id="npUserOptionI.selectBaseDataUserInfoType2" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql/iCUBE/expend/np/user/NpOptionSQL.xml - npUserOptionI.selectBaseDataUserInfoType2 */
+		/* iCUBE G20 사용자 기본정보 조회 */
+		USE DZICUBE;
+		SELECT	TOP 1
+			EMP_CD		AS	'erpEmpSeq'
+			, KOR_NM 	AS	'erpEmpName'
+			, DEPT_CD   AS	'erpDeptSeq'
+			, DEPT_NM  	AS	'erpDeptName'
+			, DIV_CD    AS	'erpDivSeq'
+			, DIV_NM	AS	'erpDivName'
+			, ( CASE IN_TAX WHEN '1' THEN '0' ELSE '1' END ) AS 'vatControl'
+			, BANK_CD   AS	'bankSeq'
+			, BANK_NM	AS	'bankName'
+			, ACCT_NO   AS	'acctNo'
+			, DPST_NM 	AS	'dpstName'
+			, PRTT_CD	AS	'prttCode'
+			, HTYP_CD  	AS	'htypCode'
+			, '1'		AS	'useFg'
+			, CO_CD   	AS	'erpCompSeq'
+		FROM (    
+			SELECT	E.PRTY_CD AS PRTT_CD, E.HTYP_CD, E.EMP_CD, E.KOR_NM, E.KOR_NMK, E.ENLS_NM, D.DEPT_CD, D.DEPT_NM, D.DEPT_NMK, V.DIV_CD, V.DIV_NM, V.DIV_NMK, V.IN_TAX
+					, B.BANK_CD, B.BANK_NM, B.BANK_NMK, E.ACCT_NO, E.DPST_NM,ISNULL(NULLIF(E.RTR_DT,''),'99991231') AS RTR_DT, E.USE_FG, E.CO_CD     
+			FROM SEMP E WITH(NOLOCK)    
+				LEFT OUTER JOIN SDEPT D WITH(NOLOCK)	ON (D.CO_CD = E.CO_CD AND D.DEPT_CD = E.DEPT_CD )    
+				LEFT OUTER JOIN SDIV V WITH(NOLOCK)		ON (D.CO_CD = V.CO_CD AND D.DIV_CD = V.DIV_CD)    
+				LEFT OUTER JOIN SBANK B WITH(NOLOCK)	ON (E.PYTB_CD = B.BANK_CD)    
+			WHERE	E.CO_CD =  #{erpCompSeq} 	/*erpCompSeq*/ 
+				AND	E.EMPL_FG <> '002' 
+				AND	E.ENRL_FG <> 'J05'
+				AND E.EMP_CD = #{erpEmpSeq}	/*erpEmpSeq*/  
+				AND (NULLIF(D.TO_DT,'') IS NULL OR D.TO_DT = '00000000' OR D.TO_DT >= '' )    
+		) A    
+		WHERE	RTR_DT >= CONVERT(VARCHAR(8), GETDATE(), 112)       
+		ORDER BY EMP_CD   	
+
+		
+	]]></select>
+	
+</mapper>

@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- iCUBE mssql -->
+<mapper namespace="ExUseriCUBEETax">
+<!-- 매입전자세금계산서 - 내역 목록 조회 -->
+	<select id="ExETaxListInfoSelect" parameterType="HashMap" resultType="common.vo.ex.ExCodeETaxVO">
+			DECLARE @GW_ETAX_TMP_TABLE TABLE (
+					DIV_CD nvarchar(4) NOT NULL,
+					TAX_TY nvarchar(1) NOT NULL,
+					ETAX_TY nvarchar(1) NULL,
+					ISS_DT nvarchar(8) NOT NULL,
+					ISU_DT nvarchar(8) NOT NULL,
+					ISS_YMD nvarchar(8) NULL,
+					TR_CD nvarchar(10) NULL,
+					TR_NM nvarchar(50) NULL,
+					TRREG_NB nvarchar(100) NOT NULL,
+					SUP_AM numeric(17,4) NULL,
+					VAT_AM numeric(17,4) NULL,
+					SUM_AM numeric(17,4) NULL,
+					ADOCU_YN nvarchar(5) NOT NULL,
+					ADOCU_FG nvarchar(8) NOT NULL,
+					DUMMY2 nvarchar(100) NULL,
+					ISS_NO nvarchar(30) NOT NULL,
+					ITEM_DC nvarchar(40) NULL,
+					TRSUB_NB nvarchar(5) NULL,
+					DUMMY1 nvarchar(100) NULL,
+					EMAIL_DC nvarchar(40) NULL,
+					TRCHARGE_EMAIL nvarchar(40) NULL,
+					GW_INSERT_DT datetime NULL,
+					APPRO_STATE nvarchar(1) NULL,
+					DOCU_NO nvarchar(50) NULL,
+					ISS_YN nvarchar(5) NULL,
+					DOCU_INFO nvarchar(100) NULL
+			)
+				
+			INSERT @GW_ETAX_TMP_TABLE
+			exec [dbo].[USP_BIZBOXA_ACM0050_DOCU_CHK] @CO_CD=N'${erpCompSeq}', @DIV_CDS='${bizplanCode}', @FR_DT='${searchFromDt}', @TO_DT='${searchToDt}', @TAX_TY='${taxTy}', @DOCU_ST='1'
+				
+			SELECT  DIV_CD AS divCd
+					, TAX_TY AS taxTy
+					, ISNULL(ETAX_TY,'') AS etaxTy
+					, ISS_DT AS issDt
+					, ISU_DT AS isuDt
+					, ISNULL(ISS_YMD,'') AS issYmd
+					, ISNULL(TR_CD,'') AS trCd
+					, ISNULL(TR_NM,'') AS trNm
+					, TRREG_NB AS trregNb
+					, ISNULL(SUP_AM,'0.00') AS supAm
+					, ISNULL(VAT_AM,'0.00') AS vatAm
+					, ISNULL(SUM_AM,'0.00') AS sumAm
+					, ADOCU_YN AS adocuYN
+					, ADOCU_FG AS adocuFg
+					, ISNULL(DUMMY2,'') AS dummy2
+					, ISS_NO AS issNo
+					, ISNULL(ITEM_DC,'') AS itemDc
+					, ISNULL(TRSUB_NB,'') AS trsubNb
+					, ISNULL(DUMMY1,'') AS dummy1
+					, ISNULL(EMAIL_DC,'') AS emailDc
+					, ISNULL(TRCHARGE_EMAIL,'') AS trchargeEmail
+					, ISNULL(GW_INSERT_DT,'') AS gwInsertDt
+					, ISNULL(APPRO_STATE ,'')AS approState
+					, ISNULL(DOCU_NO,'') AS docuNo
+					, ISNULL(ISS_YN,'') AS issYN
+					, ISNULL(DOCU_INFO,'') AS docuInfo
+			FROM 	@GW_ETAX_TMP_TABLE
+			/* 기본 검색조건 - 작성중인 지출결의 계산서는 제외 */
+			WHERE	ISS_NO NOT IN ('${notInsertIssNo}')
+			AND	(
+				/* 검색조건 - 공급자 등록번호 */
+				TRREG_NB LIKE '%${searchPartnerNo}%' 
+				/* 검색조건 - 공급자명 */
+				AND		TR_NM LIKE '%${searchPartnerNm}%' 
+				/* 검색조건 - 승인번호 */
+				AND		ISS_NO LIKE '%${searchIssNo}%'
+			)
+			AND	(
+				/* 이관받은 세금계산서 조회 */
+				ISS_NO IN ('${transferIssNo}')
+				/* 기본 권한 세금계산서 조회 */
+				OR	(
+					<if test="trchargeEmail !=''">
+					/* 기본 조건 - 공급받는자 이메일주소 */
+					TRCHARGE_EMAIL IN ('${trchargeEmail}')
+					OR
+					</if>			
+					/* 기본 조건 - 공급자 등록번호 */
+					TRREG_NB IN ('${trregNb}')
+					/* 기본 검색조건 - 로그인 사용자 이메일 주소(도메인 필터 X) */
+					OR	TRCHARGE_EMAIL LIKE '${baseEmailAddr}%'
+				)
+			)
+			ORDER BY ISS_DT
+	</select>
+
+	<!-- 매입전자세금계산서 - 내역 상세 조회 -->
+	<select
+		id="ExETaxDetailInfoSelect"
+		parameterType="HashMap"
+		resultType="HashMap"><![CDATA[
+		/* ExETaxDetailInfoSelect - iCUBE - mssql */
+        SELECT  ISS_NO /* 승인번호 */
+                , CO_CD AS coCd/* 회사코드 */
+                , DIV_CD AS divCd/* 사업장코드 */
+                , TR_CD AS trCd/* 거래처코드 */
+                , ISS_DT AS issDt/* 작성일자 >> EXCEL :B열 (세금계산서 작성일자에 찍히는 날짜=전표일자isu_dt?,신고기준일tax_dt? ) */
+                , TAX_TY AS taxTy/* 매입매출구분 >> 1.매출 2.매입 3.면세매출 4.면세매입 */
+                , ISU_DT AS isuDt/* 발급일자 >> EXCEL :D열 (국세청에 들어온 날짜) */
+                , DIVREG_NB AS DivregNb/* 사업장사업자번호 */
+                , DIVSUB_NB AS DivsubNb/* 사업장종사업장번호 */
+                , DIV_NM AS divNm/* 사업장상호명 */
+                , DIVCEO_NM AS divceoNm /* 사업장대표자명 */
+                , TRREG_NB AS trregnb /* 거래처사업자번호 */
+                , TRSUB_NB AS trsubNb /* 거래처종사업장번호 */
+                , TR_NM AS trNm /* 거래처명 */
+                , TRCEO_NM AS trceoNm /* 거래처대표자명 */
+                , SUM_AM AS sumAm /* 합계액 */
+                , SUP_AM AS supAm /* 공급가액 */
+                , VAT_AM AS vatAm /* 부가세액 */
+                , ETAX_TY AS etaxTy /* 세금계산서구분 >> 1.일반, 2.수정 */
+                , ETAX_FG AS etaxFg /* 전자세금계산서종류 >> 1.일반, 1.일반(수정), 2.영세율, 2.영세율(수정), 3.위수탁, 4.수입, 5.위수탁영세율 */
+                , SEND_FG AS sendFg /* 발행유형 >> 1.인터넷발행,2.ARS발행,3.VAN발행,4.ASP발행,5.자체발행,6.지로발행,7.대리발행 */
+                , DUMMY1 AS dummy1 /* 비고 */
+                , DUMMY2 AS dummy2 /* 기타(영수/청구 구분) >> 영수 OR 청구 */
+                , ISS_YMD AS issYmd /* 전송일자 */
+                , ITEM_DC AS itemDc /* 품목명 */
+                , ADDTAX_CD AS addTaxCd /* 가산세코드 >> 0.해당없음. 1.지연발급, 2.미발급, 3.지연수취(공제),4.지연수취(불공제), 5.지연전송, 6.미전송 */
+                , ADDTAX_AM AS AddtaxAm /* 가산세액 */
+                , ADDRTE_RT AS AddrteRt /* 세율 */
+                , EMAIL_DC AS EmailDc /* 공급자이메일 */
+                , TRCHARGE_EMAIL AS TrchargeEmail /* 공급받는자이메일 */
+        FROM    (
+                    SELECT  TOP 1 ISNULL(ISS_NO, '') AS ISS_NO
+                            , ISNULL(CO_CD, '') AS CO_CD
+                            , ISNULL(DIV_CD, '') AS DIV_CD
+                            , ISNULL(TR_CD, '') AS TR_CD
+                            , ISNULL(ISS_DT, '') AS ISS_DT
+                            , ISNULL(TAX_TY, '') AS TAX_TY
+                            , ISNULL(ISU_DT, '') AS ISU_DT
+                            , ISNULL(DIVREG_NB, '') AS DIVREG_NB
+                            , ISNULL(DIVSUB_NB, '') AS DIVSUB_NB
+                            , ISNULL(DIV_NM, '') AS DIV_NM
+                            , ISNULL(DIVCEO_NM, '') AS DIVCEO_NM
+                            , ISNULL(TRREG_NB, '') AS TRREG_NB
+                            , ISNULL(TRSUB_NB, '') AS TRSUB_NB
+                            , ISNULL(TR_NM, '') AS TR_NM
+                            , ISNULL(TRCEO_NM, '') AS TRCEO_NM
+                            , CONVERT(VARCHAR, ISNULL(SUM_AM, 0.00)) AS SUM_AM
+                            , CONVERT(VARCHAR, ISNULL(SUP_AM, 0.00)) AS SUP_AM
+                            , CONVERT(VARCHAR, ISNULL(VAT_AM, 0.00)) AS VAT_AM
+                            , ISNULL(ETAX_TY, '') AS ETAX_TY
+                            , ISNULL(ETAX_FG, '') AS ETAX_FG
+                            , ISNULL(SEND_FG, '') AS SEND_FG
+                            , ISNULL(DUMMY1, '') AS DUMMY1
+                            , ISNULL(DUMMY2, '') AS DUMMY2
+                            , ISNULL(ISS_YMD, '') AS ISS_YMD
+                            , ISNULL(ITEM_DC, '') AS ITEM_DC
+                            , ISNULL(ADDTAX_CD, '') AS ADDTAX_CD
+                            , CONVERT(VARCHAR, ISNULL(ADDTAX_AM, 0.00)) AS ADDTAX_AM
+                            , CONVERT(VARCHAR, ISNULL(ADDRTE_RT, 0.00)) AS ADDRTE_RT
+                            , ISNULL(EMAIL_DC, '') AS EMAIL_DC
+                            , ISNULL(TRCHARGE_EMAIL, '') AS TRCHARGE_EMAIL
+                    FROM    ETAXUP
+                    /* 검색조건 */
+                    /* 검색조건 - 회사 */
+                    WHERE   CO_CD = '${erpCompSeq}'
+                    /* 검색조건 - 매입매출구분 */
+                    AND     ( TAX_TY = '2' OR TAX_TY = '4' ) /* 1.매출 2.매입 3.면세매출 4.면세매입 */
+                    /* 검색조건 - 기간 */
+                    /* AND     ISNULL(ISS_DT, '')BETWEEN '${searchFromDt}' AND '${searchToDt}' */
+                    /* 검색조건 - 승인번호 */
+                    AND      ISNULL(ISS_NO, '') LIKE '%${issNo}%'
+                    /* 검색조건 - 공급자 상호 */
+                    /* AND      ISNULL(TR_NM, '') LIKE '%%' */
+                    /* 검색조건 - 공급자 등록번호 */
+                    /* AND     ISNULL(TRREG_NB, '') LIKE '%${searchpartnerNo}%' */
+                ) A
+    ]]></select>
+    
+    <update id="ExETaxInfoUpdate" parameterType="HashMap">
+	    UPDATE	ETAXUP
+		SET		GET_FG = '${getFg}'
+				, APPRO_STATE = '${approState}'
+				, DOCU_NO = #{docNo, jdbcType=NVARCHAR}
+		WHERE	ISS_NO = '${issNo}'
+		AND		CO_CD = '${erpCompSeq}'
+		AND		DIV_CD = '${erpBizSeq}'
+    </update>
+    
+    <!-- 매입전자세금계산서 - 내역 목록 조회 -->
+	<select id="ExETaxListInfoSelectMap" parameterType="HashMap" resultType="HashMap">
+		IF EXISTS(
+			SELECT	*
+			FROM	SYS.OBJECTS
+			WHERE	OBJECT_ID = OBJECT_ID(N'Z_GWA_EXPETAX_S_ICUBE')
+			 AND	TYPE IN ( N'P', N'PC' )
+		 )
+		 BEGIN	
+			EXEC Z_GWA_EXPETAX_S_ICUBE N'${erpCompSeq}', '${bizplanCode}', '${searchFromDt}', '${searchToDt}', '${taxTy}', '${docuSt}', '${notInsertIssNo}', '${searchPartnerNo}', '${searchPartnerNm}', '%${searchIssNo}%', '${trchargeEmail}', '${trregNb}', '${baseEmailAddr}%'
+		END
+		ELSE 
+		BEGIN 
+			DECLARE @GW_ETAX_TMP_TABLE TABLE (
+					DIV_CD nvarchar(4) NOT NULL,
+					TAX_TY nvarchar(1) NOT NULL,
+					ETAX_TY nvarchar(1) NULL,
+					ISS_DT nvarchar(8) NOT NULL,
+					ISU_DT nvarchar(8) NOT NULL,
+					ISS_YMD nvarchar(8) NULL,
+					TR_CD nvarchar(10) NULL,
+					TR_NM nvarchar(50) NULL,
+					TRREG_NB nvarchar(100) NOT NULL,
+					SUP_AM numeric(17,4) NULL,
+					VAT_AM numeric(17,4) NULL,
+					SUM_AM numeric(17,4) NULL,
+					ADOCU_YN nvarchar(5) NOT NULL,
+					ADOCU_FG nvarchar(8) NOT NULL,
+					DUMMY2 nvarchar(100) NULL,
+					ISS_NO nvarchar(30) NOT NULL,
+					ITEM_DC nvarchar(40) NULL,
+					TRSUB_NB nvarchar(5) NULL,
+					DUMMY1 nvarchar(100) NULL,
+					EMAIL_DC nvarchar(40) NULL,
+					TRCHARGE_EMAIL nvarchar(40) NULL,
+					GW_INSERT_DT datetime NULL,
+					APPRO_STATE nvarchar(1) NULL,
+					DOCU_NO nvarchar(50) NULL,
+					ISS_YN nvarchar(5) NULL,
+					DOCU_INFO nvarchar(100) NULL
+			)
+				
+			INSERT @GW_ETAX_TMP_TABLE
+			exec [dbo].[USP_BIZBOXA_ACM0050_DOCU_CHK] @CO_CD=N'${erpCompSeq}', @DIV_CDS='${bizplanCode}', @FR_DT='${searchFromDt}', @TO_DT='${searchToDt}', @TAX_TY='${taxTy}', @DOCU_ST='${docuSt}'
+				
+			SELECT  A.DIV_CD AS divCd
+					, B.DIV_NM AS divNm
+					, TAX_TY AS taxTy
+					, ISNULL(ETAX_TY,'') AS etaxTy
+					, ISS_DT AS issDt
+					, ISU_DT AS isuDt
+					, ISNULL(ISS_YMD,'') AS issYmd
+					, ISNULL(TR_CD,'') AS trCd
+					, ISNULL(TR_NM,'') AS trNm
+					, TRREG_NB AS trregNb
+					, ISNULL(SUP_AM,'0.00') AS supAm
+					, ISNULL(VAT_AM,'0.00') AS vatAm
+					, ISNULL(SUM_AM,'0.00') AS sumAm
+					, ADOCU_YN AS adocuYN
+					, ADOCU_FG AS adocuFg
+					, ISNULL(DUMMY2,'') AS dummy2
+					, ISS_NO AS issNo
+					, ISNULL(ITEM_DC,'') AS itemDc
+					, ISNULL(TRSUB_NB,'') AS trsubNb
+					, ISNULL(DUMMY1,'') AS dummy1
+					, ISNULL(EMAIL_DC,'') AS emailDc
+					, ISNULL(TRCHARGE_EMAIL,'') AS trchargeEmail
+					, ISNULL(GW_INSERT_DT,'') AS gwInsertDt
+					, ISNULL(APPRO_STATE ,'')AS approState
+					, ISNULL(DOCU_NO,'') AS docuNo
+					, ISNULL(ISS_YN,'') AS issYN
+					, ISNULL(DOCU_INFO,'') AS docuInfo
+			FROM 	@GW_ETAX_TMP_TABLE A
+					INNER JOIN (
+						SELECT	DIV_CD
+								, DIV_NM
+						FROM	[DBO].[ZA_DIV_DAIKIN]
+						WHERE	CO_CD = N'${erpCompSeq}'
+					) B ON A.DIV_CD = B.DIV_CD
+			/* 기본 조건 - 작성중인 지출결의 계산서는 제외 */
+			WHERE	ISS_NO NOT IN ('${notInsertIssNo}')
+			/* 공개범위 */
+			AND     (
+				/* 검색조건 - 공급자 등록번호 */
+				TRREG_NB LIKE '%${searchPartnerNo}%'
+				/* 검색조건 - 공급자명 */
+				AND     TR_NM LIKE '%' + #{searchPartnerNm} + '%'
+				/* 검색조건 - 승인번호 */
+				AND     ISS_NO LIKE '%${searchIssNo}%'
+				/* 검색조건 - 공급받는자 이메일 */
+				AND		ISNULL(TRCHARGE_EMAIL, '') LIKE '%' + ISNULL(#{emailDc}, '') + '%'
+			)
+			AND		(
+				ISS_NO IN ('${transferIssNo}')
+				OR		(
+					<if test="trchargeEmail !=''">
+					/* 기본 조건 - 공급받는자 이메일주소 */
+					TRCHARGE_EMAIL IN ('${trchargeEmail}')
+					OR
+					</if>			
+					/* 기본 조건 - 공급자 등록번호 */
+					TRREG_NB IN ('${trregNb}')
+					/* 기본 조건 - 로그인 사용자 이메일 주소(도메인 필터 X) */
+					OR	ISNULL(TRCHARGE_EMAIL, '') LIKE '${baseEmailAddr}%'
+				)
+			)
+			ORDER BY ISS_DT
+		END
+	</select>
+	
+	
+	<select id="ExEtaxDivInfoSelect"  parameterType="HashMap" resultType="HashMap">
+		SELECT A.DIV_CD AS divCd
+			,B.DIV_NM AS divNm
+		FROM ETAXUP A
+		INNER JOIN (
+						SELECT	DIV_CD
+								, DIV_NM
+						FROM	[DBO].[ZA_DIV_DAIKIN]
+						WHERE	CO_CD = N'${erpCompSeq}'
+					) B ON A.DIV_CD = B.DIV_CD
+		WHERE	A.CO_CD = N'${erpCompSeq}'
+		AND A.TAX_TY IN ('2','4')
+		AND A.ISS_NO  = '${issNo}'
+		AND A.ISS_DT  = '${issDt}'
+	</select> 
+	
+	
+</mapper>

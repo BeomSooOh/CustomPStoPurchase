@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="NpUserCodeA">
+
+	<!-- 비영리 회계 - 옵션 셋 조회 -->
+	<select id="TestCode" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserCodeSQL.xml - NpGwCommonOptionSelect */
+		/* 비영리 회계모듈 공통 옵션 조회 */
+		SELECT	*
+		FROM	$DB_NEOS$v_user_info 
+		WHERE	comp_seq = #compSeq#
+		 <isNotEmpty property="formSeq">
+		 AND	form_seq = #formSeq#
+		 </isNotEmpty>
+	</select>
+	
+	<update id="NpUserCodeA.UpdateInterfaceInfo" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserCodeSQL.xml - UpdateInterfaceInfo */
+		/* 비영리 회계모듈 - 카드사용내역 상태값 변경 */
+		<isEqual property="interfaceType" compareValue="card">
+		UPDATE	$DB_NEOS$t_ex_card_aq_tmp
+		</isEqual>
+		<isEqual property="interfaceType" compareValue="etax">
+		UPDATE	$DB_NEOS$t_ex_etax_aq_tmp
+		</isEqual>
+		SET		send_yn = #sendYN#
+				, if_m_id = #resDocSeq#
+				, if_d_id = #tradeSeq#
+		WHERE	sync_id = #syncId#
+	</update>
+	
+	<select id="NpUserCodeA.SelectInterfaceInfoIntoRes" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserCodeSQL.xml - SelectInterfaceInfoIntoRes */
+		/* 비영리 회계모듈 - 결의서에서 카드정보 조회 */
+		SELECT	res_doc_seq AS resDocSeq
+				, res_seq AS resSeq
+				, budget_seq AS budgetSeq
+				, trade_seq AS tradeSeq
+				, interface_type AS interfaceType 
+				, interface_seq AS syncId
+		FROM	$DB_NEOS$t_exnp_restrade
+		where	res_doc_seq = #resDocSeq#
+	</select>
+	
+	<select id="selectWritingETaxList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserCodeSQL.xml - selectWritingETaxList */
+		/* 비영리 회계모듈 - 결의서에서 세금계산서 정보 조회 */
+		SELECT	iss_no AS issNo
+				, sync_id AS syncId
+		FROM	$DB_NEOS$t_ex_etax_aq_tmp
+		WHERE	comp_seq = #compSeq#
+		AND		iss_dt BETWEEN #searchFromDt# AND #searchToDt#
+		AND		IFNULL(if_m_id,'') = 'D'
+		UNION
+		SELECT	etax.iss_no AS issNo
+				, res.interface_seq AS syncId
+		FROM	$DB_NEOS$t_exnp_restrade res
+		INNER JOIN $DB_NEOS$t_ex_etax_aq_tmp etax ON res.interface_seq = etax.sync_id
+		WHERE	res.res_doc_seq = #resDocSeq#
+		AND		etax.iss_dt BETWEEN #searchFromDt# AND #searchToDt#
+		AND		res.interface_type = 'etax'
+		AND		etax.comp_seq = #compSeq#
+		UNION
+		SELECT	iss_no AS issNo
+				, '0' AS syncId
+		FROM	$DB_NEOS$t_ex_etax_transfer
+		WHERE  	transfer_seq  = #empSeq#
+		AND		iss_no NOT IN (
+			SELECT	iss_no
+			FROM	$DB_NEOS$t_ex_etax_transfer
+			WHERE	transfer_seq  = 'ADMIN' 
+			AND 		receive_seq = #empSeq#
+		)
+		AND    	iss_dt BETWEEN #searchFromDt# AND #searchToDt# 
+	</select>
+	
+	<select id="selectGWEtaxAuth" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserCodeSQL.xml - selectGWEtaxAuth */
+		/* 비영리 회계모듈 - 세금계산서 권한 조회 */
+		SELECT	auth_type AS authType
+				, CASE
+					WHEN auth_type = 'P' THEN REPLACE(CODE,'-','')
+					ELSE CODE
+				END AS code
+		FROM	$DB_NEOS$t_ex_etax
+		WHERE	etax_seq IN (
+			SELECT	etax_seq
+			FROM	$DB_NEOS$t_ex_etax_public
+			WHERE	CODE = #empSeq#
+			AND		comp_seq = #compSeq#
+		)
+		AND		comp_seq = #compSeq#
+		AND		use_yn = 'Y'
+	</select>
+	
+	<select id="NpUserCodeA.selectETaxSendList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserCodeSQL.xml - selectETaxSendList */
+		/* 비영리 회계모듈 - 전송 한 세금계산서 조회 */
+		SELECT	iss_no AS issNo
+				, iss_dt AS issDt
+				, send_yn AS sendYN
+				, IFNULL(if_m_id,'') AS ifMId
+				, IFNULL(if_d_id,'') AS ifDId
+		FROM	$DB_NEOS$t_ex_etax_aq_tmp
+		WHERE	comp_seq = #compSeq#
+		AND		send_yn = 'Y'
+		AND		if_m_id != 'D'
+	</select>
+	
+	<select id="NpUserCodeA.NpUserETaxSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserCodeSQL.xml - NpUserETaxSelect */
+		/* 비영리 회계모듈 - 세금계산서 반영 시 조회 */
+		SELECT	sync_id AS syncId
+		FROM	$DB_NEOS$t_ex_etax_aq_tmp
+		WHERE	comp_seq = #compSeq#
+		AND		send_yn = 'N'
+		AND		iss_no = #issNo#
+		AND		iss_dt = #issDt#
+	</select>
+	
+	<insert id="NpUserCodeA.NpUserETaxInsert" parameterClass="java.util.HashMap" >
+		INSERT IGNORE INTO $DB_NEOS$t_ex_etax_aq_tmp ( iss_no, comp_seq, iss_dt, partner_no, send_yn, if_m_id, note, emp_seq, summary_seq, auth_seq, project_seq, card_seq, budget_seq, create_seq, create_date, modify_seq, modify_date )
+	    VALUES ( #issNo#, #compSeq#, #issDt#, #partnerNo#, #sendYN#, #ifMId# , '', '0', '0', '0', '0', '0', '0', #empSeq#, NOW(), #empSeq#, NOW() )
+		<selectKey resultClass="String" keyProperty="syncId" >
+	        SELECT MAX(sync_id) FROM $DB_NEOS$t_ex_etax_aq_tmp       
+	    </selectKey>
+	</insert>
+	 
+	 <select id="NpUserCodeA.NpTransferETaxListSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserCodeSQL.xml - NpTransferETaxListSelect */
+		/* 비영리 회계모듈 - 이관받은 내역 조회 */
+		/* 이관받은 세금계산서 정보 */
+		SELECT	iss_no AS issNo
+				, iss_dt AS issDt
+				, partner_no AS partnerNo
+				, partner_name AS partnerName
+				, amt AS amt
+				, transfer_seq AS transferSeq 
+				, transfer_name AS transferName
+				, receive_seq AS receiveSeq
+				, receive_name AS receiveName
+				, create_date AS createDate
+		FROM	$DB_NEOS$t_ex_etax_transfer
+		WHERE	receive_seq = #empSeq#
+		AND     iss_dt BETWEEN '$searchFromDt$' AND '$searchToDt$' 
+	</select>
+	
+	<select id="NpUserCodeA.NpSelectCardInfoList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserCodeSQL.xml - NpSelectCardInfoList */
+		/* 비영리 회계모듈 - 카드정보 조회 */
+		/* 카드정보 조회 */
+		SELECT	C.card_code AS cardCode
+			, C.card_num AS cardNum
+			, C.card_name as cardName
+			, REPLACE(C.card_num,'-','') AS repCardNum
+			, IFNULL(C.use_yn, "Y") AS useYN
+		FROM	$DB_NEOS$t_ex_card C
+		<isEqual property="userSe" compareValue="USER">
+		INNER JOIN $DB_NEOS$t_ex_card_public A ON C.comp_seq = A.comp_seq AND REPLACE(REPLACE(C.card_num,'-',''),' ','') = REPLACE(REPLACE(A.card_num,'-',''),' ','')
+		INNER JOIN (
+			SELECT 	B.gbn_org AS org_div
+				, B.dept_seq AS org_id
+			FROM    (
+				SELECT 	path
+				FROM	$DB_NEOS$v_org_chart_child
+				WHERE	dept_seq = #deptSeq#
+			) A INNER JOIN (
+				SELECT 	gbn_org
+					, dept_seq
+					, path
+				FROM   	$DB_NEOS$v_org_chart_child
+			) B ON A.path LIKE CONCAT('%', B.path, '%')
+			UNION
+			SELECT 	'u' AS org_div
+				, #empSeq# AS org_id
+		) B ON A.org_div = B.org_div AND A.org_id = B.org_id
+		</isEqual>
+		WHERE	C.comp_seq = #compSeq#
+	</select>
+</sqlMap>

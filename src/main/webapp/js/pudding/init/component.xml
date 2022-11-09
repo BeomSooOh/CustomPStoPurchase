@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Component>
+
+	<item>
+		<name>INPUT</name>
+		<tagname>input</tagname>
+		<version>0.0.0</version>
+		<date>2017.10.16</date>
+		<note>개발 테스트</note>
+		<src>/js/pudding/component/input.js</src>
+		<type>
+			<name>basic</name>
+			<jfunction>PuddText</jfunction>
+		</type>
+		<type>
+			<name>password</name>
+			<jfunction>PuddPwdText</jfunction>
+		</type>
+		<type>
+			<name>search</name>
+			<jfunction>PuddSearchText</jfunction>
+		</type>
+	</item>
+	
+	<item>
+		<name>CHECKBOX</name>
+		<tagname>checkbox</tagname>
+		<version>0.0.0</version>
+		<date>2017.10.26</date>
+		<note>개발 테스트</note>
+		<src>/js/pudding/component/check.js</src>
+		<type>
+			<name>basic</name>
+			<jfunction>PuddCheck</jfunction>
+		</type>
+		<type>
+			<name>group</name>
+			<jfunction>PuddGroupCheck</jfunction>
+		</type>
+	</item>
+	
+	<item>
+		<name>RADIO</name>
+		<tagname>radio</tagname>
+		<version>0.0.0</version>
+		<date>2017.10.27</date>
+		<note>개발 테스트</note>
+		<src>/js/pudding/component/radio.js</src>
+		<type>
+			<name>basic</name>
+			<jfunction>PuddRadio</jfunction>
+		</type>
+		<type>
+			<name>group</name>
+			<jfunction>PuddGroupRadio</jfunction>
+		</type>
+	</item>
+	
+	<item>
+		<name>TEXTAREA</name>
+		<tagname>textarea</tagname>
+		<version>0.0.0</version>
+		<date>2017.10.27</date>
+		<note>개발 테스트</note>
+		<src>/js/pudding/component/textArea.js</src>
+		<type>
+			<name>basic</name>
+			<jfunction>PuddTextArea</jfunction>
+		</type>
+	</item>
+	
+	<item>
+		<name>BUTTON</name>
+		<tagname>button</tagname>
+		<version>0.0.0</version>
+		<date>2017.10.27</date>
+		<note>개발 테스트</note>
+		<src>/js/pudding/component/button.js</src>
+		<type>
+			<name>basic</name>
+			<jfunction>PuddButton</jfunction>
+		</type>
+		<type>
+			<name>svg</name>
+			<jfunction>PuddSVGButton</jfunction>
+		</type>
+		<type>
+			<name>svgtext</name>
+			<jfunction>PuddSVGTextButton</jfunction>
+		</type>
+		<type>
+			<name>image</name>
+			<jfunction>PuddImgButton</jfunction>
+		</type>	
+		<type>
+			<name>imagetext</name>
+			<jfunction>PuddImgTextButton</jfunction>
+		</type>	
+	</item>
+	
+	<item>
+		<name>COMBO</name>
+		<tagname>combo</tagname>
+		<version>0.0.0</version>
+		<date>2017.10.31</date>
+		<note>개발 테스트</note>
+		<src>/js/pudding/component/combo.js</src>
+		<type>
+			<name>basic</name>
+			<jfunction>PuddCombo</jfunction>
+		</type>
+		<type>
+			<name>multi</name>
+			<jfunction>PuddMultiCombo</jfunction>
+		</type>
+	</item>
+	
+	
+	<item>
+		<name>ATTACH</name>
+		<tagname>attach</tagname>
+		<version>0.0.0</version>
+		<date>2017.10.31</date>
+		<note>개발 테스트</note>
+		<src>/js/pudding/component/attach.js</src>
+		<type>
+			<name>basic</name>
+			<jfunction>PuddAttach</jfunction>
+		</type>
+	</item>
+	
+	
+	<item>
+		<name>DIV</name>
+		<tagname>div</tagname>
+		<version>0.0.0</version>
+		<date>2017.10.18</date>
+		<note>프레임워크 테스트</note>
+		<src>/js/pudding/component/test.js</src>
+		<type>
+			<name>basic</name>
+			<jfunction>PuddTest</jfunction>
+		</type>
+		<type>
+			<name>pass</name>
+			<jfunction>PuddTest</jfunction>
+		</type>
+	</item>
+	
+	
+	
+</Component>	
+
+
+
+
+
+
+

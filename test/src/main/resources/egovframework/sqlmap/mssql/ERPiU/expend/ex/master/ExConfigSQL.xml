@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ERPiU mssql -->
+<mapper namespace="MasterERPiUConfig">
+
+	<select id="MasterERPiUConfig.ExMasterConfigERPCardSelect"
+		parameterType="HashMap" resultType="HashMap"><![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] MasterERPiUConfig.ExMasterConfigERPCardSelect - TODO: 설명 기록
+		 * 작성자 : 이준성
+		 * 작성일 : 2019-08-30
+		 * 변경이력
+		 * - 2019-08-30 / 이준성 : mssql <> oracle 비교 보완
+		 */
+		 
+		SELECT CD_COMPANY                   AS compSeq
+		       , Replace (NO_CARD, '-', '') AS cardCode
+		       , NO_CARD                    AS cardNum
+		       , NM_CARD                    AS cardName
+		       , ''                         AS partnerCode
+		       , ''                         AS partnerName
+		       , YN_USE                     AS useYN
+		       , ID_INSERT                  AS createSeq
+		       , DTS_INSERT                 AS createDate
+		       , ID_UPDATE                  AS modifySeq
+		       , DTS_UPDATE                 AS modifyDate
+		  FROM NEOE.FI_CARD WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND ( Replace (NO_CARD, '-', '') LIKE '%' + Replace ( '${searchStr}', '-', '' ) + '%'
+		              OR NM_CARD LIKE '%${searchStr}%' )
+	]]></select>
+
+	<select id="MasterERPiUConfig.ExCodeVatTypeListInfoSelect"
+		parameterType="HashMap" resultType="HashMap"><![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] MasterERPiUConfig.ExCodeVatTypeListInfoSelect - TODO: 설명 기록
+		 * 작성자 : 이준성
+		 * 작성일 : 2019-08-30
+		 * 변경이력
+		 * - 2019-08-30 / 이준성 : mssql <> oracle 비교 보완
+		 */
+
+		SELECT B.CD_COMPANY   AS comp_seq
+		       , B.CD_SYSDEF  AS vat_type_code
+		       , B.NM_SYSDEF  AS vat_type_name
+		       , B.USE_YN     AS use_yn
+		       , B.ID_INSERT  AS create_seq
+		       , B.DTS_INSERT AS create_date
+		       , B.ID_UPDATE  AS modify_seq
+		       , B.DTS_UPDATE AS modify_date
+		  FROM (SELECT CD_COMPANY
+		               , CD_FIELD
+		          FROM NEOE.MA_CODE WITH ( NOLOCK )
+		         WHERE CD_FIELD = 'FI_T000011' /* 고정 */
+		               AND CD_COMPANY = '${erp_comp_seq}') A
+		       INNER JOIN (SELECT CD_COMPANY
+		                          , CD_FIELD
+		                          , CD_SYSDEF
+		                          , NM_SYSDEF
+		                          , USE_YN
+		                          , ID_INSERT
+		                          , DTS_INSERT
+		                          , ID_UPDATE
+		                          , DTS_UPDATE
+		                     FROM NEOE.MA_CODEDTL WITH ( NOLOCK )
+		                    WHERE CD_FIELD = 'FI_T000011' /* 고정 */
+		                          AND CD_COMPANY = '${erp_comp_seq}'
+		                          AND USE_YN = N'Y'
+		                          AND CD_SYSDEF >= '20'
+		                          AND CD_SYSDEF NOT IN ( '27', '28', '29', '30',
+		                                                 '32', '33', '34', '35',
+		                                                 '36', '40', '41', '42',
+		                                                 '48', '49', '51', '52',
+		                                                 '53', '56', '57', '58',
+		                                                 '59', '60', '44', '45',
+		                                                 '46', '47', '54', '55' )) B
+		               ON A.CD_COMPANY = B.CD_COMPANY
+		                  AND A.CD_FIELD = B.CD_FIELD
+	]]></select>
+
+</mapper>

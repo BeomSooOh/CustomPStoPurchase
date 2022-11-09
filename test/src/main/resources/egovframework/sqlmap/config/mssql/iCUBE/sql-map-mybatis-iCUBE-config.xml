@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<settings>
+		<setting name="logImpl" value="LOG4J" />
+		<setting name="defaultStatementTimeout" value="300"/>
+	</settings>
+
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="UNPOOLED">
+				<property name="driver" value="${driver}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" />
+			</dataSource>
+		</environment>
+	</environments>
+
+	<mappers>
+		<!-- 지출결의 ( 영리 ) -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExCode_SQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExCodeBudget.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExMngSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExETaxSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExYesilSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExForeignCurrency.xml" />
+		
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/admin/ExConfigSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/admin/ExReportSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/admin/ExYesilSQL.xml" />
+		
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/master/ExConfigSQL.xml" />
+		
+		<!-- 지출결의 ( 비영리 ) -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/np/user/NpOptionSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/np/user/NpCodeSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/np/user/NpBudgetSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/np/user/NpETaxSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/common/procedure/G20ProcedureSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/common/advInter/AdvInteriCUBESQL.xml" />
+		
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/np/admin/NpAdminETaxSQL.xml" />
+		
+		<!-- e나라도움 -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/angu/user/AnguCode_SQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/angu/user/AnguSync_SQL.xml" />
+		
+		<!-- 이지바로 ( 미사용 ) -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ez/EziCUBESQL.xml" />
+		
+		<!-- 배치 -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/common/batch/BatchCms_SQL.xml" />
+		
+		
+		
+		
+		<!-- 미사용 -->
+		<!-- <mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ac/user/G20AcCode_SQL.xml" /> -->
+		<!-- <mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/bi/user/BiUserSQL.xml" /> -->
+		<!-- <mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/bi/admin/BiAdminSQL.xml" /> -->
+	</mappers>
+</configuration>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- iCUBE mssql -->
+<mapper namespace="ExCodeBudget">
+	<!-- 공통코드 -->
+	<select id="ExBudgetUseInfoSelect" parameterType="HashMap" resultType="HashMap"><![CDATA[
+		/* ExCodeBudgetTypeInfoSelect - iCUBE - mssql */
+		SELECT  A.CO_CD AS erpCompSeq
+		        , A.CTR_CD
+		        , A.CTR_NM
+		        , A.USE_YN AS useYN /* 예산통제 : 1 / 예산미통제 : 0 */
+		        , A.SEL_DOC
+		        , B.CTR_CD
+		        , B.CTR_NM
+		        , B.FG_TY AS budgetType /* 결의부서 : 0 / 사용부서 : 1 / 프로젝트 : 2 */
+		        , B.SEL_DOC
+		FROM    (
+		            SELECT  CO_CD
+		                    , CTR_CD
+		                    , CTR_NM
+		                    , USE_YN /* 예산통제 : 1 / 예산미통제 : 0 */
+		                    , SEL_DOC
+		            FROM    SYSCFG
+		            WHERE   CO_CD = '${erpCompSeq}'
+		            AND     MODULE_CD = 'A'
+		            AND     CTR_CD = '21'
+		        ) A INNER JOIN (
+		            SELECT  CO_CD
+		                    , CTR_CD
+		                    , CTR_NM
+		                    , FG_TY
+		                    , SEL_DOC
+		            FROM    SYSCFG
+		            WHERE   CO_CD = '${erpCompSeq}'
+		            AND     MODULE_CD = 'A'
+		            AND     CTR_CD='20'
+		        ) B ON A.CO_CD = B.CO_CD
+    ]]></select>
+
+	<select id="ExiCUBEBudgetAmtInfoSelect" parameterType="common.vo.ex.ExCodeBudgetVO" resultType="common.vo.ex.ExCodeBudgetiCUBEVO">
+		<![CDATA[
+	      /* ExiCUBEBudgetAmtInfoSelect - iCUBE - mssql */
+        exec [USP_ACD0040_UC_SELECT] @CO_CD=N'${erpCompSeq}',@DEPT_CDS=N'${budgetCode}',@BUD_YM=N'${budYm}',@ACCT_CDS=N'${bgacctCode}'
+	    ]]>
+    </select>
+    
+    <select id="ExiCUBEBudgetIsControlYN" parameterType="common.vo.ex.ExCodeBudgetVO" resultType="HashMap">
+		SELECT	TOP 1 ACCT_CD
+		FROM	DBO.ZA_ACCT_DAIKIN /* 계정과목확인하는 뷰 */
+		WHERE	CO_CD= '${erpCompSeq}'
+		/* AND		( ACCT_CD > '40000' OR GROUP_CD='1200' ) */
+		AND		BUD_FG NOT IN ('0','5')
+		AND		ACCT_CD = '${bgacctCode}'
+		ORDER BY ACCT_CD
+    </select>
+    
+
+</mapper>

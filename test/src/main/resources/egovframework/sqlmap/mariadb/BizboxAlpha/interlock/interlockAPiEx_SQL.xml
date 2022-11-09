@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="InterlockAPiEx">
+
+	<select id="InterlockAPiEx.GetCardGeorae" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* API - V1 - InterlockAPiEx.GetCardGeorae */
+		SELECT	card_num as cardNum
+				, auth_date as authDate
+				, auth_time as authTime
+				, auth_num as authNum
+				, georae_stat as georaeStat
+				, merc_name as mercName
+				, merc_saup_no as mercSaupNo
+				, request_amount as requestAmount
+				, amt_md_amount as amtMdAmount
+				, vat_md_amount as vatMdAmount
+				, ser_amount as serAmount
+				, send_yn as sendYn
+				, if_m_id as ifMid
+				, if_d_id as ifDid
+				, user_send_yn as userSendYn
+				, del_yn as delYn
+				, ifnull(( select group_seq from $DB_NEOS$t_co_group where group_seq = #groupSeq# limit 1 ), '') as groupSeq
+				, ifnull(( select comp_seq from $DB_NEOS$t_co_comp where group_seq = #groupSeq# and comp_seq = #compSeq# ), '') as compSeq
+				, ifnull(( select emp_seq from $DB_NEOS$t_co_emp where emp_seq = #empSeq# ), '') as empSeq
+		FROM	$DB_NEOS$t_ex_card_aq_tmp
+		WHERE	sync_id = #syncId#
+	]]>
+	</select>
+	
+	<update id="InterlockAPiEx.SetCardGeoraeSendYn" parameterClass="java.util.HashMap">
+	<![CDATA[
+		/* API - V1 - InterlockAPiEx.SetCardGeoraeSendYn */
+		UPDATE	$DB_NEOS$t_ex_card_aq_tmp
+		SET		send_yn = #sendYn#
+		WHERE	sync_id = #syncId#
+	]]>
+	</update>
+
+</sqlMap>

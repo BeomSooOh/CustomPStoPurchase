@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="SummaryManage">
+
+    <typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    <typeAlias  alias="EvidenceVO" type="neos.cmm.expense.evidence.vo.EvidenceVO"/>
+    
+
+    <select id="EvidenceManage.getEvidenceList" parameterClass="java.util.HashMap" resultClass="EvidenceVO">
+        SELECT * FROM 
+        (  SELECT 
+              ts.evidence_seq,
+              ts.comp_seq,
+              ts.evidence_cd,
+              ts.evidence_nm,
+              ts.evidence_div,
+              ts.cash_type,
+              ts.cr_acct_cd,
+              ts.cr_acct_nm,
+              ts.vat_acct_cd,
+              ts.vat_acct_nm,
+              vat_type_cd, 
+              vat_type_nm,
+              pjt_required_yn,
+              cust_required_yn,
+              card_required_yn,
+              sort_order,
+              use_yn,
+              va_ctd_cd,
+              va_ctd_nm,
+              auth_dt_required_yn
+          FROM TEXG_EVIDENCE ts
+        WHERE 1  = 1
+        <isNotEmpty property="comp_seq">
+        AND ts.comp_seq  = #comp_seq# 
+        </isNotEmpty>
+        <isNotEmpty property="searchType">
+           <isEqual property="searchType" compareValue="evidence_nm">
+              AND ts.evidence_nm like  CONCAT('%', #searchKeyword#, '%') 
+           </isEqual>
+           <isEqual property="searchType" compareValue="evidence_cd">
+              AND ts.evidence_cd like  CONCAT('%', #searchKeyword#, '%') 
+           </isEqual>        
+        </isNotEmpty>                    
+        ORDER BY ts.sort_order, ts.evidence_cd 
+        ) W, ( SELECT @RNUM := 0 ) R LIMIT #startNum# , #endNum#
+    </select>
+    
+    <select id="EvidenceManage.getEvidenceList_TOTALCOUNT" parameterClass="java.util.HashMap" resultClass="int">
+        SELECT 
+           COUNT(*) totalCnt
+        FROM TEXG_EVIDENCE
+        <isNotEmpty property="comp_seq">
+        WHERE comp_seq  = #comp_seq# 
+        </isNotEmpty>
+    </select>    
+    
+    <insert id="EvidenceManage.setEvidenceInfo" parameterClass="EvidenceVO" >
+            INSERT INTO TEXG_EVIDENCE 
+            SET evidence_seq  = #evidence_seq# ,
+                  comp_seq      = #comp_seq#,
+                  evidence_cd   =#evidence_cd#,
+                  evidence_nm  = #evidence_nm#,
+                  evidence_div  = #evidence_div#,
+                  cr_acct_cd      = #cr_acct_cd#,
+                  cr_acct_nm     = #cr_acct_nm#,
+                  vat_acct_cd     = #vat_acct_cd#,
+                  vat_acct_nm    = #vat_acct_nm#,
+                  cash_type       = #cash_type#,
+                  vat_type_cd     = #vat_type_cd#,
+                  vat_type_nm    = #vat_type_nm#,
+                  pjt_required_yn = #pjt_required_yn#,
+                  cust_required_yn = #cust_required_yn#,
+                  card_required_yn = #card_required_yn#,
+                  auth_dt_required_yn = #auth_dt_required_yn#,
+                  sort_order        = #sort_order#,
+                  use_yn            = #use_yn#,
+                  va_ctd_cd         = #va_ctd_cd#,  
+                  va_ctd_nm        = #va_ctd_nm#,
+                  create_seq     =  #user_seq#,
+                  create_dt       =  SYSDATE()
+            ON DUPLICATE KEY UPDATE
+                  evidence_nm  = #evidence_nm#,
+                  evidence_div  = #evidence_div#,
+                  cr_acct_cd      = #cr_acct_cd#,
+                  cr_acct_nm     = #cr_acct_nm#,
+                  vat_acct_cd     = #vat_acct_cd#,
+                  vat_acct_nm    = #vat_acct_nm#,
+                  cash_type       = #cash_type#,
+                  vat_type_cd     = #vat_type_cd#,
+                  vat_type_nm    = #vat_type_nm#,
+                  pjt_required_yn = #pjt_required_yn#,
+                  cust_required_yn = #cust_required_yn#,
+                  card_required_yn = #card_required_yn#,
+                  auth_dt_required_yn = #auth_dt_required_yn#,
+                  sort_order        = #sort_order#,
+                  use_yn            = #use_yn#,
+                  va_ctd_cd         = #va_ctd_cd#,  
+                  va_ctd_nm        = #va_ctd_nm#,
+                  modify_seq = #user_seq#,
+                  modify_dt = SYSDATE()    
+    </insert>
+    
+    <delete id="EvidenceManage.delEvidenceInfo" parameterClass="EvidenceVO" >
+       DELETE FROM TEXG_EVIDENCE
+       WHERE comp_seq = #comp_seq#
+       AND evidence_seq = #evidence_seq#
+    </delete>    
+    
+  
+</sqlMap>

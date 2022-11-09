@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN" "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/trip/user/TripUserOptionSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/trip/user/TripUserCodeSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/trip/user/TripUserConsSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/trip/user/TripUserResSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/trip/user/TripUserBudgetSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/trip/user/TripUserCardSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/trip/user/TripUserReportSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/trip/user/TripUserETaxSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/trip/user/TripUserOutInterfaceSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/trip/admin/TripAdminOptionSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/trip/admin/TripAdminETaxSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/trip/admin/TripAdminReportSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/trip/admin/TripAdminConfigSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/trip/admin/TripAdminCardSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/trip/user/TripUserReUseSQL.xml" />
+</sqlMapConfig>

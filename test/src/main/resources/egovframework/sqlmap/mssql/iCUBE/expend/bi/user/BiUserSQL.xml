@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- iCUBE mssql -->
+<mapper namespace="BiUserSQL">
+	
+
+	<select id="BiUserCarPersonSend" parameterType="java.util.Map" resultType="java.util.Map">
+		/* 사용자 - 업무용승용차 차량운행기록부 전송 */
+		/* 필요 파라미터 CO_CD, DIV_CD, CAR_CD, USE_DT */
+		DECLARE @seqNb INT
+		
+		BEGIN TRY
+		SELECT	@seqNb = ISNULL(MAX(list.SEQ_NB),0) + 1
+		FROM	ABIZCAR_LIST list
+		WHERE	CO_CD = '${CO_CD}'
+		AND		DIV_CD = '${DIV_CD}'
+		AND		CAR_CD = '${CAR_CD}'
+		AND		USE_DT = '${USE_DT}'
+		
+		INSERT INTO ABIZCAR_LIST (CO_CD,DIV_CD,CAR_CD,USE_DT,SEQ_NB,USE_TIME,DEPT_CD,EMP_CD,MILEAGE_KM,COMMUTE_KM,BUSINESS_KM,BEFORE_KM,AFTER_KM,RMK_DC,DATA_FG,INSERT_ID,INSERT_DT,INSERT_IP,MODIFY_ID,MODIFY_DT,MODIFY_IP)
+		VALUES ('${CO_CD}','${DIV_CD}','${CAR_CD}','${USE_DT}',@seqNb,'${USE_TIME}','${DEPT_CD}','${EMP_CD}','${MILEAGE_KM}','${COMMUTE_KM}','${BUSINESS_KM}','${BEFORE_KM}','${AFTER_KM}','${RMK_DC}','${DATA_FG}','${INSERT_ID}',GETDATE(),'${INSERT_IP}','${MODIFY_ID}',GETDATE(),'${MODIFY_IP}')
+		END TRY
+		BEGIN CATCH
+		END CATCH
+		SELECT	@seqNb
+	</select>
+	<delete id="BiUserCarPersonCancel" parameterType="java.util.Map">
+		/* 사용자 - 업무용승용차 차량운행기록부 전송 취소 */
+		/* 필요 파라미터 erpCompSeq, erpDivSeq, carCd, useDt, seqNb */
+		DELETE	FROM ABIZCAR_LIST list
+		WHERE	CO_CD = '${erpCompSeq}'
+		AND		DIV_CD = '${erpDivSeq}'
+		AND		CAR_CD = '${carCd}'
+		AND		USE_DT = '${useDt}'
+		AND		SEQ_NB = '${seqNb}'
+	</delete>
+
+	<select id="BiUserCodeDivSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/* iCUBE 사업장(회계단위) 조회 */
+		EXECUTE USP_GET_HELPCODE 
+		@LANGKIND=N'${langCode}',  /* 로그인한 언어 */
+		@P_HELP_TY=N'SDIV_CODE', 
+		@P_CO_CD=N'${erpCoCd}', /* 로그인한 회사코드 */
+		@P_CODE=NULL, 
+		@P_CODE2=NULL, 
+		@P_CODE3=NULL, 
+		@P_USE_YN=N'1', 
+		@P_NAME='${searchStr}', 
+		@P_STD_DT=N'${searchDate}', /* 시스템 오늘 날짜 */
+		@P_WHERE=NULL
+	</select>
+	
+	<select id="BiUserCodeDeptSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/* iCUBE 부서 조회 */
+		EXECUTE USP_GET_HELPCODE 
+		@LANGKIND=N'${langCode}',  /* 로그인한 언어 */
+		@P_HELP_TY=N'SDEPT_CODE', 
+		@P_CO_CD=N'${erpCoCd}', /* 로그인한 회사코드 */
+		@P_CODE=NULL, 
+		@P_CODE2=NULL, 
+		@P_CODE3=NULL, 
+		@P_USE_YN=N'1', 
+		@P_NAME='${searchStr}', 
+		@P_STD_DT=N'${searchDate}', /* 시스템 오늘 날짜 */
+		@P_WHERE=NULL
+	</select>
+	
+	<select id="BiUserCodeEmpSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/* iCUBE 사원 및 부서 사업장 조회 조회 */
+		SELECT  B.CO_CD AS erpCompSeq
+		        , B.CO_NM AS erpCompName
+		        , D.DIV_CD AS erpBizSeq
+		        , D.DIV_NM AS erpBizName
+		        , C.DEPT_CD AS erpDeptSeq
+		        , C.DEPT_NM AS erpDeptName
+		        , A.EMP_CD AS erpEmpSeq
+		        , A.KOR_NM AS erpEmpName
+		FROM    (
+		            SELECT  CO_CD
+		                    , DEPT_CD
+		                    , EMP_CD
+		                    , KOR_NM
+		            FROM    ZA_EMP_DAIKIN
+		            WHERE   CO_CD = '${erpCoCd}'
+		            AND     EMP_CD = '${erpEmpCd}'
+		        ) A INNER JOIN (
+		            SELECT  CO_CD
+		                    , CO_NM
+		            FROM    ZA_COMPANY_DAIKIN
+		            WHERE   CO_CD = '${erpCoCd}'
+		        ) B ON A.CO_CD = B.CO_CD INNER JOIN (
+		            SELECT  CO_CD
+		                    , DIV_CD
+		                    , DEPT_CD
+		                    , DEPT_NM
+		            FROM    ZA_DEPT_DAIKIN
+		            WHERE   CO_CD = '${erpCoCd}'
+		        ) C ON A.CO_CD = C.CO_CD AND A.DEPT_CD = C.DEPT_CD INNER JOIN (
+		            SELECT  CO_CD
+		                    , DIV_CD
+		                    , DIV_NM
+		            FROM    ZA_DIV_DAIKIN
+		            WHERE   CO_CD = '${erpCoCd}'
+		        ) D ON C.CO_CD = D.CO_CD AND C.DIV_CD = D.DIV_CD
+	</select>
+	
+	<select id="BiUserCodeCarSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/* iCUBE 차량 조회 */
+		DECLARE @GW_BIZCAR TABLE (
+				CO_CD nvarchar(4) NOT NULL,
+				CAR_CD nvarchar(10) NOT NULL,
+				CAR_NB nvarchar(20) NULL,
+				CAR_NM nvarchar(50) NULL,
+				DEPT_CD nvarchar(4) NULL,
+				EMP_CD nvarchar(10) NULL,
+				DUTY nvarchar(10) NULL,
+				USE_YN nvarchar(1) NULL,
+				ACCT_CD nvarchar(10) NULL,
+				ASSET_CD nvarchar(10) NULL,
+				DIV_CD nvarchar(4) NULL,
+				GET_DT nvarchar(8) NULL,
+				EXPEN_TY nvarchar(1) NULL,
+				INSUR_YN nvarchar(1) NULL,
+				INSUR_TR_CD nvarchar(10) NULL,
+				IFR_DT nvarchar(8) NULL,
+				ITO_DT nvarchar(8) NULL,
+				LEASE_YN nvarchar(1) NULL,
+				LFR_DT nvarchar(8) NULL,
+				LTO_DT nvarchar(8) NULL,
+				INSERT_ID nvarchar(10) NULL,
+				INSERT_IP nvarchar(15) NULL,
+				INSERT_DT datetime NULL,
+				MODIFY_ID nvarchar(10) NULL,
+				MODIFY_IP nvarchar(15) NULL,
+				MODIFY_DT datetime NULL,
+				BIZ_FG nvarchar(1) NULL
+		)
+		INSERT @GW_BIZCAR
+		EXECUTE USP_ACH0130_CAR_HELP_SELECT 
+		@LANGKIND=N'${langCode}', /*로그인한 언어*/
+		@CO_CD=N'${erpCoCd}',  /*로그인한 사원의 회사코드*/
+		@DIV_CD=N'${erpBizCd}'  /*로그인한 사원의 사업장코드*/
+		
+		SELECT	CO_CD AS erpCoCd
+				,CAR_CD AS carCd
+				,CAR_NB AS carNb
+				,CAR_NM AS carNm
+				,DEPT_CD AS erpDeptCd
+				,EMP_CD AS erpEmpCd
+				,DUTY AS duty
+				,USE_YN AS useYN
+				,ACCT_CD AS acctCd
+				,ASSET_CD AS assetCd
+				,DIV_CD AS erpBizCd
+				,GET_DT AS getDt
+				,EXPEN_TY AS expenTy
+				,INSUR_YN AS insurYN
+				,INSUR_TR_CD AS insurTrCd
+				,IFR_DT AS ifrDt
+				,ITO_DT AS itoDt
+				,LEASE_YN AS leaseYN
+				,LFR_DT AS lftDt
+				,LTO_DT AS ltoDt
+				,BIZ_FG AS bizFg
+		from	@GW_BIZCAR
+		where	(EMP_CD = '${erpEmpCd}' OR DEPT_CD ='${erpDeptCd}')
+	</select>
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- iCUBE 카드 연계 -->
+<mapper namespace="AnguCard">
+	<!-- /* 집행등록 - 국고보조사업 귀속 카드 */ -->
+	<select id="AnguCard.AnguCardInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_CARD_NM_SELECT
+		(
+			#{langKind}
+			, #{erpCompSeq}
+			, #{ddtlbzId}
+		)
+	}
+	]]></select>
+
+	<!-- /* 집행등록 - 카드 사용 내역 코드 조회 */ -->
+	<select id="AnguCard.AnguCardListInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_CARDINFO_CD_SELECT
+		(
+			#{langKind}
+			, #{erpCompSeq}
+			, #{confmDeFr} /* 카드거래일자 검색 시작일 */
+			, #{confmDeTo} /* 카드거래일자 검색 종료일 */
+			, #{cardNo} /* 검색 카드 번호 */
+			, #{mrhstNm} /* 가맹점명 */
+			, #{puchasTamt} /* 총금액 */
+			, #{ddtlbzId} /* 국고보조사업 */
+			, #{tascCmmnDetailCodeNm} /* 고정값 : 001 */
+		)
+	}
+	]]></select>
+</mapper>

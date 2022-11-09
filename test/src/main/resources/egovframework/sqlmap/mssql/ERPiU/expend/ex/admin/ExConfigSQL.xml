@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ERPiU mssql -->
+<mapper namespace="AdminiUConfig">
+	<!-- 카드목록 조회 -->
+	<select id="AdminiUConfig.ExCommonCodeCardSelect"
+		parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+	/*
+	 * [ ERPiU - MSSQL ] AdminiUConfig.ExCommonCodeCardSelect - 공통 코드 조회 ( 법인카드 )
+	 * 작성자 : 이준성 
+	 * 작성일 : 2019-08-30
+	 * 변경이력
+	 * 2019-08-30 / 이준성 : 쿼리 확인 
+	 */
+	
+	SELECT CD_COMPANY                  AS compSeq 
+	       , Replace(NO_CARD, '-', '') AS cardCode 
+	       , NO_CARD                   AS cardNum 
+	       , NM_CARD                   AS cardName 
+	       , ''                        AS partnerCode 
+	       , ''                        AS partnerName 
+	       , YN_USE                    AS useYN 
+	       , '0'                       AS createSeq 
+	       , ''                        AS createDate 
+	       , '0'                       AS modifySeq 
+	       , ''                        AS modifyDate 
+	  FROM NEOE.FI_CARD WITH ( NOLOCK ) 
+	 WHERE CD_COMPANY = '${erpCompSeq}' 
+	   AND DATALENGTH(ISNULL(NO_CARD, '')) != 0 
+	]]>
+	</select>
+</mapper>

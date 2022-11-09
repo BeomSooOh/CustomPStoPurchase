@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CommonBatchCmsDAO">
+
+	<typeAlias alias="configVo" type="common.vo.batch.CommonBatchCmsConfigVO" />
+	<typeAlias alias="dataVo" type="common.vo.batch.CommonBatchCmsDataVO" />
+
+	<!-- Batch - CMS -->
+	<!-- Batch - CMS - Config -->
+	<!-- Batch - CMS - Config - Insert -->
+	<insert id="CommonBatchCmsBizboxDAO.CommonCmsConfigInfoInsert" parameterClass="HashMap">
+		<![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsConfigInfoInsert - BizboxA - oracle */
+		INSERT IGNORE $DB_NEOS$t_ex_cms_sync ( comp_seq, cms_sync_yn, cms_batch_yn, cms_process_yn, cms_base_date, cms_base_day modify_date )
+        VALUES ( '$compSeq$', '$cmsSyncYN$', '$cmsBatchYN$', '$cmsProcessYN$', ( CASE WHEN '$cmsBaseDate$' = '' THEN DATE_FORMAT(NOW(), '%Y%m%d') ELSE '$cmsBaseDate$' END ), ( CASE WHEN '$cmsBaseDay$' = '' THEN '7' ELSE '$cmsBaseDay$' END ), NOW() )
+        ]]>
+
+		<selectKey resultClass="int">
+        <![CDATA[
+		SELECT COUNT(*) FROM $DB_NEOS$t_ex_cms_sync WHERE comp_seq = '$compSeq$'
+        ]]>
+		</selectKey>
+	</insert>
+
+	<!-- Batch - CMS - Config - Delete -->
+	<delete id="CommonBatchCmsBizboxDAO.CommonCmsConfigInfoDelete" parameterClass="HashMap"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsConfigInfoDelete - BizboxA - oracle */
+		DELETE SELECT $DB_NEOS$t_ex_cms_sync WHERE comp_seq = '$compSeq$'
+    ]]></delete>
+
+	<!-- Batch - CMS - Config - List -->
+	<select id="CommonBatchCmsBizboxDAO.CommonCmsConfigInfoListSelect" resultClass="configVo" parameterClass="HashMap"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsConfigInfoListSelect - BizboxA - oracle */
+		SELECT  comp_seq AS compSeq
+			    , cms_sync_yn AS cmsSyncYN
+			    , cms_batch_yn AS cmsBatchYN
+			    , cms_process_yn AS cmsProcessYN
+			    , custom_yn AS customYN
+			    , NVL(cms_base_date, TO_CHAR(SYSDATE, 'YYYYmmdd')) AS cmsBaseDate
+			    , NVL(cms_base_day, '7') AS cmsBaseDay
+			    , modify_date AS modifyDate
+			    , NVL(server_ip,'') AS serverIp
+		FROM    $DB_NEOS$t_ex_cms_sync
+		WHERE   NVL(cms_sync_yn, 'N') = 'Y'
+        AND     NVL(cms_batch_yn, 'N') = 'Y'
+        AND     NVL(cms_process_yn, 'N') = 'N'
+    ]]></select>
+
+	<!-- Batch - CMS - Config - Update -->
+	<!-- Batch - CMS - Config - Update - Setting -->
+	<update id="CommonBatchCmsBizboxDAO.CommonCmsConfigInfoUpdate" parameterClass="HashMap"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsConfigInfoUpdate - BizboxA - oracle */
+		UPDATE  $DB_NEOS$t_ex_cms_sync
+		SET     cms_sync_yn = '$cmsSyncYN$'
+		        , cms_batch_yn = '$cmsBatchYN$'
+		        , modify_date = NOW()
+		WHERE   comp_seq = '$compSeq$'
+    ]]></update>
+
+	<!-- Batch - CMS - Config - Update - Process Y -->
+	<update id="CommonBatchCmsBizboxDAO.CommonCmsConfigInfoProcessUpdate_Y"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsConfigInfoProcessUpdate_Y - BizboxA - oracle */
+		UPDATE  $DB_NEOS$t_ex_cms_sync
+		SET     cms_process_yn = 'Y'
+		        , modify_date = NOW()
+		WHERE   cms_sync_yn = 'Y'
+		AND     cms_batch_yn = 'Y'
+		AND     cms_process_yn = 'N'
+    ]]></update>
+
+	<!-- Batch - CMS - Config - Update - Process N -->
+	<update id="CommonBatchCmsBizboxDAO.CommonCmsConfigInfoProcessUpdate_N" parameterClass="HashMap"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsConfigInfoProcessUpdate_N - BizboxA - oracle */
+		UPDATE  $DB_NEOS$t_ex_cms_sync
+		SET     cms_process_yn = 'N'
+		        , modify_date = SYSDATE
+		WHERE   cms_sync_yn = 'Y'
+		AND     cms_batch_yn = 'Y'
+		AND     cms_process_yn = 'Y'
+    ]]></update>
+
+	<!-- /* Batch - CMS - CARDAQTMP */ -->
+	<!-- /* Batch - CMS - CARDAQTMP - Select */ -->
+	<select id="CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoSelect" parameterClass="HashMap" resultClass="int"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoSelect - BizboxA - oracle */
+		SELECT  COUNT(sync_id)
+		FROM    $DB_NEOS$t_ex_card_aq_tmp
+		WHERE   auth_date = '$authDate$'
+		AND     auth_num = '$authNum$'
+		AND     card_num = '$cardNum$'
+		AND     georae_stat = '$georaeStat$'
+		AND		request_amount = '$requestAmount$'
+		AND		auth_time = '$authTime$'
+		AND		REPLACE(NVL(merc_saup_no, ''), ' ', '') = '$mercSaupNo$'		
+		AND ROWNUM = 1
+	]]></select>
+
+	<!-- /* Batch - CMS - CARDAQTMP - Insert */ -->
+	<insert id="CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoInsert" parameterClass="HashMap">
+        <![CDATA[
+        /* CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoInsert - BizboxA - oracle */
+		INSERT INTO $DB_NEOS$t_ex_card_aq_tmp ( card_num, auth_num, auth_date, auth_time, georae_coll, georae_stat, georae_cand, request_amount, amt_amount, vat_amount, ser_amount, fre_amount, amt_md_amount, vat_md_amount, georae_gukga, for_amount, usd_amount, merc_name, merc_saup_no, merc_addr, merc_repr, merc_tel, merc_zip, mcc_name, mcc_code, mcc_stat, vat_stat, gongje_no_chk, abroad )
+		VALUES ( '$cardNum$', '$authNum$', '$authDate$', '$authTime$', '$georaeColl$', '$georaeStat$', '$georaeCand$', '$requestAmount$', '$amtAmount$', '$vatAmount$', '$serAmount$', '$freAmount$', '$amtMdAmount$', '$vatMdAmount$', '$georaeGukga$', '$forAmount$', '$usdAmount$', #mercName#, '$mercSaupNo$', '$mercAddr$', '$mercRepr$', '$mercTel$', '$mercZip$', '$mccName$', '$mccCode$', '$mccStat$', '$vatStat$', '$gongjeNoChk$', '$abroad$' )
+        ]]>
+		<selectKey resultClass="String"><![CDATA[
+	        SELECT  CAST(COUNT(sync_id) AS INTEGER)
+	        FROM    $DB_NEOS$t_ex_card_aq_tmp
+	        WHERE   auth_date = '$authDate$'
+	        AND     auth_num = '$authNum$'
+	        AND     card_num = '$cardNum$'
+	        AND     georae_coll = '$georaeColl$'
+	        AND     georae_stat = '$georaeStat$'
+	        AND ROWNUM = 1
+		]]></selectKey>
+	</insert>
+</sqlMap>

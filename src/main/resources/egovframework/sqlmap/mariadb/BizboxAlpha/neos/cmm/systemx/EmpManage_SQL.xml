@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="EmpManage">
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+
+	<select id="EmpManage.selectEmpDuplicate" parameterClass="hashmap" resultClass="string">
+		SELECT 
+			COUNT(emp_seq) 
+		FROM 
+			$DB_NEOS$t_co_emp
+		WHERE 
+			group_seq = #groupSeq#
+		
+			<isNotEmpty property="loginId">
+			AND login_id = #loginId#
+			</isNotEmpty>
+			<isNotEmpty property="emailAddr">
+			AND email_addr = #emailAddr#
+			</isNotEmpty>
+	</select>
+	
+	
+	
+	<update id="EmpManage.updateEmpLoginId" parameterClass="hashmap">
+		UPDATE
+			$DB_NEOS$t_co_emp
+		SET
+			login_id = #loginId#
+		WHERE
+			group_seq = #groupSeq#
+			AND
+				emp_seq = #empSeq#
+
+	</update>
+	
+	<select id="EmpManage.selectUserAuthList" parameterClass="hashmap" resultClass="egovMap">
+	    /* EmpManage.selectUserAuthList - mariadb */
+		SELECT *, ($DB_NEOS$get_code_detail_info('0', 'COM505', B.author_type, #langCode#)) AS codeTypeName 
+		FROM 
+			(
+				SELECT detail_code AS seq, author_code
+				FROM $DB_NEOS$t_co_auth_class_relate 
+				WHERE detail_code = #dutyCode#
+				AND   code_type   = '003'
+				UNION
+				SELECT detail_code AS seq, author_code
+				FROM $DB_NEOS$t_co_auth_class_relate 
+				WHERE detail_code = #positionCode#
+				AND   code_type   = '004'
+				UNION
+				SELECT author_type AS seq , author_code 
+				FROM $DB_NEOS$t_co_auth_relate
+				WHERE  (author_type = '002' and dept_seq = #deptSeq#) 
+		            or (author_type <![CDATA[ <> ]]> '002' and u.emp_seq = #empSeq#
+		            	<isNotEmpty property="deptSeq">
+				        AND dept_seq = #deptSeq#
+				        </isNotEmpty>
+		            )
+		        AND     
+<!-- 				SELECT dept_id AS seq, author_code  -->
+<!-- 				FROM `t_co_auth_dept_relate` WHERE dept_id = #deptSeq# -->
+<!-- 				UNION -->
+<!-- 				SELECT emp_seq AS seq, author_code  -->
+<!-- 				FROM `t_co_auth_user_relate`  -->
+<!-- 				WHERE emp_seq = #empSeq# -->
+<!-- 				<isNotEmpty property="deptSeq"> -->
+<!-- 				AND author_dept = #deptSeq# -->
+<!-- 				</isNotEmpty> -->
+			) A 
+			LEFT OUTER JOIN $DB_NEOS$t_co_authcode B
+			ON A.author_code = B.author_code
+			AND B.author_use_yn = 'Y'
+			INNER JOIN $DB_NEOS$t_co_authcode_multi M
+			ON B.author_code = M.author_code
+			WHERE A.compSeq = #compSeq#
+		ORDER BY B.author_type, A.author_code
+	</select>
+	
+	<delete id="EmpManage.deleteEmpDept" parameterClass="egovMap">
+		DELETE FROM $DB_NEOS$t_co_emp_dept 
+		WHERE
+			dept_seq = #deptSeq# AND emp_seq = #empSeq#
+	</delete>
+	 
+	<delete id="EmpManage.deleteEmpDeptMulti" parameterClass="egovMap">
+		DELETE FROM $DB_NEOS$t_co_emp_dept_multi 
+		WHERE
+			dept_seq = #deptSeq# AND emp_seq = #empSeq#
+	</delete>
+	
+	
+	<update id="EmpManage.updatemyInfo">
+	<![CDATA[
+		UPDATE 
+			$DB_NEOS$t_co_emp
+		SET
+			gender_code = #mf#
+			,bday = #birthday_date#
+			,wedding_day = #wedding_date#
+			,lunar_yn = #lunarYn#
+			,wedding_yn = #weddingYn#
+			,native_lang_code = #nativeLangCode#
+			,mobile_tel_num = #phone#
+			,home_tel_num = #hometel#
+			,pic_file_id = #picFileId#
+			,sign_file_id = #signFileId#
+		WHERE
+			emp_seq = #emp_seq#
+	]]>
+	</update>
+	
+	
+	
+	
+	<update id="EmpManage.updatemyInfoMulti">
+	<![CDATA[
+		UPDATE 
+			$DB_NEOS$t_co_emp_multi
+		SET
+			main_work = #mainWork#
+			,addr = #home_addr#
+			,detail_addr = #home_detailaddr#
+
+		WHERE
+			emp_seq = #emp_seq#
+			AND lang_code = #langCode#
+	]]>
+	</update>
+	
+
+	<update id="EmpManage.updatemyInfodeptMulti">
+	<![CDATA[
+		UPDATE 
+			$DB_NEOS$t_co_emp_dept
+		SET
+			tel_num = #comptel#
+			,fax_num = #fax#
+		WHERE
+			dept_seq = #dept_seq#
+			AND emp_seq = #emp_seq#
+	]]>
+	</update>
+	
+	<update id="EmpManage.updatemyInfodeptDetail">
+	<![CDATA[
+		UPDATE 
+			$DB_NEOS$t_co_emp_dept_multi
+		SET
+			addr = #comp_addr#
+			,detail_addr = #comp_detailaddr#
+		WHERE
+			dept_seq = #dept_seq#
+			AND emp_seq = #emp_seq#
+			AND lang_code = #langCode#
+	]]>
+	</update>
+	
+	
+	
+	
+	
+	
+</sqlMap>

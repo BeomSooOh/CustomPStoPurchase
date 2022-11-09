@@ -1,0 +1,858 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="NpUserBudgetA">
+
+	<select id="NpUserBudgetA.selectConsBalanceAmtI" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserBudgetSQL.xml - NpUserBudgetA.selectConsBalanceAmtI */
+		/* G20 예산 품의단계 잔액 조회 */
+		SELECT	
+			SUM( IFNULL(consB.budget_std_amt, 0 ))		'consBudgetStdAmt'
+			, SUM( IFNULL(consB.budget_tax_amt, 0 ))	'consBudgetTaxAmt'
+			, SUM( IFNULL(consB.budget_amt, 0 ))		'consBudgetAmt'
+			, consB.erp_budget_seq				'consErpBudgetSeq'
+			, SUM( IFNULL(resB.budget_std_amt, 0 ))	'resBudgetStdAmt'
+			, SUM( IFNULL(resB.budget_tax_amt, 0 ))	'resBudgetTaxAmt'
+			, SUM( IFNULL(resB.budget_amt, 0 ))		'resBudgetAmt'
+			, resB.erp_budget_seq				'resErpBudgetSeq'
+			, 	( CASE consB.conffer_budget_return_yn WHEN 'Y' THEN 0
+				ELSE SUM( IFNULL(consB.budget_std_amt, 0 )) 	- SUM( IFNULL(resB.budget_std_amt, 0 ))
+				END	)	AS 'balanceStdAmt'
+			, 	( CASE consB.conffer_budget_return_yn WHEN 'Y' THEN 0
+				ELSE SUM( IFNULL(consB.budget_tax_amt, 0 )) 	- SUM( IFNULL(resB.budget_tax_amt, 0 ))
+				END	)	AS 'balanceTaxAmt'				
+			, 	( CASE consB.conffer_budget_return_yn WHEN 'Y' THEN 0
+				ELSE SUM( IFNULL(consB.budget_amt, 0 )) 		- SUM( IFNULL(resB.budget_amt, 0 ))
+				END	)	AS 'balanceAmt'		
+		FROM	(	
+			SELECT	* 
+			FROM 	$DB_NEOS$t_exnp_consdoc
+			WHERE 	conffer_return_yn != 'Y'
+			 AND	doc_status IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+			 AND	erp_div_seq = REPLACE(#erpDivSeq#, '|', '')
+			UNION	
+			SELECT	* 
+			FROM 	$DB_NEOS$t_exnp_consdoc
+			WHERE	cons_doc_seq = #consDocSeq#
+		)	consD
+		INNER JOIN 	(
+			SELECT	* 
+			FROM	$DB_NEOS$t_exnp_conshead
+			<isNotEmpty property="mgtSeq">
+			WHERE	mgt_seq = #mgtSeq#
+			</isNotEmpty>
+			<isEmpty property="mgtSeq">
+			WHERE	mgt_seq = #erpMgtSeq#
+			</isEmpty>
+			 AND	erp_gisu = #gisu#
+		)	consH		
+		 ON	consD.cons_doc_seq = consH.cons_doc_seq
+		INNER JOIN	(
+			SELECT	*
+			FROM	$DB_NEOS$t_exnp_consbudget
+			WHERE	conffer_budget_return_yn = 'N' 
+			<isNotEmpty property="consDocSeq">
+			<isNotEmpty property="budgetSeq">
+			 AND	budget_seq != #budgetSeq#
+			 </isNotEmpty>
+			</isNotEmpty>
+ 			<isNotEmpty property="consDocSeq">
+			AND	cons_doc_seq != #consDocSeq#
+			</isNotEmpty>
+		)	consB
+		 ON		consD.cons_doc_seq	= consB.cons_doc_seq
+		 AND	consH.cons_seq		= consB.cons_seq
+		 AND 	consB.erp_budget_seq = #erpBudgetSeq#
+		LEFT JOIN	(
+			SELECT	
+				rb.conffer_doc_seq
+				, rb.conffer_seq
+				, rb.conffer_budget_seq
+				, rb.erp_budget_seq
+				, IFNULL(rb.erp_bgacct_seq, '')	AS erp_bgacct_seq
+				, SUM( rb.budget_std_amt ) 	AS budget_std_amt
+				, SUM( rb.budget_tax_amt )AS budget_tax_amt			
+				, SUM( (CASE IFNULL(rb.ctl_fg_code, '1') 
+							WHEN '0'	THEN 	( CASE IFNULL(rb.budget_std_amt, 0) WHEN '0' THEN rb.budget_amt ELSE rb.budget_std_amt END )
+							ELSE		IFNULL(rb.budget_amt, 0)	/* emptyStr or '1' */
+						END)
+				)	AS budget_amt
+			FROM	$DB_NEOS$t_exnp_resbudget rb
+			 INNER JOIN $DB_NEOS$t_exnp_resdoc rd
+			 ON 	rd.res_doc_seq = rb.res_doc_seq
+			  AND	IFNULL(rd.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+			  AND	rd.doc_seq IS NOT NULL
+			  AND   rb.erp_budget_seq = #erpBudgetSeq#
+			<isNotEmpty property="resDocSeq">			  
+			  AND	rd.doc_seq IS NOT NULL
+			  AND	( rd.res_doc_seq != #resDocSeq# OR IFNULL(rd.doc_seq, '') = '')
+			</isNotEmpty>			  
+			WHERE	IFNULL(rb.conffer_doc_seq, '') != ''	
+			GROUP	BY 	rb.conffer_doc_seq
+						, rb.conffer_seq
+						, rb.conffer_budget_seq
+						, (CASE IFNULL(rb.erp_budget_seq, '') WHEN '' THEN -1 ELSE IFNULL(rb.erp_budget_seq,'') END)
+						, (CASE IFNULL(rb.erp_bgacct_seq, '') WHEN '' THEN -1 ELSE IFNULL(rb.erp_bgacct_seq,'') END)
+			HAVING 	budget_amt != 0
+		) resB
+		 ON 	consB.cons_doc_seq = resB.conffer_doc_seq
+		 AND	consB.cons_seq = resB.conffer_seq
+		 AND	consB.budget_seq = resB.conffer_budget_seq
+		WHERE	IFNULL(consH.bottom_seq, '') like '%$bottomSeq$%'
+		AND		consD.erp_comp_seq = #erpCompSeq#
+		GROUP BY  consB.erp_budget_seq	;
+	</select>
+	
+	<select id="NpUserBudgetA.selectConsBalanceAmtU" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserBudgetSQL.xml - NpUserBudgetA.selectConsBalanceAmtU */
+		/* ERP iU 예산 품의단계 잔액 조회 */
+		SELECT	
+			SUM( IFNULL(consB.budget_std_amt, 0 ))		'consBudgetStdAmt'
+			, SUM( IFNULL(consB.budget_tax_amt, 0 ))	'consBudgetTaxAmt'
+			, SUM( IFNULL(consB.budget_amt, 0 ))		'consBudgetAmt'
+			, consB.erp_bgacct_seq				'consErpBgacctSeq'
+			, SUM( IFNULL(resB.budget_std_amt, 0 ))	'resBudgetStdAmt'
+			, SUM( IFNULL(resB.budget_tax_amt, 0 ))	'resBudgetTaxAmt'
+			, SUM( IFNULL(resB.budget_amt, 0 ))		'resBudgetAmt'
+			, resB.erp_bgacct_seq				'resErpBgacctSeq'
+			, SUM( IFNULL(consB.budget_std_amt, 0 )) 	- SUM( IFNULL(resB.budget_std_amt, 0 )) 	AS 'balanceStdAmt'
+			, SUM( IFNULL(consB.budget_tax_amt, 0 )) 	- SUM( IFNULL(resB.budget_tax_amt, 0 )) 	AS 'balanceTaxAmt'
+			, SUM( IFNULL(consB.budget_amt, 0 )) 		- SUM( IFNULL(resB.budget_amt, 0 )) 		AS 'balanceAmt'
+		FROM	(
+			SELECT	* 
+			FROM 	$DB_NEOS$t_exnp_consdoc
+			WHERE 	conffer_return_yn != 'Y'
+			AND		IFNULL(doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+			AND		doc_seq	IS NOT NULL
+			
+		)	consD
+		INNER JOIN	$DB_NEOS$t_exnp_conshead	consH
+		 ON	consH.cons_doc_seq = consD.cons_doc_seq
+		INNER JOIN	$DB_NEOS$t_exnp_consbudget consB
+		 ON	consD.cons_doc_seq = consB.cons_doc_seq
+			<isNotEmpty property="consDocSeq">
+			<isNotEmpty property="budgetSeq">
+			 AND	budget_seq != #budgetSeq#
+			 </isNotEmpty>
+			</isNotEmpty>
+		 AND	consH.cons_seq = consB.cons_seq
+		 AND	consB.conffer_budget_return_yn = 'N' 			
+		 AND 	consB.erp_bgacct_seq = #erpBgacctSeq#
+		 AND	consB.erp_budget_seq = #erpBudgetSeq#
+		 AND	consB.erp_bizplan_seq = #erpBizplanSeq#
+		LEFT JOIN	(
+			SELECT	
+				rb1.conffer_doc_seq
+				, rb1.conffer_seq
+				, rb1.conffer_budget_seq
+				, rb1.erp_bgacct_seq
+				, SUM( rb1.budget_std_amt ) 	AS budget_std_amt
+				, SUM( rb1.budget_tax_amt )AS budget_tax_amt
+				, SUM( (CASE IFNULL(rb1.ctl_fg_code, '1') 
+							WHEN '0'	THEN 	( CASE IFNULL(rb1.budget_std_amt, 0) WHEN '0' THEN rb1.budget_amt ELSE rb1.budget_std_amt END )
+							ELSE		IFNULL(rb1.budget_amt, 0)	/* emptyStr or '1' */
+						END)
+				)	AS budget_amt				
+			FROM	$DB_NEOS$t_exnp_resbudget rb1
+			 INNER JOIN $DB_NEOS$t_exnp_resdoc rd1
+			 ON	rb1.res_doc_seq = rd1.res_doc_seq
+			<isNotEmpty property="resDocSeq">			  
+			  AND	rd1.doc_seq IS NOT NULL
+			  AND	( rd1.res_doc_seq != #resDocSeq# OR IFNULL(rd1.doc_seq, '') = '')
+			</isNotEmpty>			 
+			WHERE	IFNULL(rd1.conffer_doc_seq, '') != ''
+			 AND	IFNULL(doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+			 AND	rd1.doc_seq IS NOT NULL
+			GROUP	BY rb1.conffer_doc_seq, rb1.conffer_seq, rb1.conffer_budget_seq, erp_bgacct_seq
+		) resB
+		 ON 	consB.cons_doc_seq = resB.conffer_doc_seq
+		 AND	consB.cons_seq = resB.conffer_seq
+		 AND	consB.budget_seq = resB.conffer_budget_seq
+		 WHERE    consH.cons_date BETWEEN #gisuFromDate# AND #gisuToDate#
+		GROUP BY  consB.erp_bgacct_seq	;
+	</select>
+	
+	<select id="NpUserBudgetA.selectConsAmtInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserBudgetSQL.xml - NpUserBudgetA.selectConsAmtInfo */
+		/* 품의서 예산 합계금 조회 - 품의서 집계 용 */
+		SELECT	
+			SUM(   IFNULL(budget_std_amt, 0))	AS	'consBudgetStdAmt'
+			, SUM( IFNULL(budget_tax_amt, 0))	AS	'consBudgetTaxAmt'
+			, SUM( IFNULL(budget_amt, 0))		AS	'consBudgetAmt'
+		FROM 	$DB_NEOS$t_exnp_consbudget
+		WHERE	cons_doc_seq = #consDocSeq#
+		 AND	cons_seq = #consSeq#
+		 AND	conffer_budget_return_yn = 'N'
+	</select>	
+	
+	<select id="NpUserBudgetA.selectResAmtInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserBudgetSQL.xml - NpUserBudgetA.selectResAmtInfo */
+		/* 결의서 예산 합계금 조회 - 결의서 집계 용 */
+		SELECT	
+			SUM(   IFNULL(r.budget_std_amt, 0))	AS	'resBudgetStdAmt'
+			, SUM( IFNULL(r.budget_tax_amt, 0))	AS	'resBudgetTaxAmt'
+			, SUM( (CASE IFNULL(ctl_fg_code, '1') 
+						WHEN '0'	THEN 	( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
+						ELSE		IFNULL(budget_amt, 0)	/* emptyStr or '1' */
+					END)
+			)	AS 'resBudgetAmt'
+			, (SELECT SUM(IFNULL(budget_amt, 0) ) FROM $DB_NEOS$t_exnp_resbudget WHERE res_seq = #resSeq#) AS 'resAmt'
+			, c.consBalance
+			, r.conffer_doc_seq AS 'confferDocSeq'
+		FROM 	$DB_NEOS$t_exnp_resbudget r
+		LEFT JOIN	(
+			SELECT	
+				c2.budget_seq
+				, c2.cons_doc_Seq
+				, MAX(c2.budget_amt) - SUM(r2.budget_amt)	'consBalance'
+			FROM	$DB_NEOS$t_exnp_consbudget 	c2
+			INNER JOIN $DB_NEOS$t_exnp_resbudget	r2
+			 ON	c2.budget_seq = r2.conffer_budget_seq
+			INNER JOIN $DB_NEOS$t_exnp_resdoc	d2
+			 ON	r2.res_doc_seq = d2.res_doc_seq
+			 AND	IFNULL(d2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+			 AND  	d2.doc_seq	IS NOT NULL		 
+			WHERE	r2.budget_std_amt IS NOT NULL
+			 AND	c2.conffer_budget_return_yn = 'N'
+			GROUP BY c2.budget_Seq
+		)	c
+		ON 	c.budget_seq = r.conffer_budget_seq
+		WHERE	res_doc_seq = #resDocSeq#
+		 AND	res_seq = #resSeq#
+		 AND	r.budget_Seq = #budgetSeq#
+	</select>
+	
+	<select id="NpUserBudgetA.selectResUseAmtI" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.selectResUseAmtI */
+		/* iCUBE G20 예산별 결의서 미전송 사용량 조회 */
+		SELECT	
+			resB.erp_budget_seq						AS	'resErpBudgetSeq'
+			, SUM( IFNULL(resB.budget_std_amt, 0 ))	AS	'resBudgetStdAmt'
+			, SUM( IFNULL(resB.budget_tax_amt, 0 ))	AS	'resBudgetTaxAmt'
+			, SUM( (CASE IFNULL(ctl_fg_code, '1') 
+						WHEN '0'	THEN 	( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
+						ELSE		IFNULL(budget_amt, 0)	/* emptyStr or '1' */
+					END)
+			)	AS 'resBudgetAmt'
+		FROM	(
+			SELECT	*
+			FROM	$DB_NEOS$t_exnp_resdoc
+			WHERE	res_doc_seq = #resDocSeq#
+			UNION		
+			SELECT	* 
+			FROM 	$DB_NEOS$t_exnp_resdoc
+			WHERE 	erp_send_yn != 'Y'
+			AND		IFNULL(doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+			AND		doc_seq IS NOT NULL
+			AND		erp_div_seq = REPLACE(#erpDivSeq#, '|', '')
+		)	resD
+		INNER JOIN	(
+			SELECT	*
+			FROM	$DB_NEOS$t_exnp_reshead
+			<isNotEmpty property="mgtSeq">
+			WHERE	mgt_seq = #mgtSeq#
+			</isNotEmpty>
+			<isEmpty property="mgtSeq">
+			WHERE	mgt_seq = #erpMgtSeq#
+			</isEmpty>
+			AND		erp_gisu = #gisu#
+		)	resH
+		 ON	resD.res_doc_seq = resH.res_doc_seq		
+		INNER JOIN	( 
+			SELECT	*
+			FROM	$DB_NEOS$t_exnp_resbudget
+			WHERE	1 = 1
+			<isNotEmpty property="resDocSeq">
+			<isNotEmpty property="budgetSeq">
+			AND	budget_seq != #budgetSeq#
+			 </isNotEmpty>
+			</isNotEmpty>
+			
+			<isNotEmpty property="resDocSeq">
+			AND	res_doc_seq != #resDocSeq#
+			</isNotEmpty>
+		)	resB
+		 ON	resD.res_doc_seq = resB.res_doc_seq
+		 AND	resH.res_seq = resB.res_seq
+		 AND 	resB.erp_budget_seq = #erpBudgetSeq#
+		 AND	IFNULL(resH.bottom_seq, '') like '%$bottomSeq$%'
+		 WHERE  resD.erp_comp_seq = #erpCompSeq#
+		GROUP BY  resB.erp_budget_seq	;		
+	</select>		
+	
+	<select id="NpUserBudgetA.selectResUseAmtU" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.selectResUseAmtU */
+		/* ERP iU 예산별 결의서 미전송 사용량 조회 */
+		SELECT	
+			resB.erp_bgacct_seq						AS	'resErpBgacctSeq'
+			, SUM( IFNULL(resB.budget_std_amt, 0 ))	AS	'resBudgetStdAmt'
+			, SUM( IFNULL(resB.budget_tax_amt, 0 ))	AS	'resBudgetTaxAmt'
+			, SUM( (CASE IFNULL(ctl_fg_code, '1') 
+						WHEN '0'	THEN 	( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
+						ELSE		IFNULL(budget_amt, 0)	/* emptyStr or '1' */
+					END)
+			)	AS 'resBudgetAmt'
+		FROM	(
+			SELECT	* 
+			FROM 	$DB_NEOS$t_exnp_resdoc
+			WHERE 	erp_send_yn != 'Y'
+			AND		IFNULL(doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+			AND		doc_seq IS NOT NULL
+			UNION	
+			SELECT	* 
+			FROM 	$DB_NEOS$t_exnp_resdoc
+			WHERE	res_doc_seq = #resDocSeq#
+		)	resD
+		INNER JOIN	$DB_NEOS$t_exnp_resbudget resB
+		 ON	resD.res_doc_seq = resB.res_doc_seq
+		<isNotEmpty property="resDocSeq">
+		 <isNotEmpty property="budgetSeq">
+		 AND	resB.budget_seq != #budgetSeq#
+		 </isNotEmpty>
+		</isNotEmpty>
+		<isNotEmpty property="resDocSeq">
+		 AND	resB.res_doc_seq != #resDocSeq#
+		</isNotEmpty>		 
+		 AND 	resB.erp_bgacct_seq = #erpBgacctSeq#
+		 AND	resB.erp_budget_seq = #erpBudgetSeq#
+		 AND	resB.erp_bizplan_seq = #erpBizplanSeq#		 
+		INNER JOIN	$DB_NEOS$t_exnp_reshead resH
+		 ON		resH.res_doc_seq = resD.res_doc_Seq
+		 AND	resH.res_seq = resB.res_seq
+		WHERE    resH.res_date BETWEEN #gisuFromDate# AND #gisuToDate#
+		GROUP BY  resB.erp_bgacct_seq	;	
+	</select>	
+	
+	<select id="NpUserBudgetA.selectConsTryAmtForiU" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.selectConsTryAmtForiU */
+		/* [ERPiU] 품의 문서내의 예산별 품의금액 합계 조회 */
+		SELECT	IFNULL(SUM(budget_amt), 0)	AS 'tryAmt'
+		FROM	$DB_NEOS$t_exnp_consbudget
+		WHERE	cons_doc_seq	= #consDocSeq#
+		 AND	erp_budget_seq	= #erpBudgetSeq#
+		 AND	erp_bizplan_seq = #erpBizplanSeq#
+		 AND	erp_bgacct_seq 	= #erpBgacctSeq#	
+		 AND	conffer_budget_return_yn = 'N'	
+	</select>
+	
+	<select id="NpUserBudgetA.selectConsTryAmt" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.selectConsTryAmt */
+		/* [G20] 품의 문서내의 예산별 품의금액 합계 조회 */
+		SELECT	IFNULL(SUM(budget_amt), 0)	AS 'tryAmt'
+		FROM	$DB_NEOS$t_exnp_consbudget budget
+		INNER JOIN	$DB_NEOS$t_exnp_conshead head
+		ON	budget.cons_doc_seq = head.cons_doc_seq
+		AND	budget.cons_seq = head.cons_seq
+		WHERE	budget.cons_doc_seq	= #consDocSeq#
+		 AND	head.mgt_seq	= #erpMgtSeq#
+		 AND	budget.erp_budget_seq = #erpBudgetSeq#
+		 AND	ifnull(head.bottom_seq,'') = ifnull(#bottomSeq#,'')	
+		 AND	conffer_budget_return_yn = 'N'	
+	</select>
+	
+	<select id="NpUserBudgetA.selectResTryAmtForiU" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.selectResTryAmtForiU */
+		/* [ERPiU] 결의 문서내의 예산별 결의금액 합계 조회 */
+		SELECT	
+			IFNULL(SUM(IFNULL(trade_std_amt,0)),0)	AS 'tryStdAmt'
+			, IFNULL(SUM(IFNULL(trade_vat_amt,0)),0)	AS 'tryVatAmt'
+			, IFNULL(SUM( (CASE IFNULL(budget.ctl_fg_code, '1') 
+						WHEN '0'	THEN 	( CASE IFNULL(trade_std_amt, 0) WHEN '0' THEN trade_amt ELSE trade_std_amt END )
+						ELSE		IFNULL(trade_amt, 0)	/* emptyStr or '1' */
+					END)
+			), 0)	AS 'tryAmt'
+		FROM	(
+			SELECT	*
+			FROM	$DB_NEOS$t_exnp_resbudget
+			WHERE	res_doc_seq		= #resDocSeq#
+			 AND	erp_budget_seq	= #erpBudgetSeq#	
+			 AND	erp_bizplan_seq = #erpBizplanSeq#
+		 	 AND	erp_bgacct_seq 	= #erpBgacctSeq#	
+		)	budget
+		INNER JOIN	$DB_NEOS$t_exnp_restrade trade
+		ON	budget.res_doc_seq = trade.res_doc_seq
+		 AND	budget.res_seq = trade.res_seq
+		 AND	budget.budget_seq = trade.budget_seq
+	</select>
+	
+	<select id="NpUserBudgetA.selectConfferTryAmtForiU" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.selectConfferTryAmtForiU */
+		/* [ERPiU] 결의 문서내의 결의서별 금회집행액 조회 */
+		SELECT	
+			IFNULL(SUM(IFNULL(trade_std_amt,0)),0)	AS 'tryStdAmt'
+			, IFNULL(SUM(IFNULL(trade_vat_amt,0)),0)	AS 'tryVatAmt'
+			, IFNULL(SUM( (CASE IFNULL(budget.ctl_fg_code, '1') 
+						WHEN '0'	THEN 	( CASE IFNULL(trade_std_amt, 0) WHEN '0' THEN trade_amt ELSE trade_std_amt END )
+						ELSE		IFNULL(trade_amt, 0)	/* emptyStr or '1' */
+					END)
+			), 0)	AS 'tryAmt'
+		FROM	(
+			SELECT	*
+			FROM	$DB_NEOS$t_exnp_resbudget
+			WHERE	res_doc_seq		= #resDocSeq#
+			 AND	res_seq			= #resSeq#
+			 AND	erp_budget_seq	= #erpBudgetSeq#	
+			 AND	erp_bizplan_seq = #erpBizplanSeq#
+		 	 AND	erp_bgacct_seq 	= #erpBgacctSeq#	
+		)	budget
+		INNER JOIN	$DB_NEOS$t_exnp_restrade trade
+		ON	budget.res_doc_seq = trade.res_doc_seq
+		 AND	budget.res_seq = trade.res_seq
+		 AND	budget.budget_seq = trade.budget_seq
+	</select>
+	
+	
+	<select id="NpUserBudgetA.selectResTryAmt" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.selectResTryAmt */
+		/* [G20] 결의 문서내의 예산별 결의금액 합계 조회 */
+		SELECT	
+			IFNULL(SUM(IFNULL(trade_std_amt,0)),0)	AS 'tryStdAmt'
+			, IFNULL(SUM(IFNULL(trade_vat_amt,0)),0)	AS 'tryVatAmt'
+			, IFNULL(SUM( (CASE IFNULL(budget.ctl_fg_code, '1') 
+						WHEN '0'	THEN 	( CASE IFNULL(trade_std_amt, 0) WHEN '0' THEN trade_amt ELSE trade_std_amt END )
+						ELSE		IFNULL(trade_amt, 0)	/* emptyStr or '1' */
+					END)
+			), 0)	AS 'tryAmt'			
+		FROM	(
+			SELECT	b.*
+            FROM    $DB_NEOS$t_exnp_resbudget b
+            INNER JOIN $DB_NEOS$t_exnp_reshead h
+            ON  b.res_doc_seq = h.res_doc_seq
+            AND  b.res_seq = h.res_seq
+			WHERE	b.res_doc_seq		= #resDocSeq#
+			 AND    mgt_seq = #erpMgtSeq#
+			 AND	erp_budget_seq	= #erpBudgetSeq#
+			 AND	ifnull(bottom_seq,'') = #bottomSeq#
+		)	budget
+		INNER JOIN	$DB_NEOS$t_exnp_restrade trade
+		ON	budget.res_doc_seq = trade.res_doc_seq
+		 AND	budget.res_seq = trade.res_seq
+		 AND	budget.budget_seq = trade.budget_seq
+
+	</select>	
+	
+	<select id="NpUserBudgetA.selectConfferResTryAmt" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.selectConfferResTryAmt */
+		/* [G20] 결의 문서내의 결의서별 금회집행액 조회 */
+		SELECT	
+			IFNULL(SUM(IFNULL(trade_std_amt,0)),0)	AS 'tryStdAmt'
+			, IFNULL(SUM(IFNULL(trade_vat_amt,0)),0)	AS 'tryVatAmt'
+			, IFNULL(SUM( (CASE IFNULL(budget.ctl_fg_code, '1') 
+						WHEN '0'	THEN 	( CASE IFNULL(trade_std_amt, 0) WHEN '0' THEN trade_amt ELSE trade_std_amt END )
+						ELSE		IFNULL(trade_amt, 0)	/* emptyStr or '1' */
+					END)
+			), 0)	AS 'tryAmt'			
+		FROM	(
+			SELECT	b.*
+            FROM    $DB_NEOS$t_exnp_resbudget b
+            INNER JOIN $DB_NEOS$t_exnp_reshead h
+            ON  b.res_doc_seq = h.res_doc_seq
+            AND  b.res_seq = h.res_seq
+			WHERE	b.res_doc_seq		= #resDocSeq#
+			 AND    b.res_seq = #resSeq#
+			 AND    mgt_seq = #erpMgtSeq#
+			 AND	erp_budget_seq	= #erpBudgetSeq#
+		)	budget
+		INNER JOIN	$DB_NEOS$t_exnp_restrade trade
+		ON	budget.res_doc_seq = trade.res_doc_seq
+		 AND	budget.res_seq = trade.res_seq
+		 AND	budget.budget_seq = trade.budget_seq
+
+	</select>	
+	
+	<select id="NpUserBudgetA.selectConfferBudgetBalance" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"> 
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.selectConfferBudgetBalance */
+		/* 참조품의서 예산 잔액 조회 */
+		SELECT	
+			cb.cons_doc_seq					AS 'consDocSeq'
+			, cb.cons_seq					AS 'consSeq'
+			, cb.budget_seq					AS 'budgetSeq'
+			, IFNULL(cb.budget_std_amt, 0)	AS 'consStdAmt'
+			, IFNULL(cb.budget_tax_amt, 0)	AS 'consTaxAmt'
+			, IFNULL(cb.budget_amt, 0)		AS 'consAmt'
+			, IFNULL(rb.budget_std_amt, 0)	AS 'resStdAmt'
+			, IFNULL(rb.budget_tax_amt, 0)	AS 'resTaxAmt'
+			, IFNULL(rb.budget_amt, 0) 		AS 'resAmt'
+			, 	( CASE 	cb.conffer_budget_return_yn WHEN 'N'
+				THEN	IFNULL(cb.budget_std_amt, 0) 	- IFNULL(rb.budget_std_amt, 0)
+				ELSE	0
+				END	)		AS 'balanceStdAmt'
+			, 	( CASE 	cb.conffer_budget_return_yn WHEN 'N'
+				THEN	IFNULL(cb.budget_tax_amt, 0) 	- IFNULL(rb.budget_tax_amt, 0)
+				ELSE	0
+				END	)		AS 'balanceTaxAmt'							
+			, 	( CASE 	cb.conffer_budget_return_yn WHEN 'N'
+				THEN	IFNULL(cb.budget_amt, 0) 		- IFNULL(rb.budget_amt, 0)
+				ELSE	0
+				END	)		AS 'balanceAmt'
+			, IFNULL(cb.budget_amt, 0) 		- IFNULL(rb.budget_std_amt, 0) 	AS 'balanceNonTaxAmt'
+		FROM	$DB_NEOS$t_exnp_consbudget	cb	
+		LEFT JOIN	(
+			SELECT	
+				budget.conffer_doc_seq
+				, budget.conffer_seq	
+				, budget.conffer_budget_seq	
+				, SUM(budget.budget_std_amt)	AS 'budget_std_amt'
+				, SUM(budget.budget_tax_amt)	AS 'budget_tax_amt'
+				, SUM( (CASE IFNULL(ctl_fg_code, '1') 
+							WHEN '0'	THEN 	( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
+							ELSE		IFNULL(budget_amt, 0)	/* emptyStr or '1' */
+						END)
+				)	AS 'budget_amt'				
+			FROM	(
+				SELECT 	*
+				FROM	$DB_NEOS$t_exnp_resbudget
+				WHERE	conffer_budget_seq = #confferBudgetSeq#
+				AND	budget_seq != #budgetSeq#
+				 
+			)	budget
+			INNER JOIN	$DB_NEOS$t_exnp_resdoc	doc
+			ON	budget.res_doc_seq = doc.res_doc_seq
+			WHERE	IFNULL(doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+			 AND	doc_seq IS NOT NULL
+			 AND    doc.res_doc_seq != #resDocSeq#
+			GROUP BY 	budget.conffer_doc_seq, budget.conffer_seq, budget.conffer_budget_seq
+		)	rb
+		ON	rb.conffer_doc_seq = cb.cons_doc_seq
+		 AND	rb.conffer_seq = cb.cons_seq
+		 AND	rb.conffer_budget_seq = cb.budget_seq
+		WHERE	cb.cons_doc_seq = #confferDocSeq#
+		 AND	cb.cons_seq = #confferSeq#
+		 AND	cb.budget_seq = #confferBudgetSeq#		
+		
+	</select>		
+	
+	
+	<select id="NpUserBudgetA.selectConsBalanceAmtForYesilI" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserBudgetSQL.xml - NpUserBudgetA.selectConsBalanceAmtForYesilI */
+		/* [ iCUBE G20 예실대비] 예산별 품의단계 잔액 조회 */
+		SELECT	
+			SUM( IFNULL(consB.budget_std_amt, 0 ))		'consBudgetStdAmt'
+			, SUM( IFNULL(consB.budget_tax_amt, 0 ))	'consBudgetTaxAmt'
+			, SUM( IFNULL(consB.budget_amt, 0 ))		'consBudgetAmt'
+			, consB.budgetSeq				'consErpBudgetSeq'
+			, SUM( IFNULL(resB.budget_std_amt, 0 ))	'resBudgetStdAmt'
+			, SUM( IFNULL(resB.budget_tax_amt, 0 ))	'resBudgetTaxAmt'
+			, SUM( IFNULL(resB.budget_amt, 0 ))		'resBudgetAmt'
+			, resB.erp_budget_seq				'resErpBudgetSeq'
+			, SUM( IFNULL(consB.budget_std_amt, 0 )) 	- SUM( IFNULL(resB.budget_std_amt, 0 )) 	AS 'balanceStdAmt'
+			, SUM( IFNULL(consB.budget_tax_amt, 0 )) 	- SUM( IFNULL(resB.budget_tax_amt, 0 )) 	AS 'balanceTaxAmt'
+			, SUM( IFNULL(consB.budget_amt, 0 )) 		- SUM( IFNULL(resB.budget_amt, 0 )) 		AS 'balanceAmt'
+		FROM	(	
+			SELECT	* 
+			FROM 	$DB_NEOS$t_exnp_consdoc
+			WHERE 	conffer_return_yn != 'Y'
+			 AND	doc_status IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+			 AND	erp_div_seq = REPLACE(#erpDivSeq#, '|', '')
+		)	consD
+		INNER JOIN 	(
+			SELECT	* 
+			FROM	$DB_NEOS$t_exnp_conshead
+			WHERE	#erpMgtSeq# LIKE CONCAT('%|', mgt_seq, '|%')
+			 AND	(CASE '$erpBottomSeq$' WHEN '' THEN CONCAT('|',IFNULL(bottom_seq, ''), '|') ELSE '$erpBottomSeq$' END) LIKE CONCAT('%|', IFNULL(bottom_seq, ''), '|%') 
+			 AND	erp_gisu = #gisu#
+		)	consH		
+		 ON	consD.cons_doc_seq = consH.cons_doc_seq
+		INNER JOIN	(
+			SELECT	* , CONCAT('1level',erp_bgt1_seq)  AS lev, erp_bgt1_seq AS budgetSeq
+			FROM	$DB_NEOS$t_exnp_consbudget
+			WHERE	conffer_budget_return_yn = 'N' 
+			 AND	erp_bgt1_seq IN ($erpBudgetSeq$)
+			UNION
+			SELECT	* , CONCAT('2level',erp_bgt2_seq) AS lev, erp_bgt2_seq AS budgetSeq
+			FROM	$DB_NEOS$t_exnp_consbudget
+			WHERE	conffer_budget_return_yn = 'N' 
+			 AND	erp_bgt2_seq IN ($erpBudgetSeq$)
+			UNION
+			SELECT	* , CONCAT('3level', erp_bgt3_seq) AS lev, erp_bgt3_seq AS budgetSeq
+			FROM	$DB_NEOS$t_exnp_consbudget
+			WHERE	conffer_budget_return_yn = 'N' 
+			 AND	erp_bgt3_seq IN ($erpBudgetSeq$)
+			UNION
+			SELECT	* , CONCAT('4level',erp_bgt4_seq) AS lev , erp_bgt4_seq AS budgetSeq
+			FROM	$DB_NEOS$t_exnp_consbudget
+			WHERE	conffer_budget_return_yn = 'N' 
+			 AND	erp_bgt4_seq IN ($erpBudgetSeq$)
+			 UNION
+			SELECT  * , CONCAT('5level',erp_level06_seq) AS lev , erp_level06_seq AS budgetSeq
+            FROM    $DB_NEOS$t_exnp_consbudget
+            WHERE   conffer_budget_return_yn = 'N'
+             AND    erp_level06_seq IN ($erpBudgetSeq$)
+             UNION
+            SELECT  * , CONCAT('6level',erp_level05_seq) AS lev , erp_level05_seq AS budgetSeq
+            FROM    $DB_NEOS$t_exnp_consbudget
+            WHERE   conffer_budget_return_yn = 'N'
+             AND    erp_level05_seq IN ($erpBudgetSeq$)            
+             UNION
+            SELECT  * , CONCAT('7level',erp_level04_seq) AS lev , erp_level04_seq AS budgetSeq
+            FROM    $DB_NEOS$t_exnp_consbudget
+            WHERE   conffer_budget_return_yn = 'N'
+             AND    erp_level04_seq IN ($erpBudgetSeq$)            
+             UNION
+            SELECT  * , CONCAT('8level',erp_level03_seq) AS lev , erp_level03_seq AS budgetSeq
+            FROM    $DB_NEOS$t_exnp_consbudget
+            WHERE   conffer_budget_return_yn = 'N'
+             AND    erp_level03_seq IN ($erpBudgetSeq$)           
+             UNION
+            SELECT  * , CONCAT('9level',erp_level02_seq) AS lev , erp_level02_seq AS budgetSeq
+            FROM    $DB_NEOS$t_exnp_consbudget
+            WHERE   conffer_budget_return_yn = 'N'
+             AND    erp_level02_seq IN ($erpBudgetSeq$)           
+             UNION
+            SELECT  * , CONCAT('10level',erp_level01_seq) AS lev , erp_level01_seq AS budgetSeq
+            FROM    $DB_NEOS$t_exnp_consbudget
+            WHERE   conffer_budget_return_yn = 'N'
+             AND    erp_level01_seq IN ($erpBudgetSeq$)          
+             UNION
+			SELECT	* , CONCAT('budget',erp_budget_seq) AS lev , erp_budget_seq AS budgetSeq
+			FROM	$DB_NEOS$t_exnp_consbudget
+			WHERE	conffer_budget_return_yn = 'N' 
+			 AND	erp_budget_seq IN ($erpBudgetSeq$)
+		)	consB
+		 ON		consD.cons_doc_seq	= consB.cons_doc_seq
+		  AND	consH.cons_seq		= consB.cons_seq
+		LEFT JOIN	(
+			SELECT	
+				rb.conffer_doc_seq
+				, rb.conffer_seq
+				, rb.conffer_budget_seq
+				, rb.erp_budget_seq
+				, IFNULL(rb.erp_bgacct_seq, '')	AS erp_bgacct_seq
+				, SUM( rb.budget_std_amt ) 	AS budget_std_amt
+				, SUM( rb.budget_tax_amt )AS budget_tax_amt
+				, SUM( (CASE IFNULL(rb.ctl_fg_code, '1') 
+							WHEN '0'	THEN 	( CASE IFNULL(rb.budget_std_amt, 0) WHEN '0' THEN rb.budget_amt ELSE rb.budget_std_amt END )
+							ELSE		IFNULL(rb.budget_amt, 0)	/* emptyStr or '1' */
+						END)
+				)	AS budget_amt
+			FROM	$DB_NEOS$t_exnp_resbudget rb
+			 INNER JOIN $DB_NEOS$t_exnp_resdoc rd
+			 ON 	rd.res_doc_seq = rb.res_doc_seq
+			  AND	IFNULL(rd.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+			  AND	rd.doc_seq IS NOT NULL
+			  AND	(rb.erp_budget_seq IN ( $erpBudgetSeq$ ) OR rb.erp_bgt1_seq IN ( $erpBudgetSeq$ ) OR rb.erp_bgt2_seq IN ( $erpBudgetSeq$ )
+			  		OR rb.erp_bgt3_seq IN ( $erpBudgetSeq$ ) OR rb.erp_bgt4_seq IN ( $erpBudgetSeq$ ) OR rb.erp_level01_seq IN ( $erpBudgetSeq$ )
+			  		OR rb.erp_level02_seq IN ( $erpBudgetSeq$ ) OR rb.erp_level03_seq IN ( $erpBudgetSeq$ ) OR rb.erp_level04_seq IN ( $erpBudgetSeq$ )
+			  		OR rb.erp_level05_seq IN ( $erpBudgetSeq$ ) OR rb.erp_level06_seq IN ( $erpBudgetSeq$ ))
+			WHERE	IFNULL(rb.conffer_doc_seq, '') != ''	
+			GROUP	BY rb.conffer_doc_seq
+					, rb.conffer_seq
+					, rb.conffer_budget_seq
+					, (CASE IFNULL(rb.erp_budget_seq, '') WHEN '' THEN -1 ELSE IFNULL(rb.erp_budget_seq,'') END)
+					, (CASE IFNULL(rb.erp_bgacct_seq, '') WHEN '' THEN -1 ELSE IFNULL(rb.erp_bgacct_seq,'') END)
+			HAVING 	budget_amt != 0
+		) resB
+		 ON 	consB.cons_doc_seq = resB.conffer_doc_seq
+		 AND	consB.cons_seq = resB.conffer_seq
+		 AND	consB.budget_seq = resB.conffer_budget_seq
+		 WHERE	consD.erp_comp_seq = #erpCompSeq#
+		GROUP BY  consB.lev	;	
+	</select>
+	
+	<select id="NpUserBudgetA.selectResUseAmtForYesilI" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.selectResUseAmtForYesilI */
+		/* [iCUBE G20 예실대비] 예산별 결의서 미전송 사용량 조회 */
+		SELECT	
+			resB.budgetSeq						AS	'resErpBudgetSeq'
+			, SUM( IFNULL(resB.budget_std_amt, 0 ))	AS	'resBudgetStdAmt'
+			, SUM( IFNULL(resB.budget_tax_amt, 0 ))	AS	'resBudgetTaxAmt'
+			, SUM( (CASE IFNULL(resB.ctl_fg_code, '1') 
+						WHEN '0'	THEN 	( CASE IFNULL(resB.budget_std_amt, 0) WHEN '0' THEN resB.budget_amt ELSE resB.budget_std_amt END )
+						ELSE		IFNULL(resB.budget_amt, 0)	/* emptyStr or '1' */
+					END)
+			)	AS 'resBudgetAmt'			
+		FROM	(
+			SELECT	*
+			FROM	$DB_NEOS$t_exnp_resdoc
+			WHERE	res_doc_seq = #resDocSeq#
+			UNION		
+			SELECT	* 
+			FROM 	$DB_NEOS$t_exnp_resdoc
+			WHERE 	erp_send_yn != 'Y'
+			AND		IFNULL(doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+			AND		doc_seq IS NOT NULL
+			AND		erp_div_seq = REPLACE(#erpDivSeq#, '|', '')
+		)	resD
+		INNER JOIN	(
+			SELECT	*
+			FROM	$DB_NEOS$t_exnp_reshead
+			WHERE	#erpMgtSeq# LIKE CONCAT('%|', mgt_seq, '|%')
+			 AND	(CASE '$erpBottomSeq$' WHEN '' THEN CONCAT('|', IFNULL(bottom_seq, ''), '|') ELSE '$erpBottomSeq$' END) LIKE CONCAT('%|', IFNULL(bottom_seq, ''), '|%')
+			 AND	erp_gisu = #gisu# 
+		)	resH
+		 ON	resD.res_doc_seq = resH.res_doc_seq		
+		INNER JOIN	( 
+			SELECT	* , CONCAT('1level',erp_bgt1_seq)  AS lev, erp_bgt1_seq AS budgetSeq
+			FROM	$DB_NEOS$t_exnp_resbudget
+			WHERE	erp_bgt1_seq IN ($erpBudgetSeq$)
+			UNION
+			SELECT	* , CONCAT('2level',erp_bgt2_seq) AS lev, erp_bgt2_seq AS budgetSeq
+			FROM	$DB_NEOS$t_exnp_resbudget
+			WHERE	erp_bgt2_seq IN ($erpBudgetSeq$)
+			UNION
+			SELECT	* , CONCAT('3level', erp_bgt3_seq) AS lev, erp_bgt3_seq AS budgetSeq
+			FROM	$DB_NEOS$t_exnp_resbudget
+			WHERE	erp_bgt3_seq IN ($erpBudgetSeq$)
+			UNION
+			SELECT	* , CONCAT('4level',erp_bgt4_seq) AS lev , erp_bgt4_seq AS budgetSeq
+			FROM	$DB_NEOS$t_exnp_resbudget
+			WHERE	erp_bgt4_seq IN ($erpBudgetSeq$)
+			UNION
+			SELECT  * , CONCAT('5level',erp_level06_seq) AS lev , erp_level06_seq AS budgetSeq
+            FROM    $DB_NEOS$t_exnp_resbudget
+            WHERE   erp_level06_seq IN ($erpBudgetSeq$)
+            UNION
+            SELECT  * , CONCAT('6level',erp_level05_seq) AS lev , erp_level05_seq AS budgetSeq
+            FROM    $DB_NEOS$t_exnp_resbudget
+            WHERE   erp_level05_seq IN ($erpBudgetSeq$)
+            UNION
+            SELECT  * , CONCAT('7level',erp_level04_seq) AS lev , erp_level04_seq AS budgetSeq
+            FROM    $DB_NEOS$t_exnp_resbudget
+            WHERE   erp_level04_seq IN ($erpBudgetSeq$)
+            UNION
+            SELECT  * , CONCAT('8level',erp_level03_seq) AS lev , erp_level03_seq AS budgetSeq
+            FROM    $DB_NEOS$t_exnp_resbudget
+            WHERE   erp_level03_seq IN ($erpBudgetSeq$)
+            UNION
+            SELECT  * , CONCAT('9level',erp_level02_seq) AS lev , erp_level02_seq AS budgetSeq
+            FROM    $DB_NEOS$t_exnp_resbudget
+            WHERE   erp_level02_seq IN ($erpBudgetSeq$)
+            UNION
+            SELECT  * , CONCAT('10level',erp_level01_seq) AS lev , erp_level01_seq AS budgetSeq
+            FROM    $DB_NEOS$t_exnp_resbudget
+            WHERE   erp_level01_seq IN ($erpBudgetSeq$)
+            UNION
+			SELECT	* , CONCAT('budget',erp_budget_seq) AS lev , erp_budget_seq AS budgetSeq
+			FROM	$DB_NEOS$t_exnp_resbudget
+			WHERE	erp_budget_seq IN ($erpBudgetSeq$)
+		)	resB
+		 ON	resD.res_doc_seq = resB.res_doc_seq
+		 AND	resH.res_seq = resB.res_seq
+		 WHERE	resD.erp_comp_seq = #erpCompSeq#
+		GROUP BY  resB.lev	;		
+			
+	</select>	
+	
+	<select id="NpUserBudgetA.selectConfferBudgetInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.selectConfferBudgetInfo */
+		/* 1.0 마이그레이션 품의서 참조품의시 대비 품의정보 조회 */
+		SELECT  erp_comp_Seq AS erpCompSeq
+				, head.erp_div_seq AS erpBudgetDivSeq
+				, mgt_seq AS erpMgtSeq
+				, erp_budget_seq AS erpBudgetSeq
+				, cons_date AS erpGisuDate
+				, IFNULL(bottom_seq,'')	AS bottomSeq
+				, erp_gisu		AS gisu
+				, ''			AS sumAM
+				, budget_seq		AS budgetSeq
+		FROM	$DB_NEOS$t_exnp_conshead head
+		INNER JOIN $DB_NEOS$t_exnp_consbudget budget
+		ON	head.cons_doc_seq = budget.cons_doc_seq
+		WHERE	head.cons_doc_seq = #consDocSeq#
+		
+	</select>	
+	
+	<update id="NpUserBudgetA.updateConfferBudgetInfo" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.updateConfferBudgetInfo */
+		/* 품의 문서 업데이트 */
+		update	$DB_NEOS$t_exnp_consbudget
+		set		erp_bgt1_seq = #budget01Seq#
+		        , erp_bgt2_seq = #budget02Seq#
+		        , erp_bgt3_seq = #budget03Seq#
+		        , erp_bgt4_seq = #budget04Seq#
+		        , erp_level01_seq = #level01Seq#
+		        , erp_level01_name = #level01Name#
+		        , erp_level02_seq = #level02Seq#
+		        , erp_level02_name = #level02Name#
+		        , erp_level03_seq = #level03Seq#
+		        , erp_level03_name = #level03Name#
+		        , erp_level04_seq = #level04Seq#
+		        , erp_level04_name = #level04Name#
+		        , erp_level05_seq = #level05Seq#
+		        , erp_level05_name = #level05Name#
+		        , erp_level06_seq = #level06Seq#
+		        , erp_level06_name = #level06Name#
+		        , erp_open_amt = #openAmt#
+		        , erp_left_amt = #leftAmt#
+		where	budget_seq = #consBudgetSeq#
+	</update>
+	
+	<select id="NpUserBudgetA.selectResItemAmtForiU" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.selectResItemAmtForiU */
+		/* [ERPiU] 물품명세의 예산별 결의금액 합계 조회 */
+ 		SELECT	
+			IFNULL(SUM(IFNULL(item_amt,0)),0) AS itemAmt
+		FROM	(
+			SELECT	*
+			FROM	$DB_NEOS$t_exnp_resbudget
+			WHERE	res_doc_seq		= #resDocSeq#
+			 AND	budget_seq		= #budgetSeq#
+			 AND	erp_budget_seq	= #erpBudgetSeq#	
+			 AND	erp_bizplan_seq = #erpBizplanSeq#
+		 	 AND	erp_bgacct_seq 	= #erpBgacctSeq#	
+		)	budget
+		 INNER JOIN	$DB_NEOS$t_exnp_resitem item
+		 ON	item.res_doc_seq = budget.res_doc_seq
+		 AND	item.res_seq = budget.res_seq
+		 AND	item.budget_seq	= budget.budget_seq
+	</select>
+	
+	<select id="NpUserBudgetA.selectResItemAmt" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.selectResItemAmt */
+		/* [G20] 물품명세의 예산별 결의금액 합계 조회 */
+		SELECT	
+			IFNULL(SUM(IFNULL(item_amt,0)),0) AS itemAmt		
+		FROM	(
+			SELECT	*
+            FROM    $DB_NEOS$t_exnp_reshead
+			WHERE	res_doc_seq		= #resDocSeq#
+			 AND	res_seq		= #resSeq#
+		)	head
+		 INNER JOIN	$DB_NEOS$t_exnp_resitem item
+		 ON	item.res_doc_seq = head.res_doc_seq
+		 AND	item.res_seq = head.res_seq
+	</select>
+	
+	<select id="NpUserBudgetA.selectConsItemAmtForiU" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.selectConsItemAmtForiU */
+		/* [ERPiU] 물품명세의 예산별 결의금액 합계 조회 */
+ 		SELECT	
+			IFNULL(SUM(IFNULL(item_amt,0)),0) AS itemAmt
+		FROM	(
+			SELECT	*
+			FROM	$DB_NEOS$t_exnp_consbudget
+			WHERE	cons_doc_seq		= #consDocSeq#
+			 AND	budget_seq		= #budgetSeq#
+			 AND	erp_budget_seq	= #erpBudgetSeq#	
+			 AND	erp_bizplan_seq = #erpBizplanSeq#
+		 	 AND	erp_bgacct_seq 	= #erpBgacctSeq#	
+		)	budget
+		 INNER JOIN	$DB_NEOS$t_exnp_consitem item
+		 ON	item.cons_doc_seq = budget.cons_doc_seq
+		 AND	item.cons_seq = budget.cons_seq
+		 AND	item.budget_seq	= budget.budget_seq
+	</select>
+	
+	<select id="NpUserBudgetA.selectConsItemAmt" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserBudgetA.selectConsItemAmt */
+		/* [G20] 물품명세의 예산별 결의금액 합계 조회 */
+		SELECT	
+			IFNULL(SUM(IFNULL(item_amt,0)),0) AS itemAmt		
+		FROM	(
+			SELECT	*
+            FROM    $DB_NEOS$t_exnp_conshead
+			WHERE	cons_doc_seq		= #consDocSeq#
+			 AND	cons_seq		= #consSeq#
+		)	budget
+		 INNER JOIN	$DB_NEOS$t_exnp_consitem item
+		 ON	item.cons_doc_seq = budget.cons_doc_seq
+		 AND	item.cons_seq = budget.cons_seq
+	</select>
+	
+</sqlMap>
+
+
+
+
+

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ExUserMng">
+	<!-- 공통코드 - 관리항목 조회 -->
+	<select id="ExCodeMngListInfoSelect" parameterType="common.vo.ex.ExExpendMngVO" resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		DECLARE @MngList TABLE (
+		    CTRL_CD NVARCHAR(10)
+		    , CTRL_NM NVARCHAR(100)
+		    , REAL_CTRL_CD NVARCHAR(10)
+		    , SUB_DISP NVARCHAR(10)
+		    , SUB_DISP_NM NVARCHAR(100)
+		    , CTRL_FG NVARCHAR(10)
+		)
+		
+		INSERT INTO @MngList ( CTRL_CD, CTRL_NM, REAL_CTRL_CD, SUB_DISP, SUB_DISP_NM, CTRL_FG )
+		EXEC USP_SYD0900_BIZBOX_ACCT_MGMT_TYPE_SELECT @CO_CD = '${erpCompSeq}', @ACCT_CD = '${acctCode}'
+		
+		SELECT  CAST ( ROW_NUMBER() OVER(ORDER BY CTRL_CD) AS NVARCHAR(2) ) AS mngSeq
+		        , CTRL_CD AS mngCode
+		        , REAL_CTRL_CD AS realMngCode
+		        , CTRL_NM AS mngName
+		        , CASE
+		            WHEN CTRL_FG = '1' /* 1.차/대변필수 */
+		                THEN 'A'
+		            WHEN CTRL_FG = '2' /* 2.차/대변선택 */
+		                THEN 'X'
+		            WHEN CTRL_FG = '3' /* 3.차변필수 */
+		                THEN 'D'
+		            WHEN CTRL_FG = '4' /* 4.대변필수 */
+		                THEN 'C'
+		        END AS mngStat
+		FROM    @MngList
+    ]]></select>
+    
+    
+    <!-- 공통코드 - 관리항목 하위 코드 조회 - 사용자 정의 -->
+	<select id="ExCodeMngDLMListInfoSelect" parameterType="common.vo.ex.ExExpendMngVO" resultType="HashMap">
+		/* ExCodeMngDListInfoSelect - iCUBE - mssql */
+		DECLARE @MngList TABLE (
+		    CTRL_CD NVARCHAR(10)
+		    , CTRL_NM NVARCHAR(100)
+		    , MGMT_CD NVARCHAR(10)
+		    , MGMT_NM NVARCHAR(100)
+		    , MGMT_NMK NVARCHAR(100)
+		)
+		
+		INSERT INTO @MngList ( CTRL_CD, CTRL_NM, MGMT_CD, MGMT_NM, MGMT_NMK )
+		EXECUTE [dbo].[USP_SYD0900_BIZBOX_USER_MGMT_SELECT] '${erpCompSeq}', '${mngCode}'
+		
+		SELECT  TOP 100
+				CTRL_CD
+				, CTRL_NM
+				, MGMT_CD
+				, MGMT_NM
+				, MGMT_NMK       
+		FROM    @MngList
+		WHERE	( ( CTRL_CD LIKE '%' + #{searchStr} + '%' ) OR ( MGMT_NM LIKE '%' + #{searchStr} + '%' ) )	
+	</select>
+	
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 관리내역 -->
+	<select id="ExCodeMngDListInfoSelect" parameterType="common.vo.ex.ExExpendMngVO" resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/* ExCodeMngDListInfoSelect - iCUBE - mssql */
+		SELECT  TOP 100 CTD_CD AS ctdCode
+		        , CTD_NM AS ctdName
+		FROM    DBO.VA_AUTOCTD
+		WHERE   CTRL_CD = '${mngCode}'
+		AND     CO_CD = '${erpCompSeq}'
+		AND     USE_YN != '0'
+		AND     ( ( CTD_CD LIKE '%' + #{searchStr} + '%' ) OR ( CTD_NM LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+	
+	<!-- 공통코드 - 연동 관리항목 하위 코드 조회 - 관리내역 -->
+	<select id="ExCodeLinkMngListInfoSelect" parameterType="common.vo.ex.ExExpendMngVO" resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/* ExCodeMngDListInfoSelect - iCUBE - mssql */
+		SELECT  TOP 100
+				CTD_CD AS ctdCode
+		        , CTD_NM AS ctdName
+		FROM    DBO.ZA_CTRL_DAIKIN
+		WHERE   CTD_FG = '${mngCode}'
+		AND     CO_CD = '${erpCompSeq}'
+		AND     ( ( CTD_CD LIKE '%' + #{searchStr} + '%' ) OR ( CTD_NM LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+	
+	<select id="ExCutomMngRealInfoSelect"  parameterType="common.vo.ex.ExExpendMngVO" resultType="common.vo.ex.ExExpendMngVO">
+		DECLARE @MngList TABLE (
+		    CTRL_CD NVARCHAR(10)
+		    , CTRL_NM NVARCHAR(100)
+		    , REAL_CTRL_CD NVARCHAR(10)
+		    , SUB_DISP NVARCHAR(10)
+		    , SUB_DISP_NM NVARCHAR(100)
+		    , CTRL_FG NVARCHAR(10)
+		)
+		
+		INSERT INTO @MngList ( CTRL_CD, CTRL_NM, REAL_CTRL_CD, SUB_DISP, SUB_DISP_NM, CTRL_FG )
+		EXEC USP_SYD0900_BIZBOX_ACCT_MGMT_TYPE_SELECT @CO_CD = '${erpCompSeq}', @ACCT_CD = '${acctCode}'
+		
+		SELECT	CTRL_CD AS mngCode 
+				, CTRL_NM AS mngName 
+				, REAL_CTRL_CD AS realMngCode
+		FROM @MngList
+		WHERE	CTRL_CD != REAL_CTRL_CD
+	</select>
+	<select id="ExCodeLinkMngCarListInfoSelect"  parameterType="common.vo.ex.ExExpendMngVO" resultType="common.vo.ex.ExExpendMngVO">
+		/* ExCodeLinkMngCarListInfoSelect - iCUBE - mssql */
+		/* 2017-12-07 김상겸 : 검색조건(searchStr) 추가 - http://jira.duzon.com:8080/browse/UBA-3856 */
+		SELECT  DISTINCT
+				TOP 100
+				CTD_CD AS ctdCode
+		        , CTD_NM AS ctdName
+		FROM    DBO.ZA_CTRL_DAIKIN
+		WHERE   CO_CD = '${erpCompSeq}'
+		AND		REMARK_DC = 'CAR'
+		AND		(
+					ISNULL(CTD_CD, '') LIKE '%${searchStr}%'
+					OR ISNULL(CTD_NM, '') LIKE '%${searchStr}%'
+				)
+	</select>
+</mapper>

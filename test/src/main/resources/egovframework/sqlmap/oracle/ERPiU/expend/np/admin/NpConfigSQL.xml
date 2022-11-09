@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 사용자 코드 -->
+<mapper namespace="npAdminConfig">
+	<resultMap id="npAdminConfig.iUResult" type="hashmap"></resultMap>
+	<resultMap id="npAdminConfig.iUString" type="String"></resultMap>
+	<resultMap id="npAdminConfig.iUInt1" type="Integer"></resultMap>
+	<resultMap id="npAdminConfig.iUInt2" type="Integer"></resultMap>
+	<resultMap id="npAdminConfig.iUInt3" type="Integer"></resultMap>
+	
+	<select id="ExCommonCodeCardSelect" parameterType="java.util.Map" resultType="java.util.Map" >
+		/* sqlmap/oracle/ERPiU/expend/np/admin/NpConfigSQL.xml */
+		/* ERPiU 카드정보 가져오기 */
+		/* ExCommonCodeCardSelect - ERPiU - oracle */
+		SELECT	CD_COMPANY AS "compSeq"
+				, Replace (NO_CARD, '-', '') AS "cardCode"
+				, NO_CARD AS "cardNum"
+				, NM_CARD AS "cardName"
+				, '' AS "partnerCode"
+				, '' AS "partnerName"
+				, YN_USE AS "useYN"
+				, '0' AS "createSeq"
+				, '' AS "createDate"
+				, '0' AS "modifySeq"
+				, '' AS "modifyDate"
+		FROM	NEOE.FI_CARD
+		WHERE	CD_COMPANY = '${erpCompSeq}'
+		AND		LENGTH(NVL(NO_CARD, '')) != 0
+	</select>
+</mapper>

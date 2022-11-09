@@ -1,0 +1,1861 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="NpAdminReportA">
+
+
+	<select id="NpAdminReportA.selectConsConfferResList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserReportSQL.xml - NpAdminReportA.selectConsConfferResList */
+		/* 관리자 품의서 참조 결의서 리스트 조회 */
+		SELECT	
+			d.res_doc_seq	AS 'consDocSeq'
+			, d.doc_seq	AS 'docSeq'
+			, d.doc_seq		AS 'docSeq'
+			, r.c_ridocfullnum	AS 'docNo'
+			, d.doc_status		AS 'docStatus'
+			, i.c_diwriteday	AS 'docDate'
+			, d.resdoc_note	AS 'consdocNote'			
+			, d.resdoc_note	AS 'resdocNote'
+			, d.expend_date	AS 'expendDate'
+			, d.comp_name	AS 'compName'
+			, d.dept_name	AS 'deptName'	
+			, d.emp_name	AS 'empName'
+			, d.send_emp_seq	AS 'sendEmpSeq'
+			, d.send_date		AS 'sendDate'
+			, d.send_emp_name	AS 'sendName'			
+			, r.c_riaftertitle	AS 'docTitle'
+			, amt.resDocAmt		AS 'resDocAmt'
+			, amt.resDocTaxAmt	AS 'resDocTaxAmt'
+			, amt.resDocStdAmt	AS 'resDocStdAmt'
+			, d.erp_send_yn	AS 'erpSendYN'
+		FROM	$DB_NEOS$t_exnp_resdoc	d
+		INNER JOIN	$DB_NEOS$a_recordinfo	r
+		 ON	d.doc_seq = r.c_dikeycode
+		INNER JOIN	(
+			SELECT	c_dikeycode,  MIN(c_diwriteday) AS c_diwriteday
+			FROM	$DB_NEOS$a_draftinfo 
+			GROUP BY c_dikeycode 
+		)	i
+		 ON	r.c_dikeycode = i.c_dikeycode
+		INNER JOIN	(
+			SELECT	
+				res_doc_seq
+				, SUM(IFNULL(budget_amt, 0)) AS resDocAmt
+				, SUM(IFNULL(budget_tax_amt, 0)) AS resDocTaxAmt
+				, SUM(IFNULL(budget_std_amt, 0)) AS resDocStdAmt
+			FROM	$DB_NEOS$t_exnp_resbudget 
+			GROUP BY res_doc_seq		
+		)	amt		
+		ON	d.res_doc_seq = amt.res_doc_seq	
+		WHERE	d.comp_seq = #compSeq#
+		 AND	d.emp_seq = #empSeq#
+		 AND	d.doc_seq IS NOT NULL
+		 AND 	d.doc_status IS NOT NULL
+		 AND	d.conffer_doc_seq = #consDocSeq#
+		<isNotEmpty property="docStatus">
+		 AND	doc_status = #docStatus#
+		</isNotEmpty>
+
+		<isNotEmpty property="frDt">
+		 <isNotEmpty property="toDt">
+		 AND	CONVERT(REPLACE(d.expend_date, '-', ''), CHAR(8)) BETWEEN #frDt# AND #toDt#
+		 </isNotEmpty>  
+		</isNotEmpty> 
+
+		<isNotEmpty property="confferReturnYN">
+		 AND	conffer_return_yn = #confferReturnYN#
+		</isNotEmpty>
+
+		<isNotEmpty property="docTitle">
+		 AND	c_riaftertitle LIKE CONCAT('%', #docTitle#, '%')
+		</isNotEmpty>
+
+		<isNotEmpty property="docNo">
+		 AND	c_ridocfullnum LIKE CONCAT('%', #docNo#, '%')
+		</isNotEmpty>
+
+		<isNotEmpty property="empName">
+		 AND	d.emp_name LIKE CONCAT('%', #empName#, '%')
+		</isNotEmpty>	
+		
+		<isNotEmpty property="deptName">
+		 AND	d.dept_name LIKE CONCAT('%', #deptName#, '%')
+		</isNotEmpty>
+		
+		<isNotEmpty property="sendEmpName">
+		 AND	d.send_emp_name LIKE CONCAT('%', #sendEmpName#, '%')
+		</isNotEmpty>
+		
+		<isNotEmpty property="erpSendYN">
+		 AND	d.erp_send_yn = #erpSendYN#
+		</isNotEmpty>		
+	</select>
+
+	<!-- 비영리 회계 - 환원처리 및 취소 -->
+	<update id="NpAdminReportA.updateConfferReturnYN" parameterClass="java.util.HashMap">
+		/* mariadb/bizboxAlpha/expend/np/admin/NpAdminReportSql - NpAdminReportA.updateConfferReturnYN */
+		/* 품의서 환원정보 갱신 */
+		UPDATE	$DB_NEOS$t_exnp_consdoc
+		SET		conffer_return_yn = #confferReturnYN#
+		WHERE	doc_seq = #docSeq#
+	</update>
+	
+	<select id="NpAdminReportA.selectConsReport" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserReportSQL.xml - NpAdminReportA.selectConsReport */
+		/* 관리자 품의 현황 정보 조회 */
+		SELECT	
+			d.cons_doc_seq						AS 'consDocSeq'
+			, d.doc_seq							AS 'docSeq'
+			, r.c_ridocfullnum					AS 'docNo'
+			, d.doc_status						AS 'docStatus'
+			, d.consdoc_note					AS 'consdocNote'
+			, d.comp_name						AS 'compName'
+			, d.dept_name						AS 'deptName'	
+			, d.emp_name						AS 'empName'
+			, r.c_riaftertitle					AS 'docTitle'
+			, i.c_diwriteday					AS 'docDate'
+			, IFNULL(d.conffer_return_name, '')	AS 'confferReturnName'
+			, IFNULL(d.conffer_return_name, '')	AS 'confferReturnName'
+			, CONVERT(d.expend_date, CHAR(10)) 	AS 'expendDate'
+			, amt.consDocStdAmt					AS 'consDocStdAmt'				
+			, amt.consDocTaxAmt					AS 'consDocTaxAmt'			
+			, amt.consDocAmt					AS 'consDocAmt'
+			, IFNULL(res.resDocStdAmt, 0)		AS 'resDocStdAmt'		
+			, IFNULL(res.resDocTaxAmt, 0)		AS 'resDocTaxAmt'		
+			, IFNULL(res.resDocAmt,    0)		AS 'resDocAmt'
+			, ( CASE	d.conffer_return_yn 
+				WHEN	'Y'	THEN	'0'
+				ELSE		amt.consDocStdAmt - IFNULL(res.resDocStdAmt, 0)
+				END
+			)	AS 'balanceStdAmt'	
+			, ( CASE	d.conffer_return_yn 
+				WHEN	'Y'	THEN	'0'
+				ELSE		amt.consDocTaxAmt - IFNULL(res.resDocTaxAmt, 0)
+				END
+			)	AS 'balanceTaxAmt'
+			, ( CASE	d.conffer_return_yn 
+				WHEN	'Y'	THEN	'0'
+				ELSE		amt.consDocAmt - IFNULL(res.resDocAmt, 0)	
+				END
+			)	AS 'balanceAmt'			
+		FROM	$DB_NEOS$t_exnp_consdoc	d
+		INNER JOIN	$DB_NEOS$a_recordinfo	r
+		 ON	d.doc_seq = r.c_dikeycode
+		INNER JOIN	(
+			SELECT	c_dikeycode,  MIN(c_diwriteday) AS c_diwriteday
+			FROM	$DB_NEOS$a_draftinfo 
+			GROUP BY c_dikeycode 
+		)	i
+		 ON	r.c_dikeycode = i.c_dikeycode
+		INNER JOIN	(
+			SELECT	
+				cons_doc_seq
+				, SUM(IFNULL(budget_amt, 0)) AS consDocAmt
+				, SUM(IFNULL(budget_tax_amt, 0)) AS consDocTaxAmt
+				, SUM(IFNULL(budget_std_amt, 0)) AS consDocStdAmt
+			FROM	$DB_NEOS$t_exnp_consbudget 
+			GROUP BY cons_doc_seq		
+		)	amt
+		 ON	d.cons_doc_seq = amt.cons_doc_seq
+		LEFT JOIN	(
+			SELECT	
+				SUM(b2.budget_std_amt)	AS 'resDocStdAmt'
+				, SUM(b2.budget_tax_amt)	AS 'resDocTaxAmt'
+				, SUM(b2.budget_amt)	AS 'resDocAmt'
+				, b2.conffer_doc_seq	AS confferDocSeq
+			FROM	$DB_NEOS$t_exnp_resbudget b2
+			 INNER JOIN $DB_NEOS$t_exnp_resdoc d2
+			 ON	b2.res_doc_seq = d2.res_doc_seq
+			WHERE	d2.doc_status IN ( '008', '90' )
+			GROUP BY b2.conffer_doc_seq	
+		)	res
+		 ON 	res.confferDocSeq = d.cons_doc_seq		 		 
+		WHERE	comp_seq = #compSeq#
+		 AND	doc_seq IS NOT NULL
+		 AND 	doc_status IS NOT NULL
+		<isNotEmpty property="docStatus">
+		 AND	doc_status = #docStatus#
+		</isNotEmpty>
+
+		<isNotEmpty property="frDt">
+		 <isNotEmpty property="toDt">
+		 AND	CONVERT(REPLACE(d.expend_date, '-', ''), CHAR(8)) BETWEEN #frDt# AND #toDt#
+		 </isNotEmpty>  
+		</isNotEmpty> 
+
+		<isNotEmpty property="confferReturnYN">
+		 AND	conffer_return_yn = #confferReturnYN#
+		</isNotEmpty>
+
+		<isNotEmpty property="docTitle">
+		 AND	c_riaftertitle LIKE CONCAT('%', #docTitle#, '%')
+		</isNotEmpty>
+
+		<isNotEmpty property="docNo">
+		 AND	c_ridocfullnum LIKE CONCAT('%', #docNo#, '%')
+		</isNotEmpty>
+
+		<isNotEmpty property="empName">
+		 AND	d.emp_name LIKE CONCAT('%', #empName#, '%')
+		</isNotEmpty>
+			
+		<isNotEmpty property="deptName">
+		 AND	d.dept_name LIKE CONCAT('%', #deptName#, '%')
+		</isNotEmpty>		
+		
+		<isNotEmpty property="returnEmpName">
+		 AND	d.conffer_return_name LIKE CONCAT('%', #returnEmpName#, '%')
+		</isNotEmpty>	 
+	</select>
+	
+		
+	<select id="NpAdminReportA.consBudgetListHead" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/admin/NpUserReportSQL.xml - NpAdminReportA.consBudgetListHead */
+		/* 품의서 예산상세 내역 리스트 조회 - 헤더정보 */	
+		SELECT	
+			consDoc.doc_no						AS 'docNo'
+			, drInfo.c_riaftertitle				AS 'docTitle'
+			, consDoc.dept_name					AS 'deptName'
+			, consDoc.emp_name					AS 'empName'
+			, amt.consDocStdAmt					AS 'consDocStdAmt'				
+			, amt.consDocTaxAmt					AS 'consDocTaxAmt'			
+			, amt.consDocAmt					AS 'consDocAmt'
+			, IFNULL(res.resDocStdAmt, 0)		AS 'resDocStdAmt'		
+			, IFNULL(res.resDocTaxAmt, 0)		AS 'resDocTaxAmt'		
+			, IFNULL(res.resDocAmt,    0)		AS 'resDocAmt'
+			, ( CASE	consDoc.conffer_return_yn 
+				WHEN	'Y'	THEN	'0'
+				ELSE		amt.consDocStdAmt - IFNULL(res.resDocStdAmt, 0)
+				END
+			)	AS 'balanceStdAmt'	
+			, ( CASE	consDoc.conffer_return_yn 
+				WHEN	'Y'	THEN	'0'
+				ELSE		amt.consDocTaxAmt - IFNULL(res.resDocTaxAmt, 0)
+				END
+			)	AS 'balanceTaxAmt'
+			, ( CASE	consDoc.conffer_return_yn 
+				WHEN	'Y'	THEN	'0'
+				ELSE		amt.consDocAmt - IFNULL(res.resDocAmt, 0)	
+				END
+			)	AS 'balanceAmt'		
+			, consDoc.conffer_return_yn					AS 'confferReturnYN'
+			, CONVERT(consDoc.expend_date, CHAR(10)) 	AS 'expendDate'
+		FROM	(
+			SELECT	* 
+			FROM	$DB_NEOS$t_exnp_consdoc
+			WHERE 	cons_doc_seq = #consDocSeq#
+		)	consDoc
+		INNER JOIN	$DB_NEOS$a_recordinfo 	drInfo
+		ON	consDoc.doc_seq = drInfo.c_dikeycode
+		INNER JOIN	(
+			SELECT	
+				cons_doc_seq
+				, SUM(IFNULL(budget_amt, 0)) AS consDocAmt
+				, SUM(IFNULL(budget_tax_amt, 0)) AS consDocTaxAmt
+				, SUM(IFNULL(budget_std_amt, 0)) AS consDocStdAmt
+			FROM	$DB_NEOS$t_exnp_consbudget 
+			GROUP BY cons_doc_seq		
+		)	amt
+		 ON	consDoc.cons_doc_seq = amt.cons_doc_seq
+		LEFT JOIN	(
+			SELECT	
+				SUM(b2.budget_std_amt)	AS 'resDocStdAmt'
+				, SUM(b2.budget_tax_amt)	AS 'resDocTaxAmt'
+				, SUM(b2.budget_amt)	AS 'resDocAmt'
+				, b2.conffer_doc_seq	AS confferDocSeq
+			FROM	$DB_NEOS$t_exnp_resbudget b2
+			 INNER JOIN $DB_NEOS$t_exnp_resdoc d2
+			 ON	b2.res_doc_seq = d2.res_doc_seq
+			WHERE	d2.doc_status IN ( '008', '90' )
+			GROUP BY b2.conffer_doc_seq	
+		)	res
+		ON 	res.confferDocSeq = consDoc.cons_doc_seq		
+
+	</select>	
+	
+	<select id="NpAdminReportA.consBudgetList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/admin/NpUserReportSQL.xml - NpAdminReportA.consBudgetList */
+		/* 품의서 예산상세 내역 리스트 조회 */
+		SELECT	
+			consDoc.cons_doc_seq			AS 'consDocSeq'
+			, consHead.cons_seq				AS 'consSeq'
+			, consBudget.budget_seq			AS 'budgetSeq'
+			, consHead.docu_fg_name			AS 'docuFgName'
+			, consHead.cons_date			AS 'consDate'
+			, consHead.mgt_name				AS 'mgtName'
+			, consBudget.erp_budget_name	AS 'erpBudgetName'
+			, consHead.erp_div_name			AS 'erpDivName'
+			, IFNULL(consBudget.budget_amt, 0)		AS 'budgetAmt'
+			, IFNULL(resBudget.res_budget_amt, 0)	AS 'resBudgetAmt'
+			, ( CASE	consBudget.conffer_budget_return_yn 
+				WHEN	'Y'	THEN	'0'
+				ELSE		IFNULL(consBudget.budget_amt, 0) 
+						- 
+						IFNULL(resBudget.res_budget_amt, 0)	
+				END
+			)	AS 'balanceAmt'					
+			, consBudget.conffer_budget_return_yn	AS 'confferBudgetReturnYN'
+			, consBudget.conffer_budget_return_emp_seq	AS 'confferBudgetReturnEmpSeq'
+			, consBudget.conffer_budget_return_emp_name	AS 'confferBudgetReturnEmpName'			
+		FROM	(
+			SELECT	* 
+			FROM	$DB_NEOS$t_exnp_consbudget
+			WHERE	cons_doc_seq = #consDocSeq#
+		)	consBudget
+		INNER JOIN	$DB_NEOS$t_exnp_consdoc 	consDoc
+		 ON	consBudget.cons_doc_seq = consDoc.cons_doc_seq
+		INNER JOIN	$DB_NEOS$t_exnp_conshead	consHead
+		 ON	consBudget.cons_seq = consHead.cons_seq
+		LEFT JOIN	(
+			SELECT	
+				SUM(budget_amt)	'res_budget_amt'
+				, conffer_budget_seq
+			FROM	$DB_NEOS$t_exnp_resbudget
+			GROUP BY conffer_budget_seq
+		)	resBudget
+		 ON	consBudget.budget_seq = resBudget.conffer_budget_seq
+	</select>	
+
+		
+	<!-- 비영리 회계 - 품의서 반환 / 취소 -->
+	<update id="NpAdminReportA.updateConsConfferStatus" parameterClass="java.util.HashMap">
+		/* expend/np/admin/NpUserReportSQL.xml - NpAdminReportA.updateConsConfferStatus */
+		/* 품의서 반환 / 취소 진행 */	
+		UPDATE	$DB_NEOS$t_exnp_consdoc
+		SET	conffer_return_yn 			= #confferReturn# 
+			, conffer_return_name 		= #empName#
+			, conffer_return_emp_seq 	= #empSeq#
+		WHERE	comp_seq 		= #compSeq#
+		 AND	cons_doc_seq 	IN ($consDocSeqs$)
+	</update>
+			
+	<!-- 비영리 회계 - 품의서 반환 / 취소 -->
+	<update id="NpAdminReportA.updateConsConfferBudgetStatus" parameterClass="java.util.HashMap">
+		/* expend/np/admin/NpUserReportSQL.xml - NpAdminReportA.updateConsConfferBudgetStatus */
+		/* 품의서 예산 반환 / 취소 진행 */	
+		UPDATE	$DB_NEOS$t_exnp_consbudget		 
+		SET	conffer_budget_return_yn			= #confferReturn#
+			, conffer_budget_return_emp_seq		= #empSeq#
+			, conffer_budget_return_emp_name	= #empName#
+		WHERE	budget_seq = #consBudgetSeq#
+	</update>
+	
+	<select id="NpAdminReportA.selectResReport" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/admin/NpAdminReportSQL.xml - NpUserReportA.selectResReportPageList */
+		/* 결의서 현황 조회 */
+		SELECT	
+			d.res_doc_seq	AS 'consDocSeq'
+			, d.doc_seq	AS 'docSeq'
+			, d.doc_seq		AS 'docSeq'
+			, IFNULL(r.c_ridocfullnum, '')	AS 'docNo'
+			, d.doc_status		AS 'docStatus'
+			, i.c_diwriteday	AS 'docDate'
+			, d.resdoc_note	AS 'consdocNote'			
+			, d.resdoc_note	AS 'resdocNote'
+			, d.expend_date	AS 'expendDate'
+			, d.comp_name	AS 'compName'
+			, d.dept_name	AS 'deptName'	
+			, d.emp_name	AS 'empName'
+			, d.send_emp_seq	AS 'sendEmpSeq'
+			, d.send_date		AS 'sendDate'
+			, d.send_emp_name	AS 'sendName'			
+			, r.c_riaftertitle	AS 'docTitle'
+			, amt.resDocAmt		AS 'resDocAmt'
+			, amt.resDocTaxAmt	AS 'resDocTaxAmt'
+			, amt.resDocStdAmt	AS 'resDocStdAmt'
+			, d.erp_send_yn	AS 'erpSendYN'
+		FROM	$DB_NEOS$t_exnp_resdoc	d
+		INNER JOIN	$DB_NEOS$a_recordinfo	r
+		 ON	d.doc_seq = r.c_dikeycode
+		INNER JOIN	(
+			SELECT	c_dikeycode,  MIN(c_diwriteday) AS c_diwriteday
+			FROM	$DB_NEOS$a_draftinfo 
+			GROUP BY c_dikeycode 
+		)	i
+		 ON	r.c_dikeycode = i.c_dikeycode
+		INNER JOIN	(
+			SELECT	
+				res_doc_seq
+				, SUM(IFNULL(budget_amt, 0)) AS resDocAmt
+				, SUM(IFNULL(budget_tax_amt, 0)) AS resDocTaxAmt
+				, SUM(IFNULL(budget_std_amt, 0)) AS resDocStdAmt
+			FROM	$DB_NEOS$t_exnp_resbudget 
+			GROUP BY res_doc_seq		
+		)	amt		
+		ON	d.res_doc_seq = amt.res_doc_seq	
+		WHERE	d.comp_seq = #compSeq#
+		 AND	d.doc_seq IS NOT NULL
+		 AND 	d.doc_status IS NOT NULL
+		<isNotEmpty property="docStatus">
+		 AND	doc_status = #docStatus#
+		</isNotEmpty>
+		<isEmpty property="docStatus">
+		 AND	doc_status in ( '001', '002', '003', '005', '006', '007', '008', '009' )
+		</isEmpty>
+
+		<isNotEmpty property="frDt">
+		 <isNotEmpty property="toDt">
+		 AND	CONVERT(REPLACE(d.expend_date, '-', ''), CHAR(8)) BETWEEN #frDt# AND #toDt#
+		 </isNotEmpty>  
+		</isNotEmpty> 
+
+		<isNotEmpty property="confferReturnYN">
+		 AND	conffer_return_yn = #confferReturnYN#
+		</isNotEmpty>
+
+		<isNotEmpty property="docTitle">
+		 AND	c_riaftertitle LIKE CONCAT('%', IFNULL(#docTitle#, ''), '%')
+		</isNotEmpty>
+
+		<isNotEmpty property="docNo">
+		 AND	c_ridocfullnum LIKE CONCAT('%', IFNULL(#docNo#, ''), '%')
+		</isNotEmpty>
+
+		<isNotEmpty property="empName">
+		 AND	d.emp_name LIKE CONCAT('%', IFNULL(#empName#, ''), '%')
+		</isNotEmpty>	
+		
+		<isNotEmpty property="deptName">
+		 AND	d.dept_name LIKE CONCAT('%', IFNULL(#deptName#, ''), '%')
+		</isNotEmpty>
+		
+		<isNotEmpty property="sendEmpName">
+		 AND	d.send_emp_name LIKE CONCAT('%', IFNULL(#sendEmpName#, ''), '%')
+		</isNotEmpty>
+		
+		<isNotEmpty property="erpSendYN">
+		 AND	d.erp_send_yn = #erpSendYN#
+		</isNotEmpty>
+		ORDER BY expend_date DESC
+	</select>
+	
+	<select id="NpAdminReportA.selectSendEaList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* mariadb/bizboxAlpha/expend/np/admin/NpAdminReportSql - NpAdminReportA.selectSendEaList */
+		/* 결의서 전송 리스트 조회 */
+		SELECT	
+			IFNULL(resDoc.res_doc_seq,'')		AS 'resDocSeq'
+			, IFNULL(doc.c_dikeycode,'')		AS 'docSeq'
+			, IFNULL(doc.c_ridocfullnum,'')     AS 'docNo'
+			, IFNULL(resDoc.doc_status,'')		AS 'docStatus'
+			, IFNULL(resDoc.resdoc_note,'')		AS 'note'
+			, IFNULL(resDoc.erp_gisu,'')		AS 'erpGisu'			
+			, IFNULL(resDoc.comp_seq,'')		AS 'compSeq'
+			, IFNULL(resDoc.comp_name,'')		AS 'compName'
+			, IFNULL(resDoc.dept_seq,'')		AS 'deptSeq'
+			, IFNULL(resDoc.dept_name,'')		AS 'deptName'
+			, IFNULL(resDoc.emp_seq,'')			AS 'empSeq'
+			, IFNULL(resDoc.emp_name,'')		AS 'empName'
+			, IFNULL(resDoc.erp_send_yn,'')		AS 'erpSendYN'
+			, IFNULL(head.erp_pc_seq, '')		AS 'erpPcSeq'
+			, IFNULL(head.erp_pc_name, '')		AS 'erpPcName'
+			, IFNULL(head.erp_dept_seq, '') 	AS 'erpDeptSeq'
+			, IFNULL(head.erp_dept_name, '') 	AS 'erpDeptName'
+			, IFNULL(head.erp_emp_seq, '') 		AS 'erpEmpSeq'
+			, IFNULL(head.erp_emp_name, '') 	AS 'erpEmpName'
+			, budget.amt	 					AS 'amt'
+			, doc.c_dititle 					AS 'docTitle'
+			, doc.c_tikeycode 					AS 'formSeq'
+			, DATE_FORMAT(doc.c_diwriteday,'%Y-%m-%d')					AS 'repDate'
+			, DATE_FORMAT(IFNULL(resDoc.expend_date,''),'%Y-%m-%d')		AS 'expendDate'
+			, IFNULL(DATE_FORMAT(resDoc.erp_expend_year,'%Y-%m-%d'),'')	AS 'erpExpendYear'
+			, IFNULL(consDoc.c_dikeycode, '') 	AS 'confferDocSeq'
+			, doc.c_tikeycode 					AS 'confferFormSeq'
+			, resDoc.erp_div_seq			AS 'erpDivSeq'
+			, resDoc.erp_div_name			AS 'erpDivName'
+		FROM	$DB_NEOS$t_exnp_resdoc resDoc
+		INNER JOIN	$DB_NEOS$t_exnp_reshead head 
+		 ON	resDoc.res_doc_seq	= head.res_doc_seq
+		INNER JOIN (
+			SELECT	res_doc_seq
+				, SUM(budget_amt) AS amt
+			FROM	$DB_NEOS$t_Exnp_resbudget
+			GROUP BY res_doc_seq
+		) budget 
+		 ON	resDoc.res_doc_seq = budget.res_doc_seq
+		INNER JOIN (
+			SELECT	doc.c_dikeycode
+				, doc.c_tikeycode
+				, doc.c_dititle
+				, drf.c_diwriteday
+				, drf.c_distatus
+				, rec.c_ridocfullnum
+			FROM	$DB_NEOS$a_docinfo doc
+			INNER JOIN $DB_NEOS$a_draftinfo drf 
+			 ON	doc.c_dikeycode	= drf.c_dikeycode
+			INNER JOIN $DB_NEOS$a_recordinfo rec 
+			 ON	doc.c_dikeycode	= rec.c_dikeycode
+			WHERE	IFNULL(drf.c_distatus, '009') IN ('008', '009')
+		) doc 
+		 ON	resDoc.doc_seq		= doc.c_dikeycode
+		LEFT JOIN (
+			SELECT	
+				cons_doc_seq	
+				, c_dikeycode
+				, c_tikeycode
+			FROM	$DB_NEOS$t_exnp_consdoc cd
+			 INNER JOIN $DB_NEOS$a_docinfo ad
+			 ON	cd.doc_seq = ad.c_dikeycode
+		) consDoc
+		 ON 	resDoc.conffer_doc_seq = consDoc.cons_doc_seq
+		 
+		<isNotEmpty property="erpAbgtName"> 
+		INNER JOIN	(
+			SELECT	res_doc_seq
+			FROM	$DB_NEOS$t_exnp_resbudget
+			/* 검색조건 - 예산과목 명 */
+			WHERE	IFNULL(erp_budget_name, '') 	LIKE '%$erpAbgtName$%'
+		) 	budgetFilter
+		 ON	resDoc.res_doc_seq	= budgetFilter.res_doc_seq	
+		</isNotEmpty>
+		
+		INNER JOIN	(
+			SELECT	DISTINCT res_doc_seq
+			FROM	$DB_NEOS$t_exnp_reshead
+			WHERE	1 = 1
+			
+			<isNotEmpty property="resNote">
+			/* 검색조건 - 결의서 적요 */
+			 AND	IFNULL(res_note, '') 		LIKE '%$resNote$%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="erpMgtSeq"> 
+			/* 검색조건 - 부서/프로젝트 코드 */
+			 AND	IFNULL(mgt_seq, '') 		= '$erpMgtSeq$'
+			</isNotEmpty>
+			
+			<isNotEmpty property="txtExpToDate"> 
+			/* 검색조건 - 결의일자 */ 
+			 AND	IFNULL(res_date, '') 		BETWEEN '$txtExpFromDate$'AND '$txtExpToDate$'
+			</isNotEmpty>
+			
+			<isNotEmpty property="docuFg"> 
+			/* 검색조건 - 결의 구분 */ 
+			 AND	IFNULL(docu_fg_code, '')	= '$docuFg$'
+			</isNotEmpty> 
+			
+		)	headFilter
+		 ON	resDoc.res_doc_seq	= headFilter.res_doc_seq		
+		
+		/* 기본조건 - 종결 문서 조회 */ 
+		WHERE 	IFNULL(doc.c_distatus, '009') IN ('008', '009')
+		
+		<isNotEmpty property="txtFromDate">
+		 /* 기본조건 - 기안일자 */
+		 AND	IFNULL(doc.c_diwriteday, '') BETWEEN '$txtFromDate$'AND '$txtToDate$' 		
+		</isNotEmpty>
+		
+		<isNotEmpty property="senderName"> 
+		 /* 검색조건 - 결의서 전송자 */
+		 AND	IFNULL(doc.send_emp_name, '') LIKE '%$senderName$%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="erpDivSeq">
+		 /* 검색조건 - 회계단위 필터 */
+		 AND	IFNULL(doc.erp_div_seq, '') = '$erpDivSeq$' 		/* erpDivSeq filter필요 */
+		</isNotEmpty>
+		
+		<isNotEmpty property="docTitle">
+		 /* 검색조건 - 문서제목 */
+		 AND	IFNULL(doc.c_dititle, '') LIKE CONCAT(CONCAT('%', '$docTitle$'), '%')
+		</isNotEmpty>
+		
+		<isNotEmpty property="docNo">
+		 /* 검색조건 - 문서번호 */
+		 AND	IFNULL(doc.c_ridocfullnum, '') LIKE CONCAT(CONCAT('%', '$docNo$'), '%')		
+		</isNotEmpty>
+		
+		<isNotEmpty property="erpDeptName">
+		 /* 검색조건 - 사용부서 */
+		 AND	IFNULL(head.erp_dept_name,'') LIKE CONCAT(CONCAT('%', '$erpDeptName$'), '%')
+		</isNotEmpty>
+		
+		<isNotEmpty property="erpEmpName">
+		 /* 검색조건 - 사용자 */
+		 AND	IFNULL(head.erp_emp_name,'') LIKE CONCAT(CONCAT('%', '$erpEmpName$'), '%')
+		</isNotEmpty>
+		
+		<isNotEmpty property="erpSendYN">
+		 /* 검색조건 - 전송여부 */
+		 AND	resDoc.erp_send_yn LIKE CONCAT(CONCAT('%', '$erpSendYN$'), '%')
+		</isNotEmpty>
+		GROUP BY resDoc.res_doc_seq
+		
+		ORDER BY expend_date DESC
+		
+	</select>
+	
+	<select id="NpAdminReportA.selectSendEapList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* mariadb/bizboxAlpha/expend/np/admin/NpAdminReportSql - NpAdminReportA.selectSendEapList */
+		/* 결의서 전송 리스트 조회 */
+		SELECT  IFNULL(resDoc.res_doc_seq,'')									AS 'resDocSeq'
+		        , IFNULL(doc.c_dikeycode,'')									AS 'docSeq'
+		        , IFNULL(doc.c_ridocfullnum,'')									AS 'docNo'
+		        , IFNULL(resDoc.doc_status,'')									AS 'docStatus'
+		        , IFNULL(resDoc.resdoc_note,'')									AS 'note'
+		        , IFNULL(resDoc.erp_gisu,'')									AS 'erpGisu'   
+		        , IFNULL(resDoc.comp_seq,'')									AS 'compSeq'
+		        , IFNULL(resDoc.comp_name,'')									AS 'compName'
+		        , IFNULL(resDoc.dept_seq,'')									AS 'deptSeq'
+		        , IFNULL(resDoc.dept_name,'')									AS 'deptName'
+		        , IFNULL(resDoc.emp_seq,'')										AS 'empSeq'
+		        , IFNULL(resDoc.emp_name,'')									AS 'empName'
+		        , IFNULL(resDoc.erp_send_yn,'')									AS 'erpSendYN'
+		        , IFNULL(head.erp_pc_seq, '')									AS 'erpPcSeq'
+		        , IFNULL(head.erp_pc_name, '')									AS 'erpPcName'
+		        , IFNULL(head.erp_dept_seq, '')									AS 'erpDeptSeq'
+		        , IFNULL(head.erp_dept_name, '')								AS 'erpDeptName'
+		        , IFNULL(head.erp_emp_seq, '')									AS 'erpEmpSeq'
+		        , IFNULL(head.erp_emp_name, '')									AS 'erpEmpName'
+		        , budget.amt													AS 'amt'
+		        , doc.c_dititle													AS 'docTitle'
+		        , doc.c_tikeycode												AS 'formSeq'
+		        , DATE_FORMAT(doc.c_diwriteday,'%Y-%m-%d')						AS 'repDate'
+		        , DATE_FORMAT(IFNULL(resDoc.expend_date,''),'%Y-%m-%d')			AS 'expendDate'
+		        , IFNULL(DATE_FORMAT(resDoc.erp_expend_year,'%Y-%m-%d'),'')		AS 'erpExpendYear'
+		        , IFNULL(consDoc.c_dikeycode, '')								AS 'confferDocSeq'
+		        , doc.c_tikeycode												AS 'confferFormSeq'
+		        , resDoc.erp_div_seq											AS 'erpDivSeq'
+		        , resDoc.erp_div_name											AS 'erpDivName'
+		FROM	$DB_NEOS$t_exnp_resdoc resDoc
+				INNER JOIN $DB_NEOS$t_exnp_reshead head ON resDoc.res_doc_seq = head.res_doc_seq
+				INNER JOIN (
+					SELECT	res_doc_seq
+							, SUM(budget_amt) AS amt
+					FROM	$DB_NEOS$t_Exnp_resbudget
+					GROUP	BY res_doc_seq
+				) budget ON resDoc.res_doc_seq = budget.res_doc_seq
+				INNER JOIN (
+					SELECT	doc_id AS c_dikeycode
+							, form_id AS c_tikeycode
+							, doc_title AS c_dititle
+							, rep_dt AS c_diwriteday
+							, doc_sts AS c_distatus
+							, doc_no AS c_ridocfullnum
+					FROM	$DB_NEOS$teag_appdoc doc
+					WHERE	doc_sts = '90'
+				) doc ON resDoc.doc_seq  = doc.c_dikeycode
+				LEFT JOIN (
+					SELECT	cons_doc_seq 
+							, c_dikeycode
+							, c_tikeycode
+					FROM	$DB_NEOS$t_exnp_consdoc cd
+							INNER JOIN $DB_NEOS$a_docinfo ad ON cd.doc_seq = ad.c_dikeycode
+				) consDoc ON  resDoc.conffer_doc_seq = consDoc.cons_doc_seq
+				
+				<isNotEmpty property="erpAbgtName"> 
+					INNER JOIN (
+						SELECT	res_doc_seq
+						FROM	$DB_NEOS$t_exnp_resbudget
+								/* 검색조건 - 예산과목 명 */
+						WHERE	IFNULL(erp_budget_name, '')  LIKE '%$erpAbgtName$%'
+					)  budgetFilter ON resDoc.res_doc_seq = budgetFilter.res_doc_seq 
+				</isNotEmpty>
+		
+				INNER JOIN (
+					SELECT	DISTINCT
+							res_doc_seq
+					FROM	$DB_NEOS$t_exnp_reshead
+					WHERE	1 = 1
+		
+					<isNotEmpty property="resNote">
+							/* 검색조건 - 결의서 적요 */
+					AND		IFNULL(res_note, '') LIKE '%$resNote$%'
+					</isNotEmpty>
+		
+					<isNotEmpty property="erpMgtSeq"> 
+							/* 검색조건 - 부서/프로젝트 코드 */
+					AND		IFNULL(mgt_seq, '') = '$erpMgtSeq$'
+					</isNotEmpty>
+		
+					<isNotEmpty property="txtExpToDate"> 
+							/* 검색조건 - 결의일자 */ 
+					AND		IFNULL(res_date, '') BETWEEN '$txtExpFromDate$'AND '$txtExpToDate$'
+					</isNotEmpty>
+		
+					<isNotEmpty property="docuFg"> 
+							/* 검색조건 - 결의 구분 */ 
+					AND		IFNULL(docu_fg_code, '') = '$docuFg$'
+					</isNotEmpty> 
+		
+				) headFilter ON resDoc.res_doc_seq = headFilter.res_doc_seq 
+				/* 기본조건 - 종결 문서 조회 */ 
+		WHERE   IFNULL(doc.c_distatus, '') IN ('90')
+		
+		<isNotEmpty property="txtFromDate">
+				/* 기본조건 - 기안일자 */
+		AND		IFNULL(doc.c_diwriteday, '') BETWEEN '$txtFromDate$'AND '$txtToDate$'
+		</isNotEmpty>
+		
+		<isNotEmpty property="senderName"> 
+				/* 검색조건 - 결의서 전송자 */
+		AND		IFNULL(doc.send_emp_name, '') LIKE '%$senderName$%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="erpDivSeq">
+				/* 검색조건 - 회계단위 필터 */
+		AND		IFNULL(doc.erp_div_seq, '') = '$erpDivSeq$' /* erpDivSeq filter필요 */
+		</isNotEmpty>
+		
+		<isNotEmpty property="docTitle">
+				/* 검색조건 - 문서제목 */
+		AND		IFNULL(doc.c_dititle, '') LIKE CONCAT(CONCAT('%', '$docTitle$'), '%')
+		</isNotEmpty>
+		
+		<isNotEmpty property="docNo">
+				/* 검색조건 - 문서번호 */
+		AND		IFNULL(doc.c_ridocfullnum, '') LIKE CONCAT(CONCAT('%', '$docNo$'), '%') 
+		</isNotEmpty>
+		
+		<isNotEmpty property="erpDeptName">
+				/* 검색조건 - 사용부서 */
+		AND		IFNULL(head.erp_dept_name,'') LIKE CONCAT(CONCAT('%', '$erpDeptName$'), '%')
+		</isNotEmpty>
+		
+		<isNotEmpty property="erpEmpName">
+				/* 검색조건 - 사용자 */
+		AND		IFNULL(head.erp_emp_name,'') LIKE CONCAT(CONCAT('%', '$erpEmpName$'), '%')
+		</isNotEmpty>
+		
+		<isNotEmpty property="erpSendYN">
+				/* 검색조건 - 전송여부 */
+		AND		resDoc.erp_send_yn LIKE CONCAT(CONCAT('%', '$erpSendYN$'), '%')
+		</isNotEmpty>
+		
+		GROUP BY resDoc.res_doc_seq
+		ORDER BY expend_date DESC
+	</select>
+	
+	<select id="NpAdminReportA.selectSendInfoDoc" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* mariadb/bizboxAlpha/expend/np/admin/NpAdminReportSql - NpAdminReportA.selectSendInfoDoc */
+		/* 결의서 전송 항목 조회 - 문서 */
+		SELECT	
+			res_doc_seq			AS 'resDocSeq'
+			, doc_seq			AS 'docSeq'
+			, doc_no			AS 'docNo'
+			, doc_status		AS 'docStatus'
+			, resdoc_note		AS 'note'
+			, expend_date		AS 'expendDate'
+			, erp_comp_seq		AS 'erpCompSeq'
+			, erp_dept_seq		AS 'erpDeptSeq'
+			, erp_emp_seq		AS 'erpEmpSeq'
+			, erp_gisu			AS 'erpGisu'
+			, erp_expend_year	AS 'erpExpendYear'
+			, comp_seq			AS 'compSeq'
+			, comp_name			AS 'compName'
+			, dept_seq			AS 'deptSeq'
+			, dept_name			AS 'deptName'
+			, emp_seq			AS 'empSeq'
+			, emp_name			AS 'empName'
+			, conffer_doc_seq	AS 'confferDocSeq'
+			, IFNULL(erp_send_yn, 'N')		AS 'erpSendYN'
+		FROM	$DB_NEOS$t_exnp_resdoc 	
+		WHERE	res_doc_seq = #resDocSeq#		
+	</select>
+	
+		
+	<select id="NpAdminReportA.selectSendInfoHead" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* mariadb/bizboxAlpha/expend/np/admin/NpAdminReportSql - NpAdminReportA.selectSendInfoHead */
+		/* 결의서 전송 항목 조회 - 헤더 */
+		SELECT	
+			h.res_doc_seq			AS 'resDocSeq'
+			, h.res_seq				AS 'resSeq'
+			, h.mgt_seq				AS 'mgtSeq'
+			, h.mgt_name			AS 'mgtName'
+			, h.res_date			AS 'resDate'
+			, h.docu_fg_code		AS 'docuFgCode'
+			, h.docu_fg_name		AS 'docuFgName'
+			, CONCAT('[', IFNULL(CASE ( SELECT COUNT(*) cnt FROM $DB_NEOS$t_co_comp WHERE comp_seq = d.comp_seq AND ea_type = 'eap' LIMIT 1 )
+                                WHEN 1 THEN ( SELECT doc_no FROM $DB_NEOS$TEAG_APPDOC WHERE doc_id = d.doc_seq LIMIT 1 )
+                                ELSE d.doc_no
+                        END, ''), ']', h.res_note) AS 'resNote'
+			/* , CONCAT('[', d.doc_no, '] ', h.res_note)			AS 'resNote' */
+			, h.erp_comp_seq		AS 'erpCompSeq'
+			, h.erp_comp_name		AS 'erpCompName'
+			, h.erp_gisu_date		AS 'erpGisuDate'
+			, h.erp_gisu_sq			AS 'erpGisuSeq'
+			, h.erp_pc_seq			AS 'erpPcSeq'
+			, h.erp_no_cdocu		AS 'erpNoCdocu'
+			, h.erp_emp_seq			AS 'erpEmpSeq'
+			, h.erp_emp_name		AS 'erpEmpName'
+			, h.erp_div_seq			AS 'erpDivSeq'
+			, h.erp_div_name		AS 'erpDivName'
+			, h.erp_dept_seq		AS 'erpDeptSeq'
+			, h.erp_dept_name		AS 'erpDeptName'
+			, h.erp_gisu			AS 'erpGisu'
+			, h.erp_gisu_from_date	AS 'erpGisuFromDate'
+			, h.erp_gisu_to_date	AS 'erpGisuToDate'
+			, h.erp_year			AS 'erpYear'
+			, h.btr_seq				AS 'btrSeq'
+			, h.btr_name			AS 'btrName'
+			, h.btr_nb				AS 'btrNb'
+			, h.bottom_Seq			AS 'bottomSeq'
+			, h.bottom_name			AS 'bottomName'
+			, h.conffer_doc_seq		AS 'confferDocSeq'
+			, h.conffer_seq			AS 'confferSeq'
+			, c.cause_date			AS 'causeDate'
+			, c.sign_date			AS 'signDate'
+			, c.inspect_date		AS 'inspectDate'
+			, c.payplan_date		AS 'payplanDate'
+			, c.cause_emp_seq		AS 'causeEmpSeq'
+			, c.cause_emp_name		AS 'cuaseEmpName'
+		FROM		$DB_NEOS$t_exnp_reshead	h
+		 LEFT JOIN	$DB_NEOS$t_exnp_cause	c
+		  ON	h.res_seq	= c.res_seq
+		 INNER JOIN	$DB_NEOS$t_exnp_resdoc d
+		 on	h.res_doc_seq = d.res_doc_seq
+		WHERE	h.res_doc_seq	= #resDocSeq#
+	</select>
+
+	<select id="NpAdminReportA.selectSendCancelInfoRes" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* mariadb/bizboxAlpha/expend/np/admin/NpAdminReportSql - NpAdminReportA.selectSendCancelInfoRes */
+		/* 결의서 전송 취소 리스트 조회 - 결의서 */	
+		SELECT	
+			h.res_doc_seq		AS 'resDocSeq'
+			, h.res_seq			AS 'resSeq'
+			, h.res_date		AS 'resDate'
+			, h.res_note		AS 'note'
+			, h.erp_comp_seq	AS 'erpCompSeq'
+			, b.no_cdocu		AS 'erpNoCDocu'
+			, h.erp_gisu_date	AS 'erpGisuDt'
+			, h.erp_gisu_sq		AS 'erpGisuSq'
+		FROM	$DB_NEOS$t_exnp_reshead	h
+		INNER JOIN	$DB_NEOS$t_exnp_resbudget b
+		 ON	h.res_seq = b.res_seq
+		WHERE	h.res_doc_seq = #resDocSeq# 		
+	</select>
+	
+	
+	<update id="NpAdminReportA.updateResSendStatus" parameterClass="java.util.HashMap">
+		/* mariadb/bizboxAlpha/expend/np/admin/NpAdminReportSql - NpAdminReportA.updateResSendStatus */
+		/* 결의서 전송 상태 변경 - 문서 */
+		UPDATE $DB_NEOS$t_exnp_resdoc
+		SET		`erp_send_yn`	= #sendFg#
+				, `send_emp_seq` = #empSeq#
+				, `send_emp_name` = #empName#
+				, `send_date` = NOW()
+		WHERE	`res_doc_seq` 	= #resDocSeq# 	
+	</update>	
+	
+	<update id="NpAdminReportA.updateResBudgetKey" parameterClass="java.util.HashMap">
+		/* mariadb/bizboxAlpha/expend/np/admin/NpAdminReportSql - NpAdminReportA.updateResBudgetKey */
+		/* 결의서 ERP 연동 키 업데이트 - 예산 */
+		UPDATE	$DB_NEOS$t_exnp_resbudget
+		SET		no_cdocu = #noCDocu#
+				, no_cdoline = #noCDoline#
+		WHERE	budget_seq = #budgetSeq#
+	</update>	
+	<update id="NpAdminReportA.updateResTradeKey" parameterClass="java.util.HashMap">
+		/* mariadb/bizboxAlpha/expend/np/admin/NpAdminReportSql - NpAdminReportA.updateResTradeKey */
+		/* 결의서 ERP 연동 키 업데이트 - 거래처 */
+		UPDATE	$DB_NEOS$t_exnp_restrade
+		SET	no_cdocu = #noCDocu#
+			, no_cdoline = #noCDoline#
+			, no_payline = #noPayLine#
+		WHERE	trade_seq = #tradeSeq#
+	</update>	
+	
+	<select id="NpAdminReportA.selectSendInfoBudget" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* mariadb/bizboxAlpha/expend/np/admin/NpAdminReportSql - NpAdminReportA.selectSendInfoBudget */
+		/* 결의서 전송 항목 조회 - 헤더및 예산 */
+		SELECT	
+			h.res_doc_seq			AS 'resDocSeq'
+			, h.res_seq				AS 'resSeq'
+			, b.budget_seq			AS 'budgetSeq'
+			, h.mgt_seq				AS 'mgtSeq'
+			, h.mgt_name			AS 'mgtName'
+			, h.res_date			AS 'resDate'
+			, h.docu_fg_code		AS 'docuFgCode'
+			, h.docu_fg_name		AS 'docuFgName'
+			, h.res_note			AS 'note'
+			, h.erp_comp_seq		AS 'erpCompSeq'
+			, h.erp_comp_name		AS 'erpCompName'
+			, h.erp_gisu_date		AS 'erpGisuDt'
+			, h.erp_gisu_sq			AS 'erpGisuSq'
+			, h.erp_pc_seq			AS 'erpPcSeq'
+			, h.erp_pc_name			AS 'erpPcName'
+			, h.erp_no_cdocu		AS 'erpNoCdocu'
+			, h.erp_emp_seq			AS 'erpEmpSeq'
+			, h.erp_emp_name		AS 'erpEmpName'
+			, h.erp_div_seq			AS 'erpDivSeq'
+			, h.erp_div_name		AS 'erpDivName'
+			, h.erp_dept_seq		AS 'erpDeptSeq'
+			, h.erp_dept_name		AS 'erpDeptName'
+			, h.erp_gisu			AS 'erpGisu'
+			, h.erp_gisu_from_date	AS 'erpGisuFromDate'
+			, h.erp_gisu_to_date	AS 'erpGisuToDate'
+			, h.erp_year			AS 'erpYear'
+			, h.btr_seq				AS 'btrSeq'
+			, h.btr_name			AS 'btrName'
+			, h.btr_nb				AS 'btrNb'
+			, h.bottom_seq			AS 'bottomSeq'
+			, h.bottom_name			AS 'bottomName'
+			, b.erp_bq_seq			AS 'erp_bq_seq'
+			, b.erp_bk_seq			AS 'erpBkSeq'
+			, b.erp_budget_seq		AS 'erpBudgetSeq'
+			, b.erp_budget_name		AS 'erpBudgetName'
+			, b.erp_bizplan_seq		AS 'erpBizplanSeq'
+			, b.erp_bizplan_name	AS 'erpBizplanName'
+			, b.erp_bgt1_name		AS 'erpBgt1Name'
+			, b.erp_bgt2_name		AS 'erpBgt2Name'
+			, b.erp_bgt3_name		AS 'erpBgt3Name'
+			, b.erp_bgt4_name		AS 'erpBgt4Name'
+			, b.budget_std_amt		AS 'stdAmt'
+			, b.budget_tax_amt		AS 'taxAmt'
+			, b.budget_amt			AS 'amt'
+			, b.erp_bgacct_seq		AS 'erpBgacctSeq'
+			, b.erp_bgacct_name		AS 'erpBgacctName'
+			, b.set_fg_code			AS 'setFgCode'
+			, b.set_fg_name			AS 'setFgName'
+			, b.vat_fg_code			AS 'vatFgCode'
+			, b.vat_fg_name			AS 'vatFgName'
+			, b.tr_fg_code			AS 'trFgCode'
+			, b.tr_fg_name			AS 'trFgName'
+			, b.ctl_fg_code			AS 'ctlFgCode'
+			, b.ctl_fg_name			AS 'ctlFgName'
+			, b.budget_note			AS 'budgetNote'
+		FROM	(
+			SELECT	* 
+			FROM	$DB_NEOS$t_exnp_reshead
+			WHERE	res_doc_seq = #resDocSeq#
+		)	h
+		INNER JOIN	$DB_NEOS$t_exnp_resbudget b
+		ON	b.res_seq = h.res_seq
+	</select>
+	
+	<select id="NpAdminReportA.selectSendInfoTrade" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* mariadb/bizboxAlpha/expend/np/admin/NpAdminReportSql - NpAdminReportA.selectSendInfoTrade */
+		/* 결의서 전송 항목 조회 - 거래처 */
+		SELECT 	
+			t.res_doc_seq		AS 'resDocSeq'
+			, t.res_seq			AS 'resSeq'
+			, t.budget_seq		AS 'budgetSeq'
+			, t.trade_seq		AS 'tradeSeq'
+			, t.erp_isu_dt		AS 'erpIsuDt'
+			, t.erp_isu_sq		AS 'erpIsuSq'
+			, t.erp_in_sq		AS 'erpInSq'
+			, t.erp_bq_sq		AS 'erpBqSq'
+			, t.item_name		AS 'itemName'
+			, t.item_cnt		AS 'itemCnt'
+			, t.emp_name		AS 'empName'
+			, t.tr_seq			AS 'trSeq'
+			, t.tr_name			AS 'trName'
+			, t.ceo_name		AS 'ceoName'
+			, t.trade_amt		AS 'amt'
+			, t.trade_std_amt	AS 'stdAmt'
+			, t.trade_vat_amt	AS 'vatAmt'
+			, t.jiro_seq		AS 'jiroSeq'
+			, t.jiro_name		AS 'jiroName'
+			, t.ba_nb			AS 'baNb'
+			, t.btr_seq			AS 'btrSeq'
+			, t.btr_name		AS 'btrName'
+			, t.depositor		AS 'depositor'
+			, t.trade_note		AS 'note'
+			, t.ctr_seq			AS 'ctrSeq'
+			, t.ctr_name		AS 'ctrName'
+			, t.reg_date		AS 'regDt'
+			, b.set_fg_code		AS 'setFgCode'
+			, b.set_fg_name		AS 'setFgName'
+			, b.vat_fg_code		AS 'vatFgCode'
+			, b.vat_fg_name		AS 'vatFgName'
+			, b.tr_fg_code		AS 'trFgCode'
+			, b.tr_fg_name		AS 'trFgName'
+			, d.erp_comp_seq	AS 'erpCompSeq'
+			, d.erp_emp_seq		AS 'erpEmpSeq'
+			, d.erp_dept_seq	AS 'erpDeptSeq'
+			, h.erp_pc_seq		AS 'erpPcSeq'
+		FROM 	$DB_NEOS$t_exnp_restrade t
+		INNER JOIN	$DB_NEOS$t_exnp_resbudget b
+		 ON	t.budget_seq	= b.budget_seq
+		 AND	t.res_seq	= b.res_seq
+		 AND	t.res_doc_seq	= b.res_doc_seq
+		INNER JOIN 	$DB_NEOS$t_exnp_reshead h
+		 ON	t.res_seq	= h.res_seq
+		 AND	t.res_doc_seq	= h.res_doc_seq
+		INNER JOIN 	$DB_NEOS$t_exnp_resdoc d
+		 ON	t.res_doc_seq = d.res_doc_seq		
+		WHERE	t.res_doc_seq = #resDocSeq#	
+	</select>
+	
+	
+	<select id="NpAdminReportA.selectEACardReport" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* mariadb/bizboxAlpha/expend/np/admin/NpAdminReportSql - NpAdminReportA.selectEACardReport */
+		/* 카드사용현황 - 비영리 */
+		/* 전자결재(비영리) 관리자 카드사용 현황 */
+		SELECT	A.sync_id AS syncId
+				, B.card_code AS cardCode
+				, B.card_name AS cardName
+				, B.card_num AS cardNum
+				, A.auth_num AS authNum
+				, A.auth_date AS authDate
+				, A.auth_time AS authTime
+				, CONCAT(SUBSTR(A.auth_date,1,4),'-',SUBSTR(A.auth_date,5,2),'-',SUBSTR(A.auth_date,7,2),' ',SUBSTR(A.auth_time,1,2),':',SUBSTR(A.auth_time,3,2),':',SUBSTR(A.auth_time,5,2)) AS showDate
+				, A.georae_coll AS georaeColl
+				, A.georae_stat AS georaeStat
+				, CASE 
+					WHEN A.GEORAE_STAT = '1' || A.GEORAE_STAT = 'N' THEN '승인' 
+					ELSE '취소' 
+				END AS georaeStatName
+				, A.georae_cand AS georaeCand
+				, IFNULL(A.request_amount,0) AS requestAmount
+				, IFNULL(A.amt_md_amount,0) AS amtMdAmount
+				, IFNULL(A.vat_md_amount,0) AS vatMdAmount
+				, IFNULL(A.ser_amount,0) AS serAmt
+				, A.merc_name AS mercName
+				, A.merc_saup_no AS mercSaupNo
+				, IFNULL(A.send_yn, 'N') AS sendYN
+				, CASE
+					WHEN IFNULL(A.send_yn,'N') = 'N' THEN '미결의'
+					WHEN (IFNULL(A.send_yn,'N') = 'Y' AND A.if_m_id ='D') THEN '미사용'
+					ELSE '결의'
+				END AS sendYNName
+				, A.if_m_id AS ifMId
+				, A.if_d_id AS ifDId
+				, IFNULL(C.doc_seq, '') AS docSeq
+				, IFNULL(C.doc_title, '') AS docTitle
+				, IFNULL(C.doc_no, '') AS docNo
+				, IFNULL(C.form_id, '') AS formSeq
+				, IFNULL(c.user_nm, '') AS userNm
+		FROM	(
+			SELECT	*
+			FROM	$DB_NEOS$t_ex_card_aq_tmp
+			WHERE	auth_date BETWEEN #fromDate# AND #toDate#
+			AND		merc_name LIKE CONCAT('%',#searchMercName#,'%')
+			AND     auth_num LIKE CONCAT('%',#searchCardAuthNum#,'%')
+			AND     merc_saup_no LIKE CONCAT('%',#searchOwnerRegNo#,'%')
+			<isEqual property="sendYN" compareValue="D">
+			AND		IFNULL(send_yn,'N') = 'Y'
+			AND		if_m_id = 'D'
+			</isEqual>
+			<isNotEqual property="sendYN" compareValue="D">
+			AND		IFNULL(send_yn,'N') LIKE CONCAT('%',#sendYN#,'%')
+			</isNotEqual>
+			<isEqual property="georaeStat" compareValue="N">
+			AND		( georae_stat = 'N' OR georae_stat = '1' ) 
+			</isEqual>
+			<isEqual property="georaeStat" compareValue="Y">
+			AND		( georae_stat = 'Y' OR georae_stat = '0' ) 
+			</isEqual>
+		) A
+		INNER JOIN (
+			SELECT	card_code
+					, card_num
+					, card_name
+					, REPLACE(card_num,'-','') AS repCardNum
+			FROM	$DB_NEOS$t_ex_card
+			WHERE	comp_seq = #compSeq#
+			<isNotEmpty property="cardInfo">
+				<iterate  prepend="AND" property="cardInfo" open=" card_code IN (" close=")" conjunction="," >
+					#cardInfo[]#
+				</iterate>
+			</isNotEmpty>
+ 
+					
+		) B ON A.card_num = B.repCardNum
+		LEFT OUTER JOIN (
+			SELECT	A.doc_seq
+					, B.doc_title
+					, B.doc_no
+					, B.form_id
+					, B.user_nm
+					, A.interface_seq
+			FROM	(
+				SELECT	A.res_doc_seq
+						, A.doc_seq
+						, B.interface_seq
+				FROM	$DB_NEOS$t_Exnp_resdoc A
+				INNER JOIN $DB_NEOS$t_exnp_restrade B ON B.interface_type = 'card' AND A.res_doc_seq = B.res_doc_seq
+				WHERE	doc_seq != ''
+				AND		doc_status NOT IN ('','d','007')
+			) A INNER JOIN (
+				SELECT	doc.c_dikeycode AS doc_id
+						, doc.c_tikeycode AS form_id
+						, doc.c_dititle AS doc_title
+						, rec.c_ridocfullnum AS doc_no
+						, drf.c_dijunkyulname AS user_nm
+				FROM	$DB_NEOS$a_docinfo doc
+				INNER JOIN $DB_NEOS$a_draftinfo drf ON doc.c_dikeycode = drf.c_dikeycode
+				INNER JOIN $DB_NEOS$a_recordinfo rec ON doc.c_dikeycode = rec.c_dikeycode
+				WHERE	IFNULL(drf.c_dijunkyulname, '') LIKE CONCAT('%',#searchUserNm#,'%')
+			) B ON A.doc_seq = B.doc_id
+		) C ON A.sync_id = C.interface_seq
+		<isEqual property="orderBy" compareValue="ASC">
+		ORDER BY A.auth_date, A.auth_time, sync_id ASC
+		</isEqual>
+		<isNotEqual property="orderBy" compareValue="ASC">
+		ORDER BY A.auth_date, A.auth_time, sync_id DESC
+		</isNotEqual>
+	</select>
+	
+	<select id="NpAdminReportA.selectEAPCardReport" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* mariadb/bizboxAlpha/expend/np/admin/NpAdminReportSql - NpAdminReportA.selectEAPCardReport */
+		/* 카드사용현황 - 영리 */
+		/* 전자결재(영리) 관리자 카드사용 현황 */
+		SELECT	A.sync_id AS syncId
+				, B.card_code AS cardCode
+				, B.card_name AS cardName
+				, B.card_num AS cardNum
+				, A.auth_num AS authNum
+				, A.auth_date AS authDate
+				, A.auth_time AS authTime
+				, CONCAT(SUBSTR(A.auth_date,1,4),'-',SUBSTR(A.auth_date,5,2),'-',SUBSTR(A.auth_date,7,2),' ',SUBSTR(A.auth_time,1,2),':',SUBSTR(A.auth_time,3,2),':',SUBSTR(A.auth_time,5,2)) AS showDate
+				, A.georae_coll AS georaeColl
+				, A.georae_stat AS georaeStat
+				, CASE 
+					WHEN A.GEORAE_STAT = '1' || A.GEORAE_STAT = 'N' THEN '승인' 
+					ELSE '취소' 
+				END AS georaeStatName
+				, A.georae_cand AS georaeCand
+				, IFNULL(A.request_amount,0) AS requestAmount
+				, IFNULL(A.amt_md_amount,0) AS amtMdAmount
+				, IFNULL(A.vat_md_amount,0) AS vatMdAmount
+				, IFNULL(A.ser_amount,0) AS serAmt
+				, A.merc_name AS mercName
+				, A.merc_saup_no AS mercSaupNo
+				, IFNULL(A.send_yn, 'N') AS sendYN
+				, CASE
+					WHEN IFNULL(A.send_yn,'N') = 'N' THEN '미결의'
+					WHEN (IFNULL(A.send_yn,'N') = 'Y' AND A.if_m_id ='D') THEN '미사용'
+					ELSE '결의'
+				END AS sendYNName
+				, A.if_m_id AS ifMId
+				, A.if_d_id AS ifDId
+				, IFNULL(C.doc_seq, '') AS docSeq
+				, IFNULL(C.doc_title, '') AS docTitle
+				, IFNULL(C.doc_no, '') AS docNo
+				, IFNULL(C.form_id, '') AS formSeq
+				, IFNULL(c.user_nm, '') AS userNm
+		FROM	(
+			SELECT	*
+			FROM	$DB_NEOS$t_ex_card_aq_tmp
+			WHERE	auth_date BETWEEN #fromDate# AND #toDate#
+			AND		merc_name LIKE CONCAT('%',#searchMercName#,'%')
+			<isEqual property="sendYN" compareValue="D">
+			AND		IFNULL(send_yn,'N') = 'Y'
+			AND		if_m_id = 'D'
+			</isEqual>
+			<isNotEqual property="sendYN" compareValue="D">
+			AND		IFNULL(send_yn,'N') LIKE CONCAT('%',#sendYN#,'%')
+			</isNotEqual>
+			<isEqual property="georaeStat" compareValue="N">
+			AND		( georae_stat = 'N' OR georae_stat = '1' ) 
+			</isEqual>
+			<isEqual property="georaeStat" compareValue="Y">
+			AND		( georae_stat = 'Y' OR georae_stat = '0' ) 
+			</isEqual>
+		) A
+		INNER JOIN (
+			SELECT	card_code
+					, card_num
+					, card_name
+					, REPLACE(card_num,'-','') AS repCardNum
+			FROM	$DB_NEOS$t_ex_card
+			WHERE	comp_seq = #compSeq#
+			AND		card_num LIKE CONCAT('%',#searchCardNum#,'%')
+			AND		IFNULL(card_name,'') LIKE CONCAT('%',#searchCardName#,'%')
+		) B ON A.card_num = B.repCardNum
+		LEFT OUTER JOIN (
+			SELECT	A.doc_seq
+					, B.doc_title
+					, B.doc_no
+					, B.form_id
+					, B.user_nm
+					, A.interface_seq
+			FROM	(
+				SELECT	A.res_doc_seq
+						, A.doc_seq
+						, B.interface_seq
+				FROM	$DB_NEOS$t_Exnp_resdoc A
+				INNER JOIN $DB_NEOS$t_exnp_restrade B ON B.interface_type = 'card' AND A.res_doc_seq = B.res_doc_seq
+				WHERE	doc_seq != ''
+				AND		doc_status NOT IN ('','999','100')
+			) A INNER JOIN $DB_NEOS$teag_appdoc B ON A.doc_seq = B.doc_id
+			WHERE	B.IFNULL(user_nm, '') LIKE CONCAT('%',#searchUserNm#,'%')
+		) C ON A.sync_id = C.interface_seq
+		<isEqual property="orderBy" compareValue="ASC">
+		ORDER BY A.auth_date, A.auth_time, sync_id ASC
+		</isEqual>
+		<isNotEqual property="orderBy" compareValue="ASC">
+		ORDER BY A.auth_date, A.auth_time, sync_id DESC
+		</isNotEqual>
+	</select>
+	
+	
+	<update id="NpAdminReportA.updateSendYN" parameterClass="java.util.HashMap">
+		/* mariadb/bizboxAlpha/expend/np/admin/NpAdminReportSql - NpAdminReportA.updateSendYN */
+		/* 카드사용현황 - 영리 */
+		/* 카드사용현황 카드내역 미사용/사용 처리 */
+		UPDATE	$DB_NEOS$t_ex_card_aq_tmp
+		SET		send_yn = #sendYN#
+		<isEqual property="sendYN" compareValue="Y">
+				, if_m_id = 'D'
+		</isEqual>
+		<isNotEqual property="sendYN" compareValue="Y">
+				, if_m_id = ''
+		</isNotEqual>
+		WHERE	sync_id = #syncId#
+	</update>
+	
+	
+	<select id="NpAdminReportA.NPAdminGWEtaxInfoSelectEA" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT	etax.sync_id AS syncId
+				, etax.iss_no AS issNo
+				, etax.iss_dt AS issDt
+				, etax.send_yn AS sendYN
+				, IFNULL(tr.transferType,'') AS transferType
+				, IFNULL(tr.supperKey, '') AS supperKey
+				, IFNULL(etax.if_m_id,'') AS ifMId
+				, IFNULL(etax.if_m_id,'') AS ifMId
+				, IFNULL(doc.doc_title,'') AS docTitle
+				, IFNULL(doc.doc_no,'') AS docNo
+				, IFNULL(doc.user_id,'') AS empSeq
+				, IFNULL(doc.user_nm,'') AS empName
+		FROM	$DB_NEOS$t_ex_etax_aq_tmp etax
+		LEFT OUTER JOIN (
+			SELECT	A.doc_seq
+					, A.interface_seq AS interface_m_id
+					, B.doc_title
+					, B.doc_no
+					, B.form_id
+					, B.user_id
+					, B.user_nm
+			FROM	(
+				SELECT	doc.doc_seq
+						, interface_seq
+				FROM	$DB_NEOS$t_exnp_resdoc doc
+				INNER JOIN $DB_NEOS$t_exnp_restrade trade ON trade.interface_type = 'etax' AND doc.res_doc_seq = trade.res_doc_seq
+				WHERE	IFNULL(doc.doc_status,'') IN ('10','20','002','90','008')
+			) A INNER JOIN (
+				SELECT	doc.c_dikeycode AS doc_id
+						, doc.c_tikeycode AS form_id
+						, doc.c_dititle AS doc_title
+						, rec.c_ridocfullnum AS doc_no
+						, drf.c_diuserkey AS user_id
+						, drf.c_dijunkyulname AS user_nm
+				FROM	$DB_NEOS$a_docinfo doc
+				INNER JOIN $DB_NEOS$a_draftinfo drf ON doc.c_dikeycode = drf.c_dikeycode
+				INNER JOIN $DB_NEOS$a_recordinfo rec ON doc.c_dikeycode = rec.c_dikeycode
+				WHERE	IFNULL(drf.c_dijunkyulname, '') LIKE CONCAT('%',#userName#,'%')
+			) B ON A.doc_seq = B.doc_id
+		) doc ON etax.sync_id = doc.interface_m_id
+		LEFT OUTER JOIN (
+			/* 내가 이관한 내역들 */
+			SELECT	iss_no
+					, 'T' AS transferType
+					, IFNULL(GROUP_CONCAT(supper_key),'') AS supperKey
+			FROM	$DB_NEOS$t_Ex_etax_transfer
+			WHERE	transfer_seq = #empSeq#
+			GROUP BY iss_no
+		) tr ON tr.iss_no = etax.iss_no
+		WHERE	etax.send_yn = 'Y'
+		AND		etax.comp_Seq = #compSeq#
+		AND		etax.iss_dt BETWEEN #searchFromDt# AND #searchToDt#
+	</select>
+	
+	<select id="NpAdminReportA.NPAdminGWEtaxInfoSelectEAP" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT	etax.sync_id AS syncId
+				, etax.iss_no AS issNo
+				, etax.iss_dt AS issDt
+				, etax.send_yn AS sendYN
+				, IFNULL(tr.transferType,'') AS transferType
+				, IFNULL(tr.supperKey, '') AS supperKey
+				, IFNULL(etax.if_m_id,'') AS ifMId
+				, IFNULL(etax.if_m_id,'') AS ifMId
+				, IFNULL(doc.doc_title,'') AS docTitle
+				, IFNULL(doc.doc_no,'') AS docNo
+				, IFNULL(doc.user_id,'') AS empSeq
+				, IFNULL(doc.user_nm,'') AS empName
+		FROM	$DB_NEOS$t_ex_etax_aq_tmp etax
+		LEFT OUTER JOIN (
+			SELECT	A.doc_seq
+					, A.interface_seq AS interface_m_id
+					, B.doc_title
+					, B.doc_no
+					, B.form_id
+					, B.user_id
+					, B.user_nm
+			FROM	(
+				SELECT	doc.doc_seq
+						, interface_seq
+				FROM	$DB_NEOS$t_exnp_resdoc doc
+				INNER JOIN $DB_NEOS$t_exnp_restrade trade ON trade.interface_type = 'etax' AND doc.res_doc_seq = trade.res_doc_seq
+				WHERE	IFNULL(doc.doc_status,'') IN ('10','20','002','90','008')
+			) A INNER JOIN $DB_NEOS$teag_appdoc B ON A.doc_seq = B.doc_id
+			WHERE	B.user_nm LIKE CONCAT('%',#userName#,'%')
+		) doc ON etax.sync_id = doc.interface_m_id
+		WHERE	etax.send_yn = 'Y'
+		LEFT OUTER JOIN (
+			/* 내가 이관한 내역들 */
+			SELECT	iss_no
+					, 'T' AS transferType
+					, IFNULL(GROUP_CONCAT(supper_key),'') AS supperKey
+			FROM	$DB_NEOS$t_Ex_etax_transfer
+			WHERE	transfer_seq = #empSeq#
+			GROUP BY iss_no
+			UNION
+			/* 내가 이관 받은 내역들 */
+			SELECT	iss_no
+					, 'R' AS transferType
+					, IFNULL(GROUP_CONCAT(supper_key),'') AS supperKey
+			FROM	$DB_NEOS$t_Ex_etax_transfer
+			WHERE	receive_seq = #empSeq#
+			GROUP BY iss_no
+		) tr ON tr.iss_no = etax.iss_no
+		AND		etax.comp_Seq = #compSeq#
+		AND		etax.iss_dt BETWEEN #searchFromDt# AND #searchToDt#
+	</select>
+	
+	<insert id="NPAdminETaxSetUseYNInsert" parameterClass="java.util.HashMap">
+		INSERT IGNORE INTO $DB_NEOS$t_ex_etax_aq_tmp ( iss_no, comp_seq, iss_dt, partner_no, send_yn, if_m_id, note, emp_seq, summary_seq, auth_seq, project_seq, card_seq, budget_seq, create_seq, create_date, modify_seq, modify_date )
+	    VALUES ( #issNo#, #compSeq#, #issDt#, #partnerNo#, #sendYN#, #ifMId# , '', '0', '0', '0', '0', '0', '0', '$createSeq$', NOW(), '$modifySeq$', NOW() )
+	</insert>
+	
+	<update id="NPAdminETaxSetUseYNUpdate" parameterClass="java.util.HashMap">
+		UPDATE	$DB_NEOS$t_ex_etax_aq_tmp
+		SET		send_yn = #sendYN#
+				, if_m_id = #ifMId#
+		WHERE	sync_id = #syncId#
+	</update>
+	
+	<select	id="NPAdminSpecificETaxSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT	sync_id AS syncId
+		FROM	$DB_NEOS$t_ex_etax_aq_tmp
+		WHERE	iss_no = #issNo#
+		AND		comp_seq = #compSeq#
+	</select>
+	
+	<select	id="NpUserReportA.selectResDocInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  NpUserReportA.selectResDocInfo */
+		/* 양식 정보 조회 - 결의문서 정보 */
+		SELECT	*
+		FROM	(
+			SELECT	
+				res_doc_seq			AS 'consDocSeq'
+				, expend_date			AS 'expendDate'
+				, erp_comp_seq			AS 'erpCompSeq'
+				, erp_gisu				AS 'erpGisu'
+				, erp_expend_year		AS 'erpExpendYear'
+				, comp_name				AS 'compName'
+				, dept_name				AS 'deptName'
+				, emp_name				AS 'empName'
+				, erp_div_seq			AS 'erpDivSeq'
+				, erp_div_name			AS 'erpDivName'
+			FROM	$DB_NEOS$t_exnp_resdoc 
+			WHERE	res_doc_seq = #exDocSeq#
+		)	doc
+		INNER JOIN	(
+			SELECT	
+				res_seq
+				, mgt_seq				AS 'mgtSeq'
+				, mgt_name				AS 'mgtName'
+				, erp_pc_seq			AS 'erpPcSeq'
+				, erp_pc_name			AS 'erpPcName'
+				, docu_fg_name			AS 'docuFgName'
+				, erp_gisu				AS 'gisu'
+				, erp_gisu_from_date	AS 'gisuStartDate'
+				, erp_gisu_to_date		AS 'gisuEndDate'
+				, res_note				AS 'resNote'
+			FROM	$DB_NEOS$t_exnp_reshead
+			WHERE	res_doc_seq = #exDocSeq#
+			ORDER BY res_doc_seq ASC
+			LIMIT	1
+		)	head
+		ON	1 = 1
+		INNER JOIN	(
+			SELECT	
+				erp_budget_seq			AS 'erpBudgetSeq'
+				, erp_budget_name		AS 'erpBudgetName'
+				, erp_bizplan_seq		AS 'erpBizplanSeq'
+				, erp_bizplan_name		AS 'erpBizplanName'
+				, erp_bgt1_name			AS 'erpBgt1Name'
+				, erp_bgt1_seq			AS 'erpBgt1Seq'
+				, erp_bgt2_name			AS 'erpBgt2Name'
+				, erp_bgt2_seq			AS 'erpBgt2Seq'
+				, erp_bgt3_name			AS 'erpBgt3Name'
+				, erp_bgt3_seq			AS 'erpBgt3Seq'
+				, erp_bgt4_name			AS 'erpBgt4Name'
+				, erp_bgt4_seq			AS 'erpBgt4Seq'
+				, erp_bgacct_seq		AS 'erpBgacctSeq'
+				, erp_bgacct_name		AS 'erpBgacctName'
+				, erp_fiacct_seq  AS 'fiacctSeq'
+				, erp_fiacct_name AS 'fiacctName'
+				, erp_open_amt			AS 'erpOpenAmt'
+				, erp_apply_amt			AS 'erpApplyAmt'
+				, erp_left_amt			AS 'erpLeftAmt'	
+				, budget_amt			AS 'budgetAmt'	
+				, budget_note			AS 'budgetNote'		
+				, set_fg_name			AS 'setFgName'
+				, vat_fg_name			AS 'vatFgName'
+				, tr_fg_name			AS 'trFgName'				
+			FROM	$DB_NEOS$t_exnp_resbudget
+			WHERE	res_doc_seq = #exDocSeq#
+			ORDER BY budget_seq ASC
+			LIMIT	1
+		)	budget
+		ON	1 = 1	
+		INNER JOIN	(
+			SELECT	
+				tr_name					AS 'tradeName'
+				, emp_name				AS 'tradeEmpName'
+				, ceo_name				AS 'tradeCeoName'
+				, trade_amt				AS 'tradeAmt'
+				, trade_std_amt			AS 'tradeStdAmt'
+				, trade_vat_amt			AS 'tradeVatAmt'
+				, ba_nb					AS 'tradeBaNb'
+				, btr_name				AS 'tradeBtrName'
+				, depositor				AS 'tradeDepositor'
+				, trade_note			AS 'tradeNote'
+			FROM	$DB_NEOS$t_exnp_restrade
+			WHERE	res_doc_seq = #exDocSeq#
+			ORDER BY trade_seq ASC
+			LIMIT	1
+		)	trade
+		ON	1 = 1		
+		LEFT JOIN	(
+			SELECT	
+				res_seq
+				, cause_date			AS 'causeDate'
+				, sign_date				AS 'signDate'
+				, inspect_date			AS 'inspectDate'
+				, payplan_date			AS 'payplanDate'
+				, cause_emp_name		AS 'causeEmpName'
+			FROM	$DB_NEOS$t_exnp_cause
+		)	cause
+		ON	head.res_seq = cause.res_seq		
+	</select>
+	
+		
+	<select	id="NpUserReportA.selectConsFooterInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  NpUserReportA.selectConsFooterInfo */
+		/* 양식 정보 조회 - 합계 영역 조회 */
+		SELECT	
+			IFNULL(	SUM(IFNULL(trade_std_amt, 0)) 
+				+ SUM(IFNULL(trade_vat_amt, 0)) , 0
+			)	AS 'totalTradeAmt'
+			, IFNULL(SUM(IFNULL(trade_std_amt, 0)), 0)	AS 'totalStdAmt'
+			, IFNULL(SUM(IFNULL(trade_vat_amt, 0)), 0)	AS 'totalVatAmt'
+		FROM	$DB_NEOS$t_exnp_constrade
+		WHERE	cons_doc_seq = #exDocSeq#
+	</select>
+	
+	<select	id="NpUserReportA.selectResFooterInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  NpUserReportA.selectConsDocInfo */
+		/* 양식 정보 조회 - 합계 영역 조회 */
+		SELECT	
+			SUM(IFNULL(trade_amt, 0))		AS 'totalTradeAmt'
+			, SUM(IFNULL(trade_std_amt, 0))	AS 'totalStdAmt'
+			, SUM(IFNULL(trade_vat_amt, 0))	AS 'totalVatAmt'
+		FROM	$DB_NEOS$t_exnp_restrade
+		WHERE	res_doc_seq = #exDocSeq#
+	</select>
+	
+	<select	id="NpUserReportA.selectConsDocInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  NpUserReportA.selectConsDocInfo */
+		/* 양식 정보 조회 - 품의문서 정보 */
+		SELECT	*
+		FROM	(
+			SELECT	
+				cons_doc_seq			AS 'consDocSeq'
+				, expend_date			AS 'expendDate'
+				, erp_comp_seq			AS 'erpCompSeq'
+				, erp_gisu				AS 'erpGisu'
+				, erp_expend_year		AS 'erpExpendYear'
+				, comp_name				AS 'compName'
+				, dept_name				AS 'deptName'
+				, emp_name				AS 'empName'
+				, erp_div_seq			AS 'erpDivSeq'
+				, erp_div_name			AS 'erpDivName'
+			FROM	$DB_NEOS$t_exnp_consdoc 
+			WHERE	cons_doc_seq = #exDocSeq#
+		)	doc
+		INNER JOIN	(
+			SELECT	
+				mgt_seq					AS 'mgtSeq'
+				, mgt_name				AS 'mgtName'
+				, erp_pc_seq			AS 'erpPcSeq'
+				, erp_pc_name			AS 'erpPcName'
+				, docu_fg_name			AS 'docuFgName'
+				, erp_gisu				AS 'gisu'
+				, erp_gisu_from_date	AS 'gisuStartDate'
+				, erp_gisu_to_date		AS 'gisuEndDate'
+			FROM	$DB_NEOS$t_exnp_conshead
+			WHERE	cons_doc_seq = #exDocSeq#
+			ORDER BY cons_doc_seq ASC
+			LIMIT	1
+		)	head
+		ON	1 = 1
+		INNER JOIN	(
+			SELECT	
+				erp_budget_seq			AS 'erpBudgetSeq'
+				, erp_budget_name		AS 'erpBudgetName'
+				, erp_bizplan_seq		AS 'erpBizplanSeq'
+				, erp_bizplan_name		AS 'erpBizplanName'
+				, erp_bgt1_name			AS 'erpBgt1Name'
+				, erp_bgt1_seq			AS 'erpBgt1Seq'
+				, erp_bgt2_name			AS 'erpBgt2Name'
+				, erp_bgt2_seq			AS 'erpBgt2Seq'
+				, erp_bgt3_name			AS 'erpBgt3Name'
+				, erp_bgt3_seq			AS 'erpBgt3Seq'
+				, erp_bgt4_name			AS 'erpBgt4Name'
+				, erp_bgt4_seq			AS 'erpBgt4Seq'
+				, erp_bgacct_seq		AS 'erpBgacctSeq'
+				, erp_bgacct_name		AS 'erpBgacctName'
+				, erp_fiacct_seq  AS 'fiacctSeq'
+				, erp_fiacct_name AS 'fiacctName'
+				, erp_open_amt			AS 'erpOpenAmt'
+				, erp_apply_amt			AS 'erpApplyAmt'
+				, erp_left_amt			AS 'erpLeftAmt'	
+				, budget_amt			AS 'budgetAmt'	
+				, budget_note			AS 'budgetNote'				
+			FROM	$DB_NEOS$t_exnp_consbudget
+			WHERE	cons_doc_seq = #exDocSeq#
+			ORDER BY budget_seq ASC
+			LIMIT	1
+		)	budget
+		ON	1 = 1
+	</select>
+	
+	<select	id="NpUserReportA.selectConsHeadInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  NpUserReportA.selectConsHeadInfo */
+		/* 양식 정보 조회 - 품의서 헤더 정보 */
+		SELECT	
+			d.cons_doc_seq		AS 'consDocSeq'
+			, h.cons_seq		AS 'consSeq'
+			, d.doc_seq			AS 'docSeq'
+			, d.consdoc_note	AS 'docNote'	
+			, d.expend_date		AS 'expendDate'
+			, d.comp_name		AS 'compName'	
+			, d.dept_name		AS 'deptName'
+			, d.emp_name		AS 'empName'
+			, h.cons_date		AS 'expendConsDate'
+			, h.mgt_seq			AS 'projectCode'
+			, h.mgt_name		AS 'projectName'
+			, h.docu_fg_name	AS 'docuFgName'
+			, h.cons_note		AS 'docNote'
+			, h.erp_comp_seq	AS 'erpCompCode'
+			, h.erp_comp_name	AS 'erpCompName'
+			, h.erp_pc_seq		AS 'erpPcCode'
+			, h.erp_pc_name		AS 'erpPcName'
+			, h.erp_div_seq		AS 'erpDivSeq'
+			, h.erp_div_name	AS 'erpDivName'
+		FROM	(
+			SELECT	* 
+			FROM	$DB_NEOS$t_exnp_consdoc
+			WHERE 	cons_doc_seq = #exDocSeq#
+		)	d
+		INNER JOIN	$DB_NEOS$t_exnp_conshead	h
+		 ON	d.cons_doc_seq = h.cons_doc_seq		
+	</select>	
+	
+	<select	id="NpUserReportA.selectResHeadInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  NpUserReportA.selectResHeadInfo */
+		/* 양식 정보 조회 - 결의서 헤더 정보 */
+		SELECT	
+			d.res_doc_seq		AS 'resDocSeq'
+			, h.res_seq			AS 'resSeq'
+			, d.doc_seq			AS 'docSeq'
+			, d.resdoc_note		AS 'docNote'	
+			, d.expend_date		AS 'expendDate'		
+			, d.comp_name		AS 'compName'	
+			, d.dept_name		AS 'deptName'
+			, d.emp_name		AS 'empName'
+			, h.res_date		AS 'expendResDate'
+			, h.mgt_seq			AS 'projectCode'
+			, h.mgt_name		AS 'projectName'
+			, h.docu_fg_name	AS 'docuFgName'
+			, h.res_note		AS 'note'
+			, h.erp_comp_seq	AS 'erpCompCode'
+			, h.erp_comp_name	AS 'erpCompName'
+			, h.erp_pc_seq		AS 'erpPcCode'
+			, h.erp_pc_name		AS 'erpPcName'
+			, h.erp_div_seq		AS 'erpDivSeq'
+			, h.erp_div_name	AS 'erpDivName'		
+		FROM	(
+			SELECT	* 
+			FROM	$DB_NEOS$t_exnp_resdoc
+			WHERE 	res_doc_seq = #exDocSeq#
+		)	d
+		INNER JOIN	$DB_NEOS$t_exnp_reshead	h
+		 ON	d.res_doc_seq = h.res_doc_seq		
+	</select>	
+	
+	
+	<select	id="NpUserReportA.selectConsBudgetInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  NpUserReportA.selectConsBudgetInfo */
+		/* 양식 정보 조회 - 품의서 예산 정보 */
+		SELECT	
+			cons_doc_seq		AS 'consDocSeq'
+			, cons_seq			AS 'consSeq'
+			, budget_seq		AS 'budgetSeq'
+			, erp_budget_seq	AS 'budgetCode'
+			, erp_budget_name	AS 'budgetName'
+			, erp_bizplan_seq	AS 'bizplanCode'
+			, erp_bizplan_name	AS 'bizplanName'
+			, erp_bgt1_name		AS 'budget1Name'
+			, erp_bgt2_name		AS 'budget2Name'
+			, erp_bgt3_name		AS 'budget3Name'
+			, erp_bgt4_name		AS 'budget4Name'
+			, budget_std_amt	AS 'stdAmt'
+			, budget_tax_amt	AS 'taxAmt'
+			, budget_amt		AS 'amt'
+			, erp_bgacct_seq	AS 'bgacctName'
+			, erp_bgacct_name	AS 'bgacctName'
+			, erp_fiacct_seq  AS 'fiacctSeq'
+			, erp_fiacct_name AS 'fiacctName'
+			, set_fg_name		AS 'setFgName'
+			, vat_fg_name		AS 'vatFgName'
+			, tr_fg_name		AS 'trFgName'
+			, ctl_fg_name		AS 'ctlFgName'
+			, erp_div_name		AS 'erpDivName'
+			, IFNULL(erp_open_amt, 0)	AS 'erpOpenAmt'
+			, IFNULL(erp_apply_amt, 0)	AS 'erpApplyAmt'
+			, IFNULL(erp_left_amt, 0) 	AS 'erpLeftAmt'	
+			, IFNULL(budget_amt, 0)		AS 'budgetAmt'				
+		FROM	$DB_NEOS$t_exnp_consbudget
+		WHERE	cons_doc_seq = #exDocSeq#	
+	</select>	
+	
+	<select	id="NpUserReportA.selectResBudgetInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  NpUserReportA.selectResBudgetInfo */
+		/* 양식 정보 조회 - 결의서 예산 정보 */
+		SELECT	
+			res_doc_seq					AS 'resDocSeq'
+			, res_seq					AS 'resSeq'
+			, budget_seq				AS 'budgetSeq'
+			, erp_budget_seq			AS 'budgetCode'
+			, erp_budget_name			AS 'budgetName'
+			, erp_bizplan_seq			AS 'bizplanCode'
+			, erp_bizplan_name			AS 'bizplanName'
+			, erp_bgt1_name				AS 'budget1Name'
+			, erp_bgt2_name				AS 'budget2Name'
+			, erp_bgt3_name				AS 'budget3Name'
+			, erp_bgt4_name				AS 'budget4Name'
+			, budget_std_amt			AS 'stdAmt'
+			, budget_tax_amt			AS 'taxAmt'
+			, budget_amt				AS 'amt'
+			, erp_bgacct_seq			AS 'bgacctCode'
+			, erp_bgacct_name			AS 'bgacctName'
+			, erp_fiacct_seq 			AS 'fiacctSeq'
+			, erp_fiacct_name 			AS 'fiacctName'
+			, set_fg_name				AS 'setFgName'
+			, vat_fg_name				AS 'vatFgName'
+			, tr_fg_name				AS 'trFgName'
+			, ctl_fg_name				AS 'ctlFgName'
+			, erp_div_name				AS 'erpDivName'
+			, budget_note				AS 'budgetNote'
+			, IFNULL(erp_open_amt, 0)	AS 'erpOpenAmt'
+			, IFNULL(erp_apply_amt, 0)	AS 'erpApplyAmt'
+			, IFNULL(erp_left_amt, 0) 	AS 'erpLeftAmt'	
+			, IFNULL(budget_amt, 0)		AS 'budgetAmt'	
+			, conffer_doc_seq			AS 'confferDocSeq'
+			, conffer_seq				AS 'confferSeq'
+			, conffer_budget_seq		AS 'confferBudgetSeq'			
+		FROM	$DB_NEOS$t_exnp_resbudget
+		WHERE	res_doc_seq = #exDocSeq#	
+	</select>		
+	
+	<select	id="NpUserReportA.selectConsTradeInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  NpUserReportA.selectConsTradeInfo */
+		/* 양식 정보 조회 - 품의서 채주 정보 */
+		SELECT	
+			cons_doc_seq	AS 'consDocSeq'
+			, cons_seq	AS 'consSeq'
+			, budget_seq	AS 'budgetSeq'
+			, trade_seq	AS 'tradeSeq'
+			, item_name	AS 'itemName'
+			, item_cnt	AS 'itemCnt'
+			, emp_name	AS 'tradeEmpName'
+			, tr_name	AS 'tradeName'
+			, ceo_name	AS 'ceoName'
+			, trade_unit_amt     AS 'tradeAmt'
+			, trade_std_amt	AS 'tradeStdAmt'
+			, trade_vat_amt	AS 'tradeVatAmt'
+			, jiro_name	AS 'jiroName'
+			, ba_nb		AS 'bankNum'
+			, btr_name	AS 'bankName'
+			, depositor	AS 'depositor'
+			, trade_note	AS 'tradeNote'
+		FROM	$DB_NEOS$t_exnp_constrade
+		WHERE	cons_doc_seq = #exDocSeq#
+		
+	</select>
+	
+	<select	id="NpUserReportA.selectResTradeInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  NpUserReportA.selectResTradeInfo */
+		/* 양식 정보 조회 - 결의서 채주 정보 */
+		SELECT	
+			t.res_doc_seq		AS 'resDocSeq'
+			, t.res_seq			AS 'resSeq'
+			, t.budget_seq		AS 'budgetSeq'
+			, t.trade_seq		AS 'tradeSeq'
+			, t.item_name		AS 'itemName'
+			, t.item_cnt		AS 'itemCnt'
+			, t.emp_name		AS 'tradeEmpName'
+			, t.tr_name			AS 'tradeName'
+			, t.ceo_name		AS 'ceoName'
+			, t.trade_amt		AS 'tradeAmt'
+			, t.trade_std_amt	AS 'tradeStdAmt'
+			, t.trade_vat_amt	AS 'tradeVatAmt'
+			, t.jiro_name		AS 'jiroName'
+			, t.ba_nb			AS 'bankNum'
+			, t.btr_name		AS 'bankName'
+			, t.depositor		AS 'depositor'
+			, t.trade_note		AS 'tradeNote'
+			, b.erp_budget_seq	AS 'budgetCode'
+			, b.erp_budget_name	AS 'budgetName'
+			, b.erp_bizplan_seq	AS 'bizplanCode'
+			, b.erp_bizplan_name	AS 'bizplanName'
+			, b.erp_bgt1_name		AS 'budget1Name'
+			, b.erp_bgt2_name		AS 'budget2Name'
+			, b.erp_bgt3_name		AS 'budget3Name'
+			, b.erp_bgt4_name		AS 'budget4Name'
+			, b.budget_std_amt	AS 'stdAmt'
+			, b.budget_tax_amt	AS 'taxAmt'
+			, b.budget_amt		AS 'amt'
+			, b.erp_fiacct_seq  AS 'fiacctSeq'
+			, b.erp_fiacct_name AS 'fiacctName'
+			, b.erp_bgacct_seq	AS 'bgacctCode'
+			, b.erp_bgacct_name	AS 'bgacctName'
+			, b.set_fg_name		AS 'setFgName'
+			, b.vat_fg_name		AS 'vatFgName'
+			, b.tr_fg_name		AS 'trFgName'
+			, b.ctl_fg_name		AS 'ctlFgName'
+			, b.erp_div_name	AS 'erpDivName'
+			, b.budget_note		AS 'budgetNote'
+			, IFNULL(b.erp_open_amt, 0)		AS 'erpOpenAmt'
+			, IFNULL(b.erp_apply_amt, 0)	AS 'erpApplyAmt'
+			, IFNULL(b.erp_left_amt, 0) 	AS 'erpLeftAmt'	
+			, IFNULL(b.budget_amt, 0)		AS 'budgetAmt'	
+			, IFNULL(b.gw_balance_amt, 0)	AS 'gwBalanceAmt'			
+		FROM	$DB_NEOS$t_exnp_restrade t
+		 INNER JOIN $DB_NEOS$t_exnp_resbudget b
+		 ON	t.res_doc_seq = b.res_doc_seq
+		  AND	t.res_seq = b.res_seq
+		  AND	t.budget_seq = b.budget_seq
+		 
+		WHERE	t.res_doc_seq = #exDocSeq#		
+	</select>
+	
+	<select id="NpUserReportA.selectCardTransHistoryList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminReportSQL.xml -  NpUserReportA.selectCardTransHistoryList */
+		/* 카드내역 이관 조회 */
+		SELECT    DATE_FORMAT(a.create_date, '%Y-%m-%d') AS transferDate
+			, A.card_num AS cardNum
+			, A.auth_num AS authNum
+			, A.auth_date AS authDate
+			, A.auth_time AS authTime
+			, CASE
+				WHEN a.transfer_seq = #empSeq# THEN a.receive_name
+				ELSE a.transfer_name
+				END AS targerName
+			, CASE
+				WHEN a.transfer_seq = #empSeq# THEN 'T'
+				ELSE 'R'
+				END AS transferType 
+			, A.transfer_seq AS transferSeq
+			, A.transfer_name AS transferName
+			, A.receive_seq AS receiveSeq
+			, A.receive_name AS receiveName
+			, A.partner_name AS partnerName
+			, A.partner_no AS partnerNo
+			, A.amt AS amt
+			, b.send_yn AS sendYN
+			, IFNULL(b.if_m_id,'') AS ifMId
+			, IFNULL(b.if_d_id,'') AS ifDId
+			, IFNULL(c.doc_status, '') AS docStatus
+			, IFNULL(c.doc_seq,'') AS docSeq
+			, IFNULL(c.doc_title,'') AS docTitle
+			, IFNULL(c.doc_no,'') AS docNo
+			, IFNULL(c.user_nm, '') AS userName
+		FROM   $DB_NEOS$t_ex_card_transfer A
+		INNER JOIN $DB_NEOS$t_ex_card_aq_tmp B
+		ON     A.card_num = B.card_num AND A.auth_num = B.auth_num
+		LEFT OUTER JOIN (
+			SELECT	A.res_doc_seq
+				, A.doc_status
+				, A.doc_seq
+				, B.doc_title
+				, B.doc_no
+				, B.user_nm
+			FROM	(
+				SELECT	doc.doc_seq
+						, doc.res_doc_seq
+						, doc.doc_status
+						, interface_seq
+				FROM	$DB_NEOS$t_exnp_resdoc doc
+				INNER JOIN $DB_NEOS$t_exnp_restrade trade ON trade.interface_type = 'etax' AND doc.res_doc_seq = trade.res_doc_seq
+				WHERE	IFNULL(doc.doc_status,'') IN ('002', '003', '008', '009')  
+			) A INNER JOIN (
+				SELECT	doc.c_dikeycode AS doc_id
+						, doc.c_tikeycode AS form_id
+						, doc.c_dititle AS doc_title
+						, rec.c_ridocfullnum AS doc_no
+						, drf.c_diuserkey AS user_id
+						, drf.c_dijunkyulname AS user_nm
+				FROM	$DB_NEOS$a_docinfo doc
+				INNER JOIN $DB_NEOS$a_draftinfo drf ON doc.c_dikeycode = drf.c_dikeycode
+				INNER JOIN $DB_NEOS$a_recordinfo rec ON doc.c_dikeycode = rec.c_dikeycode
+			) B ON A.doc_seq = B.doc_id
+		) c ON B.if_m_id = C.res_doc_seq
+		WHERE	a.comp_seq = #compSeq#
+		AND		(
+			a.transfer_seq = #empSeq#
+			OR
+			a.receive_seq = #empSeq#
+		)
+		<!-- 0 : 이관일자, 1 : 승인일자 -->
+		<isEqual property="dateSearchType" compareValue="0">
+		AND		DATE_FORMAT(A.create_date,'%Y%m%d') BETWEEN #searchFromDate# AND #searchToDate#
+		</isEqual>
+		<isEqual property="dateSearchType" compareValue="1">
+		AND		A.auth_date BETWEEN #searchFromDate# AND #searchToDate#
+		</isEqual>
+		
+		AND		(
+			a.transfer_name LIKE CONCAT('%',#searchStr#,'%')
+			OR a.receive_name LIKE CONCAT('%',#searchStr#,'%')
+			OR a.partner_name LIKE CONCAT('%',#searchStr#,'%')
+			OR a.card_num LIKE CONCAT('%',#searchStr#,'%')
+			OR a.auth_num LIKE CONCAT('%',#searchStr#,'%')
+			OR a.auth_date LIKE CONCAT('%',#searchStr#,'%')
+			OR a.auth_time LIKE CONCAT('%',#searchStr#,'%')
+		)
+		AND		b.send_yn LIKE CONCAT('%','N','%')
+		
+		UNION
+		
+		SELECT DATE_FORMAT(a.create_date, '%Y-%m-%d') AS transferDate
+			, A.card_num AS cardNum
+			, A.auth_num AS authNum
+			, A.auth_date AS authDate
+			, A.auth_time AS authTime
+			, CASE
+				WHEN a.transfer_seq = #empSeq# THEN a.receive_name
+				ELSE a.transfer_name
+				END AS targerName
+			, CASE
+				WHEN a.transfer_seq = #empSeq# THEN 'T'
+				ELSE 'R'
+				END AS transferType 
+			, A.transfer_seq AS transferSeq
+			, A.transfer_name AS transferName
+			, A.receive_seq AS receiveSeq
+			, A.receive_name AS receiveName
+			, A.partner_name AS partnerName
+			, A.partner_no AS partnerNo
+			, A.amt AS amt
+			, b.send_yn AS sendYN
+			, '' AS ifMId
+			, '' AS ifDId
+			, '' AS docStatus
+			, '' AS docSeq
+			, '' AS docTitle
+			, '' AS docNo
+			, '' AS userName 
+		FROM   $DB_NEOS$t_ex_card_transfer A
+		INNER JOIN $DB_NEOS$t_ex_card_aq_tmp B
+		ON     A.card_num = B.card_num AND A.auth_num = B.auth_num
+		WHERE  (A.transfer_seq = #empSeq# OR A.receive_seq = #empSeq#)
+				
+	</select>
+</sqlMap>

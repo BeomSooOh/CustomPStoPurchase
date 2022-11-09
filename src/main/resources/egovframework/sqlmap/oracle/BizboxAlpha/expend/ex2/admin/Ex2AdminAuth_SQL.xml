@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Ex2AdminAuth">
+	<!-- 증빙 유형 생성 -->
+	<insert id="setAdminAuthInsert" parameterClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminAuth.setAdminAuthInsert */
+		INSERT INTO $DB_NEOS$t_ex_auth ( comp_seq, auth_div, auth_code, auth_name, cash_type, cr_acct_code, cr_acct_name, vat_acct_code, vat_acct_name, vat_type_code, vat_type_name, erp_auth_code, erp_auth_name, auth_required_yn, partner_required_yn, card_required_yn, project_required_yn, note_required_yn, no_tax_code, no_tax_name, order_num, use_yn, create_seq, create_date, modify_seq, modify_date, va_type_code, va_type_name )
+		VALUES ( #compSeq#, 'A', #authCode#, #authName#, #cashType#, #crAcctCode#, #crAcctName#, #vatAcctCode#, #vatAcctName#, #vatTypeCode#, #vatTypeName#, #erpAuthCode#, #erpAuthName#, #authRequiredYN#, #partnerRequiredYN#, #cardRequiredYN#, #projectRequiredYN#, #noteRequiredYN#, #noTaxCode#, #noTaxName#, #orderNum#, #useYN#, #empSeq#, SYSDATE, #empSeq#, SYSDATE, #vaTypeCode#, #vaTypeName# )
+	]]></insert>
+	
+	<!-- 증빙 유형 멀티 생성 -->
+	<insert id="setAdminAuthMultiInsert" parameterClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminAuth.setAdminAuthMultiInsert */
+		INSERT INTO $DB_NEOS$t_ex_auth_multi (comp_seq, auth_div, auth_code, auth_name, lang_code, auth_default_name, cr_acct_name, cr_acct_default_name, dr_acct_name, dr_acct_default_name, erp_auth_name, erp_auth_default_name, vat_type_name, vat_type_default_name, vat_acct_name, vat_acct_default_name, va_type_name, va_type_default_name, create_seq, create_date, modify_seq, modify_date)
+		VALUES (#compSeq#, 'A', #authCode#, #authName#, #langCode#, #authName#, #crAcctName#, #crAcctName#, #drAcctName#, #drAcctName#, #erpAuthName#, #erpAuthName#, #vatTypeName#, #vatTypeName#, #vatAcctName#, #vatAcctName#, #vaTypeName#, #vaTypeName#, #empSeq#, NOW(),#empSeq#, NOW())
+	]]></insert>
+
+	<!-- 증빙 유형 수정 -->
+	<update id="setAdminAuthUpdate" parameterClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminAuth.setAdminAuthUpdate */
+		UPDATE	$DB_NEOS$t_ex_auth
+		SET		auth_name = #authName#
+				, cash_type = #cashType#
+				, cr_acct_code = #crAcctCode#
+				, cr_acct_name = #crAcctName#
+				, vat_acct_code = #vatAcctCode#
+				, vat_acct_name = #vatAcctName#
+				, vat_type_code = #vatTypeCode#
+				, vat_type_name = #vatTypeName#
+				, erp_auth_code = #erpAuthCode#
+				, erp_auth_name = #erpAuthName#
+				, auth_required_yn = #authRequiredYN#
+				, partner_required_yn = #partnerRequiredYN#
+				, card_required_yn = #cardRequiredYN#
+				, project_required_yn = #projectRequiredYN#
+				, note_required_yn = #noteRequiredYN#
+				, no_tax_code = #noTaxCode#
+				, no_tax_name = #noTaxName#
+				, order_num = #orderNum#
+				, use_yn = #useYN#
+				, modify_seq = #empSeq#
+				, modify_date = NOW()
+				, va_type_code = #vaTypeCode#
+				, va_type_name = #vaTypeName#
+		WHERE	comp_seq = #compSeq#
+		AND		auth_div = #authDiv#
+		AND		auth_code = #authCode#
+	]]></update>
+	
+	<!-- 증빙 유형 멀티 수정 -->
+	<update id="setAdminAuthMultiUpdate" parameterClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminAuth.setAdminAuthMultiUpdate */
+		UPDATE $DB_NEOS$t_ex_auth_multi 
+		SET	auth_name = #authName# , 
+			auth_default_name = #authName# , 
+			cr_acct_name = #crAcctName# , 
+			cr_acct_default_name = #crAcctName# , 
+			dr_acct_name = #drAcctName# , 
+			dr_acct_default_name = #drAcctName# , 
+			erp_auth_name = #erpAuthName# , 
+			erp_auth_default_name = #erpAuthName# , 
+			vat_type_name = #vatTypeName# , 
+			vat_type_default_name = #vatTypeName# , 
+			vat_acct_name = #vatAcctName# , 
+			vat_acct_default_name = #vatAcctName# , 
+			va_type_name = #vaTypeName# , 
+			va_type_default_name = #vaTypeName# , 
+			create_seq = #empSeq# , 
+			create_date = NOW(), 
+			modify_seq = #empSeq# , 
+			modify_date = NOW()
+		WHERE comp_seq = #compSeq# 
+		  AND auth_div = #authDiv# 
+		  AND auth_code = #authCode# 
+		  AND lang_code = #langCode#
+	]]></update>
+
+	<!-- 증빙 유형 삭제 -->
+	<delete id="setAdminAuthDelete" parameterClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminAuth.setAdminAuthDelete */
+		DELETE
+		FROM	$DB_NEOS$t_ex_auth
+		WHERE	comp_seq = #compSeq#
+		AND		auth_div = #authDiv#
+		AND		auth_code = #authCode#
+	]]></delete>
+	
+	<!-- 증빙 유형 멀티 삭제 -->
+	<delete id="setAdminAuthMultiDelete" parameterClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminAuth.setAdminAuthMultiDelete */
+		DELETE
+		FROM	$DB_NEOS$t_ex_auth_multi
+		WHERE	comp_seq = #compSeq#
+		AND		auth_div = #authDiv#
+		AND		auth_code = #authCode#
+	]]></delete>
+
+	<!-- 증빙 유형 조회 -->
+	<select id="setAdminAuthSelect" parameterClass="HashMap"
+		resultClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminAuth.setAdminAuthSelect */
+		SELECT	IFNULL(comp_seq, '') AS compSeq
+				, IFNULL(auth_div, '') AS authDiv
+				, IFNULL(auth_code, '') AS authCode
+				, IFNULL(auth_name, '') AS authName
+				, IFNULL(cash_type, '') AS cashType
+				, IFNULL(cr_acct_code, '') AS crAcctCode
+				, IFNULL(cr_acct_name, '') AS crAcctName
+				, IFNULL(vat_acct_code, '') AS vatAcctCode
+				, IFNULL(vat_acct_name, '') AS vatAcctName
+				, IFNULL(vat_type_code, '') AS vatTypeCode
+				, IFNULL(vat_type_name, '') AS vatTypeName
+				, IFNULL(erp_auth_code, '') AS erpAuthCode
+				, IFNULL(erp_auth_name, '') AS erpAuthName
+				, IFNULL(auth_required_yn, '') AS authRequiredYN
+				, IFNULL(partner_required_yn, '') AS partnerRequiredYN
+				, IFNULL(card_required_yn, '') AS cardRequiredYN
+				, IFNULL(project_required_yn, '') AS projectRequiredYN
+				, IFNULL(note_required_yn, '') AS noteRequiredYN
+				, IFNULL(no_tax_code, '') AS noTaxCode
+				, IFNULL(no_tax_name, '') AS noTaxName
+				, IFNULL(order_num, '') AS orderNum
+				, IFNULL(use_yn, '') AS useYN
+				, IFNULL(va_type_code, '') AS vaTypeCode
+				, IFNULL(va_type_name, '') AS vaTypeName
+				, IFNULL(B.auth_name, A.auth_name) AS authNameKr
+				, IFNULL(C.auth_name, A.auth_name) AS authNameEn
+				, IFNULL(D.auth_name, A.auth_name) AS authNameCn
+				, IFNULL(E.auth_name, A.auth_name) AS authNameJp
+				, (CASE order_num WHEN 0 THEN 9999999999 ELSE order_num END)AS 'orderBy'
+		FROM	$DB_NEOS$t_ex_auth A
+		LEFT OUTER JOIN $DB_NEOS$t_ex_auth_multi B ON A.auth_code = B.auth_code 
+		LEFT OUTER JOIN $DB_NEOS$t_ex_auth_multi C ON A.auth_code = C.auth_code
+		LEFT OUTER JOIN $DB_NEOS$t_ex_auth_multi D ON A.auth_code = D.auth_code      
+		WHERE	(
+					IFNULL(auth_code, '') LIKE '%$searchStr$%'
+					OR IFNULL(auth_name, '') LIKE '%$searchStr$%'
+					OR IFNULL(cr_acct_code, '') LIKE '%$searchStr$%'
+					OR IFNULL(cr_acct_name, '') LIKE '%$searchStr$%'
+					OR IFNULL(vat_acct_code, '') LIKE '%$searchStr$%'
+					OR IFNULL(vat_acct_name, '') LIKE '%$searchStr$%'
+					OR IFNULL(erp_auth_code, '') LIKE '%$searchStr$%'
+					OR IFNULL(erp_auth_name, '') LIKE '%$searchStr$%'
+				)
+		AND		(
+					( '$useYN$' = '' AND use_yn = use_yn )
+					OR ( '$useYN$' = 'Y' AND use_yn = 'Y' )
+					OR ( '$useYN$' = 'N' AND use_yn = 'N' )
+				)
+		LIMIT	1
+	]]></select>
+
+	<select id="setAdminAuthListSelect" parameterClass="HashMap"
+		resultClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminAuth.setAdminAuthListSelect */
+		SELECT	IFNULL(A.comp_seq, '') AS compSeq
+				, IFNULL(A.auth_div, '') AS authDiv
+				, IFNULL(A.auth_code, '') AS authCode
+				, IFNULL(A.auth_name, '') AS authName
+				, IFNULL(A.cash_type, '') AS cashType
+				, IFNULL(A.cr_acct_code, '') AS crAcctCode
+				, IFNULL(A.cr_acct_name, '') AS crAcctName
+				, IFNULL(A.vat_acct_code, '') AS vatAcctCode
+				, IFNULL(A.vat_acct_name, '') AS vatAcctName
+				, IFNULL(A.vat_type_code, '') AS vatTypeCode
+				, IFNULL(A.vat_type_name, '') AS vatTypeName
+				, IFNULL(A.erp_auth_code, '') AS erpAuthCode
+				, IFNULL(A.erp_auth_name, '') AS erpAuthName
+				, IFNULL(A.auth_required_yn, '') AS authRequiredYN
+				, IFNULL(A.partner_required_yn, '') AS partnerRequiredYN
+				, IFNULL(A.card_required_yn, '') AS cardRequiredYN
+				, IFNULL(A.project_required_yn, '') AS projectRequiredYN
+				, IFNULL(A.note_required_yn, '') AS noteRequiredYN
+				, IFNULL(A.no_tax_code, '') AS noTaxCode
+				, IFNULL(A.no_tax_name, '') AS noTaxName
+				, IFNULL(A.order_num, '') AS orderNum
+				, IFNULL(A.use_yn, '') AS useYN
+				, IFNULL(A.va_type_code, '') AS vaTypeCode
+				, IFNULL(A.va_type_name, '') AS vaTypeName
+				, IFNULL(B.auth_name, A.auth_name) AS authNameKr
+				, IFNULL(C.auth_name, A.auth_name) AS authNameEn
+				, IFNULL(D.auth_name, A.auth_name) AS authNameCn
+				, IFNULL(E.auth_name, A.auth_name) AS authNameJp
+				, (CASE order_num WHEN 0 THEN 9999999999 ELSE order_num END)AS 'orderBy'
+		FROM	$DB_NEOS$t_ex_auth A
+		LEFT OUTER JOIN $DB_NEOS$t_ex_auth_multi B ON A.auth_code = B.auth_code AND B.lang_code = 'kr'
+		LEFT OUTER JOIN $DB_NEOS$t_ex_auth_multi C ON A.auth_code = C.auth_code AND C.lang_code = 'en'
+		LEFT OUTER JOIN $DB_NEOS$t_ex_auth_multi D ON A.auth_code = D.auth_code AND D.lang_code = 'cn' 
+		LEFT OUTER JOIN $DB_NEOS$t_ex_auth_multi E ON A.auth_code = E.auth_code AND E.lang_code = 'jp' 
+		WHERE	(
+					IFNULL(A.auth_code, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.auth_name, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.cr_acct_code, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.cr_acct_name, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.vat_acct_code, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.vat_acct_name, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.erp_auth_code, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.erp_auth_name, '') LIKE '%$searchStr$%'
+				)
+		AND		(
+					( '$useYN$' = '' AND use_yn = use_yn )
+					OR ( '$useYN$' = 'Y' AND use_yn = 'Y' )
+					OR ( '$useYN$' = 'N' AND use_yn = 'N' )
+				)
+		AND 	A.comp_seq = '$compSeq$'
+		ORDER BY orderBy 
+	]]></select>
+
+	<select id="setAdminAuthErpSendYN" parameterClass="HashMap"
+		resultClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminAuth.setAdminAuthErpSendYN */
+		SELECT    COUNT(*)			as "cnt"
+				, '$authCode$'		as "authCode"
+		FROM   	$DB_NEOS$t_ex_expend_list A
+		INNER JOIN (
+			SELECT expend_seq
+			FROM   $DB_NEOS$t_ex_expend
+			WHERE  NVL(erp_send_yn, ' ') != 'Y'
+			AND    NVL(doc_seq, ' ') != ' ' AND NVL(doc_seq, ' ') != '0'
+			AND    comp_seq = '$compSeq$'
+			AND    NVL(expend_stat_code, ' ') != '999'
+		) B
+		ON A.expend_seq = B.expend_Seq
+		WHERE  A.auth_seq IN (
+			SELECT seq
+			FROM   $DB_NEOS$t_ex_expend_auth
+			WHERE  auth_code = '$authCode$'
+			AND  auth_div = 'A'
+		)
+	]]></select>
+	
+
+</sqlMap>

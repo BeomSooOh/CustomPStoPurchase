@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 사용자 코드 -->
+<mapper namespace="npUserCustU">
+
+	<resultMap id="npUserCustU.iUResult" type="hashmap"></resultMap>
+	<resultMap id="npUserCustU.iUString" type="String"></resultMap>
+	<resultMap id="npUserCustU.iUInt" type="Integer"></resultMap>
+	<select id="npUserCustU.CUST_UP_Z_DITERP_FI_BIZPLAN_CHK" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCustSQL.xml - npUserCustU.CUST_UP_Z_DITERP_FI_BIZPLAN_CHK */
+		/* [CUST_001] 회계단위-사업계획 매핑 조회 */
+		{
+            CALL UP_Z_DITERP_FI_BIZPLAN_CHK(
+                #{P_CD_COMPANY}
+                , #{P_CD_BIZPLAN}
+                , #{P_CD_PC}
+                , #{O_RETURN, mode=OUT, jdbcType=NVARCHAR, javaType=string, resultMap=npUserCustU.iUResult}
+            )
+        }
+	</select>
+</mapper>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 관리자 -->
+<mapper namespace="npAdminETaxU">
+
+	<!-- /* ## FI_TB_TAXDOWN 사용 테이블 정의 옵션 조회 ## */ -->
+	<select id="npAdminETaxU.GetETaxListOption" parameterType="java.util.Map" resultType="java.util.Map">
+	</select>
+
+	<!-- /* ## 사용자 매입전자세금계산서 목록 조회 ## */ -->
+	<select id="npAdminETaxU.GetETaxList" parameterType="java.util.Map" resultType="java.util.Map">
+	</select>
+</mapper>

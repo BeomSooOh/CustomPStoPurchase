@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AcG20ExAppGw">
+
+    <typeAlias alias="abdocu_H" type="common.vo.g20.Abdocu_H" />
+    <typeAlias alias="abdocu_B" type="common.vo.g20.Abdocu_B" />
+    <typeAlias alias="abdocu_T" type="common.vo.g20.Abdocu_T" />
+    <typeAlias alias="abdocu_D" type="common.vo.g20.Abdocu_D" />
+    <typeAlias alias="abdocu_TH" type="common.vo.g20.Abdocu_TH" />
+    <typeAlias alias="abdocu_TD" type="common.vo.g20.Abdocu_TD" />
+    <typeAlias alias="abdocu_TD2" type="common.vo.g20.Abdocu_TD2" />
+    <typeAlias alias="aCardVO" type="common.vo.g20.ACardVO" />
+    
+    <!-- 결의서 헤더 조회  -->
+    <select id="AcG20ExAppGw.getAppAbDocuH" parameterClass="hashMap" resultClass="hashMap"  >
+        /* AcG20ExAppGw.getAppAbDocuH - oracle */
+        SELECT ABDOCU_NO
+             , SANCTION_NO      
+             , MGT_CD
+             , MGT_NM           
+             , DOCU_FG          
+             , RMK_DC           
+             , ERP_CO_CD        
+             , ERP_GISU_DT      
+             , ERP_EMP_CD       
+             , ERP_EMP_NM       
+             , ERP_DIV_CD       
+             , ERP_DIV_NM       
+             , ERP_DEPT_CD      
+             , ERP_DEPT_NM      
+             , ERP_GISU         
+             , ERP_GISU_FROM_DT 
+             , ERP_GISU_TO_DT   
+             , ERP_YEAR         
+             , BTR_CD           
+             , BTR_NM           
+             , BTR_NB	       
+             , BOTTOM_CD        
+             , BOTTOM_NM        
+             , EDIT_PROC        
+             , DOCU_MODE         
+             , ABDOCU_NO_REFFER   
+             , CAUSE_DT
+             , SIGN_DT
+             , INSPECT_DT
+             , CAUSE_NM
+          FROM G20_ABDOCU_H
+         WHERE ABDOCU_NO = #abdocu_no#
+    </select>
+        
+    <!-- 참조 품의서 정보 조회  -->     
+    <select id="AcG20ExAppGw.getReferDocInfo" parameterClass="hashMap" resultClass="hashMap">
+          /* AcG20ExAppGw.getReferDocInfo - oracle */
+          SELECT AA.* ,
+        	   DECODE(AA.C_DIDOCFLAG, '000', '생산', '접수') REFDIDOCFLAGNM, 	
+               $DB_NEOS$F_GETDOCNUMBER (AA.REFDIKEYCODE) REFDOCNUMBER,
+               TO_CHAR( TO_DATE(SUBSTR(AA.C_RIREGDATE,1,8), 'YYYY-MM-DD'), 'YYYY-MM-DD') REFRIREGYMD, 
+               $DB_NEOS$F_GETUSERINFO('1', REQU_USERKEY, #langCode#) AS REFUSERNM
+          FROM (SELECT AA.C_RIDOCNUM,
+          			   BB.C_DIDOCFLAG,
+                       AA.C_DIKEYCODE REFDIKEYCODE,
+                       BB.C_DITITLE  REFDITITLE ,
+                       AA.C_RIREGDATE,
+                       REQU_USERKEY,
+                       BB.C_DIFLAG,
+                       BB.C_DISECRETGRADE
+                  FROM $DB_NEOS$A_RECORDINFO AA ,
+                       $DB_NEOS$A_DOCINFO BB,
+					   ERPGWLINK DD
+                 WHERE AA.C_DIKEYCODE = BB.C_DIKEYCODE
+				   AND BB.C_DIKEYCODE = DD.APPR_DIKEY 
+				   AND DD.DOCX_NUMB =  #abdocu_no_reffer#
+				   AND DD.DOCX_GUBN = '010' )    AA
+    </select>
+    
+    <!-- 결의서 예산리스트 가져오기 -->
+    <select id="AcG20ExAppGw.getAppAbDocuB_List" parameterClass="hashMap" resultClass="hashMap"  >
+        /* AcG20ExAppGw.getAppAbDocuB_List - oracle */
+        SELECT AA.* FROM (
+     SELECT DECODE(BB.RCNT, 1 , AA.ABDOCU_NO )   ABDOCU_NO 	   	,
+            DECODE(BB.RCNT, 1 , AA.ABDOCU_B_NO )   ABDOCU_B_NO 	,
+            MIN(AA.DOCU_MODE) DOCU_MODE       				   	,
+		    MIN(AA.ABDOCU_NO_REFFER) ABDOCU_NO_REFFER		   	,
+			MIN(AA.ERP_CO_CD) ERP_CO_CD       					,
+			MIN(AA.ERP_GISU_DT)  ERP_GISU_DT    				,
+			MIN(AA.ERP_GISU_SQ) ERP_GISU_SQ     				,
+			MIN(AA.ERP_BQ_SQ) ERP_BQ_SQ        					,
+			MIN(AA.ERP_BK_SQ) ERP_BK_SQ       					,
+			MIN(AA.ERP_BGT_NM1) BGT01_NM    					,
+			MIN(AA.ERP_BGT_NM2) BGT02_NM    					,
+			MIN(AA.ERP_BGT_NM3) BGT03_NM    					,
+			MIN(AA.ERP_BGT_NM4) BGT04_NM    					,
+			SUM(AA.OPEN_AM)  OPEN_AM        					,
+			SUM(AA.APPLY_AM)  APPLY_AM       					,
+			SUM(AA.LEFT_AM) LEFT_AM        						,
+			MIN(AA.ABGT_CD) ABGT_CD         					,
+			MIN(AA.ABGT_NM) ABGT_NM         					,
+			MIN(AA.SET_FG)  SET_FG        						,
+			MIN(AA.SET_NM) SET_NM								,
+			MIN(AA.VAT_FG) VAT_FG         						,
+			MIN(AA.VAT_NM) VAT_NM 								,
+			MIN(AA.TR_FG) TR_FG          						,
+			MIN(AA.DIV_CD2) DIV_CD2        						,
+			MIN(AA.DIV_NM2) DIV_NM2         					,
+			MIN(AA.CTL_FG) CTL_FG         						,
+			MIN(AA.INSERT_ID) INSERT_ID       					,
+			MIN(AA.INSERT_DT) INSERT_DT       					,
+			MIN(AA.MODIFY_ID) MODIFY_ID      					,
+			MIN(AA.MODIFY_DT) MODIFY_DT       					,
+			MIN(AA.SESSIONID) SESSIONID      					,
+			MIN(AA.RMK_DC)  RMK_DC         						,
+			MIN(AA.BANK_DT) BANK_DT        						,
+			MIN(AA.BANK_SQ) BANK_SQ        						,
+			MIN(AA.TRAN_CD) TRAN_CD        						,
+			MIN(AA.IT_USE_WAY) IT_USE_WAY
+     FROM  (SELECT ABDOCU_B_NO     ,
+				 ABDOCU_NO       ,
+				 DOCU_MODE       ,
+				 ABDOCU_NO_REFFER,
+				 ERP_CO_CD       ,
+				 ERP_GISU_DT     ,
+				 ERP_GISU_SQ     ,
+				 ERP_BQ_SQ       ,
+				 ERP_BK_SQ       ,
+				 ERP_BGT_NM1     ,
+				 ERP_BGT_NM2     ,
+				 ERP_BGT_NM3     ,
+				 ERP_BGT_NM4     ,
+				 OPEN_AM         ,
+				 APPLY_AM        ,
+				 LEFT_AM         ,
+				 ABGT_CD         ,
+				 ABGT_NM         ,
+				 SET_FG          ,
+				 $DB_NEOS$GET_CODE_DETAIL_Info('0', 'G20SET', SET_FG ,'kr') AS SET_NM ,
+				 VAT_FG          ,
+				 $DB_NEOS$GET_CODE_DETAIL_Info('0', 'G20VAT', VAT_FG ,'kr') VAT_NM ,
+				 TR_FG           ,
+				 DIV_CD2         ,
+				 DIV_NM2         ,
+				 CTL_FG          ,
+				 INSERT_ID       ,
+				 INSERT_DT       ,
+				 MODIFY_ID       ,
+				 MODIFY_DT       ,
+				 SESSIONID       ,
+				 RMK_DC          ,
+				 BANK_DT         ,
+				 BANK_SQ         ,
+				 TRAN_CD         ,
+				 IT_USE_WAY ,
+				 ABDOCU_B_NO_REFFER
+        FROM G20_ABDOCU_B
+        WHERE ABDOCU_NO = #abdocu_no# ) AA ,
+        (SELECT 1 RCNT  FROM DUAL
+           UNION ALL
+        SELECT 2 RCNT  FROM DUAL) BB
+       GROUP BY  DECODE(BB.RCNT, 1 , AA.ABDOCU_NO ) ,
+		         DECODE(BB.RCNT, 1 , AA.ABDOCU_B_NO )) AA		                 
+       ORDER BY AA.ABDOCU_NO ,
+                AA.ABDOCU_B_NO
+    </select>
+    
+    <!-- 결의서 채주정보 조회 -->
+    <select id="AcG20ExAppGw.getAppAbDocuT_List" parameterClass="hashMap" resultClass="hashMap"  >
+        /* AcG20ExAppGw.getAppAbDocuT_List - mariaDB */
+        SELECT AA.*
+          FROM (SELECT DECODE(BB.RCNT, 1 , AA.ABDOCU_NO )   ABDOCU_NO ,
+                       DECODE(BB.RCNT, 1 , AA.ABDOCU_T_NO )   ABDOCU_T_NO ,
+                       DECODE(BB.RCNT, 1 , AA.ABDOCU_B_NO )   ABDOCU_B_NO ,
+                       MIN(AA.TR_NM) TR_NM,
+                       MIN(AA.CEO_NM) CEO_NM ,
+                       MIN(AA.TEL) TEL,
+                       MIN(AA.REG_NB) REG_NB,
+                       MIN(AA.DEPOSITOR) DEPOSITOR,
+                       MIN(AA.BA_NB) BA_NB,
+                       MIN(AA.ABGT_NM) DETAIL_ABGT_NM,
+                       MIN(AA.JIRO_NM) JIRO_NM,
+                       MIN(AA.ABGT_CD) DETAIL_ABGT_CD,
+                       MIN(AA.ADDR) TR_ADDRESS,
+                       MIN(AA.ITEM_NM) ITEM_NM,
+                       MIN(AA.BTR_NM) BTR_NM,
+                       MIN(AA.CTR_NM) CTR_NM,
+                       MIN(AA.CTR_CD) CTR_CD,
+                       MIN(AA.TAX_DT) TAX_DT,
+                       SUM(AA.UNIT_AM) UNIT_AM,
+                       SUM(AA.SUP_AM) SUP_AM,
+                       SUM(AA.VAT_AM) VAT_AM,
+                       SUM(AA.ITEM_CNT) ITEM_CNT,
+                       SUM(AA.ITEM_AM) ITEM_AM,
+                       SUM(AA.INTX_AM) INTX_AM,
+                       SUM(AA.WD_AM) WD_AM,
+                       SUM(AA.RSTX_AM) RSTX_AM,
+                       MIN(AA.TRAN_CD) TRAN_CD,                       
+                       MIN(AA.RMK_DC) DETAIL_RMK_DC
+		          FROM (SELECT BB.ABDOCU_NO ,
+		                       BB.TR_NM,
+		                       BB.CEO_NM,
+		                       BB.TEL,
+		                       BB.REG_NB,
+		                       BB.DEPOSITOR,
+		                       BB.BA_NB,
+		                       BB.TAX_DT,
+		                       AA.ABGT_CD,
+		                       AA.ABGT_NM,
+		                       BB.UNIT_AM,
+		                       BB.SUP_AM,
+		                       BB.VAT_AM,
+		                       BB.RMK_DC,
+		                       BB.JIRO_NM,
+		                       BB.ABDOCU_T_NO,
+		                       BB.ABDOCU_B_NO,
+		                       BB.ITEM_CNT,
+		                       BB.ITEM_NM,
+		                       BB.ITEM_AM,
+		                       BB.BTR_NM,
+		                       BB.INTX_AM,
+		                       BB.RSTX_AM,
+		                       BB.WD_AM,
+		                       BB.ADDR,
+		                       BB.CTR_NM,
+		                       BB.TRAN_CD,
+                               BB.CTR_CD
+		                  FROM G20_ABDOCU_B AA,
+		                       G20_ABDOCU_T BB
+		                 WHERE AA.ABDOCU_NO = #abdocu_no#
+		                 	<isNotEmpty property="abdocu_b_no">
+		                 	AND BB.ABDOCU_B_NO = #abdocu_b_no#
+		                 	</isNotEmpty>
+		                   AND AA.ABDOCU_NO = BB.ABDOCU_NO
+		                   AND AA.ABDOCU_B_NO = BB.ABDOCU_B_NO )  AA ,
+		                (SELECT 1 RCNT  FROM DUAL
+		                 UNION ALL
+		                 SELECT 2 RCNT  FROM DUAL) BB
+		         GROUP BY  DECODE(BB.RCNT, 1 , AA.ABDOCU_NO ) ,
+		                    DECODE(BB.RCNT, 1 , AA.ABDOCU_T_NO ),
+		                    DECODE(BB.RCNT, 1 , AA.ABDOCU_B_NO )) AA
+      ORDER BY AA.ABDOCU_NO ,
+               AA.ABDOCU_B_NO,
+               AA.ABDOCU_T_NO
+    </select>   
+                 
+    <select id="AcG20ExAppGw.getAppAbDocuD_List" parameterClass="HashMap" resultClass="hashMap"  >
+        /* AcG20ExAppGw.getAppAbDocuD_List - mairaDB */
+        SELECT AA.*
+          FROM (SELECT DECODE(BB.RCNT, 1 , AA.ABDOCU_NO )   ABDOCU_NO ,
+                       DECODE(BB.RCNT, 1 , AA.ABDOCU_D_NO ) ABDOCU_D_NO,
+                       MIN(AA.ITEM_NM) ITEM_NM_DETAIL,
+                       MIN(AA.ITEM_DC) ITEM_DC_DETAIL ,
+                       MIN(AA.UNIT_DC) UNIT_DC_DETAIL,
+                       SUM(AA.CT_QT) CT_QT_DETAIL,
+                       SUM(AA.UNIT_AM) UNIT_AM_DETAIL,
+                       SUM(AA.CT_AM) CT_AM_DETAIL
+		          FROM (SELECT 
+		                       ABDOCU_NO,
+		                       ABDOCU_D_NO, 
+		                       ITEM_NM ,  
+       	                       ITEM_DC ,
+                               UNIT_DC, 
+                               CT_QT, 
+       						   UNIT_AM, 
+                               CT_AM
+                          FROM G20_ABDOCU_D
+                         WHERE ABDOCU_NO = #abdocu_no# )  AA ,
+		                (SELECT 1 RCNT  FROM DUAL
+		                 UNION ALL
+		                 SELECT 2 RCNT  FROM DUAL) BB
+		         GROUP BY  DECODE(BB.RCNT, 1 , AA.ABDOCU_NO), 
+		                          DECODE(BB.RCNT, 1 , AA.ABDOCU_D_NO ) 
+		        ) AA
+      ORDER BY AA.ABDOCU_NO, AA.ABDOCU_D_NO
+    </select>
+    
+    <select id="AcG20ExAppGw.getAppAbDocuTD2_List" parameterClass="HashMap" resultClass="hashMap"  >
+        /* AcG20ExAppGw.getAppAbDocuTD2_List - oracle */
+        SELECT AA.*
+          FROM (SELECT DECODE(BB.RCNT, 1 , AA.ABDOCU_NO )   ABDOCU_NO ,
+                       DECODE(BB.RCNT, 1 , AA.ABDOCU_TD2_NO ) ABDOCU_TD2_NO,
+                       MIN(AA.TRIP_DT) TRIP_DT_DETAIL,
+                       MIN(AA.START_NM) START_NM_DETAIL ,
+                       MIN(AA.CROSS_NM) CROSS_NM_DETAIL,
+                       MIN(AA.ARR_NM) ARR_NM_DETAIL,
+                       MIN(AA.JONG_NM) JONG_NM_DETAIL,
+                       MIN(AA.TRMK_DC) TRMK_DC_DETAIL,
+                       MIN(AA.EMP_NM) EMP_NM_DETAIL,
+                       SUM(AA.KM_AM) KM_AM_DETAIL,
+                       SUM(AA.FAIR_AM) FAIR_AM_DETAIL,
+                       SUM(AA.DAY_CNT) DAY_CNT_DETAIL,  
+                       SUM(AA.NT_CNT) NT_CNT_DETAIL,
+                       SUM(AA.FOOD_AM) FOOD_AM_DETAIL,
+                       SUM(AA.ROOM_AM) ROOM_AM_DETAIL ,
+                       SUM(AA.DAY_AM) DAY_AM_DETAIL,
+                       SUM(AA.OTHER_AM) OTHER_AM_DETAIL, 
+                       SUM(AA.TOTAL_AM) TOTAL_AM_DETAIL
+		          FROM ( SELECT ABDOCU_NO,
+		                        ABDOCU_TD2_NO, 
+		          				TRIP_DT , 
+        					    START_NM, 
+        					    CROSS_NM, 
+        					    ARR_NM, 
+        						JONG_NM, 
+       							KM_AM, 
+       							FAIR_AM, 
+        						DAY_CNT, 
+        						NT_CNT, 
+        						TRMK_DC,
+        						FOOD_AM,
+        						ROOM_AM,
+        						DAY_AM,
+        						OTHER_AM,
+                                TOTAL_AM,
+                                EMP_NM
+ 						   FROM G20_ABDOCU_TD2
+                          WHERE ABDOCU_NO = #abdocu_no# )  AA ,
+		               ( SELECT 1 RCNT  FROM DUAL
+		                 UNION ALL
+		                 SELECT 2 RCNT  FROM DUAL) BB
+		      GROUP BY DECODE(BB.RCNT, 1 , AA.ABDOCU_NO),
+		                      DECODE(BB.RCNT, 1 , AA.ABDOCU_TD2_NO ) 
+		   ) AA
+      ORDER BY AA.ABDOCU_NO, AA.ABDOCU_TD2_NO
+    </select>
+                     
+	<update id="AcG20ExAppGw.APPROVAL-COMPLETE-Abdocu_H" parameterClass="HashMap">
+        /* AcG20ExAppGw.APPROVAL-COMPLETE-Abdocu_H - oracle */
+		UPDATE	 G20_ABDOCU_H
+		SET		C_DIKEYCODE		= #c_dikeycode#
+		WHERE	ABDOCU_NO		= #abdocu_no#
+
+	</update>
+	
+	<update id="AcG20ExAppGw.ERP-COMPLETE-Abdocu_H" parameterClass="HashMap">
+        /* AcG20ExAppGw.ERP-COMPLETE-Abdocu_H - oracle */
+		UPDATE	G20_ABDOCU_H
+		SET		ERP_GISU_SQ		= #erp_gisu_sq#
+		WHERE	ABDOCU_NO		= #abdocu_no#
+
+	</update>  	
+	
+	<update id="AcG20ExAppGw.ERP-COMPLETE-Abdocu_B_MERGE" parameterClass="HashMap">
+        /* AcG20ExAppGw.ERP-COMPLETE-Abdocu_B_MERGE - oracle */
+        MERGE INTO G20_ABDOCU_B AA
+        USING ( SELECT ERP_GISU_DT,
+                       ERP_GISU_SQ, 
+                       ERP_BQ_SQ, 
+                       ERP_BK_SQ, 
+                       ABDOCU_B_NO
+                  FROM ($TEMP_SQL$)BB) BB
+                ON (AA.ABDOCU_B_NO = BB.ABDOCU_B_NO)    
+       WHEN MATCHED THEN
+                 UPDATE 
+                    SET AA.ERP_GISU_DT = BB.ERP_GISU_DT,
+                        AA.ERP_GISU_SQ = BB.ERP_GISU_SQ,
+                        AA.ERP_BK_SQ = BB.ERP_BK_SQ,
+                        AA.ERP_BQ_SQ = BB.ERP_BQ_SQ 
+	</update>			
+	
+	<update id="AcG20ExAppGw.ERP-COMPLETE-Abdocu_T_MERGE" parameterClass=HashMap>
+        /* AcG20ExAppGw.ERP-COMPLETE-Abdocu_T_MERGE - oracle */
+        MERGE INTO G20_ABDOCU_T AA
+        USING ( SELECT ERP_ISU_DT,
+                       ERP_ISU_SQ, 
+                       ERP_BQ_SQ, 
+                       ERP_LN_SQ, 
+                       ABDOCU_T_NO,
+                       BK_SQ2
+                FROM ($TEMP_SQL$)BB) BB
+                ON (AA.ABDOCU_T_NO = BB.ABDOCU_T_NO)    
+       WHEN MATCHED THEN
+                 UPDATE 
+                    SET AA.ERP_ISU_DT = BB.ERP_ISU_DT,
+                        AA.ERP_ISU_SQ = BB.ERP_ISU_SQ,
+                        AA.ERP_BQ_SQ = BB.ERP_BQ_SQ,
+                        AA.ERP_LN_SQ = BB.ERP_LN_SQ,
+                        AA.BK_SQ2 = BB.BK_SQ2
+	</update>
+	
+    <update id="AcG20ExAppGw.ERP-COMPLETE-Abdocu_TH" parameterClass="HashMap">
+        /* AcG20ExAppGw.ERP-COMPLETE-Abdocu_TH - oracle */
+        UPDATE  G20_ABDOCU_TH
+        SET 
+                ERP_ISU_DT     = #erp_isu_dt#,
+                ERP_ISU_SQ     = #erp_isu_sq#
+        WHERE   ABDOCU_TH_NO     = #abdocu_th_no#
+
+    </update>	
+	
+	<update id="AcG20ExAppGw.ERP-COMPLETE-Abdocu_TD_MERGE" parameterClass="HashMap">
+        /* AcG20ExAppGw.ERP-COMPLETE-Abdocu_TD_MERGE - oracle */
+        MERGE INTO G20_ABDOCU_TD AA
+        USING ( SELECT ERP_ISU_DT,
+                       ERP_ISU_SQ, 
+                       ERP_LN_SQ,
+                       ABDOCU_TD_NO
+                FROM ($TEMP_SQL$)BB) BB
+                ON (AA.ABDOCU_TD_NO = BB.ABDOCU_TD_NO)    
+       WHEN MATCHED THEN
+                 UPDATE 
+                    SET AA.ERP_ISU_DT = BB.ERP_ISU_DT,
+                        AA.ERP_ISU_SQ = BB.ERP_ISU_SQ,
+                        AA.ERP_LN_SQ = BB.ERP_LN_SQ
+	</update>
+	
+	<update id="AcG20ExAppGw.ERP-COMPLETE-Abdocu_TD2_MERGE" parameterClass="HashMap">
+        /* AcG20ExAppGw.ERP-COMPLETE-Abdocu_TD2_MERGE - oracle */
+        MERGE INTO G20_ABDOCU_TD2 AA
+        USING ( SELECT ERP_ISU_DT,
+                       ERP_ISU_SQ,
+                       ERP_LN_SQ, 
+                       ABDOCU_TD2_NO
+                FROM ($TEMP_SQL$)BB) BB
+                ON (AA.ABDOCU_TD2_NO = BB.ABDOCU_TD2_NO)    
+       WHEN MATCHED THEN
+                 UPDATE 
+                    SET AA.ERP_ISU_DT = BB.ERP_ISU_DT,
+                        AA.ERP_ISU_SQ = BB.ERP_ISU_SQ,
+                        AA.ERP_LN_SQ = BB.ERP_LN_SQ
+	</update>
+	
+	<update id="AcG20ExAppGw.ERP-COMPLETE-Abdocu_D_MERGE" parameterClass="HashMap">
+        /* AcG20ExAppGw.ERP-COMPLETE-Abdocu_D_MERGE - oracle */
+        MERGE INTO G20_ABDOCU_D AA
+        USING ( SELECT ERP_ISU_DT,
+                       ERP_ISU_SQ, 
+                       ERP_LN_SQ, 
+                       ABDOCU_D_NO
+                FROM ($TEMP_SQL$)BB) BB
+                ON (AA.ABDOCU_D_NO = BB.ABDOCU_D_NO)    
+       WHEN MATCHED THEN
+                 UPDATE 
+                    SET AA.ERP_ISU_DT = BB.ERP_ISU_DT,
+                        AA.ERP_ISU_SQ = BB.ERP_ISU_SQ,
+                        AA.ERP_LN_SQ = BB.ERP_LN_SQ
+	</update>	
+     
+</sqlMap>

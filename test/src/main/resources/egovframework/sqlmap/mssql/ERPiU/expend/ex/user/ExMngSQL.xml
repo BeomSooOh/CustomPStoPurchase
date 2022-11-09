@@ -1,0 +1,729 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ExUserMng">
+
+<!-- 공통코드 - 관리항목 조회 -->
+	<select
+		id="ExCodeMngListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngListInfoSelect - 공통코드 - 관리항목 조회
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-28
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT A.mng_seq AS mngSeq
+		       , B.mng_code AS mngCode
+		       , B.mng_name AS mngName
+		       , B.mng_form_code AS mngFormCode
+		       , B.mng_child_yn AS mngChildYN
+		       , A.mng_stat AS mngStat
+		  FROM (SELECT mng_seq
+		               , erp_comp_seq
+		               , mng_code
+		               , mng_stat
+		          FROM (SELECT '1'          AS mng_seq
+		                       , CD_COMPANY AS erp_comp_seq
+		                       , CD_MNG1    AS mng_code
+		                       , ST_MNG1    AS mng_stat
+		                  FROM NEOE.FI_ACCTCODE WITH ( NOLOCK )
+		                 WHERE CD_COMPANY = '${erpCompSeq}'
+		                       AND CD_ACCT = '${acctCode}'
+		                UNION
+		                SELECT '2'          AS mng_seq
+		                       , CD_COMPANY AS erp_comp_seq
+		                       , CD_MNG2    AS mng_code
+		                       , ST_MNG2    AS mng_stat
+		                  FROM NEOE.FI_ACCTCODE WITH ( NOLOCK )
+		                 WHERE CD_COMPANY = '${erpCompSeq}'
+		                       AND CD_ACCT = '${acctCode}'
+		                UNION
+		                SELECT '3'          AS mng_seq
+		                       , CD_COMPANY AS erp_comp_seq
+		                       , CD_MNG3    AS mng_code
+		                       , ST_MNG3    AS mng_stat
+		                  FROM NEOE.FI_ACCTCODE WITH ( NOLOCK )
+		                 WHERE CD_COMPANY = '${erpCompSeq}'
+		                       AND CD_ACCT = '${acctCode}'
+		                UNION
+		                SELECT '4'          AS mng_seq
+		                       , CD_COMPANY AS erp_comp_seq
+		                       , CD_MNG4    AS mng_code
+		                       , ST_MNG4    AS mng_stat
+		                  FROM NEOE.FI_ACCTCODE WITH ( NOLOCK )
+		                 WHERE CD_COMPANY = '${erpCompSeq}'
+		                       AND CD_ACCT = '${acctCode}'
+		                UNION
+		                SELECT '5'          AS mng_seq
+		                       , CD_COMPANY AS erp_comp_seq
+		                       , CD_MNG5    AS mng_code
+		                       , ST_MNG5    AS mng_stat
+		                  FROM NEOE.FI_ACCTCODE WITH ( NOLOCK )
+		                 WHERE CD_COMPANY = '${erpCompSeq}'
+		                       AND CD_ACCT = '${acctCode}'
+		                UNION
+		                SELECT '6'          AS mng_seq
+		                       , CD_COMPANY AS erp_comp_seq
+		                       , CD_MNG6    AS mng_code
+		                       , ST_MNG6    AS mng_stat
+		                  FROM NEOE.FI_ACCTCODE WITH ( NOLOCK )
+		                 WHERE CD_COMPANY = '${erpCompSeq}'
+		                       AND CD_ACCT = '${acctCode}'
+		                UNION
+		                SELECT '7'          AS mng_seq
+		                       , CD_COMPANY AS erp_comp_seq
+		                       , CD_MNG7    AS mng_code
+		                       , ST_MNG7    AS mng_stat
+		                  FROM NEOE.FI_ACCTCODE WITH ( NOLOCK )
+		                 WHERE CD_COMPANY = '${erpCompSeq}'
+		                       AND CD_ACCT = '${acctCode}'
+		                UNION
+		                SELECT '8'          AS mng_seq
+		                       , CD_COMPANY AS erp_comp_seq
+		                       , CD_MNG8    AS mng_code
+		                       , ST_MNG8    AS mng_stat
+		                  FROM NEOE.FI_ACCTCODE WITH ( NOLOCK )
+		                 WHERE CD_COMPANY = '${erpCompSeq}'
+		                       AND CD_ACCT = '${acctCode}') A
+		         WHERE ISNULL (A.mng_code, '') != '') A
+		       INNER JOIN (SELECT CD_COMPANY   AS erp_comp_seq
+		                          , CD_MNG     AS mng_code
+		                          , NM_MNG     AS mng_name
+		                          , YN_CDMNG   AS mng_child_yn
+		                          , TP_MNGFORM AS mng_form_code
+		                     FROM NEOE.FI_MNG WITH ( NOLOCK )
+		                    WHERE CD_COMPANY = '${erpCompSeq}'
+		                          AND YN_USE = N'Y') B
+		               ON A.erp_comp_seq = B.erp_comp_seq
+		                  AND A.mng_code = B.mng_code
+	]]></select>
+	
+	
+	<!-- 공통코드 - 관리항목 하위 코드 조회 -->
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 귀속사업장 -->
+	<select
+		id="ExCodeMngDA01ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDA01ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 귀속사업장
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-28
+         * 변경이력
+         * - 변경내역 없음.
+         */
+ 
+		SELECT CD_BIZAREA   AS ctdCode
+		       , NM_BIZAREA AS ctdName
+		  FROM NEOE.MA_BIZAREA WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND ( ( CD_BIZAREA LIKE '%' + #{searchStr} + '%' )
+		              OR ( NM_BIZAREA LIKE '%' + #{searchStr} + '%' ) ) 
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 코스트센타 -->
+	<select
+		id="ExCodeMngDA02ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDA02ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 코스트센타
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-28
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT CD_CC   AS ctdCode
+		       , NM_CC AS ctdName
+		  FROM NEOE.NEOE.MA_CC WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND YN_USE = 'Y'
+		       AND ( ( CD_CC LIKE '%' + #{searchStr} + '%' )
+		              OR ( NM_CC LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 부서 -->
+	<select
+		id="ExCodeMngDA03ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDA03ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 부서
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-28
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT A.CD_DEPT   AS ctdCode
+		       , A.NM_DEPT AS ctdName
+		  FROM NEOE.MA_DEPT A WITH ( NOLOCK )
+		       INNER JOIN NEOE.MA_BIZAREA C WITH ( NOLOCK )
+		               ON ( A.CD_COMPANY = C.CD_COMPANY
+		                    AND A.CD_BIZAREA = C.CD_BIZAREA )
+		 WHERE A.CD_COMPANY = '${erpCompSeq}'
+		       AND ( ( A.CD_DEPT LIKE '%' + #{searchStr} + '%' )
+		              OR ( A.NM_DEPT LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 사원 -->
+	<select
+		id="ExCodeMngDA04ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDA04ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 사원
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT A.NO_EMP   AS ctdCode
+		       , A.NM_KOR AS ctdName
+		  FROM NEOE.MA_EMP A WITH ( NOLOCK )
+		       INNER JOIN NEOE.MA_DEPT B WITH ( NOLOCK )
+		               ON ( A.CD_COMPANY = B.CD_COMPANY
+		                    AND A.CD_DEPT = B.CD_DEPT )
+		       INNER JOIN NEOE.MA_BIZAREA C WITH ( NOLOCK )
+		               ON( B.CD_COMPANY = C.CD_COMPANY
+		                   AND B.CD_BIZAREA = C.CD_BIZAREA )
+		 WHERE A.CD_COMPANY = '${erpCompSeq}'
+		       AND A.CD_INCOM != '099'
+		       AND ( ( A.NO_EMP LIKE '%' + #{searchStr} + '%' )
+		              OR ( A.NM_KOR LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 프로젝트 -->
+	<select
+		id="ExCodeMngDA05ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDA05ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 프로젝트
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT NO_PROJECT   AS ctdCode
+		       , NM_PROJECT AS ctdName
+		  FROM NEOE.SA_PROJECTH WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND YN_USE = 'Y'
+		       AND ( ( NO_PROJECT LIKE '%' + #{searchStr} + '%' )
+		              OR ( NM_PROJECT LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 거래처 -->
+	<select id="ExCodeMngDA06ListInfoSelect" parameterType="common.vo.ex.ExExpendMngVO" resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDA06ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 거래처
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+		
+		SELECT
+			TOP 100 
+			ctdCode
+		,	ctdName
+		,	subDummy1
+		FROM (
+			SELECT	  CD_PARTNER   AS ctdCode
+					, LN_PARTNER AS ctdName /* 거래처명 */
+					, ISNULL(NO_COMPANY, '') AS subDummy1 /* 사업자 등록 번호 */
+					, CASE
+							WHEN CD_PARTNER = '00' THEN ''
+							ELSE CD_PARTNER
+					   END AS orderNum
+			FROM	NEOE.MA_PARTNER WITH ( NOLOCK )
+			WHERE	CD_COMPANY = '${erpCompSeq}'
+			AND		LN_PARTNER != ''
+			AND		USE_YN = 'Y'
+			AND		(
+						( CD_PARTNER LIKE '%' + #{searchStr} + '%' )
+						OR ( LN_PARTNER LIKE '%' + #{searchStr} + '%' )
+					)
+		) AS A
+		ORDER BY orderNum
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 예적금계좌 -->
+	<select
+		id="ExCodeMngDA07ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDA07ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 예적금계좌
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT DE.CD_DEPOSIT   AS ctdCode
+		       , DE.NM_DEPOSIT AS ctdName
+		  FROM NEOE.FI_DEPOSIT DE WITH ( NOLOCK )
+		       LEFT JOIN NEOE.MA_PARTNER PA WITH ( NOLOCK )
+		              ON DE.CD_COMPANY = PA.CD_COMPANY
+		                 AND DE.CD_BANK = PA.CD_PARTNER
+		 WHERE DE.CD_COMPANY = '${erpCompSeq}'
+		       AND ( ( DE.CD_DEPOSIT LIKE '%' + #{searchStr} + '%' )
+		              OR ( DE.NM_DEPOSIT LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 신용카드 -->
+	<select
+		id="ExCodeMngDA08ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDA08ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 신용카드
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT NO_CARD   AS ctdCode
+		       , NM_CARD AS ctdName
+		  FROM NEOE.FI_CARD WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND YN_USE = 'Y'
+		       AND ( ( NO_CARD LIKE '%' + #{searchStr} + '%' )
+		              OR ( NM_CARD LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 금융기관 -->
+	<select
+		id="ExCodeMngDA09ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDA09ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 금융기관
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+		
+		SELECT TOP 100 CD_PARTNER   AS ctdCode
+		       , LN_PARTNER AS ctdName
+		  FROM NEOE.MA_PARTNER WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND LN_PARTNER != ''
+		       AND FG_PARTNER = '002'
+		       AND ( ( CD_PARTNER LIKE '%' + #{searchStr} + '%' )
+		              OR ( LN_PARTNER LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 품목 -->
+	<select
+		id="ExCodeMngDA10ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDA10ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 품목
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT A.CD_ITEM   AS ctdCode
+		       , A.NM_ITEM AS ctdName
+		  FROM NEOE.MA_ITEM A WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND ( ( A.CD_ITEM LIKE '%' + #{searchStr} + '%' )
+		              OR ( A.NM_ITEM LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 자산관리번호 -->
+	<select
+		id="ExCodeMngDB01ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDB01ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 자산관리번호
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT CD_ASSET   AS ctdCode
+		       , NM_ASSET AS ctdName
+		  FROM NEOE.FI_ASSET WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND ( ( CD_ASSET LIKE '%' + #{searchStr} + '%' )
+		              OR ( NM_ASSET LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 자산처리구분 -->
+	<select
+		id="ExCodeMngDB11ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDB11ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 자산처리구분
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT CD_SYSDEF   AS ctdCode
+		       , NM_SYSDEF AS ctdName
+		  FROM NEOE.MA_CODEDTL WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND CD_FIELD = 'FI_A000004'
+		       AND ISNULL(USE_YN, '') = 'Y'
+		       AND ( ( CD_SYSDEF LIKE '%' + #{searchStr} + '%' )
+		              OR ( NM_SYSDEF LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 받을어음정리구분 -->
+	<select
+		id="ExCodeMngDB12ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDB12ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 받을어음정리구분
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT CD_SYSDEF   AS ctdCode
+		       , NM_SYSDEF AS ctdName
+		  FROM NEOE.MA_CODEDTL WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND CD_FIELD = 'FI_F000006'
+		       AND ISNULL(USE_YN, '') = 'Y'
+		       AND ( ( CD_SYSDEF LIKE '%' + #{searchStr} + '%' )
+		              OR ( NM_SYSDEF LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 환종 -->
+	<select
+		id="ExCodeMngDB24ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDB24ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 환종
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT CD_SYSDEF   AS ctdCode
+		       , NM_SYSDEF AS ctdName
+		  FROM NEOE.MA_CODEDTL WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND CD_FIELD = 'MA_B000005'
+		       AND ISNULL(USE_YN, '') = 'Y'
+		       AND ( ( CD_SYSDEF LIKE '%' + #{searchStr} + '%' )
+		              OR ( NM_SYSDEF LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 사업자등록번호 -->
+	<select
+		id="ExCodeMngDC01ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDC01ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 사업자등록번호
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT	TOP 100 ISNULL (NO_COMPANY, '') AS ctdCode
+				, LN_PARTNER            AS ctdName
+		FROM	NEOE.MA_PARTNER WITH ( NOLOCK )
+		WHERE	CD_COMPANY = '${erpCompSeq}'
+		AND 	LN_PARTNER != ''
+		AND 	USE_YN = 'Y'
+		AND 	( ( ISNULL (NO_COMPANY, '') LIKE '%' + #{searchStr} + '%' )
+					OR ( LN_PARTNER LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 관련계정 -->
+	<select id="ExCodeMngDC03ListInfoSelect" parameterType="common.vo.ex.ExExpendMngVO" resultType="common.vo.ex.ExExpendMngVO">
+		/* ExCodeMngDC03ListInfoSelect - ERPiU - mssql */
+		DECLARE @GW_MNG_TEMP TABLE (
+				CD_ACCT nvarchar(8) NOT NULL
+				, NM_ACCT nvarchar(255) NOT NULL
+				, CD_ACITEM nvarchar(8) NOT NULL
+				, TP_ACLEVEL nvarchar(8) NOT NULL
+				, NM_ACITEM nvarchar(255) NOT NULL
+				, NM_ACHTEM nvarchar(255) NOT NULL
+				, TP_DRCR1 nvarchar(8) NOT NULL
+		)
+		INSERT @GW_MNG_TEMP
+		exec NEOE.UP_HELP_FI_SELECT2 'P_FI_ACCTCODE_SUB' ,'' ,#{erpCompSeq} ,'' ,'' ,'' ,'' ,'' ,'' ,'' ,'' ,'' ,'' ,'' ,'' ,'' ,'' ,'' ,'' ,'' ,'' ,'' 
+			,'' ,'' ,'' ,'' ,'FI' ,'A'  ,'' ,'^^' ,'' ,'' ,'' ,'' ,'' ,'Y' ,'' ,'' ,'' ,null ,'' ,'' ,'' ,'' ,#{searchStr} ,'N' ,'L0'
+		SELECT	CD_ACCT AS ctdCode
+				, NM_ACCT AS ctdName
+		FROM	@GW_MNG_TEMP
+	</select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 세무구분 -->
+	<select
+		id="ExCodeMngDC14ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDC14ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 세무구분
+         * 작성자 : 이준성 
+         * 작성일 : 2020-06-16 
+         * 변경이력
+         * - 세무구분(ERP-U) TP_TAX (매입) 조회 되도록 수정 - 이준성 
+         */
+         
+		SELECT CD_SYSDEF   AS ctdCode
+		       , NM_SYSDEF AS ctdName
+		  FROM NEOE.MA_CODEDTL WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND CD_FIELD = 'FI_T000011'
+		       AND ISNULL(USE_YN, '') = 'Y'
+		       AND ( ( CD_SYSDEF LIKE '%' + #{searchStr} + '%' )
+		              OR ( NM_SYSDEF LIKE '%' + #{searchStr} + '%' ) )
+		       AND CD_SYSDEF > '20'       
+			   AND USE_YN  = 'Y'
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 거래처계좌번호 -->
+	<select
+		id="ExCodeMngDC15ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDC15ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 거래처계좌번호
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT TOP 100 ISNULL (B.CD_DEPOSITNO, '') AS ctdCode
+		       , CASE
+		           WHEN ISNULL (B.NO_DEPOSIT, '') != ''
+		                AND ISNULL (B.CD_BANK, '') != ''
+		                AND ISNULL (B.NM_DEPOSIT, '') != '' THEN ISNULL ( C.NM_BANK, '' ) + '/'
+		                                                         + ISNULL ( B.NO_DEPOSIT, '' ) + '/'
+		                                                         + ISNULL ( B.NM_DEPOSIT, '' )
+		           ELSE ''
+		         END                       AS ctdName
+		  FROM (SELECT ISNULL (A.CD_COMPANY, '')   AS CD_COMPANY
+		               , ISNULL (A.CD_PARTNER, '') AS CD_PARTNER
+		               , ISNULL (A.LN_PARTNER, '') AS LN_PARTNER
+		          FROM NEOE.MA_PARTNER A WITH ( NOLOCK )
+	          ) A
+		       INNER JOIN (SELECT ISNULL (A.CD_COMPANY, '')     AS CD_COMPANY
+		                          , ISNULL (A.CD_PARTNER, '')   AS CD_PARTNER
+		                          , ISNULL (A.NO_DEPOSIT, '')   AS NO_DEPOSIT
+		                          , ISNULL (A.CD_BANK, '')      AS CD_BANK
+		                          , ISNULL (A.NM_DEPOSIT, '')   AS NM_DEPOSIT
+		                          , ISNULL (A.DC_RMK, '')       AS DC_RMK
+		                          , ISNULL (A.CD_DEPOSITNO, '') AS CD_DEPOSITNO
+		                     FROM NEOE.MA_PARTNER_DEPOSIT A WITH ( NOLOCK )) B
+		               ON A.CD_COMPANY = B.CD_COMPANY
+		                  AND A.CD_PARTNER = B.CD_PARTNER
+		       INNER JOIN (SELECT B.CD_FIELD
+		                          , B.CD_SYSDEF AS CD_BANK
+		                          , B.CD_COMPANY
+		                          , B.NM_SYSDEF AS NM_BANK
+		                          , B.USE_YN
+		                     FROM NEOE.MA_CODE A WITH ( NOLOCK )
+		                          INNER JOIN NEOE.MA_CODEDTL B WITH ( NOLOCK )
+		                                  ON A.CD_FIELD = B.CD_FIELD
+		                    WHERE B.CD_COMPANY = '${erpCompSeq}'
+		                          AND B.CD_FIELD = 'MA_B000043'
+		                          AND USE_YN = N'Y'
+		                    GROUP BY B.CD_FIELD
+		                             , B.CD_SYSDEF
+		                             , B.CD_COMPANY
+		                             , B.NM_SYSDEF
+		                             , B.USE_YN) C
+		               ON B.CD_COMPANY = C.CD_COMPANY
+		                  AND B.CD_BANK = C.CD_BANK
+		 WHERE 	A.CD_COMPANY = '${erpCompSeq}'
+		       	AND C.USE_YN = N'Y'
+		       	AND ( ISNULL (B.NO_DEPOSIT, '') != ''
+		             AND ISNULL (B.CD_BANK, '') != ''
+		             AND ISNULL (B.NM_DEPOSIT, '') != '' )
+		       	AND ( ISNULL (B.CD_PARTNER, '') = '${callback}'
+				AND ( ISNULL ( C.NM_BANK, '' ) + '/'
+                   + ISNULL ( B.NO_DEPOSIT, '' ) + '/'
+                   + ISNULL ( B.NM_DEPOSIT, '' ) LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 불공제구분 -->
+	<select
+		id="ExCodeMngDC18ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDC18ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 불공제구분
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT CD_SYSDEF   AS ctdCode
+		       , NM_SYSDEF AS ctdName
+		  FROM NEOE.MA_CODEDTL WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND CD_FIELD = 'FI_T000002'
+		       AND ISNULL(USE_YN, '') = 'Y'
+		       AND ( ( CD_SYSDEF LIKE '%' + #{searchStr} + '%' )
+		              OR ( NM_SYSDEF LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 증빙구분 -->
+	<select
+		id="ExCodeMngDC20ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDC20ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 증빙구분
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT CD_SYSDEF   AS ctdCode
+		       , NM_SYSDEF AS ctdName
+		  FROM NEOE.MA_CODEDTL WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND CD_FIELD = 'FI_T000025'
+		       AND ISNULL(USE_YN, '') = 'Y'
+		       AND ( ( CD_SYSDEF LIKE '%' + #{searchStr} + '%' )
+		              OR ( NM_SYSDEF LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 지급조건 -->
+	<select
+		id="ExCodeMngDC28ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDC28ListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 지급조건
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT CD_PAYMENT   AS ctdCode
+		       , NM_PAYMENT AS ctdName
+		  FROM NEOE.FI_PAYMENT WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND ( ( CD_PAYMENT LIKE '%' + #{searchStr} + '%' )
+		              OR ( NM_PAYMENT LIKE '%' + #{searchStr} + '%' ) )
+	]]></select>
+	
+	<!-- 공통코드 - 지출결의 항목 분개 관리항목 하위코드 목록 조회 - 업무용차량 -->
+	<select
+		id="ExCodeMngDB54ListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDB54ListInfoSelect - 공통코드 - 지출결의 항목 분개 관리항목 하위코드 목록 조회 - 업무용차량
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+         
+		SELECT	CD_BIZCAR AS ctdCode
+				, NM_BIZCAR AS ctdName
+		FROM    NEOE.FI_BIZCAR A
+		WHERE   A.CD_COMPANY = #{erpCompSeq}
+		AND		A.YN_USE = 'Y'
+		AND		(
+					A.CD_BIZCAR LIKE '%' + #{searchStr} + '%'
+					OR A.NM_BIZCAR LIKE '%' + #{searchStr} + '%'
+				)
+		ORDER	BY A.CD_BIZCAR
+	]]></select>
+
+	<!-- 공통코드 - 관리항목 하위 코드 조회 - 관리내역 -->
+	<select
+		id="ExCodeMngDListInfoSelect"
+		parameterType="common.vo.ex.ExExpendMngVO"
+		resultType="common.vo.ex.ExExpendMngVO"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExCodeMngDListInfoSelect - 공통코드 - 관리항목 하위 코드 조회 - 관리내역
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-29
+         * 변경이력
+         * - 변경내역 없음.
+         */
+		
+		SELECT	A.CD_MNGD   AS ctdCode
+				, A.NM_MNGD AS ctdName
+		FROM	NEOE.FI_MNGD A WITH ( NOLOCK )
+				INNER JOIN NEOE.FI_MNG B WITH ( NOLOCK )
+				ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_MNG = B.CD_MNG
+		WHERE	A.CD_COMPANY = #{erpCompSeq}
+		AND		A.YN_USE = 'Y'
+		AND		A.CD_MNG = #{mngCode}
+		AND		( ( ISNULL(A.CD_MNGD, '') LIKE '%' + #{searchStr} + '%' )
+				OR ( ISNULL(A.NM_MNGD, '') LIKE '%' + #{searchStr} + '%' ) )
+		
+		UNION
+		
+		/* B27 : 타계정대체 */
+		SELECT	CD_SYSDEF AS ctdCode
+				, NM_SYSDEF AS ctdName
+		FROM	NEOE.MA_CODEDTL WITH ( NOLOCK )
+		WHERE	CD_FIELD = 'FI_J000005'
+		AND		CD_COMPANY = #{erpCompSeq}
+		AND		USE_YN = 'Y'
+		AND		( ISNULL(CD_SYSDEF, '') LIKE '%' + #{searchStr} + '%'
+				OR ISNULL(NM_SYSDEF, '') LIKE '%' + #{searchStr} + '%' )
+		AND		( CASE WHEN #{mngCode} = 'B27' THEN 1 ELSE 0 END ) = 1
+		
+		UNION
+		
+		/* C13 : 자수타수구분 */
+		SELECT	CD_SYSDEF AS ctdCode
+				, NM_SYSDEF AS ctdName
+		FROM	NEOE.MA_CODEDTL WITH ( NOLOCK )
+		WHERE	CD_FIELD = 'FI_F000005'
+		AND		CD_COMPANY = #{erpCompSeq}
+		AND		USE_YN = 'Y'
+		AND		( ISNULL(CD_SYSDEF, '') LIKE '%' + #{searchStr} + '%'
+				OR ISNULL(NM_SYSDEF, '') LIKE '%' + #{searchStr} + '%' )
+		AND		( CASE WHEN #{mngCode} = 'C13' THEN 1 ELSE 0 END ) = 1
+		
+		UNION
+		
+		/* C22 : 결재조건 */
+		SELECT	CD_SYSDEF AS ctdCode
+				, NM_SYSDEF AS ctdName
+		FROM	NEOE.MA_CODEDTL WITH ( NOLOCK )
+		WHERE	CD_FIELD = 'SA_B000002'
+		AND		CD_COMPANY = #{erpCompSeq}
+		AND		USE_YN = 'Y'
+		AND		( ISNULL(CD_SYSDEF, '') LIKE '%' + #{searchStr} + '%'
+				OR ISNULL(NM_SYSDEF, '') LIKE '%' + #{searchStr} + '%' )
+		AND		( CASE WHEN #{mngCode} = 'C22' THEN 1 ELSE 0 END ) = 1
+	]]></select>
+
+</mapper>

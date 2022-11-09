@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="EmpManage">
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+
+	<select id="EmpManage.selectEmpDuplicate" parameterClass="hashmap" resultClass="string">
+		SELECT 
+			COUNT(emp_seq) 
+		FROM 
+			t_co_emp
+		WHERE 
+			TRUE
+		
+			<isNotEmpty property="loginId">
+			AND login_id = #loginId#
+			</isNotEmpty>
+			<isNotEmpty property="emailAddr">
+			AND email_addr = #emailAddr#
+			</isNotEmpty>
+	</select>
+	
+	<update id="EmpManage.updateEmpLoginId" parameterClass="hashmap">
+		UPDATE
+			t_co_emp
+		SET
+			login_id = #loginId#
+		WHERE
+			group_seq = #groupSeq#
+			AND
+				emp_seq = #empSeq#
+	</update>
+	
+	<select id="EmpManage.selectUserAuthList" parameterClass="hashmap" resultClass="egovMap">
+		SELECT *, ($DB_NEOS$get_code_detail_info('0', 'COM505', A.code_type, #langCode#)) AS codeTypeName 
+		FROM 
+			(
+				SELECT detail_code AS seq, author_code, code_type
+				FROM `t_co_auth_class_relate` 
+				WHERE detail_code = #dutyCode#
+				UNION
+				SELECT detail_code AS seq, author_code, code_type
+				FROM `t_co_auth_class_relate` 
+				WHERE detail_code = #positionCode#
+				UNION
+				SELECT dept_id AS seq, author_code , '3' AS code_type
+				FROM `t_co_auth_dept_relate` WHERE dept_id = #deptSeq#
+				UNION
+				SELECT emp_seq AS seq, author_code , '0' AS code_type
+				FROM `t_co_auth_user_relate` 
+				WHERE emp_seq = #empSeq#
+			) A 
+			LEFT OUTER JOIN `comtnauthorinfo` B ON A.author_code = B.author_code
+		ORDER BY A.code_type, A.author_code
+	</select>
+	
+	<delete id="EmpManage.deleteEmpDept" parameterClass="egovMap">
+		DELETE FROM `neos`.`t_co_emp_dept` 
+		WHERE
+			dept_seq = #deptSeq# AND emp_seq = #empSeq#
+	</delete>
+	 
+	<delete id="EmpManage.deleteEmpDeptMulti" parameterClass="egovMap">
+		DELETE FROM `neos`.`t_co_emp_dept_multi` 
+		WHERE
+			dept_seq = #deptSeq# AND emp_seq = #empSeq#
+	</delete>
+	
+</sqlMap>

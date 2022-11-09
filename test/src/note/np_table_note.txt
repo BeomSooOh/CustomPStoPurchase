@@ -1,0 +1,15 @@
+
+
+/* 원인행위 등록 
+------------------------------------ */
+/*  비고  */					/*   GW   */					/* ERP iU */					/*  iCUBE G20  */
+원인행위 일자					t_exnp_cause.cause_date			FI_DOCUCAUSE.DT_CAUSE			ABDOCU.
+계약 일자						t_exnp_cause.sign_date			FI_DOCUCAUSE.DT_START			ABDOCU.
+검수 일자						t_exnp_cause.inspect_date		FI_DOCUCAUSE.DT_END				ABDOCU.
+원인행위 자 코드				t_exnp_cause.cause_emp_seq		FI_DOCUCAUSE.ID_CAUSE			ABDOCU.
+원인행위 자 이름				t_exnp_cause.cause_emp_name		-								ABDOCU.
+
+
+
+
+

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="NpAdminOptionA">
+
+	<!-- 비영리 회계 - 옵션 셋 조회 -->
+	<select id="NpAdminOptionA.NpGwCommonOptionSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/admin/NpUserOptionSQL.xml - NpAdminOption.NpGwCommonOptionSelect */
+		/* 비영리 회계모듈 공통 옵션 조회 */
+		SELECT	
+			comp_seq
+			, form_seq
+			, option_gbn
+			, option_code
+			, use_sw
+			, order_num
+			, common_code
+			, base_value
+			, base_name
+			, base_emp_value
+			, set_value
+			, set_name
+			, set_emp_value
+			, option_select_type
+			, option_process_type
+			, use_yn
+		FROM	$DB_NEOS$t_exnp_option 
+		<isNotEmpty property="formSeq">
+		WHERE	comp_seq = #compSeq#
+		 AND	form_seq = #formSeq#
+		</isNotEmpty>
+		<isEmpty property="formSeq">
+		 <isEqual property="useSw" compareValue ="iCUBE">
+		  WHERE	comp_seq = 'NP_OPTION_G20' 
+		 </isEqual>
+		 <isEqual property="useSw" compareValue ="ERPiU">
+		  WHERE	comp_seq = 'NP_OPTION_U'
+		 </isEqual>
+		 AND	form_seq = '0'
+		</isEmpty>
+		 AND	use_sw = #useSw#
+	</select>
+
+
+	<!-- 비영리 회계 - 옵션 셋 복사 -->
+	<insert id="NpAdminOptionA.NpGwCommonOptionInsert" parameterClass="java.util.HashMap" >
+		/* expend/np/admin/NpUserOptionSQL.xml - NpAdminOption.NpGwCommonOptionInsert */
+		/* 비영리 회계모듈 공통 옵션 복사 */
+		INSERT  IGNORE INTO $DB_NEOS$t_exnp_option (
+				comp_seq, form_seq, note, option_gbn, option_code, use_sw, order_num, common_code
+				, base_value, base_name, base_emp_value, set_value, set_name, set_emp_value
+				, option_select_type, option_process_type, use_yn
+		)
+		SELECT	
+			#compSeq#
+			, '0'  AS form_seq
+			, o.note
+			, o.option_gbn
+			, o.option_code
+			, o.use_sw
+			, o.order_num
+			, o.common_code
+			, o.base_value
+			, o.base_name
+			, o.base_emp_value
+			, o.set_value
+			, o.set_name
+			, o.set_emp_value
+			, o.option_select_type
+			, o.option_process_type
+			, o.use_yn
+		FROM	(
+			SELECT	* 
+			FROM	$DB_NEOS$t_exnp_option o
+			<isEqual property="useSw" compareValue ="iCUBE"> 
+			  WHERE	comp_seq = 'NP_OPTION_G20'
+			</isEqual>
+			<isEqual property="useSw" compareValue ="ERPiU"> 
+			  WHERE	comp_seq = 'NP_OPTION_U'
+			</isEqual>
+			 AND	form_seq	= '0'
+			 AND	use_sw		= #useSw#
+		)	o
+		LEFT JOIN (
+			SELECT	*
+			FROM	$DB_NEOS$t_exnp_option o2
+			WHERE	comp_seq	= #compSeq#
+			 AND	form_seq	= '0'
+			 AND	use_sw 		= #useSw#
+		)	o2
+		ON	o.option_gbn = o2.option_gbn
+		 AND	o.option_code = o2.option_code
+		WHERE 	o2.option_code IS NULL;
+	</insert>
+	
+	<update id="NpAdminOptionA.NpGwCommonOptionUpdate" parameterClass="java.util.HashMap">
+		UPDATE $DB_NEOS$t_exnp_option SET
+			set_value = #setValue#, 
+			set_name = #setName#
+		WHERE  comp_seq = #compSeq#
+		  AND  form_seq = #formSeq#
+		  AND  option_gbn = #optionGbn#
+		  AND  option_code = #optionCode#
+	</update>
+	
+	<select id="NpAdminConfigA.selectDocFormSeq" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminConfigSQL.xml - NpAdminConfigA.selectDocFormSeq */
+		/* 전자결재 양식 키 조회 / 결재 문서 정보 이용 */
+		SELECT	
+			IFNULL(MAX(formSeq), '')	AS formSeq
+		FROM	(
+			SELECT	c_tikeycode	AS formSeq
+			FROM	$DB_NEOS$a_docinfo 
+			WHERE	c_dikeycode = #docSeq#
+			UNION
+			SELECT	form_id		AS formSeq
+			FROM 	$DB_NEOS$teag_appdoc
+			WHERE	doc_id		= #docSeq#
+		)	tbl;
+	</select>
+	<select id="NpAdminConfigA.selectDocFormSeq2" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminConfigSQL.xml - NpAdminConfigA.selectDocFormSeq2 */
+		/* 전자결재 양식 키 조회 / 회계 정보 이용 */
+		SELECT	
+			IFNULL(MAX(form_seq), '')	AS formSeq
+		FROM	$DB_NEOS$t_exnp_resdoc		
+		WHERE 	res_doc_seq = #resDocSeq#
+	</select>
+	
+	<select id="NpAdminConfigA.selectBasicOption" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminConfigSQL.xml - NpAdminConfigA.selectBasicOption */
+		/* 품의/결의 기본설정 데이터 조회 */
+		SELECT	opt.note
+				, option_gbn AS optionGbn
+				, option_code AS optionCode
+				, use_sw AS useSw
+				, common_code AS commonCode
+				, order_num AS orderNum
+				, base_value AS baseValue
+				, base_name AS baseName
+				, set_value AS setValue
+				, set_name AS setName
+				, option_select_type AS optionSelectType
+				, optC.optionLength AS optionLength
+				, code.optionList
+		FROM	$DB_NEOS$t_exnp_option opt
+		INNER JOIN (
+			SELECT	COUNT(*) AS optionLength
+					, option_gbn AS optionGbn
+			FROM	$DB_NEOS$t_Exnp_option
+			WHERE	comp_seq = #compSeq#
+			AND		( form_seq = '0' OR form_seq =  '')	
+			AND		(option_gbn != '1' OR option_code != '3')
+			GROUP BY option_gbn
+		) optC ON opt.option_gbn = optC.optionGbn
+		INNER JOIN (
+			SELECT	CODE
+					, CONCAT("[",GROUP_CONCAT('{\"code\":\"',detail_code,'\",\"name\":\"',detail_name,'\"}' ORDER BY detail_code),"]") AS optionList
+			FROM	$DB_NEOS$t_co_code_detail_multi
+			WHERE	CODE LIKE 'exnp%'
+			GROUP BY CODE
+		) CODE ON opt.common_code = code.code
+		WHERE	comp_seq = #compSeq#
+		AND		use_sw = 'A'
+		AND	form_seq = ( 
+			CASE 	#formSeq# 
+				WHEN '' THEN (
+					SELECT	form_seq	AS formSeq
+					FROM	$DB_NEOS$t_exnp_trip_res_doc
+					WHERE	doc_seq = #docSeq#
+				) 
+				ELSE #formSeq# 
+			END
+		)
+		AND		option_gbn = #optionGbn#
+		AND		option_code = #optionCode#
+		/* 예산 통제 로직 옵션 필터링 */
+		AND	(option_gbn != '1' OR option_code != '3')
+		ORDER BY option_gbn, option_code,order_num;
+	</select>	
+</sqlMap>

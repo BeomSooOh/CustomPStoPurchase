@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/neos/cmm/systemx/OrgChart_SQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/neos/cmm/systemx/GroupManage_SQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/neos/cmm/systemx/CompManage_SQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/neos/cmm/systemx/DeptManage_SQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/neos/cmm/systemx/EmpManage_SQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/neos/cmm/systemx/AttachFileUpload_SQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/neos/cmm/systemx/EmpDeptManage_SQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/neos/cmm/systemx/MainManage_SQL.xml" />
+</sqlMapConfig>

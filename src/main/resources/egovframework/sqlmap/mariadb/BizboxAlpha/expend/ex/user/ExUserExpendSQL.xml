@@ -1,0 +1,1235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="ExUserExpend">
+	<!-- 지출결의 -->
+	<!-- 지출결의 - 지출결의 생성 -->
+	<insert
+		id="ExExpendInfoInsert"
+		parameterClass="HashMap">
+		<selectKey
+			resultClass="String"
+			keyProperty="expendSeq">
+			SELECT CAST((IFNULL(MAX(CAST(expend_seq AS INT)),0) + 1) AS CHAR) AS expendSeq FROM $DB_NEOS$t_ex_expend
+		</selectKey>
+
+		/* ExExpendInfoInsert - BizboxA - mariaDB */
+		/* 2020. 02. 27. 김상겸, ERPiU 예산통제 기준 변경으로 분리 관리를 위하여 예상통제 버전 추가 기록 진행 */
+
+		INSERT INTO $DB_NEOS$t_ex_expend (
+			comp_seq, expend_seq, doc_seq, form_seq, expend_stat_code
+			, expend_date, expend_req_date, erp_send_yn, write_seq, emp_seq
+			, budget_seq, project_seq, partner_seq, card_seq, json_str
+			, create_seq, create_date, modify_seq, modify_date
+			, erpiu_budget_ver
+		) VALUES (
+			'$compSeq$', '$expendSeq$', '$docSeq$', '$formSeq$', '$expendStatCode$'
+			, '$expendDate$', '$expendReqDate$', '$erpSendYN$', '$writeSeq$', '$empSeq$'
+			, '$budgetSeq$', '$projectSeq$', '$partnerSeq$', '$cardSeq$', '$jsonStr$'
+			, '$createSeq$', NOW(), '$modifySeq$', NOW()
+			, IFNULL((SELECT	CASE	(
+									SELECT	ERP_TYPE_CODE
+									FROM	$DB_NEOS$T_CO_ERP
+									WHERE	COMP_SEQ = '$compSeq$'
+									AND		ACHR_GBN = 'AC'
+									AND		DATABASE_TYPE = 'mssql'
+									LIMIT	1
+								)
+							WHEN 'ERPIU' THEN '2.0'
+							ELSE ''
+						END), ''))
+	</insert>
+
+	<!-- 지출결의 - 지출결의 수정 -->
+	<update
+		id="ExExpendInfoUpdate"
+		parameterClass="HashMap">
+		/* ExExpendInfoUpdate - BizboxA - mariaDB */
+		UPDATE $DB_NEOS$t_ex_expend
+		SET    comp_seq = '$compSeq$'
+		       , expend_seq = '$expendSeq$'
+		       , doc_seq = '$docSeq$'
+		       , expend_stat_code = '$expendStatCode$'
+		       , expend_date = '$expendDate$'
+		       , expend_req_date = '$expendReqDate$'
+		       , erp_send_yn = '$erpSendYN$'
+		       , write_seq = '$writeSeq$'
+		       , emp_seq = '$empSeq$'
+		       , budget_seq = '$budgetSeq$'
+		       , project_seq = '$projectSeq$'
+		       , partner_seq = '$partnerSeq$'
+		       , card_seq = '$cardSeq$'
+		       , json_str = '$jsonStr$'
+		       , erp_send_seq = '$erpSendSeq$'
+		       <isNotEmpty property="erpSendDate">
+		       	, erp_send_date = '$erpSendDate$'
+		       </isNotEmpty>
+		       , row_id = '$rowId$'
+		       , in_dt = '$inDt$'
+		       <isNotEmpty property="inSq">
+		       	, in_sq = '$inSq$'
+		       </isNotEmpty>
+		       , modify_seq = '$modifySeq$'
+		       , modify_date = NOW()
+		WHERE  expend_seq = '$expendSeq$'; 
+	</update>
+
+	<!-- 지출결의 - 지출결의 삭제 -->
+	<update
+		id="ExExpendInfoDelete"
+		parameterClass="HashMap">
+		/* ExExpendInfoDelete - BizboxA - mariaDB */
+		UPDATE $DB_NEOS$t_ex_expend
+		SET 	expend_stat_code = '999'
+				, modify_seq = '$modifySeq$'
+				, modify_date = NOW()
+		WHERE 	expend_seq = '$expendSeq$' ;
+	</update>
+
+	<!-- 지출결의 - 지출결의 조회 -->
+	<select
+		id="ExExpendInfoSelect"
+		parameterClass="HashMap"
+		resultClass="common.vo.ex.ExpendVO"><![CDATA[
+		/* ExExpendInfoSelect - BizboxA - mariaDB */
+		SELECT comp_seq AS compSeq 
+		       , expend_seq AS expendSeq
+		       , doc_seq AS docSeq
+		       , form_seq AS formSeq
+		       , expend_stat_code AS expendStatCode
+		       , expend_date AS expendDate
+		       , expend_req_date AS expendReqDate
+		       , erp_send_yn AS erpSendYN
+		       , write_seq AS writeSeq
+		       , emp_seq AS empSeq
+		       , budget_seq AS budgetSeq
+		       , project_seq AS projectSeq
+		       , partner_seq AS partnerSeq
+		       , card_seq AS cardSeq
+		       , json_str AS jsonStr
+		       , erp_send_seq AS erpSendSeq
+		       , row_id AS rowId
+		       , in_dt AS inDt
+		       , in_sq AS inSq
+		       , IFNULL(erpiu_budget_ver, '') AS erpiuBudgetVer
+		FROM   $DB_NEOS$t_ex_expend
+		WHERE  expend_seq = '$expendSeq$'; 
+	]]></select>
+
+	<!-- 지출결의 - 오류체크 -->
+	<!-- 지출결의 - 오류체크 - 금액 -->
+	<select
+		id="ExExpendErrorAmtInfoSelect"
+		parameterClass="HashMap"
+		resultClass="common.vo.ex.ExCommonResultVO"><![CDATA[
+		/* ExExpendErrorAmtInfoSelect - BizboxA - mariaDB */
+        SELECT  A.expend_seq AS expendSeq
+                , A.list_seq AS listSeq
+                , '0' AS slipSeq
+                , '0' AS mngSeq
+                , CASE WHEN A.std_amt = B.std_amt AND A.tax_amt = B.tax_amt AND A.amt = B.amt THEN '1' ELSE '0' END `code`
+                , 'amt' AS `validateCode`
+                , CASE WHEN A.std_amt = B.std_amt AND A.tax_amt = B.tax_amt AND A.amt = B.amt THEN 'true' ELSE 'false' END `validateStat`
+		FROM    (
+			        SELECT  expend_seq
+				            , list_seq
+				            , std_amt
+				            , tax_amt
+				            , amt
+			        FROM    $DB_NEOS$t_ex_expend_list
+			        WHERE   expend_seq = '$expendSeq$'
+			    ) A INNER JOIN (
+			        SELECT  expend_seq
+				            , list_seq
+				            , SUM(
+				            CASE    WHEN drcr_gbn = 'dr' THEN amt
+					                WHEN drcr_gbn = 'cr' THEN 0
+					                WHEN drcr_gbn = 'vat' THEN 0
+				            END) AS std_amt
+				            , SUM(
+				            CASE    WHEN drcr_gbn = 'dr' THEN 0
+					                WHEN drcr_gbn = 'cr' THEN 0
+					                WHEN drcr_gbn = 'vat' THEN amt
+				            END) AS tax_amt
+				            , SUM(
+				            CASE    WHEN drcr_gbn = 'dr' THEN 0
+					                WHEN drcr_gbn = 'cr' THEN amt
+					                WHEN drcr_gbn = 'vat' THEN 0
+				            END) AS amt
+			        FROM    $DB_NEOS$t_ex_expend_slip
+			        WHERE   expend_seq = '$expendSeq$'
+			        GROUP   BY expend_seq, list_seq
+			    ) B ON A.expend_seq = B.expend_seq AND A.list_seq = B.list_seq
+	]]></select>
+
+	<!-- 지출결의 - 오류체크 - 관리항목 -->
+	<select
+		id="ExExpendErrorMngInfoSelect"
+		parameterClass="HashMap"
+		resultClass="common.vo.ex.ExCommonResultVO"><![CDATA[
+		/* ExExpendErrorMngInfoSelect - BizboxA - mariaDB */
+		SELECT  B.expend_seq AS expendSeq 
+			    , B.list_seq AS listSeq
+			    , B.slip_seq AS slipSeq
+			    , B.mng_seq AS mngSeq
+			    , B.mng_code AS mngCode
+			    , B.ctd_code AS ctdCode
+			    , B.ctd_name AS ctdName
+			    , CASE
+			        WHEN A.drcr_gbn = 'dr' OR A.drcr_gbn = 'vat'
+			        THEN    CASE
+				                WHEN B.mng_stat = 'A' THEN CASE WHEN ctd_code != '' AND ctd_name != '' THEN '1' ELSE '0' END
+				                WHEN B.mng_stat = 'D' THEN CASE WHEN ctd_code != '' AND ctd_name != '' THEN '1' ELSE '0' END
+				                WHEN B.mng_stat = 'C' THEN '1'
+				                WHEN B.mng_stat = 'X' THEN '1'
+				            END
+			        WHEN A.drcr_gbn = 'cr'
+			        THEN    CASE
+				                WHEN B.mng_stat = 'A' THEN CASE WHEN ctd_code != '' AND ctd_name != '' THEN '1' ELSE '0' END
+				                WHEN B.mng_stat = 'D' THEN '1'
+				                WHEN B.mng_stat = 'C' THEN CASE WHEN ctd_code != '' AND ctd_name != '' THEN '1' ELSE '0' END
+				                WHEN B.mng_stat = 'X' THEN '1'
+				            END
+			    END AS `code`
+			    , 'mng' AS `validateCode`
+			    , CASE
+                    WHEN A.drcr_gbn = 'dr' OR A.drcr_gbn = 'vat'
+                    THEN    CASE
+                                WHEN B.mng_stat = 'A' THEN CASE WHEN ctd_code != '' AND ctd_name != '' THEN 'true' ELSE 'false' END
+                                WHEN B.mng_stat = 'D' THEN CASE WHEN ctd_code != '' AND ctd_name != '' THEN 'true' ELSE 'false' END
+                                WHEN B.mng_stat = 'C' THEN 'true'
+                                WHEN B.mng_stat = 'X' THEN 'true'
+                            END
+                    WHEN A.drcr_gbn = 'cr'
+                    THEN    CASE
+                                WHEN B.mng_stat = 'A' THEN CASE WHEN ctd_code != '' AND ctd_name != '' THEN 'true' ELSE 'false' END
+                                WHEN B.mng_stat = 'D' THEN 'true'
+                                WHEN B.mng_stat = 'C' THEN CASE WHEN ctd_code != '' AND ctd_name != '' THEN 'true' ELSE 'false' END
+                                WHEN B.mng_stat = 'X' THEN 'true'
+                            END
+                END AS `validateStat`
+		FROM    (
+			        SELECT  expend_seq
+				            , list_seq
+				            , slip_seq
+				            , drcr_gbn
+			        FROM    $DB_NEOS$t_ex_expend_slip
+			        WHERE   expend_seq = '$expendSeq$'
+			    ) A INNER JOIN (
+			        SELECT  expend_seq
+				            , list_seq
+				            , slip_seq
+				            , mng_seq
+				            , mng_code
+				            , mng_name
+				            , mng_stat
+				            , ctd_code
+				            , ctd_name
+			        FROM    $DB_NEOS$t_ex_expend_mng
+			        WHERE   expend_seq = '$expendSeq$'
+		    ) B ON A.expend_seq = B.expend_seq AND A.list_seq = B.list_seq AND A.slip_seq = B.slip_seq
+	]]></select>
+
+	<!-- 지출결의 - 오류체크 - 예산체크 대상 목록 -->
+	<select
+		id="ExExpendErrorBudgetInfoSelect"
+		parameterClass="HashMap"
+		resultClass="common.vo.ex.ExCodeBudgetVO"><![CDATA[
+		/* ExExpendErrorBudgetInfoSelect - BizboxA - mariaDB */
+		SELECT  SUM(A.amt) AS amt
+                , C.erp_comp_seq AS erp_comp_seq
+			    , B.budget_type
+			    , B.bud_ym
+			    , B.budget_ym
+			    , B.budget_gbn
+			    , B.budget_code
+			    , MAX(B.budget_name) AS budget_name
+			    , B.bizplan_code
+			    , MAX(B.bizplan_name) AS bizplan_name
+			    , B.bgacct_code
+			    , MAX(B.bgacct_name) AS bgacct_name
+		FROM    (
+			        SELECT  C.expend_seq
+				            , C.list_seq
+				            , C.slip_seq
+				            , CASE WHEN C.budget_seq != 0 THEN C.budget_seq WHEN B.budget_seq != 0 THEN B.budget_seq WHEN A.budget_seq != 0 THEN A.budget_seq ELSE 0 END budget_seq
+				            , CASE WHEN C.emp_seq != 0 THEN C.emp_seq WHEN B.emp_seq != 0 THEN B.emp_seq WHEN A.emp_seq != 0 THEN A.emp_seq ELSE 0 END emp_seq
+				            , C.amt
+			        FROM    (
+				                SELECT  expend_seq, emp_seq, budget_seq
+				                FROM    $DB_NEOS$t_ex_expend
+				                WHERE   expend_seq = '$expendSeq$'
+				            ) A INNER JOIN (
+				                SELECT  expend_seq, list_seq, emp_seq, budget_seq
+				                FROM    $DB_NEOS$t_ex_expend_list
+				                WHERE   expend_seq = '$expendSeq$'
+				            ) B ON A.expend_seq = B.expend_seq INNER JOIN (
+				                SELECT  expend_seq, list_seq, slip_seq, emp_seq, budget_seq, amt
+				                FROM    $DB_NEOS$t_ex_expend_slip
+				                WHERE   expend_seq = '$expendSeq$'
+				                AND drcr_gbn = 'dr'
+				            ) C ON B.expend_seq = C.expend_seq AND B.list_seq = C.list_seq
+			        WHERE   ( CASE WHEN A.budget_seq = 0 AND B.budget_seq = 0 AND C.budget_seq = 0 THEN 0 ELSE 1 END ) = 1
+			    ) A INNER JOIN (
+			        SELECT  seq
+				            , IFNULL(budget_type, '') AS budget_type
+				            , IFNULL(bud_ym, '') AS bud_ym
+				            , IFNULL(budget_ym, '') AS budget_ym
+				            , IFNULL(budget_gbn, '') AS budget_gbn
+				            , IFNULL(budget_code, '') AS budget_code
+				            , IFNULL(budget_name, '') AS budget_name
+				            , IFNULL(bizplan_code, '') AS bizplan_code
+				            , IFNULL(bizplan_name, '') AS bizplan_name
+				            , IFNULL(bgacct_code, '') AS bgacct_code
+				            , IFNULL(bgacct_name, '') AS bgacct_name
+                    FROM    $DB_NEOS$t_ex_expend_budget
+			    ) B ON A.budget_seq = B.seq INNER JOIN (
+                    SELECT  seq
+                            , erp_comp_seq
+                    FROM    $DB_NEOS$t_ex_expend_emp
+			    ) C ON A.emp_seq = C.seq
+		GROUP   BY B.budget_type, B.bud_ym, B.budget_ym, B.budget_gbn, B.budget_code, B.bizplan_code, B.bgacct_code, C.erp_comp_seq
+	]]></select>
+	
+	<!-- 지출결의 - 오류체크 - 예산체크 대상 목록 -->
+	<select id="ExExpendErrorAmtChkSelect" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		SELECT	list.expend_seq AS expendSeq
+				, list.list_seq AS listSeq
+				, list.amt AS amt
+				, IFNULL(drSlip.drAmt, 0) AS drAmt
+				, IFNULL(crSlip.crAMt, 0) AS crAmt
+				, CASE
+					WHEN IFNULL(drSlip.drAmt, 0 ) = IFNULL(crSlip.crAmt, 0 ) THEN 'Y'
+					ELSE 'N'
+				END AS sameDrCrAmt
+				 , CASE
+					WHEN IFNULL(drSlip.drAMt, 0 ) = list.amt THEN 'Y'
+					ELSE 'N'
+				END AS sameListSlipAmt
+		FROM	$DB_NEOS$t_ex_expend_list list
+		LEFT OUTER JOIN (
+			SELECT	SUM(amt) AS drAmt
+					, list_seq AS listSeq
+		  	FROM	$DB_NEOS$t_ex_expend_slip
+			WHERE	expend_seq = '$expendSeq$'
+			AND		drcr_gbn != 'cr'
+			GROUP BY list_seq
+		) drSlip ON list.list_seq = drSlip.listSeq
+		LEFT OUTER JOIN (
+			SELECT	SUM(amt) AS crAmt
+					, list_seq AS listSeq
+			FROM	$DB_NEOS$t_ex_expend_slip
+			WHERE	expend_seq = '$expendSeq$'
+			AND		drcr_gbn = 'cr'
+			GROUP BY list_seq
+		) crSlip ON list.list_seq = crSlip.listSeq
+		WHERE	list.expend_seq = '$expendSeq$'
+		ORDER BY CAST(list.list_seq AS INT) ASC;
+		]]></select>
+		
+		<!-- 지출결의 - 오류체크 - 예산체크 대상 목록 -->
+	<select id="ExExpendSlipAmtChkSelectSlipMode" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		SELECT	slip.expend_seq AS expendSeq
+				, slip.list_seq AS listSeq
+				, slip.slip_seq AS slipSeq
+				, IFNULL(drAmt,0)
+				, IFNULL(crAmt,0)
+				, CASE
+					WHEN drAmt = crAmt THEN 'Y'
+					ELSE 'N'
+				END AS sameDrCrAmt
+		FROM	$DB_NEOS$t_ex_expend_slip AS slip
+		LEFT OUTER JOIN (
+			SELECT	expend_seq
+					, SUM(amt) AS drAmt
+			FROM	$DB_NEOS$t_ex_expend_slip
+			WHERE	expend_seq = '$expendSeq$'
+			AND		drcr_gbn != 'cr'
+		) drSlip ON slip.expend_seq = drSlip.expend_seq
+		LEFT OUTER JOIN (
+			SELECT	expend_seq
+					, SUM(amt) AS crAmt
+			FROM	$DB_NEOS$t_ex_expend_slip
+			WHERE	expend_seq = '$expendSeq$'
+			AND		drcr_gbn = 'cr'
+		) crSlip ON slip.expend_seq = crSlip.expend_seq
+		WHERE	slip.expend_seq = '$expendSeq$'
+		ORDER BY CAST(slip_seq AS INT) ASC;
+		]]></select>
+	
+	<!-- 항목 조회 -->
+	<select id="ExListInfoSelect" parameterClass="HashMap" resultClass="common.vo.ex.ExExpendListVO"><![CDATA[
+		/* ExListInfoSelect - BizboxA - mariaDB */
+		SELECT 	expend_seq AS expendSeq
+				, list_seq AS listSeq
+				, summary_seq AS summarySeq
+				, auth_seq AS authSeq
+				, write_seq AS writeSeq
+				, emp_seq AS empSeq 
+				, budget_seq AS budgetSeq
+				, project_seq AS projectSeq
+				, partner_seq AS partnerSeq
+				, card_seq AS cardSeq
+				, IFNULL(fee_seq,0) AS feeSeq
+				, auth_date AS authDate
+				, REPLACE(IFNULL(note,''),"'","\'") AS note
+				, std_amt AS stdAmt
+				, tax_amt AS taxAmt
+				, amt AS amt
+				, sub_std_amt AS subStdAmt
+				, sub_tax_amt AS subTaxAmt
+				, interface_type AS interfaceType
+				, interface_m_id AS interfaceMId
+				, interface_d_id AS interfacDId
+				, json_str AS josnStr
+				, IFNULL(auto_calc_yn, 'Y') AS autoCalcYn
+				, order_seq AS orderSeq
+				, exchange_unit_code AS exchangeUnitCode
+				, exchange_unit_name AS exchangeUnitName
+				, exchange_rate AS exchangeRate
+				, foreign_currency_amount AS foreignCurrencyAmount
+				, foreign_acct_yn AS foreignAcctYN
+				, extend_str1 AS extendStr1
+				, extend_str2 AS extendStr2
+		FROM 	$DB_NEOS$t_ex_expend_list
+		WHERE 	expend_seq = '$expendSeq$'
+		AND 	list_seq = '$listSeq$'
+	]]></select>
+
+
+
+<!-- 항목 조회 - 작성창 그리드 표현 -->
+	<select id="ExListGridInfoSelect" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* ExListGridInfoSelect - BizboxA - mariaDB */
+		SELECT 	A.expend_seq
+				, A.list_seq
+				, A.doc_seq
+				, A.expend_stat_code
+				, A.expend_date
+				, A.expend_req_date
+				, A.erp_send_yn
+				, A.write_seq
+				, A.emp_seq
+				, A.budget_seq
+				, A.project_seq
+				, A.partner_seq
+				, A.card_seq
+				, A.auth_date
+				, A.note
+				, A.std_amt
+				, A.tax_amt
+				, A.amt
+				, A.sub_std_amt
+				, A.sub_tax_amt
+				, A.interface_type
+				, A.interface_m_id
+				, A.interface_d_id
+				, A.order_seq
+				, B.comp_seq
+				, B.comp_name
+				, B.erp_comp_seq
+				, B.erp_comp_name
+				, B.biz_seq
+				, B.biz_name
+				, B.erp_biz_seq
+				, B.erp_biz_name
+				, B.dept_seq
+				, B.dept_name
+				, B.erp_dept_seq
+				, B.erp_dept_name
+				, B.emp_seq
+				, B.erp_emp_seq
+				, B.emp_name
+				, B.erp_emp_name
+				, B.erp_pc_seq
+				, B.erp_pc_name
+				, B.erp_cc_seq
+				, B.erp_cc_name
+				, IFNULL(C.budget_code, '') AS budget_code
+				, IFNULL(C.budget_name, '') AS budget_name
+				, IFNULL(C.bizplan_code, '') AS bizplan_code
+				, IFNULL(C.bizplan_name, '') AS bizplan_name
+				, IFNULL(C.bgacct_code, '') AS bgacct_code
+				, IFNULL(C.bgacct_name, '') AS bgacct_name
+				, IFNULL(C.budget_jsum, '0') AS budget_jsum
+				, IFNULL(C.budget_actsum, '0') AS budget_actsum
+				, IFNULL(C.budget_control_yn, '') AS budget_control_yn
+				, D.project_code
+				, D.project_name
+				, E.partner_code
+				, E.partner_name
+				, E.partner_no
+				, E.partner_fg
+				, E.ceo_name
+				, E.job_gbn
+				, E.cls_job_gbn
+				, E.deposit_no
+				, E.bank_code
+				, E.partner_emp_code
+				, E.partner_hp_emp_no
+				, E.deposit_name
+				, E.deposit_convert
+				, F.card_code
+				, F.card_num
+				, F.card_name
+				, G.summary_div
+				, G.summary_code
+				, G.summary_name
+				, G.bank_partner_code
+				, G.bank_partner_name
+				, H.auth_div
+				, H.auth_code
+				, H.auth_name
+				, H.cash_type
+				, H.erp_auth_code
+				, H.erp_auth_name
+				, H.auth_required_yn
+				, H.partner_required_yn
+				, H.card_required_yn
+				, H.project_required_yn
+				, H.note_required_yn
+				, H.no_tax_code
+				, H.no_tax_name
+				, H.va_type_code
+				, H.va_type_name
+				, IFNULL(card.request_amount, '0') AS cardRequestAmt
+				, IFNULL(card.amt_amount, '0') AS cardAmt
+				, IFNULL(card.vat_amount, '0') AS cardVatAmt
+				, IFNULL(I.hasAttach,'') AS attach
+		FROM (
+			SELECT	A.comp_seq
+					, A.expend_seq
+					, B.list_seq
+					, A.doc_seq
+					, A.expend_stat_code
+					, A.expend_date
+					, A.expend_req_date
+					, A.erp_send_yn
+					, CASE WHEN C.write_seq != 0 THEN C.write_seq WHEN B.write_seq != 0 THEN B.write_seq ELSE A.write_seq END AS write_seq
+					, CASE WHEN C.emp_seq != 0 THEN C.emp_seq WHEN B.emp_seq != 0 THEN B.emp_seq ELSE A.emp_seq END AS emp_seq
+					, CASE WHEN C.budget_seq != 0 THEN C.budget_seq WHEN B.budget_seq != 0 THEN B.budget_seq ELSE A.budget_seq END AS budget_seq
+					, CASE WHEN C.project_seq != 0 THEN C.project_seq WHEN B.project_seq != 0 THEN B.project_seq ELSE A.project_seq END AS project_seq
+					, CASE WHEN C.partner_seq != 0 THEN C.partner_seq WHEN B.partner_seq != 0 THEN B.partner_seq ELSE A.partner_seq END AS partner_seq
+					, CASE WHEN C.card_seq != 0 THEN C.card_seq WHEN B.card_seq != 0 THEN B.card_seq ELSE A.card_seq END AS card_seq
+					, B.summary_seq
+					, B.auth_seq
+					, B.auth_date
+					, B.note
+					, B.std_amt
+					, B.tax_amt
+					, B.amt
+					, B.sub_std_amt
+					, B.sub_tax_amt
+					, B.interface_type
+					, B.interface_m_id
+					, B.interface_d_id
+					, B.order_seq
+			FROM (
+				SELECT	comp_seq, expend_seq, doc_seq, expend_stat_code, expend_date, expend_req_date, erp_send_yn, write_seq, emp_seq, budget_seq, project_seq, partner_seq, card_seq
+				FROM 	$DB_NEOS$t_ex_expend
+				WHERE 	comp_seq = '$compSeq$'
+				AND expend_seq = '$expendSeq$'
+			) A INNER JOIN (
+				SELECT 	expend_seq, list_seq, summary_seq, auth_seq, write_seq, emp_seq, budget_seq, project_seq, partner_seq, card_seq, auth_date, note, std_amt, tax_amt, amt, sub_std_amt, sub_tax_amt, interface_type, interface_m_id, interface_d_id, order_seq
+				FROM	 $DB_NEOS$t_ex_expend_list
+				WHERE expend_seq = '$expendSeq$'
+			) B ON A.expend_seq = B.expend_seq LEFT OUTER JOIN (
+				SELECT 	expend_seq, list_seq, slip_seq, summary_seq, auth_seq, write_seq, emp_seq, budget_seq, project_seq, partner_seq, card_seq, drcr_gbn, acct_code, acct_name, auth_date, note, amt, sub_std_amt, sub_tax_amt, interface_type, interface_m_id, interface_d_id, row_id, row_no, json_str
+				FROM 	$DB_NEOS$t_ex_expend_slip
+				WHERE 	expend_seq = '$expendSeq$'
+				AND 	drcr_gbn = 'dr'
+				GROUP BY list_seq
+			) c ON A.expend_seq = c.expend_seq AND B.list_seq = C.list_seq
+		) A LEFT OUTER JOIN (
+			SELECT 	seq, comp_seq, comp_name, erp_comp_seq, erp_comp_name, biz_seq, biz_name, erp_biz_seq,
+					erp_biz_name, dept_seq, dept_name, erp_dept_seq, erp_dept_name, emp_seq, erp_emp_seq, emp_name, erp_emp_name, erp_pc_seq, erp_pc_name, erp_cc_seq, erp_cc_name
+			FROM 	$DB_NEOS$t_ex_expend_emp
+		) B ON A.emp_seq = B.seq LEFT OUTER JOIN (
+			SELECT	seq, budget_code, budget_name, bizplan_code, bizplan_name, bgacct_code, bgacct_name, budget_jsum, budget_actsum, budget_control_yn
+			FROM 	$DB_NEOS$t_ex_expend_budget
+		) C ON A.budget_seq = C.seq LEFT OUTER JOIN (
+			SELECT 	seq, project_code, project_name
+			FROM 	$DB_NEOS$t_ex_expend_project
+		) D ON A.project_seq = D.seq LEFT OUTER JOIN (
+			SELECT 	seq, partner_code, partner_name, partner_no, partner_fg, ceo_name, job_gbn, cls_job_gbn, deposit_no, bank_code, partner_emp_code, partner_hp_emp_no, deposit_name, deposit_convert
+			FROM 	$DB_NEOS$t_ex_expend_partner
+		) E ON A.partner_seq = E.seq LEFT OUTER JOIN (
+			SELECT 	seq, card_code, card_num, card_name
+			FROM 	$DB_NEOS$t_ex_expend_card
+		) F ON A.card_seq = F.seq LEFT OUTER JOIN (
+			SELECT 	seq, summary_div, summary_code, summary_name, dr_acct_code, dr_acct_name, cr_acct_code,
+					cr_acct_name, vat_acct_code, vat_acct_name, bank_partner_code, bank_partner_name
+			FROM	$DB_NEOS$t_ex_expend_summary
+		) G ON A.summary_seq = G.seq LEFT OUTER JOIN (
+			SELECT 	seq, auth_div, auth_code, auth_name, cash_type, cr_acct_code, cr_acct_name, vat_acct_code, vat_acct_name, vat_type_code, vat_type_name, erp_auth_code, erp_auth_name, auth_required_yn, partner_required_yn, card_required_yn, project_required_yn, note_required_yn, no_tax_code, no_tax_name, va_type_code, va_type_name
+			FROM 	$DB_NEOS$t_ex_expend_auth
+		) H ON A.auth_seq = H.seq LEFT OUTER JOIN $DB_NEOS$t_ex_card_aq_tmp card ON card.sync_id = A.interface_m_id AND interface_type = 'card' LEFT OUTER JOIN (
+			SELECT	'Y' AS hasAttach, expend_seq, list_seq
+			FROM	$DB_NEOS$t_ex_expend_attach
+			WHERE	expend_Seq = '$expendSeq$'
+			AND		slip_seq = 0
+			GROUP BY expend_seq, list_seq, slip_seq
+		) I ON A.expend_seq = I.expend_seq AND A.list_seq = I.list_seq
+		ORDER BY CASE WHEN A.order_seq = 0 THEN CAST(A.list_seq AS INT) ELSE A.order_seq END;
+	]]></select>
+	
+	
+	<!-- 항목 생성 -->
+	<insert
+		id="ExListInfoInsert"
+		parameterClass="HashMap">
+		<selectKey
+			keyProperty="listSeq"
+			resultClass="String">
+			SELECT CAST((IFNULL(MAX(CAST(list_seq AS INT)),0) + 1) AS CHAR) AS list_seq FROM $DB_NEOS$t_ex_expend_list WHERE expend_seq = '$expendSeq$'
+		</selectKey>
+
+		/* ExListInfoInsert - BizboxA - mariaDB */
+		INSERT INTO $DB_NEOS$t_ex_expend_list (expend_seq, list_seq, summary_seq, auth_seq, write_seq, emp_seq, budget_seq, project_seq, partner_seq, card_seq, fee_seq, auth_date, note, std_amt, tax_amt, amt, sub_std_amt, sub_tax_amt, interface_type, interface_m_id, interface_d_id, json_str, create_seq, create_date, modify_seq, modify_date, auto_calc_yn, order_seq, exchange_unit_code, exchange_unit_name, exchange_rate, foreign_currency_amount, foreign_acct_yn, extend_str1, extend_str2 )
+		VALUES ('$expendSeq$', '$listSeq$', '$summarySeq$', '$authSeq$', '$writeSeq$', '$empSeq$', '$budgetSeq$', '$projectSeq$', '$partnerSeq$', '$cardSeq$', '$feeSeq$', '$authDate$', #note#, '$stdAmt$', '$taxAmt$', '$amt$', '$subStdAmt$', '$subTaxAmt$', '$interfaceType$', '$interfaceMId$', '$interfaceDId$', '$jsonStr$', '$createSeq$', NOW(), '$modifySeq$', NOW(), '$autoCalcYn$', '$orderSeq$', '$exchangeUnitCode$', '$exchangeUnitName$', (case when '$exchangeRate$' = '' then '0.0' else '$exchangeRate$' end), (case when '$foreignCurrencyAmount$' = '' then '0.0' else '$foreignCurrencyAmount$' end), '$foreignAcctYN$', #extendStr1#, #extendStr2# );
+	</insert>
+
+	<!-- 항목 수정 -->
+	<update
+		id="ExListInfoUpdate"
+		parameterClass="HashMap"><![CDATA[
+		/* ExListInfoUpdate - BizboxA - mariaDB */
+		UPDATE $DB_NEOS$t_ex_expend_list
+		SET summary_seq = '$summarySeq$' , auth_seq = '$authSeq$' , write_seq = '$writeSeq$' , emp_seq = '$empSeq$' , budget_seq = '$budgetSeq$' , project_seq = '$projectSeq$' , partner_seq = '$partnerSeq$' , card_seq = '$cardSeq$' , auth_date = '$authDate$' , note = #note# , std_amt = '$stdAmt$' , tax_amt = '$taxAmt$' , amt = '$amt$' , sub_std_amt = '$subStdAmt$' , sub_tax_amt = '$subTaxAmt$' , interface_type = '$interfaceType$' , interface_m_id = '$interfaceMId$' , interface_d_id = '$interfaceDId$' , json_str = '$jsonStr$' 
+		   , modify_seq = '$modifySeq$' , modify_date = NOW(), auto_calc_yn = '$autoCalcYn$'
+		WHERE expend_seq = '$expendSeq$' AND list_seq = '$listSeq$' ;
+	]]></update>
+
+	<!-- 항목 삭제 -->
+	<delete
+		id="ExListInfoDelete"
+		parameterClass="HashMap"><![CDATA[
+		/* ExExpendListVO - BizboxA - mariaDB */
+		DELETE FROM $DB_NEOS$t_ex_expend_list
+		WHERE expend_seq = '$expendSeq$' AND list_seq = '$listSeq$' ;
+	]]></delete>
+	
+	<!-- 기본 경로 조회 -->
+	<select id="ExListUploadPathSelect" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* ExListGridInfoSelect - BizboxA - mariaDB */
+		SELECT	
+			group_seq
+			, path_seq
+			, path_name
+			, os_type
+			, absol_path
+			, evail_capac
+			, limit_file_count
+			, create_seq
+			, create_date
+			, modify_seq
+			, modify_date
+		FROM	$DB_NEOS$t_co_group_path 
+		WHERE 	path_seq = 100
+		AND		group_seq = '$groupSeq$'
+	]]></select>
+	
+	<!-- 지출결의 첨부파일 정보 삽입 -->
+	<insert id="ExAttachInfoInsert" parameterClass="HashMap"><![CDATA[
+		/* ExAttachInfoInsert - BizboxA - mariaDB */
+		INSERT 
+		INTO $DB_NEOS$t_ex_expend_attach (type, expend_seq, list_seq, slip_seq, file_seq, create_seq, create_date, modify_seq, modify_date) 
+		VALUES('$type$', '$expend_seq$', '$list_seq$', '$slip_seq$', '$file_seq$', '$create_seq$',SYSDATE(), '$modify_seq$' ,SYSDATE());
+	]]></insert>
+	
+	<select id ="ExExistAttachInfoSelect" parameterClass="HashMap" resultClass="String">
+	<![CDATA[
+		/* ExExistAttachInfoSelect - BizboxA - maria */
+		SELECT 	COUNT(*) AS file_exist
+		FROM 	$DB_NEOS$t_ex_expend_attach 
+		WHERE 	expend_seq = '$expend_seq$' AND list_seq = '$list_seq$' AND slip_seq ='$slip_seq$' AND file_seq = '$file_seq$'
+	]]>
+	</select>
+	
+	<!--  지출결의 첨부파일 아이디 조회 -->
+	<select id="ExAttachFileIDInfoSelect" parameterClass="HashMap" resultClass="String"><![CDATA[
+		/* ExAttachFileIDInfoSelect - BizboxA - mariaDB */
+		SELECT 	IFNULL(file_seq,'') AS file_seq
+		FROM 	$DB_NEOS$t_ex_expend_attach
+		WHERE 	TYPE ='$type$' 
+		AND 	expend_seq = '$expend_seq$' 
+		AND 	list_seq = '$list_seq$' 
+		AND 	slip_seq = '$slip_seq$'
+	]]></select>
+	
+	<!--  지출결의 첨부파일 정보 조회 -->
+	<select id="ExAttchInfoSelect" parameterClass="HashMap" resultClass="common.vo.ex.ExAttachVO"><![CDATA[
+		/* ExAttchInfoSelect - BizboxA - mariaDB */
+		SELECT  A.type
+                ,A.expend_seq
+                ,A.list_seq
+                ,A.slip_seq
+                ,A.file_seq
+                ,A.create_seq
+                ,A.create_date
+                ,A.modify_seq
+                ,A.modify_date
+                ,A.file_sn
+                ,CONCAT(B.absol_path,'/',A.type,'/',A.stre_file_name,'.',A.file_extsn) AS file_absol_path
+                ,A.file_size
+                ,CONCAT(REPLACE(A.orignl_file_name, '''', '`'), '.',A.file_extsn) AS file_name
+		FROM(
+				SELECT TYPE	
+						,expend_seq	
+						,list_seq	
+						,slip_seq	
+						,file_seq	
+						,create_seq	
+						,create_date	
+						,modify_seq	
+						,modify_date	
+						,file_id	
+						,path_seq
+						,file_sn	
+						,file_stre_cours	
+						,stre_file_name	
+						,orignl_file_name	
+						,file_extsn	
+						,file_size
+				FROM (
+					SELECT TYPE
+							,expend_seq
+							,list_seq
+							,slip_seq
+							,file_seq
+							,create_seq
+							,create_date
+							,modify_seq
+							,modify_date
+					FROM $DB_NEOS$t_ex_expend_attach 
+					WHERE file_seq in($file_seq$)
+				)A INNER JOIN(
+					SELECT A.file_id
+							,B.file_sn
+							,B.file_stre_cours
+							,B.stre_file_name
+							,B.orignl_file_name
+							,B.file_extsn
+							,B.file_size
+							,B.path_seq
+					FROM(
+						SELECT * 
+						FROM $DB_NEOS$t_co_atch_file WHERE use_yn ='Y'
+					)A INNER JOIN(
+						SELECT * 
+						FROM $DB_NEOS$t_co_atch_file_detail
+						WHERE use_yn = 'Y'
+					)B ON A.file_id = B.file_id
+				)B ON A.file_seq = B.file_id
+		)A INNER JOIN(
+				SELECT * 
+				FROM $DB_NEOS$t_co_group_path 
+				WHERE group_seq = '$group_seq$' AND path_seq = '1400' AND os_type ='$os_type$'
+		)B ON A.path_seq = B.path_seq
+		ORDER BY A.file_sn ASC
+	]]></select>
+	
+	<!-- 지출결의 첨부파일 정보 수정(삭제) -->
+	<update id="ExAttachFileInfoDelete" parameterClass="HashMap"><![CDATA[
+			UPDATE $DB_NEOS$t_co_atch_file_detail
+			SET use_yn = 'N'
+			WHERE file_id = '$file_seq$' and file_sn = (
+				SELECT file_sn
+				FROM(
+					SELECT file_id
+						,file_sn
+						,orignl_file_name
+						,file_extsn
+						,use_yn
+						,CONCAT(orignl_file_name,'.',file_extsn) AS full_file_name
+					FROM $DB_NEOS$t_co_atch_file_detail
+					WHERE file_id = '$file_seq$'
+				)A
+				WHERE A.full_file_name = '$file_name$' 
+			)
+	]]>
+	</update>
+	
+	<!-- 지출결의 항목 전체 정보 조회 -->
+	<select id = "ExListDetailInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+	SELECT 	list.*
+			, summary.summary_code AS summaryCode
+			, summary.summary_name AS summaryName
+			, summary.dr_acct_code AS drAcctCode
+			, summary.dr_acct_name AS drAcctName
+			, summary.cr_acct_code AS crAcctCode
+			, summary.cr_acct_name AS crAcctName
+			, auth.auth_code AS authCode
+			, auth.auth_name AS authName
+			, auth.vat_acct_code AS vatAcctCode
+			, auth.vat_acct_name AS vatAcctName
+			, auth.vat_type_code AS vatTypeCode
+			, auth.vat_type_name AS vatTypeName
+			, auth.no_tax_code AS noTaxCode
+			, auth.no_tax_name AS noTaxName
+			, auth.va_type_code AS vaTypeCode
+			, auth.va_type_name AS vaTypeName
+			, emp.erp_biz_seq AS erpBizSeq
+			, emp.erp_biz_name AS erpBizName
+			, emp.erp_dept_seq AS erpDeptSeq
+			, emp.erp_dept_name AS erpDeptName
+			, emp.erp_emp_seq AS erpEmpSeq
+			, emp.erp_emp_name AS erpEmpName
+			, emp.erp_pc_seq AS erpPcSeq
+			, emp.erp_pc_name AS erpPcName
+			, emp.erp_cc_seq AS erpCcSeq
+			, emp.erp_cc_name AS erpCcName
+			, budget.bud_ym AS budYm
+			, budget.budget_ym AS budgetYm
+			, budget.budget_code AS budgetCode
+			, budget.budget_name AS budgetName
+			, budget.bizplan_code AS bizplanCode
+			, budget.bizplan_name AS bizplanName
+			, budget.bgacct_code AS bgacctCode
+			, budget.bgacct_name AS bgacctName
+			, budget.dracct_amt AS dracctAmt
+			, project.project_code AS projectCode
+			, project.project_name AS projectName
+			, partner.partner_code AS partnerCode
+			, partner.partner_name AS partnerName
+			, partner.partner_no AS partnerNo
+			, card.card_code AS cardCode
+			, card.card_num AS cardNum
+			, card.card_name AS cardName
+		FROM 	(
+			SELECT 	a.list_seq AS listSeq
+					, IFNULL(summary_seq, '0') AS summary_seq
+					, IFNULL(auth_seq, '0') AS auth_seq
+					, IFNULL(emp_seq, '0') AS emp_seq
+					, IFNULL(b.budget_seq, '0') AS budget_seq
+					, IFNULL(project_seq, '0') AS project_seq
+					, IFNULL(partner_seq, '0') AS partner_seq
+					, IFNULL(card_seq, '0') AS card_seq
+					, IFNULL(note, '') AS note
+					, IFNULL(auth_date,'') AS authDate
+					, IFNULL(amt,'0.00') AS amt
+					, IFNULL(std_amt,'0.00') AS stdAmt
+					, IFNULL(tax_amt,'0.00') AS taxAmt
+					, IFNULL(sub_std_amt,'0.00') AS subStdAmt
+					, IFNULL(sub_tax_amt,'0.00') AS subTaxAmt
+			FROM 	$DB_NEOS$t_ex_expend_list a
+			LEFT OUTER JOIN (
+				SELECT	budget_seq, list_seq
+				FROM	$DB_NEOS$t_ex_expend_slip
+				WHERE 	expend_seq = '$expendSeq$'
+				AND		list_seq = '$listSeq$'
+				AND		drcr_gbn = 'dr'
+			) b ON a.list_seq = b.list_seq
+			WHERE		a.expend_seq = '$expendSeq$'
+			AND			a.list_seq = '$listSeq$'
+		) LIST
+		LEFT OUTER JOIN $DB_NEOS$t_ex_expend_auth auth ON list.auth_seq = auth.seq
+		LEFT OUTER JOIN $DB_NEOS$t_ex_expend_summary summary ON list.summary_seq = summary.seq
+		LEFT OUTER JOIN $DB_NEOS$t_ex_expend_emp emp ON list.emp_seq = emp.seq
+		LEFT OUTER JOIN $DB_NEOS$t_ex_expend_budget budget ON list.budget_seq = budget.seq
+		LEFT OUTER JOIN $DB_NEOS$t_ex_expend_project project ON list.project_seq = project.seq
+		LEFT OUTER JOIN $DB_NEOS$t_ex_expend_partner partner ON list.partner_seq = partner.seq
+		LEFT OUTER JOIN $DB_NEOS$t_ex_expend_card card ON list.card_seq = card.seq
+		LIMIT 1;
+	</select>
+
+	<insert id="ExAppDocHistoryInsert" parameterClass="HashMap">
+		<selectKey resultClass="String" keyProperty="logSeq">
+			SELECT CAST((IFNULL(MAX(CAST(log_seq AS INT)),0) + 1) AS CHAR) AS logSeq FROM $DB_NEOS$teah_appdoc WHERE doc_id = '$docSeq$'
+		</selectKey>
+		INSERT INTO $DB_NEOS$teah_appdoc (
+			log_seq,doc_id,form_id,doc_no,doc_no_base,numbering_id,rep_dt,co_id,dept_id,user_id,co_nm,dept_nm,user_nm,doc_title,doc_sts,end_dt,arbitrary_yn,inservice_time,related_doc_no,doc_end_dt,transfer_yn,transfer_menu_id,doc_level,use_yn,interlock_url,interlock_btn_nm,rcv_co_id,rcv_dept_id,rcv_user_id,rcv_user_nm,modify_reason,created_by,created_dt
+		)
+		SELECT 	'$logSeq$'
+				, doc_id
+				, form_id
+				, doc_no
+				, doc_no_base
+				, numbering_id
+				, rep_dt
+				, co_id
+				, dept_id
+				, user_id
+				, co_nm
+				, dept_nm
+				, user_nm
+				, doc_title
+				, doc_sts
+				, end_dt
+				, arbitrary_yn
+				, inservice_time
+				, related_doc_no
+				, doc_end_dt
+				, transfer_yn
+				, transfer_menu_id
+				, doc_level
+				, use_yn
+				, interlock_url
+				, interlock_btn_nm
+				, rcv_co_id
+				, rcv_dept_id
+				, rcv_user_id
+				, rcv_user_nm
+				, '$modifyReason$'
+				, '$createdBy$'
+				, NOW()
+		FROM 	$DB_NEOS$teag_appdoc 
+		WHERE 	doc_id = '$docSeq$';
+	</insert>
+
+	<insert id="ExAppDocContentsHistoryInsert" parameterClass="HashMap">
+		<selectKey resultClass="String" keyProperty="logSeq">
+			SELECT CAST((IFNULL(MAX(CAST(log_seq AS INT)),0) + 1) AS CHAR) AS logSeq FROM $DB_NEOS$teah_appdoc_contents WHERE doc_id = '$docSeq$'
+		</selectKey>
+		INSERT INTO $DB_NEOS$teah_appdoc_contents
+			(log_seq,doc_id,contents_tp,doc_contents,created_by,created_dt)
+		SELECT	'$logSeq$',doc_id,contents_tp,doc_contents,'$createdBy$',NOW()
+		FROM	$DB_NEOS$teag_appdoc_contents
+		WHERE 	doc_id = '$docSeq$';
+	</insert>
+	
+	<update id="ExExpendListAmtUpdate" parameterClass="HashMap" >
+		UPDATE 	$DB_NEOS$t_ex_expend_list
+		SET 	std_amt = '$stdAmt$'
+				, tax_amt =  '$taxAmt$'
+				, amt =  '$amt$'
+				, sub_std_amt =  '$subStdAmt$'
+				, sub_tax_amt =  '$subTaxAmt$'
+		WHERE	expend_seq =  '$expendSeq$'
+		AND		list_seq =  '$listSeq$'
+	</update>
+	
+	<select id="ExExpendListAmtSelect" parameterClass="HashMap" resultClass="HashMap">
+		SELECT 	std_amt AS stdAmt
+				, tax_amt AS taxAmt
+				, amt AS amt
+				, sub_std_amt AS subStdAmt
+				, sub_tax_amt AS subTaxAmt
+		FROM 	$DB_NEOS$t_ex_expend_list
+		WHERE	expend_seq =  '$expendSeq$'
+		AND		list_seq =  '$listSeq$'
+	</select>
+	
+	<!-- 준성 기안일자 검색 --> 
+	<select id="ExExpendHistoryListSelect" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	expend.*
+				, IFNULL(partner.partner_name, '' ) AS partnerName
+		FROM
+		(
+			SELECT	doc.doc_no AS docNo
+					, doc.doc_title AS docTitle
+					, CAST(SUBSTRING(doc.rep_dt,1,10) AS CHAR) AS repDt
+					, doc_sts AS docSts
+					, expend.expend_seq AS expendSeq
+					, CASE
+						WHEN expend.partner_seq = 0 THEN 
+							CASE 
+								WHEN list.partner_seq = 0 THEN slip.partner_seq
+								ELSE list.partner_seq
+							END
+						ELSE expend.partner_seq
+					END AS parnterSeq
+			FROM	$DB_NEOS$t_ex_expend expend
+			INNER JOIN $DB_NEOS$t_ex_expend_list LIST ON expend.expend_seq = list.expend_seq
+			INNER JOIN $DB_NEOS$t_ex_expend_slip slip ON expend.expend_seq = slip.expend_seq AND list.list_seq = slip.list_seq
+			INNER JOIN $DB_NEOS$teag_appdoc doc ON expend.doc_seq = doc.doc_id
+			WHERE 	expend.doc_seq != ''
+			AND		expend.form_seq = '$formSeq$'
+			AND		expend.comp_seq = '$compSeq$'
+			AND		expend.expend_stat_code NOT IN (999, 10)
+			AND		doc.user_id = '$empSeq$'
+			AND		doc.doc_sts  NOT IN (999, 10)
+			AND		doc.use_yn = 1
+			AND   	DATE(doc.rep_dt) BETWEEN #frDt# AND #toDt#
+			AND		doc.doc_sts LIKE CONCAT('%',CONCAT('$expendStatCode$','%'))
+			AND		doc.doc_no LIKE CONCAT('%',CONCAT('$docNo$','%'))
+			AND		doc.doc_title LIKE CONCAT('%',CONCAT('$docTitle$','%'))
+			GROUP BY expendSeq
+		) expend
+		LEFT OUTER JOIN $DB_NEOS$t_ex_expend_partner partner ON expend.parnterSeq = partner.seq
+		ORDER BY CAST(expend.repDt AS CHAR) DESC
+	</select>
+	
+	<insert id="ExExpendEditHistoryInsert" parameterClass="HashMap">
+		<selectKey resultClass="String" keyProperty="historySeq">
+			SELECT 	CAST(( IFNULL(MAX(CAST(history_seq AS INT) ),0) + 1) AS CHAR) AS historySeq 
+			FROM 	$DB_NEOS$t_ex_expend_history 
+			WHERE 	expend_seq = '$expendSeq$';
+		</selectKey>
+		INSERT INTO $DB_NEOS$t_ex_expend_history (expend_seq, history_seq, history_info, doc_seq, create_seq, create_date) 
+		VALUES('$expendSeq$', '$historySeq$','$modifyReason$','$docSeq$','$createdBy$',NOW());
+	</insert>
+	
+	<select id="ExExpendListSeqSelect" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	list_seq AS listSeq
+		FROM	$DB_NEOS$t_ex_expend_list 
+		WHERE	expend_seq = '$expendSeq$'
+	</select>
+	
+	<select id="ExExpendListSelect" parameterClass="HashMap" resultClass="common.vo.ex.ExExpendListVO">
+		SELECT	expend_seq AS expendSeq
+				, list_seq AS listSeq
+				, summary_seq AS summarySeq
+				, auth_seq AS authSeq
+				, write_seq AS writeSeq
+				, emp_seq AS empSeq
+				, budget_seq AS budgetSeq
+				, project_seq AS projectSeq
+				, partner_seq AS partnerSeq
+				, card_seq AS cardSeq
+				, auth_date AS authDate
+				, note AS note
+				, std_amt AS stdAmt
+				, tax_amt AS taxAmt
+				, amt AS amt
+				, sub_std_amt AS subStdAmt
+				, sub_tax_amt AS subTaxAmt
+				, interface_type AS interfaceType
+				, interface_m_id AS interfaceMId
+				, interface_d_id AS interfaceDId
+				, json_str AS jsonStr
+				, create_seq AS createSeq
+				, modify_seq AS modifySeq
+		FROM 	$DB_NEOS$t_ex_expend_list
+		WHERE 	expend_seq = '$expendSeq$'
+		ORDER BY CAST(list_seq AS int);
+	</select>
+	
+	<select id="ExExpendButtonInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		/* expend/ex/user/ExUserExpendSQL.xml - ExExpendButtonInfoSelect */
+		/* 버튼설정 정보 조회 */
+		SELECT	
+			'$compSeq$' 	AS 'compSeq'
+			, '$formSeq$'	AS 'formSeq'
+			, IFNULL(ADV.page_seq, BASE.page_seq) 	AS 'pageSeq'
+			, IFNULL(ADV.btn_seq, BASE.btn_seq) 	AS 'btnSeq'
+			, IFNULL(ADV.POSITION, BASE.POSITION) 	AS 'position'
+			, IFNULL(ADV.order_num, BASE.order_num)	AS 'orderNum'
+			, IFNULL(ADV.display_yn, BASE.display_yn) AS 'displayYN'
+			, IFNULL(ADV.license_yn, BASE.license_yn) AS 'licenseYN'
+			, IFNULL(ADV.btn_size, BASE.btn_size) 	AS 'btnSize'
+			, IFNULL(ADV.nm_basic, BASE.nm_basic) 	AS 'nmBasic'
+			, IFNULL(ADV.nm_kr, BASE.nm_kr) 	AS 'nmKR'
+			, IFNULL(ADV.nm_en, BASE.nm_en) 	AS 'nmEN'
+			, IFNULL(ADV.nm_jp, BASE.nm_jp) 	AS 'nmJP'
+			, IFNULL(ADV.nm_cn, BASE.nm_cn) 	AS 'nmCN'
+			, IFNULL(ADV.default_yn, BASE.default_yn) 	AS 'defaultYN'
+			, IFNULL(ADV.default_code, BASE.default_code)	AS 'defaultCode'
+			, IFNULL(ADV.call_url, BASE.call_url) 		AS 'callURL'
+			, IFNULL(ADV.call_param, BASE.call_param) 	AS 'callParam'
+			, IFNULL(ADV.callback_url, BASE.callback_url)	AS 'callbackURL'
+			, IFNULL(ADV.callback_type, BASE.callback_type)	AS 'callbackType'
+			, IFNULL(ADV.callback_key, BASE.callback_key)	AS 'callbackKey'
+			, IFNULL(ADV.default_elemId, BASE.default_elemId)	AS 'defaultElemId'
+			, IFNULL(ADV.default_elemClass, BASE.default_elemClass)	AS 'defaultElemClass'
+			, IFNULL(ADV.ext_url, BASE.ext_url) 		AS 'extURL' /* 확장 URL ( 외부연동 대응용 ) */
+		FROM	(
+			SELECT	
+				comp_seq, form_seq, page_seq, btn_seq, POSITION, order_num, license_yn, display_yn
+				, btn_size, nm_basic, nm_kr, nm_en, nm_jp, nm_cn, default_yn, default_code, call_url
+				, call_param, callback_url, callback_type, callback_key, default_elemId, default_elemClass, ext_url
+			FROM	$DB_NEOS$t_ex_button
+			WHERE	comp_seq = 'EXP_BUTTON'
+			 AND	form_seq = '0'
+			 AND	license_yn = 'Y'
+		)	BASE
+		 LEFT JOIN 	(
+		 	SELECT	
+				comp_seq, form_seq, page_seq, btn_seq, POSITION, order_num, license_yn, display_yn
+				, btn_size, nm_basic, nm_kr, nm_en, nm_jp, nm_cn, default_yn, default_code, call_url
+				, call_param, callback_url, callback_type, callback_key, default_elemId, default_elemClass, ext_url
+			FROM	$DB_NEOS$t_ex_button
+			WHERE	comp_seq = '$compSeq$'
+			 AND	form_seq = '$formSeq$'
+		 )	ADV
+		 ON 	BASE.default_code = ADV.default_code
+		WHERE 	IFNULL(ADV.display_yn, BASE.display_yn) = 'Y'
+		ORDER BY pageSeq, POSITION, orderNum
+	</select>
+	
+	<delete id="ExExpendListAttachDelete" parameterClass="HashMap">
+		DELETE
+		FROM	$DB_NEOS$t_ex_expend_attach
+		WHERE	expend_seq = '$expendSeq$'
+		AND		list_seq = '$listSeq$';
+	</delete>
+	
+	<select id="ExExpendListCopyBudgetInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	budget.budget_code AS budgetCode
+				, budget.budget_name AS budgetName
+				, budget.bizplan_code AS bizplanCode
+				, budget.bizplan_name AS bizplanName
+				, budget.bgacct_code AS bgacctCode
+				, budget.bgacct_name AS bgacctName
+				, budget.budget_gbn AS budgetGbn
+				, budget.budget_ym AS budgetYm
+				, SUM(budget.dracct_amt) totalAmt
+				, budget.yn_control AS ynControl
+		FROM	$DB_NEOS$t_Ex_expend_slip slip
+		INNER JOIN $DB_NEOS$t_ex_expend_budget budget ON slip.budget_seq = budget.seq
+		WHERE	slip.expend_seq = '$expendSeq$'
+		AND		slip.list_seq = '$listSeq$'
+		GROUP BY budget_code, bizplan_code, bgacct_code, budget_ym, budget_gbn;
+	</select>
+	
+	<select id="ExExpendSlipCopyBudgetInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	b.budget_code AS budgetCode
+				, b.budget_name AS budgetName
+				, b.bizplan_code AS bizplanCode
+				, b.bizplan_name AS bizplanName
+				, b.bgacct_code AS bgacctCode
+				, b.bgacct_name AS bgacctName
+				, b.budget_gbn AS budgetGbn
+				, b.budget_ym AS budgetYm
+				, SUM(b.dracct_amt) totalAmt
+		FROM	$DB_NEOS$t_ex_expend_budget b
+		INNER JOIN (
+			SELECT	budget.budget_code AS budgetCode
+					, budget.budget_name AS budgetName
+					, budget.bizplan_code AS bizplanCode
+					, budget.bizplan_name AS bizplanName
+					, budget.bgacct_code AS bgacctCode
+					, budget.bgacct_name AS bgacctName
+					, budget.budget_gbn AS budgetGbn
+					, budget.budget_ym AS budgetYm
+			FROM	$DB_NEOS$t_Ex_expend_slip slip
+			INNER JOIN $DB_NEOS$t_ex_expend_budget budget ON slip.budget_seq = budget.seq
+			WHERE	slip.expend_seq = '$expendSeq$'
+			AND		slip.list_seq = '$listSeq$'
+			AND		slip.slip_seq = '$slipSeq$'
+		) sb ON (b.budget_code = sb.budgetCode AND b.bizplan_code = sb.bizplanCode AND b.bgacct_code = sb.bgacctCode)
+		WHERE	seq IN (
+			SELECT	budget_seq
+			FROM	$DB_NEOS$t_ex_expend_slip
+			WHERE	expend_seq = '$expendSeq$'
+			AND		drcr_gbn = 'dr'
+			AND		budget_seq != '0'
+			AND		list_seq = '$listSeq$'
+		)
+		GROUP BY b.budget_code, b.bizplan_code, b.bgacct_code, b.budget_ym, b.budget_gbn;
+	</select>
+	
+	<select id="ExExpendHistoryBudgetInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	budget.budget_code AS budgetCode
+				, budget.budget_name AS budgetName
+				, budget.bizplan_code AS bizplanCode
+				, budget.bizplan_name AS bizplanName
+				, budget.bgacct_code AS bgacctCode
+				, budget.bgacct_name AS bgacctName
+				, budget.budget_gbn AS budgetGbn
+				, budget.budget_ym AS budgetYm
+				, SUM(budget.dracct_amt) totalAmt
+		FROM	$DB_NEOS$t_ex_expend_slip slip
+		INNER JOIN $DB_NEOS$t_ex_expend_budget budget ON slip.budget_seq = budget.seq
+		WHERE	expend_seq = '$expendSeq$'
+		AND		drcr_gbn = 'dr'
+		GROUP BY budget.budget_code, budget.bizplan_code, budget.bgacct_code, budget.budget_ym, budget.budget_gbn;
+	</select>
+	
+	<select id="ExExpendListAttachListInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	file_seq
+				, type
+				, create_seq
+				, modify_seq
+				, slip_seq
+				, list_seq
+		FROM	$DB_NEOS$t_ex_expend_attach
+		WHERE	expend_seq = '$expendSeq$'
+		AND		list_seq = '$listSeq$'
+		AND		slip_seq = 0;
+	</select>
+	
+	<delete id="ExExpendListAttachListInfoDelete" parameterClass="HashMap">
+		DELETE	FROM $DB_NEOS$t_ex_expend_attach
+		WHERE	expend_seq = '$expendSeq$'
+		AND		list_seq = '$listSeq$';	
+	</delete>
+	
+	<select id="ExExpendCloseDateSelect" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	comp_seq AS compSeq
+				, form_seq AS formSeq
+				, close_type AS closeType
+				, close_from_date AS closeFromDate
+				, close_to_date AS closeToDate
+				, close_stat AS closeStat
+		FROM	$DB_NEOS$t_ex_close
+		WHERE	comp_seq = #compSeq#
+		AND		form_seq = #formSeq#
+		AND		close_stat = 'Y'
+		ORDER BY close_type, close_from_date
+	</select>
+	
+	<select id="ExAuthDateErrorInfoSelect" parameterClass="HashMap" resultClass="common.vo.ex.ExCommonResultVO">
+		/* 지출결의 증빙일자 마감 여부 확인 */
+		SELECT	expend_seq AS expendSeq
+                , list_seq AS listSeq
+                , slip_seq AS slipSeq
+                , '0' AS mngSeq
+                , '' AS `validateCode`
+                , closeYN AS `validateStat`
+		FROM	(
+			SELECT	expend.comp_seq
+					, expend.expend_seq
+					, slip.list_seq
+					, slip.slip_seq
+					, slip.auth_date
+					, cl.close_from_date
+					, cl.close_to_date
+					, CASE
+						WHEN slip.auth_date BETWEEN cl.close_from_date AND cl.close_to_date THEN 'false'
+						ELSE 'true'
+					END AS closeYN
+			FROM	$DB_NEOS$t_ex_expend expend
+			INNER JOIN $DB_NEOS$t_ex_expend_slip slip ON expend.expend_seq = slip.expend_seq
+			INNER JOIN $DB_NEOS$t_ex_close cl ON expend.comp_seq = cl.comp_seq AND expend.form_seq = cl.form_seq
+			WHERE	expend.expend_seq = #expendSeq#
+			AND		cl.close_stat = 'Y'
+			AND		cl.close_type = 'A'
+		) A
+		WHERE	A.closeYN = 'false'
+	</select>
+	
+	<select id="ExExpendListETaxInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	a.iss_no AS issNo
+				, iss_Dt AS issDt
+				, b.erp_comp_seq AS erpCompSeq
+				, b.erp_biz_seq AS erpBizSeq
+		FROM	$DB_NEOS$t_ex_etax_aq_tmp a
+		INNER JOIN $DB_NEOS$t_ex_expend_emp b ON a.emp_seq = b.seq
+		WHERE	sync_id = #syncId#
+	</select>
+	
+	<select id="ExListInterfaceSelect" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	interface_type AS interfaceType
+				, interface_m_id AS interfaceMId
+		FROM	$DB_NEOS$t_ex_expend_list
+		WHERE	expend_seq = #expendSeq#
+		AND		list_seq = #listSeq#
+	</select>
+	
+	<!-- 지출결의 - 항목정보 정렬순서 채번 -->
+	<select id="ExExpendListOrderInfoSelect" parameterClass="HashMap" resultClass="Integer">
+		SELECT	IFNULL(MAX(order_seq), 0) + 1 AS orderSeq 
+		FROM	$DB_NEOS$t_ex_expend_list
+		WHERE	expend_seq = #expendSeq#
+	</select>
+
+	<!-- 지출결의 - 지출결의 관리항목 일괄 수정 -->
+	<update id="ExMasterMngUpdate" parameterClass="HashMap">
+		UPDATE	$DB_NEOS$t_ex_expend_mng
+		SET		ctd_code = #code#
+				, ctd_name = #name#
+		WHERE	expend_seq = #expendSeq#
+		<iterate open="(" close=")" conjunction="," property="mngCodeList" prepend=" AND mng_code IN">
+			#mngCodeList[]#
+		</iterate>
+	</update>
+
+	<!-- 전자결재 작성한 회사시퀀스 조회 -->
+	<select id="ExDocCompSeqInfoSelect" parameterClass="HashMap" resultClass="String">
+		SELECT	co_id AS compSeq
+		FROM	$DB_NEOS$teag_appdoc
+		WHERE	doc_id = #docSeq#
+	</select>
+</sqlMap>

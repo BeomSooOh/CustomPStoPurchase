@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ERPiU mssql -->
+<mapper namespace="BiAdminSQL">
+	<select id="BiAdminCarInfoListSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/* iCUBE 차량 정보 조회 */
+		/* 필요파라미터 erpCompSeq, carCd(선택/검색) */
+		SELECT	ROW_NUMBER() OVER(ORDER BY CAR_CD) AS rowNum
+				, CAR_CD AS carCode
+				, CAR_NB AS carNumber
+				, CAR_NM AS carName
+				, car.DEPT_CD AS erpDeptSeq
+				, ISNULL(dept.DEPT_NM,'') AS erpDeptName
+				, ISNULL(car.EMP_CD,'') AS erpEmpseq
+				, ISNULL(emp.KOR_NM,'') AS erpEmpName
+				, DUTY AS duty
+				, USE_YN AS useYN
+				, ACCT_CD AS acctCd
+				, ASSET_CD AS assetCd
+				, car.DIV_CD AS erpBizSeq
+				, GET_DT AS getDate
+				, EXPEN_TY AS expendType
+				, INSUR_YN AS insurYN
+				, INSUR_TR_CD AS insurTrCode
+				, IFR_DT AS insurFromDate
+				, ITO_DT AS insurToDate
+				, LEASE_YN AS leaseYN
+				, LFR_DT AS leaseFromDate
+				, LTO_DT AS leaseToDate
+				, BIZ_FG AS bizFg
+		FROM	ABIZCAR car
+		LEFT OUTER JOIN ZA_EMP_DAIKIN emp ON ( emp.CO_CD = car.CO_CD AND car.EMP_CD = emp.EMP_CD )
+		LEFT OUTER JOIN ZA_DEPT_DAIKIN dept ON ( dept.CO_CD = car.CO_CD AND dept.DIV_CD = car.DIV_CD AND dept.DEPT_CD = car.DEPT_CD )
+		WHERE	car.CO_CD = '${erpCompSeq}'
+		AND		(
+			/* 검색조건 - 차량코드 */
+			CAR_CD LIKE '%${searchStr}%' OR
+			/* 검색조건 - 차량번호 */
+			CAR_NB LIKE '%${searchStr}%' OR
+			/* 검색조건 - 차량명칭 */
+			CAR_NM LIKE '%${searchStr}%'
+		)
+		<if test="useYN != ''">
+			/* 검색조건 - 차량명칭 */
+			AND		USE_YN LIKE '%${useYN}%'
+		</if>
+		
+	</select>
+	
+	<select id="BiAdminAbizcarPersonInfoListSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/* 운행기록부(개인화) 조회 */
+		SELECT	DIV_CD AS divCd
+				,CAR_CD AS carCd
+				,USE_DT AS useDt
+				,SEQ_NB AS seqNb
+				,START_TIME AS startTime
+				,END_TIME AS entTime
+				,DEPT_CD AS deptCd
+				,EMP_CD AS empCd
+				,USE_FG AS useFg
+				,START_FG AS startFg
+				,START_ADDR AS startAddr
+				,START_ADDR1 AS startAddr1
+				,END_FG AS endFg
+				,END_ADDR AS endAddr
+				,END_ADDR1 AS endAddr1
+				,MILEAGE_KM AS mileageKm
+				,BEFORE_KM AS beforeKm
+				,AFTER_KM AS afterKm
+				,RMK_NB AS rmkNb
+				,RMK_DC AS rmkDc
+				,A1 AS a1
+				,A2 AS a2
+				,B1 AS b1
+				,B2 AS b2
+				,C1 AS c1
+				,C2 AS c2
+				,D1 AS d1
+				,D2 AS d2
+				,E1 AS e1
+				,E2 AS e2
+				,ETC_RMK AS etcRmk
+				,SEND_YN AS sendYN
+				,SEND_SEQ_NB AS sendSeqNb
+		FROM	ABIZCAR_PERSON
+		/* 검색조건 - 회사 코드 */
+		WHERE	CO_CD = '${erpCoCd}'
+		/* 검색조건 - 사업장 코드 */
+		AND		DIV_CD = '${divCd}'
+		/* 검색조건 - 부서 코드 */
+		AND		DEPT_CD = '${deptCd}'
+		/* 검색조건 - 차량 코드 */
+		AND		CAR_CD = '${carCd}'
+		/* 검색조건 - 운행일자 */
+		AND		USE_DT = LIKE '%${useDt}%'
+		/* 검색조건 - 마감여부( 미전송 : 0 / 전송 : 1)*/
+		AND		SEND_YN = '${sendYN}'
+	</select>
+	
+	<select id="BiAdminAbizcarListSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT	DIV_CD AS divCd
+				,CAR_CD AS carCd
+				,USE_DT AS useDt
+				,USE_TIME AS useTime
+				,SEQ_NB AS seqNb
+				,DEPT_CD AS deptCd
+				,EMP_CD AS empCd
+				,MILEAGE_KM AS mileageKm
+		 		,COMMUTE_KM AS commuteKm
+				,BUSINESS_KM AS businessKm
+				,BEFORE_KM AS beforeKm
+				,AFTER_KM AS afterKm
+				,RMK_DC AS rmkDc
+				,DATA_FG AS dataFg
+		FROM	ABIZCAR_LIST
+		/* 검색조건 - 회사 코드 */
+		WHERE	CO_CD = '${erpCoCd}'
+		/* 검색조건 - 사업장 코드 */
+		AND		DIV_CD = '${divCd}'
+		/* 검색조건 - 차량 코드 */
+		<if test="carCd != ''">
+			AND		CAR_CD = '${carCd}'
+		</if>
+		
+	</select>
+</mapper>

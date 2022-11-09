@@ -1,0 +1,1398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="NpUserReportA">
+	
+	<select id="NpUserReportA.selectConsConfferResListEA" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserReportSQL.xml - NpAdminReportA.selectConsConfferResListEA */
+		/* 사용자 품의서 참조 결의서 리스트 조회 */
+		SELECT	
+			d.res_doc_seq	AS 'consDocSeq'
+			, d.doc_seq	AS 'docSeq'
+			, r.c_ridocfullnum	AS 'docNo'
+			, d.doc_status		AS 'docStatus'
+			, i.c_diwriteday	AS 'docDate'
+			, d.resdoc_note	AS 'consdocNote'			
+			, d.resdoc_note	AS 'resdocNote'
+			, d.expend_date	AS 'expendDate'
+			, d.comp_name	AS 'compName'
+			, d.dept_name	AS 'deptName'	
+			, d.emp_name	AS 'empName'
+			, d.send_emp_seq	AS 'sendEmpSeq'
+			, d.send_date		AS 'sendDate'
+			, d.send_emp_name	AS 'sendName'
+			, d.erp_div_name	as 'erpDivName'		
+			, r.c_riaftertitle	AS 'docTitle'
+			, amt.resDocAmt		AS 'resDocAmt'
+			, amt.resDocTaxAmt	AS 'resDocTaxAmt'
+			, amt.resDocStdAmt	AS 'resDocStdAmt'
+			, d.erp_send_yn	AS 'erpSendYN'
+		FROM	$DB_NEOS$t_exnp_resdoc	d
+		LEFT JOIN	$DB_NEOS$a_recordinfo	r
+		 ON	d.doc_seq = r.c_dikeycode
+		LEFT JOIN	$DB_NEOS$teag_appdoc	teag
+		 ON	d.doc_seq = teag.doc_id
+		INNER JOIN	(
+			SELECT	c_dikeycode,  MIN(c_diwriteday) AS c_diwriteday
+			FROM	$DB_NEOS$a_draftinfo 
+			GROUP BY c_dikeycode 
+		)	i
+		 ON	r.c_dikeycode = i.c_dikeycode
+		INNER JOIN	(
+			SELECT	
+				res_doc_seq
+				, SUM( (CASE IFNULL(ctl_fg_code, '1') 
+							WHEN '0'	THEN 	( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
+							ELSE		IFNULL(budget_amt, 0)	/* emptyStr or '1' */
+						END)
+				)	AS resDocAmt
+				, SUM(IFNULL(budget_tax_amt, 0)) AS resDocTaxAmt
+				, SUM(IFNULL(budget_std_amt, 0)) AS resDocStdAmt
+			FROM	$DB_NEOS$t_exnp_resbudget 
+			GROUP BY res_doc_seq		
+		)	amt		
+		ON	d.res_doc_seq = amt.res_doc_seq	
+		WHERE	d.doc_seq IS NOT NULL
+		 AND 	IFNULL(d.doc_status, '008') IN ('001', '002', '003', '004', '008', '009','20', '30', '90' )
+		 AND	d.conffer_doc_seq = #consDocSeq#
+		<isNotEmpty property="docStatus">
+		 AND	doc_status = #docStatus#
+		</isNotEmpty>
+
+		<isNotEmpty property="frDt">
+		 <isNotEmpty property="toDt">
+		 AND	CONVERT(REPLACE(d.expend_date, '-', ''), CHAR(8)) BETWEEN #frDt# AND #toDt#
+		 </isNotEmpty>  
+		</isNotEmpty> 
+
+		<isNotEmpty property="confferReturnYN">
+		 AND	conffer_return_yn = #confferReturnYN#
+		</isNotEmpty>
+
+		<isNotEmpty property="docTitle">
+		 AND	c_riaftertitle LIKE CONCAT('%', #docTitle#, '%')
+		</isNotEmpty>
+
+		<isNotEmpty property="docNo">
+		 AND	c_ridocfullnum LIKE CONCAT('%', #docNo#, '%')
+		</isNotEmpty>
+
+		<isNotEmpty property="empName">
+		 AND	d.emp_name LIKE CONCAT('%', #empName#, '%')
+		</isNotEmpty>	
+		
+		<isNotEmpty property="deptName">
+		 AND	d.dept_name LIKE CONCAT('%', #deptName#, '%')
+		</isNotEmpty>
+		
+		<isNotEmpty property="sendEmpName">
+		 AND	d.send_emp_name LIKE CONCAT('%', #sendEmpName#, '%')
+		</isNotEmpty>
+		
+		<isNotEmpty property="erpSendYN">
+		 AND	d.erp_send_yn = #erpSendYN#
+		</isNotEmpty>		
+	</select>
+	
+	<select id="NpUserReportA.selectConsConfferResListEAP" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserReportSQL.xml - NpAdminReportA.selectConsConfferResListEAP */
+		/* 사용자 품의서 참조 결의서 리스트 조회 */
+		SELECT	
+			d.res_doc_seq	AS 'consDocSeq'
+			, d.doc_seq	AS 'docSeq'
+			, r.doc_no	AS 'docNo'
+			, d.doc_status		AS 'docStatus'
+			, LEFT(r.rep_dt,'10')					AS 'docDate'
+			, d.resdoc_note	AS 'consdocNote'			
+			, d.resdoc_note	AS 'resdocNote'
+			, d.expend_date	AS 'expendDate'
+			, d.comp_name	AS 'compName'
+			, d.dept_name	AS 'deptName'	
+			, d.emp_name	AS 'empName'
+			, d.send_emp_seq	AS 'sendEmpSeq'
+			, d.send_date		AS 'sendDate'
+			, d.send_emp_name	AS 'sendName'
+			, d.erp_div_name	as 'erpDivName'		
+			, r.doc_title		AS 'docTitle'
+			, amt.resDocAmt		AS 'resDocAmt'
+			, amt.resDocTaxAmt	AS 'resDocTaxAmt'
+			, amt.resDocStdAmt	AS 'resDocStdAmt'
+			, d.erp_send_yn	AS 'erpSendYN'
+		FROM	$DB_NEOS$t_exnp_resdoc	d
+		INNER JOIN	$DB_NEOS$teag_appdoc	r
+		 ON	d.doc_seq = r.doc_id
+		INNER JOIN	(
+			SELECT	
+				res_doc_seq
+				, SUM( (CASE IFNULL(ctl_fg_code, '1') 
+							WHEN '0'	THEN 	( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
+							ELSE		IFNULL(budget_amt, 0)	/* emptyStr or '1' */
+						END)
+				)	AS resDocAmt
+				, SUM(IFNULL(budget_tax_amt, 0)) AS resDocTaxAmt
+				, SUM(IFNULL(budget_std_amt, 0)) AS resDocStdAmt
+			FROM	$DB_NEOS$t_exnp_resbudget 
+			GROUP BY res_doc_seq		
+		)	amt		
+		ON	d.res_doc_seq = amt.res_doc_seq	
+		WHERE	d.doc_seq IS NOT NULL
+		 AND 	d.doc_status IN ('10', '20', '30',  '40', '50', '60', '80', '90', '110' )
+		 AND	d.conffer_doc_seq = #consDocSeq#
+		<isNotEmpty property="docStatus">
+		 AND	doc_status = #docStatus#
+		</isNotEmpty>
+
+		<isNotEmpty property="frDt">
+		 <isNotEmpty property="toDt">
+		 AND	CONVERT(REPLACE(d.expend_date, '-', ''), CHAR(8)) BETWEEN #frDt# AND #toDt#
+		 </isNotEmpty>  
+		</isNotEmpty> 
+
+		<isNotEmpty property="confferReturnYN">
+		 AND	conffer_return_yn = #confferReturnYN#
+		</isNotEmpty>
+
+		<isNotEmpty property="docTitle">
+		 AND	doc_title LIKE CONCAT('%', #docTitle#, '%')
+		</isNotEmpty>
+
+		<isNotEmpty property="docNo">
+		 AND	doc_no LIKE CONCAT('%', #docNo#, '%')
+		</isNotEmpty>
+
+		<isNotEmpty property="empName">
+		 AND	d.emp_name LIKE CONCAT('%', #empName#, '%')
+		</isNotEmpty>	
+		
+		<isNotEmpty property="deptName">
+		 AND	d.dept_name LIKE CONCAT('%', #deptName#, '%')
+		</isNotEmpty>
+		
+		<isNotEmpty property="sendEmpName">
+		 AND	d.send_emp_name LIKE CONCAT('%', #sendEmpName#, '%')
+		</isNotEmpty>
+		
+		<isNotEmpty property="erpSendYN">
+		 AND	d.erp_send_yn = #erpSendYN#
+		</isNotEmpty>		
+	</select>
+	
+	<!-- 비영리 회계 - 품의서 리스트 조회 -->
+	<select id="NpUserReportA.NpUserConsListSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserReportSQL.xml - NpUserReportA.NpGwCommonOptionSelect */
+		/* 권한 품의서 정보 조회 */
+		SELECT	
+			doc.cons_doc_seq	AS	`docSeq`
+			, doc.doc_seq		AS	`eaDocSeq`
+			, doc.doc_no		AS	`eaDocNo`
+			, doc.consdoc_note	AS	`note`
+			, doc.expend_date	AS	`expendDate`
+			, doc.comp_seq		AS	`compSeq`
+			, doc.comp_name		AS	`compName`
+			, doc.dept_seq		AS	`deptSeq`
+			, doc.dept_name		AS	`deptName`
+			, doc.emp_seq		AS	`empSeq`
+			, doc.emp_name		AS	`empName`
+			, doc.conffer_return_yn	AS	`confferReturnYN`
+			, CAST(IFNULL(bud.budget_amt,'0') AS INT)	AS	`consAmt`
+			, CAST(IFNULL(res.res_amt,'0') AS INT)	AS	`resAmt`
+			, (	
+				CASE 	doc.conffer_return_yn WHEN 'Y'
+					THEN 	'0'
+					ELSE 	CAST(IFNULL(bud.budget_amt,'0') AS INT) - CAST(IFNULL(res.res_amt,'0') AS INT) 	
+				END
+			)			AS	`balanceAmt`
+		FROM	(
+			SELECT	
+				doc.cons_doc_seq
+				, doc.doc_seq
+				, doc.doc_no
+				, doc.consdoc_note
+				, doc.expend_date
+				, doc.comp_seq
+				, doc.comp_name
+				, doc.dept_seq
+				, doc.dept_name
+				, doc.emp_seq
+				, doc.emp_name
+				, doc.conffer_return_yn
+			FROM	(
+				SELECT	*
+				FROM 	$DB_NEOS$t_exnp_consdoc
+			)	doc
+			INNER JOIN	(
+				SELECT	*
+				FROM 	$DB_NEOS$t_exnp_consauth
+				WHERE	emp_seq = #empSeq# 
+				 AND	comp_seq = #compSeq#
+			)	auth
+			ON	( 
+					CASE auth.gbn_org 
+						WHEN 'c' THEN doc.comp_seq
+						WHEN 'd' THEN doc.dept_seq
+						WHEN 'u' THEN doc.emp_seq
+						ELSE 'NOT_JOIN_TEXT'
+					END
+				)	= 	auth.seq
+			 AND	doc.comp_seq = auth.comp_seq
+			 AND	doc.doc_status IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+		)	doc
+		INNER JOIN	$DB_NEOS$t_exnp_consbudget bud
+		ON	doc.cons_doc_seq = bud.cons_doc_seq
+		LEFT JOIN	(
+			SELECT	
+				h.res_doc_seq
+				, h.conffer_doc_seq
+				, SUM(b.budget_amt)	AS `res_amt`
+			FROM	$DB_NEOS$t_exnp_reshead	h
+			 INNER JOIN $DB_NEOS$t_exnp_resbudget b
+			 ON	h.res_doc_seq = b.res_doc_seq
+			 AND	h.res_seq = b.res_seq
+			GROUP BY h.res_doc_seq
+		)	res
+		ON	doc.doc_seq = res.conffer_doc_seq
+	</select>
+	
+	<select id="NpUserReportA.selectEACardReport" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserReportSQL.xml - NpUserReportA.selectEACardReport */
+		/* 카드사용현황 - 비영리 */
+		/* 전자결재(비영리) 사용자 카드사용 현황 */
+		SELECT	A.sync_id AS syncId
+				, B.card_code AS cardCode
+				, B.card_name AS cardName
+				, B.card_num AS cardNum
+				, A.auth_num AS authNum
+				, A.auth_date AS authDate
+				, A.auth_time AS authTime
+				, A.georae_coll AS georaeColl
+				, A.georae_stat AS georaeStat
+				, CASE 
+					WHEN A.GEORAE_STAT = '1' || A.GEORAE_STAT = 'N' THEN '승인' 
+					ELSE '취소' 
+				END AS georaeStatName
+				, A.georae_cand AS georaeCand
+				, IFNULL(A.request_amount,0) AS requestAmount
+				, IFNULL(A.amt_md_amount,0) AS amtMdAmount
+				, IFNULL(A.vat_md_amount,0) AS vatMdAmount
+				, IFNULL(A.ser_amount,0) AS serAmt
+				, A.merc_name AS mercName
+				, A.merc_saup_no AS mercSaupNo
+				, A.send_yn AS sendYN
+				, A.if_m_id AS ifMId
+				, A.if_d_id AS ifDId
+				, IFNULL(C.doc_seq, '') AS docSeq
+				, IFNULL(C.doc_title, '') AS docTitle
+				, IFNULL(C.doc_no, '') AS docNo
+				, IFNULL(C.form_id, '') AS formSeq
+				, CASE
+					WHEN IFNULL(A.send_yn,'N') = 'N' THEN '미결의'
+					WHEN (IFNULL(A.send_yn,'N') = 'Y' AND A.if_m_id ='D') THEN '미사용'
+					ELSE '결의'
+				END AS sendYNName
+				, IFNULL(C.emp_name, '') AS empName
+		FROM	(
+			SELECT	*
+			FROM	$DB_NEOS$t_ex_card_aq_tmp
+			WHERE	auth_date BETWEEN #fromDate# AND #toDate#
+			AND		merc_name LIKE CONCAT('%',#searchMercName#,'%')
+			<isEqual property="searchGeoraeStatus" compareValue="">
+			AND     georae_stat LIKE CONCAT('%', #searchGeoraeStatus#, '%')
+			</isEqual>
+			<isEqual property="searchGeoraeStatus" compareValue="1">
+			AND     georae_stat in ('1', 'N')
+			</isEqual>
+			<isEqual property="searchGeoraeStatus" compareValue="0">
+			AND     georae_stat in ('0', 'Y')
+			</isEqual> 
+			AND     auth_num LIKE CONCAT('%', #searchCardAuthNum#, '%')
+			AND     merc_saup_no LIKE CONCAT('%', #searchMercNum#, '%')
+			<isEqual property="searchDocStatus" compareValue="Y">
+			AND     (IFNULL(send_yn, 'N') LIKE CONCAT('%', #searchDocStatus#, '%') AND if_m_id != 'D')
+			</isEqual>
+			<isNotEqual property="searchDocStatus" compareValue="Y">
+			AND     IFNULL(send_yn, 'N') LIKE CONCAT('%', #searchDocStatus#, '%')
+			</isNotEqual>
+			
+			
+		) A
+		INNER JOIN (
+			SELECT	C.card_code
+					, C.card_num
+					, C.card_name
+					, REPLACE(C.card_num,'-','') AS repCardNum
+			FROM	$DB_NEOS$t_ex_card C
+			INNER JOIN $DB_NEOS$t_ex_card_public A ON C.comp_seq = A.comp_seq AND REPLACE(REPLACE(C.card_num,'-',''),' ','') = REPLACE(REPLACE(A.card_num,'-',''),' ','')
+			INNER JOIN (
+				SELECT 	B.gbn_org AS org_div
+						, B.dept_seq AS org_id
+				FROM    (
+					SELECT 	path
+					FROM	$DB_NEOS$v_org_chart_child
+					WHERE	dept_seq = #deptSeq#
+				) A INNER JOIN (
+					SELECT 	gbn_org
+							, dept_seq
+							, path
+					FROM   	$DB_NEOS$v_org_chart_child
+				) B ON A.path LIKE CONCAT('%', B.path, '%')
+				UNION
+				SELECT 	'u' AS org_div
+						, #empSeq# AS org_id
+			) B ON A.org_div = B.org_div AND A.org_id = B.org_id
+			WHERE	C.comp_seq = #compSeq#
+			<isNotEmpty property="cardInfo">
+				<iterate  prepend="AND" property="cardInfo" open=" card_code IN (" close=")" conjunction="," >
+					#cardInfo[]#
+				</iterate>
+			</isNotEmpty>			
+		) B ON A.card_num = B.repCardNum
+		LEFT OUTER JOIN (
+			SELECT	A.doc_seq
+					, B.doc_title
+					, B.doc_no
+					, B.form_id
+					, A.interface_seq
+					, A.emp_name
+			FROM	(
+				SELECT	A.res_doc_seq
+						, A.doc_seq
+						, B.interface_seq
+						, A.emp_name
+				FROM	$DB_NEOS$t_Exnp_resdoc A
+				INNER JOIN $DB_NEOS$t_exnp_restrade B ON B.interface_type = 'card' AND A.res_doc_seq = B.res_doc_seq
+				WHERE	doc_seq != ''
+				AND		doc_status IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+				AND     A.emp_name LIKE CONCAT('%', #searchEmpName#, '%')
+			) A INNER JOIN (
+				SELECT	doc.c_dikeycode AS doc_id
+						, doc.c_tikeycode AS form_id
+						, doc.c_dititle AS doc_title
+						, rec.c_ridocfullnum AS doc_no
+				FROM	$DB_NEOS$a_docinfo doc
+				INNER JOIN $DB_NEOS$a_draftinfo drf ON doc.c_dikeycode = drf.c_dikeycode
+				INNER JOIN $DB_NEOS$a_recordinfo rec ON doc.c_dikeycode = rec.c_dikeycode
+			) B ON A.doc_seq = B.doc_id
+		) C ON A.sync_id = C.interface_seq
+		LEFT OUTER JOIN $DB_NEOS$t_ex_card_transfer D
+		ON A.card_num = D.card_num AND A.auth_num = D.auth_num AND A.auth_date = D.auth_date AND A.auth_time = D.auth_time
+		WHERE D.transfer_seq IS NULL
+		<isEqual property="orderBy" compareValue="ASC">
+		ORDER BY A.auth_date, A.auth_time, sync_id ASC
+		</isEqual>
+		<isNotEqual property="orderBy" compareValue="ASC">
+		ORDER BY A.auth_date, A.auth_time, sync_id DESC
+		</isNotEqual>
+	</select>
+	
+	<select id="NpUserReportA.selectEAPCardReport" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserReportSQL.xml - NpUserReportA.selectEAPCardReport */
+		/* 카드사용현황 - 영리 */
+		/* 전자결재(영리) 관리자 카드사용 현황 */
+		SELECT	A.sync_id AS syncId
+				, B.card_code AS cardCode
+				, B.card_name AS cardName
+				, B.card_num AS cardNum
+				, A.auth_num AS authNum
+				, A.auth_date AS authDate
+				, A.auth_time AS authTime
+				, A.georae_coll AS georaeColl
+				, A.georae_stat AS georaeStat
+				, CASE 
+					WHEN A.GEORAE_STAT = '1' || A.GEORAE_STAT = 'N' THEN '승인' 
+					ELSE '취소' 
+				END AS georaeStatName
+				, A.georae_cand AS georaeCand
+				, IFNULL(A.request_amount,0) AS requestAmount
+				, IFNULL(A.amt_md_amount,0) AS amtMdAmount
+				, IFNULL(A.vat_md_amount,0) AS vatMdAmount
+				, IFNULL(A.ser_amount,0) AS serAmt
+				, A.merc_name AS mercName
+				, A.merc_saup_no AS mercSaupNo
+				, A.send_yn AS sendYN
+				, A.if_m_id AS ifMId
+				, A.if_d_id AS ifDId
+				, IFNULL(C.doc_seq, '') AS docSeq
+				, IFNULL(C.doc_title, '') AS docTitle
+				, IFNULL(C.doc_no, '') AS docNo
+				, IFNULL(C.form_id, '') AS formSeq
+		FROM	(
+			SELECT	*
+			FROM	$DB_NEOS$t_ex_card_aq_tmp
+			WHERE	auth_date BETWEEN #fromDate# AND #toDate#
+			AND		merc_name LIKE CONCAT('%',#searchMercName#,'%')
+			<isEqual property="sendYN" compareValue="D">
+			AND		IFNULL(send_yn,'N') = 'Y'
+			AND		if_m_id = 'd'
+			</isEqual>
+			<isNotEqual property="sendYN" compareValue="D">
+			AND		IFNULL(send_yn,'N') LIKE CONCAT('%',#sendYN#,'%')
+			</isNotEqual>
+		) A
+		INNER JOIN (
+			SELECT	C.card_code
+					, C.card_num
+					, C.card_name
+					, REPLACE(C.card_num,'-','') AS repCardNum
+			FROM	$DB_NEOS$t_ex_card C
+			INNER JOIN $DB_NEOS$t_ex_card_public A ON C.comp_seq = A.comp_seq AND REPLACE(REPLACE(C.card_num,'-',''),' ','') = REPLACE(REPLACE(A.card_num,'-',''),' ','')
+			INNER JOIN (
+				SELECT 	B.gbn_org AS org_div
+						, B.dept_seq AS org_id
+				FROM    (
+					SELECT 	path
+					FROM	$DB_NEOS$v_org_chart_child
+					WHERE	dept_seq = #deptSeq#
+				) A INNER JOIN (
+					SELECT 	gbn_org
+							, dept_seq
+							, path
+					FROM   	$DB_NEOS$v_org_chart_child
+				) B ON A.path LIKE CONCAT('%', B.path, '%')
+				UNION
+				SELECT 	'u' AS org_div
+						, #empSeq# AS org_id
+			) B ON A.org_div = B.org_div AND A.org_id = B.org_id
+			WHERE	C.comp_seq = #compSeq#
+			AND		C.card_num LIKE CONCAT('%',#searchCardNum#,'%')
+		) B ON A.card_num = B.repCardNum
+		LEFT OUTER JOIN (
+			SELECT	A.doc_seq
+					, B.doc_title
+					, B.doc_no
+					, B.form_id
+					, A.interface_seq
+			FROM	(
+				SELECT	A.res_doc_seq
+						, A.doc_seq
+						, B.interface_seq
+				FROM	$DB_NEOS$t_Exnp_resdoc A
+				INNER JOIN $DB_NEOS$t_exnp_restrade B ON B.interface_type = 'card' AND A.res_doc_seq = B.res_doc_seq
+				WHERE	doc_seq != ''
+				AND		doc_status IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+			) A INNER JOIN $DB_NEOS$teag_appdoc B ON A.doc_seq = B.doc_id
+		) C ON A.sync_id = C.interface_seq
+		<isEqual property="orderBy" compareValue="ASC">
+		ORDER BY A.auth_date, A.auth_time, sync_id ASC
+		</isEqual>
+		<isNotEqual property="orderBy" compareValue="ASC">
+		ORDER BY A.auth_date, A.auth_time, sync_id DESC
+		</isNotEqual>
+	</select>
+	
+	<select id="NpUserReportA.selectConsReportList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserReportSQL.xml - NpUserReportA.selectConsReportList */
+		/* 품의서 현황 조회 */
+		SELECT	
+			doc.cons_doc_seq				AS	'consDocSeq'
+			, doc.doc_seq					AS	'docSeq'
+			, IFNULL(doc.doc_no, '-')		AS	'docNo'
+			, IFNULL(doc.note, '')			AS	'note'
+			, DATE_FORMAT(doc.expend_date, '%Y-%m-%d')	AS	'expendDate'
+			, IFNULL(doc.comp_name, '')		AS	'compName'
+			, doc.comp_seq					AS	'compSeq'
+			, IFNULL(doc.dept_name, '')		AS	'deptName'
+			, doc.dept_seq					AS	'deptSeq'
+			, IFNULL(doc.emp_name, '')		AS	'empName'
+			, doc.emp_seq					AS	'empSeq'
+			, budget.cons_amt				AS	'consAmt'
+			, budget.res_amt				AS	'resAmt'
+			, budget.balance_amt			AS	'balanceAmt'
+			, doc.conffer_return_yn			AS 	'confferReturnYN'
+		FROM	(
+			/* 기준 품의서 조회 */
+			SELECT 	*
+			FROM 	$DB_NEOS$t_exnp_consdoc
+			/* TODO : 파라미터 처리 필요 */
+			WHERE 	doc_status	IN	('90', '008')
+			 AND	conffer_return_yn = 'N'
+			 AND	REPLACE(expend_date, '-', '' )	
+						BETWEEN	REPLACE(#frDt#, '-', '' ) 
+						AND	REPLACE(#toDt#, '-', '' )
+		)	doc
+		INNER JOIN	(
+			/* 품의서 권한 조회 */
+			SELECT	
+				users.emp_seq
+			FROM	(
+				SELECT	*
+				FROM	$DB_NEOS$t_exnp_consauth
+				WHERE	emp_seq = #empSeq#
+			)	authBase
+			INNER JOIN	(
+				SELECT	
+					e.group_seq	AS 'group_seq'
+					, ed.comp_seq	AS 'comp_seq'
+					, ed.dept_seq	AS 'dept_seq'
+					, e.emp_seq	AS 'emp_seq'
+					, login_id	AS 'login_id'
+					, ed.main_comp_yn	AS 'main_comp_yn'
+					, ed.main_dept_yn	AS 'main_dept_yn'
+					, ed.duty_code		AS 'duty_code'
+					, ed.position_code	AS 'position_code'
+					, cm.comp_name		AS 'comp_name'
+					, dm.dept_name		AS 'dept_name'
+					, em.emp_name	AS 'emp_name'								
+				FROM	$DB_NEOS$t_co_emp		e
+				INNER JOIN	$DB_NEOS$t_co_emp_multi em
+				ON	e.emp_seq	= em.emp_seq
+				 AND	e.group_seq	= em.group_seq
+				 AND	em.lang_code = 'kr'
+				INNER JOIN	$DB_NEOS$t_co_emp_dept	ed
+				ON 	e.emp_seq	= ed.emp_seq
+				 AND	e.group_seq	= ed.group_seq
+				INNER JOIN $DB_NEOS$t_co_dept_multi dm
+				ON	e.group_seq	= dm.group_seq
+				 AND	ed.comp_seq	= dm.comp_seq
+				 AND	ed.dept_seq	= dm.dept_seq
+				 AND	dm.lang_code = 'kr'
+				INNER JOIN $DB_NEOS$t_co_comp_multi cm
+				ON	e.group_seq	= cm.group_seq
+				 AND	ed.comp_seq	= cm.comp_seq
+				 AND	cm.lang_code = 'kr'
+				WHERE	em.use_yn = 'Y'
+			)	users
+			 ON	(
+					CASE 	authBase.gbn_org  
+						WHEN	'c'	THEN	users.comp_seq
+						WHEN 	'd'	THEN	users.dept_seq
+						WHEN	'u'	THEN	users.emp_seq
+					END
+				)	=	authBase.seq
+			UNION	
+			SELECT	#empSeq#	AS 	'emp_seq'
+		)	auth
+		ON	doc.emp_seq = auth.emp_seq
+		INNER JOIN	(
+			/* 잔여 품의액 조회 */
+			SELECT	
+				cons_doc_seq
+				, SUM(cons_amt)	AS 'cons_amt'
+				, SUM(res_amt)	AS 'res_amt'
+				, SUM(balance_amt)	AS 'balance_amt'
+			FROM	(
+				SELECT	
+					c.cons_doc_seq
+					, c.budget_seq
+					, IFNULL(c.amt, 0)						AS	'cons_amt'
+					, IFNULL(r.amt, 0) 						AS	'res_amt'
+					, IFNULL(c.amt,0) - IFNULL(r.amt,0) 	AS	'balance_amt'
+				FROM	$DB_NEOS$t_exnp_consbudget c
+				INNER JOIN	$DB_NEOS$t_exnp_consdoc	d
+				 ON		c.cons_doc_seq = d.cons_doc_seq
+				LEFT JOIN	(
+					SELECT	
+						conffer_budget_seq 
+						, SUM(amt)	AS 'amt'
+					FROM 	$DB_NEOS$t_exnp_resbudget	
+					GROUP BY conffer_budget_seq			
+				) r
+				 ON		c.budget_seq = r.conffer_budget_seq
+				WHERE	d.doc_seq IS NOT NULL
+				  AND	d.doc_status IN ('008', '90')
+			)	TEMP
+			GROUP	BY cons_doc_seq
+		)	budget
+		ON	doc.cons_doc_seq = budget.cons_doc_seq ;	
+	</select>
+	
+	
+	<!-- 비영리 회계 - 품의서 리스트 조회 -->
+	<select id="NpUserReportA.selectConsReportPageListEA" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserReportSQL.xml - NpUserReportA.selectConsReportPageListEA */
+		/* [비영리] 사용자 품의 현황 정보 조회 */
+		SELECT	*
+				,  ( CASE WHEN confferReturnYN = 'Y' THEN '반환' ELSE ( CASE WHEN confferBudgetReturnYN = 'Y' THEN ( CASE WHEN confferBudgetAllReturnYN = 'Y' THEN '반환' ELSE '부분반환' END ) ELSE '-' END ) END) AS confferReturnStatus 
+		FROM 	(
+			SELECT	*
+					, ( CASE WHEN confferBudgetReturnYN = 'Y' AND IFNULL(balanceAmt,0) = 0 THEN 'Y' ELSE 'N' END ) AS confferBudgetAllReturnYN
+			FROM (
+				SELECT	
+					d.cons_doc_seq						AS 'consDocSeq'
+					, d.doc_seq							AS 'docSeq'
+					, IFNULL(r.c_ridocfullnum, '')		AS 'docNo'
+					, d.doc_status						AS 'docStatus'
+					, d.consdoc_note					AS 'consdocNote'
+					, d.comp_name						AS 'compName'
+					, d.dept_name						AS 'deptName'	
+					, d.save_yn							AS 'saveYn'
+					, d.emp_name						AS 'empName'
+					, r.c_riaftertitle					AS 'docTitle'
+					, i.c_diwriteday					AS 'docDate'
+					, d.conffer_return_name				AS 'confferReturnName'
+					, CONVERT(d.expend_date, CHAR(10)) 	AS 'expendDate'
+					, amt2.consDocStdAmt					AS 'consDocStdAmt'				
+					, amt2.consDocTaxAmt					AS 'consDocTaxAmt'			
+					, amt2.consDocAmt					AS 'consDocAmt'
+					, IFNULL(res.resDocStdAmt, 0)		AS 'resDocStdAmt'		
+					, IFNULL(res.resDocTaxAmt, 0)		AS 'resDocTaxAmt'	
+					, IFNULL(res.resDocAmt,    0)		AS 'resDocAmt'
+					, ( CASE	d.conffer_return_yn 
+						WHEN	'Y'	THEN	'0'
+						ELSE		amt.consDocStdAmt - IFNULL(res2.resDocStdAmt, 0)
+						END
+					)	AS 'balanceStdAmt'	
+					, ( CASE	d.conffer_return_yn 
+						WHEN	'Y'	THEN	'0'
+						ELSE		amt.consDocTaxAmt - IFNULL(res2.resDocTaxAmt, 0)
+						END
+					)	AS 'balanceTaxAmt'
+			
+					, ( CASE	d.conffer_return_yn 
+						WHEN	'Y'	THEN	'0'
+						ELSE		amt.consDocAmt - IFNULL(res2.resDocAmt, 0)	
+						END
+					)	AS 'balanceAmt'	
+					, d.conffer_return_yn                                     AS 'confferReturnYN'
+					, ( CASE amt.consDocAmt = amt2.consDocAmt WHEN 1 THEN 'N' ELSE 'Y' END)  AS 'confferBudgetReturnYN'			
+				FROM	$DB_NEOS$t_exnp_consdoc	d
+				INNER JOIN	$DB_NEOS$a_recordinfo	r
+				 ON	d.doc_seq = r.c_dikeycode
+				INNER JOIN	(
+						SELECT	doc.c_dikeycode
+							, doc.c_tikeycode
+							, doc.c_dititle
+							, drf.c_diwriteday
+							, drf.c_distatus
+							, rec.c_ridocfullnum
+						FROM	$DB_NEOS$a_docinfo doc
+						INNER JOIN $DB_NEOS$a_draftinfo drf 
+						 ON	doc.c_dikeycode	= drf.c_dikeycode
+						INNER JOIN $DB_NEOS$a_recordinfo rec 
+						 ON	doc.c_dikeycode	= rec.c_dikeycode
+						WHERE	IFNULL(drf.c_distatus, '009') IN ( '001', '002', '003', '004', '007', '008', '009','20', '30', '90' )
+					)	i
+				ON	r.c_dikeycode = i.c_dikeycode
+				LEFT JOIN	(
+					SELECT	
+						cons_doc_seq
+						, SUM(IFNULL(budget_amt, 0)) AS consDocAmt
+						, SUM(IFNULL(budget_tax_amt, 0)) AS consDocTaxAmt
+						, SUM(IFNULL(budget_std_amt, 0)) AS consDocStdAmt
+					FROM	$DB_NEOS$t_exnp_consbudget 
+					WHERE	conffer_budget_return_yn != 'Y'
+					GROUP BY cons_doc_seq		
+				)	amt
+				 ON	d.cons_doc_seq = amt.cons_doc_seq
+				INNER JOIN	(
+					SELECT
+						cons_doc_seq
+						, SUM(IFNULL(budget_amt, 0)) AS consDocAmt
+						, SUM(IFNULL(budget_tax_amt, 0)) AS consDocTaxAmt
+						, SUM(IFNULL(budget_std_amt, 0)) AS consDocStdAmt
+					FROM    $DB_NEOS$t_exnp_consbudget
+					GROUP BY cons_doc_seq
+				)       amt2
+				 ON     d.cons_doc_seq = amt2.cons_doc_seq			 
+				LEFT JOIN	(
+					SELECT	
+						SUM(b2.budget_std_amt)	AS 'resDocStdAmt'
+						, SUM(b2.budget_tax_amt)	AS 'resDocTaxAmt'
+						, SUM( (CASE IFNULL(b2.ctl_fg_code, '1') 
+									WHEN '0'	THEN 	( CASE IFNULL(b2.budget_std_amt, 0) WHEN '0' THEN b2.budget_amt ELSE b2.budget_std_amt END )
+									ELSE		IFNULL(b2.budget_amt, 0)	/* emptyStr or '1' */
+								END)
+						)	AS 'resDocAmt'
+						, b2.conffer_doc_seq	AS confferDocSeq
+					FROM	$DB_NEOS$t_exnp_resbudget b2
+					 INNER JOIN $DB_NEOS$t_exnp_resdoc d2
+					 ON	b2.res_doc_seq = d2.res_doc_seq
+			           WHERE   d2.doc_seq IS NOT NULL
+					 AND	IFNULL(d2.doc_status, '008') IN ('001', '002', '003', '004', '008', '009','20', '30', '90' )
+					GROUP BY b2.conffer_doc_seq
+				)	res
+				 ON 	res.confferDocSeq = d.cons_doc_seq		 	
+				LEFT JOIN       (
+					SELECT
+						SUM(b2.budget_std_amt)  AS 'resDocStdAmt'
+						, SUM(b2.budget_tax_amt)        AS 'resDocTaxAmt'
+						, SUM( (CASE IFNULL(b2.ctl_fg_code, '1') 
+							WHEN '0'	THEN 	( CASE IFNULL(b2.budget_std_amt, 0) WHEN '0' THEN b2.budget_amt ELSE b2.budget_std_amt END )
+							ELSE		IFNULL(b2.budget_amt, 0)	/* emptyStr or '1' */
+								END)
+						)	AS 'resDocAmt'
+						, b2.conffer_doc_seq    AS confferDocSeq
+					FROM    $DB_NEOS$t_exnp_resbudget b2
+					 INNER JOIN $DB_NEOS$t_exnp_resdoc d2
+					 ON     b2.res_doc_seq = d2.res_doc_seq
+					 INNER JOIN $DB_NEOS$t_exnp_consbudget b3
+					 ON	b2.conffer_budget_seq = b3.budget_seq
+					  AND	b3.conffer_budget_return_yn != 'Y'
+					WHERE   IFNULL(d2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009' )
+					 AND    d2.doc_seq IS NOT NULL
+					GROUP BY b2.conffer_doc_seq
+				)       res2
+				ON      res2.confferDocSeq = d.cons_doc_seq   		 
+				WHERE	comp_seq = #compSeq#
+				 AND	emp_seq = #empSeq#
+				 AND	doc_seq IS NOT NULL
+				 AND 	IFNULL(doc_status, '008') IN ('001', '002', '003', '004', '007', '008', '009','20', '30', '90' )
+				<isNotEmpty property="docStatus">
+				 AND	IFNULL(doc_status, '008') IN ($docStatus$)
+				</isNotEmpty>
+			
+				<isNotEmpty property="frDt">
+				 <isNotEmpty property="toDt">
+				 AND	CONVERT(REPLACE(c_diwriteday, '-', ''), CHAR(8)) BETWEEN #frDt# AND #toDt#
+				 </isNotEmpty>  
+				</isNotEmpty> 
+			
+				<isNotEmpty property="confferReturnYN">
+				 AND	(
+					 		conffer_return_yn = #confferReturnYN#
+					 		OR 
+					 		( CASE amt.consDocAmt = amt2.consDocAmt WHEN 1 THEN 'N' ELSE 'Y' END) = 'Y'
+					 	)
+				</isNotEmpty>
+			
+				<isNotEmpty property="docTitle">
+				 AND	r.c_riaftertitle LIKE CONCAT('%', #docTitle#, '%')
+				</isNotEmpty>
+			
+				<isNotEmpty property="docNo">
+				 AND	r.c_ridocfullnum LIKE CONCAT('%', #docNo#, '%')
+				</isNotEmpty>
+			
+				<isNotEmpty property="empName">
+				 AND	d.emp_name LIKE CONCAT('%', #empName#, '%')
+				</isNotEmpty>
+					
+				<isNotEmpty property="deptName">
+				 AND	d.dept_name LIKE CONCAT('%', #deptName#, '%')
+				</isNotEmpty>		
+				
+				<isNotEmpty property="returnEmpName">
+				 AND	d.conffer_return_name LIKE CONCAT('%', #returnEmpName#, '%')
+				</isNotEmpty>
+				ORDER BY CONVERT(d.expend_date, CHAR(10)) DESC
+			) cons		
+		) cons2
+		ORDER BY expendDate DESC
+	</select>
+	
+	<!-- 영리 회계 - 품의서 리스트 조회 -->
+	<select id="NpUserReportA.selectConsReportPageListEAP" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserReportSQL.xml - NpUserReportA.selectConsReportPageListEAP */
+		/* [영리] 사용자 품의 현황 정보 조회 */
+		SELECT	*
+			    , ( CASE WHEN confferBudgetReturnYN = 'Y' AND IFNULL(balanceAmt,0) = 0 THEN 'Y' ELSE 'N' END ) AS confferBudgetAllReturnYN
+		FROM (
+			SELECT	
+				d.cons_doc_seq						AS 'consDocSeq'
+				, d.doc_seq							AS 'docSeq'
+				, r.form_id							AS 'formSeq'
+				, IFNULL(r.doc_no, '')		AS 'docNo'
+				, d.doc_status						AS 'docStatus'
+				, d.consdoc_note					AS 'consdocNote'
+				, d.comp_name						AS 'compName'
+				, d.dept_name						AS 'deptName'	
+				, d.emp_name						AS 'empName'
+				, d.save_yn							AS 'saveYn'
+				, r.doc_title					AS 'docTitle'
+				, replace(left(r.rep_dt,10),'-','')					AS 'docDate'
+				, d.conffer_return_name				AS 'confferReturnName'
+				, CONVERT(d.expend_date, CHAR(10)) 	AS 'expendDate'
+				, amt2.consDocStdAmt					AS 'consDocStdAmt'				
+				, amt2.consDocTaxAmt					AS 'consDocTaxAmt'			
+				, amt2.consDocAmt					AS 'consDocAmt'
+				, IFNULL(res.resDocStdAmt, 0)		AS 'resDocStdAmt'		
+				, IFNULL(res.resDocTaxAmt, 0)		AS 'resDocTaxAmt'	
+				, IFNULL(res.resDocAmt,    0)		AS 'resDocAmt'
+				, ( CASE	d.conffer_return_yn 
+					WHEN	'Y'	THEN	'0'
+					ELSE		amt.consDocStdAmt - IFNULL(res2.resDocStdAmt, 0)
+					END
+				)	AS 'balanceStdAmt'	
+				, ( CASE	d.conffer_return_yn 
+					WHEN	'Y'	THEN	'0'
+					ELSE		amt.consDocTaxAmt - IFNULL(res2.resDocTaxAmt, 0)
+					END
+				)	AS 'balanceTaxAmt'
+	
+				, ( CASE	d.conffer_return_yn 
+					WHEN	'Y'	THEN	'0'
+					ELSE		amt.consDocAmt - IFNULL(res2.resDocAmt, 0)	
+					END
+				)	AS 'balanceAmt'	
+				, d.conffer_return_yn                                     AS 'confferReturnYN'
+				, ( CASE amt.consDocAmt = amt2.consDocAmt WHEN 1 THEN 'N' ELSE 'Y' END)  AS 'confferBudgetReturnYN'			
+			FROM	$DB_NEOS$t_exnp_consdoc	d
+			INNER JOIN	$DB_NEOS$teag_appdoc	r
+			 ON	d.doc_seq = r.doc_id
+			LEFT JOIN	(
+				SELECT	
+					cons_doc_seq
+					, SUM(IFNULL(budget_amt, 0)) AS consDocAmt
+					, SUM(IFNULL(budget_tax_amt, 0)) AS consDocTaxAmt
+					, SUM(IFNULL(budget_std_amt, 0)) AS consDocStdAmt
+				FROM	$DB_NEOS$t_exnp_consbudget 
+				WHERE	conffer_budget_return_yn != 'Y'
+				GROUP BY cons_doc_seq		
+			)	amt
+			 ON	d.cons_doc_seq = amt.cons_doc_seq
+			INNER JOIN	(
+				SELECT
+					cons_doc_seq
+					, SUM(IFNULL(budget_amt, 0)) AS consDocAmt
+					, SUM(IFNULL(budget_tax_amt, 0)) AS consDocTaxAmt
+					, SUM(IFNULL(budget_std_amt, 0)) AS consDocStdAmt
+				FROM    $DB_NEOS$t_exnp_consbudget
+				GROUP BY cons_doc_seq
+			)       amt2
+			 ON     d.cons_doc_seq = amt2.cons_doc_seq			 
+			LEFT JOIN	(
+				SELECT	
+					SUM(b2.budget_std_amt)	AS 'resDocStdAmt'
+					, SUM(b2.budget_tax_amt)	AS 'resDocTaxAmt'
+					, SUM( (CASE IFNULL(b2.ctl_fg_code, '1') 
+								WHEN '0'	THEN 	( CASE IFNULL(b2.budget_std_amt, 0) WHEN '0' THEN b2.budget_amt ELSE b2.budget_std_amt END )
+								ELSE		IFNULL(b2.budget_amt, 0)	/* emptyStr or '1' */
+							END)
+					)	AS 'resDocAmt'
+					, b2.conffer_doc_seq	AS confferDocSeq
+				FROM	$DB_NEOS$t_exnp_resbudget b2
+				 INNER JOIN $DB_NEOS$t_exnp_resdoc d2
+				 ON	b2.res_doc_seq = d2.res_doc_seq
+	            WHERE   d2.doc_seq IS NOT NULL
+				 AND	IFNULL(d2.doc_status, '999') IN ('10', '20', '30',  '40', '50', '60', '70', '80', '90', '100', '110' )
+				GROUP BY b2.conffer_doc_seq
+			)	res
+			 ON 	res.confferDocSeq = d.cons_doc_seq		 	
+			LEFT JOIN       (
+				SELECT
+					SUM(b2.budget_std_amt)  AS 'resDocStdAmt'
+					, SUM(b2.budget_tax_amt)        AS 'resDocTaxAmt'
+					, SUM( (CASE IFNULL(b2.ctl_fg_code, '1') 
+						WHEN '0'	THEN 	( CASE IFNULL(b2.budget_std_amt, 0) WHEN '0' THEN b2.budget_amt ELSE b2.budget_std_amt END )
+						ELSE		IFNULL(b2.budget_amt, 0)	/* emptyStr or '1' */
+							END)
+					)	AS 'resDocAmt'
+					, b2.conffer_doc_seq    AS confferDocSeq
+				FROM    $DB_NEOS$t_exnp_resbudget b2
+				 INNER JOIN $DB_NEOS$t_exnp_resdoc d2
+				 ON     b2.res_doc_seq = d2.res_doc_seq
+				 INNER JOIN $DB_NEOS$t_exnp_consbudget b3
+				 ON	b2.conffer_budget_seq = b3.budget_seq
+				  AND	b3.conffer_budget_return_yn != 'Y'
+				WHERE   IFNULL(d2.doc_status, '999') IN ( '10', '20', '30',  '40', '50', '60', '70', '80', '90', '100', '110' )
+				 AND    d2.doc_seq IS NOT NULL
+				GROUP BY b2.conffer_doc_seq
+			)       res2
+			ON      res2.confferDocSeq = d.cons_doc_seq   		 
+			WHERE	comp_seq = #compSeq#
+			 AND	emp_seq = #empSeq#
+			 AND	doc_seq IS NOT NULL
+			 AND 	IFNULL(doc_status, '999') IN ('90', '50' )
+	
+			<isNotEmpty property="frDt">
+			 <isNotEmpty property="toDt">
+			 AND	CONVERT(REPLACE(d.expend_date, '-', ''), CHAR(8)) BETWEEN #frDt# AND #toDt#
+			 </isNotEmpty>  
+			</isNotEmpty> 
+	
+			<isNotEmpty property="confferReturnYN">
+			 AND	(
+				 		conffer_return_yn = #confferReturnYN#
+				 		OR 
+				 		( CASE amt.consDocAmt = amt2.consDocAmt WHEN 1 THEN 'N' ELSE 'Y' END) = 'Y'
+			 		)
+			</isNotEmpty>
+	
+			<isNotEmpty property="docTitle">
+			 AND	doc_title LIKE CONCAT('%', #docTitle#, '%')
+			</isNotEmpty>
+	
+			<isNotEmpty property="docNo">
+			 AND	doc_no LIKE CONCAT('%', #docNo#, '%')
+			</isNotEmpty>
+	
+			<isNotEmpty property="empName">
+			 AND	d.emp_name LIKE CONCAT('%', #empName#, '%')
+			</isNotEmpty>
+				
+			<isNotEmpty property="deptName">
+			 AND	d.dept_name LIKE CONCAT('%', #deptName#, '%')
+			</isNotEmpty>		
+			
+			<isNotEmpty property="returnEmpName">
+			 AND	d.conffer_return_name LIKE CONCAT('%', #returnEmpName#, '%')
+			</isNotEmpty>
+			ORDER BY CONVERT(d.expend_date, CHAR(10)) DESC	
+		) cons	
+		ORDER BY expendDate DESC	
+		
+	</select>		
+		
+		
+	<select id="NpUserReportA.consBudgetListHead" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/admin/NpUserReportSQL.xml - NpUserReportA.consBudgetListHead */
+		/* 품의서 예산상세 내역 리스트 조회 - 헤더정보 */
+		SELECT *
+			   , (CASE WHEN confferBudgetReturnYN = 'Y' AND IFNULL(balanceAmt,'0') = '0' THEN 'Y' ELSE 'N' END) AS 'confferBudgetAllReturnYN'
+		FROM (	
+			SELECT	
+				ifnull(consDoc.doc_no,teagInfo.doc_no)						AS 'docNo'
+				, ifnull(drInfo.c_riaftertitle,teagInfo.doc_title)				AS 'docTitle'
+				, consDoc.dept_name					AS 'deptName'
+				, consDoc.emp_name					AS 'empName'
+				, amt2.consDocStdAmt					AS 'consDocStdAmt'				
+				, amt2.consDocTaxAmt					AS 'consDocTaxAmt'			
+				, amt2.consDocAmt					AS 'consDocAmt'
+				, IFNULL(res.resDocStdAmt, 0)		AS 'resDocStdAmt'		
+				, IFNULL(res.resDocTaxAmt, 0)		AS 'resDocTaxAmt'		
+				, IFNULL(res.resDocAmt,    0)		AS 'resDocAmt'
+				, ( CASE	consDoc.conffer_return_yn 
+					WHEN	'Y'	THEN	'0'
+					ELSE		amt.consDocStdAmt - IFNULL(res2.resDocStdAmt, 0)
+					END
+				)	AS 'balanceStdAmt'	
+				, ( CASE	consDoc.conffer_return_yn 
+					WHEN	'Y'	THEN	'0'
+					ELSE		amt.consDocTaxAmt - IFNULL(res2.resDocTaxAmt, 0)
+					END
+				)	AS 'balanceTaxAmt'
+	
+				, ( CASE	consDoc.conffer_return_yn 
+					WHEN	'Y'	THEN	'0'
+					ELSE		amt.consDocAmt - IFNULL(res2.resDocAmt, 0)	
+					END
+				)	AS 'balanceAmt'					
+				, consDoc.conffer_return_name			AS 'confferReturnEmpName'
+	            , consDoc.conffer_return_yn                                     AS 'confferReturnYN'
+	            , ( CASE amt.consDocAmt = amt2.consDocAmt WHEN 1 THEN 'N' ELSE 'Y' END)  AS 'confferBudgetReturnYN'
+				, CONVERT(consDoc.expend_date, CHAR(10)) 	AS 'expendDate'
+			FROM	(
+				SELECT	* 
+				FROM	$DB_NEOS$t_exnp_consdoc
+				WHERE 	cons_doc_seq = #consDocSeq#
+			)	consDoc
+			LEFT JOIN	$DB_NEOS$a_recordinfo 	drInfo
+			ON	consDoc.doc_seq = drInfo.c_dikeycode
+			LEFT JOIN	$DB_NEOS$teag_appdoc 	teagInfo
+			ON	consDoc.doc_seq = teagInfo.doc_id
+			LEFT JOIN	(
+				/* 미환원 품의잔액 조회 */
+				SELECT	
+					cons_doc_seq
+					, SUM(IFNULL(budget_amt, 0)) AS consDocAmt
+					, SUM(IFNULL(budget_tax_amt, 0)) AS consDocTaxAmt
+					, SUM(IFNULL(budget_std_amt, 0)) AS consDocStdAmt
+				FROM	$DB_NEOS$t_exnp_consbudget
+				WHERE	conffer_budget_return_yn != 'Y' 
+				GROUP BY cons_doc_seq		
+			)	amt
+			 ON	consDoc.cons_doc_seq = amt.cons_doc_seq
+			INNER JOIN	(
+				/* 품의서 전체 품의액 조회 */
+				SELECT	
+					cons_doc_seq
+					, SUM(IFNULL(budget_amt, 0)) AS consDocAmt
+					, SUM(IFNULL(budget_tax_amt, 0)) AS consDocTaxAmt
+					, SUM(IFNULL(budget_std_amt, 0)) AS consDocStdAmt
+				FROM	$DB_NEOS$t_exnp_consbudget 
+				GROUP BY cons_doc_seq		
+			)	amt2
+			 ON	consDoc.cons_doc_seq = amt2.cons_doc_seq			 
+			LEFT JOIN	(
+				/* 품의서 전체 참조결의액 조회 */
+				SELECT	
+					SUM(b2.budget_std_amt)	AS 'resDocStdAmt'
+					, SUM(b2.budget_tax_amt)	AS 'resDocTaxAmt'
+					, SUM( (CASE IFNULL(b2.ctl_fg_code, '1') 
+								WHEN '0'	THEN 	( CASE IFNULL(b2.budget_std_amt, 0) WHEN '0' THEN b2.budget_amt ELSE b2.budget_std_amt END )
+								ELSE		IFNULL(b2.budget_amt, 0)	/* emptyStr or '1' */
+							END)
+					)	AS 'resDocAmt'
+					, b2.conffer_doc_seq	AS confferDocSeq
+				FROM	$DB_NEOS$t_exnp_resbudget b2
+				 INNER JOIN $DB_NEOS$t_exnp_resdoc d2
+				 ON	b2.res_doc_seq = d2.res_doc_seq
+				WHERE	IFNULL(d2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009' )	
+				 AND	d2.doc_seq IS NOT NULL		
+				GROUP BY b2.conffer_doc_seq	
+			)	res
+			ON 	res.confferDocSeq = consDoc.cons_doc_seq		
+			LEFT JOIN       (
+				/* 부분환원 예산 제외 참조결의액 조회 */
+				SELECT
+				        SUM(b2.budget_std_amt)  AS 'resDocStdAmt'
+				        , SUM(b2.budget_tax_amt)        AS 'resDocTaxAmt'
+						, SUM( (CASE IFNULL(b2.ctl_fg_code, '1') 
+									WHEN '0'	THEN 	( CASE IFNULL(b2.budget_std_amt, 0) WHEN '0' THEN b2.budget_amt ELSE b2.budget_std_amt END )
+									ELSE		IFNULL(b2.budget_amt, 0)	/* emptyStr or '1' */
+								END)
+						)	AS 'resDocAmt'			        
+				        , b2.conffer_doc_seq    AS confferDocSeq
+				FROM    $DB_NEOS$t_exnp_resbudget b2
+				 INNER JOIN $DB_NEOS$t_exnp_resdoc d2
+				 ON     b2.res_doc_seq = d2.res_doc_seq
+				 INNER JOIN $DB_NEOS$t_exnp_consbudget b3
+				 ON	b2.conffer_budget_seq = b3.budget_seq
+				  AND	b3.conffer_budget_return_yn != 'Y'
+				WHERE   ( IFNULL(d2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009' )
+						OR
+						  d2.doc_status IN ('10', '20', '30',  '40', '50', '60', '80', '90', '110' )
+						)
+				 AND    d2.doc_seq IS NOT NULL
+				GROUP BY b2.conffer_doc_seq
+			)       res2
+			ON      res2.confferDocSeq = consDoc.cons_doc_seq
+		) cons		
+	</select>	
+	
+	<select id="NpUserReportA.consBudgetList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/admin/NpUserReportSQL.xml - NpUserReportA.consBudgetList */
+		/* 품의서 예산상세 내역 리스트 조회 */
+		SELECT	
+			consDoc.cons_doc_seq			AS 'consDocSeq'
+			, consHead.cons_seq				AS 'consSeq'
+			, consBudget.budget_seq			AS 'budgetSeq'
+			, consHead.docu_fg_name			AS 'docuFgName'
+			, consHead.cons_date			AS 'consDate'
+			, consHead.mgt_name				AS 'mgtName'
+			, consHead.erp_pc_name			AS 'erpPcName'
+			, consBudget.erp_budget_name	AS 'erpBudgetName'
+			, consBudget.erp_bgacct_name	AS 'erpBgacctName'
+			, consHead.erp_div_name			AS 'erpDivName'
+			, IFNULL(consBudget.budget_amt, 0)		AS 'budgetAmt'
+			, IFNULL(resBudget.res_budget_amt, 0)	AS 'resBudgetAmt'
+			, ( CASE	consBudget.conffer_budget_return_yn 
+				WHEN	'Y'	THEN	'0'
+				ELSE		IFNULL(consBudget.budget_amt, 0) 
+						- 
+						IFNULL(resBudget.res_budget_amt, 0)			
+				END
+			)	AS 'balanceAmt'					
+			, consBudget.conffer_budget_return_yn	AS 'confferBudgetReturnYN'
+			, consBudget.conffer_budget_return_emp_seq	AS 'confferBudgetReturnEmpSeq'
+			, consBudget.conffer_budget_return_emp_name	AS 'confferBudgetReturnEmpName'		
+			, IFNULL(consBudget.erp_bizplan_name, '')	AS 'erpBizplanName'	
+			, IFNULL(consBudget.erp_fiacct_name, '')	AS 'erpFiacctName'	
+		FROM	(
+			SELECT	* 
+			FROM	$DB_NEOS$t_exnp_consbudget
+			WHERE	cons_doc_seq = #consDocSeq#
+		)	consBudget
+		INNER JOIN	$DB_NEOS$t_exnp_consdoc 	consDoc
+		 ON	consBudget.cons_doc_seq = consDoc.cons_doc_seq
+		INNER JOIN	$DB_NEOS$t_exnp_conshead	consHead
+		 ON	consBudget.cons_seq = consHead.cons_seq
+		LEFT JOIN	(
+			SELECT	
+				SUM( (CASE IFNULL(ctl_fg_code, '1') 
+							WHEN '0'	THEN 	( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
+							ELSE		IFNULL(budget_amt, 0)	/* emptyStr or '1' */
+						END)
+				)	AS 'res_budget_amt'
+				, SUM(budget_std_amt)	'res_budget_std_amt'
+				, SUM(budget_tax_amt)	'res_budget_tax_amt'
+				, conffer_budget_seq
+			FROM	$DB_NEOS$t_exnp_resbudget b2
+			 INNER JOIN $DB_NEOS$t_exnp_resdoc d2
+			 ON	b2.res_doc_seq = d2.res_doc_seq
+			WHERE	( IFNULL(d2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009' )
+					OR
+					  d2.doc_status IN ('10', '20', '30',  '40', '50', '60', '80', '90', '110' )
+					)		
+			 AND	d2.doc_seq IS NOT NULL	
+			GROUP BY conffer_budget_seq
+		)	resBudget
+		 ON	consBudget.budget_seq = resBudget.conffer_budget_seq
+	</select>	
+	
+	<!-- 비영리 회계 - 품의서 반환 / 취소 -->
+	<update id="NpUserReportA.updateConsConfferStatus" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserReportSQL.xml - NpUserReportA.updateConsConfferStatus */
+		/* 결의서 반환 / 취소 진행 */	
+		UPDATE	$DB_NEOS$t_exnp_consdoc
+		SET	conffer_return_yn 			= #confferReturn# 
+			, conffer_return_name 		= #empName#
+			, conffer_return_emp_seq 	= #empSeq#
+		WHERE	comp_seq 		= #compSeq#
+		 AND	cons_doc_seq 	IN ($consDocSeqs$);
+	</update>
+	
+			
+	<!-- 비영리 회계 - 품의서 반환 / 취소 -->
+	<update id="NpUserReportA.updateConsConfferBudgetStatus" parameterClass="java.util.HashMap">
+		/* expend/np/admin/NpUserReportSQL.xml - NpUserReportA.updateConsConfferBudgetStatus */
+		/* 품의서 예산 반환 / 취소 진행 */	
+		UPDATE	$DB_NEOS$t_exnp_consbudget		 
+		SET	conffer_budget_return_yn			= #confferReturn#
+			, conffer_budget_return_emp_seq		= #empSeq#
+			, conffer_budget_return_emp_name	= #empName#
+		WHERE	budget_seq = #consBudgetSeq#
+	</update>	
+	
+	<select id="NpUserReportA.selectResReportPageListEAP" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserReportSQL.xml - NpUserReportA.selectResReportPageListEAP */
+		/* [영리] 결의서 현황 조회 */
+		SELECT	
+			d.res_doc_seq	AS 'consDocSeq'
+			, d.doc_seq	AS 'docSeq'
+			, r.form_id	AS 'formSeq'
+			, d.doc_seq		AS 'docSeq'
+			, IFNULL(r.doc_no, '')	AS 'docNo'
+			, d.doc_status		AS 'docStatus'
+			, replace(left(r.rep_dt,10),'-','')	AS 'docDate'
+			, d.resdoc_note	AS 'consdocNote'			
+			, d.resdoc_note	AS 'resdocNote'
+			, d.expend_date	AS 'expendDate'
+			, d.comp_name	AS 'compName'
+			, d.dept_name	AS 'deptName'	
+			, d.emp_name	AS 'empName'
+			, d.send_emp_seq	AS 'sendEmpSeq'
+			, d.send_date		AS 'sendDate'
+			, d.send_emp_name	AS 'sendName'			
+			, r.doc_title	AS 'docTitle'
+			, amt.resDocAmt		AS 'resDocAmt'
+			, amt.resDocTaxAmt	AS 'resDocTaxAmt'
+			, amt.resDocStdAmt	AS 'resDocStdAmt'
+			, d.erp_send_yn	AS 'erpSendYN'	
+			, d.save_yn		AS saveYn
+			, 'EAP'			AS 'eaType'
+		FROM	$DB_NEOS$t_exnp_resdoc	d
+		INNER JOIN	$DB_NEOS$teag_appdoc	r
+		 ON	d.doc_seq = r.doc_id
+ 		INNER JOIN	(
+			SELECT	
+				res_doc_seq
+				, SUM(IFNULL(budget_amt, 0)) AS resDocAmt
+				, SUM(IFNULL(budget_tax_amt, 0)) AS resDocTaxAmt
+				, SUM(IFNULL(budget_std_amt, 0)) AS resDocStdAmt
+			FROM	$DB_NEOS$t_exnp_resbudget 
+			GROUP BY res_doc_seq		
+		)	amt		
+		ON	d.res_doc_seq = amt.res_doc_seq	
+		WHERE	d.comp_seq = #compSeq#
+		 AND	r.use_yn  = '1'
+		 AND	d.emp_seq = #empSeq#
+		 AND	d.doc_seq IS NOT NULL
+		 AND 	IFNULL(doc_status, '008') IN ('10', '20', '30',  '40', '50', '60', '70', '80', '90', '100', '110' )
+		 
+		<isNotEmpty property="docStatus">
+		 AND	doc_status IN ( $docStatus$ )
+		</isNotEmpty>		
+		<isNotEmpty property="frDt">
+		 <isNotEmpty property="toDt">
+		 AND	CONVERT(REPLACE(d.expend_date, '-', ''), CHAR(8)) BETWEEN #frDt# AND #toDt#
+		 </isNotEmpty>  
+		</isNotEmpty> 
+
+		<isNotEmpty property="erpSendYN">
+		 AND	IFNULL(d.erp_send_yn, 'N') = #erpSendYN#
+		</isNotEmpty>
+
+		<isNotEmpty property="docTitle">
+		 AND	r.doc_title LIKE CONCAT('%', IFNULL(#docTitle#, ''), '%')
+		</isNotEmpty>
+
+		<isNotEmpty property="docNo">
+		 AND	r.doc_no LIKE CONCAT('%', IFNULL(#docNo#, ''), '%')
+		</isNotEmpty>
+
+		<isNotEmpty property="sendEmpName">
+		 AND	d.send_emp_name LIKE CONCAT('%', IFNULL(#sendEmpName#, ''), '%')
+		</isNotEmpty>	
+		ORDER BY expend_date DESC		
+	</select>
+	
+	<select id="NpUserReportA.selectResReportPageListEA" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserReportSQL.xml - NpUserReportA.selectResReportPageList */
+		/* [비영리] 결의서 현황 조회 */
+		SELECT	
+			d.res_doc_seq	AS 'consDocSeq'
+			, d.doc_seq	AS 'docSeq'
+			, d.doc_seq		AS 'docSeq'
+			, IFNULL(r.c_ridocfullnum, '')	AS 'docNo'
+			, d.doc_status		AS 'docStatus'
+			, i.c_diwriteday	AS 'docDate'
+			, d.resdoc_note	AS 'consdocNote'			
+			, d.resdoc_note	AS 'resdocNote'
+			, d.expend_date	AS 'expendDate'
+			, d.comp_name	AS 'compName'
+			, d.dept_name	AS 'deptName'	
+			, d.emp_name	AS 'empName'
+			, d.send_emp_seq	AS 'sendEmpSeq'
+			, d.send_date		AS 'sendDate'
+			, d.send_emp_name	AS 'sendName'			
+			, r.c_riaftertitle	AS 'docTitle'
+			, amt.resDocAmt		AS 'resDocAmt'
+			, amt.resDocTaxAmt	AS 'resDocTaxAmt'
+			, amt.resDocStdAmt	AS 'resDocStdAmt'	
+			, d.erp_send_yn	AS 'erpSendYN'		
+			, d.save_yn		AS 'saveYn'
+			, 'EA'			AS 'eaType'
+		FROM	$DB_NEOS$t_exnp_resdoc	d
+		INNER JOIN	$DB_NEOS$a_recordinfo	r
+		 ON	d.doc_seq = r.c_dikeycode
+		INNER JOIN	(
+			SELECT	c_dikeycode,  MIN(c_diwriteday) AS c_diwriteday
+			FROM	$DB_NEOS$a_draftinfo 
+			WHERE	IFNULL(c_distatus, '008') != 'd'
+			GROUP BY c_dikeycode 
+		)	i
+		 ON	r.c_dikeycode = i.c_dikeycode
+ 		INNER JOIN	(
+			SELECT	
+				res_doc_seq
+				, SUM( (CASE IFNULL(ctl_fg_code, '1')
+				WHEN '0'	THEN 	( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
+				ELSE		IFNULL(budget_amt, 0)	/* emptyStr or '1' */
+				END)
+				)	AS resDocAmt
+				, SUM(IFNULL(budget_tax_amt, 0)) AS resDocTaxAmt
+				, SUM(IFNULL(budget_std_amt, 0)) AS resDocStdAmt
+			FROM	$DB_NEOS$t_exnp_resbudget 
+			GROUP BY res_doc_seq		
+		)	amt		
+		ON	d.res_doc_seq = amt.res_doc_seq	
+		INNER JOIN $DB_NEOS$erpgwlink gwlink
+        ON			gwlink.appr_dikey = d.doc_seq	
+		WHERE	d.comp_seq = #compSeq#
+		 AND	d.emp_seq = #empSeq#
+		 AND	d.doc_seq IS NOT NULL
+		 AND 	IFNULL(doc_status, '008') IN ( '001', '002', '003', '004','007', '008', '009','20', '30', '90' )
+		 
+		<isNotEmpty property="docStatus">
+		 AND	doc_status in ($docStatus$)
+		</isNotEmpty>		
+		<isNotEmpty property="frDt">
+		 <isNotEmpty property="toDt">
+		 AND	LEFT(requ_date,8) BETWEEN #frDt# AND #toDt#
+		 </isNotEmpty>  
+		</isNotEmpty> 
+
+		<isNotEmpty property="erpSendYN">
+		 AND	IFNULL(d.erp_send_yn, 'N') = #erpSendYN#
+		</isNotEmpty>
+
+		<isNotEmpty property="docTitle">
+		 AND	c_riaftertitle LIKE CONCAT('%', IFNULL(#docTitle#, ''), '%')
+		</isNotEmpty>
+
+		<isNotEmpty property="docNo">
+		 AND	c_ridocfullnum LIKE CONCAT('%', IFNULL(#docNo#, ''), '%')
+		</isNotEmpty>
+
+		<isNotEmpty property="sendEmpName">
+		 AND	d.send_emp_name LIKE CONCAT('%', IFNULL(#sendEmpName#, ''), '%')
+		</isNotEmpty>	
+		ORDER BY expend_date DESC
+	</select>
+
+
+	<select id="NpUserReportA.NPUserEtaxEaReportList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT	etax.sync_id AS syncId
+				, etax.iss_no AS issNo
+				, etax.iss_dt AS issDt
+				, etax.send_yn AS sendYN
+				, IFNULL(tr.transferType,'') AS transferType
+				, IFNULL(tr.supperKey, '') AS supperKey
+				, IFNULL(etax.if_m_id,'') AS ifMId
+				, IFNULL(etax.if_m_id,'') AS ifMId
+				, IFNULL(doc.doc_title,'') AS docTitle
+				, IFNULL(doc.doc_no,'') AS docNo
+				, IFNULL(doc.user_id,'') AS empSeq
+				, IFNULL(doc.user_nm,'') AS empName
+		FROM	$DB_NEOS$t_ex_etax_aq_tmp etax
+		LEFT OUTER JOIN (
+			SELECT	A.doc_seq
+					, A.interface_seq AS interface_m_id
+					, B.doc_title
+					, B.doc_no
+					, B.form_id
+					, B.user_id
+					, B.user_nm
+			FROM	(
+				SELECT	doc.doc_seq
+						, interface_seq
+				FROM	$DB_NEOS$t_exnp_resdoc doc
+				INNER JOIN $DB_NEOS$t_exnp_restrade trade ON trade.interface_type = 'etax' AND doc.res_doc_seq = trade.res_doc_seq
+				WHERE	IFNULL(doc.doc_status,'') IN ( '001', '002', '003', '004', '008', '009','20', '30', '90' )
+			) A INNER JOIN (
+				SELECT	doc.c_dikeycode AS doc_id
+						, doc.c_tikeycode AS form_id
+						, doc.c_dititle AS doc_title
+						, rec.c_ridocfullnum AS doc_no
+						, drf.c_diuserkey AS user_id
+						, drf.c_dijunkyulname AS user_nm
+				FROM	$DB_NEOS$a_docinfo doc
+				INNER JOIN $DB_NEOS$a_draftinfo drf ON doc.c_dikeycode = drf.c_dikeycode
+				INNER JOIN $DB_NEOS$a_recordinfo rec ON doc.c_dikeycode = rec.c_dikeycode
+				WHERE	IFNULL(drf.c_dijunkyulname, '') LIKE CONCAT('%',#userName#,'%')
+			) B ON A.doc_seq = B.doc_id
+		) doc ON etax.sync_id = doc.interface_m_id
+		LEFT OUTER JOIN (
+			/* 내가 이관한 내역들 */
+			SELECT	iss_no
+					, 'T' AS transferType
+					, IFNULL(GROUP_CONCAT(supper_key),'') AS supperKey
+			FROM	$DB_NEOS$t_Ex_etax_transfer
+			WHERE	transfer_seq = #empSeq#
+			GROUP BY iss_no
+			UNION
+			/* 내가 이관 받은 내역들 */
+			SELECT	iss_no
+					, 'R' AS transferType
+					, IFNULL(GROUP_CONCAT(supper_key),'') AS supperKey
+			FROM	$DB_NEOS$t_Ex_etax_transfer
+			WHERE	receive_seq = #empSeq#
+			GROUP BY iss_no
+		) tr ON tr.iss_no = etax.iss_no
+		WHERE	etax.comp_Seq = #compSeq#
+		AND		etax.iss_dt BETWEEN #searchFromDt# AND #searchToDt#
+	</select>
+	
+	<select id="NpUserReportA.NPUserEtaxEapReportList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT	etax.sync_id AS syncId
+				, etax.iss_no AS issNo
+				, etax.iss_dt AS issDt
+				, etax.send_yn AS sendYN
+				, IFNULL(tr.transferType,'') AS transferType
+				, IFNULL(tr.supperKey, '') AS supperKey
+				, IFNULL(etax.if_m_id,'') AS ifMId
+				, IFNULL(etax.if_m_id,'') AS ifMId
+				, IFNULL(doc.doc_title,'') AS docTitle
+				, IFNULL(doc.doc_no,'') AS docNo
+				, IFNULL(doc.user_id,'') AS empSeq
+				, IFNULL(doc.user_nm,'') AS empName
+		FROM	$DB_NEOS$t_ex_etax_aq_tmp etax
+		LEFT OUTER JOIN (
+			SELECT	A.doc_seq
+					, A.interface_seq AS interface_m_id
+					, B.doc_title
+					, B.doc_no
+					, B.form_id
+					, B.user_id
+					, B.user_nm
+			FROM	(
+				SELECT	doc.doc_seq
+						, interface_seq
+				FROM	$DB_NEOS$t_exnp_resdoc doc
+				INNER JOIN $DB_NEOS$t_exnp_restrade trade ON trade.interface_type = 'etax' AND doc.res_doc_seq = trade.res_doc_seq
+				WHERE	IFNULL(doc.doc_status,'') IN ( '001', '002', '003', '004', '008', '009','20', '30', '90' )
+			) A INNER JOIN $DB_NEOS$teag_appdoc B ON A.doc_seq = B.doc_id
+			WHERE	B.user_nm LIKE CONCAT('%',#userName#,'%')
+		) doc ON etax.sync_id = doc.interface_m_id
+		LEFT OUTER JOIN (
+			/* 내가 이관한 내역들 */
+			SELECT	iss_no
+					, 'T' AS transferType
+					, IFNULL(GROUP_CONCAT(supper_key),'') AS supperKey
+			FROM	$DB_NEOS$t_Ex_etax_transfer
+			WHERE	transfer_seq = #empSeq#
+			GROUP BY iss_no
+			UNION
+			/* 내가 이관 받은 내역들 */
+			SELECT	iss_no
+					, 'R' AS transferType
+					, IFNULL(GROUP_CONCAT(supper_key),'') AS supperKey
+			FROM	$DB_NEOS$t_Ex_etax_transfer
+			WHERE	receive_seq = #empSeq#
+			GROUP BY iss_no
+		) tr ON tr.iss_no = etax.iss_no
+		WHERE	etax.comp_Seq = #compSeq#
+		AND		etax.iss_dt BETWEEN #searchFromDt# AND #searchToDt#
+	</select>	
+</sqlMap>

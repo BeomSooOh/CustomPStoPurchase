@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="BiUserSQL">
+	<select	id="BiUserCarPersonListSelect" parameterClass="HashMap" resultClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 조회 */
+		/* 필요 파라미터 compSeq, useDateFrom, useDateTo, carCode(예 : 111','333','222 이런식으로) */
+		SELECT	p.erp_comp_seq AS erpCoCd
+				, p.comp_seq AS compSeq
+				, p.car_code AS carCode
+				, c.car_number AS carNumber
+				, c.car_name AS carName
+				, p.use_date AS useDate
+				, p.seq_number AS seqNumber
+				, p.erp_emp_seq AS erpEmpSeq
+				, p.erp_biz_seq AS  erpBizSeq
+				, p.start_time AS startTime
+				, p.end_time AS endTime
+				, p.erp_dept_seq AS erpDeptSeq
+				, p.use_flag AS useFlag
+				, p.start_flag AS startFlag
+				, p.start_addr AS startAddr
+				, p.start_addr_detail AS startAddrDetail
+				, p.end_flag AS endFlag
+				, p.end_addr AS endAddr
+				, p.end_addr_detail AS endAddrDetail
+				, p.mileage_km AS mileageKm
+				, p.before_km AS beforeKm
+				, p.after_km AS afterKm
+				, p.rmk_nb AS rmkNb
+				, p.rmk_dc AS rmkDc
+				, p.oil_amt_type AS oilAmtType
+				, p.oil_amt AS oilAmt
+				, p.toll_amt_type AS tollAmtType
+				, p.toll_amt AS tollAmt
+				, p.parking_amt_type AS parkingAmtType
+				, p.parking_amt AS parkingAmt
+				, p.repair_amt_type AS repairAmtType
+				, p.repair_amt AS repairAmt
+				, p.etc_amt_type AS etcAmtType
+				, p.etc_amt AS etcAmt
+				, p.etc_rmk AS etcRmk
+				, p.erp_send_yn AS erpSendYN
+				, p.erp_send_seq AS erpSendSeq
+				, p.close_yn AS closeYN
+				, p.start_naver_value AS startNaverValue
+				, p.end_naver_value AS endNaverValue
+				, p.biz_seq AS bizSeq
+				, p.dept_seq AS deptSeq
+				, p.emp_seq AS empSeq
+		FROM	$DB_NEOS$t_ex_biz_car_person p
+		LEFT OUTER JOIN $DB_NEOS$t_ex_biz_car c on p.car_code = c.car_code
+		WHERE	p.comp_seq = '$compSeq$'
+		-- AND		p.car_code IN ($carCode$)
+		AND		p.use_date BETWEEN '$useDateFrom$' AND '$useDateTo$'
+		<isNotEmpty property="closeYN">
+			AND	p.close_yn = '$closeYN$'
+		</isNotEmpty>
+	</select>
+	
+	<insert	id="BiUserCarPersonInsert" parameterClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 등록*/
+		INSERT IGNORE INTO $DB_NEOS$t_ex_biz_car_person (erp_comp_seq,comp_seq,car_code,car_number,car_name,use_date,erp_emp_seq,erp_biz_seq,start_time,end_time,erp_dept_seq,use_flag,start_flag,start_addr,start_addr_detail,end_flag,end_addr,end_addr_detail,mileage_km,before_km,after_km,rmk_nb,rmk_dc,oil_amt_type,oil_amt,toll_amt_type,toll_amt,parking_amt_type,parking_amt,repair_amt_type,repair_amt,etc_amt_type,etc_amt,etc_rmk,erp_send_yn,erp_send_seq,close_yn,start_naver_value,end_naver_value,biz_seq,dept_seq,emp_seq,create_seq,create_ip,create_date,modify_seq,modify_ip,modify_date)
+		VALUES('${erpCoCd}','${compSeq}','${carCode}','${carNumber}','${carName}','${useDate}','${erpEmpSeq}','${erpBizSeq}','${startTime}','${endTime}','${erpDeptSeq}','${useFlag}','${startFlag}','${startAddr}','${startAddrDetail}','${endFlag}','${endAddr}','${endAddrDetail}','${mileageKm}','${beforeKm}','${afterKm}','${rmkNb}','${rmkDc}','${oilAmtType}','${oilAmt}','${tollAmtType}','${tollAmt}','${parkingAmtType}','${parkingAmt}','${repairAmtType}','${repairAmt}','${etcAmtType}','${etcAmt}','${etcRmk}','${erpSendYN}','${erpSendSeq}','${closeYN}','${startNaverValue}','${endNaverValue}','${bizSeq}','${deptSeq}','${empSeq}','${empSeq}','${ip}','${createDate}','${empSeq}','${ip}',NOW());
+	</insert>
+	
+	<update id="BiUserCarPersonUpdate" parameterClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 수정 */
+		/* 필요 파라미터 compSeq, carCode, useDate, seqNumber*/
+		UPDATE	$DB_NEOS$t_ex_biz_car_person
+		SET		erp_comp_seq='${erpCoCd}'
+				, comp_seq='${compSeq}'
+				, car_code='${carCode}'
+				, car_number='${carNumber}'
+				, car_name='${carName}'
+				, use_date='${useDate}'
+				, erp_emp_seq='${erpEmpSeq}'
+				, erp_biz_seq='${erpBizSeq}'
+				, start_time='${startTime}'
+				, end_time='${endTime}'
+				, erp_dept_seq='${erpDeptSeq}'
+				, use_flag='${useFlag}'
+				, start_flag='${startFlag}'
+				, start_addr='${startAddr}'
+				, start_addr_detail='${startAddrDetail}'
+				, end_flag='${endFlag}'
+				, end_addr='${endAddr}'
+				, end_addr_detail='${endAddrDetail}'
+				, mileage_km='${mileageKm}'
+				, before_km='${beforeKm}'
+				, after_km='${afterKm}'
+				, rmk_nb='${rmkNb}'
+				, rmk_dc='${rmkDc}'
+				, oil_amt_type='${oilAmtType}'
+				, oil_amt='${oilAmt}'
+				, toll_amt_type='${tollAmtType}'
+				, toll_amt='${tollAmt}'
+				, parking_amt_type='${parkingAmtType}'
+				, parking_amt='${parkingAmt}'
+				, repair_amt_type='${repairAmtType}'
+				, repair_amt='${repairAmt}'
+				, etc_amt_type='${etcAmtType}'
+				, etc_amt='${etcAmt}'
+				, etc_rmk='${etcRmk}'
+				, start_naver_value='${startNaverValue}'
+				, end_naver_value='${endNaverValue}'
+				, biz_seq='${bizSeq}'
+				, dept_seq='${deptSeq}'
+				, emp_seq='${empSeq}'
+				, modify_seq='${empSeq}'
+				, modify_ip='${ip}'
+				, modify_date=NOW()
+		WHERE	comp_seq = '${compSeq}'
+		AND		car_code = '${carCode}'
+		AND		use_date = '${useDate}'
+		AND		seq_number='${seqNumber}'
+		/* 마감처리 되지 않은 데이터만 수정 가능 */
+		AND		close_yn = '0'
+	</update>
+	
+	<delete id="BiUserCarPersonDelete" parameterClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 삭제 */
+		/* 필요 파라미터 compSeq, carCode, useDate, seqNumber*/
+		DELETE 	FROM $DB_NEOS$t_ex_biz_car_person
+		WHERE	comp_seq = '${compSeq}'
+		AND		car_code = '${carCode}'
+		AND		use_date = '${useDate}'
+		AND		seq_number='${seqNumber}'
+		/* 마감처리 되지 않은 데이터만 수정 가능 */
+		AND		close_yn = '0'
+		/* ERP전송 되지 않은 데이터만 수정 가능 */
+		AND		erp_send_yn = '0'
+	</delete>
+	
+	<update id="BiUserCarPersonClose" parameterClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 마감/취소 */
+		/* 필요 파라미터 closeYN(0:미마감, 1:마감), modifySeq, ip, compSeq, carCode, useDate, seqNumber*/
+		UPDATE	$DB_NEOS$t_ex_biz_car_person
+		SET		close_yn='${closeYN}'
+				, modify_seq='${empSeq}'
+				, modify_ip='${ip}'
+				, modify_date=NOW()
+		WHERE	comp_seq = '${compSeq}'
+		AND		car_code = '${carCode}'
+		AND		use_date = '${useDate}'
+		AND		seq_number='${seqNumber}'
+	</update>
+	
+	<update id="BiUserCarPersonSend" parameterClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 전송 */
+		/* 필요 파라미터 erpSendYN(0:미전송, 1:전송), erpSendSeq, modifySeq, modifyIp, compSeq, carCode, useDate, seqNumber*/
+		UPDATE	$DB_NEOS$t_ex_biz_car_person
+		SET		erp_send_yn = '1'
+				, erp_send_seq = '${erpSendSeq}'
+				, modify_seq='${empSeq}'
+				, modify_ip='${ip}'
+				, modify_date=NOW()
+		WHERE	comp_seq = '${compSeq}'
+		AND		car_code = '${carCode}'
+		AND		use_date = '${useDate}'
+		AND		seq_number='${seqNumber}'
+	</update>
+	
+	<update id="BiUserCarPersonSendCancel" parameterClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 취소 */
+		/* 필요 파라미터 erpSendYN(0:미전송, 1:전송), erpSendSeq, modifySeq, modifyIp, compSeq, carCode, useDate, seqNumber*/
+		UPDATE	$DB_NEOS$t_ex_biz_car_person
+		SET		erp_send_yn = '0'
+				, erp_send_seq = ''
+				, modify_seq='${empSeq}'
+				, modify_ip='${ip}'
+				, modify_date=NOW()
+		WHERE	comp_seq = '${compSeq}'
+		AND		car_code = '${carCode}'
+		AND		use_date = '${useDate}'
+		AND		seq_number='${seqNumber}'
+	</update>
+	
+	<select id="BiUserCarPersonSendListSelect" parameterClass="HashMap" resultClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 전송 데이터 조회 */
+		/* 필요 파라미터 empSeq, ip, compSeq, carCode, useDate, seqNumber*/
+		SELECT	erp_comp_seq AS CO_CD
+				, erp_biz_seq AS DIV_CD
+				, car_code AS CAR_CD
+				, use_date AS USE_DT
+				, start_time AS USE_TIME
+				, erp_dept_seq AS DEPT_CD
+				, erp_emp_seq AS EMP_CD
+				, mileage_km AS MILEAGE_KM
+				, CASE	
+					WHEN use_flag = '1' || use_flag = '2' || use_flag = '3' THEN mileage_km 
+					ELSE 0
+				END AS COMMUTE_KM	
+				, CASE 	
+					WHEN use_flag = '4' THEN mileage_km
+					ELSE 0
+				END AS BUSINESS_KM
+				, before_km AS BEFORE_KM
+				, after_km AS AFTER_KM
+				, rmk_dc AS RMK_DC
+				, '3' AS DATA_FG
+				, '${empSeq}' AS INSERT_ID
+				, NOW() AS INSERT_DT
+				, '${ip}' AS INSERT_IP
+				, '${empSeq}' AS MODIFY_ID
+				, NOW() AS MODIFY_DT
+				, '${ip}' AS MODIFY_IP
+		FROM	$DB_NEOS$t_Ex_biz_car_person
+		WHERE	comp_seq = '${compSeq}'
+		AND		car_code = '${carCode}'
+		AND		use_date = '${useDate}'
+		AND		seq_number = '${seqNumber}';
+	</select>
+	
+	
+	<select id="BiUserCarBookmarkSelect" parameterClass="HashMap" resultClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 즐겨찾기 조회 */
+		/* 필요 파라미터 empSeq, compSeq */
+		SELECT	erp_comp_seq AS erpCompSeq
+				, erp_emp_seq AS erpEmpSeq
+				, comp_seq AS compSeq
+				, emp_seq AS empSeq
+				, bookmark_code AS bookmarkCode
+				, bookmark_name AS bookmarkName
+				, erp_biz_seq AS erpBizSeq
+				, use_flag AS useFlag
+				, start_time AS startTime
+				, end_time AS endTime
+				, start_flag AS startFlag
+				, start_addr AS startAddr
+				, start_addr_detail AS startAddrDetail
+				, start_naver_value AS startNaverValue
+				, end_flag AS endFlag
+				, end_addr AS endAddr
+				, end_addr_detail AS endAddrDetail
+				, end_naver_value AS endNaverValue
+				, mileage_km AS mileageKm
+				, rmk_nb AS rmkNb
+				, rmk_dc AS rmkDc
+				, toll_amt_type AS tollAmtType
+				, toll_amt AS tollAmt		
+				, biz_seq AS bizSeq
+				, dept_seq AS deptSeq
+		FROM	$DB_NEOS$t_ex_biz_car_bookmark
+		WHERE	comp_seq = '${compSeq}'
+		AND		emp_seq = '${empSeq}';
+	</select>
+	
+	<insert id="BiUserCarBookmarkInsert" parameterClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 즐겨찾기 등록 */
+		INSERT INTO $DB_NEOS$t_ex_biz_car_bookmark (erp_comp_seq,erp_emp_seq,comp_seq,emp_seq,bookmark_code,bookmark_name,erp_biz_seq,use_flag,start_time,end_time,start_flag,start_addr,start_addr_detail,start_naver_value,end_flag,end_addr,end_addr_detail,end_naver_value,mileage_km,rmk_nb,rmk_dc,toll_amt_type,toll_amt,create_seq,create_time,create_ip,modify_seq,modify_date,modify_ip,biz_seq,dept_seq)
+		VALUES('${erpCompSeq}','${erpEmpSeq}','${compSeq}','${empSeq}','${bookmarkCode}','${bookmarkName}','${erpBizSeq}','${useFlag}','${startTime}','${endTime}','${startFlag}','${startAddr}','${startAddrDetail}','${startNaverValue}','${endFlag}','${endAddr}','${endAddrDetail}','${endNaverValue}','${mileageKm}','${rmkNb}','${rmkDc}','${tollAmtType}','${tollAmt}','${empSeq}',NOW(),'${ip}','${empSeq}',NOW(),'${ip}','${bizSeq}','${deptSeq}');
+	</insert>
+	
+	<update id="BiUserCarBookmarkUpdate" parameterClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 즐겨찾기 수정 */
+		/* 필요 파라미터 bookmarkCode, empSeq, compSeq */
+		UPDATE	$DB_NEOS$t_ex_biz_car_booklmark
+		SET		erp_comp_seq='${erpCompSeq}'
+				, erp_emp_seq='${erpEmpSeq}'
+				, bookmark_name='${bookmarkName}'
+				, erp_biz_seq='${erpBizSeq}'
+				, use_flag='${useFlag}'
+				, start_time='${startTime}'
+				, end_time='${endTime}'
+				, start_flag='${startFlag}'
+				, start_addr='${startAddr}'
+				, start_addr_detail='${startAddrDetail}'
+				, start_naver_value='${startNaverValue}'
+				, end_flag='${endFlag}'
+				, end_addr='${endAddr}'
+				, end_addr_detail='${endAddrDetail}'
+				, vend_naver_value='${endNaverValue}'
+				, mileage_km='${mileageKm}'
+				, rmk_nb='${rmkNb}'
+				, rmk_dc='${rmkDc}'
+				, toll_amt_type='${tollAmtType}'
+				, toll_amt='${tollAmt}'
+				, modify_seq='${empSeq}'
+				, modify_date= NOW()
+				, modify_ip='${ip}'
+				, biz_seq='${bizSeq}'
+				, dept_seq='${deptSeq}'
+		WHERE	bookmark_code='${bookmarkCode}'
+		AND		comp_seq='${compSeq}'
+		AND		emp_seq='${empSeq}'
+	</update>
+	
+	<delete id="BiUserCarBookmarkDelete" parameterClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 즐겨찾기 삭제 */
+		/* 필요 파라미터 bookmarkCode, empSeq, compSeq */
+		DELETE FROM $DB_NEOS$t_ex_biz_car_bookmark
+		WHERE	bookmark_code='${bookmarkCode}'
+		AND		comp_seq='${compSeq}'
+		AND		emp_seq='${empSeq}'
+	</delete>
+	
+	
+	<select id="BiUserCarRmkSelect" parameterClass="HashMap" resultClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 비고 조회 */
+		/* 필요 파라미터 erpCompSeq, erpEmpSeq */
+		SELECT	erp_comp_seq AS erpCompSeq
+				, erp_emp_seq AS erpEmpSeq
+				, rmk_nb AS rmkNb
+				, use_fg AS useFg
+				, rmk_dc AS rmkDc
+				, erp_biz_seq AS erpBizSeq
+				, comp_seq AS compSeq
+				, biz_seq AS bizSeq
+				, dept_seq AS deptSeq
+				, emp_seq AS empSeq
+				, order_num AS orderNum
+		FROM	$DB_NEOS$t_ex_biz_car_rmk
+		WHERE	erp_comp_seq = '${erpCompSeq}'
+		AND		erp_emp_seq = '${erpEmpSeq}'
+	</select>
+	
+	<update id="BiUserCarRmkUpdate" parameterClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 비고 수정 */
+		/* 필요 파라미터 erpCompSeq, erpEmpSeq, rmkNb, useFg */
+		UPDATE	$DB_NEOS$t_ex_biz_car_rmk
+		SET		erp_comp_seq='${erpCompSeq}'
+				, erp_emp_seq='${erpEmpSeq}'		
+				, rmk_dc='${rmkDc}'
+				, erp_biz_seq='${erpBizSeq}'
+				, comp_seq='${compSeq}'
+				, biz_seq='${bizSeq}'
+				, dept_seq='${deptSeq}'
+				, emp_seq='${empSeq}'
+				, order_num='${orderNum}'
+				, modify_seq='${empSeq}'
+				, modify_date = NOW()
+		WHERE	erp_comp_seq = '${erpCompSeq}'
+		AND		erp_emp_seq = '${erpEmpSeq}'
+		AND		rmk_nb = '${rmkNb}'
+		AND		use_fg='${useFg}'
+	</update>
+	
+	<insert id="BiUserCarRmkInsert" parameterClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 비고 등록 */
+		INSERT INTO $DB_NEOS$t_ex_biz_car_rmk (erp_comp_seq,erp_emp_seq,rmk_nb,use_fg,rmk_dc,erp_biz_seq,comp_seq,biz_seq,dept_seq,emp_seq,order_num,create_seq,create_date,modify_seq,modify_date)
+		VALUES('${erpCompSeq}','${erpEmpSeq}','${rmkNb}','${useFg}','${rmkDc}','${erpBizSeq}','${compSeq}','${bizSeq}','${deptSeq}','${empSeq}','${orderNum}','${empSeq}',NOW(),'${empSeq}',NOW());
+	</insert>
+	
+	<delete id="BiUserCarRmkDelete" parameterClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 비고 삭제 */
+		/* 필요 파라미터 erpCompSeq, erpEmpSeq, rmkNb, useFg */
+		DELETE FROM $DB_NEOS$t_ex_biz_car_rmk
+		WHERE	erp_comp_seq = '${erpCompSeq}'
+		AND		erp_emp_seq = '${erpEmpSeq}'
+		AND		rmk_nb = '${rmkNb}'
+		AND		use_fg='${useFg}'
+	</delete>
+</sqlMap>

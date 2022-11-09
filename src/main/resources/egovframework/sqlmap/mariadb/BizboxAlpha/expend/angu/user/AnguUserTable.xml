@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AnguUserTable">
+	<!-- # `neos`.`t_ex_anbojo` # -->
+	<!-- # `neos`.`t_ex_anbojo` - insert # -->
+	<insert id="AnguUserTable.TExAnbojo.Insert" parameterClass="HashMap">
+		<![CDATA[
+			INSERT INTO $DB_NEOS$t_ex_anbojo
+				( `comp_seq`, `anbojo_seq`, `doc_seq`, `form_seq`, `anbojo_stat_code`, `gisu_date`, `write_seq`, `json_str`, `erp_send_yn`, `erp_send_seq`, `erp_send_date`, `create_seq`, `create_date`, `modify_seq`, `modify_date` )
+			VALUES
+				( #compSeq#, #anbojoSeq#, #docSeq#, #formSeq#, #anbojoStatCode#, #gisuDate#, #writeSeq#, #jsonStr#, #erpSendYN#, #erpSendSeq#, #erpSendDate#, #empSeq#, NOW(), #empSeq#, NOW() )
+		]]>
+		<selectKey keyProperty="anbojoSeq" resultClass="java.lang.String"><![CDATA[
+			SELECT  CAST(IFNULL(MAX(anbojo_seq), 0) AS CHAR) AS anbojoSeq
+			FROM    $DB_NEOS$t_ex_anbojo
+			WHERE   `comp_seq` = #compSeq#
+			AND     `create_seq` = #empSeq#
+		]]></selectKey>
+	</insert>
+	<!-- # `neos`.`t_ex_anbojo` - udpate # -->
+	<update id="AnguUserTable.TExAnbojo.Update" parameterClass="HashMap"><![CDATA[
+		/* AnguUserTable.TExAnbojo.Update - mariadb */
+		UPDATE	$DB_NEOS$t_ex_anbojo
+		SET		`comp_seq` = #compSeq#,
+				`anbojo_seq` = #anbojoSeq#,
+				`doc_seq` = #docSeq#,
+				`form_seq` = #formSeq#,
+				`anbojo_stat_code` = #anbojoStatCode#,
+				`gisu_date` = #gisuDate#,
+				`write_seq` = #writeSeq#,
+				`json_str` = #jsonStr#,
+				`erp_send_yn` = #erpSendYN#,
+				`erp_send_seq` = #erpSendSeq#,
+				`erp_send_date` = #erpSendDate#,
+				`modify_seq` = #modifySeq#,
+				`modify_date` = NOW()
+		WHERE	`anbojo_seq` = #anbojoSeq#
+	]]>
+	</update>
+	<!-- # `neos`.`t_ex_anbojo` - delete # -->
+	<delete id="AnguUserTable.TExAnbojo.Delete" parameterClass="HashMap"><![CDATA[
+		/* AnguUserTable.TExAnbojo.Delete - mariadb */
+		DELETE	FROM $DB_NEOS$t_ex_anbojo
+		WHERE	`anbojo_seq` = #anbojoSeq#;
+	]]>
+	</delete>
+	<!-- # `neos`.`t_ex_anbojo` - select # -->
+	<select id="AnguUserTable.TExAnbojo.Select" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* AnguUserTable.TExAnbojo.Select - mariadb */
+		SELECT	`comp_seq`,
+				`anbojo_seq`,
+				`doc_seq`,
+				`form_seq`,
+				`anbojo_stat_code`,
+				`gisu_date`,
+				`write_seq`,
+				`json_str`,
+				`erp_send_yn`,
+				`erp_send_seq`,
+				`erp_send_date`,
+				`create_seq`,
+				`create_date`,
+				`modify_seq`,
+				`modify_date`
+		FROM	$DB_NEOS$t_ex_anbojo
+		WHERE	`anbojo_seq` = #anbojoSeq#;
+		LIMIT	1
+	]]>
+	</select>
+
+	<!-- # `neos`.`t_ex_anbojo_abdocu_pay` # -->
+	<!-- # `neos`.`t_ex_anbojo_abdocu_pay` - insert # -->
+	<insert id="AnguUserTable.TExAnbojoAbdocuPay.Insert" parameterClass="HashMap">
+		<selectKey keyProperty="pSeq" resultClass="java.lang.String"><![CDATA[
+			SELECT  CAST((IFNULL(MAX(p_seq), 0) + 1) AS CHAR) AS pSeq
+			FROM    $DB_NEOS$t_ex_anbojo_abdocu_pay
+			WHERE	`anbojo_seq` = #anbojoSeq#
+			AND		`d_seq` = #dSeq#
+			AND		`b_seq` = #bSeq#
+			AND		`t_seq` = #tSeq#
+		]]></selectKey>
+		<![CDATA[
+			/* AnguUserTable.TExAnbojo.Insert - mariadb */
+			INSERT INTO $DB_NEOS$t_ex_anbojo_abdocu_pay (
+				`anbojo_seq`, `d_seq`, `b_seq`, `t_seq`, `p_seq`,
+				`erp_comp_seq`, `erp_comp_name`, `mosf_gisu_dt`, `mosf_gisu_sq`, `mosf_bg_sq`,
+				`mosf_ln_sq`, `cntc_sn`, `cntc_job_process_code`, `intrfc_id`, `trnsc_id`,
+				`file_id`, `cntc_creat_dt`, `cntc_trget_sys_code`, `bsnsyear`, `ddtlbz_id`,
+				`exc_instt_id`, `excut_cntc_id`, `excut_taxitm_cntc_id`, `hnf_regist_sn`, `hnf_nm`,
+				`hnf_lsft_no`, `prrt`, `partcptn_begin_de`, `partcptn_end_de`, `pymnt_amount`,
+				`process_result_code`, `process_result_mssage`, `pay_fg`, `etctr_cd`, `etcrvrs_ym`,
+				`etcdiv_cd`, `etcdummy1`, `etcdummy2`, `ndep_am`, `inad_am`,
+				`intx_am`, `rstx_am`, `wd_am`, `etcpay_dt`, `et_yn`,
+				`etcdata_cd`, `etctax_rt`, `hife_am`, `nape_am`, `ddct_am`,
+				`noin_am`, `wd_am2`, `etcrate`, `gw_state`, `gw_id`,
+				`sing_fg`, `sing_nm`, `insert_id`, `insert_dt`, `insert_ip`,
+				`modify_id`, `modify_dt`, `modify_ip`
+			) VALUES (
+				#anbojoSeq#, #dSeq#, #bSeq#, #tSeq#, #pSeq#,
+				#erpCompSeq#, #erpCompName#, #mosfGisuDt#, #mosfGisuSq#, #mosfBgSq#,
+				#mosfLnSq#, #cntcSn#, #cntcJobProcessCode#, #intrfcId#, #trnscId#,
+				#fileId#, #cntcCreatDt#, #cntcTrgetSysCode#, #bsnsyear#, #ddtlbzId#,
+				#excInsttId#, #excutCntcId#, #excutTaxitmCntcId#, #hnfRegistSn#, #hnfNm#,
+				#hnfLsftNo#, #prrt#, #partcptnBeginDe#, #partcptnEndDe#, #pymntAmount#,
+				#processResultCode#, #processResultMssage#, #payFg#, #etctrCd#, #etcrvrsYM#,
+				#etcdivCd#, #etcdummy1#, #etcdummy2#, #ndepAm#, #inadAm#,
+				#intxAm#, #rstxAm#, #wdAm#, #etcpayDt#, #etYN#,
+				#etcdataCd#, #etctaxRt#, #hifeAm#, #napeAm#, #ddctAm#,
+				#noinAm#, #wdAm2#, #etcrate#, #gwState#, #gwId#,
+				#singFg#, #singNm#, #insertId#, NOW(), #insertIp#,
+				#modifyId#, NOW(), #modifyIp#
+			)
+		]]>
+	</insert>
+	<!-- # `neos`.`t_ex_anbojo_abdocu_pay` - update # -->
+	<update id="AnguUserTable.TExAnbojoAbdocuPay.Update" parameterClass="HashMap">
+	<![CDATA[
+		/* AnguUserTable.TExAnbojo.Update - mariadb */
+		UPDATE	$DB_NEOS$t_ex_anbojo_abdocu_pay
+		SET		`anbojo_seq` = #anbojoSeq#,
+				`d_seq` = #dSeq#,
+				`b_seq` = #bSeq#,
+				`t_seq` = #tSeq#,
+				`p_seq` = #pSeq#,
+				`erp_comp_seq` = #erpCompSeq#,
+				`erp_comp_name` = #erpCompName#,
+				`mosf_gisu_dt` = #mosfGisuDt#,
+				`mosf_gisu_sq` = #mosfGisuSq#,
+				`mosf_bg_sq` = #mosfBgSq#,
+				`mosf_ln_sq` = #mosfLnSq#,
+				`cntc_sn` = #cntcSn#,
+				`cntc_job_process_code` = #cntcJobProcessCode#,
+				`intrfc_id` = #intrfcId#,
+				`trnsc_id` = #trnscId#,
+				`file_id` = #fileId#,
+				`cntc_creat_dt` = #cntcCreatDt#,
+				`cntc_trget_sys_code` = #cntcTrgetSysCode#,
+				`bsnsyear` = #bsnsyear#,
+				`ddtlbz_id` = #ddtlbzId#,
+				`exc_instt_id` = #excInsttId#,
+				`excut_cntc_id` = #excutCntcId#,
+				`excut_taxitm_cntc_id` = #excutTaxitmCntcId#,
+				`hnf_regist_sn` = #hnfRegistSn#,
+				`hnf_nm` = #hnfNm#,
+				`hnf_lsft_no` = #hnfLsftNo#,
+				`prrt` = #prrt#,
+				`partcptn_begin_de` = #partcptnBeginDe#,
+				`partcptn_end_de` = #partcptnEndDe#,
+				`pymnt_amount` = #pymntAmount#,
+				`process_result_code` = #processResultCode#,
+				`process_result_mssage` = #processResultMssage#,
+				`pay_fg` = #payFg#,
+				`etctr_cd` = #etctrCd#,
+				`etcrvrs_ym` = #etcrvrsYM#,
+				`etcdiv_cd` = #etcdivCd#,
+				`etcdummy1` = #etcdummy1#,
+				`etcdummy2` = #etcdummy2#,
+				`ndep_am` = #ndepAm#,
+				`inad_am` = #inadAm#,
+				`intx_am` = #intxAm#,
+				`rstx_am` = #rstxAm#,
+				`wd_am` = #wdAm#,
+				`etcpay_dt` = #etcpayDt#,
+				`et_yn` = #etYN#,
+				`etcdata_cd` = #etcdataCd#,
+				`etctax_rt` = #etctaxRt#,
+				`hife_am` = #hifeAm#,
+				`nape_am` = #napeAm#,
+				`ddct_am` = #ddctAm#,
+				`noin_am` = #noinAm#,
+				`wd_am2` = #wdAm2#,
+				`etcrate` = #etcrate#,
+				`gw_state` = #gwState#,
+				`gw_id` = #gwId#,
+				`sing_fg` = #singFg#,
+				`sing_nm` = #singNm#,
+				`modify_id` = #modifyId#,
+				`modify_dt` = NOW(),
+				`modify_ip` = #modifyIp#
+		WHERE	`anbojo_seq` = #anbojoSeq#
+		AND		`d_seq` = #dSeq#
+		AND		`b_seq` = #bSeq#
+		AND		`t_seq` = #tSeq#
+		AND		`p_seq` = #pSeq#
+	]]>
+	</update>
+	<!-- # `neos`.`t_ex_anbojo_abdocu_pay` - delete # -->
+	<delete id="AnguUserTable.TExAnbojoAbdocuPay.Delete" parameterClass="HashMap">
+	<![CDATA[
+		/* AnguUserTable.TExAnbojo.Delete - mariadb */
+		DELETE	FROM $DB_NEOS$t_ex_anbojo_abdocu_pay
+		WHERE	`anbojo_seq` = #anbojoSeq#
+		AND		`d_seq` = #dSeq#
+		AND		`b_seq` = #bSeq#
+		AND		`t_seq` = #tSeq#
+		AND		`p_seq` = #pSeq#
+	]]>
+	</delete>
+	<!-- # `neos`.`t_ex_anbojo_abdocu_pay` - select # -->
+	<select id="AnguUserTable.TExAnbojoAbdocuPay.Select" parameterClass="HashMap" resultClass="HashMap">
+	<![CDATA[
+		/* AnguUserTable.TExAnbojo.Select - mariadb */
+		SELECT	`anbojo_seq`,
+				`d_seq`,
+				`b_seq`,
+				`t_seq`,
+				`p_seq`,
+				`erp_comp_seq`,
+				`erp_comp_name`,
+				`mosf_gisu_dt`,
+				`mosf_gisu_sq`,
+				`mosf_bg_sq`,
+				`mosf_ln_sq`,
+				`cntc_sn`,
+				`cntc_job_process_code`,
+				`intrfc_id`,
+				`trnsc_id`,
+				`file_id`,
+				`cntc_creat_dt`,
+				`cntc_trget_sys_code`,
+				`bsnsyear`,
+				`ddtlbz_id`,
+				`exc_instt_id`,
+				`excut_cntc_id`,
+				`excut_taxitm_cntc_id`,
+				`hnf_regist_sn`,
+				`hnf_nm`,
+				`hnf_lsft_no`,
+				`prrt`,
+				`partcptn_begin_de`,
+				`partcptn_end_de`,
+				`pymnt_amount`,
+				`process_result_code`,
+				`process_result_mssage`,
+				`pay_fg`,
+				`etctr_cd`,
+				`etcrvrs_ym`,
+				`etcdiv_cd`,
+				`etcdummy1`,
+				`etcdummy2`,
+				`ndep_am`,
+				`inad_am`,
+				`intx_am`,
+				`rstx_am`,
+				`wd_am`,
+				`etcpay_dt`,
+				`et_yn`,
+				`etcdata_cd`,
+				`etctax_rt`,
+				`hife_am`,
+				`nape_am`,
+				`ddct_am`,
+				`noin_am`,
+				`wd_am2`,
+				`etcrate`,
+				`gw_state`,
+				`gw_id`,
+				`sing_fg`,
+				`sing_nm`,
+				`insert_id`,
+				`insert_dt`,
+				`insert_ip`,
+				`modify_id`,
+				`modify_dt`,
+				`modify_ip`
+		FROM	$DB_NEOS$t_ex_anbojo_abdocu_pay
+		WHERE	`anbojo_seq` = #anbojoSeq#
+		AND		`d_seq` = #dSeq#
+		AND		`b_seq` = #bSeq#
+		AND		`t_seq` = #tSeq#
+		AND		`p_seq` = #pSeq#
+		LIMIT	1
+	]]>
+	</select>
+	<!-- # `neos`.`t_ex_anbojo_abdocu_pay` - list # -->
+	<select id="AnguUserTable.TExAnbojoAbdocuPay.List" parameterClass="HashMap" resultClass="HashMap">
+	<![CDATA[
+		/* AnguUserTable.TExAnbojo.List - mariadb */
+		SELECT	`anbojo_seq`,
+				`d_seq`,
+				`b_seq`,
+				`t_seq`,
+				`p_seq`,
+				`erp_comp_seq`,
+				`erp_comp_name`,
+				`mosf_gisu_dt`,
+				`mosf_gisu_sq`,
+				`mosf_bg_sq`,
+				`mosf_ln_sq`,
+				`cntc_sn`,
+				`cntc_job_process_code`,
+				`intrfc_id`,
+				`trnsc_id`,
+				`file_id`,
+				`cntc_creat_dt`,
+				`cntc_trget_sys_code`,
+				`bsnsyear`,
+				`ddtlbz_id`,
+				`exc_instt_id`,
+				`excut_cntc_id`,
+				`excut_taxitm_cntc_id`,
+				`hnf_regist_sn`,
+				`hnf_nm`,
+				`hnf_lsft_no`,
+				`prrt`,
+				`partcptn_begin_de`,
+				`partcptn_end_de`,
+				`pymnt_amount`,
+				`process_result_code`,
+				`process_result_mssage`,
+				`pay_fg`,
+				`etctr_cd`,
+				`etcrvrs_ym`,
+				`etcdiv_cd`,
+				`etcdummy1`,
+				`etcdummy2`,
+				`ndep_am`,
+				`inad_am`,
+				`intx_am`,
+				`rstx_am`,
+				`wd_am`,
+				`etcpay_dt`,
+				`et_yn`,
+				`etcdata_cd`,
+				`etctax_rt`,
+				`hife_am`,
+				`nape_am`,
+				`ddct_am`,
+				`noin_am`,
+				`wd_am2`,
+				`etcrate`,
+				`gw_state`,
+				`gw_id`,
+				`sing_fg`,
+				`sing_nm`,
+				`insert_id`,
+				`insert_dt`,
+				`insert_ip`,
+				`modify_id`,
+				`modify_dt`,
+				`modify_ip`
+		FROM	$DB_NEOS$t_ex_anbojo_abdocu_pay
+		WHERE	`anbojo_seq` = #anbojoSeq#
+		AND		`d_seq` = #dSeq#
+		AND		`b_seq` = #bSeq#
+		AND		`t_seq` = #tSeq#
+	]]>
+	</select>
+
+</sqlMap>

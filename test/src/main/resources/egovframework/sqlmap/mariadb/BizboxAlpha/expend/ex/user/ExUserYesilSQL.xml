@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- Bizbox Alpha mariadb -->
+<sqlMap namespace="ExAdminYesilUser">
+	<select id="ExAdminYesilUser.ExUserYesilnoExpendSend" parameterClass="HashMap" resultClass="HashMap">
+		/* mariadb/BizboxAlpha/expend/ex/user/ExAdminYesilUser.xml - ExAdminYesilUser.ExUserYesilnoExpendSend */
+		/* 예실대비 지출결의현황 조회 - iCUBE */
+	<![CDATA[
+	SELECT IFNULL(budget_ym, CONCAT( LEFT('$fromDt$',4), ' ' ,QUARTER,'분기')) as budget_ym
+		, IFNULL(amt,0) as amt
+	FROM 
+	(
+		SELECT	tmp.budget_ym
+			,SUM(B.amt) AS amt
+			,tmp.quarter
+		FROM 	
+				(
+				SELECT CONCAT(LEFT('$fromDt$',4),'01') AS budget_ym
+					, 0 AS amt 
+					, 1 AS QUARTER
+				UNION ALL
+				SELECT	CONCAT(LEFT('$fromDt$',4),'02')
+					, 0 AS amt
+					, 1 AS QUARTER
+				UNION ALL
+				SELECT	CONCAT(LEFT('$fromDt$',4),'03')
+					, 0 AS amt
+					, 1 AS QUARTER
+				UNION ALL
+				SELECT	CONCAT(LEFT('$fromDt$',4),'04')
+					, 0 AS amt
+					, 2 AS QUARTER
+				UNION ALL
+				SELECT	CONCAT(LEFT('$fromDt$',4),'05')
+					, 0 AS amt
+					, 2 AS QUARTER
+				UNION ALL
+				SELECT	CONCAT(LEFT('$fromDt$',4),'06')
+					, 0 AS amt
+					, 2 AS QUARTER
+				UNION ALL
+				SELECT	CONCAT(LEFT('$fromDt$',4),'07')
+					, 0 AS amt
+					, 3 AS QUARTER
+				UNION ALL
+				SELECT	CONCAT(LEFT('$fromDt$',4),'08')
+					, 0 AS amt
+					, 3 AS QUARTER
+				UNION ALL
+				SELECT	CONCAT(LEFT('$fromDt$',4),'09')
+					, 0 AS amt
+					, 3 AS QUARTER
+				UNION ALL
+				SELECT	CONCAT(LEFT('$fromDt$',4),'10')
+					, 0 AS amt
+					, 4 AS QUARTER
+				UNION ALL
+				SELECT	CONCAT(LEFT('$fromDt$',4),'11')
+					, 0 AS amt
+					, 4 AS QUARTER
+				UNION ALL
+				SELECT	CONCAT(LEFT('$fromDt$',4),'12')
+					, 0 AS amt
+					, 4 AS QUARTER
+				) AS tmp
+		LEFT JOIN
+				(
+				SELECT	
+					 bud.budget_ym
+					, IFNULL(bud.dracct_amt,0)AS amt
+					, QUARTER(DATE_FORMAT(CONCAT(bud.budget_ym,'01'),'%Y-%m-%d')) AS "QUARTER"
+					, expend_date
+				FROM 	$DB_NEOS$t_ex_expend_budget bud
+				JOIN	$DB_NEOS$t_ex_expend_slip slip
+				ON		slip.budget_seq = bud.seq
+				JOIN	$DB_NEOS$t_ex_expend_list Elist
+				ON		Elist.expend_seq = slip.expend_seq AND Elist.list_seq = slip.list_seq
+				JOIN	$DB_NEOS$t_ex_expend expend
+				ON		expend.expend_seq = Elist.expend_seq
+				JOIN	$DB_NEOS$teag_appdoc
+				ON		doc_id = expend.doc_seq
+				WHERE  	expend_stat_code NOT IN  ('999', '')
+				AND		REPLACE(erp_send_yn, 'N', '') = ''
+				AND		slip.drcr_gbn = 'dr'
+				AND 	expend.comp_seq = '$compSeq$'
+				AND		slip.acct_code = '$ACCT_CD$'
+				AND 	budget_code = LEFT('$searchCode$',LENGTH('$searchCode$')-1)
+				AND 	SUBSTRING(expend_date,1,6) BETWEEN '$fromDt$' AND '$toDt$'
+				AND		doc_sts NOT IN('999' , '100')
+				AND		budget_control_yn = 'Y'
+				AND		doc_id <> '0'
+				) AS B
+		ON	B.budget_ym = tmp.budget_ym
+		GROUP BY
+			QUARTER(DATE_FORMAT(CONCAT(tmp.budget_ym,'01'),'%Y-%m-%d')) 
+			, tmp.budget_ym WITH ROLLUP
+	) X
+	]]>
+	</select>
+</sqlMap>

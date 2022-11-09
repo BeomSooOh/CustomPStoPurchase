@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CommonMgrDAO">
+
+	<select id="CommonMgrBizboxDAO.CommonMgrCompList" resultClass="hashMap"><![CDATA[
+		/* CommonMgrBizboxDAO.CommonMgrCompList */
+		/* 단순 회사 목록 조회 */
+		
+		SELECT  B.COMP_SEQ AS `compSeq`
+		        , B.COMP_NAME AS `compName`
+		FROM    (
+		                SELECT  COMP_SEQ
+		                FROM    $DB_NEOS$T_CO_COMP
+		        ) A INNER JOIN (
+		                SELECT  COMP_SEQ
+		                        , COMP_NAME
+		                FROM    $DB_NEOS$T_CO_COMP_MULTI
+		                WHERE   LANG_CODE = 'KR'
+		        ) B ON A.COMP_SEQ = B.COMP_SEQ
+	]]></select>
+	
+	<select id="CommonMgrBizboxDAO.CommonMgrSummaryList" parameterClass="hashmap" resultClass="hashMap"><![CDATA[
+		/* CommonMgrBizboxDAO.CommonMgrSummaryList */
+		/* 회사 귀속 표준적요 조회 */
+		
+		SELECT  IFNULL(comp_seq, '') AS compSeq
+		        , IFNULL(summary_code, '') AS summaryCode
+		        , IFNULL(summary_name, '') AS summaryName
+		        , IFNULL(summary_div, '') AS summaryDiv
+		        , IFNULL(dr_acct_code, '') AS drAcctCode
+		        , IFNULL(dr_acct_name, '') AS drAcctName
+		        , IFNULL(cr_acct_code, '') AS crAcctCode
+		        , IFNULL(cr_acct_name, '') AS crAcctName
+		        , IFNULL(vat_acct_code, '') AS vatAcctCode
+		        , IFNULL(vat_acct_name, '') AS vatAcctName
+		        , IFNULL(erp_auth_code, '') AS erpAuthCode
+		        , IFNULL(erp_auth_name, '') AS erpAuthName
+		        , IFNULL(bank_partner_code, '') AS bankPartnerCode
+		        , IFNULL(bank_partner_name, '') AS bankPartnerName
+		        , IFNULL(use_yn, '') AS useyn
+		        , IFNULL(order_num, '') AS orderNum
+		FROM    $DB_NEOS$T_EX_SUMMARY
+		WHERE   comp_seq = #compSeq#
+	]]></select>
+	
+	<delete id="CommonMgrBizboxDAO.CommonMgrSummaryListDelete" parameterClass="hashmap"><![CDATA[
+		/* CommonMgrBizboxDAO.CommonMgrSummaryList */
+		/* 회사 귀속 표준적요 삭제 */
+		
+		DELETE
+		FROM    $DB_NEOS$T_EX_SUMMARY
+		WHERE   comp_seq = #compSeq#
+	]]></delete>
+	
+	<insert id="CommonMgrBizboxDAO.CommonMgrSummaryInsert" parameterClass="hashmap"><![CDATA[
+		/* CommonMgrBizboxDAO.CommonMgrSummaryInsert */
+		/* 표준적요 등록 */
+		
+		INSERT IGNORE INTO $DB_NEOS$T_EX_SUMMARY ( `comp_seq`, `summary_code`, `summary_name`, `summary_div`, `dr_acct_code`, `dr_acct_name`, `cr_acct_code`, `cr_acct_name`, `vat_acct_code`, `vat_acct_name`, `erp_auth_code`, `erp_auth_name`, `bank_partner_code`, `bank_partner_name`, `use_yn  order_num`, `create_seq`, `create_date`, `modify_seq`, `modify_date` )
+		VALUES ( #compSeq#, #summaryCode#, #summaryName#, #summaryDiv#, #drAcctCode#, #drAcctName#, #crAcctCode#, #crAcctName#, #vatAcctCode#, #vatAcctName#, #erpAuthCode#, #erpAuthName#, #bankPartnerCode#, #bankPartnerName#, #useYN#, #orderNum#, 'SYSTEM', NOW(), 'SYSTEM', NOW() );	
+	]]></insert>
+
+</sqlMap>

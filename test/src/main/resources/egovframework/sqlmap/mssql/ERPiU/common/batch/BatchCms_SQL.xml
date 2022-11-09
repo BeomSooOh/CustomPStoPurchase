@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ERPiU mssql -->
+<mapper namespace="BatchCmsERPiU">
+
+	<select id="BatchCmsERPiU.CommonCmsERPiUInfoListSelect"
+		parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] BatchCmsERPiU.CommonCmsERPiUInfoListSelect - CMS 연동 데이터 조회
+		 * 작성자 : 김상겸
+		 * 작성일 : 2019-08-26
+		 * 변경이력
+		 * - 2019-08-26 / 김상겸 : mssql <> oracle 비교 보완
+		 */
+		 
+        SET quoted_identifier OFF
+		SELECT	RTRIM(CONVERT(NVARCHAR, ACCT_NO)) AS acctNo
+				, RTRIM(CONVERT(NVARCHAR, BANK_CODE)) AS bankCode
+				, RTRIM(CONVERT(NVARCHAR, TRADE_DATE)) AS tradeDate
+				, RTRIM(CONVERT(NVARCHAR, TRADE_TIME)) AS tradeTime
+				, RTRIM(CONVERT(NVARCHAR, SEQ)) AS seq
+				/* card_aq_tmp data */
+				, ACCT_NO AS cardNum /* 카드번호 */
+				, ADMIN_NO AS authNum /* 승인번호 */
+				, TRADE_DATE AS authDate /* 승인일자 */
+				, TRADE_TIME AS authTime /* 승인시간 */
+				, (RTRIM(CONVERT(NVARCHAR, ACCT_NO)) + RTRIM(CONVERT(NVARCHAR, BANK_CODE)) + RTRIM(CONVERT(NVARCHAR, TRADE_DATE)) + RTRIM(CONVERT(NVARCHAR, TRADE_TIME)) + RTRIM(CONVERT(NVARCHAR, SEQ))) AS georaeColl /* 거래번호 */
+				, (CASE ADMIN_GU WHEN 'Y' THEN '1' WHEN 'N' THEN '0' END) AS georaeStat /* 거래상태 */
+				, (CASE ADMIN_GU WHEN 'N' THEN TRADE_DATE ELSE '' END) AS georaeCand /* 승인취소일자 */
+				, (CASE WHEN CAST(ADMIN_AMT AS DECIMAL(11, 0)) < 0 THEN CAST(ADMIN_AMT AS DECIMAL(11, 0)) * -1 ELSE CAST(ADMIN_AMT AS DECIMAL(11, 0)) END) AS requestAmount /* 총금액 */
+				, (CASE WHEN CAST(SUPPLY_AMT AS DECIMAL(11, 0)) < 0 THEN CAST(SUPPLY_AMT AS DECIMAL(11, 0)) * -1 ELSE CAST(SUPPLY_AMT AS DECIMAL(11, 0)) END) AS amtAmount /* 공급가액 */
+				, (CASE WHEN CAST(VAT_AMT AS DECIMAL(11, 0)) < 0 THEN CAST(VAT_AMT AS DECIMAL(11, 0)) * -1 ELSE CAST(VAT_AMT AS DECIMAL(11, 0)) END) AS vatAmount /* 부가세액 */
+				, (CAST(ISNULL(SERVICE_CHARGE, '0') AS DECIMAL(11, 0))) AS serAmount /* 서비스금액 */
+				, (CAST('0' AS DECIMAL(11, 0))) AS freAmount /* 외화금액 */
+				, (CAST(SUPPLY_AMT AS DECIMAL(11, 0))) AS amtMdAmount /* 공급가액 */
+				, (CAST(VAT_AMT AS DECIMAL(11, 0))) AS vatMdAmount /* 부가세액 */
+				, (ISNULL(CURRENCY, 'KRW')) AS georaeGukga /* 거래국가 */
+				, (CAST(ISNULL(TRAN_AMT, 0) AS DECIMAL(18, 4))) AS forAmount /* 외화금액 */
+				, (CAST('0.0000' AS DECIMAL(18, 4))) AS usdAmount /* 달러환산금액 */
+				, REPLACE(ISNULL(TRADE_PLACE, ''),'`','') AS mercName /* 거래처명 */
+				, REPLACE(LTRIM(RTRIM(ISNULL(S_IDNO, ''))), CHAR(9), '') AS mercSaupNo /* 거래처사업자등록번호 */
+				, ISNULL(TRADE_PLACE_ADDR, '') AS mercAddr /* 거래처주소 */
+				, ISNULL(MERC_REPR, '') AS mercRepr /* 거래처대표자명 */
+				, ISNULL(TRADE_PLACE_TEL, '') AS mercTel /* 거래처연락처 */
+				, ISNULL(TRADE_PLACE_POST, '') AS mercZip /* 거래처우편번호 */
+				, ISNULL(MCC_CODE_NAME, '') AS mccName /* 가맹점 업종명 */
+				, ISNULL(MCC_CODE, '') AS mccCode /* 가맹점 업종코드 */
+				, '1' AS mccStat
+				, (CASE WHEN VAT_TYPE = '7' THEN '0' ELSE ISNULL(VAT_TYPE, '') END) AS vatStat /* 가맹점 과세유형 */
+				, 'N' AS gongjeNoChk
+				, 'A' AS abroad
+				, '' AS editedAction
+				, ISNULL(AQUI_RATE, 0.0000) AS aquiRate /* 환율 */
+		FROM	NEOE.CARD_TEMP
+		WHERE	ISNULL(GW_SEND_YN, 'N') != 'Y'
+		]]>
+		<if test='cmsPeriodSync.equals("Y")'>
+		<![CDATA[
+		  AND	TRADE_DATE >= '${issDtFrom}'
+		  AND	TRADE_DATE <= '${issDtTo}'
+		]]>
+		</if>
+		<if test='cmsPeriodSync.equals("")'>
+		<![CDATA[		
+		  AND   TRADE_DATE >= ( CASE WHEN '${cmsBaseDate}' > CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) THEN '${cmsBaseDate}' ELSE CONVERT ( NVARCHAR, DATEADD ( DAY, '${cmsBaseDay}' * -1, GETDATE() ), 112 ) END )
+		]]>
+		</if>
+		SET quoted_identifier ON
+    </select>
+
+	<update id="BatchCmsERPiU.CommonCmsERPiUInfoListUpdate"
+		parameterType="java.util.Map"><![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] BatchCmsERPiU.CommonCmsERPiUInfoListUpdate - ERPiU 카드 내역 동기화 상태갑 업데이트
+		 * 작성자 : 김상겸
+		 * 작성일 : 2019-08-26
+		 * 변경이력
+		 * - 2019-08-26 / 김상겸 : mssql <> oracle 비교 보완
+		 */
+		 
+		UPDATE  NEOE.CARD_TEMP
+		SET     GW_SEND_YN = 'Y'
+		WHERE   ACCT_NO = #{acctNo}
+		AND     BANK_CODE = #{bankCode}
+		AND     TRADE_DATE = #{tradeDate}
+		AND     TRADE_TIME = #{tradeTime}
+		AND     SEQ = #{seq}
+    ]]></update>
+
+	<select
+		id="BatchCmsERPiU.CommonCmsERPiUInfoListSelect_Procedure"
+		parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] BatchCmsERPiU.CommonCmsERPiUInfoListSelect_Procedure - ERPiU 카드 내역 대상 커스텀
+		 * 작성자 : 김상겸
+		 * 작성일 : 2019-08-26
+		 * 변경이력
+		 * - 2019-08-26 / 김상겸 : mssql <> oracle 비교 보완
+		 */
+		 
+		if exists(select 1 from sysobjects where id=object_id('Z_GWA_EXPCMS_S_iU') and xtype='P')   
+			exec NEOE.Z_GWA_EXPCMS_S_iU   
+	]]></select>
+</mapper>

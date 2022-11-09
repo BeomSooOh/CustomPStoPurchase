@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- iCUBE 국고보조통합시스템 데이터 동기화 -->
+<mapper namespace="AnguSync">
+	<!-- /* 결의 + 증빙내역 생성 */ -->
+	<insert id="AnguSync.AbdocuCubeI" statementType="CALLABLE" parameterType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_H_D_INSERT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{MOSF_GISU_DT}
+			, #{MOSF_GISU_SQ,mode=OUT,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{MOSF_PAY_FG}
+			, #{DEPT_CD}
+			, #{EMP_CD}
+			, #{DIV_CD}
+			, #{INTRFC_ID}
+			, #{BSNSYEAR}
+			, #{DDTLBZ_ID}
+			, #{PRUF_SE_CODE}
+			, #{CARD_NO}
+			, #{CTR_CD}
+			, #{PRUF_SE_NO}
+			, #{TAX_TY}
+			, #{EXCUT_REQUST_DE}
+			, #{TRANSFR_ACNUT_SE_CODE}
+			, #{SBSACNT_TRFRSN_CODE}
+			, #{SBSACNT_TRFRSN_CN}
+			, #{EXCUT_PRPOS_CN}
+			, #{BCNC_SE_CODE}
+			, #{TR_CD}
+			, #{BCNC_LSFT_NO}
+			, #{BCNC_CMPNY_NM}
+			, #{BCNC_RPRSNTV_NM}
+			, #{BCNC_ADRES}
+			, #{BCNC_TELNO}
+			, #{DUZON_BANK_CODE}
+			, #{BCNC_ACNUT_NO}
+			, #{BCNC_BANK_CODE}
+			, #{BCNC_BNKB_INDICT_CN}
+			, #{SBSIDY_BNKB_INDICT_CN}
+			, #{KOR_NM,mode=OUT,jdbcType=VARCHAR,javaType=java.lang.String}
+			, #{INSERT_ID}
+			, #{INSERT_IP}
+		)
+	}
+	]]></insert>
+	<!-- /* 비목내역 생성 */ -->
+	<insert id="AnguSync.AbdocuBCubeI" statementType="CALLABLE" parameterType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_B_INSERT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{MOSF_GISU_DT}
+			, #{MOSF_GISU_SQ,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{MOSF_BG_SQ,mode=OUT,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{INTRFC_ID}
+			, #{ASSTN_TAXITM_CODE}
+			, #{PRDLST_NM}
+			, #{INSERT_ID}
+			, #{INSERT_IP}
+		)
+	}
+	]]></insert>
+	<!-- /* 재원내역 생성 */ -->
+	<insert id="AnguSync.AbdocuTCubeI" statementType="CALLABLE" parameterType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_T_INSERT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{MOSF_GISU_DT}
+			, #{MOSF_GISU_SQ,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{MOSF_BG_SQ,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{MOSF_LN_SQ,mode=OUT,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{INTRFC_ID}
+			, #{FNRSC_SE_CODE}
+			, #{MGT_CD}
+			, #{BOTTOM_CD}
+			, #{ABGT_CD}
+			, #{BTR_CD}
+			, #{SPLPC,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{VAT,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{SUM_AMOUNT,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{INSERT_ID}
+			, #{INSERT_IP}
+		)
+	}
+	]]></insert>
+	
+	<!-- /* 인력정보 등록 */ -->
+	<insert id="AnguSync.AbdocuPCubeI" statementType="CALLABLE" parameterType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_PAY_INSERT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{MOSF_GISU_DT}
+			, #{MOSF_GISU_SQ,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{MOSF_BG_SQ,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{MOSF_LN_SQ,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{INTRFC_ID}
+			, #{HNF_REGIST_SN,mode=OUT,jdbcType=VARCHAR,javaType=java.lang.String}
+			, #{PAY_FG}
+			, #{ETCTR_CD}
+			, #{HNF_NM}
+			, #{HNF_LSFT_NO}
+			, #{PRRT,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{PARTCPTN_BEGIN_DE}
+			, #{PARTCPTN_END_DE}
+			, #{PYMNT_AMOUNT,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{PROCESS_RESULT_CODE}
+			, #{PROCESS_RESULT_MSSAGE}
+			, #{ETCRVRS_YM}
+			, #{ETCDIV_CD}
+			, #{ETCDUMMY1}
+			, #{ETCDUMMY2}
+			, #{NDEP_AM,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{INAD_AM,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{INTX_AM,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{RSTX_AM,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{WD_AM,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{ETCPAY_DT}
+			, #{ET_YN}
+			, #{ETCDATA_CD}
+			, #{HIFE_AM,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{NAPE_AM,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{DDCT_AM,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{NOIN_AM,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{WD_AM2,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{ETCRATE,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{GW_STATE}
+			, #{GW_ID}
+			, #{INSERT_ID}
+			, #{INSERT_IP}
+		)
+	}
+	]]></insert>
+	
+	<!-- /* iCUBE 상태값 업데이트 */ -->
+	<update id="AnguSync.AbdocuSyncCubeU" parameterType="java.util.Map"><![CDATA[
+		UPDATE	ANBOJO_ABDOCU
+		SET		EXTER_FG = #{EXTER_FG}
+				, GW_STATE  = #{GW_STATE}
+		WHERE	CO_CD = #{CO_CD}
+		AND		MOSF_GISU_DT = #{MOSF_GISU_DT}
+		AND		MOSF_GISU_SQ = #{MOSF_GISU_SQ}
+	]]></update>
+</mapper>

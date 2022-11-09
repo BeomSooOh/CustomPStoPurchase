@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- iCUBE 코드정보 -->
+<mapper namespace="AcErpCode">
+	<select id="AcErpCode.AcErpCodeUserInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - iCUBE - AcErpCode.AcErpCodeUserInfoSelect */
+		/* 세션 기본 설정 */
+		SET NOCOUNT ON;
+		IF @@LOCK_TIMEOUT < 500
+		BEGIN
+			SET LOCK_TIMEOUT 500;
+		END
+		
+		SET DEADLOCK_PRIORITY LOW;
+		
+		DECLARE @CO_CD NVARCHAR(4) = '${CO_CD}' /* 회사코드 *//* 필수 */
+		DECLARE @EMP_CD NVARCHAR(10) = '${EMP_CD}' /* 필수 */
+		DECLARE @LANGKIND NVARCHAR(2) = '${LANGKIND}' /* 사용언어 코드 *//* 필수 */
+		DECLARE @DIV_CD NVARCHAR(4) = ''
+		DECLARE @DEPT_CD NVARCHAR(4) = ''
+		DECLARE @EMP_NM NVARCHAR(20) = ''
+		DECLARE @BASE_DT NVARCHAR(8) /* 퇴사 기준 일자 */
+		DECLARE @nSubUseYN NVARCHAR(1) /* 결의부서 및 작성자의 상위 종속 조건 반영여부 ( 0.미사용1.사용 ) */
+		DECLARE @TO_DT NVARCHAR(8)
+		
+		/* 퇴사 기준 일자 */
+		SELECT	@BASE_DT = CONVERT(VARCHAR(8), GETDATE(), 112)
+		
+		/* 결의부서 및 작성자의 상위 종속 조건 반영여부 */
+		SELECT	@nSubUseYN = USE_YN
+		FROM	SYSCFG
+		WHERE	CO_CD = @CO_CD
+		AND		MODULE_CD = '4'
+		AND		CTR_CD = '16'
+		
+		IF ISDATE(GETDATE()) = 0
+		BEGIN
+			SET	@BASE_DT = '19000101'
+		END
+		
+		/* 결의부서 및 작성자의 상위 종속 조건 반영여부 >> 사용 */
+		IF ( @nSubUseYN IS NOT NULL AND @nSubUseYN = '1' )
+		BEGIN
+			SELECT	EMP_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN KOR_NM ELSE CASE WHEN ISNULL(KOR_NMK, '') = '' THEN KOR_NM ELSE KOR_NMK END END AS KOR_NM
+					, ENLS_NM
+					, DEPT_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN DEPT_NM ELSE CASE WHEN ISNULL(DEPT_NMK, '') = '' THEN DEPT_NM ELSE DEPT_NMK END END AS DEPT_NM
+					, DIV_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN DIV_NM ELSE CASE WHEN ISNULL(DIV_NMK, '') = '' THEN DIV_NM ELSE DIV_NMK END END AS DIV_NM
+					, ISNULL(BANK_CD, '') AS BANK_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN ISNULL(BANK_NM, '') ELSE CASE WHEN ISNULL(BANK_NMK, '') = '' THEN ISNULL(BANK_NM, '') ELSE ISNULL(BANK_NMK, '') END END AS BANK_NM
+					, ISNULL(ACCT_NO, '') AS ACCT_NO
+					, DPST_NM
+					, CASE WHEN @nSubUseYN = '1' THEN USE_FG ELSE 1 END AS USE_FG
+			FROM	(
+						SELECT	E.EMP_CD
+								, E.KOR_NM
+								, E.KOR_NMK
+								, E.ENLS_NM
+								, D.DEPT_CD
+								, D.DEPT_NM
+								, D.DEPT_NMK
+								, V.DIV_CD
+								, V.DIV_NM
+								, V.DIV_NMK
+								, B.BANK_CD
+								, B.BANK_NM
+								, B.BANK_NMK
+								, E.ACCT_NO
+								, E.DPST_NM    
+								, ISNULL(NULLIF(E.RTR_DT,''),'99991231') AS RTR_DT   --퇴사일(값이 없는 경우,조회를 위해서 발생할 수 없는 일자로 변경)    
+								, E.USE_FG     
+						FROM	SEMP E WITH(NOLOCK)    
+								LEFT OUTER JOIN SDEPT D WITH(NOLOCK)
+								ON (D.CO_CD = E.CO_CD AND D.DEPT_CD = E.DEPT_CD)    
+								LEFT OUTER JOIN SDIV V WITH(NOLOCK)
+								ON (D.CO_CD = V.CO_CD AND D.DIV_CD = V.DIV_CD)    
+								LEFT OUTER JOIN SBANK B WITH(NOLOCK)
+								ON (E.PYTB_CD = B.BANK_CD)    
+						WHERE	E.CO_CD =  @CO_CD
+						AND		E.EMPL_FG <> '002'
+						AND		E.ENRL_FG <> 'J05'
+						AND		(NULLIF(@DIV_CD,'') IS NULL OR V.DIV_CD = @DIV_CD)    
+						AND		(NULLIF(@DEPT_CD,'') IS NULL OR D.DEPT_CD = @DEPT_CD)    
+						AND		(NULLIF(@EMP_CD,'') IS NULL OR E.EMP_CD = @EMP_CD)
+						AND		(NULLIF(D.TO_DT,'') IS NULL OR D.TO_DT = '00000000' OR D.TO_DT >= ISNULL(@TO_DT,''))    
+					) A
+		END
+		ELSE
+		BEGIN
+			SELECT	EMP_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN KOR_NM ELSE CASE WHEN ISNULL(KOR_NMK, '') = '' THEN KOR_NM ELSE KOR_NMK END END AS KOR_NM
+					, ENLS_NM
+					, DEPT_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN DEPT_NM ELSE CASE WHEN ISNULL(DEPT_NMK, '') = '' THEN DEPT_NM ELSE DEPT_NMK END END AS DEPT_NM
+					, DIV_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN DIV_NM ELSE CASE WHEN ISNULL(DIV_NMK, '') = '' THEN DIV_NM ELSE DIV_NMK END END AS DIV_NM
+					, BANK_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN BANK_NM ELSE CASE WHEN ISNULL(BANK_NMK, '') = '' THEN BANK_NM ELSE BANK_NMK END END AS BANK_NM
+					, ACCT_NO
+					, DPST_NM
+					, CASE WHEN @nSubUseYN = '1' THEN USE_FG ELSE 1 END AS USE_FG
+			FROM	(
+						SELECT	E.EMP_CD
+								, E.KOR_NM
+								, E.KOR_NMK
+								, E.ENLS_NM
+								, D.DEPT_CD
+								, D.DEPT_NM
+								, D.DEPT_NMK
+								, V.DIV_CD
+								, V.DIV_NM
+								, V.DIV_NMK
+								, B.BANK_CD
+								, B.BANK_NM
+								, B.BANK_NMK
+								, E.ACCT_NO
+								, E.DPST_NM
+								,ISNULL(NULLIF(E.RTR_DT,''),'99991231') AS RTR_DT --퇴사일(값이 없는 경우,조회를 위해서 발생할 수 없는 일자로 변경)
+								, E.USE_FG
+						FROM	SEMP E WITH(NOLOCK)
+								LEFT OUTER JOIN SDEPT D WITH(NOLOCK)
+								ON (D.CO_CD = E.CO_CD AND D.DEPT_CD = E.DEPT_CD )
+								LEFT OUTER JOIN SDIV V WITH(NOLOCK)
+								ON (D.CO_CD = V.CO_CD AND D.DIV_CD = V.DIV_CD)
+								LEFT OUTER JOIN SBANK B WITH(NOLOCK)
+								ON (E.PYTB_CD = B.BANK_CD)
+						WHERE	E.CO_CD = @CO_CD
+						AND		E.EMPL_FG <> '002'
+						AND		E.ENRL_FG <> 'J05'
+						AND		(
+									NULLIF(@EMP_CD,'') IS NULL
+									OR E.EMP_CD = @EMP_CD
+								)
+						AND		(
+									NULLIF(D.TO_DT,'') IS NULL
+									OR D.TO_DT = '00000000'
+									OR D.TO_DT >= ISNULL(@TO_DT,'')
+								)
+					) A
+			WHERE	RTR_DT >= @BASE_DT
+			AND		(
+						NULLIF(@EMP_NM,'') IS NULL
+						OR KOR_NM LIKE '%'+@EMP_NM +'%'
+						OR ENLS_NM LIKE '%'+@EMP_NM +'%'
+					)
+			ORDER	BY EMP_CD
+		END
+	]]></select>
+
+	<select id="AcErpCode.AcErpCodeGisuInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - iCUBE - AcErpCode.AcErpCodeGisuInfoSelect */
+		/* 세션 기본 설정 */
+		SET NOCOUNT ON;
+		IF @@LOCK_TIMEOUT < 500
+		BEGIN
+			SET LOCK_TIMEOUT 500;
+		END
+		SET DEADLOCK_PRIORITY LOW;
+		
+		DECLARE @CO_CD NVARCHAR(4)
+		DECLARE @GISU tinyint = NULL
+		DECLARE @diff tinyint /* 실 기수와의 차이 */
+		
+		SELECT	@GISU =	CASE
+							WHEN ISNUMERIC(@GISU) = 0 THEN GISU /* 기수 정보가 숫자가 아니면, 현재 기수로 함. */
+							WHEN ISNULL(@GISU,0) > GISU THEN GISU /* 현재 기수보다 위이면, 현재 기수로 초기화 */
+							WHEN ISNULL(@GISU,0)<=0 THEN 1
+							ELSE @GISU
+						END
+				,@diff = GISU -	CASE
+									WHEN ISNUMERIC(@GISU) = 0 THEN GISU
+									WHEN ISNULL(@GISU,0) > GISU THEN GISU
+									ELSE @GISU
+								END
+		FROM	SCO WITH(NOLOCK)
+		WHERE	CO_CD = @CO_CD
+		
+		SELECT	GISU
+				, FROM_DT
+				, TO_DT
+				, CURRENT_YN
+		FROM	(
+					/* 이전 기수 정보 */
+					SELECT	@GISU -1 AS GISU /* 기수 정보 */
+							, CONVERT(NVARCHAR(8), DATEADD(yy, @diff*(-1)-1, CONVERT(DATETIME,FR_DT)), 112) AS FROM_DT /* 기수 시작일자 */
+							, CONVERT(NVARCHAR(8), DATEADD(yy, @diff*(-1)-1, CONVERT(DATETIME,TO_DT)), 112) AS TO_DT /* 기수 끝일자 */
+							, 'N' AS CURRENT_YN /* 현재(요청) 기수 여부 */
+					FROM	SCO WITH(NOLOCK)
+					WHERE	CO_CD = @CO_CD
+					AND		(@GISU -1) > 0 /* 기수는 0 이 존재할 수 없음. */
+					
+					UNION ALL /* 요청 기수 정보 */
+					SELECT	@GISU AS GISU
+							, CONVERT(NVARCHAR(8), DATEADD(yy, @diff*(-1), CONVERT(DATETIME, FR_DT)), 112) AS ORG_FR_DT
+							, CONVERT(NVARCHAR(8), DATEADD(yy, @diff*(-1), CONVERT(DATETIME, TO_DT)), 112) AS ORG_TO_DT
+							, 'Y' AS CURRENT_YN
+					FROM	SCO WITH(NOLOCK)
+					WHERE	CO_CD = @CO_CD
+					
+					UNION ALL /* 이후 기수 정보 */
+					SELECT	@GISU + 1 AS GISU
+							, CONVERT(nvarchar(8), DATEADD(yy, @diff*(-1)+1, CONVERT(DATETIME, FR_DT)), 112) AS ORG_FR_DT
+							, CONVERT(nvarchar(8), DATEADD(yy, @diff*(-1)+1, CONVERT(DATETIME, TO_DT)), 112) AS ORG_TO_DT
+							, 'N' AS CURRENT_YN
+					FROM	SCO WITH(NOLOCK)
+					WHERE	CO_CD = @CO_CD
+				) A
+		ORDER	BY GISU
+	]]></select>
+
+	<select id="AcErpCode.AcErpCodeDeptBudgetListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - iCUBE - AcErpCode.AcErpCodeDeptBudgetListInfoSelect */
+		/* exec P_GWG20_COMMON_MGT_SDEPT_LIST @CO_CD='${CO_CD}',@EMP_CD='${EMP_CD}',@JOB_OPTION=N'0',@LANGKIND='${LANGKIND}' */
+		DECLARE @CO_CD NVARCHAR(10) = '${CO_CD}'
+		DECLARE @EMP_CD NVARCHAR(10) = '${EMP_CD}'
+		DECLARE @JOB_OPTION NVARCHAR(1) = '0' /* 0 : 모든부서, 1 : 사원의 부서 */
+		DECLARE @LANGKIND NVARCHAR(10) = '${LANGKIND}'
+		
+		IF ( @JOB_OPTION = '0' )
+		BEGIN
+			SELECT	DEPT_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN DEPT_NM ELSE CASE WHEN ISNULL(DEPT_NMK, '') = '' THEN DEPT_NM ELSE DEPT_NMK END END AS DEPT_NM
+					, DEPT_NMK
+			FROM	SDEPT
+			WHERE	CO_CD = @CO_CD
+			AND		(
+						NULLIF(TO_DT, '') IS NULL
+						OR TO_DT = '000000'
+						OR TO_DT >= ( CONVERT(VARCHAR, GETDATE(), 112) )
+					)
+		END
+		ELSE IF ( @JOB_OPTION = '1' )
+		BEGIN
+			SELECT	A.DEPT_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN DEPT_NM ELSE CASE WHEN ISNULL(DEPT_NMK, '') = '' THEN DEPT_NM ELSE DEPT_NMK END END AS DEPT_NM
+					, A.DEPT_NMK
+			FROM	SDEPT A WITH ( NOLOCK )
+					INNER JOIN SEMP B WITH ( NOLOCK )
+					ON ( A.CO_CD = B.CO_CD AND A.DEPT_CD = B.DEPT_CD )
+			WHERE	A.CO_CD = @CO_CD
+			AND		B.EMP_CD = @EMP_CD
+			AND		(
+						NULLIF(TO_DT, '') IS NULL
+						OR TO_DT = '00000000'
+						OR TO_DT >= ( CONVERT(VARCHAR, GETDATE(), 112) )
+					)
+		END
+	]]></select>
+
+	<select id="AcErpCode.AcErpCodeProjectBudgetListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - iCUBE - AcErpCode.AcErpCodeProjectBudgetListInfoSelect */
+		/* exec P_GWG20_COMMON_SPROJECT_LIST @CO_CD='${CO_CD}',@PJT_CD=N'',@EMP_CD='${EMP_CD}',@LANGKIND='${LANGKIND}' */
+		DECLARE @CO_CD NVARCHAR(4) = '${CO_CD}' /* 회사 코드 */
+		DECLARE @EMP_CD NVARCHAR(10) = '${EMP_CD}' /* 사원 번호 */
+		DECLARE @LANGKIND NVARCHAR(10) = '${LANGKIND}' /* 사용언어 코드 */
+		
+		SELECT	A.PJT_CD    
+				, CASE WHEN @LANGKIND = 'KR' THEN A.PJT_NM ELSE CASE WHEN ISNULL(A.PJT_NMK, '') = '' THEN A.PJT_NM ELSE A.PJT_NMK END END AS PJT_NM    
+				, A.PROG_FG    
+				, A.PJT_NMK    
+				, CASE WHEN A.FR_DT IN ('00000000', '99991231') THEN '' ELSE CONVERT(NVARCHAR(10), CONVERT(DATETIME, A.FR_DT), 120) END AS PJT_FR_DT    
+				, CASE WHEN A.TO_DT IN ('00000000', '99991231') THEN '' ELSE CONVERT(NVARCHAR(10), CONVERT(DATETIME, A.TO_DT), 120) END AS PJT_TO_DT    
+				, CASE WHEN @LANGKIND = 'KR' THEN ISNULL(B.DEPT_NM, '') ELSE CASE WHEN ISNULL(B.DEPT_NMK, '') = '' THEN ISNULL(B.DEPT_NM, '') ELSE ISNULL(B.DEPT_NMK, '') END END AS PJT_DEPT_NM    
+				, CASE WHEN @LANGKIND = 'KR' THEN ISNULL(C.KOR_NM, '') ELSE CASE WHEN ISNULL(C.KOR_NMK, '') = '' THEN ISNULL(C.KOR_NM, '') ELSE ISNULL(C.KOR_NMK, '') END END AS PJT_KOR_NM    
+				, ISNULL(T.ATTR_NM, '') AS ATTR_NM
+				, ISNULL(T.BA_NB, '') AS BA_NB
+				, (SELECT COUNT(1) FROM IT_BUSINESSLINK I WHERE I.CO_CD = @CO_CD AND A.PJT_CD = I.PJT_CD /* AND I.TRAN_TY='INS' */) AS IT_BUSINESSLINK
+		FROM	SPJT A WITH ( NOLOCK )
+				LEFT OUTER JOIN SDEPT B WITH ( NOLOCK )
+				ON ( B.CO_CD = @CO_CD AND A.DEPT_CD = B.DEPT_CD )
+				LEFT OUTER JOIN SEMP C WITH ( NOLOCK )
+				ON ( C.CO_CD = @CO_CD AND A.EMP_CD = C.EMP_CD )
+				LEFT OUTER JOIN STRADE T WITH ( NOLOCK )
+				ON ( T.CO_CD = @CO_CD AND A.TR_CD = T.TR_CD )
+		WHERE	A.CO_CD = @CO_CD
+		AND		ISNULL ( PROG_FG, '9' ) != '9'
+		AND		(
+					CASE
+						WHEN A.PJT_AUTH = '0'
+						THEN	CASE
+									WHEN '' + @EMP_CD + '' IN ( SELECT EMP_CD FROM SPJT_D WHERE CO_CD = A.CO_CD AND PJT_CD = A.PJT_CD )
+									THEN '1'
+									ELSE '0'
+								END
+						ELSE '1'
+					END
+				) = '1'
+	]]></select>
+
+	<select id="AcErpCode.AcErpCodeEmpListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - iCUBE - AcErpCode.AcErpCodeProjectBudgetListInfoSelect */
+		/* exec P_GWG20_COMMON_EMP_LIST @CO_CD='${CO_CD}',@DIV_CD='${DIV_CD}',@DEPT_CD='${DEPT_CD}',@EMP_CD='${EMP_CD}',@EMP_NM='${EMP_NM}',@BASE_DT='${BASE_DT}',@LANGKIND='${LANGKIND}', @TO_DT='${TO_DT}' */
+		/* mssql - iCUBE - AcErpCode.AcErpCodeUserInfoSelect */
+		/* 세션 기본 설정 */
+		SET NOCOUNT ON;
+		IF @@LOCK_TIMEOUT < 500
+		BEGIN
+			SET LOCK_TIMEOUT 500;
+		END
+		
+		SET DEADLOCK_PRIORITY LOW;
+
+		DECLARE @CO_CD = '${CO_CD}' /* 회사 코드 */
+		DECLARE @DIV_CD = '${DIV_CD}' /* 사업장 코드 */
+		DECLARE @DEPT_CD = '${DEPT_CD}' /* 부서 코드 */
+		DECLARE @EMP_CD = '${EMP_CD}' /* 사원 코드 */
+		DECLARE @EMP_NM = '${EMP_NM}' /* 사원명 ( 영문 포함 ) */
+		DECLARE @BASE_DT = '${BASE_DT}' /* 퇴사 기준 일자 */
+		DECLARE @LANGKIND = '${LANGKIND}' /* 사용 언어 코드 */
+		DECLARE @TO_DT = '${TO_DT}' /*  */
+		DECLARE @nSubUseYN NVARCHAR(1) /* 결의부서 및 작성자의 상위 종속 조건 반영여부 ( 0.미사용1.사용 ) */
+		
+		/* 퇴사 기준 일자 */
+		SELECT	@BASE_DT = CONVERT(VARCHAR(8), GETDATE(), 112)
+		
+		/* 결의부서 및 작성자의 상위 종속 조건 반영여부 */
+		SELECT	@nSubUseYN = USE_YN
+		FROM	SYSCFG
+		WHERE	CO_CD = @CO_CD
+		AND		MODULE_CD = '4'
+		AND		CTR_CD = '16'
+		
+		IF ISDATE(GETDATE()) = 0
+		BEGIN
+			SET	@BASE_DT = '19000101'
+		END
+		
+		/* 결의부서 및 작성자의 상위 종속 조건 반영여부 >> 사용 */
+		IF ( @nSubUseYN IS NOT NULL AND @nSubUseYN = '1' )
+		BEGIN
+			SELECT	EMP_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN KOR_NM ELSE CASE WHEN ISNULL(KOR_NMK, '') = '' THEN KOR_NM ELSE KOR_NMK END END AS KOR_NM
+					, ENLS_NM
+					, DEPT_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN DEPT_NM ELSE CASE WHEN ISNULL(DEPT_NMK, '') = '' THEN DEPT_NM ELSE DEPT_NMK END END AS DEPT_NM
+					, DIV_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN DIV_NM ELSE CASE WHEN ISNULL(DIV_NMK, '') = '' THEN DIV_NM ELSE DIV_NMK END END AS DIV_NM
+					, ISNULL(BANK_CD, '') AS BANK_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN ISNULL(BANK_NM, '') ELSE CASE WHEN ISNULL(BANK_NMK, '') = '' THEN ISNULL(BANK_NM, '') ELSE ISNULL(BANK_NMK, '') END END AS BANK_NM
+					, ISNULL(ACCT_NO, '') AS ACCT_NO
+					, DPST_NM
+					, CASE WHEN @nSubUseYN = '1' THEN USE_FG ELSE 1 END AS USE_FG
+			FROM	(
+						SELECT	E.EMP_CD
+								, E.KOR_NM
+								, E.KOR_NMK
+								, E.ENLS_NM
+								, D.DEPT_CD
+								, D.DEPT_NM
+								, D.DEPT_NMK
+								, V.DIV_CD
+								, V.DIV_NM
+								, V.DIV_NMK
+								, B.BANK_CD
+								, B.BANK_NM
+								, B.BANK_NMK
+								, E.ACCT_NO
+								, E.DPST_NM    
+								, ISNULL(NULLIF(E.RTR_DT,''),'99991231') AS RTR_DT   --퇴사일(값이 없는 경우,조회를 위해서 발생할 수 없는 일자로 변경)    
+								, E.USE_FG     
+						FROM	SEMP E WITH(NOLOCK)    
+								LEFT OUTER JOIN SDEPT D WITH(NOLOCK)
+								ON (D.CO_CD = E.CO_CD AND D.DEPT_CD = E.DEPT_CD)    
+								LEFT OUTER JOIN SDIV V WITH(NOLOCK)
+								ON (D.CO_CD = V.CO_CD AND D.DIV_CD = V.DIV_CD)    
+								LEFT OUTER JOIN SBANK B WITH(NOLOCK)
+								ON (E.PYTB_CD = B.BANK_CD)    
+						WHERE	E.CO_CD =  @CO_CD
+						AND		E.EMPL_FG <> '002'
+						AND		E.ENRL_FG <> 'J05'
+						AND		(NULLIF(@DIV_CD,'') IS NULL OR V.DIV_CD = @DIV_CD)    
+						AND		(NULLIF(@DEPT_CD,'') IS NULL OR D.DEPT_CD = @DEPT_CD)    
+						AND		(NULLIF(@EMP_CD,'') IS NULL OR E.EMP_CD = @EMP_CD)
+						AND		(NULLIF(D.TO_DT,'') IS NULL OR D.TO_DT = '00000000' OR D.TO_DT >= ISNULL(@TO_DT,''))    
+					) A
+		END
+		ELSE
+		BEGIN
+			SELECT	EMP_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN KOR_NM ELSE CASE WHEN ISNULL(KOR_NMK, '') = '' THEN KOR_NM ELSE KOR_NMK END END AS KOR_NM
+					, ENLS_NM
+					, DEPT_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN DEPT_NM ELSE CASE WHEN ISNULL(DEPT_NMK, '') = '' THEN DEPT_NM ELSE DEPT_NMK END END AS DEPT_NM
+					, DIV_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN DIV_NM ELSE CASE WHEN ISNULL(DIV_NMK, '') = '' THEN DIV_NM ELSE DIV_NMK END END AS DIV_NM
+					, BANK_CD
+					, CASE WHEN @LANGKIND = 'KR' THEN BANK_NM ELSE CASE WHEN ISNULL(BANK_NMK, '') = '' THEN BANK_NM ELSE BANK_NMK END END AS BANK_NM
+					, ACCT_NO
+					, DPST_NM
+					, CASE WHEN @nSubUseYN = '1' THEN USE_FG ELSE 1 END AS USE_FG
+			FROM	(
+						SELECT	E.EMP_CD
+								, E.KOR_NM
+								, E.KOR_NMK
+								, E.ENLS_NM
+								, D.DEPT_CD
+								, D.DEPT_NM
+								, D.DEPT_NMK
+								, V.DIV_CD
+								, V.DIV_NM
+								, V.DIV_NMK
+								, B.BANK_CD
+								, B.BANK_NM
+								, B.BANK_NMK
+								, E.ACCT_NO
+								, E.DPST_NM
+								,ISNULL(NULLIF(E.RTR_DT,''),'99991231') AS RTR_DT --퇴사일(값이 없는 경우,조회를 위해서 발생할 수 없는 일자로 변경)
+								, E.USE_FG
+						FROM	SEMP E WITH(NOLOCK)
+								LEFT OUTER JOIN SDEPT D WITH(NOLOCK)
+								ON (D.CO_CD = E.CO_CD AND D.DEPT_CD = E.DEPT_CD )
+								LEFT OUTER JOIN SDIV V WITH(NOLOCK)
+								ON (D.CO_CD = V.CO_CD AND D.DIV_CD = V.DIV_CD)
+								LEFT OUTER JOIN SBANK B WITH(NOLOCK)
+								ON (E.PYTB_CD = B.BANK_CD)
+						WHERE	E.CO_CD = @CO_CD
+						AND		E.EMPL_FG <> '002'
+						AND		E.ENRL_FG <> 'J05'
+						AND		(
+									NULLIF(@EMP_CD,'') IS NULL
+									OR E.EMP_CD = @EMP_CD
+								)
+						AND		(
+									NULLIF(D.TO_DT,'') IS NULL
+									OR D.TO_DT = '00000000'
+									OR D.TO_DT >= ISNULL(@TO_DT,'')
+								)
+					) A
+			WHERE	RTR_DT >= @BASE_DT
+			AND		(
+						NULLIF(@EMP_NM,'') IS NULL
+						OR KOR_NM LIKE '%'+@EMP_NM +'%'
+						OR ENLS_NM LIKE '%'+@EMP_NM +'%'
+					)
+			ORDER	BY EMP_CD
+		END
+	]]></select>
+</mapper>

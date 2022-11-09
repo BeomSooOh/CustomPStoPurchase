@@ -1,0 +1,4 @@
+/* 2018. 05. 23. NSM발주고객명(JIRA등록기준) : 포커스미디어코리아 주식회사 */
+/* M1 관리항목 카드 코드 + 카드 번호 지정 >> 김봉진 과장 요청 사항 */
+INSERT IGNORE INTO t_ex_mng_option ( `comp_seq`, `form_seq`, `drcr_gbn`, `mng_code`, `mng_name`, `use_gbn`, `ctd_code`, `ctd_name`, `note`, `cust_set`, `cust_set_target`, `modify_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date` )
+VALUES ( '1000', '21', 'dr', 'M1', '신용카드', 'DevInput', '', '', '', 'SELECT CASE WHEN ctd_code = '''' THEN ''-'' ELSE ctd_code END AS ctd_code, CASE WHEN ctd_name = '''' THEN ''-'' ELSE ctd_name END AS ctd_name FROM ( SELECT #{cardCode} as ctd_code, #{cardNum} as ctd_name ) A', 'iCUBE', 'N', 'SYSTEM', NOW(), 'SYSTEM', NOW() );

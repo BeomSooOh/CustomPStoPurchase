@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ERPiCUBE mssql -->
+<mapper namespace="AdminiCUBEYesil">
+	<select id="ExAdminYesilBudgetFG" parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/admin/ExYesilSQL.xml */
+		/* 부서, 프로젝트 구분 조회 / ExAdminYesilBudgetFG  */
+			SELECT DISTINCT CASE
+								WHEN (SELECT USE_YN FROM DBO.SYSCFG WHERE CO_CD = '${erpCompSeq}' AND MODULE_CD = 'A' AND CTR_CD = '21') = '0' THEN 'N'
+								WHEN (SELECT USE_YN FROM DBO.SYSCFG WHERE CO_CD = '${erpCompSeq}' AND MODULE_CD = 'A' AND CTR_CD = '21' ) = '1' 
+									 AND (SELECT FG_TY FROM DBO.SYSCFG WHERE CO_CD = '${erpCompSeq}' AND MODULE_CD = 'A' AND CTR_CD = '20' ) = '2' THEN 'P'
+								ELSE 'D'
+							END AS BUDGET_FG
+			FROM SYSCFG
+			WHERE CO_CD = '${erpCompSeq}'
+			AND MODULE_CD = 'A'
+			AND CTR_CD IN ('20', '21')
+		]]>
+	</select>
+	
+	<select id="ExYesilProjectSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/admin/ExYesilSQL.xml */
+		/* 프로젝트 목록 조회 / ExYesilProjectSelect  */
+		SELECT	NO_PROJECT, NM_PROJECT
+		FROM	(
+            SELECT	ROW_NUMBER() OVER(ORDER BY A.PJT_CD ) AS r_num
+                    , A.PJT_CD AS NO_PROJECT
+                    , A.PJT_NM AS NM_PROJECT
+            FROM	ZA_PJT_DAIKIN A
+            WHERE	CO_CD = '${erpCompSeq}'
+            AND		( ( ISNULL ( '${search_str}' , '' ) <> '' AND ( ( ISNULL ( REPLACE(A.PJT_CD, '', ''), '' ) LIKE '%' + ISNULL ( REPLACE( '${search_str}' , '', ''), '' ) + '%' )
+		                                                 OR ( ISNULL ( REPLACE(A.PJT_NM, '', ''), '' ) LIKE '%' + ISNULL ( REPLACE( '${search_str}' , '', ''), '' ) + '%' ) ) )
+                    OR( ISNULL ( '${search_str}' , '' ) = '' AND ( ISNULL ( '${search_str}' , '' ) = ISNULL ( '${search_str}' , '' ) ) ) )
+        ) A
+		]]>
+	</select>
+	
+	<select id="ExAdminYesilDeptSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/admin/ExYesilSQL.xml */
+		/* 부서별 목록 조회 / ExAdminYesilDeptSelect  */
+		SELECT	  A.r_num
+		        , A.DEPT_CD
+		        , A.DEPT_NM
+		FROM	(
+		            SELECT	CAST ( ROW_NUMBER() OVER(ORDER BY DEPT_CD) AS INT ) AS r_num
+		                    , A.DEPT_CD
+		                    , A.DEPT_NM
+		            FROM	(
+			                    SELECT	CO_CD
+					                    , DEPT_CD
+					                    , DEPT_NM
+			                    FROM	ZA_DEPT_DAIKIN
+			                    WHERE	(
+						                    ISNULL ( DEPT_CD, '' ) LIKE '%' + ISNULL ( '${search_str}', '' ) + '%'
+						                    OR ISNULL ( DEPT_NM, '' ) LIKE '%' + ISNULL ( '${search_str}', '' ) + '%'
+					                    )
+		                                AND
+		                                (
+		                                    (
+		                                        (SUBSTRING(REPLACE(ISNULL(REG_DT,'00000101'),'00000000','00000101'),1,6) <= '${toDt}' AND SUBSTRING(REPLACE(ISNULL(TO_DT,'99991231'),'00000000','99991231'),1,6) >= '${toDt}') 
+		                                        or (SUBSTRING(REPLACE(ISNULL(REG_DT,'00000101'),'00000000','00000101'),1,6) <= '${fromDt}' AND SUBSTRING(REPLACE(ISNULL(TO_DT,'99991231'),'00000000','99991231'),1,6) >= '${fromDt}')
+		                                    ) or ('${fromDt}' <= SUBSTRING(REPLACE(ISNULL(REG_DT,'00000101'),'00000000','00000101'),1,6) and '${toDt}' >= SUBSTRING(REPLACE(ISNULL(TO_DT,'99991231'),'00000000','99991231'),1,6))
+		                                )
+		                                AND	CO_CD = '${erpCompSeq}'
+		                    ) A
+		        ) A
+		]]>
+	</select>
+		
+	<select id="ExAdminYesilSectSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/admin/ExYesilSQL.xml */
+		/* 부문별 목록 조회 / ExAdminYesilDeptSelect  */
+		select	CAST ( ROW_NUMBER() OVER(ORDER BY SECT_CD) AS INT ) AS r_num
+		        ,SECT_CD
+		        ,SECT_NM
+		        ,REG_DT
+		        ,TO_DT
+		from ssect
+		where	CO_CD = '${erpCompSeq}'
+		and		(SECT_CD like '%'+'${search_str}'+'%'
+		            or	SECT_NM like '%'+'${search_str}'+'%'
+		        )
+		and		(
+		            (SUBSTRING(REG_DT,1,6) <= '${toDt}' AND SUBSTRING(ISNULL(TO_DT,'99991231'),1,6) >= '${toDt}') 
+		            or (SUBSTRING(REG_DT,1,6) <= '${fromDt}' AND SUBSTRING(ISNULL(TO_DT,'99991231'),1,6) >= '${fromDt}')
+		        ) or ('${toDt}' <= SUBSTRING(REG_DT,1,6) and '${fromDt}' >= SUBSTRING(ISNULL(TO_DT,REG_DT),1,6))
+		]]>
+	</select>
+	
+	<select id="ExAdminYesilInfoSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/admin/ExYesilSQL.xml */
+		/* 예실대비현황 조회 / ExAdminYesilInfoSelect  */
+			exec USP_ACD0040_UC_BUDGETINFO_ACCT 
+			@CO_CD = '${erpCompSeq}', 
+			@BUDGET_FG = '${budgetFlag}', 
+			@DEPT_CD = '${searchCode}', 
+			@BUD_YM_F = '${fromDt}', 
+			@BUD_YM_T = '${toDt}'
+		]]> 
+	</select>
+	
+	<select id="ExAdminYesilDetailSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/admin/ExYesilSQL.xml */
+		/* 예실대비현황 상세조회 / ExAdminYesilDetailSelect  */
+			exec USP_ACD0040_UC_SUM_SELECT
+			@CO_CD = '${erpCompSeq}', 
+			@BUDGET_FG = '${budgetFlag}', 
+			@DEPT_CDS = '${searchCode}', 
+			@BUD_YM_F = '${fromDt}', 
+			@BUD_YM_T = '${toDt}', 
+			@ACCT_CDS = '${ACCT_CD}'
+		]]>
+	</select>
+</mapper>

@@ -1,0 +1,674 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="NpUserReUseA">
+	<!-- /* ## 품의서 ## */ -->
+	<!-- /* ## ################################################## ## */ -->
+	<!-- SELECT -->
+	<!-- 품의서 정보 조회 ( t_exnp_consdoc ) -->
+	<select id="NpUserReUseA.ConsDocSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[ /* expend/np/user/NpUserReUseSQL.xml - NpUserReUseA.ConsDocSelect */ ]]>
+	
+	<![CDATA[
+		/* SELECT */
+		SELECT	cons_doc_seq AS consDocSeq
+				, doc_seq AS docSeq
+				, doc_no AS docNo
+				, doc_status AS docStatus
+				, consdoc_note AS consdocNote
+				, expend_date AS expendDate
+				, erp_comp_seq AS erpCompSeq
+				, erp_dept_seq AS erpDeptSeq
+				, erp_emp_seq AS erpEmpSeq
+				, erp_gisu AS erpGisu
+				, erp_expend_year AS erpExpendYear
+				, comp_seq AS compSeq
+				, comp_name AS compName
+				, dept_seq AS deptSeq
+				, dept_name AS deptName
+				, emp_seq AS empSeq
+				, emp_name AS empName
+				, conffer_return_yn AS confferReturnYn
+				, conffer_return_name AS confferReturnName
+				, conffer_return_emp_seq AS confferReturnEmpSeq
+				, erp_div_seq AS erpDivSeq
+				, erp_div_name AS erpDivName
+				, out_process_interface_id AS outProcessInterfaceId
+				, out_process_interface_m_id AS outProcessInterfaceMId
+				, out_process_interface_d_id AS outProcessInterfaceDId
+
+		/* FROM */
+		FROM    $DB_NEOS$t_exnp_consdoc
+
+		/* WHERE */
+		WHERE	cons_doc_seq = #consDocSeq#
+		
+		/* OPTION */
+		LIMIT	1
+	]]>
+	</select>
+
+	<!-- 품의서 기수 정보 조회 -->
+	<select id="NpUserReUseA.ConsGisuSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[ /* expend/np/user/NpUserReUseSQL.xml - NpUserReUseA.ConsGisuSelect */ ]]>
+
+	<![CDATA[
+		/* SELECT */
+		SELECT  B.cons_doc_seq AS consDocSeq
+		        , A.expend_date AS expendDate
+		        , B.erp_gisu AS erpGisu
+		        , B.erp_gisu_from_date AS erpGisuFromDate
+		        , B.erp_gisu_to_date AS erpGisuToDate
+		        
+		/* FROM */
+		FROM    (
+		                SELECT  cons_doc_seq
+		                        , DATE_FORMAT(expend_date, '%Y%m%d') AS expend_date
+		                FROM    $DB_NEOS$t_exnp_consdoc
+		                WHERE   cons_doc_seq = #consDocSeq#
+		        ) A INNER JOIN $DB_NEOS$t_exnp_conshead B ON A.cons_doc_seq = B.cons_doc_seq
+		
+		/* WHERE */
+		
+		/* OPTION */
+		ORDER   BY cons_seq
+		LIMIT   1
+	]]>
+	</select>
+	
+	<select id="NpUserReUseA.ConsReUseFormInfoSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[ /* expend/np/user/NpUserReUseSQL.xml - NpUserReUseA.ConsReUseFormInfoSelect */ ]]>
+	
+	<![CDATA[
+		/* SELECT */
+		SELECT  #oriApproKey# AS oriApproKey
+		        , #oriDocId# AS oriDocId
+		        , #form_gb# AS form_gb
+		        , #copyApprovalLine# AS copyApprovalLine
+		        , #copyAttachFile# AS copyAttachFile
+		        , B.c_tikeycode AS form_id
+		        , IFNULL(B.c_tiformwidth, '900') AS doc_width
+		        , #eaType# AS eaType
+		        , '' AS initTitle
+		
+		/* FROM */
+		FROM    (
+		                SELECT  c_dikeycode
+		                        , c_tikeycode
+		                FROM    $DB_NEOS$a_docinfo
+		                WHERE   c_dikeycode = #oriDocId#
+		        ) A INNER JOIN $DB_NEOS$a_templateinfo B ON A.c_tikeycode = B.c_tikeycode
+		
+		/* eaType == 'eap' */
+		/* FROM    ( */
+		/*                 SELECT  doc_id */
+		/*                         , form_id */
+		/*                 FROM    $DB_NEOS$teag_appdoc */
+		/*                 WHERE   doc_id = 'oriApproKey' */
+		/*         ) A INNER JOIN $DB_NEOS$teag_form B ON A.form_id = B.form_id */
+		
+		/* WHERE */
+		
+		/* OPTION */
+		LIMIT	1
+	]]>
+	</select>
+	
+	<select id="NpUserReUseA.ConsItemSpecSelectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* expend/np/user/NpUserReUseSQL.xml - NpUserReUseA.ConsItemSpecSelectList */
+	]]>
+	
+	<![CDATA[
+		/* SELECT */
+		/* 물품명세 품의 문서 정보 조회 */
+		SELECT 	
+			cons_doc_seq	AS consDocSeq
+			, cons_seq		AS consSeq
+			, item_name		AS itemName
+			, item_size		AS itemSize
+			, item_unit		AS itemUnit
+			, item_cnt		AS itemCnt
+			, unit_amt		AS unitAmt
+			, item_amt		AS itemAmt
+			, item_note		AS itemNote
+		FROM	$DB_NEOS$t_exnp_consitem	 	
+		WHERE	cons_doc_seq = #consDocSeq#
+	]]>
+	</select>
+
+	<!-- SELECT LIST -->
+	<!-- 품의서 헤더 정보 조회 ( $DB_NEOS$t_exnp_conshead ) -->
+	<select id="NpUserReUseA.ConsHeadSelectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* expend/np/user/NpUserReUseSQL.xml - NpUserReUseA.ConsHeadSelectList */
+	]]>
+	
+	<![CDATA[
+		/* SELECT */
+		SELECT cons_doc_seq AS consDocSeq
+				, cons_seq AS consSeq
+				, cons_date AS consDate
+				, mgt_seq AS mgtSeq
+				, mgt_name AS mgtName
+				, docu_fg_code AS docuFgCode
+				, docu_fg_name AS docuFgName
+				, cons_note AS consNote
+				, erp_comp_seq AS erpCompSeq
+				, erp_comp_name AS erpCompName
+				, erp_pc_seq AS erpPcSeq
+				, erp_pc_name AS erpPcName
+				, erp_emp_seq AS erpEmpSeq
+				, erp_emp_name AS erpEmpName
+				, erp_div_seq AS erpDivSeq
+				, erp_div_name AS erpDivName
+				, erp_dept_seq AS erpDeptSeq
+				, erp_dept_name AS erpDeptName
+				, erp_gisu AS erpGisu
+				, erp_gisu_from_date AS erpGisuFromDate
+				, erp_gisu_to_date AS erpGisuToDate
+				, erp_year AS erpYear
+				, btr_seq AS btrSeq
+				, btr_nb AS btrNb
+				, btr_name AS btrName
+				, bottom_seq AS bottomSeq
+				, bottom_name AS bottomName
+		
+		/* FROM */
+		FROM    $DB_NEOS$t_exnp_conshead
+		
+		/* WHERE */
+		WHERE	cons_doc_seq = #consDocSeq#
+	]]>
+	</select>
+
+	<!-- 품의서 헤더 정보 조회 ( $DB_NEOS$t_exnp_consbudget ) -->
+	<select id="NpUserReUseA.ConsBudgetSelectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* expend/np/user/NpUserReUseSQL.xml - NpUserReUseA.ConsBudgetSelectList */
+	]]>
+	
+	<![CDATA[
+		/* SELECT */
+		SELECT cons_doc_seq AS consDocSeq
+				, cons_seq AS consSeq
+				, budget_seq AS budgetSeq
+				, erp_bq_seq AS erpBqSeq
+				, erp_bk_seq AS erpBkSeq
+				, erp_budget_seq AS erpBudgetSeq
+				, erp_budget_name AS erpBudgetName
+				, erp_bizplan_seq AS erpBizplanSeq
+				, erp_bizplan_name AS erpBizplanName
+				, erp_bgt1_name AS erpBgt1Name
+				, erp_bgt1_seq AS erpBgt1Seq
+				, erp_bgt2_name AS erpBgt2Name
+				, erp_bgt2_seq AS erpBgt2Seq
+				, erp_bgt3_name AS erpBgt3Name
+				, erp_bgt3_seq AS erpBgt3Seq
+				, erp_bgt4_name AS erpBgt4Name
+				, erp_bgt4_seq AS erpBgt4Seq
+				
+				, erp_level01_seq AS erpLevel01Seq
+				, erp_level01_name AS erpLevel01Name
+				, erp_level02_seq AS erpLevel02Seq
+				, erp_level02_name AS erpLevel02Name
+				, erp_level03_seq AS erpLevel03Seq
+				, erp_level03_name AS erpLevel03Name
+				, erp_level04_seq AS erpLevel04Seq
+				, erp_level04_name AS erpLevel04Name
+				, erp_level05_seq AS erpLevel05Seq
+				, erp_level05_name AS erpLevel05Name
+				, erp_level06_seq AS erpLevel06Seq
+				, erp_level06_name AS erpLevel06Name
+				
+				, erp_open_amt AS erpOpenAmt
+				, erp_apply_amt AS erpApplyAmt
+				, erp_res_amt AS erpResAmt
+				, erp_left_amt AS erpLeftAmt
+				, gw_balance_amt AS gwBalanceAmt
+				, budget_std_amt AS budgetStdAmt
+				, budget_tax_amt AS budgetTaxAmt
+				, budget_amt AS budgetAmt
+				, erp_bgacct_seq AS erpBgacctSeq
+				, erp_bgacct_name AS erpBgacctName
+				, set_fg_code AS setFgCode
+				, set_fg_name AS setFgName
+				, vat_fg_code AS vatFgCode
+				, vat_fg_name AS vatFgName
+				, tr_fg_code AS trFgCode
+				, tr_fg_name AS trFgName
+				, ctl_fg_code AS ctlFgCode
+				, ctl_fg_name AS ctlFgName
+				, budget_note AS budgetNote
+				, erp_div_seq AS erpDivSeq
+				, erp_div_name AS erpDivName
+				, erp_fiacct_seq AS erpFiacctSeq
+				, erp_fiacct_name AS erpFiacctName
+				, conffer_budget_return_yn AS confferBudgetReturnYn
+				, conffer_budget_return_emp_seq AS confferBudgetReturnEmpSeq
+				, conffer_budget_return_emp_name AS confferBudgetReturnEmpName
+		
+		/* FROM */
+		FROM    $DB_NEOS$t_exnp_consbudget
+		
+		/* WHERE */
+		WHERE	cons_doc_seq = #consDocSeq#
+	]]>
+	</select>
+
+	<!-- 품의서 헤더 정보 조회 ( $DB_NEOS$t_exnp_constrade ) -->
+	<select id="NpUserReUseA.ConsTradeSelectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* expend/np/user/NpUserReUseSQL.xml - NpUserReUseA.ConsTradeSelectList */
+	]]>
+	
+	<![CDATA[
+		/* SELECT */
+		SELECT	*
+		
+		/* FROM */
+		FROM    $DB_NEOS$t_exnp_constrade
+		
+		/* WHERE */
+		WHERE	cons_doc_seq = #consDocSeq#
+	]]>
+	</select>
+
+	<!-- INSERT -->
+	<!-- UPDATE -->
+	<!-- DELETE -->
+
+	<!-- /* ## 결의서 ## */ -->
+	<!-- /* ## ################################################## ## */ -->
+	<!-- SELECT -->
+	<!-- 품의서 정보 조회 ( t_exnp_resdoc ) -->
+	<select id="NpUserReUseA.ResDocSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* expend/np/user/NpUserReUseSQL.xml - NpUserReUseA.ResDocSelect */
+	]]>
+	
+	<![CDATA[
+		/* SELECT */
+		SELECT	res_doc_seq AS resDocSeq
+				, doc_seq AS docSeq
+				, doc_no AS docNo
+				, doc_status AS docStatus
+				, resdoc_note AS resdocNote
+				, expend_date AS expendDate
+				, erp_comp_seq AS erpCompSeq
+				, erp_dept_seq AS erpDeptSeq
+				, erp_emp_seq AS erpEmpSeq
+				, erp_gisu AS erpGisu
+				, erp_expend_year AS erpExpendYear
+				, comp_seq AS compSeq
+				, comp_name AS compName
+				, dept_seq AS deptSeq
+				, dept_name AS deptName
+				, emp_seq AS empSeq
+				, emp_name AS empName
+				, conffer_doc_seq AS confferDocSeq
+				, erp_send_yn AS erpSendYn
+				, send_emp_seq AS sendEmpSeq
+				, send_date AS sendDate
+				, send_emp_name AS sendEmpName
+				, erp_div_seq AS erpDivSeq
+				, erp_div_name AS erpDivName
+				, out_process_interface_id AS outProcessInterfaceId
+				, out_process_interface_m_id AS outProcessInterfaceMId
+				, out_process_interface_d_id AS outProcessInterfaceDId
+				, form_seq AS formSeq
+		
+		/* FROM */
+		FROM    $DB_NEOS$t_exnp_resdoc
+		
+		/* WHERE */
+		WHERE	res_doc_seq = #resDocSeq#
+	]]>
+	</select>
+	
+	<!-- 결의서 기수 정보 조회 -->
+	<select id="NpUserReUseA.ResGisuSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[ /* expend/np/user/NpUserReUseSQL.xml - NpUserReUseA.ResGisuSelect */ ]]>
+
+	<![CDATA[
+		/* SELECT */
+		SELECT  B.res_doc_seq AS resDocSeq
+		        , A.expend_date AS expendDate
+		        , B.erp_gisu AS erpGisu
+		        , B.erp_gisu_from_date AS erpGisuFromDate
+		        , B.erp_gisu_to_date AS erpGisuToDate
+		        
+		/* FROM */
+		FROM    (
+		                SELECT  res_doc_seq
+		                        , DATE_FORMAT(expend_date, '%Y%m%d') AS expend_date
+		                FROM    $DB_NEOS$t_exnp_resdoc
+		                WHERE   res_doc_seq = #resDocSeq#
+		        ) A INNER JOIN $DB_NEOS$t_exnp_reshead B ON A.res_doc_seq = B.res_doc_seq
+		
+		/* WHERE */
+		
+		/* OPTION */
+		ORDER   BY res_seq
+		LIMIT   1
+	]]>
+	</select>
+
+	<!-- SELECT LIST -->
+	<!-- 품의서 헤더 정보 조회 ( $DB_NEOS$t_exnp_reshead ) -->
+	<select id="NpUserReUseA.ResHeadSelectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* expend/np/user/NpUserReUseSQL.xml - NpUserReUseA.ResHeadSelectList */
+	]]>
+	
+	<![CDATA[
+		/* SELECT */
+		SELECT	res_doc_seq AS resDocSeq
+				, A.res_seq AS resSeq
+				, mgt_seq AS mgtSeq
+				, mgt_name AS mgtName
+				, res_date AS resDate
+				, docu_fg_code AS docuFgCode
+				, docu_fg_name AS docuFgName
+				, res_note AS resNote
+				, erp_comp_seq AS erpCompSeq
+				, erp_comp_name AS erpCompName
+				, erp_gisu_date AS erpGisuDate
+				, erp_gisu_sq AS erpGisuSq
+				, erp_pc_seq AS erpPcSeq
+				, erp_pc_name AS erpPcName
+				, erp_no_cdocu AS erpNoCdocu
+				, erp_emp_seq AS erpEmpSeq
+				, erp_emp_name AS erpEmpName
+				, erp_div_seq AS erpDivSeq
+				, erp_div_name AS erpDivName
+				, erp_dept_seq AS erpDeptSeq
+				, erp_dept_name AS erpDeptName
+				, erp_gisu AS erpGisu
+				, erp_gisu_from_date AS erpGisuFromDate
+				, erp_gisu_to_date AS erpGisuToDate
+				, erp_year AS erpYear
+				, btr_seq AS btrSeq
+				, btr_name AS btrName
+				, btr_nb AS btrNb
+				, bottom_seq AS bottomSeq
+				, bottom_name AS bottomName
+				, conffer_doc_seq AS confferDocSeq
+				, conffer_seq AS confferSeq
+				, IFNULL(cause_date, '') AS causeDate
+				, IFNULL(sign_date, '') AS signDate
+				, IFNULL(inspect_date, '') AS inspectDate
+				, IFNULL(payplan_date, '') AS payplanDate
+				, IFNULL(cause_emp_seq, '') AS causeEmpSeq
+				, IFNULL(cause_emp_name, '') AS causeEmpName
+		
+		/* FROM */
+		FROM    $DB_NEOS$t_exnp_reshead A
+				LEFT OUTER JOIN $DB_NEOS$t_exnp_cause B ON A.res_seq = B.res_seq
+		
+		/* WHERE */
+		WHERE	res_doc_seq = #resDocSeq#
+	]]>
+	</select>
+
+	<!-- 품의서 헤더 정보 조회 ( $DB_NEOS$t_exnp_resbudget ) -->
+	<select id="NpUserReUseA.ResBudgetSelectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* expend/np/user/NpUserReUseSQL.xml - NpUserReUseA.ResBudgetSelectList */
+	]]>
+	
+	<![CDATA[
+		/* SELECT */
+		SELECT	res_doc_seq AS resDocSeq
+				, res_seq AS resSeq
+				, budget_seq AS budgetSeq
+				, erp_bq_seq AS erpBqSeq
+				, erp_bk_seq AS erpBkSeq
+				, no_cdocu AS noCdocu
+				, no_cdoline AS noCdoline
+				, erp_budget_seq AS erpBudgetSeq
+				, erp_budget_name AS erpBudgetName
+				, erp_bizplan_seq AS erpBizplanSeq
+				, erp_bizplan_name AS erpBizplanName
+				, erp_bgt1_name AS erpBgt1Name
+				, erp_bgt1_seq AS erpBgt1Seq
+				, erp_bgt2_name AS erpBgt2Name
+				, erp_bgt2_seq AS erpBgt2Seq
+				, erp_bgt3_name AS erpBgt3Name
+				, erp_bgt3_seq AS erpBgt3Seq
+				, erp_bgt4_name AS erpBgt4Name
+				, erp_bgt4_seq AS erpBgt4Seq
+				, erp_level01_name AS erpLevel01Name
+				, erp_level01_seq AS erpLevel01Seq
+				, erp_level02_name AS erpLevel02Name
+				, erp_level02_seq AS erpLevel02Seq
+				, erp_level03_name AS erpLevel03Name
+				, erp_level03_seq AS erpLevel03Seq
+				, erp_level04_name AS erpLevel04Name
+				, erp_level04_seq AS erpLevel04Seq
+				, erp_level05_name AS erpLevel05Name
+				, erp_level05_seq AS erpLevel05Seq
+				, erp_level06_name AS erpLevel06Name
+				, erp_level06_seq AS erpLevel06Seq
+				, erp_open_amt AS erpOpenAmt
+				, erp_apply_amt AS erpApplyAmt
+				, erp_res_amt AS erpResAmt
+				, gw_balance_amt AS gwBalanceAmt
+				, erp_left_amt AS erpLeftAmt
+				, budget_std_amt AS budgetStdAmt
+				, budget_tax_amt AS budgetTaxAmt
+				, budget_amt AS budgetAmt
+				, erp_bgacct_seq AS erpBgacctSeq
+				, erp_bgacct_name AS erpBgacctName
+				, set_fg_code AS setFgCode
+				, set_fg_name AS setFgName
+				, vat_fg_code AS vatFgCode
+				, vat_fg_name AS vatFgName
+				, tr_fg_code AS trFgCode
+				, tr_fg_name AS trFgName
+				, ctl_fg_code AS ctlFgCode
+				, ctl_fg_name AS ctlFgName
+				, budget_note AS budgetNote
+				, conffer_doc_seq AS confferDocSeq
+				, conffer_seq AS confferSeq
+				, conffer_budget_seq AS confferBudgetSeq
+				, erp_div_seq AS erpDivSeq
+				, erp_div_name AS erpDivName
+				, erp_gisu_date AS erpGisuDate
+				, erp_gisu_sq AS erpGisuSq
+				, erp_bg_sq AS erpBgSq
+				, erp_fiacct_seq AS erpFiacctSeq
+				, erp_fiacct_name AS erpFiacctName
+		
+		/* FROM */
+		FROM    $DB_NEOS$t_exnp_resbudget
+		
+		/* WHERE */
+		WHERE	res_doc_seq = #resDocSeq#
+	]]>
+	</select>
+
+	<!-- 품의서 헤더 정보 조회 ( $DB_NEOS$t_exnp_restrade ) -->
+	<select id="NpUserReUseA.ResTradeSelectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* expend/np/user/NpUserReUseSQL.xml - NpUserReUseA.ResTradeSelectList */
+	]]>
+	
+	<![CDATA[
+		/* SELECT */
+		SELECT	A.res_doc_seq AS resDocSeq
+				, A.res_seq AS resSeq
+				, A.budget_seq AS budgetSeq
+				, A.trade_seq AS tradeSeq
+				, A.erp_isu_dt AS erpIsuDt
+				, A.erp_isu_sq AS erpIsuSq
+				, A.erp_in_sq AS erpInSq
+				, A.erp_bq_sq AS erpBqSq
+				, A.no_cdocu AS noCdocu
+				, A.no_cdoline AS noCdoline
+				, A.no_payline AS noPayline
+				, A.item_name AS itemName
+				, A.item_cnt AS itemCnt
+				, A.emp_name AS empName
+				, A.tr_seq AS trSeq
+				, A.tr_name AS trName
+				, A.ceo_name AS ceoName
+				, A.trade_amt AS tradeAmt
+				, A.trade_std_amt AS tradeStdAmt
+				, A.trade_vat_amt AS tradeVatAmt
+				, A.jiro_seq AS jiroSeq
+				, A.jiro_name AS jiroName
+				, A.ba_nb AS baNb
+				, A.btr_seq AS btrSeq
+				, A.btr_name AS btrName
+				, A.depositor AS depositor
+				, A.trade_note AS tradeNote
+				, A.ctr_seq AS ctrSeq
+				, A.ctr_name AS ctrName
+				, A.reg_date AS regDate
+				, A.interface_type AS interfaceType
+				, A.interface_seq AS interfaceSeq
+				, A.erp_gisu_date AS erpGisuDate
+				, A.erp_gisu_sq AS erpGisuSq
+				, A.erp_bg_sq AS erpBgSq
+				, A.erp_ln_sq AS erpLnSq
+				, A.business_nb AS businessNb
+				, A.etc_income_seq AS etcIncomeSeq
+				, A.etc_income_name AS etcIncomeName
+				, A.etc_required_rate AS etcRequiredRate
+				, A.etc_required_amt AS etcRequiredAmt
+				, A.etc_income_amt AS etcIncomeAmt
+				, A.etc_income_vat_amt AS etcIncomeVatAmt
+				, A.etc_resident_vat_amt AS etcResidentVatAmt
+				, A.etc_employment_amt		AS 'etcEmploymentAmt'
+				, A.etc_employment_insurance_amt		AS 'etcEmploymentInsuranceAmt'
+				, A.etc_belong_year AS etcBelongYear
+				, A.etc_belong_month AS etcBelongMonth
+				, A.no_tax_code AS noTaxCode
+				, A.no_tax_name AS noTaxName
+				, A.etc_data_cd AS etcDataCd
+				, A.salary_amt AS salaryAmt
+				, A.salary_std_amt AS salaryStdAmt
+				, A.salary_income_vat_amt AS salaryIncomeVatAmt
+				, A.salary_resident_vat_amt AS salaryResidentVatAmt
+				, A.salary_etc_amt AS salaryEtcAmt
+				, A.salary_belong_year AS salaryBelongYear
+				, A.salary_belong_month  AS salaryBelongMonth
+				, A.etc_biz_seq AS etcBizSeq
+				, A.etc_biz_name AS etcBizName
+				, A.etc_school_amt AS etcSchoolAmt
+				, A.pay_tr_seq AS payTrSeq
+				, A.pay_tr_name AS payTrName
+				, IFNULL(B.sync_id, '') AS syncId
+				, IFNULL(B.iss_no, '') AS issNo
+				, IFNULL(B.iss_dt, '') AS issDt
+				, IFNULL(B.partner_no, '') AS partnerNo
+				, IFNULL(B.comp_seq, '') AS compSeq
+				, IFNULL(B.send_yn, '') AS sendYn
+				, IFNULL(B.note, '') AS note
+				, IFNULL(B.use_yn, '') AS useYn
+				, IFNULL(B.use_yn_emp_seq, '') AS useYnEmpSeq
+				, IFNULL(C.card_num, '') AS cardNum
+				, IFNULL(C.auth_num, '') AS cardAuthNum
+				, IFNULL(C.auth_date, '') AS cardAuthDate
+				, IFNULL(C.send_yn, '') AS cardSendYn
+		
+		/* FROM */
+		FROM    $DB_NEOS$t_exnp_restrade A
+				LEFT OUTER JOIN $DB_NEOS$t_ex_etax_aq_tmp B ON A.interface_type = 'etax' AND A.interface_seq = B.sync_id
+				LEFT OUTER JOIN $DB_NEOS$t_ex_card_aq_tmp C ON A.interface_type = 'card' AND A.interface_seq = C.sync_id
+		
+		/* WHERE */
+		WHERE	res_doc_seq = #resDocSeq#
+	]]>
+	</select>
+
+	<!-- INSERT -->
+	<!-- UPDATE -->
+	<!-- DELETE -->
+
+	<!-- /* ## 카드 ## */ -->
+	<!-- /* ## ################################################## ## */ -->
+	<!-- SELECT -->
+	<!-- 카드 상신 여부 판단을 위한 카드 정보 조회 -->
+	<select id="NpUserReUseA.CardTmpSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* expend/np/user/NpUserReUseSQL.xml - NpUserReUseA.CardTmpSelect */
+	]]>
+	
+	<![CDATA[
+		/* SELECT */
+		SELECT  sync_id AS syncId
+		        , card_num AS cardNum
+		        , auth_num AS authNum
+		        , auth_date AS authDate
+		        , IFNULL(auth_time, '0000') AS authTime
+		        , georae_coll AS georaeColl
+		        , IFNULL(georae_stat, '1') AS georaeStat
+		        , IFNULL(request_amount, 0) AS requestAmount
+		        , IFNULL(amt_amount, 0) AS amtAmount
+		        , IFNULL(vat_amount, 0) AS vatAmount
+		        , IFNULL(ser_amount, 0) AS serAmount
+		        , IFNULL(amt_md_amount, 0) AS amtMdAmount
+		        , IFNULL(vat_md_amount, 0) AS vatMdAmount
+		        , IFNULL(merc_name, '') AS mercName
+		        , IFNULL(merc_saup_no, '') AS mercSaupNo
+		        , IFNULL(if_m_id, 0) AS ifMId
+		        , IFNULL(if_d_id, 0) AS ifDId
+		        , IFNULL(del_yn, 'N') AS delYn
+		        , IFNULL(send_yn, 'N') AS sendYn
+		        , IFNULL(user_send_yn, 'N') AS userSendYn
+		
+		/* FROM */
+		FROM    $DB_NEOS$t_ex_card_aq_tmp
+		
+		/* WHERE */
+		WHERE   sync_id = #syncId#
+		
+		/* OPTION */
+		LIMIT	1
+	]]>
+	</select>
+	<!-- SELECT LIST -->
+	<!-- INSERT -->
+	<!-- UPDATE -->
+	<!-- DELETE -->
+
+	<!-- /* ## 계산서 ## */ -->
+	<!-- /* ## ################################################## ## */ -->
+	<!-- SELECT -->
+	<!-- 매입전자세금계산서 상신 여부 판단을 위한 계산서 정보 조회 -->
+	<select id="NpUserReUseA.ETaxTmpSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* expend/np/user/NpUserReUseSQL.xml - NpUserReUseA.ETaxTmpSelect */
+	]]>
+	
+	<![CDATA[
+		/* SELECT */
+		SELECT  sync_id AS syncId
+		        , iss_no AS issNo
+		        , iss_dt AS issDt
+		        , partner_no AS partnerNo
+		        , comp_seq AS compSeq
+		        , send_yn AS sendYn
+		        , note AS note
+		        , if_m_id AS ifMId
+		        , if_d_id AS ifDId
+		        , use_yn AS useYn
+		
+		/* FROM */
+		FROM    $DB_NEOS$t_ex_etax_aq_tmp
+		
+		/* WHERE */
+		WHERE   sync_id = #syncId#
+		
+		/* OPTION */
+		LIMIT	1
+	]]>
+	</select>
+	<!-- SELECT LIST -->
+	<!-- INSERT -->
+	<!-- UPDATE -->
+	<!-- DELETE -->
+</sqlMap>

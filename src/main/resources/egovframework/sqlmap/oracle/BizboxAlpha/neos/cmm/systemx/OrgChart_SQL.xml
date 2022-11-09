@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="OrgChart">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+
+	<select id="OrgChart.selectGroupInfo" parameterClass="hashmap" resultClass="egovMap" >
+      	SELECT *
+		FROM $DB_NEOS$t_co_group A
+		WHERE use_yn = 'Y'
+			and
+				A.group_seq = #groupSeq#
+    </select>
+    
+    <select id="OrgChart.selectOrgImg" parameterClass="hashmap" resultClass="string">
+    	SELECT file_id
+    	FROM $DB_NEOS$t_co_org_img
+    	WHERE 	org_seq 				= 			#orgSeq# AND
+				img_type				= 			#imgType# AND
+				os_type					= 			#osType# AND
+				app_type				= 			#appType# AND
+				disp_type				= 			#dispType# 
+    </select> 
+   
+    
+    <insert id="OrgChart.insertOrgImg" parameterClass="hashmap">
+	     	INSERT INTO $DB_NEOS$t_co_org_img
+			SET 
+				org_seq 				= 			#orgSeq#,
+				img_type				= 			#imgType#,
+				file_id 				= 			#fileId#,
+				os_type					= 			#osType#,
+				app_type				= 			#appType#,
+				disp_mode				= 			#dispMode#,
+				disp_type				= 			#dispType#,
+				display_text 			= 			#displayText#,
+				create_seq 				= 			#createSeq#,
+				create_date 			= 			now(), 
+				modify_seq 				= 			#modifySeq#, 
+				modify_date				 = 			now()
+			ON DUPLICATE KEY UPDATE
+				org_seq 				= 			#orgSeq#,
+				img_type				= 			#imgType#,
+				file_id 				= 			#fileId#,
+				os_type					= 			#osType#,
+				app_type				= 			#appType#,
+				disp_mode				= 			#dispMode#,
+				disp_type				= 			#dispType#,
+				display_text 			= 			#displayText#,
+				modify_seq 				= 			#modifySeq#, 
+				modify_date				 = 			now()
+	     </insert>
+	     
+	     <select id="OrgChart.getOrgImg" parameterClass="hashmap" resultClass="egovMap">
+	     	SELECT 
+	     		a.org_seq, a.img_type, a.file_id, c.orignl_file_name, c.file_extsn
+			FROM $DB_NEOS$t_co_org_img a, $DB_NEOS$t_co_atch_file b, $DB_NEOS$t_co_atch_file_detail c
+			WHERE a.file_id = b.file_id
+			AND b.file_id = c.file_id
+			AND c.file_sn = '0'
+			AND b.use_yn = 'Y'
+			AND c.use_yn = 'Y'
+			AND a.org_seq = #orgSeq#
+				<isNotEmpty property="osType">
+					AND
+						os_type = #osType#
+				</isNotEmpty>
+	     </select>
+	     
+	      <select id="OrgChart.getCompLangList" parameterClass="hashmap" resultClass="egovMap">
+	     	SELECT 	a.code, b.detail_code, c.detail_name, d.main_yn, d.sub_yn
+			FROM 	$DB_NEOS$t_co_code a, 
+				$DB_NEOS$t_co_code_detail b LEFT OUTER JOIN (SELECT * FROM $DB_NEOS$t_co_comp_lang WHERE comp_seq = #compSeq#) d ON b.detail_code = d.lang_code, 
+				$DB_NEOS$t_co_code_detail_multi c
+			WHERE
+				a.code = 'LNG000'
+				AND a.code = b.code
+				AND b.detail_code = c.detail_code
+				AND c.lang_code = #langCode# 
+				<isNotEmpty property="mainYn">
+					<isNotEmpty property="subYn">
+						AND (d.main_yn = #mainYn# OR d.sub_yn = #subYn#)
+					</isNotEmpty>
+				</isNotEmpty>
+			group by detail_code
+	     </select>
+   
+ 		<select id="OrgChart.getGroupLangList" parameterClass="hashmap" resultClass="egovMap">
+	     	SELECT a.code, b.detail_code, d.detail_name, c.main_yn, c.sub_yn  
+			FROM $DB_NEOS$t_co_code a, $DB_NEOS$t_co_code_detail b, (SELECT * FROM $DB_NEOS$t_co_group_lang WHERE group_seq = #groupSeq#) c, 
+			     $DB_NEOS$t_co_code_detail_multi d
+			WHERE a.code = 'LNG000'
+			  AND d.code = 'LNG000'
+			  AND a.code = b.code
+			  AND b.detail_code = c.lang_code
+			  AND d.code = a.code
+			  AND d.detail_code = c.lang_code
+	     </select>   
+   
+	      <select id="OrgChart.getAuthDeptList" parameterClass="hashmap" resultClass="egovMap">
+			SELECT  
+			     cd.gbn_org AS "gbnOrg"
+			    ,cd.comp_seq AS "compSeq"
+			    ,$DB_NEOS$FN_GetMultiLang(#langCode#,ccm.comp_name_multi) AS "compName"
+			    ,cd.biz_seq AS "bizSeq"
+			    ,$DB_NEOS$FN_GetMultiLang(#langCode#,cbm.biz_name_multi) AS "bizName"
+			    ,cd.dept_seq AS "deptSeq"
+			    ,$DB_NEOS$FN_GetMultiLang(#langCode#,cdm.dept_name_multi) AS "deptName"
+			    ,cd.parent_seq AS "parentSeq"
+			    ,dept_depth AS "deptDepth"
+			    ,cd.order_num AS "order"
+			    ,cd_lv.path
+	                    , CASE WHEN cadr.dept_id IS NULL THEN 'false'
+		                   ELSE 'true'
+	                      END checked		    
+			FROM    (
+			    SELECT  $DB_NEOS$get_org_chart_tree(#groupSeq#) AS id, @dept_depth AS dept_depth, @path AS path
+			    FROM    
+			    (
+			        SELECT  @start_with := '0',
+			        @seq := @start_with,
+			        @dept_depth := 0,
+			        @path := ''
+			    ) vars, v_org_chart
+			    WHERE   @seq IS NOT NULL
+			) cd_lv
+			JOIN    (SELECT 
+			              `cc`.`group_seq` AS `group_seq`,
+			              'c' AS `gbn_org`,
+			              `cc`.`comp_seq` AS `seq`,
+			              `cc`.`parent_comp_seq` AS `parent_seq`,
+			              `cc`.`comp_seq`,
+			              '' AS biz_seq,
+			              '' AS dept_seq,
+	              		  `cc`.`order_num`
+			          FROM $DB_NEOS$t_co_comp `cc` 
+			          UNION ALL 
+			          SELECT 
+			              `cb`.`group_seq` AS `group_seq`,
+			              'b' AS `gbn_org`,
+			              `cb`.`biz_seq` AS `seq`,
+			              '0' AS `parent_seq`,
+			              `cb`.comp_seq,
+			              `cb`.biz_seq,
+			              '' AS dept_seq,
+	                 	  `cb`.`order_num`
+			          FROM $DB_NEOS$t_co_biz `cb` 
+			          UNION ALL 
+			          SELECT 
+			              `cd`.`group_seq` AS `group_seq`,
+			              'd' AS `gbn_org`,
+			              `cd`.`dept_seq` AS `seq`,
+			              `cd`.`parent_dept_seq` AS `parent_seq`,
+			              `cd`.comp_seq,
+			              `cd`.biz_seq,
+			              `cd`.dept_seq,
+	              		  `cd`.`order_num`
+			          FROM $DB_NEOS$t_co_dept `cd`) cd
+			ON      cd.seq = cd_lv.id
+			LEFT JOIN $DB_NEOS$v_t_co_comp_multi ccm
+			ON      cd.comp_seq = ccm.comp_seq
+			LEFT JOIN $DB_NEOS$v_t_co_biz_multi cbm
+			ON      cd.biz_seq = cbm.biz_seq
+			LEFT JOIN $DB_NEOS$v_t_co_dept_multi cdm
+			ON      cd.dept_seq = cdm.dept_seq
+			LEFT JOIN $DB_NEOS$t_co_auth_dept_relate cadr
+			ON      cd.dept_seq = cadr.dept_idAND cadr.author_code = #authCode#
+	     </select>   
+
+   		<select id="OrgChart.selectCompBizDeptList" parameterClass="hashmap" resultClass="egovMap">
+   			SELECT  
+			     oc.group_seq as grp_seq
+			    ,oc.gbn_org as gbn_org
+			    ,oc.comp_seq as comp_seq
+			    ,$DB_NEOS$FN_GetMultiLang(#langCode#,ccm.comp_name_multi) as comp_name
+			    ,oc.biz_seq as biz_seq
+			    ,$DB_NEOS$FN_GetMultiLang(#langCode#,cbm.biz_name_multi) as biz_name
+			    ,oc.dept_seq as dept_seq
+			    ,$DB_NEOS$FN_GetMultiLang(#langCode#,cdm.dept_name_multi) as dept_name
+			    ,oc.parent_seq as parent_seq
+			    ,oc.level as level
+			    ,oc.order_num as "order"
+			    ,oc.path
+			    ,(CASE WHEN oc.gbn_org = 'c' AND cb.display_yn = 'Y' THEN CONCAT(ccm.comp_name, '|', CONCAT(cbm.biz_name, '|', cdm.path_name))
+			        WHEN cb.display_yn = 'N' THEN CONCAT(ccm.comp_name, '|', cdm.path_name) END) as path_name
+			    ,a.member as member
+			FROM $DB_NEOS$v_org_chart oc
+			LEFT JOIN
+			(
+			    SELECT A.path, IFNULL(SUM(B.cnt), 0) AS member
+			    FROM $DB_NEOS$v_org_chart A
+			    LEFT JOIN
+			    (
+			        SELECT CASE WHEN cb.display_yn = 'Y' THEN CONCAT(cb.comp_seq, '|', CONCAT(cb.biz_seq, '|', cd.path))
+			            ELSE CONCAT(cb.comp_seq, '|', cd.path) END as path, COUNT(ed.emp_seq) cnt
+			        FROM $DB_NEOS$t_co_dept cd, $DB_NEOS$t_co_emp_dept ed, $DB_NEOS$t_co_biz cb
+			        WHERE ed.group_seq = #groupSeq#
+			        <isNotEmpty property="compSeqList">
+				    AND ed.comp_seq IN ($compSeqList$)
+				    </isNotEmpty>
+			            AND ed.group_seq = cd.group_seq
+			            AND ed.dept_seq = cd.dept_seq
+			            AND ed.group_seq = cb.group_seq
+			            AND ed.biz_seq = cb.biz_seq
+			            AND ed.use_yn = 'Y'
+			            AND cd.use_yn = 'Y'
+			            AND cb.use_yn = 'Y'
+			        GROUP BY cd.path
+			    ) B
+			    ON B.path like concat(A.path,'%')
+			    WHERE A.group_seq =  #groupSeq#
+			    <isNotEmpty property="compSeqList">
+			    and A.comp_seq IN ($compSeqList$)
+			    </isNotEmpty>
+			    <isNotEmpty property="compSeq">
+				and A.comp_seq = #compSeq#
+				</isNotEmpty>
+			    GROUP BY A.path  
+			) a
+			ON oc.path = a.path
+			LEFT JOIN $DB_NEOS$t_co_biz cb
+			ON      oc.biz_seq = cb.biz_seq AND cb.use_yn = 'Y' 
+			LEFT JOIN $DB_NEOS$v_t_co_comp_multi ccm
+			ON      oc.comp_seq = ccm.comp_seq AND ccm.use_yn = 'Y'
+			LEFT JOIN $DB_NEOS$v_t_co_biz_multi cbm
+			ON      oc.biz_seq = cbm.biz_seq AND cbm.use_yn = 'Y'
+			LEFT JOIN $DB_NEOS$v_t_co_dept_multi cdm
+			ON      oc.dept_seq = cdm.dept_seq AND cdm.use_yn = 'Y'          
+			WHERE	oc.group_seq =  #groupSeq#			
+			<isNotEmpty property="compSeqList">
+				and oc.comp_seq IN ($compSeqList$)
+			</isNotEmpty>
+			<isNotEmpty property="compSeq">
+				and oc.comp_seq = #compSeq#
+			</isNotEmpty>
+			<isNotEmpty property="gbnOrgList">
+				and oc.gbn_org IN ($gbnOrgList$)
+			</isNotEmpty>
+			ORDER BY oc.path
+   		</select>
+   		
+   		<select id="OrgChart.selectCompBizDeptListAdmin" parameterClass="hashmap" resultClass="egovMap">
+   			SELECT  
+			     oc.group_seq as grp_seq
+			    ,oc.gbn_org as gbn_org
+			    ,oc.comp_seq as comp_seq
+			    ,$DB_NEOS$FN_GetMultiLang(#langCode#,ccm.comp_name_multi) as comp_name
+			    ,oc.biz_seq as biz_seq
+			    ,$DB_NEOS$FN_GetMultiLang(#langCode#,cbm.biz_name_multi) as biz_name
+			    ,oc.dept_seq as dept_seq
+			    ,$DB_NEOS$FN_GetMultiLang(#langCode#,cdm.dept_name_multi) as dept_name
+			    ,oc.parent_seq as parent_seq
+			    ,oc.level as level
+			    ,oc.order_num as "order"
+			    ,oc.path
+			    ,(CASE WHEN oc.gbn_org = 'c' AND cb.display_yn = 'Y' THEN CONCAT(ccm.comp_name, '|', CONCAT(cbm.biz_name, '|', cdm.path_name))
+			        WHEN cb.display_yn = 'N' THEN CONCAT(ccm.comp_name, '|', cdm.path_name) END) as path_name
+			    ,a.member as member
+			FROM $DB_NEOS$v_org_chart_admin oc
+			LEFT JOIN
+			(
+			    SELECT A.path, IFNULL(SUM(B.cnt), 0) AS member
+			    FROM $DB_NEOS$v_org_chart_admin A
+			    LEFT JOIN
+			    (
+			        SELECT CASE WHEN cb.display_yn = 'Y' THEN CONCAT(cb.comp_seq, '|', CONCAT(cb.biz_seq, '|', cd.path))
+			            ELSE CONCAT(cb.comp_seq, '|', cd.path) END as path, COUNT(ed.emp_seq) cnt
+			        FROM $DB_NEOS$t_co_dept cd, $DB_NEOS$t_co_emp_dept ed, $DB_NEOS$t_co_biz cb
+			        WHERE ed.group_seq = #groupSeq#
+			        <isNotEmpty property="compSeqList">
+				    AND ed.comp_seq IN ($compSeqList$)
+				    </isNotEmpty>
+			            AND ed.group_seq = cd.group_seq
+			            AND ed.dept_seq = cd.dept_seq
+			            AND ed.group_seq = cb.group_seq
+			            AND ed.biz_seq = cb.biz_seq
+			            AND ed.use_yn = 'Y'
+			            AND cd.use_yn = 'Y'
+			            AND cb.use_yn = 'Y'
+			        GROUP BY cd.path
+			    ) B
+			    ON B.path like concat(A.path,'%')
+			    WHERE A.group_seq =  #groupSeq#
+			    <isNotEmpty property="compSeqList">
+			    and A.comp_seq IN ($compSeqList$)
+			    </isNotEmpty>
+			    <isNotEmpty property="compSeq">
+				and A.comp_seq = #compSeq#
+				</isNotEmpty>
+			    GROUP BY A.path  
+			) a
+			ON oc.path = a.path
+			LEFT JOIN $DB_NEOS$t_co_biz cb
+			ON      oc.biz_seq = cb.biz_seq
+			LEFT JOIN $DB_NEOS$v_t_co_comp_multi ccm
+			ON      oc.comp_seq = ccm.comp_seq
+			LEFT JOIN $DB_NEOS$v_t_co_biz_multi cbm
+			ON      oc.biz_seq = cbm.biz_seq
+			LEFT JOIN $DB_NEOS$v_t_co_dept_multi cdm
+			ON      oc.dept_seq = cdm.dept_seq    
+			WHERE	oc.group_seq =  #groupSeq#
+			<isNotEmpty property="compSeqList">
+				and oc.comp_seq IN ($compSeqList$)
+			</isNotEmpty>
+			<isNotEmpty property="compSeq">
+				and oc.comp_seq = #compSeq#
+			</isNotEmpty>
+			<isNotEmpty property="gbnOrgList">
+				and oc.gbn_org IN ($gbnOrgList$)
+			</isNotEmpty>
+			ORDER BY oc.path
+   		</select>
+   		
+   		<select id="OrgChart.getDeptSelectedList" parameterClass="hashmap" resultClass="egovMap">
+   			SELECT a.dept_seq AS seq, (SELECT $DB_NEOS$FN_GetMultiLang(#langCode#,comp_name_multi) FROM $DB_NEOS$v_t_co_comp_multi WHERE comp_seq = a.comp_seq AND use_yn = 'Y' LIMIT 1) AS seqName, '' AS emp_seq, a.dept_seq, a.comp_seq,
+   				$DB_NEOS$FN_GetMultiLang(#langCode#,b.dept_name_multi) as dept_name,
+   				'' AS duty_name, 'd' AS gbn,
+   				a.group_seq, a.comp_seq, a.biz_seq
+			FROM $DB_NEOS$t_co_dept a, $DB_NEOS$v_t_co_dept_multi b
+			WHERE
+				a.dept_seq = b.dept_seq
+				AND a.group_seq = #groupSeq#
+				AND a.comp_seq = #compSeq#
+				AND a.use_yn = 'Y'
+				AND a.use_yn = b.use_yn
+			<isNotEmpty property="selectedDeptList">
+				<iterate  prepend="AND" property="selectedDeptList" open=" a.dept_seq IN (" close=")" conjunction="," >
+					#selectedDeptList[].deptSeq#
+				</iterate>
+			</isNotEmpty>
+   		</select>
+   		
+   		<select id="OrgChart.getEmpSelectedList" parameterClass="hashmap" resultClass="egovMap">
+			SELECT a.emp_seq AS seq, (SELECT $DB_NEOS$FN_GetMultiLang(#langCode#,emp_name_multi) FROM $DB_NEOS$v_t_co_emp_multi WHERE emp_seq = a.emp_seq AND use_yn = 'Y' LIMIT 1) AS seqName, a.emp_seq, a.dept_seq, a.comp_seq, (SELECT $DB_NEOS$FN_GetMultiLang(#langCode#,dept_name_multi) FROM $DB_NEOS$v_t_co_dept_multi WHERE dept_seq = a.dept_seq AND a.use_yn = 'Y' LIMIT 1) AS dept_name, 
+				$DB_NEOS$get_emp_dp(a.comp_seq, a.duty_code, #langCode#) AS duty_name, 'm' AS gbn, a.group_seq, a.comp_seq, a.biz_seq
+			FROM $DB_NEOS$t_co_emp_dept a, $DB_NEOS$v_t_co_emp_dept_multi b
+			WHERE a.emp_seq = b.emp_seq 
+				AND a.dept_seq = b.dept_seq 
+				AND a.group_seq = #groupSeq#
+				AND a.comp_seq = #compSeq#
+				AND a.use_yn = 'Y'
+				AND a.use_yn = b.use_yn
+			<isNotEmpty property="selectedEmpList">
+				<iterate  prepend="AND" property="selectedEmpList" open=" CONCAT(a.emp_seq, a.dept_seq) IN (" close=")" conjunction="," >
+					<isEmpty property="selectedEmpList[].empSeq">
+						concat(#selectedEmpList[].seq#, #selectedEmpList[].deptSeq#)
+					</isEmpty>
+					<isNotEmpty property="selectedEmpList[].empSeq">
+						concat(#selectedEmpList[].empSeq#, #selectedEmpList[].deptSeq#)
+					</isNotEmpty>
+				</iterate>
+			</isNotEmpty>
+				
+   		</select>
+
+   		<select id="OrgChart.getAddrList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+   			SELECT
+   				addr_seq,
+   				addr_group_seq,
+   				comp_nm,
+   				emp_nm,
+   				comp_fax,
+   				comp_tel as comp_tel,
+   				emp_email as e_mail
+  			FROM $DB_NEOS$t_tmpg_addr
+  			WHERE 1=1
+  			<isNotEmpty property="groupSeq">
+				and addr_group_seq = #groupSeq#
+			</isNotEmpty> 
+			<isEqual property="searchDiv" compareValue="이름">
+	        	<isNotEmpty property="txtSearchKeyword">
+	        		AND (ifnull(emp_nm,'')) LIKE '%$txtSearchKeyword$%' 
+	        	</isNotEmpty>
+	        </isEqual>
+	        <isEqual property="searchDiv" compareValue="회사">
+	        	<isNotEmpty property="txtSearchKeyword">
+	        		AND (ifnull(comp_nm,'')) LIKE '%$txtSearchKeyword$%' 
+	        	</isNotEmpty>
+	        </isEqual>
+	        <isEqual property="searchDiv" compareValue="팩스번호">
+	        	<isNotEmpty property="txtSearchKeyword">
+	        		AND (ifnull(comp_fax,'')) LIKE '%$txtSearchKeyword$%' 
+	        	</isNotEmpty>
+	        </isEqual>
+  			
+   				
+   				
+   		</select>
+
+   		<select id="OrgChart.getMyPath" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+   		/* OrgChart.getMyPath - MariaDB */
+   		SELECT path
+		FROM $DB_NEOS$v_org_chart
+		WHERE group_seq = #groupSeq#
+		AND dept_seq = #deptSeq#
+		</select>
+
+</sqlMap>

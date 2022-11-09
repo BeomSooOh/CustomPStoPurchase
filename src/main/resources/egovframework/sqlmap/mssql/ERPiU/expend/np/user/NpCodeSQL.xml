@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 사용자 코드 -->
+<mapper namespace="npUserCode">
+	<select id="TestCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/ERPiU/expend/np/user/NpCodeSQL.xml - NpTestQuery */
+		/* iCUBE 테스트 쿼리 */
+		USE DZICUBE;
+		SELECT	* 
+		FROM	NEOE.FI_ADOCU;
+	</select>
+</mapper>

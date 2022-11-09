@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+					"-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+					"http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+ 
+	<!-- body 정의 Start -->
+
+	<!-- main -->
+	<definition name=".main" template="/WEB-INF/jsp/templates/tiles2/main_tiles.jsp">
+	</definition>
+
+	<!-- bizbox -->
+	<definition name=".contents" template="/WEB-INF/jsp/templates/tiles2/contents_tiles.jsp">
+	</definition>
+	
+	<!-- pudding ui content -->
+	<definition name=".pudding_contents" template="/WEB-INF/jsp/templates/tiles2/pudding_contents_tiles.jsp">
+	</definition>
+	
+	<definition name=".popup" template="/WEB-INF/jsp/templates/tiles2/popup_tiles.jsp">
+	</definition>
+	
+	<!-- pudding ui popup -->
+	<definition name=".pudding_popup" template="/WEB-INF/jsp/templates/tiles2/pudding_popup_tiles.jsp">
+	</definition>
+
+	<!-- layer 팝업에서 사용 -->
+	<definition name=".layer_popup" template="/WEB-INF/jsp/templates/tiles2/layer_popup_tiles.jsp"></definition>
+	
+	<definition name=".custom_contents" template="/WEB-INF/jsp/templates/tiles2/custom_contents_tiles.jsp"></definition>
+	<definition name=".custom_popup" template="/WEB-INF/jsp/templates/tiles2/custom_popup_tiles.jsp"></definition>
+	<definition name=".custom_layer_popup" template="/WEB-INF/jsp/templates/tiles2/custom_layer_popup_tiles.jsp"></definition>
+
+	<!-- 메인 Start -->
+
+	<!-- 메인 -->
+	<definition name="/main/*" extends=".main">
+		<put-attribute name="body" value="/WEB-INF/jsp/main/{1}.jsp" />
+	</definition>
+	<!-- 메인 End -->
+
+	<!-- 시스템관리 Start -->
+	<definition name="/neos/cmm/systemx/*" extends=".contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/neos/cmm/systemx/{1}.jsp" />
+	</definition>
+
+	<definition name="/neos/cmm/systemx/*/*" extends=".contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/neos/cmm/systemx/{1}/{2}.jsp" />
+	</definition>
+
+	<definition name="/neos/cmm/systemx/*/pop/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/neos/cmm/systemx/{1}/pop/{2}.jsp" />
+	</definition>
+
+	<definition name="/neos/cmm/System/*" extends=".contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/neos/cmm/System/{1}.jsp" />
+	</definition>
+
+	<definition name="/neos/cmm/System/*/*" extends=".contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/neos/cmm/System/{1}/{2}.jsp" />
+	</definition>
+
+	<definition name="/neos/cmm/System/*/popup/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/neos/cmm/System/{1}/popup/{2}.jsp" />
+	</definition>
+
+	<definition name="/*/*/*/popup/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}/popup/{4}.jsp" />
+	</definition>
+	<definition name="/popup/*/*/*/*/*/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}/{6}.jsp" />
+	</definition>
+
+	<definition name="/popup/*/*/*/*/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}/{5}.jsp" />
+	</definition>
+
+	<definition name="/neos/cmm/popup/*" extends=".popup_v2">
+		<put-attribute name="body" value="/WEB-INF/jsp/neos/cmm/popup/{1}.jsp" />
+	</definition>
+
+	<definition name="/admin/*/*" extends=".contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/admin/{1}/{2}.jsp" />
+	</definition>
+
+	<definition name="/admin/*/popup/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/admin/{1}/popup/{2}.jsp" />
+	</definition>
+
+	<!-- 공통사용 -->
+	<!-- ********************************************************************* -->
+	<definition name="/common/content/*" extends=".contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/common/content/{1}.jsp" />
+	</definition>
+	<definition name="/common/pop/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/common/pop/{1}.jsp" />
+	</definition>
+	<definition name="/common/layer/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/common/layer/{1}.jsp" />
+	</definition>
+
+	<!-- 지출결의 -->
+	<!-- ********************************************************************* -->
+	
+	<!-- 푸딩 UI Layout -->
+	<!-- ********************************************************************* -->
+	<definition name="/expend/ex/user/content/UserReportExpendList" extends=".pudding_contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/ex/user/content/UserReportExpendList.jsp" />
+	</definition>
+	<definition name="/expend/ex/*/content/*.pudding_contents" extends=".pudding_contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/ex/{1}/content/{2}.jsp" />
+	</definition>
+	<definition name="/expend/ex/*/pop/*.pudding_popup" extends=".pudding_popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/ex/{1}/pop/{2}.jsp" />
+	</definition>
+	<!-- ********************************************************************* -->
+	
+	<definition name="/expend/ex/*/content/*" extends=".contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/ex/{1}/content/{2}.jsp" />
+	</definition>
+	
+	<definition name="/expend/ex/*/pop/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/ex/{1}/pop/{2}.jsp" />
+	</definition>
+	
+	<!-- 지출결의[비영리] -->
+	<!-- ********************************************************************* -->
+	<definition name="/expend/np/*/content/*" extends=".contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/np/{1}/content/{2}.jsp" />
+	</definition>
+
+	<definition name="/expend/np/*/pop/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/np/{1}/pop/{2}.jsp" />
+	</definition>
+
+	<!-- 출장복명 -->
+	<!-- ********************************************************************* -->
+	<definition name="/expend/trip/*/content/*" extends=".contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/trip/{1}/content/{2}.jsp" />
+	</definition>
+
+	<definition name="/expend/trip/*/pop/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/trip/{1}/pop/{2}.jsp" />
+	</definition>
+
+	<!-- 지출결의 2.0 -->
+	<!-- ********************************************************************* -->
+	<definition name="/expend/ex2/*/content/*" extends=".contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/ex2/{1}/content/{2}.jsp" />
+	</definition>
+
+	<definition name="/expend/ex2/*/pop/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/ex2/{1}/pop/{2}.jsp" />
+	</definition>
+
+
+	<!-- iCUBE G20 -->
+	<!-- ********************************************************************* -->
+	<definition name="/expend/ac/*/content/*" extends=".contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/ac/{1}/content/{2}.jsp" />
+	</definition>
+
+	<definition name="/expend/ac/*/pop/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/ac/{1}/pop/{2}.jsp" />
+	</definition>
+
+	<!-- 개발지원 -->
+	<!-- ********************************************************************* -->
+	<definition name="/devmanager/content/*" extends=".contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/devmanager/content/{1}.jsp" />
+	</definition>
+
+	<definition name="/devmanager/pop/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/devmanager/pop/{1}.jsp" />
+	</definition>
+	
+	
+	<!-- 이지바로(신) -->
+	<definition name="/expend/ez/*/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/ez/{1}/pop/{2}.jsp" />
+	</definition>
+	
+	<!-- 국고보조통합시스템 -->
+	<!-- ********************************************************************* -->
+	<definition name="/expend/angu/*/pop/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/angu/{1}/pop/{2}.jsp" />
+	</definition>
+	
+	<!-- 업무용승용차 -->
+	<!-- ********************************************************************* -->
+	<definition name="/expend/bi/*/content/*" extends=".contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/bi/{1}/content/{2}.jsp" />
+	</definition>
+
+	<definition name="/expend/bi/*/pop/*" extends=".popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/expend/bi/{1}/pop/{2}.jsp" />
+	</definition>
+	
+	
+	
+	<definition name="/purchase/content/*" extends=".custom_contents">
+		<put-attribute name="body" value="/WEB-INF/jsp/purchase/content/{1}.jsp" />
+	</definition>
+	
+	<definition name="/purchase/pop/*" extends=".custom_popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/purchase/pop/{1}.jsp" />
+	</definition>
+	
+	<definition name="/purchase/layer/*" extends=".custom_layer_popup">
+		<put-attribute name="body" value="/WEB-INF/jsp/purchase/layer/{1}.jsp" />
+	</definition>
+
+</tiles-definitions>

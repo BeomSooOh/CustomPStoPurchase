@@ -1,0 +1,622 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Bizbox A</title>
+    
+    <!--Kendo ui css-->
+    <link rel="stylesheet" type="text/css" href="../../../css/kendoui/kendo.common.min.css">
+    <link rel="stylesheet" type="text/css" href="../../../css/kendoui/kendo.dataviz.min.css">
+    <link rel="stylesheet" type="text/css" href="../../../css/kendoui/kendo.mobile.all.min.css">
+    
+    <!-- Theme -->
+	<link rel="stylesheet" type="text/css" href="../../../css/kendoui/kendo.silver.min.css" />
+
+	<!--css-->
+    <link rel="stylesheet" type="text/css" href="../../../css/common.css">
+	
+	<!--Kendo UI customize css-->
+    <link rel="stylesheet" type="text/css" href="../../../css/reKendo.css">
+	    
+    <!--js-->
+    <script type="text/javascript" src="../../../Scripts/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="../../../Scripts/common.js"></script>
+    
+    <!--Kendo ui js-->
+    <script type="text/javascript" src="../../../Scripts/kendoui/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../Scripts/kendoui/kendo.all.min.js"></script>
+</head>
+
+<body>
+
+<div class="rpnew_con">
+	<div class="rpnew_top">
+		<div class="fl">						
+			<h2><span class="com"></span>
+			<span class="dat"></span></h2>
+		</div>
+	</div>
+
+	<div class="rpnew_main_ta">
+		<div class="rpnew_main_ta_in">
+			<div class="left_div">
+				<ul>
+					<li>
+						<dl>
+							<dt>기초 시재액</dt>
+							<dd>amount1</dd>
+						</dl>
+					</li>
+					<li>
+						<dl>
+							<dt>수입액</dt>
+							<dd class="colR" >amount2</dd>
+						</dl>
+					</li>
+					<li>
+						<dl>
+							<dt>지출액</dt>
+							<dd class="text_blue" style="font-weight: normal;">amount3</dd>
+						</dl>
+					</li>
+				</ul>
+			</div>
+
+			<div class="right_div">
+				<dl>
+					<dt>당일말 시재액</dt>
+					<dd>amount6</dd>
+				</dl>
+			</div>
+			<p class="txt">전일 자금집행 및 당일 집행예정 내역입니다.</p>
+		</div><!--// rpnew_main_ta_in -->
+		<div class="bg_btm"></div>
+	</div><!--//rpnew_main_ta  -->
+
+	<div class="rpnew_top_ta">
+		<table cellspacing="0" cellpadding="0">
+			<colgroup>
+				<col width="50%"/>
+				<col width=""/>
+			</colgroup>
+			<tr>
+				<td>
+					<div class="rpnew_info_ta">
+						<table cellspacing="0" cellpadding="0">
+							<colgroup>
+								<col width="40%"/>
+								<col width=""/>
+							</colgroup>
+							<thead>
+								<tr>
+									<th colspan="2">금융자금정보</th>
+								</tr>
+							</thead>
+							<tbody id="moneyF">
+								
+							</tbody>
+						</table>
+					</div><!--// rpnew_info_ta -->
+				</td>
+				<td class="bdl">
+					<div class="rpnew_info_ta">
+						<table cellspacing="0" cellpadding="0">
+							<colgroup>
+								<col width="40%"/>
+								<col width=""/>
+							</colgroup>
+							<thead>
+								<tr>
+									<th colspan="2">주요자금정보</th>
+								</tr>
+							</thead>
+							<tbody id="moneyG">
+								
+							</tbody>
+						</table>
+					</div><!--// rpnew_info_ta -->
+				</td>
+			</tr>
+		</table>
+	</div><!--// rpnew_top_ta -->
+
+
+	<!-- 현금잔액 -->
+	<div id="bForm1_div" style="display:block;">
+	<div class="rpn_tit mt20">
+		<h3>현금잔액</h3>
+		<p class="p_ri">
+			<span class="won">bForm1_totalAm</span>
+		</p>
+	</div>
+
+	<div class="rpn_ta bd_btm">
+		<table>
+			<colgroup>
+				<col width="15%"/>
+				<col width="20%"/>
+				<col width="20%"/>
+				<col width="20%"/>
+				<col width=""/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th>계정과목</th>
+					<th>전일말잔액</th>
+					<th>입금</th>
+					<th>출금</th>
+					<th>당일말잔액</th>
+				</tr>
+			</thead>			
+			<tr id="bForm1">
+				<td class="le" id="bForm1_acctNm"></td>
+				<td class="" id="bForm1_prevAm"></td>
+				<td class="colR " id="bForm1_inAm"></td>
+				<td class="colB" id="bForm1_outAm"></td>
+				<td  class="" id="bForm1_nowAm"></td>
+			</tr>
+		</table>
+	</div><!--// rpn_ta -->
+	</div>
+
+	
+	<!-- 예금잔액 -->
+	<div id="bForm2_div" style="display:block;">
+	<div class="rpn_tit mt20">
+		<h3>예금잔액</h3>
+		<p class="p_ri">
+			<span class="won">bForm2_totalAm</span>
+		</p>
+	</div>
+
+	<div class="rpn_ta bd_btm">
+		<table>
+			<colgroup>
+				<col width="15.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width=""/>
+			</colgroup>
+			<thead>
+			<tr>
+				<th>금융거래처명</th>
+				<th>전일말잔액</th>
+				<th>입금</th>
+				<th>출금</th>
+				<th>당일말잔액</th>
+				<th>한도액</th>
+				<th>가용자금</th>
+			</tr>
+			</thead>			
+			<tr id="bForm2">
+				<td class="le" id="bForm2_trNm"></td>
+				<td class="fwb" id="bForm2_prevAm"></td>
+				<td class="colR fwb" id="bForm2_inAm"></td>
+				<td class="colB fwb" id="bForm2_outAm"></td>
+				<td class="fwb" id="bForm2_nowAm"></td>
+				<td class="fwb" id="bForm2_limitAm"></td>
+				<td class="fwb" id="bForm2_serAm"></td> 
+			</tr>
+		</table>
+	</div><!--// rpn_ta -->
+	</div>
+	
+
+	<!-- 적금잔액 -->
+	<div id="bForm3_div" style="display:block;">
+	<div class="rpn_tit mt20">
+		<h3>적금잔액</h3>
+		<p class="p_ri">
+			<span class="won">bForm3_totalAm</span>
+		</p>
+	</div>
+
+	<div class="rpn_ta bd_btm">
+		<table>
+			<colgroup>
+				<col width="15.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<!--<col width="14.2%"/>
+				<col width="14.2%"/>-->
+				<col width=""/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th>금융거래처명</th>
+					<th>전일말잔액</th>
+					<th>입금</th>
+					<th>출금</th>
+					<th>당일말잔액</th>
+					<th>비고</th>
+					<!--<th>한도액</th>
+					<th>가용자금</th>-->
+				</tr>
+			</thead>		
+			<tr id="bForm3">
+				<td class="le" id="bForm3_trNm"></td>
+				<td class="fwb" id="bForm3_prevAm"></td>
+				<td class="colR fwb" id="bForm3_inAm"></td>
+				<td class="colB fwb" id="bForm3_outAm"></td>
+				<td class="fwb" id="bForm3_nowAm"></td>
+				<td class="fwb" id="bForm3_remarkDc"></td>
+				<!--<td class="fwb" id="bForm3_limitAm"></td>
+				<td class="fwb" id="bForm3_serAm"></td>-->
+			</tr>
+		</table>
+	</div><!--// rpn_ta -->
+	</div>
+
+	<!-- 인출제한예금 -->
+	<div id="bForm4_div" style="display:block;">
+	<div class="rpn_tit mt20">
+		<h3>인출제한예금</h3>
+		<p class="p_ri">
+			<span class="won">bForm4_totalAm</span>
+		</p>
+	</div>
+
+	<div class="rpn_ta bd_btm">
+		<table>
+			<colgroup>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width=""/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th>구분</th>
+					<th>전일말잔액</th>
+					<th>입금</th>
+					<th>출금</th>
+					<th>당일말잔액</th>
+					<th>한도액</th>
+					<th>가용자금</th>
+				</tr>
+			</thead>			
+			<tr id="bForm4">
+				<td class="le" id="bForm4_trNm"></td>
+				<td class="fwb" id="bForm4_prevAm"></td>
+				<td class="colR fwb" id="bForm4_inAm"></td>
+				<td class="colB fwb" id="bForm4_outAm"></td>
+				<td class="fwb" id="bForm4_nowAm"></td>
+				<td class="fwb" id="bForm4_limitAm"></td>
+				<td class="fwb" id="bForm4_serAm"></td>
+			</tr>
+		</table>
+	</div><!--// rpn_ta -->
+	</div>
+
+
+	<!-- 대여금현황 -->
+	<div id="bForm5_div" style="display:block;">
+	<div class="rpn_tit mt20">
+		<h3>대여금현황</h3>
+		<p class="p_ri">
+			<span class="won">bForm5_totalAm</span>
+		</p>
+	</div>
+
+	<div class="rpn_ta bd_btm">
+		<table>
+			<colgroup>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width=""/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th>거래처명</th>
+					<th>전월이월</th>
+					<th>증가</th>
+					<th>감소</th>
+					<th>당일자금</th>
+					<th>기간</th>
+				</tr>
+			</thead>			
+				<tr id="bForm5">
+					<td class="le" id="bForm5_trNm"></td>
+					<td class="fwb" id="bForm5_prevAm"></td>
+					<td class="colR fwb" id="bForm5_inAm"></td>
+					<td class="colB fwb" id="bForm5_outAm"></td>
+					<td class="fwb" id="bForm5_nowAm"></td>
+					<td class="cen" id="bForm5_rangeDt"></td>
+				</tr>				
+		</table>
+	</div><!--// rpn_ta -->	
+	</div>
+	
+
+	
+	<!-- 차입금현황 -->
+	<div id="bForm6_div" style="display:block;">
+	<div class="rpn_tit mt20">
+		<h3>차입금현황</h3>
+		<p class="p_ri">
+			<span class="won">bForm6_totalAm</span>
+		</p>
+	</div>
+	<div class="rpn_ta bd_btm">
+		<table>
+			<colgroup>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width="14.2%"/>
+				<col width=""/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th>거래처명</th>
+					<th>전월이월</th>
+					<th>증가</th>
+					<th>감소</th>
+					<th>당일자금</th>
+					<th>기간</th>
+				</tr>
+			</thead>
+			<tr id="bForm6">
+				<td class="le" id="bForm6_trNm"></td>
+				<td class="fwb" id="bForm6_prevAm"></td>
+				<td class="colR fwb" id="bForm6_inAm"></td>
+				<td class="colB fwb" id="bForm6_outAm"></td>
+				<td class="fwb" id="bForm6_nowAm"></td>
+				<td class="cen" id="bForm6_rangeDt"></td>
+			</tr>			
+		</table>
+	</div><!--// rpn_ta -->
+
+	
+	<!-- 주요자금정보 시작-->
+	<!--수금현황  -->
+	<div id="bForm7_div" style="display:block;">
+	<div class="rpn_tit mt20">
+		<h3>수금현황</h3>
+		<p class="p_ri">
+			<span class="won">bForm7_totalAm</span>
+		</p>
+	</div>
+
+	<div class="rpn_ta bd_btm">
+		<table>
+			<colgroup>
+				<col width="25%"/>
+				<col width="25%"/>
+				<col width="25%"/>
+				<col width=""/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th>프로젝트</th>
+					<th>입금계좌</th>
+					<th>금액</th>
+					<th>비고</th>
+				</tr>
+			</thead>
+				<tr id="bForm7">
+					<td class="le" id="bForm7_pjtNm"></td>
+					<td class="le" id="bForm7_trNm"></td>
+					<td class="fwb" id="bForm7_acctAm"></td>
+					<td class="cen colGR" id="bForm7_pjtrmkDc"></td>
+				</tr>				
+			</table>
+		</div><!--// rpn_ta -->
+		</div>
+
+
+
+		<!-- 지출현황 -->
+		<div id="bForm8_div" style="display:none;">
+		<div class="rpn_tit mt20">
+			<h3>지출현황</h3>
+			<p class="p_ri">
+				<span class="won">bForm8_totalAm</span>
+			</p>
+		</div>
+
+		<div class="rpn_ta bd_btm">
+			<table>
+				<colgroup>
+					<col width="25%"/>
+					<col width="25%"/>
+					<col width="25%"/>
+					<col width=""/>
+				</colgroup>
+				<thead>
+					<tr>
+						<th>거래처</th>
+						<th>적요</th>
+						<th>금액</th>
+						<th>비고</th>
+					</tr>
+				</thead>
+					<tr id="bForm8">
+						<td class="le" id="bForm8_trNm"></td>
+						<td class="le" id="bForm8_rmkDc"></td>
+						<td class="fwb" id="bForm8_acctAm"></td>
+						<td class="cen colGR" id="bForm8_remarkD"></td>
+					</tr>
+			</table>
+		</div><!--// rpn_ta -->
+		</div>
+
+
+
+
+		<!-- 매출현황 -->
+		<div id="bForm9_div" style="display:none;">
+		<div class="rpn_tit mt20">
+			<h3>매출현황</h3>
+			<p class="p_ri">
+				<span class="won">bForm9_totalAm</span>
+			</p>
+		</div>
+
+		<div class="rpn_ta bd_btm">
+			<table>
+				<colgroup>
+					<col width="18%"/>
+					<col width="16.6%"/>
+					<col width="16.6%"/>
+					<col width="16.6%"/>
+					<col width="16.6%"/>
+					<col width=""/>
+				</colgroup>
+				<thead>
+					<tr>
+						<th>계정과목</th>
+						<th>당일</th>
+						<th>당월누적</th>
+						<th>당기누적</th>
+						<th>동년기전년누적</th>
+						<th>전년누적대비(%)</th>
+					</tr>
+				</thead>
+					<tr id="bForm9">
+						<td class="le" id="bForm9_acctNm"></td>
+						<td class="fwb" id="bForm9_nowAm"></td>
+						<td class="fwb" id="bForm9_monAm"></td>
+						<td class="fwb" id="bForm9_yearAm"></td>
+						<td class="fwb" id="bForm9_prevAm"></td>
+						<td class="fwb" id="bForm9_accrue"><img src="../../../images/tablet/ico_red_arr_up01.png" alt="" width="8" height="7"/> </td>
+					</tr>				
+			</table>
+		</div><!--// rpn_ta -->
+		</div>
+			
+
+		<!-- 채권현황 -->
+		<div id="bForm10_div" style="display:none;">
+		<div class="rpn_tit mt20">
+			<h3>채권현황</h3>
+			<p class="p_ri">
+				<span class="won">bForm10_totalAm</span>
+			</p>
+		</div>
+
+		<div class="rpn_ta bd_btm">
+			<table>
+				<colgroup>
+					<col width="19%"/>
+					<col width="19%"/>
+					<col width="19%"/>
+					<col width="19%"/>
+					<col width=""/>
+				</colgroup>
+				<thead>
+					<tr>
+						<th>구분</th>
+						<th>전일말잔액</th>
+						<th>발생</th>
+						<th>감소</th>
+						<th>금일잔액</th>
+					</tr>
+				</thead>
+				<tr id="bForm10">
+					<td class="le" id="bForm10_drcrFg"></td>
+					<td class="fwb"id="bForm10_prevAm"></td>
+					<td class="colR fwb" id="bForm10_inAm"></td>
+					<td class="colB fwb" id="bForm10_outAm"></td>
+					<td class="fwb" id="bForm10_janAm"></td>
+				</tr>							
+				</table>
+		</div><!--// rpn_ta -->					
+		</div>
+
+
+
+	<!-- 수입예정내역 -->
+		<div id="bForm11_div" style="display:block;">
+		<div class="rpn_tit mt20">
+			<h3>수입예정내역</h3>
+			<p class="p_ri">
+				<span class="won">bForm11_totalAm</span>
+			</p>
+		</div>
+
+		<div class="rpn_ta bd_btm">
+			<table>
+				<colgroup>
+					<col width="25%"/>
+					<col width="25%"/>
+					<col width="25%"/>
+					<col width=""/>
+				</colgroup>
+				<thead>
+					<tr>
+						<th>자금과목</th>
+						<th>거래처</th>
+						<th>적요</th>
+						<th>금액</th>
+					</tr>
+				</thead>
+				<tr id="bForm11">
+					<td class="le" id="bForm11_cashNm"></td>
+					<td class="le" id="bForm11_trNm"></td>
+					<td id="bForm11_rmkDc"></td>
+					<td class="fwb" id="bForm11_acctAm"></td>
+				</tr>				
+				</table>
+		</div><!--// rpn_ta -->	
+		</div>
+		
+
+
+		<!-- 지출예정내역 -->			
+		<div id="bForm12_div" style="display:block;">
+			<div class="rpn_tit mt20">
+				<h3>지출예정내역</h3>
+				<p class="p_ri">
+					<span class="won">bForm12_totalAm</span>
+				</p>
+			</div>
+
+			<div class="rpn_ta bd_btm">
+				<table>
+					<colgroup>
+						<col width="20%"/>
+						<col width="20%"/>
+						<col width="20%"/>
+						<col width="20%"/>
+						<col width=""/>
+					</colgroup>
+					<thead>
+						<tr>
+							<th>자금과목</th>
+							<th>거래처</th>
+							<th>적요</th>
+							<th>금액</th>
+							<th>비고</th>
+						</tr>
+					</thead>
+					<tr id="bForm12">
+						<td class="le" id="bForm12_cashNm"></td>
+						<td class="le" id="bForm12_trNm"></td>
+						<td class="le" id="bForm12_rmkDc"></td>
+						<td class="fwb" id="bForm12_acctAm"></td>
+						<td id="bForm12_deferCnt"></td>
+					</tr>					
+					</table>
+			</div><!--// rpn_ta -->
+			</div>
+
+	<div style="height:60px;"></div>
+</div><!--// rpnew_con -->
+
+</body>
+</html>

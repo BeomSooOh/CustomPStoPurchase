@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN" "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<!-- common batch -->
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/common/batch/CommonBatchCms_SQL.xml" />
+
+	<!-- common info -->
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/common/info/Common_Info_SQL.xml" />
+
+	<!-- common log -->
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/common/log/CommonLog_SQL.xml" />
+	
+	<!-- common form -->
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/common/form/CommonForm_SQL.xml" />
+</sqlMapConfig>

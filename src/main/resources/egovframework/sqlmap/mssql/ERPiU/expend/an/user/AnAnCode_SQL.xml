@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ERPiU 국고보조 연동 코드 -->
+<mapper namespace="AnAnCode">
+	<!-- 회계단위 조회 -->
+	<select id="AnAnCode.AnCodeDivInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnAnCode.AnCodeDivInfoSelect */
+	]]></select>
+
+	<!-- 결의부서 조회 -->
+	<select id="AnAnCode.AnCodeDeptInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnAnCode.AnCodeDeptInfoSelect */
+	]]></select>
+
+	<!-- 작성자 조회 -->
+	<select id="AnAnCode.AnCodeEmpInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnAnCode.AnCodeEmpInfoSelect */
+	]]></select>
+
+	<!-- 국고보조사업 조회 -->
+	<select id="AnAnCode.AnCodeBusinessListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnAnCode.AnCodeBusinessListInfoSelect */
+	]]></select>
+
+	<!-- 보조비목 / 세목 조회 -->
+	<select id="AnAnCode.AnCodeMosfBgListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnAnCode.AnCodeMosfBgListInfoSelect */
+	]]></select>
+
+	<!-- 예산과목 조회 -->
+	<select id="AnAnCode.AnCodeBgtListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnAnCode.AnCodeBgtListInfoSelect */
+	]]></select>
+
+	<!-- 거래처 조회 -->
+	<select id="AnAnCode.AnCodeTrListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnAnCode.AnCodeTrListInfoSelect */
+	]]></select>
+
+	<!-- 프로젝트 조회 -->
+	<select id="AnAnCode.AnCodeMgtListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnAnCode.AnCodeMgtListInfoSelect */
+	]]></select>
+</mapper>

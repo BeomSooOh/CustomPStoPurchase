@@ -1,0 +1,1777 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="CMSInfoDAO">
+	<typeAlias alias="egovMap"
+		type="egovframework.rte.psl.dataaccess.util.EgovMap" />
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module1" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리1 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_code ( code, use_yn, create_seq, create_date, modify_seq, modify_date ) VALUES ( 'MENU', 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module2" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리2 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */ 
+		INSERT IGNORE INTO $DB_NEOS$t_co_code_multi ( code, lang_code, name, note, use_yn, create_seq, create_date, modify_seq, modify_date ) VALUES ( 'MENU', 'kr', '메뉴분류', '메뉴관련 분류', 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module3" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리3 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [MENU - MENU013 - 회계] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_code_detail ( detail_code, code, ischild, order_num, flag_1, flag_2, use_yn, create_seq, create_date, modify_seq, modify_date ) VALUES ( 'MENU013', 'MENU', 'N', '12', NULL, NULL, 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module4" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리4 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - MENU013 - '회계] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_code_detail_multi ( detail_code, code, lang_code, detail_name, note, use_yn, create_seq, create_date, modify_seq, modify_date ) VALUES ( 'MENU013', 'MENU', 'kr', '회계', '회계', 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module5" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리5 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [810107000] 관리자 - 매입전자세금계산서현황1 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( menu_no, menu_gubun, upper_menu_no, menu_ordr, use_yn, url_gubun, url_path, sso_use_yn, menu_depth, menu_img_class, create_seq, create_date, modify_seq, modify_date, public_yn, menu_adm_gubun, menu_auth_type )  VALUES ( '810107005', 'MENU013', '810100000', '810107005', 'Y', 'exp', '/expend/np/admin/NpAdminEtaxReport.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', 'MENU013', 'ADMIN' )
+		
+		]]>
+	</insert>
+	
+		<insert id="DevMgrBuildAssistSQL.Build20Module6" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리6 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [810107000] 관리자 - 매입전자세금계산서현황2 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( menu_no, lang_code, menu_nm, menu_dc, create_seq, create_date, modify_seq, modify_date ) VALUES ( '810107005', 'kr', '세금계산서 현황(비영리 2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module7" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리7 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [1001050000] 사용자 - 매입전자세금계산서현황1 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu ( comp_seq, menu_gubun, menu_no, upper_menu_no, menu_ordr, use_yn, url_gubun, url_path, sso_use_yn, menu_depth, menu_img_path, menu_img_class, menu_type, create_seq, create_date, modify_seq, modify_date, public_yn, delete_yn ) VALUES ( '1000', 'MENU013', '1001050000', '1001000000', '1001050000', 'Y', 'exp', '/expend/np/user/NpUserEtaxReport.do', 'N', '3', NULL, NULL, NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', NULL )
+		
+		]]>
+	</insert>
+	
+		<insert id="DevMgrBuildAssistSQL.Build20Module8" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리8 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [1001050000] 사용자 - 매입전자세금계산서현황2 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_multi ( menu_no, lang_code, menu_nm, menu_dc, create_seq, create_date, modify_seq, modify_date ) VALUES ( '1001050000', 'kr', '나의 세금계산서 현황(비영리 2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module9" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리9 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [810107000] 관리자 - 카드 사용 현황 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( menu_no, menu_gubun, upper_menu_no, menu_ordr, use_yn, url_gubun, url_path, sso_use_yn, menu_depth, menu_img_class, create_seq, create_date, modify_seq, modify_date, public_yn, menu_adm_gubun, menu_auth_type )  VALUES ( '810107004', 'MENU013', '810100000', '810107004', 'Y', 'exp', '/expend/np/admin/NpAdminCardReport.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', 'MENU013', 'ADMIN' )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module10" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리10 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [810107000] 관리자 - 카드 사용 현황 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( menu_no, lang_code, menu_nm, menu_dc, create_seq, create_date, modify_seq, modify_date ) VALUES ( '810107004', 'kr', '카드 사용 현황(비영리 2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module11" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리11 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [1001050000] 사용자 - 나의 카드 사용 현황 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu ( comp_seq, menu_gubun, menu_no, upper_menu_no, menu_ordr, use_yn, url_gubun, url_path, sso_use_yn, menu_depth, menu_img_path, menu_img_class, menu_type, create_seq, create_date, modify_seq, modify_date, public_yn, delete_yn ) VALUES ( '1000', 'MENU013', '1001020001', '1001000000', '1001020001', 'Y', 'exp', '/expend/np/user/NpUserCardReport.do', 'N', '3', NULL, NULL, NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', NULL )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module12" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리12 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [1001050000] 사용자 - 나의 카드 사용 현황 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_multi ( menu_no, lang_code, menu_nm, menu_dc, create_seq, create_date, modify_seq, modify_date ) VALUES ( '1001020001', 'kr', '나의 카드 사용 현황(비영리 2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module13" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리13 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [810500000] 관리자 - 예실대비 
+		 * * 영리과 동일 코드 사용, 메뉴 중복 생성 방지
+		 * */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( menu_no, menu_gubun, upper_menu_no, menu_ordr, use_yn, url_gubun, url_path, sso_use_yn, menu_depth, menu_img_class, create_seq, create_date, modify_seq, modify_date, menu_adm_gubun, menu_auth_type, public_yn, delete_yn ) VALUES ( '810500000', 'MENU013', '810000000', '810500000', 'Y', NULL, NULL, 'Y', '2', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'MENU013', 'ADMIN', 'Y', NULL )
+		
+		]]>
+	</insert>
+	
+		<insert id="DevMgrBuildAssistSQL.Build20Module14" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리14 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [810500000] 관리자 - 예실대비 
+		 * * 영리과 동일 코드 사용, 메뉴 중복 생성 방지
+		 * */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( menu_no, lang_code, menu_nm, menu_dc, create_seq, create_date, modify_seq, modify_date ) VALUES ( '810500000', 'kr', '예실대비 (2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module15" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리15*/
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [810500000] 관리자 - 예실대비 현황 - G20 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( menu_no, menu_gubun, upper_menu_no, menu_ordr, use_yn, url_gubun, url_path, sso_use_yn, menu_depth, menu_img_class, create_seq, create_date, modify_seq, modify_date, menu_adm_gubun, menu_auth_type, public_yn, delete_yn ) VALUES ( '810504000', 'MENU013', '810500000', '810502000', 'Y', 'exp', '/expend/np/admin/NpAdminG20Yesil.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'MENU013', 'ADMIN', 'Y', NULL )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module16" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리16 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [810500000] 관리자 - 예실대비 현황 - G20 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( menu_no, lang_code, menu_nm, menu_dc, create_seq, create_date, modify_seq, modify_date ) VALUES ( '810504000', 'kr', '예실대비 현황(G20) (2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module17" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리17 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [810107000] 관리자 - 회계 - 지출결의 관리 - 지출결의 전송 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( menu_no, menu_gubun, upper_menu_no, menu_ordr, use_yn, url_gubun, url_path, sso_use_yn, menu_depth, menu_img_class, create_seq, create_date, modify_seq, modify_date, public_yn, menu_adm_gubun, menu_auth_type )  VALUES ( '810107000', 'MENU013', '810100000', '810107000', 'Y', 'exp', '/expend/np/admin/NpApprovalSendList.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', 'MENU013', 'ADMIN' )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module18" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리 18*/
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [810107000] 관리자 - 회계 - 지출결의 관리 - 지출결의 전송 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( menu_no, lang_code, menu_nm, menu_dc, create_seq, create_date, modify_seq, modify_date ) VALUES ( '810107000', 'kr', '결의서 전송(2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module19" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리19 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [810107001] 관리자 - 회계 - 지출결의 관리 - 결의서 현황 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( menu_no, menu_gubun, upper_menu_no, menu_ordr, use_yn, url_gubun, url_path, sso_use_yn, menu_depth, menu_img_class, create_seq, create_date, modify_seq, modify_date, public_yn, menu_adm_gubun, menu_auth_type )  VALUES ( '810107001', 'MENU013', '810100000', '810107000', 'Y', 'exp', '/expend/np/admin/NpAdminResReport.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', 'MENU013', 'ADMIN' )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module20" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리20 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [810107001] 관리자 - 회계 - 지출결의 관리 - 결의서 현황 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( menu_no, lang_code, menu_nm, menu_dc, create_seq, create_date, modify_seq, modify_date ) VALUES ( '810107001', 'kr', '결의서 현황(2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module21" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리21 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [810107002] 관리자 - 회계 - 지출결의 관리 - 품의서 반환 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( menu_no, menu_gubun, upper_menu_no, menu_ordr, use_yn, url_gubun, url_path, sso_use_yn, menu_depth, menu_img_class, create_seq, create_date, modify_seq, modify_date, public_yn, menu_adm_gubun, menu_auth_type )  VALUES ( '810107002', 'MENU013', '810100000', '810107000', 'Y', 'exp', '/expend/np/admin/NpAdminConsConfferReturn.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', 'MENU013', 'ADMIN' )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module22" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리22 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [810107002] 관리자 - 회계 - 지출결의 관리 - 품의서 반환 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( menu_no, lang_code, menu_nm, menu_dc, create_seq, create_date, modify_seq, modify_date ) VALUES ( '810107002', 'kr', '품의서 반환(2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module23" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리23 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [810107003] 관리자 - 회계 - 지출결의 관리 - 품의서 현황 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( menu_no, menu_gubun, upper_menu_no, menu_ordr, use_yn, url_gubun, url_path, sso_use_yn, menu_depth, menu_img_class, create_seq, create_date, modify_seq, modify_date, public_yn, menu_adm_gubun, menu_auth_type )  VALUES ( '810107003', 'MENU013', '810100000', '810107000', 'Y', 'exp', '/expend/np/admin/NpAdminConsReport.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', 'MENU013', 'ADMIN' )
+		
+		]]>
+	</insert>
+	
+		<insert id="DevMgrBuildAssistSQL.Build20Module24" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리24 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [810107003] 관리자 - 회계 - 지출결의 관리 - 품의서 현황 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( menu_no, lang_code, menu_nm, menu_dc, create_seq, create_date, modify_seq, modify_date ) VALUES ( '810107003', 'kr', '품의서 현황(2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module25" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리25 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [1001070000] 사용자 - 회계 - 지출결의 관리 - 품의서 현황 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu ( comp_seq, menu_gubun, menu_no, upper_menu_no, menu_ordr, use_yn, url_gubun, url_path, sso_use_yn, menu_depth, menu_img_path, menu_img_class, menu_type, create_seq, create_date, modify_seq, modify_date, public_yn, delete_yn ) VALUES ( '1000', 'MENU013', '1001070000', '1001000000', '1001020001', 'Y', 'exp', '/expend/np/user/NpUserConsUserReport.do', 'N', '3', NULL, NULL, NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', NULL )		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module26" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리26 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [1001070000] 사용자 - 회계 - 지출결의 관리 - 품의서 현황 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_multi ( menu_no, lang_code, menu_nm, menu_dc, create_seq, create_date, modify_seq, modify_date ) VALUES ( '1001070000', 'kr', '품의서 현황(2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module27" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리27 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [1001070001] 사용자 - 회계 - 지출결의 관리 - 결의서 현황 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu ( comp_seq, menu_gubun, menu_no, upper_menu_no, menu_ordr, use_yn, url_gubun, url_path, sso_use_yn, menu_depth, menu_img_path, menu_img_class, menu_type, create_seq, create_date, modify_seq, modify_date, public_yn, delete_yn ) VALUES ( '1000', 'MENU013', '1001070001', '1001000000', '1001020001', 'Y', 'exp', '/expend/np/user/NpUserResUserReport.do', 'N', '3', NULL, NULL, NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', NULL )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module28" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리28 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [1001070001] 사용자 - 회계 - 지출결의 관리 - 결의서 현황 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_multi ( menu_no, lang_code, menu_nm, menu_dc, create_seq, create_date, modify_seq, modify_date ) VALUES ( '1001070001', 'kr', '결의서 현황(2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module29" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리 29*/
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [1001070002] 사용자 - 회계 - 지출결의 관리 - 품의서 반환 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu ( comp_seq, menu_gubun, menu_no, upper_menu_no, menu_ordr, use_yn, url_gubun, url_path, sso_use_yn, menu_depth, menu_img_path, menu_img_class, menu_type, create_seq, create_date, modify_seq, modify_date, public_yn, delete_yn ) VALUES ( '1000', 'MENU013', '1001070002', '1001000000', '1001020001', 'Y', 'exp', '/expend/np/user/NpUserConsConfferReturn.do', 'N', '3', NULL, NULL, NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', NULL)
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module30" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리 30*/
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* [1001070002] 사용자 - 회계 - 지출결의 관리 - 품의서 반환 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_multi ( menu_no, lang_code, menu_nm, menu_dc, create_seq, create_date, modify_seq, modify_date ) VALUES ( '1001070002', 'kr', '품의서 반환(2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module31" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리 31*/
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* 2018-08-13 최상배 */
+		/* [1001070002] 사용자 - 회계 - 사용자현황 - G20 사용자 예실대비 현황 2018-08-13 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu ( comp_seq, menu_gubun, menu_no, upper_menu_no, menu_ordr, use_yn, url_gubun, url_path, sso_use_yn, menu_depth, menu_img_path, menu_img_class, menu_type, create_seq, create_date, modify_seq, modify_date, public_yn, delete_yn ) VALUES ( '1000', 'MENU013', '1001020002', '1001000000', '1001020002', 'Y', 'exp', '/expend/np/user/NpUserG20Yesil.do', 'N', '3', NULL, NULL, NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', NULL )
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module32" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 배포 쿼리 32*/
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/*## #################################################################################################### ##*/
+		/*## 2018. 06. 11. ##*/
+		/*## 2018. 06. 11. - 김상겸 ##*/
+		/*## 2018. 06. 11. - 회계(비영리) 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		/* 2018-08-13 최상배 */
+		/* [1001070002] 사용자 - 회계 - 사용자현황 - G20 사용자 예실대비 현황 2018-08-13 */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_multi ( menu_no, lang_code, menu_nm, menu_dc, create_seq, create_date, modify_seq, modify_date ) VALUES ( '1001020002', 'kr', '나의 예실대비 현황(비영리 2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() )
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module33" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 외부시스템연동 배포 쿼리 33*/
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* 2018-08-13 최상배 */
+		/* [1001070002] 마스터 - 전자결재 - 외부시스템연동 */
+		INSERT IGNORE INTO $DB_NEOS$`teag_out_process` (`out_process_id`, `process_nm`, `contents_tp`, `contents_pos`, `form_api`, `send_api`, `cancel_api`, `end_api`, `reject_api`, `delete_api`, `app_api`, `created_by`, `created_dt`, `modify_by`, `modify_dt`, `co_id`, `group_id`, `apply_api`, `detail_code_div`, `isprocess_yn`)                    SELECT DISTINCT 'EXNPCONI','품의서(G20 2.0)','1','1','',CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),NULL,'SYSTEM',NOW(),'SYSTEM',NOW(),'0',group_seq,'/exp/ExpendPop.do','ea0060',NULL FROM $DB_NEOS$t_co_comp;
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module34" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 외부시스템연동 배포 쿼리 34*/
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* 2018-08-13 최상배 */
+		/* [1001070002] 마스터 - 전자결재 - 외부시스템연동 */
+		INSERT IGNORE INTO $DB_NEOS$`teag_out_process` (`out_process_id`, `process_nm`, `contents_tp`, `contents_pos`, `form_api`, `send_api`, `cancel_api`, `end_api`, `reject_api`, `delete_api`, `app_api`, `created_by`, `created_dt`, `modify_by`, `modify_dt`, `co_id`, `group_id`, `apply_api`, `detail_code_div`, `isprocess_yn`)                    SELECT DISTINCT 'EXNPRESI','결의서(G20 2.0)','1','1','',CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),NULL,NULL,NULL,NULL,NULL,'0',group_seq,'/exp/ExpendPop.do','ea0060',NULL FROM $DB_NEOS$t_co_comp;
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module35" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 외부시스템연동 배포 쿼리 35*/
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* 2018-08-13 최상배 */
+		/* [1001070002] 마스터 - 전자결재 - 외부시스템연동 */
+		INSERT IGNORE INTO $DB_NEOS$`teag_out_process` (`out_process_id`, `process_nm`, `contents_tp`, `contents_pos`, `form_api`, `send_api`, `cancel_api`, `end_api`, `reject_api`, `delete_api`, `app_api`, `created_by`, `created_dt`, `modify_by`, `modify_dt`, `co_id`, `group_id`, `apply_api`, `detail_code_div`, `isprocess_yn`)                    SELECT DISTINCT 'EXNPCONU','품의서(IU 2.0)','1','1','',CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),NULL,NULL,NULL,NULL,NULL,'0',group_seq,'/exp/ExpendPop.do','ea0060',NULL FROM $DB_NEOS$t_co_comp;
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module36" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 외부시스템연동 배포 쿼리 36*/
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* 2018-08-13 최상배 */
+		/* [1001070002] 마스터 - 전자결재 - 외부시스템연동 */
+		INSERT IGNORE INTO $DB_NEOS$`teag_out_process` (`out_process_id`, `process_nm`, `contents_tp`, `contents_pos`, `form_api`, `send_api`, `cancel_api`, `end_api`, `reject_api`, `delete_api`, `app_api`, `created_by`, `created_dt`, `modify_by`, `modify_dt`, `co_id`, `group_id`, `apply_api`, `detail_code_div`, `isprocess_yn`)                    SELECT DISTINCT 'EXNPRESU','결의서(IU 2.0)','1','1','',CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),NULL,NULL,NULL,NULL,NULL,'0',group_seq,'/exp/ExpendPop.do','ea0060',NULL FROM $DB_NEOS$t_co_comp;
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module37" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 영리메뉴 disable 37 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		UPDATE $DB_NEOS$t_co_menu SET delete_yn='Y' WHERE url_gubun = 'exp' AND menu_no NOT IN (
+		'1001020001',
+		'1001020002',
+		'1001050000',
+		'1001070000',
+		'1001070001',
+		'1001070002',
+		'1001020003'
+		);
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module38" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 영리메뉴 disable 38 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* 2018-08-13 최상배 */
+		UPDATE $DB_NEOS$t_co_menu_adm SET delete_yn='Y' WHERE url_gubun = 'exp' AND menu_no NOT IN (
+		'810107000',
+		'810107001',
+		'810107002',
+		'810107003',
+		'810107004',
+		'810107005',
+		'810203000',
+		'810213000',
+		'810307001',
+		'810504000',
+		'2104040024'
+		);
+		]]> 
+	</insert>
+	
+		
+	<insert id="DevMgrBuildAssistSQL.Build20Module39" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴베포 39 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* [810107000] 관리자 - 품의/결의 기본설정(2.0)  */
+		INSERT IGNORE INTO $DB_NEOS$`t_co_menu_adm` ( `menu_no`, `menu_gubun`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_class`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `public_yn`, `menu_adm_gubun`, `menu_auth_type` )  VALUES ( '810307001', 'MENU013', '810200000', '810300000', 'Y', 'exp', '/expend/np/admin/NpAdminMasterOption.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', 'MENU013', 'ADMIN' );
+		]]>
+	</insert>
+	
+		
+	<insert id="DevMgrBuildAssistSQL.Build20Module40" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 40 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* [810107000] 관리자 - 품의/결의 기본설정(2.0)  */
+		INSERT IGNORE INTO $DB_NEOS$`t_co_menu_adm_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810307001', 'kr', '품의/결의 기본설정(2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+		
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module41" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴베포 41 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* 사용자 - 예실대비현황 IU(2.0)  */
+		INSERT IGNORE INTO `t_co_menu` (`comp_seq`, `menu_gubun`, `menu_no`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_path`, `menu_img_class`, `menu_type`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `public_yn`, `delete_yn`, `open_menu_no`) VALUES('1000','MENU013','1001020003','1003000000','1003040000','Y','exp','/expend/np/user/NpUserERPiUYesil.do','N','3',NULL,NULL,NULL,'SYSTEM',NOW(),'1212',NOW(),'Y','N',NULL);
+		]]>
+	</insert>
+	
+		
+	<insert id="DevMgrBuildAssistSQL.Build20Module42" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 42 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* 사용자 - 예실대비현황 IU(2.0)  */
+		INSERT IGNORE INTO `t_co_menu_multi` (`menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date`) VALUES('1001020003','kr','나의 예실대비 현황(비2.0 ERPiU)','','SYSTEM',NOW(),'1212',NOW());
+		]]>
+	</insert>
+	
+		<insert id="DevMgrBuildAssistSQL.Build20Module43" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴베포 43 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* 사용자 - 예실대비현황 IU(2.0)  */
+		INSERT IGNORE INTO `t_co_menu_adm` (`menu_no`, `menu_gubun`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_class`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `menu_adm_gubun`, `menu_auth_type`, `public_yn`, `delete_yn`) VALUES('2104040024','MENU013','810500000','2104040024','Y','','/exp/expend/np/admin/NpAdminERPiUYesil.do','N','1',NULL,'1212',NOW(),'1212',NOW(),'MENU013','ADMIN','Y',NULL);
+		]]>
+	</insert>
+	
+		
+	<insert id="DevMgrBuildAssistSQL.Build20Module44" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* 사용자 - 예실대비현황 IU(2.0)  */
+		INSERT IGNORE INTO `t_co_menu_adm_multi` (`menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date`) VALUES('2104040024','kr','예실대비현황 (IU 2.0)','','1212',NOW(),'1212',NOW());
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.Build20Module45" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* [810107000] 관리자 - 매입전자세금계산서현황 */
+		INSERT IGNORE INTO `t_co_menu_adm_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810107005', 'en', 'Tax bill status (2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module46" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* [1001050000] 사용자 - 매입전자세금계산서현황 */
+		INSERT IGNORE INTO `t_co_menu_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '1001050000', 'en', 'My Tax bill status (2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module47" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* [810107000] 관리자 - 카드 사용 현황 */
+		INSERT IGNORE INTO `t_co_menu_adm_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810107004', 'en', 'Current status for the use of card', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module48" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* [1001050000] 사용자 - 나의 카드 사용 현황 */
+		INSERT IGNORE INTO `t_co_menu_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '1001020001', 'en', 'My Current status for the use of card', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module49" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* [810500000] 관리자 - 예실대비 
+		 * * 영리과 동일 코드 사용, 메뉴 중복 생성 방지
+ 		* */
+		INSERT IGNORE INTO `t_co_menu_adm_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810500000', 'en', 'Budget Usage', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module50" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* [810500000] 관리자 - 예실대비 현황 - G20 */
+		INSERT IGNORE INTO `t_co_menu_adm_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810504000', 'en', 'Budget Usage Comparison (2.0 iCUBE)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module51" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* [810107000] 관리자 - 회계 - 지출결의 관리 - 지출결의 전송 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO `t_co_menu_adm_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810107000', 'en', 'Send for the resolution (2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module52" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* [810107001] 관리자 - 회계 - 지출결의 관리 - 결의서 현황 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO `t_co_menu_adm_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810107001', 'en', 'Identification for the resolution (2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module53" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* [810107002] 관리자 - 회계 - 지출결의 관리 - 품의서 반환 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO `t_co_menu_adm_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810107002', 'en', 'Return for Letter Of Approval (2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module54" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* [810107003] 관리자 - 회계 - 지출결의 관리 - 품의서 현황 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO `t_co_menu_adm_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810107003', 'en', 'Identification for the Letter Of Approval (2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module55" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* [1001070000] 사용자 - 회계 - 지출결의 관리 - 품의서 현황 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO `t_co_menu_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '1001070000', 'en', 'Identification for the Letter Of Approval (2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module56" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* [1001070001] 사용자 - 회계 - 지출결의 관리 - 결의서 현황 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO `t_co_menu_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '1001070001', 'en', 'Identification for the resolution (2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module57" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* [1001070002] 사용자 - 회계 - 지출결의 관리 - 품의서 반환 [비영리] 2018-04-27 */
+		INSERT IGNORE INTO `t_co_menu_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '1001070002', 'en', 'Return for the Letter Of Approval (2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module58" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* 2018-08-13 최상배 */
+		/* [1001070002] 사용자 - 회계 - 사용자현황 - G20 사용자 예실대비 현황 2018-08-13 */
+		INSERT IGNORE INTO `t_co_menu_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '1001020002', 'en', 'My Budget Usage Comparison (2.0 ICUBE)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module59" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* 2018-08-13 최상배 */
+		/* [810107000] 관리자 - 품의/결의 기본설정(2.0)  */
+		INSERT IGNORE INTO `t_co_menu_adm_multi` ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810307001', 'en', 'Resolution/Letter Of Approval Setting (2.0)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module60" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* 2018-08-13 최상배 */
+		/* 사용자 - 예실대비현황 IU(2.0)  */
+		INSERT INTO `t_co_menu_multi` (`menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date`) VALUES('1001020003','en','My Budget Usage Comparison (2.0 ERPiU)','','SYSTEM',NOW(),'1212',NOW());
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.Build20Module61" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴배포 44 */
+		/* DevMgrBuildAssistSQL.xml - Build20Module */
+		/* 2018-08-13 최상배 */
+		/* 사용자 - 예실대비현황 IU(2.0)  */
+		INSERT INTO `t_co_menu_adm_multi` (`menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date`) VALUES('2104040024','en','Budget Usage Comparison (2.0 ERPiU)','','SYSTEM',NOW(),'1212',NOW());
+		]]>
+	</insert>
+	
+	
+	<insert id="DevMgrBuildAssistSQL.BuildCMS" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 CMS모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildCMS */
+		
+			INSERT IGNORE INTO $DB_NEOS$t_ex_cms_sync 
+			SELECT 
+				comp_seq	AS comp_seq
+				, 'Y' 		AS cms_sync_yn
+				, 'Y' 		AS cms_batch_yn
+				, 'N' 		AS cms_process_yn
+				, 'N' 		AS custom_yn
+				, '20200301' 	AS cms_base_date
+				, '45' 		AS cms_base_day
+				, 'N'		AS run_yn
+				, NOW() 	AS modify_date
+				, '' 		AS module_Type
+				, '' 		AS log_type
+				, '' 		AS message
+				, NOW() 	AS create_date
+				, '' 		AS server_ip
+			FROM $DB_NEOS$t_co_erp
+			GROUP BY url
+		]]>
+		
+		<selectKey resultClass="java.lang.String">
+			select 'Build20Module SUCCESS'
+		</selectKey>
+	</insert>
+	
+	<select id="DevMgrBuildAssistSQL.BuildCmsExCardMinusButtonCount" parameterClass="HashMap" resultClass="HashMap">
+	<![CDATA[
+		/* ! [G20] 사용불가 기능 */
+		/* DevMgrBuildAssistSQL.xml - BuildCmsExCardMinusButtonCount */
+		
+		SELECT	CAST(COUNT(*) AS INTEGER) AS btnCnt
+		FROM	$DB_NEOS$T_EX_BUTTON
+		WHERE	COMP_SEQ = 'EXP_BUTTON'
+		AND		FORM_SEQ = '0'
+		AND		PAGE_SEQ = '10'
+		AND		CALL_URL = 'fnDefault_cardUseHistoryWithCancel'
+	]]>
+	</select>
+	
+
+	
+	<select id="DevMgrBuildAssistSQL.SelectGroupSeq" parameterClass="HashMap" resultClass="HashMap">
+	<![CDATA[
+		
+		/* Refresh */
+		/* Select GroupSeq*/
+		/* DevMgrBuildAssistSQL.xml - SelectGroupSeq */
+		
+		SELECT	GROUP_SEQ as group_seq
+		FROM	$DB_NEOS$t_co_comp
+		GROUP BY GROUP_SEQ
+		
+	]]>
+	</select>
+	
+	
+	<select id="DevMgrBuildAssistSQL.SelectDomain" parameterClass="HashMap" resultClass="HashMap">
+	<![CDATA[
+		
+		/* Refresh */
+		/* Select Domain*/
+		/* DevMgrBuildAssistSQL.xml - SelectDomain*/
+		
+		SELECT	DISTINCT COMP_DOMAIN as comp_domain
+		FROM	$DB_NEOS$t_co_comp
+		ORDER BY CREATE_DATE DESC
+		LIMIT 1
+		
+	]]>
+	</select>
+	
+	
+	<insert id="DevMgrBuildAssistSQL.BuildCmsExCardMinusButton" parameterClass="HashMap">
+	<![CDATA[
+		/* ! [G20] 사용불가 기능 */
+		/* DevMgrBuildAssistSQL.xml - BuildCmsExCardMinusButton */
+		
+		INSERT INTO $DB_NEOS$t_ex_button (
+				comp_seq, form_seq, page_seq, btn_seq, `position`
+				, order_num, display_yn, license_yn, btn_size, nm_basic
+				, nm_kr, nm_en, nm_jp, nm_cn, default_yn
+				, default_code, call_url, call_param, callback_url, callback_type
+				, callback_key, `default_elemId`, `default_elemClass`, ext_url)
+		VALUES(
+				'EXP_BUTTON', 0, 10, 1717, 20
+				, 99, 'N', 'Y', 203, '카드사용내역(취소분 포함)'
+				, '카드사용내역(취소분 포함)', '', '', '', 'Y'
+				, 'cardUseHistoryWithCancel', 'fnDefault_cardUseHistoryWithCancel', '{}', '', 0
+				, '', NULL, NULL, NULL);
+	]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTaxIU1" parameterClass="HashMap"> 
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 세금계산서 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildTaxIU1 */
+		/* ERPiU */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( `menu_no`, `menu_gubun`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_class`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `menu_adm_gubun`, `menu_auth_type`, `public_yn`, `delete_yn` ) VALUES ( '810106000', 'MENU013', '810100000', '810106000', 'Y', 'exp', '/ex/admin/report/ExAdminETaxlListERPiU.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'MENU013', 'ADMIN', 'Y', NULL );
+		]]>
+		
+		<selectKey resultClass="java.lang.String">
+			select 'DevMgrBuildAssistSQL.BuildTaxIU1'
+		</selectKey>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTaxIU2" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 세금계산서 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildTaxIU2 */
+		/* ERPiU */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810106000', 'kr', '세금계산서현황(ERPiU)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );		]]>
+		
+		<selectKey resultClass="java.lang.String">
+			select 'DevMgrBuildAssistSQL.BuildTaxIU2'
+		</selectKey>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTaxIU3" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 세금계산서 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildTaxIU3 */
+		/* ERPiU */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu ( `menu_no`, `menu_gubun`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_class`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `public_yn` ) VALUES ( '1001030000', 'MENU013', '1001000000', '1001030000', 'Y', 'exp', '/ex/user/report/ExUserETaxERPiUList.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y' );		]]>
+		
+		<selectKey resultClass="java.lang.String">
+			select 'DevMgrBuildAssistSQL.BuildTaxIU3'
+		</selectKey>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTaxIU4" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 세금계산서 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildTaxIU4 */
+		/* ERPiU */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_multi ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '1001030000', 'kr', '나의 세금계산서 현황(ERPiU)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );]]>
+		
+		<selectKey resultClass="java.lang.String">
+			select 'DevMgrBuildAssistSQL.BuildTaxIU4'
+		</selectKey>
+	</insert>
+	
+	
+	<insert id = "DevMgrBuildAssistSQL.InsertBudgetAll1" parameterClass="HashMap">
+		<![CDATA[
+			/* 예산연동 옵션 */
+			INSERT IGNORE INTO $DB_NEOS$t_co_code_detail ( `detail_code`, `code`, `ischild`, `order_num`, `flag_1`, `flag_2`, `use_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUE ( 'Y', 'ex00028', 'N', 2, NULL, NULL, 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		 ]]>
+	 </insert>
+	
+	<insert id = "DevMgrBuildAssistSQL.InsertBudgetAll2" parameterClass="HashMap">
+		<![CDATA[
+			/* 예산연동 옵션 */
+			INSERT IGNORE INTO $DB_NEOS$t_co_code_detail_multi ( `detail_code`, `code`, `lang_code`, `detail_name`, `note`, `use_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUE ( 'Y', 'ex00028', 'kr', '사용', '사용', 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		 ]]>
+	</insert>
+	
+		<insert id ="DevMgrBuildAssistSQL.CloudCmsBatch" parameterClass="HashMap">
+		<![CDATA[
+			/* 법인카드 연동 */
+				INSERT IGNORE INTO $DB_NEOS$t_ex_cms_sync
+				SELECT 
+				comp_seq
+				, 'Y'	AS	'cms_sync_yn'
+				, 'Y'	AS	'cms_batch_yn'
+				, 'N'	AS	'cms_process_yn'
+				, 'N'	AS 	'custom_yn'
+				, '20200301'	AS 	'cms_base_date'
+				, '30'	AS	'cms_base_day'
+				, 'N'	AS  'run_yn'
+				, NOW()	AS	'modify_date'
+				, '' AS module_Type
+				, '' AS log_type
+				, '' AS message
+				, NOW() AS create_date
+				,'DEF' AS server_ip
+				FROM $DB_NEOS$t_co_comp;
+			]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTaxCUBE1" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 세금계산서 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildTaxCUBE1 */
+		/* ERPiCUBE */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( `menu_no`, `menu_gubun`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_class`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `menu_adm_gubun`, `menu_auth_type`, `public_yn`, `delete_yn` ) VALUES ( '810105000', 'MENU013', '810100000', '810105000', 'Y', 'exp', '/ex/admin/report/ExAdminETaxlListiCUBE.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'MENU013', 'ADMIN', 'Y', NULL );
+		]]>
+		<selectKey resultClass="java.lang.String">
+			select 'DevMgrBuildAssistSQL.BuildTaxCUBE1'
+		</selectKey>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTaxCUBE2" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 세금계산서 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildTaxCUBE2 */
+		/* ERPiCUBE */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810105000', 'kr', '세금계산서현황(iCUBE)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+		<selectKey resultClass="java.lang.String">
+			select 'DevMgrBuildAssistSQL.BuildTaxCUBE2'
+		</selectKey>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTaxCUBE3" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 세금계산서 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildTaxCUBE3 */
+		/* ERPiCUBE */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu ( `menu_no`, `menu_gubun`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_class`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `public_yn` ) VALUES ( '1001040000', 'MENU013', '1001000000', '1001040000', 'Y', 'exp', '/ex/user/report/ExUserETaxiCUBEList.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y' );
+		]]>
+		<selectKey resultClass="java.lang.String">
+			select 'DevMgrBuildAssistSQL.BuildTaxCUBE3'
+		</selectKey>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTaxCUBE4" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 세금계산서 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildTaxCUBE4 */
+		/* ERPiCUBE */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_multi ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '1001040000', 'kr', '나의 세금계산서 현황(iCUBE)', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+		<selectKey resultClass="java.lang.String">
+			select 'DevMgrBuildAssistSQL.BuildTaxCUBE4'
+		</selectKey>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildFundManage1" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 스마트 자금관리 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildFundManage1 */
+		/* 2017. 03. 08. */
+		/* 2017. 03. 08. - 김상겸 */
+		/* 2017. 03. 08. - 김상겸 - 전자결재 양식 구분 추가 ( 스마트 자금관리 ) */
+		/* [ea0007 - ea0090 - 자금관리] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_code_detail ( `detail_code`, `code`, `ischild`, `order_num`, `flag_1`, `flag_2`, `use_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( 'ea0090', 'ea0007', 'N', '1090', NULL, NULL, 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+		
+	<insert id="DevMgrBuildAssistSQL.BuildFundManage2" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 스마트 자금관리 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildFundManage2 */
+		/* 2017. 03. 08. */
+		/* 2017. 03. 08. - 김상겸 */
+		/* 2017. 03. 08. - 김상겸 - 전자결재 양식 구분 추가 ( 스마트 자금관리 ) */
+		/* [ea0007 - ea0090 - 자금관리] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_code_detail_multi ( `detail_code`, `code`, `lang_code`, `detail_name`, `note`, `use_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( 'ea0090', 'ea0007', 'kr', '자금관리', '자금관리', 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>	
+	
+	<insert id="DevMgrBuildAssistSQL.BuildFundManage3" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 스마트 자금관리 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildFundManage3 */
+		/* 2017. 03. 08. */
+		/* 2017. 03. 08. - 김상겸 */
+		/* 2017. 03. 08. - 김상겸 - 전자결재 양식 구분 추가 ( 스마트 자금관리 ) */
+		/* [ea0090 - 자금관리] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_code ( `code`, `use_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( 'ea0090', 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildFundManage4" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 스마트 자금관리 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildFundManage4 */
+		/* 2017. 03. 08. */
+		/* 2017. 03. 08. - 김상겸 */
+		/* 2017. 03. 08. - 김상겸 - 전자결재 양식 구분 추가 ( 스마트 자금관리 ) */
+		/* [ea0090 - 자금관리] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_code_multi ( `code`, `lang_code`, `name`, `note`, `use_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( 'ea0090', 'kr', '자금관리', '자금관리 양식구분', 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() ); 
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildFundManage5" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 스마트 자금관리 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildFundManage5 */
+		/* 2017. 03. 08. */
+		/* 2017. 03. 08. - 김상겸 */
+		/* 2017. 03. 08. - 김상겸 - 전자결재 양식 구분 추가 ( 스마트 자금관리 ) */
+		/* [ea0090 - ba1000 - 연동문서(자금계획)] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_code_detail ( `detail_code`, `code`, `ischild`, `order_num`, `flag_1`, `flag_2`, `use_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( 'ba1000', 'ea0090', 'N', '1010', NULL, NULL, 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildFundManage6" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 스마트 자금관리 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildFundManage6 */
+		/* 2017. 03. 08. */
+		/* 2017. 03. 08. - 김상겸 */
+		/* 2017. 03. 08. - 김상겸 - 전자결재 양식 구분 추가 ( 스마트 자금관리 ) */
+		/* [ea0090 - ba1000 - 연동문서(자금계획)] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_code_detail_multi ( `detail_code`, `code`, `lang_code`, `detail_name`, `note`, `use_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( 'ba1000', 'ea0090', 'kr', '연동문서(자금계획)', '연동문서(자금계획)', 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildFundManage7" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 스마트 자금관리 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildFundManage7 */
+		/* 2017. 03. 08. */
+		/* 2017. 03. 08. - 김상겸 */
+		/* 2017. 03. 08. - 김상겸 - 전자결재 양식 구분 추가 ( 스마트 자금관리 ) */
+		/* [ea0090 - ba2000 - 연동문서(자금이체)] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_code_detail ( `detail_code`, `code`, `ischild`, `order_num`, `flag_1`, `flag_2`, `use_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( 'ba2000', 'ea0090', 'N', '1020', NULL, NULL, 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildFundManage8" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 스마트 자금관리 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildFundManage8 */
+		/* 2017. 03. 08. */
+		/* 2017. 03. 08. - 김상겸 */
+		/* 2017. 03. 08. - 김상겸 - 전자결재 양식 구분 추가 ( 스마트 자금관리 ) */
+		/* [ea0090 - ba2000 - 연동문서(자금이체)] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_code_detail_multi ( `detail_code`, `code`, `lang_code`, `detail_name`, `note`, `use_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( 'ba2000', 'ea0090', 'kr', '연동문서(자금이체)', '연동문서(자금이체)', 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildFundManage9" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 스마트 자금관리 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildFundManage9 */
+		/* 2017. 03. 08. */
+		/* 2017. 03. 08. - 김상겸 */
+		/* 2017. 03. 08. - 김상겸 - 전자결재 양식 구분 추가 ( 스마트 자금관리 ) */
+		/* [ea0090 - ba2000 - 연동문서(자금이체)] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_code_detail_multi ( `detail_code`, `code`, `lang_code`, `detail_name`, `note`, `use_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( 'ba2000', 'ea0090', 'kr', '연동문서(자금이체)', '연동문서(자금이체)', 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildFundManage10" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 스마트 자금관리 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildFundManage10 */
+		/* 2017. 03. 08. */
+		/* 2017. 03. 08. - 김상겸 */
+		/* 2017. 03. 08. - 김상겸 - 전자결재 양식 구분 추가 ( 스마트 자금관리 ) */
+		/* [ea0090 - ba3000 - 연동문서(자금일보)] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_code_detail ( `detail_code`, `code`, `ischild`, `order_num`, `flag_1`, `flag_2`, `use_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( 'ba3000', 'ea0090', 'N', '1030', NULL, NULL, 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+
+	<insert id="DevMgrBuildAssistSQL.BuildFundManage11" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 메뉴 스마트 자금관리 모듈 설치 */
+		/* DevMgrBuildAssistSQL.xml - BuildFundManage11 */
+		/* 2017. 03. 08. */
+		/* 2017. 03. 08. - 김상겸 */
+		/* 2017. 03. 08. - 김상겸 - 전자결재 양식 구분 추가 ( 스마트 자금관리 ) */
+		/* [ea0090 - ba3000 - 연동문서(자금일보)] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_code_detail_multi ( `detail_code`, `code`, `lang_code`, `detail_name`, `note`, `use_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( 'ba3000', 'ea0090', 'kr', '연동문서(자금일보)', '연동문서(자금일보)', 'Y', 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.DeleteCms" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) CMS 연동 모듈 삭제 */
+		/* DevMgrBuildAssistSQL.xml - DeleteCms */
+		DELETE FROM $DB_NEOS$t_ex_cms_sync
+		]]>
+		<selectKey resultClass="java.lang.String">
+			select 'DeleteCMS SUCCES'
+		</selectKey>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.InsertExcelUpload" parameterClass="HashMap">
+		<![CDATA[
+			INSERT IGNORE INTO $DB_NEOS$`t_ex_summary` ( `comp_seq`, `summary_code`, `summary_name`,`summary_div`, `dr_acct_code`, `dr_acct_name`, `cr_acct_code`, `cr_acct_name`, `vat_acct_code`, `vat_acct_name`, `bank_partner_code`, `bank_partner_name`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `order_num` ) 
+				SELECT	
+				comp_seq
+				, #summary_code# AS summary_code
+				, #summary_name# AS summary_name
+				, 'A' AS summary_div
+				, #dr_acct_code# AS dr_acct_code
+				, #dr_acct_name# AS dr_acct_name
+				, #cr_acct_code# AS cr_acct_code
+				, #cr_acct_name# AS cr_acct_name
+				, #vat_acct_code# AS vat_acct_code
+				, #vat_acct_name# AS vat_acct_name
+				, '' AS bank_partner_code
+				, '' AS bank_partner_name
+				, 'SYSTEM' AS create_seq
+				, NOW() AS create_date
+				, 'SYSTEM' AS modify_seq
+				, NOW() AS modify_date
+				, '0'  AS order_num
+				FROM	$DB_NEOS$t_co_comp
+				WHERE	comp_cd = #compCd#
+		]]>
+		<selectKey resultClass="java.lang.String">
+			select 'DeleteCMS SUCCES'
+		</selectKey>
+	</insert>
+	
+	<delete id="DevMgrBuildAssistSQL.ResetSummary" parameterClass="HashMap">
+		<![CDATA[
+			/* 표준적요 초기화 기능 */ 
+			DELETE FROM $DB_NEOS$t_ex_summary
+			WHERE comp_seq = #compSeq#
+		]]>
+	</delete>
+	
+		<delete id="DevMgrBuildAssistSQL.ResetAuth" parameterClass="HashMap">
+		<![CDATA[
+			/* 증빙유형 초기화 기능 */ 
+			DELETE FROM $DB_NEOS$t_ex_auth
+			WHERE comp_seq = #compSeq#
+		]]>
+	</delete>
+	
+	
+	<insert id="DevMgrBuildAssistSQL.InsertAuthExcelUpload" parameterClass="HashMap">
+		<![CDATA[
+			INSERT IGNORE INTO $DB_NEOS$`t_ex_auth` ( `comp_seq`, `auth_div`, `order_num`, `auth_code`, `auth_name`, `cash_type`, `cr_acct_code`, `cr_acct_name`, `vat_acct_code`, `vat_acct_name`, `vat_type_code`, `vat_type_name`, `erp_auth_code`, `erp_auth_name`, `auth_required_yn`, `partner_required_yn`, `card_required_yn`, `project_required_yn`, `note_required_yn`, `no_tax_code`, `no_tax_name`, `use_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `va_type_code`, `va_type_name` )
+				SELECT
+				comp_seq
+				,'A' AS auth_div
+				,#order_num# AS order_num
+				,#auth_code# AS auth_code
+				,#auth_name# AS auth_name
+				,IFNULL(#cash_type#, 'N') AS cash_type
+				,#cr_acct_code# AS cr_acct_code
+				,#cr_acct_name# AS cr_acct_name
+				,#vat_acct_code# AS vat_acct_code
+				,#vat_acct_name# AS vat_acct_name
+				,#vat_type_code# AS vat_type_code
+				,#vat_type_name# AS vat_type_name
+				,'' AS erp_auth_code
+				,'' AS erp_auth_name
+				,IFNULL(#auth_required_yn#, 'Y') AS auth_required_yn
+				,IFNULL(#partner_required_yn#, 'Y') AS partner_required_yn
+				,IFNULL(#card_required_yn#, 'Y') AS card_required_yn
+				,IFNULL(#project_required_yn#, 'Y') AS project_required_yn
+				,IFNULL(#note_required_yn#, 'Y') AS note_required_yn
+				,'' AS no_tax_code
+				,'' AS no_tax_name
+				,'Y' AS use_yn
+				,'SYSTEM' AS create_seq
+				,NOW() AS create_date
+				,'SYSTEM' AS modify_seq
+				,NOW() AS modify_date
+				,'' AS va_type_code
+				,'' AS va_type_name
+				FROM  $DB_NEOS$t_co_comp
+				WHERE comp_cd = #compCd#
+		]]>
+	</insert>
+	
+	<select id="DevMgrBuildAssistSQL.CheckGwVersion" parameterClass="HashMap" resultClass="java.lang.String">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 고객사 버전 확인 */
+		/* DevMgrBuildAssistSQL.xml - CheckGwVersion */
+			SELECT	SETUP_VERSION AS version
+			FROM	$DB_NEOS$T_CO_GROUP
+		]]>
+	</select>
+	
+	<select id="DevMgrBuildAssistSQL.CheckERP" parameterClass="HashMap" resultClass="java.util.HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 고객사 ERP 확인 */
+		/* DevMgrBuildAssistSQL.xml - CheckERP */
+			SELECT 	COUNT(*) AS erpNum
+				, t.erp	 AS erpName
+			FROM
+			(
+			SELECT	DISTINCT erp_type_code AS erp
+			FROM	$DB_NEOS$T_CO_ERP
+			) t
+		]]>
+	</select>
+
+	<insert id="DevMgrBuildAssistSQL.InsertConfferAuth" parameterClass="HashMap">
+		/* ! (비영리 1.0) 참조품의 권한 설정 */
+		/* DevMgrBuildAssistSQL.xml - InsertConfferAuth */
+		
+		INSERT INTO $DB_NEOS$g20_cons_auth (group_seq, emp_seq, gbn_org, seq, create_seq)
+		SELECT	
+			group_seq
+			, emp_seq
+			, #auth_type#		AS 'gbn_org'	
+		<isEqual property="auth_type" compareValue="u">
+			, #auth_obj_seq#	AS 'seq'
+		</isEqual>  
+		<isEqual property="auth_type" compareValue="d">
+			, #auth_obj_seq#	AS 'seq'
+		</isEqual>  			
+		<isEqual property="auth_type" compareValue="c">
+			, comp_seq	AS 'seq'
+		</isEqual> 			
+			, 'SYSTEM'	AS 'create_seq'
+		FROM	$DB_NEOS$v_user_info where emp_seq = #auth_user_seq# and dept_seq = #auth_user_dept#; 		
+	</insert>
+
+	<delete id="DevMgrBuildAssistSQL.DeleteConfferAuth" parameterClass="HashMap">
+		/* ! (비영리 1.0) 참조품의 권한 설정  삭제*/
+		/* DevMgrBuildAssistSQL.xml - DeleteConfferAuth */
+		DELETE FROM $DB_NEOS$g20_cons_auth
+		WHERE auth_seq 	= #auth_seq# 	
+	</delete>
+
+	<update id="DevMgrBuildAssistSQL.UpdateConfferAuth" parameterClass="HashMap">
+		/* ! (비영리 1.0) 참조품의 권한 설정 수정 */
+		/* DevMgrBuildAssistSQL.xml - UpdateConfferAuth */
+		UPDATE	$DB_NEOS$g20_cons_auth 
+		SET		  gbn_org = #auth_type#
+				<isEqual property="auth_type" compareValue="u">
+					, seq = #auth_obj_seq#	
+				</isEqual>  
+				<isEqual property="auth_type" compareValue="d">
+					, seq = #auth_obj_seq#
+				</isEqual>  			
+				<isEqual property="auth_type" compareValue="c">
+					, seq = ( select ed.comp_seq from $DB_NEOS$t_co_emp_dept ed where ed.emp_seq = auth.emp_seq and main_comp_yn = 'y' )	
+				</isEqual> 	
+				,modify_dt = NOW()
+		WHERE	auth_seq = #auth_seq#
+	</update>
+
+	<select id="DevMgrBuildAssistSQL.SelectConfferAuth" parameterClass="HashMap" resultClass="HashMap">
+		/* ! (비영리 1.0) 참조품의 권한 설정 조회 */
+		/* DevMgrBuildAssistSQL.xml - SelectConfferAuth */
+		
+		SELECT	auth.auth_seq, auth.emp_seq, auth.gbn_org, auth.seq
+			 , CASE auth.gbn_org 
+					WHEN 'c' THEN '회사'
+					WHEN 'd' THEN '부서'
+					ELSE '사용자'
+				END as gbn_name		
+			 , CASE auth.gbn_org 
+					WHEN 'c' THEN ( select comp_name from $DB_NEOS$t_co_comp_multi where comp_seq = auth.seq and lang_code = 'kr' )
+					WHEN 'd' THEN ( select dept_name from $DB_NEOS$t_co_dept_multi where dept_seq = auth.seq and lang_code = 'kr' )
+					ELSE ( select emp_name from $DB_NEOS$t_co_emp_multi where emp_seq = auth.seq and lang_code = 'kr' )
+				END as seq_name
+			  , ( select emp_name from $DB_NEOS$t_co_emp_multi where emp_seq = auth.emp_seq and lang_code = 'kr' ) as emp_name				        
+		FROM	$DB_NEOS$g20_cons_auth auth
+		<isNotEmpty property="searchCode">
+		WHERE	emp_seq in ( select emp_seq from $DB_NEOS$t_co_emp_multi where emp_name like '%$searchCode$%' and lang_code = 'kr' ) 	
+		</isNotEmpty>		
+
+	</select>
+	
+	<select id="DevMgrBuildAssistSQL.MultiCompanyList" parameterClass="HashMap" resultClass="HashMap">
+			/* 회사 코드 조회 */
+			SELECT comp_seq
+			,comp_name
+			FROM $DB_NEOS$t_co_comp_multi
+	</select>
+
+	<insert id="DevMgrBuildAssistSQL.backupConfferAuth" parameterClass="HashMap">
+		/* ! (비영리 1.0) 참조품의 권한 히스토리 관리 */
+		/* DevMgrBuildAssistSQL.xml - backupConfferAuth */
+		
+		INSERT INTO $DB_NEOS$g20_cons_auth_history 
+		(history_type, auth_seq, group_seq, emp_seq, gbn_org, seq, create_seq, create_dt, modify_seq, modify_dt)
+		SELECT
+			  #history_type#	
+		    , auth_seq
+			, group_seq
+			, emp_seq
+			, gbn_org
+			, seq
+			, create_seq
+			, create_dt
+			, modify_seq
+			, modify_dt
+		FROM $DB_NEOS$g20_cons_auth 
+		where auth_seq = #auth_seq#; 		
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module1" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리1 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module1" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu ( `comp_seq`, `menu_gubun`, `menu_no`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_path`, `menu_img_class`, `menu_type`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `public_yn`, `delete_yn` ) VALUES ( '1000', 'MENU013', '1004000000', '1000000000', '1004000000', 'Y', '', '', 'N', '2', NULL, NULL, NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', NULL );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module2" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리2 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module1" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_multi ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '1004000000', 'kr', '출장여비관리', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module3" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리3 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module1" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu ( `comp_seq`, `menu_gubun`, `menu_no`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_path`, `menu_img_class`, `menu_type`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `public_yn`, `delete_yn` ) VALUES ( '1000', 'MENU013', '1004001000', '1004000000', '1004001000', 'Y', 'exp', '/expend/trip/admin/UserTripConsReport.do', 'N', '3', NULL, NULL, NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', NULL );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module4" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리4 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module1" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_multi ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '1004001000', 'kr', '나의출장품의현황', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module5" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리5 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module1" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu ( `comp_seq`, `menu_gubun`, `menu_no`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_path`, `menu_img_class`, `menu_type`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `public_yn`, `delete_yn` ) VALUES ( '1000', 'MENU013', '1004002000', '1004000000', '1004002000', 'Y', 'exp', '/expend/trip/admin/UserTripResReport.do', 'N', '3', NULL, NULL, NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', NULL );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module6" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리6 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module1" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_multi ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '1004002000', 'kr', '나의출장결의현황', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module7" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리7 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module7" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( `menu_no`, `menu_gubun`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_class`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `public_yn`, `menu_adm_gubun`, `menu_auth_type` )  VALUES ( '810600000', 'MENU013', '810000000', '810600000', 'Y', '', '', 'N', '2', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', 'MENU013', 'ADMIN' );
+		]]>
+	</insert>
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module8" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리8 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module8" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810600000', 'kr', '출장여비관리', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module9" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리9 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module9" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( `menu_no`, `menu_gubun`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_class`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `public_yn`, `menu_adm_gubun`, `menu_auth_type` )  VALUES ( '810601000', 'MENU013', '810600000', '810601000', 'Y', 'exp', '/expend/trip/admin/AdminTripConsReport.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', 'MENU013', 'ADMIN' );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module10" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리10 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module1" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810601000', 'kr', '출장품의현황', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module11" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리11 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module1" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( `menu_no`, `menu_gubun`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_class`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `public_yn`, `menu_adm_gubun`, `menu_auth_type` )  VALUES ( '810602000', 'MENU013', '810600000', '810602000', 'Y', 'exp', '/expend/trip/admin/AdminTripResReport.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', 'MENU013', 'ADMIN' );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module12" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리12 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module1" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810602000', 'kr', '출장결의현황', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module13" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리13 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module1" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( `menu_no`, `menu_gubun`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_class`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `public_yn`, `menu_adm_gubun`, `menu_auth_type` )  VALUES ( '810700000', 'MENU013', '810000000', '810700000', 'Y', '', '', 'N', '2', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', 'MENU013', 'ADMIN' );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module14" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리14 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module14" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810700000', 'kr', '출장여비설정', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module15" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리15 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module15" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( `menu_no`, `menu_gubun`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_class`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `public_yn`, `menu_adm_gubun`, `menu_auth_type` )  VALUES ( '810701000', 'MENU013', '810700000', '810701000', 'Y', 'exp', '/expend/trip/admin/NpTripPositionGroupSettingPage.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', 'MENU013', 'ADMIN' );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module16" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리16 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module16" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810701000', 'kr', '직책그룹설정', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module17" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리17 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module17" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( `menu_no`, `menu_gubun`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_class`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `public_yn`, `menu_adm_gubun`, `menu_auth_type` )  VALUES ( '810702000', 'MENU013', '810700000', '810702000', 'Y', 'exp', '/expend/trip/admin/NpTripLocationSettingPage.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', 'MENU013', 'ADMIN' );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module18" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리18 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module18" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810702000', 'kr', '출장지설정', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module19" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리19 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module1" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( `menu_no`, `menu_gubun`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_class`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `public_yn`, `menu_adm_gubun`, `menu_auth_type` )  VALUES ( '810703000', 'MENU013', '810700000', '810703000', 'Y', 'exp', '/expend/trip/admin/NpTripTransportSettingPage.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', 'MENU013', 'ADMIN' );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module20" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리20 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module1" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810703000', 'kr', '교통수단설정', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module21" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리21 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module21" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm ( `menu_no`, `menu_gubun`, `upper_menu_no`, `menu_ordr`, `use_yn`, `url_gubun`, `url_path`, `sso_use_yn`, `menu_depth`, `menu_img_class`, `create_seq`, `create_date`, `modify_seq`, `modify_date`, `public_yn`, `menu_adm_gubun`, `menu_auth_type` )  VALUES ( '810704000', 'MENU013', '810700000', '810704000', 'Y', 'exp', '/expend/trip/admin/NpTripAmtSettingPage.do', 'N', '3', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW(), 'Y', 'MENU013', 'ADMIN' );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module22" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리22 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module1" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$t_co_menu_adm_multi ( `menu_no`, `lang_code`, `menu_nm`, `menu_dc`, `create_seq`, `create_date`, `modify_seq`, `modify_date` ) VALUES ( '810704000', 'kr', '출장비단가설정', NULL, 'SYSTEM', NOW(), 'SYSTEM', NOW() );
+		]]>
+	</insert>
+	
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module23" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리23 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module1" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$teag_out_process (`out_process_id`, `process_nm`, `contents_tp`, `contents_pos`, `form_api`, `kyuljaeline_api`, `send_api`, `cancel_api`, `end_api`, `reject_api`, `delete_api`, `app_api`, `created_by`, `created_dt`, `modify_by`, `modify_dt`, `co_id`, `group_id`, `apply_api`, `detail_code_div`, `isprocess_yn`, `receive_api`) SELECT DISTINCT 'TRIPCONS','출장 품의서','1','1','','',CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),NULL,'1212','2019-06-21 09:52:49','1212','2019-09-09 16:00:47','0',group_seq,'/exp/ExpendPop.do',NULL,NULL,'' FROM t_co_comp;
+		]]>
+	</insert>
+		
+	<insert id="DevMgrBuildAssistSQL.BuildTrip20Module24" parameterClass="HashMap">
+		
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 출장복명 2.0 메뉴 배포 쿼리24 */
+		/* DevMgrBuildAssistSQL.xml - "BuildTrip20Module1" */
+		/*## #################################################################################################### ##*/
+		/*## 2019. 10. 8. ##*/
+		/*## 2019. 10. 8. - 허준녕 ##*/
+		/*## 2019. 10. 8. - 회계(비영리) 출장복명 2.0 메뉴 ##*/
+		/*## #################################################################################################### ##*/
+		
+		/* [MENU - 메뉴분류 ] */
+		INSERT IGNORE INTO $DB_NEOS$teag_out_process (`out_process_id`, `process_nm`, `contents_tp`, `contents_pos`, `form_api`, `kyuljaeline_api`, `send_api`, `cancel_api`, `end_api`, `reject_api`, `delete_api`, `app_api`, `created_by`, `created_dt`, `modify_by`, `modify_dt`, `co_id`, `group_id`, `apply_api`, `detail_code_div`, `isprocess_yn`, `receive_api`) SELECT DISTINCT 'TRIPRES','출장 결의서','1','1','','',CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),CONCAT('http://',comp_domain,'/exp/ApprovalProcess.do'),NULL,'1212','2019-06-21 09:53:07','1212','2019-09-09 16:00:54','0',group_seq,'/exp/ExpendPop.do',NULL,NULL,'' FROM t_co_comp;
+		]]>
+	</insert>
+	
+	<select id="DevMgrBuildAssistSQL.selectSendDocCount" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 2.0 초기화 - 전송문서 조회 */
+		/* DevMgrBuildAssistSQL.xml - "selectSendDocCount" */
+		select count(*) from $DB_NEOS$t_exnp_resdoc where send_yn = 'Y'
+		]]>
+	</select>
+	
+	<update id="DevMgrBuildAssistSQL.deleteExnpDoc1" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 2.0 초기화 */
+		/* DevMgrBuildAssistSQL.xml - "deleteExnpDoc" */
+		UPDATE $DB_NEOS$t_exnp_resdoc SET doc_status = 'd';
+		]]>
+	</update>
+	
+	<update id="DevMgrBuildAssistSQL.deleteExnpDoc2" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 2.0 초기화 */
+		/* DevMgrBuildAssistSQL.xml - "deleteExnpDoc" */
+		UPDATE $DB_NEOS$t_exnp_consdoc SET doc_status = 'd';
+		]]>
+	</update>
+	
+	<update id="DevMgrBuildAssistSQL.deleteExnpDoc3" parameterClass="HashMap">
+		 <![CDATA[
+		/* !  [G20] 배포기능 / 회계(비영리) 2.0 초기화 */
+		/* DevMgrBuildAssistSQL.xml - "deleteExnpDoc" */
+		UPDATE $DB_NEOS$t_ex_card_aq_tmp SET if_m_id = '', if_d_id = '', send_yn = 'N';
+		]]>
+	</update>
+	
+</sqlMap>

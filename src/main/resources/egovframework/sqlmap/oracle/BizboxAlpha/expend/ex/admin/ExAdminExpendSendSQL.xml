@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- Bizbox Alpha oracle -->
+<sqlMap namespace="ExAdminExpendSend">
+		
+		<select id="ExAdminExpendSend.SelectDocInfo" parameterClass="HashMap" resultClass="HashMap">
+			/* ExAdminExpendSend.SelectDocInfo - oracle */
+			SELECT	doc_id AS "doc_id", doc_no AS "doc_no"
+			FROM 	$DB_NEOS$teag_appdoc
+			WHERE	doc_id = ( SELECT doc_seq FROM	$DB_NEOS$t_ex_expend WHERE expend_seq = '$expendSeq$')
+		</select>
+
+		<update id="ExAdminExpendSend.SelectExpendUpdate" parameterClass="HashMap">
+			/* oracle/BizboxAlpha/expend/ex/admin/ExAdminExpendSendSQL.xml - ExAdminExpendSend.SelectExpendUpdate */
+			/* iCUBE전송정보 업데이트 */
+			UPDATE 	$DB_NEOS$t_ex_expend
+			SET	in_dt = '$inDt$'
+			<isEmpty property="inSq">
+				, in_sq = 0
+			</isEmpty>
+			<isNotEmpty property="inSq">
+				, in_sq = '$inSq$'
+			</isNotEmpty>
+				, erp_send_yn = 'Y'
+				, erp_send_date = SYSDATE
+				, modify_seq = #empSeq#
+				, modify_date = SYSDATE
+				, erp_send_seq = '$empSeq$'
+			WHERE 	expend_seq 	= '$expendSeq$'
+			 AND	comp_seq	= '$compSeq$'
+		</update>
+		<update id="ExAdminExpendSend.SelectExpendUpdateU" parameterClass="HashMap">
+			/* oracle/BizboxAlpha/expend/ex/admin/ExAdminExpendSendSQL.xml - ExAdminExpendSend.SelectExpendUpdateU */
+			/* iU전송정보 업데이트 */
+			UPDATE 	$DB_NEOS$t_ex_expend
+			SET	row_id = '$rowId$'
+				, erp_send_yn = 'Y'
+				, erp_send_date = SYSDATE
+				, modify_seq = #empSeq#
+				, modify_date = SYSDATE
+				, erp_send_seq = '$empSeq$'
+			WHERE 	expend_seq 	= '$expendSeq$'
+			 AND	comp_seq	= '$compSeq$'
+		</update>
+
+		<select id="ExAdminExpendSend.SelectExpendInfo" parameterClass="HashMap" resultClass="HashMap">
+			/* oracle/BizboxAlpha/expend/ex/admin/ExAdminExpendSendSQL.xml - ExAdminExpendSend.SelectExpendInfo */
+			/* iCUBE전송 위한 iCUBE더미 데이터 조회 */
+			SELECT	
+				/* 기본정보 조회 컬럼 */
+				ex.comp_seq AS "comp_seq", ex.expend_seq AS "expend_seq", ex.form_seq AS "form_seq", ex.slip_seq AS "slip_seq", ex.list_seq AS "list_seq", ex.note AS "note"
+				, ex.emp_seq AS "emp_seq", ex.writer_seq AS "writer_seq", ex.mng_seq AS "mng_seq", ex.auth_seq AS "auth_seq", ex.card_seq AS "card_seq", ex.budget_seq AS "budget_seq"
+				, ex.partner_seq AS "partner_seq", ex.project_seq AS "project_seq", ex.summary_seq AS "summary_seq", ex.expend_date AS "expend_date", ex.expend_req_date AS "expend_req_date"
+				, ex.drcr_gbn AS "drcr_gbn", ex.acct_code AS "acct_code", ex.amt AS "amt", ex.interface_type AS "interface_type"
+				, ex.sub_std_amt AS "sub_std_amt", ex.sub_tax_amt AS "sub_tax_amt", ex.mng_form_code AS "mng_form_code", ex.mng_stat AS "mng_stat", ex.ctd_code AS "ctd_code"
+				, ex.ctd_name AS "ctd_name", ex.doc_seq AS "doc_seq", doc.doc_no AS "doc_no", doc.doc_title AS "doc_title", doc.form_id AS "form_id"
+				, NVL(OP.set_value, ( SELECT base_value FROM $DB_NEOS$t_ex_option WHERE option_code = '003301' AND comp_seq = '0' AND use_sw = 'iCUBE' AND ROWNUM = 1 )) AS "budget_use_yn"
+				, ex.a_ty AS "a_ty", ex.a_name AS "a_name", ex.b_ty AS "b_ty", ex.b_name AS "b_name", ex.c_ty AS "c_ty", ex.c_name AS "c_name", ex.d_ty AS "d_ty"
+				, ex.d_name AS "d_name", ex.e_ty AS "ex.e_ty", ex.e_name AS "e_name", ex.f_ty AS "f_ty", ex.f_name AS "f_name", ex.g_ty AS "g_ty"
+				, ex.g_name AS "g_name", ex.h_ty AS "h_ty", ex.h_name AS "h_name", ex.i_ty AS "i_ty", ex.i_name AS "i_name", ex.j_ty AS "j_ty", ex.j_name AS "j_name"
+				, ex.k_ty AS "k_ty", ex.k_name AS "k_name", ex.l_ty AS "l_ty", ex.l_name AS "l_name", ex.m_ty AS "m_ty", ex.m_name AS "m_name"	
+				, ex.a_code AS "a_code", ex.a_c_name AS "a_c_name", ex.b_code AS "b_code", ex.b_c_name AS "b_c_name", ex.c_code AS "c_code", ex.c_c_name AS "c_c_name"
+				, ex.d_code AS "d_code", ex.d_c_name AS "d_c_name", ex.e_code AS "e_code", ex.e_c_name AS "e_c_name", ex.f_code AS "f_code", ex.f_c_name AS "f_c_name", ex.g_code AS "g_code"
+				, ex.g_c_name AS "g_c_name", ex.h_code AS "h_code", ex.h_c_name AS "h_c_name", ex.i_code AS "i_code", ex.i_c_name AS "i_c_name", ex.j_code AS "j_code", ex.j_c_name AS "j_c_name"
+				, ex.k_code AS "k_code", ex.k_c_name AS "k_c_name", ex.l_code AS "l_code", ex.l_c_name AS "l_c_name", ex.m_code AS "m_code", ex.m_c_name AS "m_c_name", ex.iss_no AS "iss_no", ex.auth_date AS "auth_date"
+				
+				/* t_ex_expend_emp */
+				, emp.comp_seq		AS	" emp_comp_seq"
+				, emp.comp_name		AS	"emp_comp_name"
+				, emp.erp_comp_seq	AS	"emp_erp_comp_seq"
+				, emp.emp_seq		AS	"emp_emp_seq"
+				, emp.erp_emp_seq	AS	"emp_erp_emp_seq"
+				, emp.erp_pc_seq	AS	"emp_erp_pc_seq"
+				, emp.erp_cc_seq	AS	"emp_erp_cc_seq"
+				, emp.erp_biz_seq 	AS	"emp_erp_biz_seq"
+				, emp.erp_biz_name 	AS	"emp_erp_biz_name"
+				/* t_ex_expend_emp - 작성자 */
+				, writer.comp_seq	AS	"writer_comp_seq"
+				, writer.comp_name	AS	"writer_comp_name"
+				, writer.erp_comp_seq	AS	"writer_erp_comp_seq"
+				, writer.emp_seq	AS	"writer_emp_seq"
+				, writer.erp_emp_seq	AS	"writer_erp_emp_seq"
+				, writer.erp_pc_seq	AS	"writer_erp_pc_seq"
+				, writer.erp_cc_seq	AS	"writer_erp_cc_seq"	
+				, writer.erp_biz_seq 	AS	"writer_erp_biz_seq"
+				/* t_ex_expend_auth */
+				, auth.auth_div		AS	"auth_auth_div"
+				, auth.auth_code	AS	"auth_auth_code"
+				, auth.cr_acct_code	AS	"auth_cd_acct_code"
+				, auth.vat_acct_code	AS	"auth_vat_acct_code"
+				, auth.vat_type_code	AS	"auth_vat_type_code"
+				, auth.vat_type_name	AS	"auth_vat_type_name"		
+				, auth.erp_auth_code	AS	"auth_erp_auth_code"
+				, auth.va_type_code	AS	"auth_va_type_code"
+				, auth.va_type_name	AS	"auth_va_type_name"
+				, auth.etax_yn AS "etax_yn"
+				, auth.etax_send_yn AS "etax_send_yn"
+				/* t_ex_expend_card */
+				, card.card_code	AS	"card_card_code"
+				, card.card_num		AS	"card_card_num"
+				/* t_ex_expend_budget */	
+				, budget.budget_code	AS	"budget_budget_code"
+				, budget.bizplan_code	AS	"budget_bizplan_code"
+				, budget.bgacct_code	AS	"budget_bgacct_code"
+				/* t_ex_expend_partner */
+				, partner.partner_code	AS	"partner_partner_code"
+				, partner.partner_name	AS	"partner_partner_name"
+				, partner.partner_no	AS	"partner_partner_no"
+				, partner.bank_code	AS	"partner_bank_code"
+				, partner.partner_emp_code	AS	"partner_partner_emp_code"
+				/* t_ex_project */
+				, ex_project.project_code	AS	"project_project_code"
+				, ex_project.project_name	AS	"project_name"
+				/* t_ex_summary */
+				, summary.summary_div	AS	"summary_summary_div"
+				, summary.summary_code	AS	"summaty_summary_code"
+				, summary.dr_acct_code	AS	"summary_dr_acct_code"
+				, summary.cr_acct_code	AS	"summary_cr_acct_code"
+				, summary.erp_auth_code	AS	"summary_erp_auth_code"
+				
+				/* data bypass return to vo */
+				, '$advExpendDt$'	AS	"adv_expend_dt"
+			FROM	(
+				SELECT 	
+					e.comp_seq		AS	comp_seq
+					, e.expend_seq 	AS	expend_seq
+					, e.form_seq	AS	form_seq
+					, e.doc_seq		AS	doc_seq
+					, s.slip_seq	AS	slip_seq
+					, l.list_seq	AS	list_seq	
+					, s.note		AS	note
+					, l.interface_type	AS	interface_type
+					, ( CASE NVL(s.auth_date, '0') WHEN '0' THEN TO_CHAR(l.auth_date) ELSE s.auth_date END) 	AS auth_date
+					, ( CASE NVL(s.emp_seq, '0') WHEN '0' THEN TO_CHAR(l.emp_seq) ELSE s.emp_seq END) 		AS emp_seq	
+					, ( CASE NVL(s.write_seq, '0') WHEN '0' THEN TO_CHAR(l.write_seq) ELSE s.write_seq END) 		AS writer_seq	
+					, ( CASE NVL(s.auth_seq, '0') WHEN '0' THEN TO_CHAR(l.auth_seq) ELSE s.auth_seq END) 		AS auth_seq	
+					, ( CASE NVL(s.card_seq, '0') WHEN '0' THEN TO_CHAR(l.card_seq) ELSE s.card_seq END) 		AS card_seq	
+					, ( CASE NVL(s.budget_seq, '0') WHEN '0' THEN TO_CHAR(l.budget_seq) ELSE s.budget_seq END) 	AS budget_seq
+					, ( CASE NVL(s.partner_seq, '0') WHEN '0'THEN TO_CHAR(l.partner_seq) ELSE s.partner_seq END) 	AS partner_seq
+					, ( CASE NVL(s.project_seq, '0') WHEN '0' THEN TO_CHAR(l.project_seq) ELSE s.project_seq END) 	AS project_seq
+					, ( CASE NVL(s.summary_seq, '0') WHEN '0' THEN TO_CHAR(l.summary_seq) ELSE s.summary_seq END) 	AS summary_seq
+					, e.expend_date
+					, e.expend_req_date
+					, s.drcr_gbn
+					, s.acct_code
+					, s.amt
+					, s.sub_std_amt
+					, s.sub_tax_amt
+					, NVL(m.mng_seq, '' ) AS mng_seq
+					, NVL(m.mng_form_code, '') AS mng_form_code
+					, NVL(m.mng_stat, '') AS mng_stat
+					, NVL(m.ctd_code, '') AS ctd_code
+					, NVL(m.ctd_name, '') AS ctd_name
+					, NVL( m.a_ty, '') AS a_ty, NVL( m.a_name, '') AS a_name, NVL( m.b_ty, '') AS b_ty, NVL( m.b_name, '') AS b_name 
+					, NVL( m.c_ty, '') AS c_ty, NVL( m.c_name, '') AS c_name, NVL( m.d_ty, '') AS d_ty, NVL( m.d_name, '') AS d_name
+					, NVL( m.e_ty, '') AS e_ty, NVL( m.e_name, '') AS e_name, NVL( m.f_ty, '') AS f_ty, NVL( m.f_name, '') AS f_name
+					, NVL( m.g_ty, '') AS g_ty, NVL( m.g_name, '') AS g_name, NVL( m.h_ty, '') AS h_ty, NVL( m.h_name, '') AS h_name
+					, NVL( m.i_ty, '') AS i_ty, NVL( m.i_name, '') AS i_name, NVL( m.j_ty, '') AS j_ty, NVL( m.j_name, '') AS j_name
+					, NVL( m.k_ty, '') AS k_ty, NVL( m.k_name, '') AS k_name, NVL( m.l_ty, '') AS l_ty, NVL( m.l_name, '') AS l_name
+					, NVL( m.m_ty, '') AS m_ty, NVL( m.m_name, '') AS m_name , NVL( m.a_code, '') AS a_code, NVL( m.a_c_name, '') AS a_c_name
+					, NVL( m.b_code, '') AS b_code, NVL( m.b_c_name,'') AS b_c_name, NVL( m.c_code, '') AS c_code, NVL( m.c_c_name, '') AS c_c_name
+					, NVL( m.d_code, '') AS d_code, NVL( m.d_c_name, '') AS d_c_name, NVL( m.e_code, '') AS e_code, NVL( m.e_c_name, '') AS e_c_name
+					, NVL( m.f_code, '') AS f_code, NVL( m.f_c_name, '') AS f_c_name, NVL( m.g_code, '') AS g_code, NVL( m.g_c_name, '') AS g_c_name
+					, NVL( m.h_code, '') AS h_code, NVL( m.h_c_name, '') AS h_c_name, NVL( m.i_code, '') AS i_code, NVL( m.i_c_name, '') AS i_c_name
+					, NVL( m.j_code, '') AS j_code, NVL( m.j_c_name, '') AS j_c_name, NVL( m.k_code, '') AS k_code, NVL( m.k_c_name, '') AS k_c_name
+					, NVL( m.l_code, '') AS l_code, NVL( m.l_c_name, '') AS l_c_name, NVL( m.m_code, '') AS m_code, NVL( m.m_c_name, '') AS m_c_name
+					, NVL(q.iss_no, '') 	AS	iss_no
+				FROM 	$DB_NEOS$t_ex_expend_slip 	s
+					INNER JOIN	$DB_NEOS$t_ex_expend		e
+						ON	s.expend_seq = e.expend_seq
+						 AND	s.expend_seq = '$expendSeq$'
+					INNER JOIN 	$DB_NEOS$t_ex_expend_list	l	
+						ON	s.expend_seq = l.expend_seq 
+						 AND	s.expend_seq = '$expendSeq$'
+						 AND	s.list_seq = l.list_seq
+					LEFT JOIN	$DB_NEOS$t_ex_etax_aq_tmp	q
+						ON	TO_CHAR(q.sync_id) = l.interface_m_id
+						 AND	UPPER(l.interface_type) = 'ETAX'					 
+					LEFT JOIN 	(
+						SELECT * FROM(
+							SELECT 
+								ROW_NUMBER() OVER(PARTITION BY expend_seq, list_seq, slip_seq ORDER BY expend_seq, list_seq, slip_seq, mng_seq) AS rnum
+								, T1.*
+							FROM(
+								  SELECT 
+									expend_seq
+									, slip_seq
+									, mng_seq
+									, mng_form_code
+									, mng_stat
+									, ctd_code
+									, ctd_name
+									, list_seq
+									, MAX(CASE WHEN(mng_code LIKE 'A%') THEN mng_code ELSE '' END) AS a_ty							
+									, MAX(CASE WHEN(mng_code LIKE 'A%') THEN mng_name ELSE '' END) AS a_name
+									, MAX(CASE WHEN(mng_code LIKE 'A%') THEN ctd_code ELSE '' END) AS a_code
+									, MAX(CASE WHEN(mng_code LIKE 'A%') THEN ctd_name ELSE '' END) AS a_c_name
+									
+									, MAX(CASE WHEN(mng_code LIKE 'B%') THEN mng_code ELSE '' END) AS b_ty							
+									, MAX(CASE WHEN(mng_code LIKE 'B%') THEN mng_name ELSE '' END) AS b_name
+									, MAX(CASE WHEN(mng_code LIKE 'B%') THEN ctd_code ELSE '' END) AS b_code
+									, MAX(CASE WHEN(mng_code LIKE 'B%') THEN ctd_name ELSE '' END) AS b_c_name
+									
+									, MAX(CASE WHEN(mng_code LIKE 'C%') THEN mng_code ELSE '' END) AS c_ty							
+									, MAX(CASE WHEN(mng_code LIKE 'C%') THEN mng_name ELSE '' END) AS c_name
+									, MAX(CASE WHEN(mng_code LIKE 'C%') THEN ctd_code ELSE '' END) AS c_code
+									, MAX(CASE WHEN(mng_code LIKE 'C%') THEN ctd_name ELSE '' END) AS c_c_name
+									
+									, MAX(CASE WHEN(mng_code LIKE 'D%') THEN mng_code ELSE '' END) AS d_ty							
+									, MAX(CASE WHEN(mng_code LIKE 'D%') THEN mng_name ELSE '' END) AS d_name
+									, MAX(CASE WHEN(mng_code LIKE 'D%') THEN ctd_code ELSE '' END) AS d_code
+									, MAX(CASE WHEN(mng_code LIKE 'D%') THEN ctd_name ELSE '' END) AS d_c_name
+									
+									, MAX(CASE WHEN(mng_code LIKE 'E%') THEN mng_code ELSE '' END) AS e_ty							
+									, MAX(CASE WHEN(mng_code LIKE 'E%') THEN mng_name ELSE '' END) AS e_name
+									, MAX(CASE WHEN(mng_code LIKE 'E%') THEN ctd_code ELSE '' END) AS e_code
+									, MAX(CASE WHEN(mng_code LIKE 'E%') THEN ctd_name ELSE '' END) AS e_c_name
+									
+									, MAX(CASE WHEN(mng_code LIKE 'F%') THEN mng_code ELSE '' END) AS f_ty							
+									, MAX(CASE WHEN(mng_code LIKE 'F%') THEN mng_name ELSE '' END) AS f_name
+									, MAX(CASE WHEN(mng_code LIKE 'F%') THEN ctd_code ELSE '' END) AS f_code
+									, MAX(CASE WHEN(mng_code LIKE 'F%') THEN ctd_name ELSE '' END) AS f_c_name
+									
+									, MAX(CASE WHEN(mng_code LIKE 'G%') THEN mng_code ELSE '' END) AS g_ty							
+									, MAX(CASE WHEN(mng_code LIKE 'G%') THEN mng_name ELSE '' END) AS g_name
+									, MAX(CASE WHEN(mng_code LIKE 'G%') THEN ctd_code ELSE '' END) AS g_code
+									, MAX(CASE WHEN(mng_code LIKE 'G%') THEN ctd_name ELSE '' END) AS g_c_name
+									
+									, MAX(CASE WHEN(mng_code LIKE 'H%') THEN mng_code ELSE '' END) AS h_ty							
+									, MAX(CASE WHEN(mng_code LIKE 'H%') THEN mng_name ELSE '' END) AS h_name
+									, MAX(CASE WHEN(mng_code LIKE 'H%') THEN ctd_code ELSE '' END) AS h_code
+									, MAX(CASE WHEN(mng_code LIKE 'H%') THEN ctd_name ELSE '' END) AS h_c_name
+									
+									, MAX(CASE WHEN(mng_code LIKE 'I%') THEN mng_code ELSE '' END) AS i_ty							
+									, MAX(CASE WHEN(mng_code LIKE 'I%') THEN mng_name ELSE '' END) AS i_name
+									, MAX(CASE WHEN(mng_code LIKE 'I%') THEN ctd_code ELSE '' END) AS i_code
+									, MAX(CASE WHEN(mng_code LIKE 'i%') THEN ctd_name ELSE '' END) AS i_c_name
+									
+									, MAX(CASE WHEN(mng_code LIKE 'J%') THEN mng_code ELSE '' END) AS j_ty							
+									, MAX(CASE WHEN(mng_code LIKE 'J%') THEN mng_name ELSE '' END) AS j_name
+									, MAX(CASE WHEN(mng_code LIKE 'J%') THEN ctd_code ELSE '' END) AS j_code
+									, MAX(CASE WHEN(mng_code LIKE 'J%') THEN ctd_name ELSE '' END) AS j_c_name
+									
+									, MAX(CASE WHEN(mng_code LIKE 'K%') THEN mng_code ELSE '' END) AS k_ty							
+									, MAX(CASE WHEN(mng_code LIKE 'K%') THEN mng_name ELSE '' END) AS k_name
+									, MAX(CASE WHEN(mng_code LIKE 'K%') THEN ctd_code ELSE '' END) AS k_code
+									, MAX(CASE WHEN(mng_code LIKE 'K%') THEN ctd_name ELSE '' END) AS k_c_name
+									
+									, MAX(CASE WHEN(mng_code LIKE 'L%') THEN mng_code ELSE '' END) AS l_ty							
+									, MAX(CASE WHEN(mng_code LIKE 'L%') THEN mng_name ELSE '' END) AS l_name
+									, MAX(CASE WHEN(mng_code LIKE 'L%') THEN ctd_code ELSE '' END) AS l_code
+									, MAX(CASE WHEN(mng_code LIKE 'L%') THEN ctd_name ELSE '' END) AS l_c_name
+									
+									, MAX(CASE WHEN(mng_code LIKE 'M%') THEN mng_code ELSE '' END) AS m_ty							
+									, MAX(CASE WHEN(mng_code LIKE 'M%') THEN mng_name ELSE '' END) AS m_name
+									, MAX(CASE WHEN(mng_code LIKE 'M%') THEN ctd_code ELSE '' END) AS m_code
+									, MAX(CASE WHEN(mng_code LIKE 'M%') THEN ctd_name ELSE '' END) AS m_c_name
+								FROM 	$DB_NEOS$t_ex_expend_mng 
+								WHERE	expend_seq = '$expendSeq$'
+								/* 지급요청 일자 제외 전송 옵션 적용 optionCode : 003402 */
+								 AND	(	
+										CASE	mng_code 
+										WHEN 'F3' THEN 0 
+										ELSE 1
+										END
+									)	+ 	
+									(
+										SELECT	( CASE NVL(MAX(NVL(set_value, base_value)), 'N') WHEN 'N' THEN 1 ELSE 0 END ) AS "noUseMngF3"
+										FROM	$DB_NEOS$t_ex_option 
+										WHERE	option_code	= '003402'
+										 AND	comp_seq	= '$compSeq$'
+										 AND	use_sw		= 'iCUBE'
+										 AND	use_yn 		= 'Y'
+									)	> 0
+								GROUP BY expend_seq, slip_seq, mng_seq, mng_form_code, mng_stat, ctd_code, ctd_name, list_seq						
+							)T1						
+						)T2 WHERE rnum = 1
+					)	m	
+					ON 	s.slip_seq = m.slip_seq
+					AND l.list_seq = m.list_seq
+				WHERE 	e.comp_seq	= '$compSeq$'
+				 AND 	e.erp_send_yn	!= 'Y'	/* 전송되지 않은 건. */
+				 /* AND 	e.expend_stat_code = '90' */ /* 종결된 건 */
+			)	EX	
+				LEFT JOIN	$DB_NEOS$t_ex_expend_emp emp
+					ON	EX.emp_seq = emp.seq
+				LEFT JOIN	$DB_NEOS$t_ex_expend_emp writer
+					ON	EX.writer_seq = writer.seq
+				LEFT JOIN	$DB_NEOS$t_ex_expend_auth auth
+					ON	EX.auth_seq = auth.seq
+				LEFT JOIN	$DB_NEOS$t_ex_expend_card card
+					ON	EX.card_seq = card.seq		
+				LEFT JOIN	$DB_NEOS$t_ex_expend_budget budget
+					ON	EX.budget_seq = budget.seq		
+				LEFT JOIN	$DB_NEOS$t_ex_expend_partner partner
+					ON	EX.partner_seq = partner.seq			
+				LEFT JOIN	$DB_NEOS$t_ex_expend_project ex_project
+					ON	EX.project_seq = ex_project.seq	
+				LEFT JOIN	$DB_NEOS$t_ex_expend_summary summary
+					ON	EX.summary_seq = summary.seq
+				INNER JOIN	$DB_NEOS$teag_appdoc doc
+					ON	EX.doc_seq = doc.doc_id
+				INNER JOIN	$DB_NEOS$t_ex_option OP
+					ON	OP.form_seq = ( CASE WHEN (SELECT COUNT(*) FROM $DB_NEOS$t_ex_option WHERE comp_seq = '$compSeq$' AND option_code = '003301') = 0 THEN 0 ELSE doc.form_id END )
+			 AND	OP.option_code = '003301'
+			 AND	OP.comp_seq = EX.comp_seq	
+			 AND	OP.use_sw = (
+					 SELECT	CASE
+							WHEN FORM_D_TP = 'EXPENDA' THEN 'BizboxA'
+							WHEN FORM_D_TP = 'EXPENDI' THEN 'iCUBE'
+							WHEN FORM_D_TP = 'EXPENDU' THEN 'ERPiU'
+							ELSE ''
+						END
+					FROM	$DB_NEOS$TEAG_FORM
+					WHERE	FORM_ID = (
+							SELECT	FORM_SEQ
+							FROM	$DB_NEOS$T_EX_EXPEND
+							WHERE	EXPEND_SEQ = '$expendSeq$'
+							AND ROWNUM = 1
+						)
+					AND ROWNUM = 1
+			) 
+			ORDER BY CAST(list_seq AS INT), CAST(slip_seq AS INT) 
+			 
+		</select>
+		
+		<select id="ExAdminExpendSend.SelectExpendInfoU" parameterClass="HashMap" resultClass="HashMap">
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminExpendSendSQL.xml - ExAdminExpendSend.SelectExpendInfoU */
+		/* iU전송 위한 iU 더미 데이터 조회 */
+		SELECT	
+			/* 기본 정보 조회 컬럼 */ 
+			ex.comp_seq AS "comp_seq", ex.expend_seq AS "expend_seq", ex.form_seq AS "form_seq", ex.slip_seq AS "slip_seq", ex.list_seq AS "list_seq", ex.note AS "note"
+			, ex.emp_seq AS "emp_seq", ex.writer_seq AS "writer_seq", ex.auth_seq AS "auth_seq", ex.card_seq AS "card_seq", ex.budget_seq AS "budget_seq"
+			, ex.partner_seq AS "partner_seq", ex.project_seq AS "project_seq", ex.summary_seq AS "summary_seq", ex.expend_date AS "expend_date", ex.expend_req_date AS "expend_req_date"
+			, ex.drcr_gbn AS "drcr_gbn", ex.acct_code AS "acct_code", ex.amt AS "amt", ex.interface_type AS "interface_type"
+			, ex.std_amt AS "std_amt", ex.tax_amt AS "tax_amt", ex.sub_std_amt AS "sub_std_amt", ex.sub_tax_amt AS "sub_tax_amt", ex.doc_seq AS "doc_seq"
+			, doc.doc_no AS "doc_no", doc.doc_title AS "doc_title", ex.iss_no AS "iss_no", ex.auth_date AS "auth_date"
+			, NVL(OP.set_value, ( SELECT base_value FROM $DB_NEOS$t_ex_option WHERE option_code = '003301' AND comp_seq = '0' AND use_sw = 'ERPiU' AND ROWNUM = 1 )) AS "budget_use_yn"
+			, EX.CD_MNG1	AS "cd_mng1"
+			, EX.NM_MNG1	AS "nm_mng1"
+			, EX.CD_MNGD1	AS "cd_mngd1"
+			, EX.NM_MNGD1	AS "nm_mngd1"
+			, EX.CD_MNG2	AS "cd_mng2"
+			, EX.NM_MNG2	AS "nm_mng2"
+			, EX.CD_MNGD2	AS "cd_mngd2"
+			, EX.NM_MNGD2	AS "nm_mngd2"
+			, EX.CD_MNG3	AS "cd_mng3"
+			, EX.NM_MNG3	AS "nm_mng3"
+			, EX.CD_MNGD3	AS "cd_mngd3"
+			, EX.NM_MNGD3	AS "nm_mngd3"
+			, EX.CD_MNG4	AS "cd_mng4"
+			, EX.NM_MNG4	AS "nm_mng4"
+			, EX.CD_MNGD4	AS "cd_mngd4"
+			, EX.NM_MNGD4	AS "nm_mngd4"
+			, EX.CD_MNG5	AS "cd_mng5"
+			, EX.NM_MNG5	AS "nm_mng5"
+			, EX.CD_MNGD5	AS "cd_mngd5"
+			, EX.NM_MNGD5	AS "nm_mngd5"
+			, EX.CD_MNG6	AS "cd_mng6"
+			, EX.NM_MNG6	AS "nm_mng6"
+			, EX.CD_MNGD6	AS "cd_mngd6"
+			, EX.NM_MNGD6	AS "nm_mngd6"
+			, EX.CD_MNG7	AS "cd_mng7"
+			, EX.NM_MNG7	AS "nm_mng7"
+			, EX.CD_MNGD7	AS "cd_mngd7"
+			, EX.NM_MNGD7	AS "nm_mngd7"
+			, EX.CD_MNG8	AS "cd_mng8"
+			, EX.NM_MNG8	AS "nm_mng8"
+			, EX.CD_MNGD8	AS "cd_mngd8"
+			, EX.NM_MNGD8	AS "nm_mngd8"
+			/* t_ex_expend_emp */
+			, emp.comp_seq		AS	"emp_comp_seq"
+			, emp.comp_name		AS	"emp_comp_name"
+			, emp.erp_comp_seq	AS	"emp_erp_comp_seq"
+			, emp.erp_dept_seq	AS	"emp_erp_dept_seq"
+			, emp.emp_seq		AS	"emp_emp_seq"
+			, emp.erp_emp_seq	AS	"emp_erp_emp_seq"
+			, emp.erp_pc_seq	AS	"emp_erp_pc_seq"
+			, emp.erp_cc_seq	AS	"emp_erp_cc_seq"
+			, emp.erp_biz_seq	AS	"emp_erp_biz_seq"
+			/* t_ex_expend_emp - 작성자 */
+			, writer.comp_seq	AS	"writer_comp_seq"
+			, writer.comp_name	AS	"writer_comp_name"
+			, writer.erp_comp_seq	AS	"writer_erp_comp_seq"
+			, writer.emp_seq	AS	"writer_emp_seq"
+			, writer.erp_dept_seq	AS	"writer_erp_dept_seq"
+			, writer.erp_emp_seq	AS	"writer_erp_emp_seq"
+			, writer.erp_pc_seq	AS	"writer_erp_pc_seq"
+			, writer.erp_cc_seq	AS	"writer_erp_cc_seq"	
+			, writer.erp_biz_seq 	AS	"writer_erp_biz_seq"
+			/* t_ex_expend_auth */
+			, auth.auth_div		AS	"auth_auth_div"
+			, auth.auth_code	AS	"auth_auth_code"
+			, auth.cr_acct_code	AS	"auth_cd_acct_code"
+			, auth.vat_acct_code	AS	"auth_vat_acct_code"
+			, auth.vat_type_code	AS	"auth_vat_type_code"	
+			, auth.erp_auth_code	AS	"auth_erp_auth_code"
+			, auth.va_type_code	AS	"auth_va_type_code"
+			, auth.va_type_name	AS	"auth_va_type_name"
+			, auth.no_tax_code	AS	"auth_no_tax_code"
+			, auth.etax_yn		AS 	"etax_yn"
+			, auth.etax_send_yn	AS 	"etax_send_yn"
+			, NVL(auth.no_cash, '') AS "auth_no_cash"
+			/* t_ex_expend_card */
+			, card.card_code	AS	"card_card_code"
+			, card.card_num		AS	"card_card_num"
+			, advCard.partner_code	AS	"card_partner_code"
+			/* t_ex_expend_budget */
+			, budget.budget_code	AS	"budget_budget_code"
+			, budget.bizplan_code	AS	"budget_bizplan_code"
+			, budget.bgacct_code	AS	"budget_bgacct_code"
+			/* t_ex_expend_partner */
+			, partner.partner_code	AS	"partner_partner_code"
+			, partner.partner_no	AS	"partner_partner_no"
+			, partner.bank_code	AS	"partner_bank_code"
+			, partner.partner_emp_code	AS	"partner_partner_emp_code"
+			, partner.partner_name	AS	"partner_partner_name"
+			, partner.job_gbn	AS	"partner_job_gbn"
+			, partner.cls_job_gbn	AS	"partner_cls_job_gbn"
+			, partner.deposit_convert	AS	"partner_deposit_convert"
+			/* t_ex_project */
+			, t_project.project_code	AS	"project_project_code"
+			, t_project.project_name	AS	"project_name"
+			/* t_ex_summary */
+			, summary.summary_div	AS	"summary_summary_div"
+			, summary.summary_code	AS	"summaty_summary_code"
+			, summary.dr_acct_code	AS	"summary_dr_acct_code"
+			, summary.cr_acct_code	AS	"summary_cr_acct_code"
+			/* t_ex_entertainment */
+			, NVL(fee.fee_seq,0)		as	"fee_seq"
+			, NVL(fee.start_date,'')	AS	"fee_start_date"
+			, NVL(fee.use_fg_code,'')	AS	"fee_use_fg_code"
+			, NVL(fee.use_fg_name,'')	AS	"fee_use_fg_name"
+			, NVL(fee.auth_fg_code,'')	AS	"fee_auth_fg_code"
+			, NVL(fee.auth_fg_name,'')	AS	"fee_auth_fg_name"
+			, NVL(fee.card_code,'')		AS	"fee_card_code"
+			, NVL(fee.card_num,'')		AS	"fee_card_num"
+			, NVL(fee.partner_code,'')	AS	"fee_partner_code"
+			, NVL(fee.partner_name,'')	AS	"fee_partner_name"
+			, NVL(fee.partner_num,'')	AS	"fee_partner_num"
+			, NVL(fee.ceo_name,'')		AS	"fee_ceo_name"
+			, NVL(fee.res_num,'')		AS	"fee_res_num"
+			, NVL(fee.amt,0)			AS	"fee_amt"
+			, NVL(fee.metirial_amt,0)	AS	"fee_metirial_amt"
+			, NVL(fee.service_amt,0)	AS	"fee_service_amt"
+			, NVL(fee.entertainment,'')	AS	"fee_entertainment"
+			, NVL(fee.note,'')			AS	"fee_note"
+			, NVL(fee.amt_over_yn,'')	AS	"fee_amt_over_yn"			
+			/* data bypass return to vo */
+			, '$advExpendDt$'	AS	"adv_expend_dt"
+			, empOrg.erp_pc_seq AS "org_erp_pc_seq"
+			, empOrg.erp_pc_name AS "org_erp_pc_name"			
+		FROM	(
+			SELECT 	
+				e.comp_seq		AS	comp_seq
+				, e.expend_seq 	AS	expend_seq
+				, e.doc_seq		AS	doc_seq
+				, e.form_seq	AS	form_seq
+				, s.slip_seq	AS	slip_seq
+				, expend_list.list_seq	AS	list_seq	
+				, s.note		AS	note
+				, expend_list.interface_type	AS	interface_type
+				, ( CASE NVL(s.emp_seq, '0') WHEN '0' THEN CASE NVL(TO_CHAR(expend_list.emp_seq),'0') WHEN '0' THEN TO_CHAR(e.emp_seq) ELSE TO_CHAR(expend_list.emp_seq) END ELSE s.emp_seq END) 		AS emp_seq
+				, e.emp_seq AS expend_emp_seq						
+				, ( CASE NVL(s.write_seq, '0') WHEN '0' THEN CASE NVL(TO_CHAR(expend_list.write_seq),'0') WHEN '0' THEN TO_CHAR(e.write_seq) ELSE TO_CHAR(expend_list.write_seq) END ELSE s.write_seq END) 		AS writer_seq		
+				, ( CASE NVL(s.auth_seq, '0') WHEN '0' THEN TO_CHAR(expend_list.auth_seq) ELSE s.auth_seq END) 		AS auth_seq
+				, ( CASE NVL(s.auth_seq, '0') WHEN '0' THEN TO_CHAR(expend_list.auth_date) ELSE s.auth_date END) 	AS auth_date		
+				, ( CASE NVL(s.card_seq, '0') WHEN '0' THEN TO_CHAR(expend_list.card_seq) ELSE s.card_seq END) 		AS card_seq	
+				, ( CASE NVL(s.budget_seq, '0') WHEN '0' THEN TO_CHAR(expend_list.budget_seq) ELSE s.budget_seq END) 	AS budget_seq
+				, ( CASE NVL(s.partner_seq, '0') WHEN '0' THEN CASE NVL(TO_CHAR(expend_list.partner_seq),'0') WHEN '0' THEN TO_CHAR(e.partner_seq) ELSE TO_CHAR(expend_list.partner_seq) END ELSE s.partner_seq END) AS partner_seq
+				, ( CASE NVL(s.project_seq, '0') WHEN '0' THEN CASE NVL(TO_CHAR(expend_list.project_seq),'0') WHEN '0' THEN TO_CHAR(e.project_seq) ELSE TO_CHAR(expend_list.project_seq) END ELSE s.project_seq END) AS project_seq
+				, ( CASE NVL(s.summary_seq, '0') WHEN '0' THEN TO_CHAR(expend_list.summary_seq) ELSE s.summary_seq END) 	AS summary_seq
+				, s.fee_seq		AS	fee_seq
+				, e.expend_date
+				, e.expend_req_date
+				, s.drcr_gbn
+				, s.acct_code
+				, s.amt		/* 공급댓가 */
+				, expend_list.std_amt	/* 공급가액 */
+				, expend_list.tax_amt	/* 부가세액 */
+				, s.sub_std_amt	/* 과세 표준액 */
+				, s.sub_tax_amt	/* 세액 */
+				, NVL(q.iss_no, '') 	AS	iss_no			
+				, NVL(CD_MNG1, '') AS CD_MNG1, NVL(NM_MNG1, '') AS NM_MNG1, NVL(CD_MNGD1, '') AS CD_MNGD1, NVL(NM_MNGD1, '') AS NM_MNGD1,NVL(CD_MNG2, '') AS CD_MNG2, NVL(NM_MNG2, '') AS NM_MNG2, NVL(CD_MNGD2, '') AS CD_MNGD2, NVL(NM_MNGD2, '') AS NM_MNGD2
+				, NVL(CD_MNG3, '') AS CD_MNG3, NVL(NM_MNG3, '') AS NM_MNG3, NVL(CD_MNGD3, '') AS CD_MNGD3, NVL(NM_MNGD3, '') AS NM_MNGD3,NVL(CD_MNG4, '') AS CD_MNG4, NVL(NM_MNG4, '') AS NM_MNG4, NVL(CD_MNGD4, '') AS CD_MNGD4, NVL(NM_MNGD4, '') AS NM_MNGD4
+				, NVL(CD_MNG5, '') AS CD_MNG5, NVL(NM_MNG5, '') AS NM_MNG5, NVL(CD_MNGD5, '') AS CD_MNGD5, NVL(NM_MNGD5, '') AS NM_MNGD5,NVL(CD_MNG6, '') AS CD_MNG6, NVL(NM_MNG6, '') AS NM_MNG6, NVL(CD_MNGD6, '') AS CD_MNGD6, NVL(NM_MNGD6, '') AS NM_MNGD6
+				, NVL(CD_MNG7, '') AS CD_MNG7, NVL(NM_MNG7, '') AS NM_MNG7, NVL(CD_MNGD7, '') AS CD_MNGD7, NVL(NM_MNGD7, '') AS NM_MNGD7,NVL(CD_MNG8, '') AS CD_MNG8, NVL(NM_MNG8, '') AS NM_MNG8, NVL(CD_MNGD8, '') AS CD_MNGD8, NVL(NM_MNGD8, '') AS NM_MNGD8
+			FROM	$DB_NEOS$t_ex_expend_slip	s
+				INNER JOIN	$DB_NEOS$t_ex_expend	e
+					ON	s.expend_seq = e.expend_seq
+					 AND	e.expend_seq = '$expendSeq$'
+				INNER JOIN	$DB_NEOS$t_ex_expend_list	expend_list
+					ON	s.list_seq = expend_list.list_seq
+					 AND	expend_list.expend_seq = '$expendSeq$'
+				LEFT JOIN	$DB_NEOS$t_ex_etax_aq_tmp	q
+					ON	TO_CHAR(q.sync_id) = expend_list.interface_m_id
+					 AND	UPPER(expend_list.interface_type) = 'ETAX'			 
+				LEFT JOIN	(
+					SELECT		
+						expend_seq, list_seq, slip_seq
+						, MAX( CD_MNG1 ) AS  CD_MNG1, MAX( NM_MNG1 ) AS  NM_MNG1, MAX( CD_MNGD1 ) AS CD_MNGD1, MAX( NM_MNGD1 ) AS NM_MNGD1
+						, MAX( CD_MNG2 ) AS  CD_MNG2, MAX( NM_MNG2 ) AS  NM_MNG2, MAX( CD_MNGD2 ) AS CD_MNGD2, MAX( NM_MNGD2 ) AS NM_MNGD2
+						, MAX( CD_MNG3 ) AS  CD_MNG3, MAX( NM_MNG3 ) AS  NM_MNG3, MAX( CD_MNGD3 ) AS CD_MNGD3, MAX( NM_MNGD3 ) AS NM_MNGD3
+						, MAX( CD_MNG4 ) AS  CD_MNG4, MAX( NM_MNG4 ) AS  NM_MNG4, MAX( CD_MNGD4 ) AS CD_MNGD4, MAX( NM_MNGD4 ) AS NM_MNGD4
+						, MAX( CD_MNG5 ) AS  CD_MNG5, MAX( NM_MNG5 ) AS  NM_MNG5, MAX( CD_MNGD5 ) AS CD_MNGD5, MAX( NM_MNGD5 ) AS NM_MNGD5
+						, MAX( CD_MNG6 ) AS  CD_MNG6, MAX( NM_MNG6 ) AS  NM_MNG6, MAX( CD_MNGD6 ) AS CD_MNGD6, MAX( NM_MNGD6 ) AS NM_MNGD6
+						, MAX( CD_MNG7 ) AS  CD_MNG7, MAX( NM_MNG7 ) AS  NM_MNG7, MAX( CD_MNGD7 ) AS CD_MNGD7, MAX( NM_MNGD7 ) AS NM_MNGD7
+						, MAX( CD_MNG8 ) AS  CD_MNG8, MAX( NM_MNG8 ) AS  NM_MNG8, MAX( CD_MNGD8 ) AS CD_MNGD8, MAX( NM_MNGD8 ) AS NM_MNGD8
+					FROM	(
+						SELECT	expend_seq
+							, list_seq
+							, slip_seq
+							, CASE mng_seq  WHEN '1' THEN mng_code ELSE '' END AS CD_MNG1
+							, CASE mng_seq  WHEN '1' THEN mng_name ELSE '' END AS NM_MNG1
+							, CASE mng_seq  WHEN '1' THEN ctd_code ELSE '' END AS CD_MNGD1
+							, CASE mng_seq  WHEN '1' THEN ctd_name ELSE '' END AS NM_MNGD1
+							, CASE mng_seq  WHEN '2' THEN mng_code ELSE '' END AS CD_MNG2
+							, CASE mng_seq  WHEN '2' THEN mng_name ELSE '' END AS NM_MNG2
+							, CASE mng_seq  WHEN '2' THEN ctd_code ELSE '' END AS CD_MNGD2
+							, CASE mng_seq  WHEN '2' THEN ctd_name ELSE '' END AS NM_MNGD2
+							, CASE mng_seq  WHEN '3' THEN mng_code ELSE '' END AS CD_MNG3
+							, CASE mng_seq  WHEN '3' THEN mng_name ELSE '' END AS NM_MNG3
+							, CASE mng_seq  WHEN '3' THEN ctd_code ELSE '' END AS CD_MNGD3
+							, CASE mng_seq  WHEN '3' THEN ctd_name ELSE '' END AS NM_MNGD3
+							, CASE mng_seq  WHEN '4' THEN mng_code ELSE '' END AS CD_MNG4
+							, CASE mng_seq  WHEN '4' THEN mng_name ELSE '' END AS NM_MNG4
+							, CASE mng_seq  WHEN '4' THEN ctd_code ELSE '' END AS CD_MNGD4
+							, CASE mng_seq  WHEN '4' THEN ctd_name ELSE '' END AS NM_MNGD4
+							, CASE mng_seq  WHEN '5' THEN mng_code ELSE '' END AS CD_MNG5
+							, CASE mng_seq  WHEN '5' THEN mng_name ELSE '' END AS NM_MNG5
+							, CASE mng_seq  WHEN '5' THEN ctd_code ELSE '' END AS CD_MNGD5
+							, CASE mng_seq  WHEN '5' THEN ctd_name ELSE '' END AS NM_MNGD5
+							, CASE mng_seq  WHEN '6' THEN mng_code ELSE '' END AS CD_MNG6
+							, CASE mng_seq  WHEN '6' THEN mng_name ELSE '' END AS NM_MNG6
+							, CASE mng_seq  WHEN '6' THEN ctd_code ELSE '' END AS CD_MNGD6
+							, CASE mng_seq  WHEN '6' THEN ctd_name ELSE '' END AS NM_MNGD6
+							, CASE mng_seq  WHEN '7' THEN mng_code ELSE '' END AS CD_MNG7
+							, CASE mng_seq  WHEN '7' THEN mng_name ELSE '' END AS NM_MNG7
+							, CASE mng_seq  WHEN '7' THEN ctd_code ELSE '' END AS CD_MNGD7
+							, CASE mng_seq  WHEN '7' THEN ctd_name ELSE '' END AS NM_MNGD7
+							, CASE mng_seq  WHEN '8' THEN mng_code ELSE '' END AS CD_MNG8
+							, CASE mng_seq  WHEN '8' THEN mng_name ELSE '' END AS NM_MNG8
+							, CASE mng_seq  WHEN '8' THEN ctd_code ELSE '' END AS CD_MNGD8
+							, CASE mng_seq  WHEN '8' THEN ctd_name ELSE '' END AS NM_MNGD8
+						FROM	$DB_NEOS$t_ex_expend_mng
+						WHERE	expend_seq = '$expendSeq$'
+						/* 지급요청 일자 제외 전송 옵션 적용 optionCode : 003402 */
+						 AND	(						
+								CASE	mng_code 
+								WHEN 'B22' THEN 0 
+								WHEN 'B23' THEN 0
+								ELSE 1
+								END
+							)	+ 	
+							(
+								SELECT	( CASE NVL(MAX(NVL(set_value, base_value)), 'N') WHEN 'N' THEN 1 ELSE 0 END ) AS "noUseMngF3"
+								FROM	$DB_NEOS$t_ex_option 
+								WHERE	option_code	= '003402'
+								 AND	comp_seq	= '$compSeq$'
+								 AND	use_sw		= 'ERPiU'
+								 AND	use_yn 		= 'Y'
+							 )	> 0						
+					) A
+					GROUP BY expend_seq, list_seq, slip_seq	
+				)	m
+				ON	s.slip_seq = m.slip_seq
+				 AND	expend_list.list_seq = m.list_seq	
+			WHERE 	e.comp_seq	= '$compSeq$'
+			 AND 	NVL(e.erp_send_yn, '0')	!= 'Y'	/* 전송되지 않은 건. */
+			 AND 	NVL(e.expend_stat_code, '0') = '90' /*  종결된 건 */		
+		)	EX
+			LEFT JOIN	$DB_NEOS$t_ex_expend_emp emp
+				ON	EX.emp_seq = emp.seq
+			LEFT JOIN	$DB_NEOS$t_ex_expend_emp empOrg
+				ON	EX.expend_emp_seq = empOrg.seq				
+			LEFT JOIN	$DB_NEOS$t_ex_expend_emp writer
+				ON	EX.writer_seq = writer.seq
+			LEFT JOIN	$DB_NEOS$t_ex_expend_auth auth
+				ON	EX.auth_seq = auth.seq
+			LEFT JOIN	$DB_NEOS$t_ex_expend_card card
+				ON	EX.card_seq = card.seq	
+			LEFT JOIN	$DB_NEOS$t_ex_card advCard
+				ON	card.card_code = advCard.card_code
+				AND	advCard.comp_seq = EX.comp_seq
+			LEFT JOIN	$DB_NEOS$t_ex_expend_budget budget
+				ON	EX.budget_seq = budget.seq		
+			LEFT JOIN	$DB_NEOS$t_ex_expend_partner partner
+				ON	EX.partner_seq = partner.seq			
+			LEFT JOIN	$DB_NEOS$t_ex_expend_project t_project
+				ON	EX.project_seq = t_project.seq	
+			LEFT JOIN	$DB_NEOS$t_ex_expend_summary summary
+				ON	EX.summary_seq = summary.seq
+			LEFT JOIN	$DB_NEOS$teag_appdoc doc
+				ON	EX.doc_seq = doc.doc_id
+			LEFT JOIN	$DB_NEOS$t_ex_entertainment	fee
+				ON	EX.fee_seq = fee.fee_seq
+			INNER JOIN	$DB_NEOS$t_ex_option OP
+					ON	OP.form_seq = ( CASE WHEN (SELECT COUNT(*) FROM $DB_NEOS$t_ex_option WHERE comp_seq = '$compSeq$' AND option_code = '003301') = 0 THEN 0 ELSE doc.form_id END )
+			 AND	OP.option_code = '003301'
+			 AND	OP.comp_seq = EX.comp_seq 
+			 AND	OP.form_seq = doc.form_id
+			 ORDER BY CAST(list_seq AS INT), CAST(slip_seq AS INT)
+		</select>
+		
+		
+		
+		
+</sqlMap>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Ex2UserExpend">
+	<!-- 접대비등록 생성 -->
+	<insert id="setEntertainmentFeeInsert" parameterClass="HashMap">
+	<selectKey keyProperty="feeSeq" resultClass="int">
+		SELECT $DB_NEOS$T_EX_ENTERTAINMENT_SEQ.nextval AS "feeSeq" FROM DUAL
+	</selectKey>
+	<![CDATA[
+	/* [Bizbox Alpha][oracle] Ex2UserExpend.setEntertainmentFeeInsert */
+		
+	INSERT INTO $DB_NEOS$t_ex_entertainment 
+	(
+		fee_seq,
+		comp_seq, 
+		start_date, 
+		use_fg_code, 
+		use_fg_name, 
+		auth_fg_code, 
+		auth_fg_name, 
+		card_code, 
+		card_num, 
+		partner_code, 
+		partner_name, 
+		partner_num, 
+		ceo_name, 
+		res_num, 
+		amt, 
+		metirial_amt, 
+		service_amt, 
+		entertainment, 
+		note, 
+		amt_over_yn
+	)
+	VALUES
+	(
+		 $feeSeq$, 
+		'$compSeq$', 
+		'$startDate$', 
+		'$useFgCode$', 
+		'$useFgName$', 
+		'$authFgCode$', 
+		'$authFgName$', 
+		'$cardCode$', 
+		'$cardNum$', 
+		'$partnerCode$', 
+		'$partnerName$', 
+		'$partnerNum$', 
+		'$ceoName$', 
+		'$resNum$', 
+		'$amt$', 
+		'$metirialAmt$', 
+		'$serviceAmt$', 
+		'$entertainment$', 
+		'$note$', 
+		'$amtOverYn$'
+	)
+	
+	]]>
+	</insert>
+	
+	<!-- 접대비등록 수정 -->
+	<update id="setEntertainmentFeeUpdate" parameterClass="HashMap"><![CDATA[
+	/* [Bizbox Alpha][oracle] Ex2UserExpend.setEntertainmentFeeUpdate */
+	UPDATE	$DB_NEOS$t_ex_entertainment
+	SET	
+		start_date	    = '$startDate$', 
+		use_fg_code	    = '$useFgCode$', 
+		use_fg_name	    = '$useFgName$', 
+		auth_fg_code	= '$authFgCode$', 
+		auth_fg_name	= '$authFgName$', 
+		card_code	    = '$cardCode$', 
+		card_num	    = '$cardNum$', 
+		partner_code	= '$partnerCode$', 
+		partner_name	= '$partnerName$', 
+		partner_num	    = '$partnerNum$', 
+		ceo_name	    = '$ceoName$', 
+		res_num	        = '$resNum$', 
+		amt		        = '$amt$', 
+		metirial_amt	= '$metirialAmt$', 
+		service_amt	    = '$serviceAmt$', 
+		entertainment	= '$entertainment$', 
+		note		    = '$note$', 
+		amt_over_yn	    = '$amtOverYn$'	 
+	WHERE 	fee_seq     = '$feeSeq$'
+	]]></update>
+	
+	<!-- 접대비등록 조회 -->
+	<select id="setEntertainmentFeeSelect" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+	/* [Bizbox Alpha][oracle] Ex2UserExpend.setEntertainmentFeeSelect */
+	SELECT 	
+		fee_seq	        AS "feeSeq", 
+		comp_seq	    AS "compSeq", 
+		start_date	    AS "startDate", 
+		use_fg_code	    AS "useFgCode", 
+		use_fg_name	    AS "useFgName", 
+		auth_fg_code	AS "authFgCode", 
+		auth_fg_name	AS "authFgName", 
+		card_code	    AS "cardCode", 
+		card_num	    AS "cardNum", 
+		partner_code	AS "partnerCode", 
+		partner_name	AS "partnerName", 
+		partner_num	    AS "partnerNum", 
+		ceo_name	    AS "ceoName", 
+		res_num	        AS "resNum", 
+		amt		        AS "amt", 
+		metirial_amt	AS "metirialAmt", 
+		service_amt	    AS "serviceAmt", 
+		entertainment	AS "entertainment", 
+		note		    AS "note", 
+		amt_over_yn	    AS "amtOverYn"	 
+	FROM	$DB_NEOS$t_ex_entertainment 
+	WHERE	fee_seq = $feeSeq$
+	]]></select>
+</sqlMap>

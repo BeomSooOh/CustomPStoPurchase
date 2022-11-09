@@ -1,0 +1,799 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="TripUserConsA">
+
+	<insert id="TripUserConsA.insertTripConsDoc" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.insertTripConsDoc" */
+		/* 출장 품의 문서 신규 생성 */
+		INSERT INTO $DB_NEOS$t_exnp_trip_cons_doc (
+			group_seq
+			, comp_seq
+			, comp_name
+			, dept_seq
+			, dept_name
+			, emp_seq
+			, emp_name
+			, erp_comp_seq
+			, erp_emp_seq
+			, create_seq
+		)
+		VALUES	(
+			#groupSeq#
+			, #compSeq#
+			, #compName#
+			, #deptSeq#
+			, #deptName#
+			, #empSeq#
+			, #empName#
+			, #erpCompSeq#
+			, #erpEmpSeq#
+			, #empSeq#
+		)
+	    <selectKey resultClass="int" keyProperty="doc_seq" >
+	        SELECT MAX(trip_cons_doc_seq) FROM $DB_NEOS$t_exnp_trip_cons_doc;       
+	    </selectKey> 
+	</insert>
+
+	<insert id="TripUserConsA.insertTripConsAttend" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.insertTripConsAttend" */
+		/* 출장 품의 근태 정보 입력 */
+		INSERT INTO	$DB_NEOS$t_exnp_trip_cons_attend
+		(
+			trip_cons_doc_seq
+			, domestic_code
+			, trip_from_date
+			, trip_to_date
+			, calendar_seq
+			, calendar_name
+			, location_seq
+			, location_name
+			, location_adv
+			, transport_seq
+			, transport_name
+			, purpose
+			, trip_expense_code
+			, org_data_info
+		)VALUES(
+			#tripDocSeq#
+			, #domesticCode#
+			, #tripFromDate#
+			, #tripToDate#
+			, #calendarSeq#
+			, #calendarName#
+			, #locationCode#
+			, #locationName#
+			, #locationNote#
+			, #tripTransportCode#
+			, #tripTransportName#
+			, #purpose#
+			, #payRequestCode#
+			, #orgDataInfo#
+		)
+		<selectKey resultClass="int" keyProperty="attend_seq" >
+	        SELECT MAX(attend_seq) FROM $DB_NEOS$t_exnp_trip_cons_attend;       
+	    </selectKey>
+	</insert>
+		
+	<insert id="TripUserConsA.insertConsDocInfo" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.insertConsDocInfo" */
+		/* 출장 품의 근태 정보 입력 */
+		INSERT INTO	$DB_NEOS$t_exnp_trip_cons_attend
+		(
+			trip_cons_doc_seq
+			, attend_seq
+			, domestic_code
+			, trip_from_date
+			, trip_to_date
+			, calendar_seq
+			, calendar_name
+			, location_seq
+			, location_name
+			, location_adv
+			, trip_expense_code
+		)VALUES(
+			#tripConsDocSeq#
+			, #attendSeq#
+			, #domesticCode#
+			, #tripFromDate#
+			, #tripToDate#
+			, #calendarSeq#
+			, #calendarName#
+			, #locationSeq#
+			, #locationName#
+			, #locationAdv#
+			, #trip_expenseCode#
+		)
+	</insert>
+	
+	<update id="TripUserConsA.updateTripConsAttend" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.updateTripConsAttend" */
+		/* 출장 품의 근태 정보 갱신 */
+		UPDATE	$DB_NEOS$t_exnp_trip_cons_attend
+		SET	
+			domestic_code = #domesticCode#
+			, trip_from_date = #tripFromDate#
+			, trip_to_date = #tripToDate#
+			, calendar_seq = #calendarSeq#
+			, calendar_name = #calendarName#
+			, location_seq = #locationCode#
+			, location_name = #locationName#
+			, location_adv = #locationNote#
+			, transport_seq = #tripTransportCode#
+			, transport_name = #tripTransportName#
+			, purpose = #purpose#
+			, trip_expense_code = #payRequestCode#
+			, org_data_info = #orgDataInfo#
+		WHERE	trip_cons_doc_seq = #tripDocSeq#
+	</update>
+
+	<insert id="TripUserConsA.insertTripConsBudget" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.insertTripConsBudget" */
+		/* 출장 품의 예산 금액 정보 입력 */
+		INSERT INTO	$DB_NEOS$t_exnp_trip_cons_budget
+		(
+			trip_cons_doc_seq
+			, cons_doc_seq
+			, budget_amt
+			, conffer_budget_return_yn
+		)VALUES(
+			#tripDocSeq#
+			, #consDocSeq#
+			, #consAmt#
+			, 'N'
+		)
+		<selectKey resultClass="int" keyProperty="trip_budget_seq" >
+	        SELECT MAX(trip_budget_seq) AS tripBudgetSeq FROM $DB_NEOS$t_exnp_trip_cons_budget;       
+	    </selectKey>
+	</insert>
+	
+	<update id="TripUserConsA.updateTripConsBudget" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.updateTripConsBudget" */
+		/* 출장 품의 예산 금액 정보 갱신 */
+		UPDATE	$DB_NEOS$t_exnp_trip_cons_budget
+		SET	
+			cons_doc_seq = #consDocSeq#
+			, budget_amt = #budgetAmt#
+			, conffer_budget_return_yn = #confferBudgetReturnYn#
+		WHERE	attend_seq = #tripConsDocSeq#
+	</update>
+	
+	
+	<insert id="TripUserConsA.insertTripConsBudgetErp" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.insertTripConsBudgetErp" */
+		/* 출장 품의 예산 과목 정보 입력 */
+		INSERT INTO $DB_NEOS$t_exnp_trip_cons_budget_erp(
+		    trip_cons_doc_seq
+		    , trip_budget_seq
+		    , erp_div_seq
+		    , erp_div_name
+		    , erp_mgt_seq
+		    , erp_mgt_name
+		    , erp_budget_seq
+		    , erp_budget_name
+		    , erp_open_amt
+		    , erp_apply_amt
+		    , erp_left_amt
+		    , cons_date
+	    )
+		VALUES(
+		    #tripDocSeq#
+		    , #tripBudgetSeq#
+		    , #erpDivSeq#
+		    , #erpDivName#
+		    , #erpMgtSeq#
+		    , #mgtName#
+		    , #erpBudgetSeq#
+		    , #erpBudgetName#
+		    , #erpOpenAmt#
+		    , #erpApplyAmt#
+		    , #erpLeftAmt#
+		    , #consDate#
+	    );
+		<selectKey resultClass="int" keyProperty="budget_erp_seq" >
+	        SELECT MAX(budget_erp_seq) FROM $DB_NEOS$t_exnp_trip_cons_budget_erp;       
+	    </selectKey>
+	</insert>
+	
+	<update id="TripUserConsA.updateTripConsBudgetErp" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.updateTripConsBudgetErp" */
+		/* 출장 품의 예산 과목 정보 갱신 */
+		UPDATE	$DB_NEOS$t_exnp_trip_cons_budget_erp
+		SET	
+			erp_div_seq = #erpDivSeq#
+			, erp_div_name = #erpDivName#
+			, erp_mgt_seq = #erpMgtSeq#
+			, erp_mgt_name = #erpMgtName#
+			, erp_budget_seq = #erpBudgetSeq#
+			, erp_budget_name = #erpBudgetName#
+			, erp_open_amt = #erpOpenAmt#
+			, erp_apply_amt = #erpApplyAmt#
+			, erp_left_amt = #erpLeftAmt#
+		WHERE	attend_seq = #tripConsDocSeq#
+	</update>
+	
+	
+	<insert id="TripUserConsA.insertTripConsExpense" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.insertTripConsExpense" */
+		/* 출장 품의 경비 내역 정보 입력 */
+		INSERT INTO $DB_NEOS$t_exnp_trip_cons_expense(
+	    trip_cons_doc_seq
+	    , amt_class_code
+	    , amt_class_name
+	    , expense_amt
+	    , comp_seq
+	    , comp_name
+	    , emp_seq
+	    , emp_name
+	    , duty_item_seq
+	    , duty_name
+	    , duty_group_seq
+	    , transport_seq
+	    , location_seq
+	    , amt_seq
+	    , domestic_code
+	    )
+		VALUES(
+	    #tripDocSeq#
+	    , #amtClassCode#
+	    , #amtClassName#
+	    , #expenseAmt#
+	    , #compSeq#
+	    , #compName#
+	    , #empSeq#
+	    , #empName#
+	    , #dutyItemSeq#
+	    , #dutyName#
+	    , #dutyGroupSeq#
+	    , #transportSeq#
+	    , #locationSeq#
+	    , #amtSeq#
+	    , #domesticCode#
+		);
+		<selectKey resultClass="int" keyProperty="expense_seq" >
+	        SELECT MAX(expense_seq) FROM $DB_NEOS$t_exnp_trip_cons_expense;       
+	    </selectKey>
+	</insert>
+	
+	<update id="TripUserConsA.updateTripConsExpense" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.updateTripConsExpense" */
+		/* 출장 품의 경비 내역 정보 갱신 */
+		UPDATE	$DB_NEOS$t_exnp_trip_cons_expense
+		SET	
+			amt_class_code = #amtClassCode#
+			, amt_class_name = #amtClassName#
+			, expense_amt = #expenseAmt#
+			, comp_seq = #compSeq#
+			, comp_name = #compName#
+			, emp_seq = #empSeq#
+			, emp_name = #empName#
+			, duty_item_seq = #dutyItemSeq#
+			, duty_name = #dutyName#
+			, duty_group_seq = #dutyGroupSeq#
+			, transport_seq = #transportSeq#
+			, location_seq = #locationSeq#
+			, amt_seq = #amtSeq#
+			, domestic_code = #domesticCode#
+		WHERE	attend_seq = #tripConsDocSeq#
+	</update>
+		
+	
+	<insert id="TripUserConsA.insertTripConsTraveler" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.insertTripConsTraveler" */
+		/* 출장 품의 출장자 정보 입력 */
+		INSERT INTO $DB_NEOS$t_exnp_trip_cons_traveler(
+		    trip_cons_doc_seq
+		    , attend_seq
+		    , comp_seq
+		    , comp_name
+		    , dept_seq
+		    , dept_name
+		    , emp_seq
+		    , emp_name
+		    , duty_item_seq
+		    , duty_name
+		    , duty_group_seq
+	    )
+		VALUES(
+		    #tripDocSeq#
+		    , #attendSeq#
+		    , #compSeq#
+		    , #compName#
+		    , #deptSeq#
+		    , #deptName#
+		    , #empSeq#
+		    , #empName#
+		    , #dutyItemSeq#
+		    , #dutyName#
+		    , #dutyGroupSeq#
+	    );
+		<selectKey resultClass="int" keyProperty="traveler_seq" >
+	        SELECT MAX(traveler_seq) FROM $DB_NEOS$t_exnp_trip_cons_traveler;       
+	    </selectKey>
+	</insert>
+	
+	<update id="TripUserConsA.updateTripConsTraveler" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.updateTripConsTraveler" */
+		/* 출장 품의 출장자 정보 갱신 */
+		UPDATE	$DB_NEOS$t_exnp_trip_cons_traveler
+		SET	
+			comp_seq = #compSeq#
+			, comp_name = #compName#
+			, dept_seq = #deptSeq#
+			, dept_name = #deptName#
+			, emp_seq = #empSeq#
+			, emp_name = #empName#
+			, duty_item_seq = #dutyItemSeq#
+			, duty_name = #dutyName#
+			, duty_group_seq = #dutyGroupSeq#
+		WHERE	trip_cons_doc_seq = #tripDocSeq#
+	</update>	
+	
+	<delete id="TripUserConsA.deleteTripConsBudgetInfo" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.deleteTripConsBudgetInfo" */
+		/* 출장 품의 예산 정보 삭제 */
+		delete from $DB_NEOS$t_exnp_trip_cons_budget where trip_cons_doc_seq = #tripDocSeq#
+	</delete>
+	
+	<delete id="TripUserConsA.deleteTripConsBudgetErpInfo" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.deleteTripConsBudgetErpInfo" */
+		/* 출장 품의 예산 과목 정보 삭제 */
+		delete from $DB_NEOS$t_exnp_trip_cons_budget_erp where trip_cons_doc_seq = #tripDocSeq#
+	</delete>
+	
+	<delete id="TripUserConsA.deleteTripConsTraveler" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.deleteTripConsTraveler" */
+		/* 출장 품의 출장자 정보 삭제 */
+		delete from $DB_NEOS$t_exnp_trip_cons_traveler where trip_cons_doc_seq = #tripDocSeq#
+	</delete>
+	
+	<delete id="TripUserConsA.deleteTripConsExpense" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.deleteTripConsExpense" */
+		/* 출장 품의 경비내역 정보 삭제 */
+		delete from $DB_NEOS$t_exnp_trip_cons_expense where trip_cons_doc_seq = #tripDocSeq#
+	</delete>
+	
+	<delete id="TripUserConsA.deleteTripConsAttend" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.deleteTripConsAttend" */
+		/* 출장 품의 인사 정보 삭제 */
+		delete from $DB_NEOS$t_exnp_trip_cons_attend where trip_cons_doc_seq = #tripDocSeq#
+	</delete>
+
+	<select id="TripUserConsA.selectConsMgtInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.selectConsMgtInfo" */
+		/* 품의문서 프로젝트 정보 조회 */
+		SELECT	
+			cons_doc_seq	AS consDocSeq
+			, cons_seq	AS consSeq
+			, cons_date	AS consDate
+			, mgt_seq	AS mgtSeq
+			, mgt_name	AS mgtName
+			, docu_fg_code	AS docuFgCode
+			, docu_fg_name	AS docuFgName
+			, cons_note	AS consNote
+		FROM	$DB_NEOS$t_exnp_conshead
+		WHERE	cons_doc_seq = #consDocSeq#		
+	</select>
+	
+	<select id="TripUserConsA.selectTripConsBudgetInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.selectTripConsBudgetInfo" */
+		/* 품의문서 예산 정보 조회 */
+		SELECT	budget.erp_div_seq	AS erpDivSeq
+			, budget.erp_div_name	AS erpDivName
+			, head.mgt_seq		AS erpMgtSeq
+			, head.mgt_name		AS mgtName
+			, erp_budget_seq	AS erpBudgetSeq
+			, erp_budget_name	AS erpBudgetName
+			, erp_open_amt		AS erpOpenAmt
+			, erp_apply_amt		AS erpApplyAmt
+			, erp_left_amt		AS erpLeftAmt
+			, head.cons_date	AS consDate
+		FROM		$DB_NEOS$t_exnp_consbudget budget
+		INNER JOIN	$DB_NEOS$t_exnp_conshead head
+		ON	budget.cons_seq = head.cons_seq
+		WHERE	budget.cons_doc_seq = #consDocSeq#	
+	</select>
+
+	<select id="TripUserConsA.selectConsBgtInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.selectConsBgtInfo" */
+		/* 품의문서 예산 정보 조회 */
+		SELECT	
+			b.cons_doc_seq	AS consDocSeq
+			, b.cons_seq	AS consSeq
+			, b.budget_seq	AS budgetSeq
+			, b.erp_budget_seq	AS erpBudgetSeq
+			, b.erp_budget_name	AS erpBudgetName
+			, b.erp_bizplan_seq	AS erpBizplanSeq
+			, b.erp_bizplan_name	AS erpBizplanName			
+			, b.erp_fiacct_seq	AS erpFiacctSeq
+			, b.erp_fiacct_name	AS erpFiacctName
+			, b.erp_bgacct_seq	AS erpBgacctSeq
+			, b.erp_bgacct_name	AS erpBgacctName						
+			, h.cons_date	AS consDate
+			, h.mgt_name	AS mgtName
+			, h.mgt_seq	AS mgtSeq
+			, b.budget_note	AS budgetNote
+			, h.cons_note	AS consNote
+			, b.budget_amt	AS budgetAmt
+		FROM	$DB_NEOS$t_exnp_consbudget b
+		INNER JOIN $DB_NEOS$t_exnp_conshead h
+		 ON	b.cons_seq = h.cons_seq
+		WHERE	b.cons_doc_seq = #consDocSeq#			
+	</select>
+	
+	<select id="TripUserConsA.selectConsAmt" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.selectConsAmt" */
+		/* 품의문서 품의 금액 정보 조회 */
+		SELECT	
+			IFNULL(SUM(budget_amt), 0)	AS consAmt
+		FROM	$DB_NEOS$t_exnp_consbudget
+		WHERE	cons_doc_seq = #consDocSeq#	
+	</select>
+	
+	<select id="TripUserConsA.selectTripConsReport" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.selectTripConsReport" */
+		/* 출장 품의 문서 현황 정보 조회 */
+		SELECT	*
+		FROM	(
+			SELECT	
+				doc.trip_cons_doc_seq		AS tripConsDocSeq
+				, doc.doc_seq			AS docSeq
+				, doc.doc_status		AS docStatus
+				, IFNULL(eaDoc.c_dititle, eapDoc.doc_title) AS docTitle
+				, doc.doc_no			AS docNo
+				, DATE_FORMAT(doc.appro_date, '%Y-%m-%d')		AS approDate
+				, doc.comp_seq			AS compSeq
+				, doc.comp_name			AS compName
+				, doc.dept_seq			AS deptSeq
+				, doc.dept_name			AS deptName
+				, doc.emp_seq			AS empSeq
+				, doc.emp_name			AS empName
+				, attend.attend_seq		AS attendSeq
+				, attend.domestic_code 		AS domesticCode
+				, (
+					CASE	attend.domestic_code 
+						WHEN '0' THEN 	'국내' 
+						ELSE 		'해외' 
+					END
+				)				AS domesticName
+				, attend.trip_from_date   	AS fromDate
+				, attend.trip_from_date		AS fromTime
+				, attend.trip_to_date 		AS toDate
+				, attend.trip_to_date 		AS toTime
+				, CONCAT( 	attend.trip_from_date
+						, '~',  
+						attend.trip_to_date 
+				)				AS tripDate
+				, attend.location_seq		AS locationSeq
+				, attend.location_name		AS locationName
+				, attend.location_adv		AS locationAdv
+				, attend.trip_expense_code	AS tripExpenseCode
+				, (
+					CASE	attend.trip_expense_code 
+						WHEN '0' THEN 	'대상' 
+						ELSE 		'비대상' 
+					END
+				)				AS tripExpenseName
+				, traveler.traveler
+				, CASE travelerCnt WHEN '0' THEN traveler.traveler ELSE  CONCAT( traveler.traveler, ' 외 ', travelerCnt, '명') END travelerText
+				, expense.amt			AS totalAmt
+				, member			AS member
+			FROM	$DB_NEOS$t_exnp_trip_cons_doc doc
+			INNER JOIN $DB_NEOS$t_exnp_trip_cons_attend attend
+			ON	doc.trip_cons_doc_seq = attend.trip_cons_doc_seq
+			LEFT JOIN	$DB_NEOS$a_docinfo eaDoc
+			ON	eaDoc.c_dikeycode = doc.doc_seq
+			LEFT JOIN	$DB_NEOS$teag_appdoc eapDoc
+			ON	eapDoc.doc_id = doc.doc_seq
+			INNER JOIN 	(
+				SELECT	base.trip_cons_doc_seq
+					, adv.traveler
+					, base.travelerCnt
+					, base.member
+				FROM	(
+					SELECT	trip_cons_doc_seq, emp_name , COUNT(trip_cons_doc_seq) - 1 AS travelerCnt, GROUP_CONCAT(emp_name ) AS member
+					FROM	$DB_NEOS$t_exnp_trip_cons_traveler
+					GROUP BY trip_cons_doc_seq				
+				)	base
+				INNER JOIN	(
+					SELECT	trip_cons_doc_seq, emp_name AS traveler
+					FROM	$DB_NEOS$t_exnp_trip_cons_traveler
+					WHERE	emp_name LIKE '%$triper$%'
+					GROUP	BY trip_cons_doc_seq
+				)	adv
+				ON	base.trip_cons_doc_seq = adv.trip_cons_doc_seq
+			)	traveler
+			ON	traveler.trip_cons_doc_seq = doc.trip_cons_doc_seq
+			INNER JOIN	(
+				SELECT	SUM(expense_amt)	AS amt
+					, trip_cons_doc_seq	AS trip_cons_doc_seq
+				FROM 	$DB_NEOS$t_exnp_trip_cons_expense
+				GROUP	BY trip_cons_doc_seq
+			)	expense
+			ON	expense.trip_cons_doc_seq = doc.trip_cons_doc_seq		
+			WHERE	doc.emp_seq = #empSeq#
+			 AND	comp_seq = #compSeq#	
+		)	T
+		WHERE	docNo 		LIKE '%$docNo$%'
+		 AND	locationName	LIKE '%$location$%'
+		 AND	deptName	LIKE '%$deptName$%'
+		 AND	empName		LIKE '%$aprUserName$%'
+		 AND	domesticCode 	= (CASE '$domesticCode$' WHEN '' THEN domesticCode ELSE '$domesticCode$' END)
+		 AND	tripExpenseCode = (CASE '$payRequest$' WHEN '' THEN tripExpenseCode ELSE '$payRequest$' END)
+		 AND	IFNULL(docStatus, '008') = (CASE '$docStatus$' WHEN '' THEN docStatus WHEN '0' THEN docStatus ELSE '$docStatus$' END)
+		 AND	IFNULL(docStatus, '008') != 'd'
+		 AND	docTitle	LIKE '%$searchStr$%'
+		 AND	( 
+				(
+					toDate BETWEEN 
+					(CASE '$fromDate$' WHEN '' THEN fromDate ELSE '$fromDate$' END) 
+					AND
+					(CASE '$toDate$' WHEN '' THEN toDate ELSE '$toDate$' END) 
+				) 
+				OR (	fromDate BETWEEN 
+					(CASE '$fromDate$' WHEN '' THEN fromDate ELSE '$fromDate$' END) 
+					AND 
+					(CASE '$toDate$' WHEN '' THEN toDate ELSE '$toDate$' END) 
+				)
+			)
+		AND	LEFT(approDate, 10) BETWEEN '$approvalFromDate$' AND '$approvalToDate$'		
+		ORDER BY LEFT(approDate, 10) DESC, docNo DESC  
+	</select>
+	
+	<select id="TripUserConsA.selectTripConsDocInfoAttend" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.selectTripConsDocInfoAttend" */
+		/* 출장 품의 문서 출장 정보 조회 */
+		SELECT	
+			trip_cons_doc_seq	AS tripConsDocSeq
+			, attend_seq		AS attendSeq
+			, domestic_code		AS domesticCode
+			, trip_from_date	AS tripFromDate
+			, trip_to_date	AS tripToDate
+			, calendar_seq		AS calendarSeq
+			, calendar_name		AS calendarName
+			, location_seq		AS locationSeq
+			, location_name		AS locationName
+			, location_adv		AS locationAdv
+			, transport_seq		AS transportSeq
+			, transport_name	AS transportName
+			, purpose		AS purpose
+			, trip_expense_code	AS tripExpenseCode
+			, org_data_info	AS orgDataInfo
+		FROM	$DB_NEOS$t_exnp_trip_cons_attend 
+		WHERE	trip_cons_doc_seq = #tripConsDocSeq#		
+	</select>
+	<select id="TripUserConsA.selectTripConsDocInfoTripper" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.selectTripConsDocInfoTripper" */
+		/* 출장 품의 문서 출장자 정보 조회  */
+		SELECT
+                        trip_cons_doc_seq       AS tripConsDocSeq
+                        , attend_seq            AS attendSeq
+                        , traveler_seq          AS travelerSeq
+                        , t.comp_seq                      AS compSeq
+                        , t.comp_name                     AS compName
+                        , t.dept_seq                      AS deptSeq
+                        , t.dept_name                     AS deptName
+                        , t.emp_seq                       AS empSeq
+                        , t.emp_name                      AS empName
+                        , duty_item_seq         AS dutyItemSeq
+                        , duty_name                     AS dutyName
+                        , duty_group_seq        AS dutyGroupSeq
+                        , v.login_id			AS empNameAdv
+                FROM    $DB_NEOS$t_exnp_trip_cons_traveler t
+                INNER JOIN $DB_NEOS$v_user_info v
+                ON	t.comp_seq = v.comp_seq
+                AND	t.emp_seq = v.emp_seq
+                AND	t.dept_seq = v.dept_seq
+                WHERE   trip_cons_doc_seq = #tripConsDocSeq#		
+	</select>
+	
+	<select id="TripUserConsA.selectTripConsDocInfoAmt" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.selectTripConsDocInfoAmt" */
+		/* 출장품의 출장여비 정보 조회 */		
+		SELECT	tripConsDocSeq
+			, amtClass1Code
+			, amtClass1Name
+			, amtClass1Amt
+			, maxAmt1
+			, amtClass1Seq
+			, amtClass1DomesticCode
+			, amtClass1HoldCode
+			, amtClass2Code
+			, amtClass2Name
+			, amtClass2Amt
+			, maxAmt2
+			, amtClass2Seq
+			, amtClass2DomesticCode
+			, amtClass2HoldCode
+			, amtClass3Code
+			, amtClass3Name
+			, amtClass3Amt
+			, maxAmt3
+			, amtClass3Seq
+			, amtClass3DomesticCode
+			, amtClass3HoldCode
+			, amtClass4Code
+			, amtClass4Name
+			, amtClass4Amt
+			, maxAmt4
+			, amtClass4Seq
+			, amtClass4DomesticCode
+			, amtClass4HoldCode
+			, amtClass5Code
+			, amtClass5Name
+			, amtClass5Amt
+			, maxAmt5
+			, amtClass5Seq
+			, amtClass5DomesticCode
+			, amtClass5HoldCode
+			, amtClass6Code
+			, amtClass6Name
+			, amtClass6Amt
+			, maxAmt6
+			, amtClass6Seq
+			, amtClass6DomesticCode
+			, amtClass6HoldCode
+			, compSeq
+			, compName
+			, empSeq
+			, empName
+			, dutyItemSeq
+			, dutyGroupSeq
+			, transportSeq
+			, locationSeq
+			, dutyName
+			, amtClassSum
+		FROM	(
+			SELECT	
+				trip_cons_doc_seq AS tripConsDocSeq
+				, MAX( CASE WHEN expense.amt_class_code='1' THEN expense.amt_class_code ELSE '0'  END) 			AS amtClass1Code
+				, MAX( CASE WHEN expense.amt_class_code='1' THEN expense.amt_class_name ELSE '일비'  END) 		AS amtClass1Name
+				, MAX( CASE WHEN expense.amt_class_code='1' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass1Amt
+				, MAX( CASE WHEN amt.amt_class_code='1' THEN amt.amt ELSE '0'  END) 							AS maxAmt1
+				, MAX( CASE WHEN expense.amt_class_code='1' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass1Seq
+				, MAX( CASE WHEN expense.amt_class_code='1' THEN expense.domestic_code ELSE '0'  END) 			AS amtClass1DomesticCode
+				, MAX( CASE WHEN expense.amt_class_code='1' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass1HoldCode
+				, MAX( CASE WHEN expense.amt_class_code='2' THEN expense.amt_class_code ELSE '1'  END) 			AS amtClass2Code
+				, MAX( CASE WHEN expense.amt_class_code='2' THEN expense.amt_class_name ELSE '식비'  END) 		AS amtClass2Name
+				, MAX( CASE WHEN expense.amt_class_code='2' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass2Amt
+				, MAX( CASE WHEN amt.amt_class_code='2' THEN amt.amt ELSE '0'  END) 							AS maxAmt2
+				, MAX( CASE WHEN expense.amt_class_code='2' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass2Seq
+				, MAX( CASE WHEN expense.amt_class_code='2' THEN expense.domestic_code ELSE '0'  END) 			AS amtClass2DomesticCode
+				, MAX( CASE WHEN expense.amt_class_code='2' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass2HoldCode
+				, MAX( CASE WHEN expense.amt_class_code='3' THEN expense.amt_class_code ELSE '2'  END) 			AS amtClass3Code
+				, MAX( CASE WHEN expense.amt_class_code='3' THEN expense.amt_class_name ELSE '숙빅비'  END) 	AS amtClass3Name
+				, MAX( CASE WHEN expense.amt_class_code='3' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass3Amt
+				, MAX( CASE WHEN amt.amt_class_code='3' THEN amt.amt ELSE '0'  END) 							AS maxAmt3
+				, MAX( CASE WHEN expense.amt_class_code='3' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass3Seq
+				, MAX( CASE WHEN expense.amt_class_code='3' THEN expense.domestic_code ELSE '0'  END) 			AS amtClass3DomesticCode
+				, MAX( CASE WHEN expense.amt_class_code='3' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass3HoldCode
+				, MAX( CASE WHEN expense.amt_class_code='4' THEN expense.amt_class_code ELSE '3'  END) 			AS amtClass4Code
+				, MAX( CASE WHEN expense.amt_class_code='4' THEN expense.amt_class_name ELSE '운임비'  END) 	AS amtClass4Name
+				, MAX( CASE WHEN expense.amt_class_code='4' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass4Amt
+				, MAX( CASE WHEN amt.amt_class_code='4' THEN amt.amt ELSE '0'  END) 							AS maxAmt4
+				, MAX( CASE WHEN expense.amt_class_code='4' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass4Seq
+				, MAX( CASE WHEN expense.amt_class_code='4' THEN expense.domestic_code ELSE '0'  END) 			AS amtClass4DomesticCode
+				, MAX( CASE WHEN expense.amt_class_code='4' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass4HoldCode
+				, MAX( CASE WHEN expense.amt_class_code='5' THEN expense.amt_class_code ELSE '4'  END) 			AS amtClass5Code
+				, MAX( CASE WHEN expense.amt_class_code='5' THEN expense.amt_class_name ELSE '기타여비'  END) 	AS amtClass5Name
+				, MAX( CASE WHEN expense.amt_class_code='5' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass5Amt
+				, MAX( CASE WHEN amt.amt_class_code='5' THEN amt.amt ELSE '0'  END) 							AS maxAmt5
+				, MAX( CASE WHEN expense.amt_class_code='5' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass5Seq
+				, MAX( CASE WHEN expense.amt_class_code='5' THEN expense.domestic_code ELSE '0'  END) 			AS amtClass5DomesticCode
+				, MAX( CASE WHEN expense.amt_class_code='5' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass5HoldCode
+				, MAX( CASE WHEN expense.amt_class_code='6' THEN expense.amt_class_code ELSE '5'  END) 			AS amtClass6Code
+				, MAX( CASE WHEN expense.amt_class_code='6' THEN expense.amt_class_name ELSE '기타여비2'  END) 	AS amtClass6Name
+				, MAX( CASE WHEN expense.amt_class_code='6' THEN expense.expense_amt ELSE '0'  END) 			AS amtClass6Amt
+				, MAX( CASE WHEN amt.amt_class_code='6' THEN amt.amt ELSE '0'  END) 							AS maxAmt6
+				, MAX( CASE WHEN expense.amt_class_code='6' THEN expense.amt_seq ELSE '0'  END) 				AS amtClass6Seq
+				, MAX( CASE WHEN expense.amt_class_code='6' THEN expense.domestic_code ELSE '0' END) 			AS amtClass6DomesticCode
+				, MAX( CASE WHEN expense.amt_class_code='6' THEN amt.amt_hold_code ELSE '0'  END) 			AS amtClass6HoldCode
+				, SUM(expense_amt) 																AS amtClassSum
+				, expense.comp_seq				AS compSeq
+				, expense.comp_name				AS compName
+				, expense.emp_seq				AS empSeq
+				, expense.emp_name				AS empName
+				, expense.duty_item_seq 		AS dutyItemSeq
+				, expense.duty_group_seq 		AS dutyGroupSeq
+				, expense.transport_seq			AS transportSeq
+				, expense.location_seq			AS locationSeq
+				, expense.duty_name				AS dutyName
+			FROM	$DB_NEOS$t_exnp_trip_cons_expense expense
+			LEFT JOIN $DB_NEOS$t_exnp_trip_set_amt amt
+			ON	amt.amt_seq = expense.amt_seq
+			WHERE	trip_cons_doc_seq = #tripConsDocSeq#
+			AND	emp_seq IS NOT NULL
+			GROUP BY emp_seq,trip_cons_doc_seq,expense.comp_seq,expense.comp_name,expense.emp_name,expense.duty_item_seq,expense.duty_group_seq,expense.transport_seq,expense.location_seq,expense.duty_name
+		)	expense
+	</select>
+	
+	<update id="TripUserConsA.TripConsDocInfoUpdate" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.TripConsDocInfoUpdate" */
+		/* 출장 품의서 문서 상태 변경 */
+		UPDATE	$DB_NEOS$t_exnp_trip_cons_doc
+		SET		doc_seq = ifnull(#docSeq#,'')
+				, doc_no = ifnull(#docNum#,'')
+				, doc_status = ifnull(#docStatus#,'000')
+				, appro_date = NOW()
+		WHERE	trip_cons_doc_seq = #tripConsDocSeq#
+	</update>
+	
+	<update id="TripUserConsA.ConsDocInfoUpdate" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.ConsDocInfoUpdate" */
+		/* 출장 품의서 2.0 연동 품의서 문서 상태 변경 */
+		UPDATE	$DB_NEOS$t_exnp_consdoc
+		SET		doc_seq = ifnull(#docSeq#,'')
+				, doc_no = ifnull(#docNum#,'')
+				, doc_status = ifnull(#docStatus#,'000')
+		WHERE	cons_doc_seq = #consDocSeq#
+	</update>
+	
+	<select id="TripUserConsA.selectTripConsDocAPIInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - "TripUserConsA.selectTripConsDocAPIInfo" */
+		/* 출장복명 외부 연동 데이터 정보 조회 */
+		SELECT	
+			cd.trip_cons_doc_seq			AS tripConsDocSeq
+			, cd.group_seq				AS groupSeq
+			, cd.comp_seq				AS compSeq
+			, cd.dept_seq				AS deptSeq
+			, cd.emp_seq				AS reqEmpSeq
+			, ca.trip_expense_code		AS tripExpenseCode
+			, DATE_FORMAT(NOW(), '%Y%m%d')		AS reqDate
+			, CONCAT('TRIPCONS_TRIP_', cd.trip_cons_doc_Seq, '_', IFNULL(cb.cons_doc_seq, '0'))	AS approKey
+			, doc_Seq	AS docSeq
+			, doc_status	AS docSts
+			, '출장일정 신청'	AS reqTitle
+			
+			, ct.comp_seq		AS B_compSeq
+			, ct.dept_seq		AS B_deptSeq
+			, ct.emp_seq		AS B_empSeq
+			, ct.emp_name		AS B_empName
+			, CASE domestic_code WHEN '0' THEN '21' ELSE '22' END	AS B_attDivCode
+			, LEFT(REPLACE(REPLACE(REPLACE(ca.trip_from_date, '-', ''), ':', ''), ' ', ''), 8)	AS B_attDate
+			, LEFT(REPLACE(REPLACE(REPLACE(ca.trip_from_date, '-', ''), ':', ''), ' ', ''), 12)	AS B_reqStartDt
+			, LEFT(REPLACE(REPLACE(REPLACE(ca.trip_to_date, '-', ''), ':', ''), ' ', ''), 12)	AS B_reqEndDt
+			, TIMESTAMPDIFF(DAY, ca.trip_from_date, ca.trip_to_date) + 1				AS B_dayCnt
+			, ''			AS B_reqRemark
+			, ca.location_name	AS B_fieldOffice
+			, ''			AS B_attTime
+			, ca.transport_name	AS B_transport
+			, ca.purpose		AS B_officialTripPurpose
+			
+			, ca.calendar_seq	AS C_mcalSeq
+			, ''			AS C_calType
+			, ''			AS C_schViewer
+			, 'kr'			AS C_langCode
+			, LEFT(REPLACE(REPLACE(REPLACE(ca.trip_from_date, '-', ''), ':', ''), ' ', ''), 12)	AS C_startDate
+			, LEFT(REPLACE(REPLACE(REPLACE(ca.trip_to_date, '-', ''), ':', ''), ' ', ''), 12)	AS C_endDate
+			, IFNULL(c_dititle, #docTitle#)			AS C_schTitle
+			, CASE domestic_code WHEN '0' THEN '21' ELSE '22' END	AS C_attDivCode
+			, location_name		AS C_schPlace
+			, 'N'			AS C_alldayYn
+			, 'N'			AS C_alarm_yn
+			, IFNULL(ca.schm_seq, -1)	AS C_schmSeq
+			, IFNULL(ca.sch_seq, -1)	AS C_schSeq
+			, #requestDomain#			AS requestDomain
+		FROM	$DB_NEOS$t_exnp_trip_cons_doc 	cd
+		INNER JOIN	$DB_NEOS$t_exnp_trip_cons_attend ca
+		 ON		cd.trip_cons_doc_seq = ca.trip_cons_doc_seq
+		INNER JOIN	$DB_NEOS$t_exnp_trip_cons_traveler ct
+		 ON		cd.trip_cons_doc_seq = ct.trip_cons_doc_seq
+		LEFT JOIN	$DB_NEOS$t_exnp_trip_cons_budget cb
+		 ON		cd.trip_cons_doc_seq = cb.trip_cons_doc_seq
+		 AND	ca.trip_expense_code = '0'
+		LEFT JOIN	$DB_NEOS$a_docinfo	ad
+		 ON		cd.doc_seq = ad.c_dikeycode			 
+		WHERE	cd.trip_cons_doc_seq = #tripConsDocSeq#;	
+	</select>
+	
+	<update id="TripUserConsA.updateConsSchInfo" parameterClass="java.util.HashMap" >
+		/* expend/np/user/TripUserConsSQL.xml - "TripUserConsA.updateConsSchInfo" */
+		/* 출장 품의 일정 정보 갱신 */
+		UPDATE	$DB_NEOS$t_exnp_trip_cons_attend
+		SET		schm_seq = '$schmSeq$'
+				, sch_seq = '$schSeq$'
+		WHERE	trip_cons_doc_seq = '$tripConsDocSeq$'
+	</update>
+
+</sqlMap>

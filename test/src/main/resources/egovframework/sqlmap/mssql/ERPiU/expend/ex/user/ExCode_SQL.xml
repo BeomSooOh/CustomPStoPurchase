@@ -1,0 +1,1409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 사용자 코드 -->
+<mapper namespace="ExUserCode">
+	
+	<select id="ExUserCode.ExCommonCodeAcctSelect" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeAcctSelect - 공통 코드 조회 ( 계정과목 )
+		 * 작성자 : 남진우
+		 * 작성일 : 2019-08-01
+		 * 변경이력
+		 * 2019-08-29 / 남진우  : 오라클 변경 완료
+ 		 */
+ 		 
+		SELECT comp_seq		AS	'compSesq'
+		       , acct_code	AS	'acctCode'
+		       , acct_name	AS	'acctName'
+		       , vat_yn		AS	'vatYN'
+		       , use_yn		AS	'useYN'
+		       , create_seq	AS	'createSeq'
+		       , modify_seq	AS	'modifySeq'
+		  FROM (SELECT A.CD_COMPANY  AS comp_seq
+		               , A.CD_ACCT   AS acct_code
+		               , A.NM_ACCT   AS acct_name
+		               , CASE
+		                   WHEN ( D.CD_FLAG1 LIKE 'B%'
+		                           OR A.TP_DRCR = '1' )
+		                        AND A.CD_RELATION = '30' THEN 'Y'
+		                   ELSE 'N'
+		                 END         AS vat_yn
+		               , CASE
+		                   WHEN ( D.CD_FLAG1 LIKE 'B%'
+		                           OR A.TP_DRCR = '1' )
+		                        AND A.CD_RELATION != '30' THEN 'Y'
+		                   ELSE 'N'
+		                 END         AS dr_yn
+		               , CASE
+		                   WHEN ( D.CD_FLAG1 LIKE 'B%'
+		                           OR A.TP_DRCR != '1' )
+		                        AND A.CD_RELATION != '30' THEN 'Y'
+		                   ELSE 'N'
+		                 END         AS cr_yn
+		               , 'Y'         AS use_yn
+		               , A.ID_INSERT AS create_seq
+		               , A.ID_UPDATE AS modify_seq
+		          FROM NEOE.FI_ACCTCODE A WITH ( NOLOCK )
+		               INNER JOIN FI_GRPACCT B WITH ( NOLOCK )
+		                       ON A.CD_COMPANY = B.CD_COMPANY
+		                          AND A.CD_ACCT = B.CD_ACCT
+		               INNER JOIN FI_ACGRP C WITH ( NOLOCK )
+		                       ON B.CD_COMPANY = C.CD_COMPANY
+		                          AND B.CD_FSFORM = C.CD_FSFORM
+		                          AND B.CD_ACGRP = C.CD_ACGRP
+		               LEFT OUTER JOIN NEOE.MA_CODEDTL D WITH ( NOLOCK )
+		                            ON C.CD_COMPANY = D.CD_COMPANY
+		                               AND D.CD_FIELD = 'FI_B000001'
+		                               AND C.TP_GRP = D.CD_SYSDEF
+		         WHERE A.CD_COMPANY = '${erpCompSeq}'
+		               AND B.CD_FSFORM = 'D0012'
+               		   AND A.CD_RELATION  != '31'
+		               AND A.YN_FILL = 'Y') A
+		 WHERE ( ( acct_code LIKE '%' + #{searchStr} + '%' )
+		          OR ( acct_name LIKE '%' + #{searchStr} + '%' ) )
+	]]>
+		<choose>
+			<when test="acctType != null and acctType.equals('VAT')">
+	<![CDATA[
+				AND vat_yn = N'Y'
+	]]>
+			</when>
+		</choose>
+	</select>
+
+	<select id="ExUserCode.ExCommonCodeBgAcctSelect" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeBgAcctSelect - 공통 코드 조회 ( 예산계정 )
+		 * 작성자 : 남진우  
+		 * 작성일 : 2019-08-29
+		 * 변경이력
+		 * 2019-08-29 / 남진우  : 오라클 변환 완료 
+ 		 */
+		
+		/* 한성자동차 전용 개발 ( ORACLE 변환 불필요 ( MSSQL만 해당 ) ) */
+		DECLARE @GWAUTHYN NVARCHAR(2) = 'N'
+		IF EXISTS (
+				SELECT	*
+				FROM	INFORMATION_SCHEMA.VIEWS
+				WHERE	TABLE_SCHEMA = 'NEOE'
+				AND		TABLE_NAME = 'V_FI_Z_HSMT_GWAUTH'
+			)
+		BEGIN
+			SELECT	@GWAUTHYN = 'Y'
+		END
+		
+		IF (@GWAUTHYN = 'Y')
+		BEGIN
+			SELECT  C.CD_COMPANY AS erpCompSeq
+			        , C.CD_BGACCT AS bgacctCode
+			        , C.NM_BGACCT AS bgacctName
+			        , B.TP_CONTROL AS tpControl /* 1 : 예산단위통제, 2 : 예산계정통제 */
+			        , C.CD_BGLEVEL AS cdBgLevel /* 예산통제레벨계정 */
+			        , CASE
+			        	WHEN B.YN_USE = 'Y' AND B.TP_CONTROL <> '3' AND C.TP_BUNIT = '4' THEN 'Y'
+			        	ELSE 'N'
+			    	END AS ynControl /* N : 통제안함, Y : 통제 */
+			FROM    (
+			            SELECT  CD_COMPANY
+			                    , CD_BUDGET
+			                    , CD_BGACCT
+			            FROM    NEOE.FI_BIZCODEJO2 WITH ( NOLOCK ) /* 테이블 수정함/사업계획(CD_BIZPLAN) 사용일 경우의 테이블임. */
+			            WHERE   CD_COMPANY = '${erpCompSeq}'
+			            AND     CD_BUDGET = '${budgetCode}'
+			        ) A INNER JOIN (
+			            SELECT  CD_COMPANY
+			                    , CD_BUDGET
+			                    , TP_CONTROL
+			                    , YN_USE
+			            FROM    NEOE.FI_BGCODE WITH ( NOLOCK )
+			            WHERE   CD_COMPANY = '${erpCompSeq}'
+			        ) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_BUDGET = B.CD_BUDGET INNER JOIN (
+			            SELECT  CD_COMPANY
+			                    , CD_BGACCT
+			                    , NM_BGACCT
+			                    , CASE TP_BGLEVEL
+			                    	WHEN '1' THEN CD_1LEVEL
+			                    	WHEN '2' THEN CD_2LEVEL
+			                    	WHEN '3' THEN CD_3LEVEL
+			                    	WHEN '4' THEN CD_4LEVEL
+			                    	WHEN '5' THEN CD_5LEVEL
+			                    	WHEN '6' THEN CD_6LEVEL
+			                    	WHEN '7' THEN CD_7LEVEL
+			                    	WHEN '8' THEN CD_8LEVEL
+			                    	WHEN '9' THEN CD_9LEVEL
+			                    	WHEN '10' THEN CD_10LEVEL
+			                	END AS CD_BGLEVEL
+			                	, TP_BGACCT
+			                	, TP_BUNIT
+			            FROM    NEOE.FI_BGACCT WITH ( NOLOCK )
+			            WHERE   CD_COMPANY = '${erpCompSeq}'
+			            AND     CD_BGACCT LIKE '%' + #{searchStr} + '%' OR NM_BGACCT LIKE '%' + #{searchStr} + '%'
+			        ) C ON A.CD_COMPANY = C.CD_COMPANY AND A.CD_BGACCT = C.CD_BGACCT
+			WHERE	C.CD_BGACCT IN (
+						SELECT	CD_BGACCT
+						FROM	NEOE.V_FI_Z_HSMT_GWAUTH
+						WHERE	CD_COMPANY = '${erpCompSeq}'
+						AND		CD_BUDGET = '${budgetCode}'
+						AND		NO_EMP = '${erpEmpSeq}'
+						AND		CD_BIZPLAN = #{bizplanCode}
+						GROUP	BY CD_BGACCT
+					)
+			GROUP   BY C.CD_COMPANY, C.CD_BGACCT, C.NM_BGACCT, B.TP_CONTROL, C.CD_BGLEVEL, B.YN_USE, B.TP_CONTROL, C.TP_BUNIT
+		END
+		ELSE
+		BEGIN
+			SELECT  C.CD_COMPANY AS erpCompSeq
+			        , C.CD_BGACCT AS bgacctCode
+			        , C.NM_BGACCT AS bgacctName
+			        , B.TP_CONTROL AS tpControl /* 1 : 예산단위통제, 2 : 예산계정통제 */
+			        , C.CD_BGLEVEL AS cdBgLevel /* 예산통제레벨계정 */
+			        , CASE
+			        	WHEN B.YN_USE = 'Y' AND B.TP_CONTROL <> '3' AND C.TP_BUNIT = '4' THEN 'Y'
+			        	ELSE 'N'
+			    	END AS ynControl /* N : 통제안함, Y : 통제 */
+			FROM    (
+			            SELECT  CD_COMPANY
+			                    , CD_BUDGET
+			                    , CD_BGACCT
+						]]>
+						<if test="bizplanCode == '***'">
+						FROM    NEOE.FI_BUDGETACCTJO WITH ( NOLOCK )
+						WHERE   CD_COMPANY = '${erpCompSeq}'
+			            AND     CD_BUDGET = '${budgetCode}'
+						</if>		                    
+			            <if test="bizplanCode != '***'">
+			            FROM    NEOE.FI_BIZCODEJO2 WITH ( NOLOCK )
+			            WHERE   CD_COMPANY = '${erpCompSeq}'
+			            AND     CD_BUDGET = '${budgetCode}'
+						AND		CD_BIZPLAN = #{bizplanCode}
+			            </if>
+			            <![CDATA[
+			        ) A INNER JOIN (
+			            SELECT  CD_COMPANY
+			                    , CD_BUDGET
+			                    , TP_CONTROL
+			                    , YN_USE
+			            FROM    NEOE.FI_BGCODE WITH ( NOLOCK )
+			            WHERE   CD_COMPANY = '${erpCompSeq}'
+			        ) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_BUDGET = B.CD_BUDGET INNER JOIN (
+			            SELECT  CD_COMPANY
+			                    , CD_BGACCT
+			                    , NM_BGACCT
+			                    , CASE TP_BGLEVEL
+			                    	WHEN '1' THEN CD_1LEVEL
+			                    	WHEN '2' THEN CD_2LEVEL
+			                    	WHEN '3' THEN CD_3LEVEL
+			                    	WHEN '4' THEN CD_4LEVEL
+			                    	WHEN '5' THEN CD_5LEVEL
+			                    	WHEN '6' THEN CD_6LEVEL
+			                    	WHEN '7' THEN CD_7LEVEL
+			                    	WHEN '8' THEN CD_8LEVEL
+			                    	WHEN '9' THEN CD_9LEVEL
+			                    	WHEN '10' THEN CD_10LEVEL
+			                	END AS CD_BGLEVEL
+			                	, TP_BGACCT
+			                	, TP_BUNIT
+			            FROM    NEOE.FI_BGACCT WITH ( NOLOCK )
+			            WHERE   CD_COMPANY = '${erpCompSeq}'
+			            AND     CD_BGACCT LIKE '%' + #{searchStr} + '%' OR NM_BGACCT LIKE '%' + #{searchStr} + '%'
+			        ) C ON A.CD_COMPANY = C.CD_COMPANY AND A.CD_BGACCT = C.CD_BGACCT
+			GROUP   BY C.CD_COMPANY, C.CD_BGACCT, C.NM_BGACCT, B.TP_CONTROL, C.CD_BGLEVEL, B.YN_USE, B.TP_CONTROL, C.TP_BUNIT
+		END
+	]]>
+	</select>
+	
+	<select id="ExUserCode.ExCommonCodeBgAcctLinkAcctSelect" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeBgAcctLinkAcctSelect - 공통 코드 조회 ( 예산계정 )
+		 * 작성자 : 남진우  
+		 * 작성일 : 2019-08-29
+		 * 변경이력
+		 * 2019-08-29 / 남진우  : 한성자동차 프로시저 제외한 변환 완료 
+ 		 */
+		
+		/* 한성자동차 전용 개발 ( ORACLE 변환 불필요 ( MSSQL만 해당 ) ) */
+		DECLARE @GWAUTHYN NVARCHAR(2) = 'N'
+		IF EXISTS (
+				SELECT	*
+				FROM	INFORMATION_SCHEMA.VIEWS
+				WHERE	TABLE_SCHEMA = 'NEOE'
+				AND		TABLE_NAME = 'V_FI_Z_HSMT_GWAUTH'
+			)
+		BEGIN
+			SELECT	@GWAUTHYN = 'Y'
+		END
+		
+		IF (@GWAUTHYN = 'Y')
+		BEGIN
+			SELECT  C.CD_COMPANY AS erpCompSeq
+			        , C.CD_BGACCT AS bgacctCode
+			        , C.NM_BGACCT AS bgacctName
+			FROM    (
+			            SELECT  CD_COMPANY
+			                    , CD_BUDGET
+			                    , CD_BGACCT
+			            FROM    NEOE.FI_BIZCODEJO2 WITH ( NOLOCK ) /* 테이블 수정함/사업계획(CD_BIZPLAN) 사용일 경우의 테이블임. */
+			            WHERE   CD_COMPANY = '${erpCompSeq}'
+			            AND     CD_BUDGET = '${budgetCode}'
+			        ) A INNER JOIN (
+			            SELECT  CD_COMPANY
+			                    , CD_BUDGET
+			                    , TP_CONTROL
+			                    , YN_USE
+			            FROM    NEOE.FI_BGCODE WITH ( NOLOCK )
+			            WHERE   CD_COMPANY = '${erpCompSeq}'
+			        ) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_BUDGET = B.CD_BUDGET INNER JOIN (
+			            SELECT  CD_COMPANY
+			                    , CD_BGACCT
+			                    , NM_BGACCT
+			                    , CASE TP_BGLEVEL
+			                    	WHEN '1' THEN CD_1LEVEL
+			                    	WHEN '2' THEN CD_2LEVEL
+			                    	WHEN '3' THEN CD_3LEVEL
+			                    	WHEN '4' THEN CD_4LEVEL
+			                    	WHEN '5' THEN CD_5LEVEL
+			                    	WHEN '6' THEN CD_6LEVEL
+			                    	WHEN '7' THEN CD_7LEVEL
+			                    	WHEN '8' THEN CD_8LEVEL
+			                    	WHEN '9' THEN CD_9LEVEL
+			                    	WHEN '10' THEN CD_10LEVEL
+			                	END AS CD_BGLEVEL
+			                	, TP_BGACCT
+			                	, TP_BUNIT
+			            FROM    NEOE.FI_BGACCT WITH ( NOLOCK )
+			            WHERE   CD_COMPANY = '${erpCompSeq}'
+			            AND     CD_BGACCT LIKE '%' + #{searchStr} + '%' OR NM_BGACCT LIKE '%' + #{searchStr} + '%'
+			        ) C ON A.CD_COMPANY = C.CD_COMPANY AND A.CD_BGACCT = C.CD_BGACCT
+			WHERE	C.CD_BGACCT IN (
+						SELECT	CD_BGACCT
+						FROM	V_FI_Z_HSMT_GWAUTH
+						WHERE	CD_COMPANY = '${erpCompSeq}'
+						AND		CD_BUDGET = '${budgetCode}'
+						AND		NO_EMP = '${erpEmpSeq}'
+						AND		CD_BIZPLAN = #{bizplanCode}
+						GROUP	BY CD_BGACCT
+					)
+			GROUP   BY C.CD_COMPANY, C.CD_BGACCT, C.NM_BGACCT, B.TP_CONTROL, C.CD_BGLEVEL, B.YN_USE, B.TP_CONTROL, C.TP_BUNIT
+		END
+		ELSE
+		BEGIN
+			SELECT  C.CD_COMPANY AS erpCompSeq
+			        , C.CD_BGACCT AS bgacctCode
+			        , C.NM_BGACCT AS bgacctName
+			        , B.TP_CONTROL AS tpControl /* 1 : 예산단위통제, 2 : 예산계정통제 */
+			        , C.CD_BGLEVEL AS cdBgLevel /* 예산통제레벨계정 */
+			        , CASE
+			        	WHEN B.YN_USE = 'Y' AND B.TP_CONTROL <> '3' AND C.TP_BUNIT = '4' THEN 'Y'
+			        	ELSE 'N'
+			    	END AS ynControl /* N : 통제안함, Y : 통제 */
+			FROM    (
+			            SELECT  CD_COMPANY
+			                    , CD_BUDGET
+			                    , CD_BGACCT        
+			            ]]>
+						<if test="bizplanCode == '***'">
+						FROM    NEOE.FI_BUDGETACCTJO WITH ( NOLOCK )
+						WHERE   CD_COMPANY = '${erpCompSeq}'
+			            AND     CD_BUDGET = '${budgetCode}'
+						</if>		                    
+			            <if test="bizplanCode != '***'">
+			            FROM    NEOE.FI_BIZCODEJO2 WITH ( NOLOCK )
+			            WHERE   CD_COMPANY = '${erpCompSeq}'
+			            AND     CD_BUDGET = '${budgetCode}'
+						AND		CD_BIZPLAN = #{bizplanCode}
+			            </if>
+			            <![CDATA[
+			        ) A INNER JOIN (
+			            SELECT  CD_COMPANY
+			                    , CD_BUDGET
+			                    , TP_CONTROL
+			                    , YN_USE
+			            FROM    NEOE.FI_BGCODE WITH ( NOLOCK )
+			            WHERE   CD_COMPANY = '${erpCompSeq}'
+			        ) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_BUDGET = B.CD_BUDGET INNER JOIN (
+			            SELECT  CD_COMPANY
+			                    , CD_BGACCT
+			                    , NM_BGACCT
+			                    , CASE TP_BGLEVEL
+			                    	WHEN '1' THEN CD_1LEVEL
+			                    	WHEN '2' THEN CD_2LEVEL
+			                    	WHEN '3' THEN CD_3LEVEL
+			                    	WHEN '4' THEN CD_4LEVEL
+			                    	WHEN '5' THEN CD_5LEVEL
+			                    	WHEN '6' THEN CD_6LEVEL
+			                    	WHEN '7' THEN CD_7LEVEL
+			                    	WHEN '8' THEN CD_8LEVEL
+			                    	WHEN '9' THEN CD_9LEVEL
+			                    	WHEN '10' THEN CD_10LEVEL
+			                	END AS CD_BGLEVEL
+			                	, TP_BGACCT
+			                	, TP_BUNIT
+			            FROM    NEOE.FI_BGACCT WITH ( NOLOCK )
+			            WHERE   CD_COMPANY = '${erpCompSeq}'
+			            AND     CD_BGACCT LIKE '%' + #{searchStr} + '%' OR NM_BGACCT LIKE '%' + #{searchStr} + '%'
+			        ) C ON A.CD_COMPANY = C.CD_COMPANY AND A.CD_BGACCT = C.CD_BGACCT INNER JOIN (
+						SELECT	CD_COMPANY
+								, CD_BGACCT
+								, CD_ACCT
+						FROM	NEOE.FI_BGACCTJO
+						WHERE   CD_COMPANY = '${erpCompSeq}'
+						AND		CD_ACCT = #{acctCode}
+						GROUP	BY CD_COMPANY, CD_BGACCT, CD_ACCT
+					) D ON C.CD_COMPANY = D.CD_COMPANY AND C.CD_BGACCT = D.CD_BGACCT
+			GROUP   BY C.CD_COMPANY, C.CD_BGACCT, C.NM_BGACCT, B.TP_CONTROL, C.CD_BGLEVEL, B.YN_USE, B.TP_CONTROL, C.TP_BUNIT
+		END
+	]]>
+	</select>
+	
+	<select id="ExUserCode.checkBgAcctLinkAcct" parameterType="java.util.Map" resultType="java.util.Map">
+		/*
+		 * [ ERPiU - MSSQL ] ExUserCode.checkBgAcctLinkAcct - 회계계정연결 확인
+		 * 작성자 : 권오광  
+		 * 작성일 : 2020-02-13
+		 * 변경이력
+ 		 */
+		
+		SELECT COUNT(*) AS linkCount
+		  FROM NEOE.FI_BGACCTJO
+		 WHERE CD_COMPANY = #{erpCompSeq}
+		   AND CD_ACCT = #{acctCode}
+	</select>
+	
+	<select id="ExUserCode.ExCommonCodeBizplanSelect" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeBizplanSelect - ERPiU 공통 코드(사업계획) 조회
+		 * 작성자 : 남진우
+		 * 작성일 : 2019-08-28
+		 * 변경이력
+		 * - 2019-08-28 / 남진우 : mssql <> oracle 비교 보완
+		 */
+		 
+		/* 한성자동차 전용 개발 ( ORACLE 변환 불필요 ( MSSQL만 해당 ) ) */
+		/* 시작 ----------------------------------------------- */
+		DECLARE @GWAUTHYN NVARCHAR(2) = 'N'
+		
+		IF EXISTS (
+			SELECT	*
+			FROM	INFORMATION_SCHEMA.VIEWS
+			WHERE	TABLE_SCHEMA = 'NEOE'
+			AND		TABLE_NAME = 'V_FI_Z_HSMT_GWAUTH' )
+		BEGIN
+			SELECT	@GWAUTHYN = 'Y'
+		end
+		/* 종료 ----------------------------------------------- */
+		
+		DECLARE @GW_BIZPLAN_TMP_TABLE TABLE (
+				CD_BIZPLAN nvarchar(20) NOT NULL,
+				NM_BIZPLAN nvarchar(128) NOT NULL,
+				NM_BIZPLAN1 nvarchar(128),
+				NM_BIZPLAN2 nvarchar(128),
+				NM_BIZPLAN3 nvarchar(128),
+				YM_END nvarchar(8),
+				YN_USE nvarchar(1)
+		)
+		
+		INSERT @GW_BIZPLAN_TMP_TABLE
+		EXECUTE	NEOE.UP_HELP_FI_SELECT2
+				'P_FI_BIZCODEJO2_SUB1_BIZPLAN'
+				, ''
+				, #{erpCompSeq}
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, 'FI'
+				, 'A'
+				, ''
+				, '^^'
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, ''
+				, #{budgetCode}
+				, ''
+				, ''
+				, ''
+				, ''
+				, #{searchStr}/* 검색어 */
+				, 'N'
+				, 'L0'
+		
+		/* 한성자동차 전용 개발 ( ORACLE 변환 불필요 ( MSSQL만 해당 ) ) */
+		/* 시작 ----------------------------------------------- */
+		IF (@GWAUTHYN = 'Y')
+		BEGIN
+			SELECT	CD_BIZPLAN AS bizplanCode
+					, NM_BIZPLAN AS bizplanName
+			FROM	@GW_BIZPLAN_TMP_TABLE
+			WHERE	CD_BIZPLAN IN (
+						SELECT	CD_BIZPLAN
+						FROM	V_FI_Z_HSMT_GWAUTH
+						WHERE	CD_COMPANY = '${erpCompSeq}'
+						AND		NO_EMP = '${erpEmpSeq}'
+						AND		CD_BUDGET = #{budgetCode}
+						GROUP	BY CD_BIZPLAN
+					)
+		END
+		ELSE
+		BEGIN
+		/* 종료 ----------------------------------------------- */
+			
+			SELECT	CD_BIZPLAN AS bizplanCode
+					, NM_BIZPLAN AS bizplanName
+			FROM	@GW_BIZPLAN_TMP_TABLE
+			
+		/* 한성자동차 전용 개발 ( ORACLE 변환 불필요 ( MSSQL만 해당 ) ) */
+		/* 시작 ----------------------------------------------- */
+		end
+		/* 종료 ----------------------------------------------- */
+	]]>
+	</select>
+	<select id="ExUserCode.ExCommonCodeBudgetSelect" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeBudgetSelect - 공통 코드 조회 ( 예산계정 )
+		 * 작성자 : 남진우  
+		 * 작성일 : 2019-08-29
+		 * 변경이력
+		 * 2019-08-29 / 남진우  : 한성자동차 프로시저 제외한 변환 완료 
+ 		 */
+		
+		/* 한성자동차 전용 개발 ( ORACLE 변환 불필요 ( MSSQL만 해당 ) ) */
+		DECLARE @GWAUTHYN NVARCHAR(2) = 'N'
+		IF EXISTS (
+				SELECT	*
+				FROM	INFORMATION_SCHEMA.VIEWS
+				WHERE	TABLE_SCHEMA = 'NEOE'
+				AND		TABLE_NAME = 'V_FI_Z_HSMT_GWAUTH'
+			)
+		BEGIN
+			SELECT	@GWAUTHYN = 'Y'
+		END
+		
+		IF (@GWAUTHYN = 'Y')
+		BEGIN
+			SELECT  A.CD_COMPANY AS erpCompSeq
+			        , A.CD_BUDGET AS budgetCode
+			        , A.NM_BUDGET AS budgetName
+			FROM    (
+			            SELECT  CD_COMPANY
+			                    , CD_BUDGET
+			                    , NM_BUDGET
+			            FROM    NEOE.FI_BGCODE WITH ( NOLOCK )
+			            WHERE   CD_COMPANY = '${erpCompSeq}'
+			            AND     YN_USE = 'Y'
+			            AND     ( CD_BUDGET LIKE '%' + #{searchStr} + '%' OR NM_BUDGET LIKE '%' + #{searchStr} + '%' )
+			        ) A 
+			        /*
+			        INNER JOIN (
+			            SELECT  A.CD_COMPANY
+			                    , A.CD_BUDGET
+			            FROM    NEOE.FI_BGDEPT A WITH ( NOLOCK )
+			                    INNER JOIN (
+			                        SELECT  CD_COMPANY
+			                                , CD_DEPT
+			                        FROM    NEOE.MA_EMP WITH ( NOLOCK )
+			                        WHERE   NO_EMP = '${erpEmpSeq}'
+			                    ) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_DEPT = B.CD_DEPT
+			        ) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_BUDGET = B.CD_BUDGET
+			        */
+			WHERE	A.CD_BUDGET IN (
+						SELECT	CD_BUDGET
+						FROM	V_FI_Z_HSMT_GWAUTH
+						WHERE	CD_COMPANY = '${erpCompSeq}'
+						AND		NO_EMP = '${erpEmpSeq}'
+						GROUP	BY CD_BUDGET
+					)
+		END
+		ELSE
+		BEGIN
+			SELECT  A.CD_COMPANY AS erpCompSeq
+			        , A.CD_BUDGET AS budgetCode
+			        , A.NM_BUDGET AS budgetName
+			FROM    (
+			            SELECT  CD_COMPANY
+			                    , CD_BUDGET
+			                    , NM_BUDGET
+			            FROM    NEOE.FI_BGCODE WITH ( NOLOCK )
+			            WHERE   CD_COMPANY = '${erpCompSeq}'
+			            AND     YN_USE = 'Y'
+			            AND     ( CD_BUDGET LIKE '%' + #{searchStr} + '%' OR NM_BUDGET LIKE '%' + #{searchStr} + '%' )
+			        ) A INNER JOIN (
+			            SELECT  A.CD_COMPANY
+			                    , A.CD_BUDGET
+			            FROM    NEOE.FI_BGDEPT A WITH ( NOLOCK )
+			                    INNER JOIN (
+			                        SELECT  CD_COMPANY
+			                                , CD_DEPT
+			                        FROM    NEOE.MA_EMP WITH ( NOLOCK )
+			                        WHERE   NO_EMP = '${erpEmpSeq}'
+			                    ) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_DEPT = B.CD_DEPT
+			        ) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_BUDGET = B.CD_BUDGET
+        END
+	]]>
+	</select>
+	
+	
+	<select id="ExUserCode.ExCommonCodeBudDeptgetSelect" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeBudDeptgetSelect - 공통 코드 조회 ( 부서 단위 조회  )
+		 * 작성자 : 이준성 
+		 * 작성일 : 2020-04-07
+		 * 변경이력
+		 * 2020-04-07 부서 단위 조회 추가 
+ 		 */
+		
+      SELECT A.cd_company AS erpCompSeq, 
+             A.cd_budget  AS budgetCode, 
+             A.nm_budget  AS budgetName 
+      FROM   (SELECT cd_company, 
+                     cd_budget, 
+                     nm_budget 
+              FROM   NEOE.fi_bgcode WITH ( nolock ) 
+              WHERE  cd_company = '${erpCompSeq}'
+                     AND yn_use = 'Y' 
+                     AND     ( CD_BUDGET LIKE '%' + #{searchStr} + '%' OR NM_BUDGET LIKE '%' + #{searchStr} + '%' )) A 
+             INNER JOIN (SELECT cd_company, 
+                                cd_budget 
+                         FROM   NEOE.fi_bgdept A WITH ( nolock ) 
+                         where CD_DEPT ='${erpDeptSeq}') B 
+                     ON A.cd_company = B.cd_company 
+                        AND A.cd_budget = B.cd_budget 
+	]]>
+	</select>
+	
+	
+	<select id="ExUserCode.ExCommonCodeCardSelect" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeCardSelect - 공통 코드 조회 ( 법인카드 )
+		 * 작성자 : 남진우  
+		 * 작성일 : 2019-08-29
+		 * 변경이력
+		 * 2019-08-29 / 남진우  : 오라클 변환 완료 
+		 * 2019-09-17 / 권오광 : searchStr 앞에 공백제거
+ 		 */
+
+		SELECT	TOP 100
+				CD_COMPANY AS compSeq 
+				, REPLACE (NO_CARD, '-', '') AS cardCode 
+				, NO_CARD AS cardNum 
+				, NM_CARD AS cardName 
+				, '' AS partnerCode 
+				, '' AS partnerName 
+				, YN_USE AS useYN 
+				, ID_INSERT AS createSeq 
+				, DTS_INSERT AS createDate 
+				, ID_UPDATE AS modifySeq 
+				, DTS_UPDATE AS modifyDate 
+		FROM	NEOE.FI_CARD WITH ( nolock ) 
+		WHERE	CD_COMPANY = '${erpCompSeq}' 
+		AND		( REPLACE (NO_CARD, '-', '') LIKE '%' + REPLACE ( #{searchStr}, '-', '' ) + '%' OR NM_CARD LIKE '%' + #{searchStr} + '%' ) 
+		AND		DATALENGTH(ISNULL(NO_CARD, '')) != 0 
+		AND		YN_USE = 'Y'
+	]]>
+	</select>
+	<select id="ExUserCode.ExCommonCodeCcSelect" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[	
+		/*
+		 * [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeCcSelect - 공통 코드 조회 ( 법인카드 )
+		 * 작성자 : 남진우  
+		 * 작성일 : 2019-08-29
+		 * 변경이력
+		 * 2019-08-29 / 남진우  : 오라클 변환 완료 
+		 */
+		
+		SELECT	CD_CC AS erpCcSeq 
+				, NM_CC AS erpCcName
+		FROM	NEOE.MA_CC WITH ( NOLOCK )
+		WHERE	CD_COMPANY = '${erpCompSeq}'
+		AND		(
+					CD_CC LIKE '%' + #{searchStr} + '%'
+					OR NM_CC LIKE '%' + #{searchStr} + '%'
+				)
+		AND		YN_USE = 'Y'
+	]]>
+	</select>
+	<select id="ExUserCode.ExCommonCodeEmpSelectOne" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeEmpSelectOne - 공통 코드 조회 ( 동일한 ERP 사번을 가진 사람 데이터 조회 )
+		 * 작성자 : 남진우  
+		 * 작성일 : 2019-08-29
+		 * 변경이력
+		 * 2019-08-29 / 남진우  : 오라클 변환 완료 
+		 */
+		
+		SELECT	B.CD_COMPANY AS erpCompSeq
+				, B.NM_COMPANY AS erpCompName
+				, C.CD_BIZAREA AS erpBizSeq
+				, C.NM_BIZAREA AS erpBizName
+				, D.CD_DEPT AS erpDeptSeq
+				, D.NM_DEPT AS erpDeptName
+				, A.NO_EMP AS erpEmpSeq
+				, A.NM_KOR AS erpEmpName
+				, E.CD_PC AS erpPcSeq
+				, E.NM_PC AS erpPcName
+				, F.CD_CC AS erpCcSeq
+				, F.NM_CC AS erpCcName
+				/* 급여 계좌 */
+				, A.CTD_CD2 AS depositCd2
+				, A.CTD_NM2 AS depositName2
+				/* 경비 계좌 */
+				, A.CTD_CD AS depositCd
+				, A.CTD_NM AS depositName
+		FROM	(
+					SELECT	CD_COMPANY
+							, CD_BIZAREA
+							, CD_DEPT
+							, NO_EMP
+							, NM_KOR
+							, CD_CC
+							, CD_INCOM
+							/* 급여 계좌 */
+							, ISNULL ( CD_BANK2, '' ) AS CD_BANK2
+							, ISNULL ( NO_BANK2, '' ) AS NO_BANK2
+							, ISNULL ( NM_DEPOSIT2, '' ) AS NM_DEPOSIT2
+							, '' AS CTD_CD
+							, ISNULL ( CD_BANK2, '' ) + '/' + ISNULL ( ( SELECT NM_SYSDEF FROM NEOE.MA_CODEDTL WHERE CD_COMPANY = '${erpCompSeq}' AND CD_FIELD = 'MA_B000043' AND CD_SYSDEF = ISNULL ( CD_BANK2, '' ) ), '' ) + '/' + ISNULL ( NO_BANK2, '' ) + '/' + ISNULL ( NM_DEPOSIT2, '' ) AS CTD_NM
+							/* 경비 계좌 */
+							, ISNULL ( CD_BANK1, '' ) AS CD_BANK1
+							, ISNULL ( NO_BANK1, '' ) AS NO_BANK1
+							, ISNULL ( NM_DEPOSIT1, '' ) AS NM_DEPOSIT1
+							, '' AS CTD_CD2
+							, ISNULL ( CD_BANK1, '' ) + '/' + ISNULL ( ( SELECT NM_SYSDEF FROM NEOE.MA_CODEDTL WHERE CD_COMPANY = '${erpCompSeq}' AND CD_FIELD = 'MA_B000043' AND CD_SYSDEF = ISNULL ( CD_BANK1, '' ) ), '' ) + '/' + ISNULL ( NO_BANK1, '' ) + '/' + ISNULL ( NM_DEPOSIT1, '' ) AS CTD_NM2
+					FROM	NEOE.MA_EMP WITH ( NOLOCK )
+					WHERE	CD_COMPANY = '${erpCompSeq}'
+					AND		CD_INCOM != '099'
+				) A INNER JOIN (
+					SELECT	CD_COMPANY
+							, NM_COMPANY
+					FROM	NEOE.MA_COMPANY WITH ( NOLOCK )
+					WHERE	CD_COMPANY = '${erpCompSeq}'
+				) B ON A.CD_COMPANY = B.CD_COMPANY INNER JOIN (
+					SELECT	CD_COMPANY
+							, CD_BIZAREA
+							, NM_BIZAREA
+							, CD_PC
+					FROM	NEOE.MA_BIZAREA WITH ( NOLOCK )
+					WHERE	CD_COMPANY = '${erpCompSeq}'
+				) C ON A.CD_COMPANY = C.CD_COMPANY AND A.CD_BIZAREA = C.CD_BIZAREA INNER JOIN (
+					SELECT	CD_COMPANY
+							, CD_BIZAREA
+							, CD_DEPT
+							, NM_DEPT
+					FROM	NEOE.MA_DEPT WITH ( NOLOCK )
+					WHERE CD_COMPANY = '${erpCompSeq}'
+				) D ON A.CD_COMPANY = D.CD_COMPANY AND A.CD_BIZAREA = D.CD_BIZAREA AND A.CD_DEPT = D.CD_DEPT LEFT OUTER JOIN (
+					SELECT	CD_COMPANY
+							, CD_PC
+							, NM_PC
+					FROM	NEOE.MA_PC WITH ( NOLOCK )
+					WHERE	CD_COMPANY = '${erpCompSeq}'
+				) E ON C.CD_COMPANY = E.CD_COMPANY AND C.CD_PC = E.CD_PC LEFT OUTER JOIN (
+					SELECT	CD_COMPANY
+							, CD_CC
+							, NM_CC
+					FROM	NEOE.MA_CC WITH ( NOLOCK )
+					WHERE	CD_COMPANY = '${erpCompSeq}'
+					AND YN_USE = 'Y'
+				) F ON A.CD_COMPANY = F.CD_COMPANY AND A.CD_CC = F.CD_CC
+		WHERE	A.NO_EMP = '${searchStr}'
+	]]>
+	</select>
+	
+	<select id="ExUserCode.ExCommonCodeEmpSelect" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeEmpSelect -  사용자 조회
+		 * 작성자 : 남진우  
+		 * 작성일 : 2019-08-29
+		 * 변경이력
+		 * 2019-08-29 / 남진우  : 오라클 변환 완료 
+		 */
+		
+		SELECT	B.CD_COMPANY AS erpCompSeq
+				, B.NM_COMPANY AS erpCompName
+				, C.CD_BIZAREA AS erpBizSeq
+				, C.NM_BIZAREA AS erpBizName
+				, D.CD_DEPT AS erpDeptSeq
+				, D.NM_DEPT AS erpDeptName
+				, A.NO_EMP AS erpEmpSeq
+				, A.NM_KOR AS erpEmpName
+				, E.CD_PC AS erpPcSeq
+				, E.NM_PC AS erpPcName
+				, F.CD_CC AS erpCcSeq
+				, F.NM_CC AS erpCcName
+				/* 급여 계좌 */
+				, A.CTD_CD2 AS depositCd2
+				, A.CTD_NM2 AS depositName2
+				/* 경비 계좌 */
+				, A.CTD_CD AS depositCd
+				, A.CTD_NM AS depositName
+		FROM	(
+					SELECT	CD_COMPANY
+							, CD_BIZAREA
+							, CD_DEPT
+							, NO_EMP
+							, NM_KOR
+							, CD_CC
+							, CD_INCOM
+							/* 급여 계좌 */
+							, ISNULL ( CD_BANK2, '' ) AS CD_BANK2
+							, ISNULL ( NO_BANK2, '' ) AS NO_BANK2
+							, ISNULL ( NM_DEPOSIT2, '' ) AS NM_DEPOSIT2
+							, '' AS CTD_CD
+							, ISNULL ( CD_BANK2, '' ) + '/' + ISNULL ( ( SELECT NM_SYSDEF FROM NEOE.MA_CODEDTL WHERE CD_COMPANY = '${erpCompSeq}' AND CD_FIELD = 'MA_B000043' AND CD_SYSDEF = ISNULL ( CD_BANK2, '' ) ), '' ) + '/' + ISNULL ( NO_BANK2, '' ) + '/' + ISNULL ( NM_DEPOSIT2, '' ) AS CTD_NM
+							/* 경비 계좌 */
+							, ISNULL ( CD_BANK1, '' ) AS CD_BANK1
+							, ISNULL ( NO_BANK1, '' ) AS NO_BANK1
+							, ISNULL ( NM_DEPOSIT1, '' ) AS NM_DEPOSIT1
+							, '' AS CTD_CD2
+							, ISNULL ( CD_BANK1, '' ) + '/' + ISNULL ( ( SELECT NM_SYSDEF FROM NEOE.MA_CODEDTL WHERE CD_COMPANY = '${erpCompSeq}' AND CD_FIELD = 'MA_B000043' AND CD_SYSDEF = ISNULL ( CD_BANK1, '' ) ), '' ) + '/' + ISNULL ( NO_BANK1, '' ) + '/' + ISNULL ( NM_DEPOSIT1, '' ) AS CTD_NM2
+					FROM	NEOE.MA_EMP WITH ( NOLOCK )
+					WHERE	CD_COMPANY = '${erpCompSeq}'
+					AND		CD_INCOM != '099'
+				) A INNER JOIN (
+					SELECT	CD_COMPANY
+							, NM_COMPANY
+					FROM	NEOE.MA_COMPANY WITH ( NOLOCK )
+					WHERE	CD_COMPANY = '${erpCompSeq}'
+				) B ON A.CD_COMPANY = B.CD_COMPANY INNER JOIN (
+					SELECT	CD_COMPANY
+							, CD_BIZAREA
+							, NM_BIZAREA
+							, CD_PC
+					FROM	NEOE.MA_BIZAREA WITH ( NOLOCK )
+					WHERE	CD_COMPANY = '${erpCompSeq}'
+				) C ON A.CD_COMPANY = C.CD_COMPANY AND A.CD_BIZAREA = C.CD_BIZAREA INNER JOIN (
+					SELECT	CD_COMPANY			
+							, CD_BIZAREA
+							, CD_DEPT
+							, NM_DEPT
+					FROM	NEOE.MA_DEPT WITH ( NOLOCK )
+					WHERE	CD_COMPANY = '${erpCompSeq}'
+					AND		ISNULL(CD_DEPT, '') LIKE '%' + ISNULL(#{erpDeptSeq}, '') + '%'
+				) D ON A.CD_COMPANY = D.CD_COMPANY AND A.CD_BIZAREA = D.CD_BIZAREA AND A.CD_DEPT = D.CD_DEPT LEFT OUTER JOIN (
+					SELECT	CD_COMPANY
+							, CD_PC
+							, NM_PC
+					FROM	NEOE.MA_PC WITH ( NOLOCK )
+					WHERE	CD_COMPANY = '${erpCompSeq}'
+				) E ON C.CD_COMPANY = E.CD_COMPANY AND C.CD_PC = E.CD_PC LEFT OUTER JOIN (
+					SELECT	CD_COMPANY
+							, CD_CC
+							, NM_CC
+					FROM	NEOE.MA_CC WITH ( NOLOCK )
+					WHERE	CD_COMPANY = '${erpCompSeq}'
+					AND		YN_USE = 'Y'
+				) F ON A.CD_COMPANY = F.CD_COMPANY AND A.CD_CC = F.CD_CC
+		WHERE	(
+					A.NO_EMP LIKE '${searchStr}%'
+					OR A.NM_KOR LIKE '%' + #{searchStr} + '%'
+				)
+	]]>
+	</select>
+	
+	<select id="ExUserCode.ExCommonCodeDeptSelect" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeDeptSelect - 공통 코드 조회(부서)
+		 * 작성자 : 남진우 
+		 * 작성일 : 2019-08-29
+		 * 변경이력
+		 * 2019-08-29 / 남진우 : 오라클 변환 완료 
+		 */
+		
+		SELECT	CD_DEPT AS erpDeptSeq
+				, NM_DEPT AS erpDeptName
+		FROM	NEOE.MA_DEPT
+		WHERE	CD_COMPANY = #{erpCompSeq}
+		AND		TP_DEPT = 'Y'
+		AND		(
+					case
+						WHEN DT_END IS NULL OR DT_END = '' THEN CONVERT(NVARCHAR(8), GETDATE(), 112)
+						ELSE DT_END
+					END ) >= CONVERT(NVARCHAR(8), GETDATE(), 112)
+		AND		( CD_DEPT LIKE '%' + ISNULL(#{searchStr}, '') + '%' OR NM_DEPT LIKE '%' + ISNULL(#{searchStr}, '') + '%' )
+	]]>
+	</select>
+	
+	<select id="ExUserCode.ExCommonCodeErpAuthSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/*
+		 * [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeErpAuthSelect -  공통 코드 조회(증빙유형)
+		 * 작성자 : 남진우  
+		 * 작성일 : 2019-08-29
+		 * 변경이력
+		 * 2019-08-29 / 남진우  : 오라클 변환 완료 
+		 */
+		 
+		/* =========================================================================================================
+           주의사항 : 공통코드이므로, 사용자가 하위코드를 추가하거나 미사용 처리 및 삭제를 진행할 수 있습니다.
+           유지보수 진행 시 "코드가 보이지 않습니다"등의 문제점은 ERPiU 데이터 우선 점검을 진행해야 합니다.
+           ========================================================================================================= */
+
+        /* ERPiU : 증빙코드 조회 ( ==> FI_ADOCU.TP_EVIDENCE 전달 ) */
+		SELECT	A.CD_FIELD AS maCodeMaseterCode /* 증빙구분 코드 */
+				, A.NM_FIELD AS maCodeMaseterName /* 증빙구분 명칭 */
+				, B.CD_SYSDEF AS ctdCode /* 증빙구분 하위 코드 (실제 사용) */
+				, B.NM_SYSDEF AS ctdName /* 증빙구분 하위 명칭 (실제 사용) */
+		FROM	(
+					SELECT	ISNULL(CD_COMPANY, '') AS CD_COMPANY /* ERPiU 회사 코드 */
+							, ISNULL(CD_FIELD, '') AS CD_FIELD /* ERPiU 공통코드 마스터 코드 */
+							, ISNULL(NM_FIELD, '') AS NM_FIELD /* ERPiU 공통코드 마스터 명칭 */
+					FROM	NEOE.MA_CODE
+					WHERE	CD_COMPANY = '${erpCompSeq}' /* 사용자 로그인 정보 기준으로 ERP 회사코드 파라미터 전달 */
+					AND		CD_FIELD = 'FI_F000105' /* 고정값 - 증빙구분 (하드코딩) */
+				) A INNER JOIN (
+					SELECT	ISNULL(CD_COMPANY, '') AS CD_COMPANY /* ERPiU 회사 코드 */
+							, ISNULL(CD_FIELD, '') AS CD_FIELD /* ERPiU 공통코드 마스터 코드 */
+							, ISNULL(CD_SYSDEF, '') AS CD_SYSDEF /* ERPiU 공통코드 디테일 코드 */
+							, ISNULL(NM_SYSDEF, '') AS NM_SYSDEF /* ERPiU 공통코드 디테일 명칭 */
+					FROM	NEOE.MA_CODEDTL
+					WHERE	CD_COMPANY = '${erpCompSeq}' /* 사용자 로그인 정보 기준으로 ERP 회사코드 파라미터 전달 */
+					AND		CD_FIELD = 'FI_F000105' /* 고정값 - 증빙구분 (하드코딩) */
+					AND		USE_YN = 'Y'
+				) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_FIELD = B.CD_FIELD
+		WHERE	(
+					ISNULL(B.CD_SYSDEF, '') LIKE '%' + #{searchStr} + '%' /* 팝업 검색어 파라미터 전달 */
+					OR ISNULL(B.NM_SYSDEF, '') LIKE '%' + #{searchStr} + '%' /* 팝업 검색어 파라미터 전달 */
+				)
+		ORDER	BY B.CD_SYSDEF /* 정렬순서 : ERPiU에서 별도 정렬순서를 정의하지 않습니다. - 코드 기준 정리 진행 */
+	</select>
+	<select id="ExUserCode.ExCommonCodeNotaxSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/*
+ 			* [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeNotaxSelect - TODO: 설명 기록
+ 			* 작성자 : 남진우  
+ 			* 작성일 : 2019-08-29
+ 			* 변경이력
+ 			* 2019-08-29 / 남진우  : 오라클 변환 완료 
+ 		*/
+		SELECT	B.CD_SYSDEF   AS noTaxCode /* 코드 */
+				, B.NM_SYSDEF AS noTaxName
+		FROM	(
+				SELECT	CD_COMPANY /* ERP 회사코드 */
+						, CD_FIELD /* 공통코드 마스터 */
+				FROM	NEOE.MA_CODE WITH ( NOLOCK )
+				/* 검색조건 : 공통코드 마스터 */
+				WHERE 	CD_FIELD = 'FI_T000002'
+				/* 검색조건 : ERP 회사코드 */
+				AND 	CD_COMPANY = '${erpCompSeq}'
+			) A
+		INNER JOIN (
+			SELECT	CD_COMPANY /* ERP 회사코드 */
+					, CD_FIELD /* 공통코드 마스터 */
+					, CD_SYSDEF /* 코드 */
+					, NM_SYSDEF /* 명칭 */
+			FROM	NEOE.MA_CODEDTL WITH ( NOLOCK )
+			/* 검색조건 : 공통코드 마스터 */
+			WHERE 	CD_FIELD = 'FI_T000002'
+			/* 검색조건 : ERP 회사코드 */
+			AND 	CD_COMPANY = '${erpCompSeq}'
+			/* 검색조건 : 사용여부 */
+			AND 	USE_YN = 'Y'
+			/* 검색조건 : 매입건만 조회 */
+		) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_FIELD = B.CD_FIELD
+		/* 검색조건 : 검색어 */
+		WHERE ( 
+			B.NM_SYSDEF LIKE '%' + #{searchStr} + '%'
+			OR B.CD_SYSDEF LIKE '%' + #{searchStr} + '%' 
+		)
+	</select>
+	<select id="ExUserCode.ExCommonCodePartnerSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*
+ 			* [ ERPiU - MSSQL ] ExUserCode.ExCommonCodePartnerSelect -  공통 코드 조회(거래처
+ 			* 작성자 : 남진우  
+ 			* 작성일 : 2019-08-29
+ 			* 변경이력
+ 			* 2019-08-29 / 남진우  : 오라클 변환 완료 
+ 		*/
+		SELECT 	TOP 100 *
+		FROM	(
+			SELECT	   A.CD_PARTNER                          AS partnerCode
+			           , LN_PARTNER                        AS partnerName
+			           , NO_COMPANY                        AS partnerNo
+			           , CASE WHEN LEN(ISNULL(NO_RES, '')) > 6 THEN SUBSTRING(ISNULL(NO_RES, ''), 1, 6) + '-*******' ELSE '' END AS resNo
+			           , FG_PARTNER                        AS partnerFg
+			           , ISNULL (NM_CEO, '')               AS ceoName
+			           , ISNULL (TP_JOB, '')               AS jobGbn
+			           , ISNULL (CLS_JOB, '')              AS clsJobGbn
+			           , ISNULL (A.NO_DEPOSIT, '')           AS depositNo
+			           , ISNULL (A.CD_BANK, '')              AS bankCode
+			           , ISNULL (CD_EMP_PARTNER, '')       AS partnerEmpCode
+			           , ISNULL (NO_HPEMP_PARTNER, '')     AS partnerHpEmpNo
+			           , ISNULL (A.NM_DEPOSIT, '')           AS depositName
+			           , CASE
+							WHEN DATALENGTH(ISNULL(B.NM,'')) * DATALENGTH(ISNULL(A.NO_DEPOSIT,'')) * DATALENGTH(ISNULL(A.NM_DEPOSIT,'')) > 0
+							THEN ISNULL ( B.NM + '/' + A.NO_DEPOSIT + '/' + A.NM_DEPOSIT, '' )
+							ELSE ''
+						END AS depositConvert
+						, ISNULL(deposit.CD_DEPOSITNO, '') AS depositCd
+						, CASE
+							WHEN A.CD_PARTNER = '00' THEN ''
+							ELSE A.CD_PARTNER
+						END AS orderNum
+			FROM NEOE.MA_PARTNER A WITH ( NOLOCK )
+			LEFT OUTER JOIN NEOE.MA_PARTNER_DEPOSIT deposit WITH ( NOLOCK ) ON  A.NO_DEPOSIT = deposit.NO_DEPOSIT AND A.CD_PARTNER = deposit.CD_PARTNER AND A.CD_COMPANY = deposit.CD_COMPANY
+			   LEFT OUTER JOIN (SELECT CD
+			                           , NM
+			                      FROM (SELECT CD_FIELD
+			                              FROM NEOE.MA_CODE WITH ( NOLOCK )
+			                             WHERE CD_COMPANY = '${erpCompSeq}'
+			                                   AND CD_FIELD = 'MA_B000043') A
+			                           INNER JOIN (SELECT CD_FIELD
+			                                              , CD_SYSDEF AS CD
+			                                              , NM_SYSDEF AS NM
+			                                         FROM NEOE.MA_CODEDTL WITH ( NOLOCK )
+			                                        WHERE CD_COMPANY = '${erpCompSeq}'
+			                                              AND CD_FIELD = 'MA_B000043'
+			                                              AND USE_YN = N'Y') B
+			                                   ON A.CD_FIELD = B.CD_FIELD) B
+			                ON A.CD_BANK = B.CD
+			WHERE A.CD_COMPANY = '${erpCompSeq}'
+			   AND A.USE_YN = N'Y'
+			   AND ISNULL(FG_PARTNER, '') LIKE '%' + '${searchType}' + '%'
+			   AND ( ( ISNULL (#{searchStr}, '') != ''
+			           AND ( ( ISNULL (A.CD_PARTNER, '') LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%' )
+			                  OR ( ISNULL (A.LN_PARTNER, '') LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%' )
+			                  OR ( ISNULL (A.NO_COMPANY, '') LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%' )
+			                  OR ( ISNULL (A.CD_EMP_PARTNER, '') LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%' )
+			                  OR ( ISNULL (A.NM_CEO, '') LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%' ) 
+			                  ) )
+			          OR ( ISNULL (#{searchStr}, '') = ''
+			               AND ( ISNULL (#{searchStr}, '') = ISNULL (#{searchStr}, '') ) ) )
+		) A
+		ORDER BY A.orderNum
+	]]>
+	</select>
+	<select id="ExUserCode.ExCommonCodePcSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*
+ 			* [ ERPiU - MSSQL ] ExUserCode.ExCommonCodePcSelect -  공통 코드 조회(거래처)
+ 			* 작성자 : 남진우  
+ 			* 작성일 : 2019-08-29
+ 			* 변경이력
+ 			* 2019-08-29 / 남진우  : 오라클 변환 완료 
+ 		*/
+		
+		SELECT CD_PC  AS erpPcSeq	
+		       , NM_PC  AS erpPcName
+		FROM   NEOE.MA_PC WITH ( NOLOCK )
+		WHERE  CD_COMPANY = '${erpCompSeq}'
+		AND    (
+		              CD_PC LIKE '%' + #{searchStr} + '%'
+		       OR     NM_PC LIKE '%' + #{searchStr} + '%' )
+	]]>
+	</select>
+	<select id="ExUserCode.ExCommonCodeProjectSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*
+ 			* [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeProjectSelect -  공통 코드 조회(프로젝트)
+ 			* 작성자 : 남진우  
+ 			* 작성일 : 2019-08-29
+ 			* 변경이력
+ 			* 2019-08-29 / 남진우  : 오라클 변환 완료 
+ 		*/
+		SELECT TOP 100 NO_PROJECT   AS projectCode
+		       , NM_PROJECT AS projectName
+		  FROM NEOE.SA_PROJECTH WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND YN_USE = N'Y'
+		       AND ( ( #{searchStr} != ''
+		               AND ( ISNULL (NO_PROJECT, '') LIKE '%' + #{searchStr} + '%'
+		                      OR ISNULL (NM_PROJECT, '') LIKE '%' + #{searchStr} + '%' ) )
+		              OR ( #{searchStr} = ''
+		                   AND NO_PROJECT = NO_PROJECT ) )
+	]]>
+	</select>
+	<select id="ExUserCode.ExCommonCodeVatTypeSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*
+ 			* [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeVatTypeSelect -  공통 코드 조회(부가세 타입 )
+ 			* 작성자 : 남진우  
+ 			* 작성일 : 2019-08-29
+ 			* 변경이력
+ 			* 2019-08-29 / 남진우  : 오라클 변환 완료 
+ 		*/
+		
+		SELECT TOP 100 B.CD_SYSDEF   AS vatTypeCode
+		       , B.NM_SYSDEF AS vatTypeName
+		  FROM (SELECT CD_COMPANY
+		               , CD_FIELD
+		          FROM NEOE.MA_CODE WITH ( NOLOCK )
+		         WHERE CD_FIELD = 'FI_T000011'
+		               AND CD_COMPANY = '${erpCompSeq}') A
+		       INNER JOIN (SELECT CD_COMPANY
+		                          , CD_FIELD
+		                          , CD_SYSDEF
+		                          , NM_SYSDEF
+		                     FROM NEOE.MA_CODEDTL WITH ( NOLOCK )
+		                    WHERE CD_FIELD = 'FI_T000011'
+		                          AND CD_COMPANY = '${erpCompSeq}'
+		                          AND USE_YN = 'Y'
+		                          AND CD_SYSDEF > '20'
+		                          AND ( CD_SYSDEF LIKE '%' + #{searchStr} + '%'
+		                                 OR NM_SYSDEF LIKE '%' + #{searchStr} + '%' )) B
+		               ON A.CD_COMPANY = B.CD_COMPANY
+		                  AND A.CD_FIELD = B.CD_FIELD 
+	]]>
+	</select>
+	
+	<select id="ExUserCode.ExCommonCodeRegNoPartnerSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*
+ 			* [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeRegNoPartnerSelect -  공통 코드 조회(거래처)
+ 			* 작성자 : 남진우  
+ 			* 작성일 : 2019-08-29
+ 			* 변경이력
+ 			* 2019-08-29 / 남진우  : 오라클 변환 완료 
+ 		*/
+		
+		SELECT TOP 100 A.CD_PARTNER                          AS partnerCode
+		           , LN_PARTNER                        AS partnerName
+		           , NO_COMPANY                        AS partnerNo
+		           /* , CASE WHEN LEN(ISNULL(NO_RES, '')) > 6 THEN SUBSTRING(ISNULL(NO_RES, ''), 1, 6) + '-*******' ELSE '' END AS resNo */
+		           , FG_PARTNER                        AS partnerFg
+		           , ISNULL (NM_CEO, '')               AS ceoName
+		           , ISNULL (TP_JOB, '')               AS jobGbn
+		           , ISNULL (CLS_JOB, '')              AS clsJobGbn
+		           , ISNULL (A.NO_DEPOSIT, '')           AS depositNo
+		           , ISNULL (A.CD_BANK, '')              AS bankCode
+		           , ISNULL (CD_EMP_PARTNER, '')       AS partnerEmpCode
+		           , ISNULL (NO_HPEMP_PARTNER, '')     AS partnerHpEmpNo
+		           , ISNULL (A.NM_DEPOSIT, '')           AS depositName
+		           , CASE
+						WHEN DATALENGTH(ISNULL(B.NM,'')) * DATALENGTH(ISNULL(A.NO_DEPOSIT,'')) * DATALENGTH(ISNULL(A.NM_DEPOSIT,'')) > 0
+						THEN ISNULL ( B.NM + '/' + A.NO_DEPOSIT + '/' + A.NM_DEPOSIT, '' )
+						ELSE ''
+					END AS depositConvert
+					, ISNULL(deposit.CD_DEPOSITNO, '') AS depositCd
+		FROM NEOE.MA_PARTNER A WITH ( NOLOCK )
+		LEFT OUTER JOIN NEOE.MA_PARTNER_DEPOSIT deposit WITH ( NOLOCK ) ON  A.NO_DEPOSIT = deposit.NO_DEPOSIT AND A.CD_PARTNER = deposit.CD_PARTNER AND A.CD_COMPANY = deposit.CD_COMPANY
+		   LEFT OUTER JOIN (SELECT CD
+		                           , NM
+		                      FROM (SELECT CD_FIELD
+		                              FROM NEOE.MA_CODE WITH ( NOLOCK )
+		                             WHERE CD_COMPANY = '${erpCompSeq}'
+		                                   AND CD_FIELD = 'MA_B000043') A
+		                           INNER JOIN (SELECT CD_FIELD
+		                                              , CD_SYSDEF AS CD
+		                                              , NM_SYSDEF AS NM
+		                                         FROM NEOE.MA_CODEDTL WITH ( NOLOCK )
+		                                        WHERE CD_COMPANY = '${erpCompSeq}'
+		                                              AND CD_FIELD = 'MA_B000043'
+		                                              AND USE_YN = N'Y') B
+		                                   ON A.CD_FIELD = B.CD_FIELD) B
+		                ON A.CD_BANK = B.CD
+		WHERE A.CD_COMPANY = '${erpCompSeq}'
+		   AND A.USE_YN = N'Y'
+		   AND REPLACE(ISNULL(A.NO_COMPANY, ''),'-','') != ''
+		   AND ISNULL(FG_PARTNER, '') LIKE '%' + '${searchType}' + '%'
+		   AND ( ( ISNULL (#{searchStr}, '') != ''
+		           AND ( ( ISNULL (A.CD_PARTNER, '') LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%' )
+		                  OR ( ISNULL (A.LN_PARTNER, '') LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%' )
+		                  OR ( ISNULL (A.NO_COMPANY, '') LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%' )
+		                  OR ( ISNULL (A.CD_EMP_PARTNER, '') LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%' ) ) )
+		          OR ( ISNULL (#{searchStr}, '') = ''
+		               AND ( ISNULL (#{searchStr}, '') = ISNULL (#{searchStr}, '') ) ) )
+	]]>
+	</select>
+	
+	<select id="ExUserCode.ExCommonCodeExchangeUnitSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/*
+ 			* [ ERPiU - MSSQL ] ExUserCode.ExCommonCodeExchangeUnitSelect -  공통 코드 조회(환종정보)
+ 			* 작성자 : 권오광  
+ 			* 작성일 : 2019-10-02
+ 			* 변경이력
+ 		*/
+		
+		SELECT CD_SYSDEF   AS exchangeUnitCode
+		       , NM_SYSDEF AS exchangeUnitName
+		  FROM NEOE.MA_CODEDTL WITH ( NOLOCK )
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND CD_FIELD = 'MA_B000005'
+		       AND ISNULL(USE_YN, '') = 'Y'
+		       AND ( ( CD_SYSDEF LIKE '%' + #{searchStr} + '%' )
+		              OR ( NM_SYSDEF LIKE '%' + #{searchStr} + '%' ) )
+	</select>
+	
+	
+	<!-- 공통코드 - 관리항목 전체 목록 조회 -->
+	<select id="ExUserCode.ExExpendMngListInfoSelect" parameterType="common.vo.ex.ExCodeMngVO" resultType="common.vo.ex.ExCodeMngVO"><![CDATA[
+		/*
+ 			* [ ERPiU - MSSQL ] ExUserCode.ExExpendMngListInfoSelect -  공통 코드 조회(관리항목 전체 목록 조회)
+ 			* 작성자 : 남진우  
+ 			* 작성일 : 2019-08-29
+ 			* 변경이력
+ 			* 2019-08-29 / 남진우  : 오라클 변환 완료 
+ 		*/
+		
+		SELECT  CD_COMPANY AS erpCompSeq
+		        , CD_MNG AS mngCode
+		        , NM_MNG AS mngName
+		        , TP_MNG AS mngType
+		        , YN_CDMNG AS mngChildYn
+		        , TP_MNGFORM AS mngForm
+		FROM    NEOE.FI_MNG
+		WHERE   CD_COMPANY = '${erpCompSeq}'
+        AND     ( CD_MNG LIKE '%' + #{searchStr} + '%' OR NM_MNG LIKE '%' + #{searchStr} + '%' )
+		AND     YN_USE = 'Y'
+    ]]></select>
+    
+    
+    <!-- 공통코드 - 거래처 조회 -->
+	<select id="ExUserCode.ExCodePartnerInfoSelect" parameterType="common.vo.ex.ExCodePartnerVO" resultType="common.vo.ex.ExCodePartnerVO"><![CDATA[
+		/*
+ 			* [ ERPiU - MSSQL ] ExUserCode.ExCodePartnerInfoSelect -  공통 코드 조회(거래처 조회)
+ 			* 작성자 : 남진우  
+ 			* 작성일 : 2019-08-29
+ 			* 변경이력
+ 			* 2019-08-29 / 남진우 : 오라클 변환 완료 
+ 			* 2019-09-10 / 김상겸 : 거래처 계좌번호 조인 오류 보완 ( ON절 NO_DEPOSIT 같음 조건 추가 )
+ 		*/
+		
+		SELECT TOP 1 A.CD_PARTNER                          AS partnerCode
+		             , LN_PARTNER                        AS partnerName
+		             , NO_COMPANY                        AS partnerNo
+		             , CASE WHEN LEN(ISNULL(NO_RES, '')) > 6 THEN SUBSTRING(ISNULL(NO_RES, ''), 1, 6) + '-*******' ELSE '' END AS resNo
+		             , FG_PARTNER                        AS partnerFg
+		             , ISNULL (NM_CEO, '')               AS ceoName
+		             , ISNULL (TP_JOB, '')               AS jobGbn
+		             , ISNULL (CLS_JOB, '')              AS clsJobGbn
+		             , ISNULL (A.NO_DEPOSIT, '')           AS depositNo
+		             , ISNULL (A.CD_BANK, '')              AS bankCode
+		             , ISNULL (CD_EMP_PARTNER, '')       AS partnerEmpCode
+		             , ISNULL (NO_HPEMP_PARTNER, '')     AS partnerHpEmpNo
+		             , ISNULL (A.NM_DEPOSIT, '')           AS depositName
+					, CASE
+							WHEN ISNULL ( B.NM, '' ) != '' AND ISNULL ( A.NO_DEPOSIT, '' ) != '' AND ISNULL ( A.NM_DEPOSIT, '' ) != ''
+							THEN ISNULL(C.CD_DEPOSITNO,'')
+							ELSE ''
+					END AS depositCd
+					, CASE
+							WHEN ISNULL ( B.NM, '' ) != '' AND ISNULL ( A.NO_DEPOSIT, '' ) != '' AND ISNULL ( A.NM_DEPOSIT, '' ) != ''
+							THEN ISNULL ( B.NM, '' ) + '/' + ISNULL ( A.NO_DEPOSIT, '' ) + '/' + ISNULL ( A.NM_DEPOSIT, '' )
+							ELSE ''
+					END AS depositConvert
+		  FROM NEOE.MA_PARTNER A
+		  LEFT OUTER JOIN NEOE.MA_PARTNER_DEPOSIT C ON A.CD_COMPANY = C.CD_COMPANY AND A.CD_PARTNER = C.CD_PARTNER AND A.NO_DEPOSIT = C.NO_DEPOSIT
+		       LEFT OUTER JOIN (SELECT CD
+		                               , NM
+		                          FROM (SELECT CD_FIELD
+		                                  FROM NEOE.MA_CODE
+		                                 WHERE CD_COMPANY = '${erpCompSeq}'
+		                                       AND CD_FIELD = 'MA_B000043') A
+		                               INNER JOIN (SELECT CD_FIELD
+		                                                  , CD_SYSDEF AS CD
+		                                                  , NM_SYSDEF AS NM
+		                                             FROM NEOE.MA_CODEDTL
+		                                            WHERE CD_COMPANY = '${erpCompSeq}'
+		                                                  AND CD_FIELD = 'MA_B000043'
+		                                                  AND USE_YN = N'Y') B
+		                                       ON A.CD_FIELD = B.CD_FIELD) B
+		                    ON A.CD_BANK = B.CD
+		 WHERE A.CD_COMPANY = '${erpCompSeq}'
+		       AND A.USE_YN = N'Y'
+		       AND REPLACE(ISNULL(A.NO_COMPANY, ''),'-','') != ''
+		       AND ISNULL(FG_PARTNER,'') LIKE '%' + '${searchType}' + '%'
+		       AND ( ( ISNULL (#{searchStr}, '') != ''
+		               AND ( ( ISNULL (A.CD_PARTNER, '') LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%' )
+		                      OR ( ISNULL (A.LN_PARTNER, '') LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%' )
+		                      OR ( ISNULL (A.NO_COMPANY, '') LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%' )
+		                      OR ( ISNULL (A.CD_EMP_PARTNER, '') LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%' ) ) )
+		              OR ( ISNULL (#{searchStr}, '') = ''
+		                   AND ( ISNULL (#{searchStr}, '') = ISNULL (#{searchStr}, '') ) ) )
+		ORDER BY A.CD_PARTNER
+	]]></select>
+    
+    <!-- 카드 조회 -->
+	<select id="ExUserCode.ExCodeCardInfoSelect" parameterType="common.vo.ex.ExCodeCardVO" resultType="common.vo.ex.ExCodeCardVO">
+		/*
+ 			* [ ERPiU - MSSQL ] ExUserCode.ExCodeCardInfoSelect -  카드 조회
+ 			* 작성자 : 남진우  
+ 			* 작성일 : 2019-08-29
+ 			* 변경이력
+ 			* 2019-08-29 / 남진우  : 오라클 변환 완료 
+ 		*/
+		SELECT TOP 1 CD_COMPANY                   AS empCompSeq
+		             , Replace (NO_CARD, '-', '') AS cardCode
+		             , NO_CARD                    AS cardNum
+		             , NM_CARD                    AS cardName
+		             , ''                         AS partnerCode
+		             , ''                         AS partnerName
+		             , YN_USE                     AS useYN
+		             , ID_INSERT                  AS createSeq
+		             , DTS_INSERT                 AS createDate
+		             , ID_UPDATE                  AS modifySeq
+		             , DTS_UPDATE                 AS modifyDate
+		  FROM NEOE.FI_CARD
+		 WHERE CD_COMPANY = '${erpCompSeq}'
+		       AND ( REPLACE(Replace (NO_CARD, '-', ''), ' ', '') LIKE '%' + Replace ( #{searchStr}, '-', '' ) + '%'
+		              OR NM_CARD LIKE '%' + #{searchStr} + '%' )
+           
+		<if test="searchCardNum != ''">
+			AND ( REPLACE(Replace (NO_CARD, '-', ''), ' ', '') LIKE '%' + Replace ( '${searchCardNum}', '-', '' ) + '%'
+		              OR NM_CARD LIKE '%${searchCardNum}%' )
+		</if>
+	</select>
+	
+	
+	<!-- ERPiU 예산 잔액 및 통제구분 조회 -->
+	<select id="ExUserCode.ERPiUBudgetInfoSelect" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] ExUserCode.ERPiUBudgetInfoSelect - ERPiU 예산 잔액 및 통제구분 조회
+		 * 작성자 : 남진우
+		 * 작성일 : 2019-08-30
+		 * 변경이력
+		 * - 2019-08-30 / 남진우 : mssql <> oracle 비교 보완
+		 */
+		 
+		DECLARE @V_AM_JSUM NUMERIC(19) /* 집행금액 */
+		DECLARE @V_AM_ACTSUM NUMERIC(19) /* 실행합금액 */
+		DECLARE @V_YN_CONTROL CHAR(1) /* 통제유무: N:통제안함,Y:통제함 */
+		
+		execute	UP_FI_DOCU_BUDGET_DATA '${erpCompSeq}', '${budgetCode}','${bizplanCode}','${bgacctCode}','1','${budgetYm}', @V_AM_JSUM OUTPUT, @V_AM_ACTSUM OUTPUT, @V_YN_CONTROL output
+		
+		SELECT  CONVERT ( NVARCHAR(19), @V_AM_JSUM ) AS budgetJsum
+				, CONVERT ( NVARCHAR(19), @V_AM_ACTSUM ) AS budgetActsum
+				, @V_YN_CONTROL AS budgetControlYN
+	]]>
+	</select>
+	
+	<!-- ERPiU 예산 잔액 및 통제구분 조회 -->
+	<select id="ExUserCode.UP_FI_Z_BIZBOX_BUDGET_DATA" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] ExUserCode.UP_FI_Z_BIZBOX_BUDGET_DATA - ERPiU 예산 잔액 및 통제구분 조회
+		 * 작성자 : 김상겸
+		 * 작성일 : 2020-02-28
+		 * 변경이력
+		 * - 2020-02-20 / 김상겸 : 신규개발
+		 */
+		 
+		DECLARE	@P_CD_COMPANY		NVARCHAR(7),
+				@P_CD_BUDGET		NVARCHAR(20),	/* 예산단위 */
+				@P_CD_BIZPLAN		NVARCHAR(20),	/* 사업계획 */
+				@P_CD_BGLEVEL		NVARCHAR(10),	/* 예산집행통제계정코드 */
+				@P_TP_DRCR			NVARCHAR(1),	/* 차대변(1:차변,2:대변) */
+				@P_DT_ACCT			NVARCHAR(8),	/* 회계일자(예:20130411) */
+				@P_AM_JSUM			NUMERIC(19,4),	/* 집행금액 */
+				@P_AM_ACTSUM		NUMERIC(19,4)	/* 실행합금액(편성금액) */
+				
+		SET		@P_CD_COMPANY		= #{erpCompSeq}
+		SET		@P_CD_BUDGET		= #{budgetCode}
+		SET		@P_CD_BIZPLAN		= #{bizplanCode}
+		SET		@P_CD_BGLEVEL		= #{cdBgLevel}
+		SET		@P_TP_DRCR			= #{tpDrcr}
+		SET		@P_DT_ACCT			= #{budgetYm}
+		SET		@P_AM_JSUM			= 0
+		SET		@P_AM_ACTSUM		= 0
+		
+		EXEC	[NEOE].[UP_FI_Z_BIZBOX_BUDGET_DATA]
+				@P_CD_COMPANY,
+				@P_CD_BUDGET,				/* 예산단위 */
+				@P_CD_BIZPLAN,				/* 사업계획 */
+				@P_CD_BGLEVEL,				/* 예산집행통제계정코드 */
+				@P_TP_DRCR,					/* 차대변(1:차변,2:대변) */
+				@P_DT_ACCT,					/* 회계일자(예:20130411) */
+				@P_AM_JSUM		OUTPUT,		/* 집행금액 */
+				@P_AM_ACTSUM	OUTPUT		/* 실행합금액(편성금액) */
+
+		SELECT	@P_AM_ACTSUM AS budgetActsum	/* 실행합금액(편성금액) */
+				, @P_AM_JSUM AS budgetJsum		/* 집행금액 */
+	]]>
+	</select>
+	
+	<select id="ExUserCode.ExCommonAcctReceptYN" parameterType="java.util.Map" resultType="java.util.Map">
+		/*
+ 			* [ ERPiU - mssql ] ExUserCode.ExCommonAcctReceptYN - 계정과목 조회 ????
+ 			* 작성자 : 남진우  
+ 			* 작성일 : 2019-08-29
+ 			* 변경이력
+ 			* 2019-08-29 / 남진우  : 오라클 변환 완료 
+ 		*/
+		
+		SELECT	CD_ACCT AS acctCode
+				, NM_ACCT AS acctName
+				, CASE 
+					WHEN CD_RELATION = '82' THEN 'Y'
+					ELSE 'N'
+				END AS receptYN
+		FROM	NEOE.FI_ACCTCODE
+		WHERE	CD_COMPANY = #{erpCompSeq}
+		AND		CD_ACCT = #{acctCode}
+	</select>
+	
+	
+	<select id="ExCommonAccSeqSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/*
+ 			* [ ERPiU - mssql ] ExUserCode.ExCommonAccSeqSelect - 회계기수/차기이 조회 
+ 			* 작성자 : 이준성 
+ 			* 작성일 : 2019-09-04
+ 			* 변경이력
+ 			* 2019-09-04 / 이준성 : AND		ISDATE(DT_FROM) 추가 
+			*	    			  AND		ISDATE(DT_TO)  추가  
+ 		*/
+	<![CDATA[
+		SELECT	NO_ACCSEQ AS noAccSeq
+				, CONVERT(NVARCHAR(10), CONVERT(DATETIME, DT_FROM, 112), 121) AS dtFrom
+				, CONVERT(NVARCHAR(10), CONVERT(DATETIME, DT_TO, 112), 121) AS dtTo
+		FROM	NEOE.FI_ACCSEQ
+		WHERE	CD_COMPANY = #{erpCompSeq}
+		AND		ISDATE(DT_FROM) = 1
+		AND		ISDATE(DT_TO) = 1
+		AND		CONVERT(NVARCHAR(8), GETDATE(), 112) BETWEEN DT_FROM AND DT_TO
+	]]>
+	</select>
+	
+		<select id="ExCommonAccSeqYesilIuSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/*
+ 			* [ ERPiU - mssql ] ExUserCode.ExCommonAccSeqSelect - 회계기수/차기이 조회 
+ 			* 작성자 : 이준성 
+ 			* 작성일 : 2019-09-04
+ 			* 변경이력
+ 			* 2019-09-04 / 이준성 : AND		ISDATE(DT_FROM) 추가 
+			*	    			  AND		ISDATE(DT_TO)  추가  
+								 AND 		NO_ACCSEQ 추가 
+ 		*/
+		SELECT	NO_ACCSEQ AS noAccSeq
+				, CONVERT(NVARCHAR(10), CONVERT(DATETIME, DT_FROM, 112), 121) AS dtFrom
+				, CONVERT(NVARCHAR(10), CONVERT(DATETIME, DT_TO, 112), 121) AS dtTo
+		FROM	NEOE.FI_ACCSEQ
+		WHERE	CD_COMPANY = #{erpCompSeq}
+		AND		ISDATE(DT_FROM) = 1
+		AND		ISDATE(DT_TO) = 1
+		<if test = "noAccSeq ==''">
+		AND		CONVERT(NVARCHAR(8), GETDATE(), 112) BETWEEN DT_FROM AND DT_TO
+		</if>
+		<if test = "noAccSeq !=''">
+		AND		NO_ACCSEQ = #{noAccSeq}
+		</if>
+	</select>
+</mapper>

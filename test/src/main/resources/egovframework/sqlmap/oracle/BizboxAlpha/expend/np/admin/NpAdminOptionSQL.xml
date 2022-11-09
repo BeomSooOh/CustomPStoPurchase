@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="NpAdminOptionA">
+
+	<!-- 비영리 회계 - 옵션 셋 조회 -->
+	<select id="NpAdminOptionA.NpGwCommonOptionSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/admin/NpUserOptionSQL.xml - NpAdminOption.NpGwCommonOptionSelect */
+		/* 비영리 회계모듈 공통 옵션 조회 */
+		SELECT	
+			comp_seq
+			, form_seq
+			, option_gbn
+			, option_code
+			, use_sw
+			, order_num
+			, common_code
+			, base_value
+			, base_name
+			, base_emp_value
+			, set_value
+			, set_name
+			, set_emp_value
+			, option_select_type
+			, option_process_type
+			, use_yn
+		FROM	$DB_NEOS$t_exnp_option 
+		<isNotEmpty property="formSeq">
+		WHERE	comp_seq = #compSeq#
+		 AND	form_seq = #formSeq#
+		</isNotEmpty>
+		<isEmpty property="formSeq">
+		 <isEqual property="useSw" compareValue ="iCUBE">
+		  WHERE	comp_seq = 'NP_OPTION_G20' 
+		 </isEqual>
+		 <isEqual property="useSw" compareValue ="ERPiU">
+		  WHERE	comp_seq = 'NP_OPTION_U'
+		 </isEqual>
+		 AND	form_seq = '0'
+		</isEmpty>
+		 AND	use_sw = #useSw#
+	</select>
+
+
+	<!-- 비영리 회계 - 옵션 셋 복사 -->
+	<insert id="NpAdminOptionA.NpGwCommonOptionInsert" parameterClass="java.util.HashMap" >
+		/* expend/np/admin/NpUserOptionSQL.xml - NpAdminOption.NpGwCommonOptionInsert */
+		/* 비영리 회계모듈 공통 옵션 복사 */
+		INSERT INTO $DB_NEOS$t_exnp_option (
+				comp_seq, form_seq, note, option_gbn, option_code, use_sw, order_num, common_code
+				, base_value, base_name, base_emp_value, set_value, set_name, set_emp_value
+				, option_select_type, option_process_type, use_yn
+		)
+		SELECT	
+			#compSeq#
+			, #formSeq#
+			, o.note
+			, o.option_gbn
+			, o.option_code
+			, o.use_sw
+			, o.order_num
+			, o.common_code
+			, o.base_value
+			, o.base_name
+			, o.base_emp_value
+			, o.set_value
+			, o.set_name
+			, o.set_emp_value
+			, o.option_select_type
+			, o.option_process_type
+			, o.use_yn
+		FROM	(
+			SELECT	* 
+			FROM	$DB_NEOS$t_exnp_option o
+			<isEqual property="useSw" compareValue ="iCUBE"> 
+			  WHERE	comp_seq = 'NP_OPTION_G20'
+			</isEqual>
+			<isEqual property="useSw" compareValue ="ERPiU"> 
+			  WHERE	comp_seq = 'NP_OPTION_U'
+			</isEqual>
+			 AND	form_seq	= '0'
+			 AND	use_sw		= #useSw#
+		)	o
+		LEFT JOIN (
+			SELECT	*
+			FROM	$DB_NEOS$t_exnp_option o2
+			WHERE	comp_seq	= #compSeq#
+			 AND	form_seq	= #formSeq#
+			 AND	use_sw 		= #useSw#
+		)	o2
+		ON	o.option_gbn = o2.option_gbn
+		 AND	o.option_code = o2.option_code
+		WHERE 	o2.option_code IS NULL
+	</insert>
+	
+	<update id="NpAdminOptionA.NpGwCommonOptionUpdate" parameterClass="java.util.HashMap">
+		UPDATE $DB_NEOS$t_exnp_option SET
+			set_value = #setValue#, 
+			set_name = #setName#
+		WHERE  comp_seq = #compSeq#
+		  AND  form_seq = #formSeq#
+		  AND  option_gbn = #optionGbn#
+		  AND  option_code = #optionCode#
+	</update>
+</sqlMap>

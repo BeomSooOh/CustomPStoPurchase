@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CompManage">
+	
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+
+		<select id="CompManage.getCompList" parameterClass="hashmap" resultClass="egovMap">
+			SELECT A.*,
+			B.lang_code, 
+			$DB_NEOS$FN_GetMultiLang(#langCode#,B.comp_name_multi) as comp_name,
+			B.comp_display_name,
+			B.owner_name,
+			B.sender_name, 
+			B.biz_condition, 
+			B.item,
+			B.addr,
+			B.detail_addr 			
+			FROM $DB_NEOS$t_co_comp A, $DB_NEOS$v_t_co_comp_multi B 
+			WHERE
+				A.comp_seq = B.comp_seq
+				AND A.group_seq = #groupSeq#
+				AND	A.use_yn = 'Y'
+				<isNotEmpty property="compSeq">  
+				AND	A.comp_seq = #compSeq#
+				</isNotEmpty>
+				<isNotEmpty property="compName">  
+				AND	B.comp_name LIKE '%$compName$%'
+				</isNotEmpty>
+			ORDER BY A.order_num
+		</select>
+		
+		<select id="CompManage.getCompListAuth" parameterClass="hashmap" resultClass="egovMap">
+			SELECT A.comp_seq, $DB_NEOS$FN_GetMultiLang(#langCode#,B.comp_name_multi) as comp_name
+			FROM $DB_NEOS$t_co_comp A, $DB_NEOS$v_t_co_comp_multi B 
+				<isNotEqual property="userSe" compareValue="MASTER">  	
+				<isNotEqual property="loginId" compareValue="master"> 
+					, t_co_auth_adm_user_relate C
+				</isNotEqual>	 
+				</isNotEqual>	 
+			WHERE
+				A.comp_seq = B.comp_seq
+				<isNotEqual property="userSe" compareValue="MASTER">  				
+				<isNotEqual property="loginId" compareValue="master">  				
+				AND	A.comp_seq = C.comp_seq	
+				AND	C.emp_seq = #empSeq#
+				</isNotEqual>
+				</isNotEqual>
+				AND A.group_seq = #groupSeq#
+				AND	A.use_yn = 'Y'
+				
+				<isEqual property="userSe" compareValue="USER">
+						<isNotEmpty property="compSeq">  
+				AND	A.comp_seq = #compSeq#
+						</isNotEmpty>
+				</isEqual>
+				
+			GROUP BY A.comp_seq	
+			ORDER BY A.order_num
+		</select>
+		
+		<select id="CompManage.getComp" parameterClass="hashmap" resultClass="egovMap">
+			select *
+			from $DB_NEOS$t_co_comp
+			where
+				comp_seq = #compSeq#
+				and	use_yn = 'Y'
+			limit 1
+		</select>
+		
+		<delete id="CompManage.deleteComp" parameterClass="hashmap">
+			delete
+			from $DB_NEOS$t_co_comp
+			where
+				comp_seq = #compSeq#
+		</delete>
+		
+		<delete id="CompManage.deleteCompMulti" parameterClass="hashmap">
+			delete
+			from $DB_NEOS$t_co_comp_multi
+			where
+				comp_seq = #compSeq#
+		</delete>
+		
+		<select id="CompManage.getChildComp" parameterClass="hashmap" resultClass="egovMap">
+			select *
+			from $DB_NEOS$t_co_comp
+			where
+				parent_comp_seq = #compSeq#
+		</select>
+		
+		<select id="CompManage.getCompMulti" parameterClass="hashmap" resultClass="egovMap">
+			select
+				comp_seq,
+				lang_code,
+				group_seq, 
+				$DB_NEOS$FN_GetMultiLang(#langCode#,comp_name_multi) as comp_name, 
+				comp_display_name, 
+				owner_name,
+				sender_name, 
+				biz_condition, 
+				item, addr, 
+				detail_addr, 
+				use_yn, 
+				create_seq,
+				create_date,
+				modify_seq, 
+				modify_date
+			from $DB_NEOS$v_t_co_comp_multi
+			where
+				comp_seq = #compSeq#
+				and	use_yn = 'Y'
+			limit 1
+		</select>
+
+	    <update id="CompManage.updateComp" parameterClass="hashmap">
+			UPDATE $DB_NEOS$t_co_comp 
+				SET
+				<isNotEmpty property="compRegistNum">
+				`comp_regist_num` = #compRegistNum# ,
+				</isNotEmpty>
+				<isNotEmpty property="compNum"> 
+				`comp_num` = #compNum# , 
+				</isNotEmpty>
+				<isNotEmpty property="standardCode">
+				`standard_code` = #standardCode# ,
+				</isNotEmpty>
+				<isNotEmpty property="telNum"> 
+				`tel_num` = #telNum# , 
+				</isNotEmpty>
+				<isNotEmpty property="faxNum">
+				`fax_num` = #faxNum# , 
+				</isNotEmpty>
+				<isNotEmpty property="homepgAddr">
+				`homepg_addr` = #homepgAddr# , 
+				</isNotEmpty>
+				<isNotEmpty property="emailAddr">
+				`email_addr` = #emailAddr# , 
+				</isNotEmpty>
+				<isNotEmpty property="emailDomain">
+				`email_domain` = #emailDomain# ,
+				</isNotEmpty>
+				<isNotEmpty property="zipCode"> 
+				`zip_code` = #zipCode# , 
+				</isNotEmpty>
+				<isNotEmpty property="smsId">
+				`sms_id` = #smsId# , 
+				</isNotEmpty>
+				<isNotEmpty property="smsPasswd">
+				`sms_passwd` = #smsPasswd# , 
+				</isNotEmpty>
+				<isNotEmpty property="useYn">
+				`use_yn` = #useYn# , 
+				</isNotEmpty>
+				<isNotEmpty property="orderNum">
+				`order_num` = #orderNum# , 
+				</isNotEmpty>
+				`modify_seq` = #modifySeq# , 
+				`modify_date` = now()
+				WHERE
+				`comp_seq` = #compSeq#
+	    </update>
+	    
+	     <update id="CompManage.updateCompMulti" parameterClass="hashmap">
+	     	UPDATE $DB_NEOS$t_co_comp_multi 
+			SET
+				<isNotEmpty property="compName">
+				`comp_name` = #compName# , 
+				</isNotEmpty>
+				<isNotEmpty property="compDisplayName">
+				`comp_display_name` = #compDisplayName# ,
+				</isNotEmpty>
+				<isNotEmpty property="ownerName"> 
+				`owner_name` = #ownerName# , 
+				</isNotEmpty>
+				<isNotEmpty property="senderName">
+				`sender_name` = #senderName# , 
+				</isNotEmpty>
+				<isNotEmpty property="bizCondition">
+				`biz_condition` = #bizCondition# ,
+				</isNotEmpty>
+				<isNotEmpty property="item"> 
+				`item` = #item# , 
+				</isNotEmpty>
+				<isNotEmpty property="addr">
+				`addr` = #addr# , 
+				</isNotEmpty>
+				<isNotEmpty property="detailAddr">
+				`detail_addr` = #detailAddr# , 
+				</isNotEmpty>
+				<isNotEmpty property="useYn">
+				`use_yn` = #useYn# , 
+				</isNotEmpty>
+				`modify_seq` = #modifySeq# , 
+				`modify_date` = now()
+			WHERE
+				`comp_seq` = #compSeq# AND `lang_code` = #langCode#
+	     </update>
+	     
+	     
+	     
+	    
+	     
+	     <insert id="CompManage.insertCompLang" parameterClass="hashmap">
+	     	INSERT INTO $DB_NEOS$t_co_comp_lang
+			SET 
+				lang_code 				= 			#langCode#,
+				comp_seq 				= 			#compSeq#,
+				main_yn					= 			#mainYn#,
+				<isNotEmpty property="subYn">
+				sub_yn 					= 			#subYn#,
+				</isNotEmpty>
+				create_seq 				= 			#createSeq#,
+				create_date 			= 			now(), 
+				modify_seq 				= 			#modifySeq#, 
+				modify_date				 = 			now()
+			ON DUPLICATE KEY UPDATE
+				main_yn					= 			#mainYn#,
+				<isNotEmpty property="subYn">
+				sub_yn 					= 			#subYn#,
+				</isNotEmpty>
+				modify_seq 				= 			#modifySeq#, 
+				modify_date				 = 			now()
+	     </insert>
+	     
+	     <update id="CompManage.updateCompLang" parameterClass="hashmap">
+	     	UPDATE $DB_NEOS$t_co_comp_lang
+	     	SET
+	     		main_yn					= 			#mainYn#,
+				sub_yn 					= 			#subYn#,
+				modify_seq 				= 			#modifySeq#, 
+				modify_date				= 			now()
+			WHERE
+				comp_seq = #compSeq#
+				<isNotEmpty property="langCode">
+				AND	lang_code = #langCode#
+				</isNotEmpty>
+	     </update>
+	     
+	     <select id="CompManage.selectCompDutyPositionList" parameterClass="hashmap" resultClass="egovMap">
+	     	SELECT a.*,
+			b.lang_code,
+			$DB_NEOS$FN_GetMultiLang(#langCode#,b.dp_name_multi) as dp_name, 
+			b.desc_text,
+			b.comment_text, 
+	     	'file' as spriteCssClass
+	     	FROM $DB_NEOS$t_co_comp_duty_position a left outer join $DB_NEOS$v_t_co_comp_duty_position_multi b on a.dp_seq = b.dp_seq
+			WHERE a.use_yn = 'Y'
+				<isNotEmpty property="dpSeq">
+				AND	a.dp_seq = #dpSeq#
+				</isNotEmpty>
+				<isEmpty property="dpSeq">
+				AND a.comp_seq = #compSeq#
+				AND a.dp_type = #dpType#
+				</isEmpty>
+	     	ORDER BY a.order_num
+	     </select> 
+	    
+	    <insert id="CompManage.insertCompDutyPosition" parameterClass="HashMap">
+	    	INSERT INTO $DB_NEOS$t_co_comp_duty_position 
+			SET
+				group_seq = #groupSeq#,
+				`dp_seq` = #dpSeq# , 
+				`comp_seq` = #compSeq# , 
+				`dp_type` = #dpType# , 
+				`use_yn` = #useYn# , 
+				`order_num` = #orderNum# , 
+				`create_seq` = #createSeq# , 
+				`create_date` = NOW(), 
+				`modify_seq` = #modifySeq# , 
+				`modify_date` = NOW()
+			ON DUPLICATE KEY UPDATE
+				group_seq = #groupSeq#,
+				`comp_seq` = #compSeq# , 
+				`dp_type` = #dpType# , 
+				`use_yn` = #useYn# , 
+				`order_num` = #orderNum# , 
+				`modify_seq` = #modifySeq# , 
+				`modify_date` = NOW()
+	    </insert>
+	     
+	    <insert id="CompManage.insertCompDutyPositionMulti" parameterClass="HashMap">
+		    INSERT INTO $DB_NEOS$t_co_comp_duty_position_multi 
+			SET
+				`group_seq` = #groupSeq# , 
+				`dp_seq` = #dpSeq# , 
+				`lang_code` = #langCode# , 
+				`comp_seq` = #compSeq# , 
+				`dp_type` = #dpType# , 
+				`dp_name` = #dpName# , 
+				`desc_text` = #descText# , 
+				`comment_text` = #commentText# , 
+				`use_yn` = #useYn# , 
+				`create_seq` = #createSeq# , 
+				`create_date` = NOW(), 
+				`modify_seq` = #modifySeq# , 
+				`modify_date` = NOW()
+			ON DUPLICATE KEY UPDATE
+				`group_seq` = #groupSeq# , 
+				`comp_seq` = #compSeq# , 
+				`dp_type` = #dpType# , 
+				`dp_name` = #dpName# , 
+				`desc_text` = #descText# , 
+				`comment_text` = #commentText# , 
+				`use_yn` = #useYn# , 
+				`modify_seq` = #modifySeq# , 
+				`modify_date` = NOW()
+	    </insert>
+	    
+	    
+	    <select id="CompManage.selectCompDutyPositionMaxSeq" resultClass="string">
+	    	SELECT MAX(dp_seq) FROM $DB_NEOS$t_co_comp_duty_position
+	    </select>
+	    
+	     <delete id="CompManage.deleteCompDutyPosition" parameterClass="hashmap">
+	    	DELETE 
+	    	FROM $DB_NEOS$t_co_comp_duty_position 
+			WHERE
+			`dp_seq` = #dpSeq#
+	    	
+	    
+	    </delete>
+	    
+	    <delete id="CompManage.deleteCompDutyMultiPosition" parameterClass="hashmap">
+	    	DELETE 
+	    	FROM $DB_NEOS$t_co_comp_duty_position_multi 
+			WHERE
+			`dp_seq` = #dpSeq#	    	
+	    
+	    </delete>
+	    
+	    <update id="CompManage.updateCompDutyPositionSort" parameterClass="hashmap">
+	    	UPDATE $DB_NEOS$t_co_comp_duty_position
+	    	SET
+	    		order_num = #orderNum#
+	    	WHERE
+	    		dp_seq = #dpSeq#
+	    </update>
+ 
+ 		<select id="CompManage.getGroupCompList_TOTALCOUNT" parameterClass="hashmap" resultClass="string">
+	    	SELECT 
+				COUNT(a.comp_seq) TOTAL_COUNT
+			FROM 
+				$DB_NEOS$t_co_comp a, 
+				$DB_NEOS$v_t_co_comp_multi b
+			WHERE a.group_seq = b.group_seq
+				AND a.comp_seq = b.comp_seq
+				AND a.group_seq = #groupSeq#
+				
+				<isNotEmpty property="searchType">
+					<isEqual property="searchType" compareValue="0">
+						AND b.comp_name like '%$searchKeyword$%'
+					</isEqual>
+					
+					<isEqual property="searchType" compareValue="1">
+						AND b.comp_seq like '%$searchKeyword$%'
+					</isEqual>
+				
+				</isNotEmpty>
+	    </select>
+		
+		<select id="CompManage.getGroupCompList" parameterClass="hashmap" resultClass="egovMap">
+	    	SELECT 
+				a.comp_seq, 
+				$DB_NEOS$FN_GetMultiLang(#langCode#,b.comp_name_multi) as comp_name, 
+				a.use_yn, 
+				IF ((SELECT COUNT(*) FROM $DB_NEOS$t_co_erp_comp WHERE comp_seq = a.comp_seq) > 0, 'Y', 'N') AS erp_yn,
+				a.sms_id,
+				a.login_type,
+				c.lang,
+				DATE_FORMAT(a.create_date, '%Y-%m-%d') AS create_date
+			FROM 
+				$DB_NEOS$t_co_comp a
+				LEFT OUTER JOIN
+				(
+					SELECT 
+						comp_seq, 
+						GROUP_CONCAT($DB_NEOS$get_code_detail_info('0','LNG000',lang_code,#langCode#),'|', IFNULL(main_yn,'N')) AS lang 
+					FROM 
+						$DB_NEOS$t_co_comp_lang 
+					GROUP BY 
+						comp_seq
+				) c ON a.comp_seq = c.comp_seq,
+				v_t_co_comp_multi b 
+			WHERE a.group_seq = b.group_seq
+				AND a.comp_seq = b.comp_seq
+				AND a.group_seq = #groupSeq#
+				
+				<isNotEmpty property="searchType">
+					<isEqual property="searchType" compareValue="0">
+						AND $DB_NEOS$FN_GetMultiLang(#langCode#,b.comp_name_multi) like '%$searchKeyword$%'
+					</isEqual>
+					
+					<isEqual property="searchType" compareValue="1">
+						AND b.comp_seq like '%$searchKeyword$%'
+					</isEqual>
+				
+				</isNotEmpty>
+				
+			ORDER BY a.create_date
+			
+			LIMIT $startNum$, $endNum$
+	    </select>
+   
+</sqlMap>

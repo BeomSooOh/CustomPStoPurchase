@@ -1,0 +1,1110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="EzGWSQL">
+
+	<!-- 타입정의 -->
+	<typeAlias alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap" />
+
+
+<!-- 전자결재 - 양식정보 조회 -->
+	<select id="EzGWSQL.EzFormInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		<![CDATA[
+			/* 영리 EzGWSQL.EzFormInfoSelect - mariaDB */
+			SELECT  form_id
+			        , IFNULL((SELECT form_file_nm FROM $DB_NEOS$teag_form_file WHERE form_id = A.form_id AND form_file_gb = '10'), '') AS form_nm_basic
+			        , form_mode
+			        , form_tp
+			        , form_d_tp
+			        , interlock_url
+			FROM    $DB_NEOS$teag_form A
+			WHERE   form_id = '$form_id$'
+			LIMIT   1
+		]]>
+	</select>
+	
+	<select id="EzGWSQL.EzFormEAInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		<![CDATA[
+			/* 비영리 EzGWSQL.EzFormEAInfoSelect - mariaDB */
+			SELECT  form_tp AS form_tp
+					,form_d_tp AS form_d_tp
+					,c_tiname AS form_nm
+					,IFNULL(c_tichgpage,'N') AS c_tichgpage
+					,IFNULL(c_tidetailpage,'N') AS c_tidetailpage
+					,c_lnkcode
+					,c_tiuseflag
+					,c_cikind 
+					,c_tiregistpageurl AS interlock_url
+			FROM $DB_NEOS$a_templateinfo
+			WHERE c_tikeycode = #form_id#
+			LIMIT 1
+		]]>
+	</select>
+	
+	
+
+
+    
+<insert id="EzGWSQL.EzMasterInfoInsert" parameterClass="hashmap" >
+			INSERT INTO $DB_NEOS$t_ex_ezbaro_master (
+					 comp_seq
+					, erp_co_cd
+					, create_seq
+					, modify_seq
+					, create_date
+					, modify_date
+			)
+			VALUES (
+					 #compSeq#
+					, #erpCoCd#
+					, #empSeq#
+					, #empSeq#
+					, SYSDATE()
+					, SYSDATE()
+					
+			)
+
+			<selectKey keyProperty="seq" resultClass="int">
+					SELECT LAST_INSERT_ID()
+			</selectKey>
+
+</insert>
+    
+    
+<insert id="EzGWSQL.EzErpMasterInsert" parameterClass="hashmap" >
+			INSERT INTO $DB_NEOS$t_ex_ezbaro_erp_master (
+					  ERP_MASTER_SEQ
+					, LANGKIND
+					, CO_CD
+					, TASK_DT
+					, TASK_SQ
+					, OFCODE
+					, PRJNO
+					, EXECDATE
+					, REGNO
+					, DIV_CD
+					, DEPT_CD
+					, EMP_CD
+					, EXECTIME
+					, EXECSEQ
+					, BIZGRP
+					, BMCODE
+					, EXECREQDIV
+					, EXECDIV
+					, EXECMTD
+					, RESOLNO
+					, RESOLDATE
+					, CONT
+					, BELONG
+					, NM
+					, RESPERSONNO
+					, POSI
+					, PAYYYMM
+					, PARTRATE
+					, PAYBASEAMT
+					, RESOLAMT
+					, EXTTAX
+					, ACCREGAMT
+					, COURTAMT
+					, CHARGE
+					, EXECBANK
+					, EXECREQACCNO
+					, ACCOWNER
+					, EXECRECIP
+					, EXECREQFLAG
+					, TAXAPPRNO
+					, SUPPERSON
+					, SUPBIZNO
+					, MEETSDT
+					, MEETEDT
+					, MEETPLACE
+					, CONSIORG
+					, BIZNO
+					, SENDYN
+					, SENDOPT
+					, SENDDATE
+					, SENDTIME
+					, STATECODE
+					, STATETEXT
+					, RCVDATE
+					, RCVTIME
+					, RESOLCHKNO
+					, RESOLCHKTXT
+					, ORIGRESOLNO
+					, CHECKDATE
+					, CHECKUSER
+					, TRNSDATE
+					, TRNSTIME
+					, TRNSBANK
+					, TRNSACCNO
+					, TRNSACCOWNER
+					, RECIP
+					, TRNSAMT
+					, CARDNO
+					, TRSEQ
+					, TRDATE
+					, APPRNO
+					, GISU_DT
+					, GISU_SQ
+					, PJT_CD
+					, ABGT_CD
+					, TR_FG
+					, TR_CD
+					, CTR_CD
+					, CTR_NM
+					, ETCRVRS_YM
+					, ETCDIV_CD
+					, ETCDUMMY1
+					, NDEP_AM
+					, INAD_AM
+					, INTX_AM
+					, RSTX_AM
+					, WD_AM
+					, BG_SQ
+					, ETCPAY_DT
+					, ET_YN
+					, ETCDATA_CD
+					, ETCTAX_RT
+					, HIFE_AM
+					, NAPE_AM
+					, DDCT_AM
+					, NOIN_AM
+					, WD_AM2
+					, ETCRATE
+					, HINCOME_SQ
+					, PYTP_FG
+					, GW_STATE
+					, GW_ID
+					, BTR_CD
+					, RMK_DC
+					, master_seq
+					, group_key
+			)
+			VALUES (
+					  #erp_master_seq#
+					, #LANGKIND#
+					, #CO_CD#
+					, #TASK_DT#
+					, #TASK_SQ#
+					, #OFCODE#
+					, #PRJNO#
+					, #EXECDATE#
+					, #REGNO#
+					, #DIV_CD#
+					, #DEPT_CD#
+					, #EMP_CD#
+					, #EXECTIME#
+					, #EXECSEQ#
+					, #BIZGRP#
+					, #BMCODE#
+					, #EXECREQDIV#
+					, #EXECDIV#					
+					, #EXECMTD#
+					, #RESOLNO#
+					, #RESOLDATE#
+					, #CONT#
+					, #BELONG#
+					, #NM#
+					, #RESPERSONNO#
+					, #POSI#
+					, #PAYYYMM#
+					, #PARTRATE#
+					, #PAYBASEAMT#
+					, #RESOLAMT#
+					, #EXTTAX#
+					, #ACCREGAMT#
+					, #COURTAMT#
+					, #CHARGE#
+					, #EXECBANK#
+					, #EXECREQACCNO#
+					, #ACCOWNER#
+					, #EXECRECIP#
+					, #EXECREQFLAG#
+					, #TAXAPPRNO#
+					, #SUPPERSON#
+					, #SUPBIZNO#
+					, #MEETSDT#
+					, #MEETEDT#
+					, #MEETPLACE#
+					, #CONSIORG#
+					, #BIZNO#
+					, #SENDYN#
+					, #SENDOPT#
+					, #SENDDATE#
+					, #SENDTIME#
+					, #STATECODE#
+					, #STATEEXT#
+					, #RCVDATE#
+					, #RCVTIME#
+					, #RESOLCHKNO#
+					, #RESOLCHKTXT#
+					, #ORIGRESOLNO#
+					, #CHECKDATE#
+					, #CHECKUSER#
+					, #TRNSDATE#
+					, #TRNSTIME#
+					, substr( #TRNSBANK# , 1, 1 )
+					, #TRNSACCNO#
+					, #TRNSACCOWNER#
+					, #RECIP#
+					, #TRNSAMT#
+					, #CARDNO#
+					, #TRSEQ#
+					, #TRDATE#
+					, #APPRNO#
+					, #GISU_DT#
+					, #GISU_SQ#
+					, #PJT_CD#
+					, #ABGT_CD#
+					, #TR_FG#
+					, #TR_CD#
+					, #CTR_CD#
+					, #CTR_NM#
+					, #ETCRVRS_YM#
+					, #ETCDIV_CD#
+					, #ETCDUMMY1#
+					, #NDEP_AM#
+					, #INAD_AM#
+					, #INTX_AM#
+					, #RSTX_AM#
+					, #WD_AM#
+					, #BG_SQ#
+					, #ETCPAY_DT#
+					, #ET_YN#
+					, #ETCDATA_CD#
+					, #ETCTAX_RT#
+					, #HIFE_AM#
+					, #NAPE_AM#
+					, #DDCT_AM#
+					, #NOIN_AM#
+					, #WD_AM2#
+					, #ETCRATE#
+					, #HINCOME_SQ#
+					, #PYTP_FG#
+					, #GW_STATE#
+					, #GW_ID#
+					, #BTR_CD#
+					, #RMK_DC#
+					, #master_seq#
+					, #key#
+					
+			)
+
+			<selectKey keyProperty="erp_master_seq" resultClass="int">
+					SELECT LAST_INSERT_ID()
+			</selectKey>
+
+    </insert>
+    
+        
+<insert id="EzGWSQL.EzErpSlaveInsert" parameterClass="hashmap" >
+			INSERT INTO $DB_NEOS$t_ex_ezbaro_erp_slave (
+					 LANGKIND
+					, CO_CD
+					, TASK_DT
+					, TASK_SQ
+					, OFCODE
+					, PRJNO
+					, EXECDATE
+					, REGNO
+					, ARTDIV
+					, ITEMNAME
+					, STANDARD  
+					, AMOUNT
+					, UNITCOST 
+					, SUPCOST 
+					, EXECREQDIV
+					, EXTTAX 
+					, TOTPURCHAMT
+					, NTISREGNO 
+					, NTISREGDATE 
+					, CHECKDATE
+					, CHECKUSER 
+					, GISU_DT 
+					, GISU_SQ 
+					, INSERT_ID
+					, INSERT_DT 
+					, INSERT_IP
+					, MODIFY_ID
+					, MODIFY_DT 
+					, MODIFY_IP 
+					, master_seq
+					, erp_master_seq
+					, group_key					
+			)
+			VALUES (
+					 #LANGKIND#
+					, #CO_CD#
+					, #TASK_DT#
+					, #TASK_SQ#
+					, #OFCODE#
+					, #PRJNO#
+					, #EXECDATE#
+					, #REGNO#
+					, #ARTDIV#
+					, #ITEMNAME#
+					, #STANDARD# 
+					, #AMOUNT#
+					, #UNITCOST# 
+					, #SUPCOST# 
+					, #EXECREQDIV#
+					, #EXTTAX# 
+					, #TOTPURCHAMT#
+					, #NTISREGNO# 
+					, #NTISREGDATE# 
+					, #CHECKDATE#
+					, #CHECKUSER# 
+					, #GISU_DT# 
+					, #GISU_SQ# 
+					, #INSERT_ID#
+					, #INSERT_DT# 
+					, #INSERT_IP#
+					, #MODIFY_ID#
+					, #MODIFY_DT# 
+					, #MODIFY_IP# 
+					, #master_seq#
+					, #erp_master_seq#
+					, #key#
+			)
+
+			<selectKey keyProperty="erp_slave_seq" resultClass="int">
+					SELECT LAST_INSERT_ID()
+			</selectKey>
+
+    </insert>
+
+
+<insert id="EzGWSQL.EzGwParamsInsert" parameterClass="hashmap" >
+			INSERT INTO $DB_NEOS$t_ex_ezbaro_code_param (
+					CO_CD
+					, LANGKIND
+					, PRJNO
+					, OFCODE
+					, BIZGRP
+					, CODEDIV
+					, BMCODE
+					, P_HELP_TY
+					, P_CODE
+					, P_CODE2
+					, P_CODE3
+					, P_USE_YN
+					, P_NAME
+					, P_STD_DT
+					, P_WHERE
+					, RESPERSONNO
+					, group_key
+					, master_seq				
+			)
+			VALUES (
+					#CO_CD#
+					, #LANGKIND#
+					, #PRJNO#
+					, #OFCODE#
+					, #BIZGRP#
+					, #CODEDIV#
+					, #BMCODE#
+					, #P_HELP_TY#
+					, #P_CODE#
+					, #P_CODE2#
+					, #P_CODE3#
+					, #P_USE_YN#
+					, #P_NAME#
+					, #P_STD_DT#
+					, #P_WHERE#
+					, #RESPERSONNO#
+					, #key#
+					, #master_seq#
+			)
+
+			<selectKey keyProperty="param_seq" resultClass="int">
+					SELECT LAST_INSERT_ID()
+			</selectKey>
+
+    </insert>
+
+
+<insert id="EzGWSQL.EzGwMasterInsert" parameterClass="hashmap" >
+			INSERT INTO $DB_NEOS$t_ex_ezbaro_gw_master (
+					master_seq
+					,cheju
+					,group_key
+					,project
+					,bmcode
+					,`use`
+					,G20Project
+					,G20abgt
+					,execmtd
+					,execreqdiv
+					,inoutaccount
+					,resoldate
+					,partnergbn
+					,partner
+					,cardnum
+					,aprovNum
+					,serialNum
+					,trdate
+					,posi
+					,belong
+					,nm
+					,entrant
+					,bank
+					,bankaccount
+					,accholder
+					,recip
+					,paybaseamt
+					,taxapprno
+					,supperson
+					,supbizno
+					,meetstd
+					,meetetd
+					,meetplace
+					,bigo
+					,consiorg
+					,bizno
+					,resolamt
+					,taxamt				
+					,supplyamt
+					,resolnote
+					,TASK_DT
+					,TASK_SQ
+					,CO_CD				
+			)
+			VALUES (
+					#master_seq#
+					,#cheju#
+					,#key#
+					,#project#
+					,#bmcode#
+					,#use#
+					,#G20Project#
+					,#G20abgt#
+					,#execmtd#
+					,#execreqdiv#
+					,#inoutaccount#
+					,#resoldate#
+					,#partnergbn#
+					,#partner#
+					,#cardnum#
+					,#aprovNum#
+					,#serialNum#
+					,#trdate#
+					,#posi#
+					,#belong#
+					,#nm#
+					,#entrant#
+					,#bank#
+					,#bankaccount#
+					,#accholder#
+					,#recip#
+					,#paybaseamt#
+					,#taxapprno#
+					,#supperson#
+					,#supbizno#
+					,#meetstd#
+					,#meetetd#
+					,#meetplace#
+					,#bigo#
+					,#consiorg#
+					,#bizno#
+					,#resolamt#
+					,#taxamt#
+					,#supplyamt#	
+					,#resolnote#	
+					,#TASK_DT#
+					,#TASK_SQ#
+					,#CO_CD#
+			)
+
+			<selectKey keyProperty="gw_master_seq" resultClass="int">
+					SELECT LAST_INSERT_ID()
+			</selectKey>
+
+    </insert>
+
+
+<insert id="EzGWSQL.EzGwSlaveInsert" parameterClass="hashmap" >
+			INSERT INTO $DB_NEOS$t_ex_ezbaro_gw_slave (
+					master_seq
+					,gw_master_seq
+					,group_key
+					,rownum
+					,item
+					,standard
+					,amount
+					,unitprice
+					,itemsupplyamt
+					,itemtaxamt
+					,itemtotalamt
+					,itemgbn
+					,ntisregdt
+					,ntisregno
+					,specialist
+					,itementrant
+					,purposebiztrip
+					,biztripstdt
+					,biztripendt
+					,biztripsttime
+					,biztripentime
+					,stplace
+					,enplace
+					,inoutgbn
+					,belonggbn
+					,peopleregno
+					,overtimeworker
+					,overworkstdt
+					,overworkendt
+					,overworksttime
+					,overworkentime
+					,belongbizno
+					,entnm
+					,educator
+					,eduorgnm
+					,edustdt
+					,eduendt
+					,edusttime
+					,eduentime
+					,useplace
+					,usestdt
+					,useendt
+					,usesttime
+					,useentime
+					,usemethod
+					,amt
+					,TASK_DT
+					,TASK_SQ
+					,CO_CD		
+			)
+			VALUES (
+					#master_seq#
+					,#gw_master_seq#
+					,#key#
+					,#rownum#
+					,#item#
+					,#standard#
+					,#amount#
+					,#unitprice#
+					,#itemsupplyamt#
+					,#itemtaxamt#
+					,#itemtotalamt#
+					,#itemgbn#
+					,#ntisregdt#
+					,#ntisregno#
+					,#specialist#
+					,#itementrant#
+					,#purposebiztrip#
+					,#biztripstdt#
+					,#biztripendt#
+					,#biztripsttime#
+					,#biztripentime#
+					,#stplace#
+					,#enplace#
+					,#inoutgbn#
+					,#belonggbn#
+					,#peopleregno#
+					,#overtimeworker#
+					,#overworkstdt#
+					,#overworkendt#
+					,#overworksttime#
+					,#overworkentime#
+					,#belongbizno#
+					,#entnm#
+					,#educator#
+					,#eduorgnm#
+					,#edustdt#
+					,#eduendt#
+					,#edusttime#
+					,#eduentime#
+					,#useplace#
+					,#usestdt#
+					,#useendt#
+					,#usesttime#
+					,#useentime#
+					,#usemethod#
+					,#amt#
+					,#TASK_DT#
+					,#TASK_SQ#
+					,#CO_CD#		
+			)
+			<selectKey keyProperty="gw_slave_seq" resultClass="int">
+					SELECT LAST_INSERT_ID()
+			</selectKey>
+   </insert>
+   
+   <!-- 이지바로 상태 값 전자결재 상태 값과 동기화 -->
+	<update id="EzGWSQL.EzMasterEndProcessUpdate" parameterClass="java.util.HashMap"><![CDATA[
+		/* mariadb - EzGWSQL.EzGWSQL.EzMasterEndProcessUpdate */
+		UPDATE 	$DB_NEOS$t_ex_ezbaro_master
+		SET 	doc_sts = '$docSts$'
+				, doc_seq = '$docSeq$'
+				, erp_send_yn = 'Y'
+		WHERE 	master_seq = '$seq$'
+	]]></update>
+
+<!-- 이지바로 상태 값 전자결재 상태 값과 동기화 -->
+	<update id="EzGWSQL.EzMasterProcessUpdate" parameterClass="java.util.HashMap"><![CDATA[
+		/* mariadb - EzGWSQL.EzGWSQL.EzMasterProcessUpdate */
+		UPDATE 	$DB_NEOS$t_ex_ezbaro_master
+		   SET 	doc_sts = '$docSts$'
+				, doc_seq = '$docSeq$'
+		 WHERE 	master_seq = '$seq$'
+	]]></update>
+
+
+	<select id="EzGWSQL.EzInterlockResolDataSelect" parameterClass="HashMap" resultClass="HashMap">
+			<![CDATA[
+				/* EzGWSQL.EzInterlockResolDataSelect - mariaDB */
+				SELECT IFNULL(master_seq, '-') AS master_seq
+						,IFNULL(cheju, '-') AS cheju
+						,IFNULL(group_key, '-') AS group_key
+						,IFNULL(project, '-') AS project
+						,IFNULL(bmcode, '-') AS bmcode
+						,IFNULL(`use`, '-') AS `use`
+						,IFNULL(G20Project, '-') AS G20Project
+						,IFNULL(G20abgt, '-') AS G20abgt
+						,IFNULL(execmtd, '-') AS execmtd
+						,IFNULL(execreqdiv, '-') AS execreqdiv
+						,IFNULL(inoutaccount, '-') AS inoutaccount
+						,IFNULL(resoldate, '-') AS resoldate
+						,IFNULL(partnergbn, '-') AS partnergbn
+						,IFNULL(partner, '-') AS partner
+						,IFNULL(cardnum, '-') AS cardnum
+						,IFNULL(aprovNum,'-') AS aprovNumm
+						,IFNULL(serialNum,'-') AS serialNum
+						,IFNULL(trdate,'-') AS trdate
+						,IFNULL(posi, '-') AS posi
+						,IFNULL(belong, '-') AS belong
+						,IFNULL(nm, '-') AS nm
+						,IFNULL(entrant,'-') AS entrant
+						,IFNULL(bank, '-') AS bank
+						,IFNULL(bankaccount, '-') AS bankaccount
+						,IFNULL(accholder,'-') AS accholder
+						,IFNULL(recip, '-') AS recip
+						,IFNULL(paybaseamt, 0) AS paybaseamt
+						,IFNULL(taxapprno, '-') AS taxapprno
+						,IFNULL(supperson, '-') AS supperson
+						,IFNULL(supbizno, '-') AS supbizno
+						,IFNULL(meetstd, '-') AS meetstd
+						,IFNULL(meetetd, '-') AS meetetd
+						,IFNULL(meetplace,'-') AS meetplace
+						,IFNULL(bigo,'-') AS bigo
+						,IFNULL(consiorg,'-') AS consiorg
+						,IFNULL(bizno,'-') AS bizno
+						,IFNULL(resolamt, 0) AS resolamt
+						,IFNULL(taxamt, 0) AS taxamt
+						,IFNULL(supplyamt, 0 ) AS supplyamt
+						,IFNULL(group_class,'-') AS group_class
+						,IFNULL(TASK_DT,'-') AS TASK_DT
+						,IFNULL(TASK_SQ,'-') AS TASK_SQ
+						,IFNULL(CO_CD,'-') AS CO_CD
+				FROM $DB_NEOS$t_ex_ezbaro_gw_master  WHERE master_seq = '$MASTER_SEQ$' AND TASK_DT = '$TASK_DT$' AND TASK_SQ = '$TASK_SQ$' AND CO_CD = '$CO_CD$'
+
+		]]>
+	</select>
+    
+    
+    <select id="EzGWSQL.EzInterlockDetailListSelect" parameterClass="HashMap" resultClass="HashMap">
+			<![CDATA[
+				/* EzGWSQL.EzInterlockResolDataSelect - mariaDB */
+				SELECT *
+				FROM(
+					SELECT 		IFNULL(gw_slave_seq, 0) AS gw_slave_seq
+ 								,IFNULL(master_seq,0) AS master_seq
+								,IFNULL(gw_master_seq,0) AS gw_mastser_seq
+								,IFNULL(group_key,'') AS groupkey 
+								,IFNULL(TASK_DT,'') AS TASK_DT
+								,IFNULL(TASK_SQ,'') AS TASK_SQ
+								,IFNULL(CO_CD,'') AS CO_CD
+								,IFNULL(rownum,'') AS rownum
+								,IFNULL(item,'') AS item
+								,IFNULL(standard,'') AS standard
+								,IFNULL(amount,'') AS amount
+								,IFNULL(unitprice,0) AS unitprice
+								,IFNULL(itemsupplyamt,'') AS itemsupplyamt
+								,IFNULL(itemtaxamt,'') AS itemtaxamt
+								,IFNULL(itemtotalamt,'') AS  itemtotalamt
+								,IFNULL(itemgbn,'') AS itemgbn
+								,IFNULL(ntisregdt,'') AS ntisregdt
+								,IFNULL(ntisregno,'') AS ntisregno
+								,IFNULL(specialist,'') AS specialist
+								,IFNULL(itementrant,'') AS itementrant
+								,IFNULL(purposebiztrip,'') AS purposebiztrip
+								,IFNULL(biztripstdt,'') AS biztripstdt
+								,IFNULL(biztripendt,'') AS biztripendt
+								,IFNULL(biztripsttime,'') AS biztripsttime
+								,IFNULL(biztripentime,'') AS biztripentime
+								,IFNULL(stplace,'') AS stplace
+								,IFNULL(enplace,'') AS enplace
+								,IFNULL(inoutgbn,'') AS inoutgbn
+								,IFNULL(belonggbn,'') AS belonggbn
+								,IFNULL(peopleregno,'') AS peopleregno
+								,IFNULL(overtimeworker,'') AS overtimeworker
+								,IFNULL(overworkstdt,'') AS overworkstdt
+								,IFNULL(overworkendt,'') AS overworkendt
+								,IFNULL(overworksttime,'') AS overworksttime
+								,IFNULL(overworkentime,'') AS overworkentime
+								,IFNULL(belongbizno,'') AS belongbizno
+								,IFNULL(entnm,'') AS entnm
+								,IFNULL(educator,'') AS educator
+								,IFNULL(eduorgnm,'') AS eduorgnm
+								,IFNULL(edustdt,'') AS edustdt
+								,IFNULL(eduendt,'') AS eduendt
+								,IFNULL(edusttime,'') AS edusttime
+								,IFNULL(eduentime,'') AS eduentime
+								,IFNULL(useplace,'') AS useplace
+								,IFNULL(usestdt,'') AS usestdt
+								,IFNULL(useendt,'') AS useendt
+								,IFNULL(usesttime,'') AS usesttime
+								,IFNULL(useentime,'') AS useentime
+								,IFNULL(usemethod,'') AS usemethod
+								,IFNULL(amt,0) AS amt
+						FROM 	$DB_NEOS$t_ex_ezbaro_gw_slave 
+						WHERE 	TASK_DT = '$TASK_DT$' AND TASK_SQ = '$TASK_SQ$' AND CO_CD = '$CO_CD$'
+				)A INNER JOIN(
+							SELECT  cheju
+									,TASK_SQ
+									,TASK_DT
+									,CO_CD 
+							FROM 	$DB_NEOS$t_ex_ezbaro_gw_master 
+							WHERE TASK_DT = '$TASK_DT$' AND TASK_SQ = '$TASK_SQ$' AND CO_CD = '$CO_CD$'
+				)B ON A.TASK_SQ = B.TASK_SQ AND A.TASK_DT = B.TASK_DT AND A.CO_CD = B.CO_CD								
+		]]>
+	</select>
+    
+   	<select id="EzGWSQL.EzErpPrimaryKeyListSelect" parameterClass="HashMap" resultClass="HashMap">
+		<![CDATA[
+			/* EzGWSQL.EzbaroFormInfoSelect - mariaDB */
+			SELECT 	TASK_SQ
+					,TASK_DT
+					,CO_CD
+			FROM 	$DB_NEOS$t_ex_ezbaro_erp_master 
+			WHERE master_seq = (
+				SELECT master_seq FROM $DB_NEOS$t_ex_ezbaro_master WHERE doc_seq = '$docSeq$' LIMIT 1
+			)
+						
+		]]>
+	</select>
+	
+	<select id="EzGWSQL.EzMasterInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		<![CDATA[
+			/* EzGWSQL.EzMasterInfoSelect - mariaDB */
+			SELECT   master_seq
+					,doc_seq
+					,doc_sts
+					,erp_send_yn
+					,comp_seq
+					,erp_co_cd
+			FROM $DB_NEOS$t_ex_ezbaro_master
+			WHERE use_yn = 'N' OR use_yn IS NULL
+			AND erp_send_yn = 'N'
+			AND master_seq = '$masterSeq$'						
+		]]>
+	</select>
+	
+	
+	<select id="EzGWSQL.EzErpMasterInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		<![CDATA[
+			/* EzGWSQL.EzErpMasterInfoSelect - mariaDB */
+			SELECT erp_master_seq 
+					,master_seq 
+					,group_key 
+					,LANGKIND 
+					,CO_CD 
+					,TASK_DT 
+					,TASK_SQ 
+					,OFCODE 
+					,PRJNO 
+					,EXECDATE 
+					,REGNO 
+					,DIV_CD 
+					,DEPT_CD 
+					,EMP_CD 
+					,EXECTIME 
+					,EXECSEQ 
+					,BIZGRP 
+					,BMCODE 
+					,EXECREQDIV 
+					,EXECDIV 
+					,EXECMTD 
+					,RESOLNO 
+					,RESOLDATE 
+					,CONT 
+					,BELONG 
+					,NM 
+					,RESPERSONNO 
+					,POSI 
+					,PAYYYMM 
+					,PARTRATE 
+					,PAYBASEAMT 
+					,RESOLAMT 
+					,EXTTAX 
+					,ACCREGAMT 
+					,COURTAMT 
+					,CHARGE 
+					,EXECBANK 
+					,EXECREQACCNO 
+					,ACCOWNER 
+					,EXECRECIP 
+					,EXECREQFLAG 
+					,TAXAPPRNO 
+					,SUPPERSON 
+					,SUPBIZNO 
+					,MEETSDT 
+					,MEETEDT 
+					,MEETPLACE 
+					,CONSIORG 
+					,BIZNO 
+					,SENDYN 
+					,SENDOPT 
+					,SENDDATE 
+					,SENDTIME 
+					,STATECODE 
+					,STATETEXT 
+					,RCVDATE 
+					,RCVTIME 
+					,RESOLCHKNO 
+					,RESOLCHKTXT 
+					,ORIGRESOLNO 
+					,CHECKDATE 
+					,CHECKUSER 
+					,TRNSDATE 
+					,TRNSTIME 
+					,TRNSBANK 
+					,TRNSACCNO 
+					,TRNSACCOWNER 
+					,RECIP 
+					,TRNSAMT 
+					,CARDNO 
+					,TRSEQ 
+					,TRDATE 
+					,APPRNO 
+					,GISU_DT 
+					,GISU_SQ 
+					,PJT_CD 
+					,ABGT_CD 
+					,TR_FG 
+					,TR_CD 
+					,CTR_CD 
+					,CTR_NM 
+					,ETCRVRS_YM 
+					,ETCDIV_CD 
+					,ETCDUMMY1 
+					,NDEP_AM 
+					,INAD_AM 
+					,INTX_AM 
+					,RSTX_AM 
+					,WD_AM 
+					,BG_SQ 
+					,ETCPAY_DT 
+					,ET_YN 
+					,ETCDATA_CD 
+					,ETCTAX_RT 
+					,HIFE_AM 
+					,NAPE_AM 
+					,DDCT_AM 
+					,NOIN_AM 
+					,WD_AM2 
+					,ETCRATE 
+					,HINCOME_SQ 
+					,PYTP_FG 
+					,GW_STATE 
+					,GW_ID 
+					,BTR_CD 
+					,RMK_DC 
+			FROM	 $DB_NEOS$t_ex_ezbaro_erp_master
+			WHERE	 master_seq = '$masterSeq$'
+			ORDER BY erp_master_seq ASC
+						
+		]]>
+	</select>
+	
+	
+	<select id="EzGWSQL.EzErpSlaveListInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		<![CDATA[
+			/* EzGWSQL.EzErpSlaveListInfoSelect - mariaDB */
+			SELECT  erp_slave_seq
+					,erp_master_seq
+					,master_seq
+					,group_key
+					,LANGKIND
+					,CO_CD
+					,TASK_DT
+					,TASK_SQ
+					,REGSEQ
+					,OFCODE
+					,PRJNO
+					,EXECDATE
+					,REGNO
+					,ARTDIV
+					,ITEMNAME
+					,STANDARD
+					,AMOUNT
+					,UNITCOST
+					,SUPCOST
+					,EXECREQDIV
+					,EXTTAX
+					,TOTPURCHAMT
+					,NTISREGNO
+					,NTISREGDATE
+					,CHECKDATE
+					,CHECKUSER
+					,GISU_DT
+					,GISU_SQ
+					,INSERT_ID
+					,INSERT_DT
+					,INSERT_IP
+					,MODIFY_ID
+					,MODIFY_DT
+					,MODIFY_IP
+			FROM $DB_NEOS$t_ex_ezbaro_erp_slave 
+			WHERE master_seq = '$master_seq$'
+			ORDER BY erp_master_seq, erp_slave_seq ASC											
+		]]>
+	</select>
+	
+	
+	<select id="EzGWSQL.EzGwMasterInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		<![CDATA[
+			/* EzGWSQL.EzGwMasterInfoSelect - mariaDB */
+			SELECT  gw_master_seq
+					,master_seq
+					,cheju
+					,group_key
+					,TASK_DT
+					,TASK_SQ
+					,CO_CD
+					,project
+					,bmcode
+					,`USE`
+					,G20Project
+					,G20abgt
+					,execmtd
+					,execreqdiv
+					,inoutaccount
+					,resoldate
+					,partnergbn
+					,partner
+					,cardnum
+					,aprovNum
+					,serialNum
+					,trdate
+					,posi
+					,belong
+					,nm
+					,entrant
+					,bank
+					,bankaccount
+					,accholder
+					,recip
+					,paybaseamt
+					,taxapprno
+					,supperson
+					,supbizno
+					,meetstd
+					,meetetd
+					,meetplace
+					,bigo
+					,consiorg
+					,bizno
+					,resolamt
+					,taxamt
+					,resolnote
+					,supplyamt
+					,group_class
+			FROM $DB_NEOS$t_ex_ezbaro_gw_master
+			WHERE master_seq = '$masterSeq$'
+			ORDER BY gw_master_seq ASC			
+		]]>
+	</select>
+	
+	
+	<select id="EzGWSQL.EzGwSlaveListInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		<![CDATA[
+			/* EzGWSQL.EzGwSlaveListInfoSelect - mariaDB */
+			SELECT  gw_slave_seq
+					,master_seq
+					,gw_master_seq
+					,group_key
+					,TASK_DT
+					,TASK_SQ
+					,CO_CD
+					,rownum
+					,item
+					,standard
+					,amount
+					,unitprice
+					,itemsupplyamt
+					,itemtaxamt
+					,itemtotalamt
+					,itemgbn
+					,ntisregdt
+					,ntisregno
+					,specialist
+					,itementrant
+					,purposebiztrip
+					,biztripstdt
+					,biztripendt
+					,biztripsttime
+					,biztripentime
+					,stplace
+					,enplace
+					,inoutgbn
+					,belonggbn
+					,peopleregno
+					,overtimeworker
+					,overworkstdt
+					,overworkendt
+					,overworksttime
+					,overworkentime
+					,belongbizno
+					,entnm
+					,educator
+					,eduorgnm
+					,edustdt
+					,eduendt
+					,edusttime
+					,eduentime
+					,useplace
+					,usestdt
+					,useendt
+					,usesttime
+					,useentime
+					,usemethod
+					,amt
+			FROM $DB_NEOS$t_ex_ezbaro_gw_slave 
+			WHERE master_seq = '$masterSeq$'
+			ORDER BY gw_master_seq, gw_slave_seq ASC		
+		]]>
+	</select>
+	
+	<select id="EzGWSQL.EzCodeParamListInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		<![CDATA[
+			/* EzGWSQL.EzCodeParamListInfoSelect - mariaDB */
+			SELECT  param_seq
+					,CO_CD
+					,master_seq
+					,LANGKIND
+					,group_key
+					,PRJNO
+					,OFCODE
+					,BIZGRP
+					,CODEDIV
+					,BMCODE
+					,P_HELP_TY
+					,P_CODE
+					,P_CODE2
+					,P_CODE3
+					,P_USE_YN
+					,P_NAME
+					,P_STD_DT
+					,P_WHERE
+					,RESPERSONNO
+			FROM $DB_NEOS$t_ex_ezbaro_code_param 
+			WHERE master_seq = '$masterSeq$'
+			ORDER BY param_seq ASC
+				
+		]]>
+	</select>
+
+</sqlMap>
+
+
+

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="CMSInfoDAO">
+	<typeAlias alias="egovMap"
+		type="egovframework.rte.psl.dataaccess.util.EgovMap" />
+	
+	<select id="CMSInfoDAO.SelectCMSLog" parameterClass="hashMap" resultClass="egovMap">
+		/* !  [EX] 확장기능 / CMS연동 로그 조회 쿼리 */
+		/* mariadb/ex/extra/ExExtra_SQL.xml - ExExtraCMSLogSelect */
+		SELECT		
+			l.batch_seq					AS	'batchSeq'
+			, l.comp_seq				AS	'compSeq'
+			, l.module_type 			AS	'moduleType'
+			, l.log_type				AS	'logType'
+			, l.message					AS	'message'
+			, l.create_date				AS	'createDate'
+			, IFNULL(c.comp_name, '-')  AS	'compName'
+		FROM	$DB_NEOS$t_expend_log l
+			LEFT JOIN $DB_NEOS$t_co_comp_multi c
+			ON 		l.comp_seq = c.comp_seq
+				AND c.lang_code = 'kr'
+		WHERE 	log_type != 'INFO'
+		ORDER BY l.create_date DESC
+		LIMIT 100
+
+	</select>
+	
+	<select id="getCloudVOSelect" parameterClass="hashMap" resultClass="devmanager.cloudEnv.CloudDAOTestVO">
+		/* !  [EX] 클라우드 테스트 / 클라우드 데이터 조회 쿼리 */
+		/* mariadb/BizboxAlpha/devmanager/DevMgrCmsSQL.xml - getCloudVOSelect */
+		SELECT 		  group_seq as groupSeq
+		       		, comp_seq as compSeq
+		       		, emp_seq as empSeq
+   		FROM		$DB_NEOS$t_co_emp_dept
+   		WHERE		group_seq = #groupSeq#
+   		LIMIT 100
+	</select>
+	
+</sqlMap>

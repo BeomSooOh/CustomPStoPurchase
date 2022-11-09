@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="NpAdminConfigA">
+
+	<!-- 관리자 - 품의결의 옵션 설정 - 조회 -->
+	<select id="NpAdminConfigA.NpOptionListSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT	form_seq AS formSeq
+				, note AS note
+				, option_gbn AS optionGbn
+				, option_code AS optionCode
+				, base_value AS baseValue
+				, base_name AS baseName
+				, set_value AS setValue
+				, set_name AS setName
+				, option_select_type AS optionSelectType
+				, use_yn AS useYN
+		FROM	$DB_NEOS$t_exnp_option
+		WHERE	comp_seq = #compSeq#
+		AND		form_seq = #formSeq#
+	</select>
+	
+	<!-- 관리자 - 품의결의 옵션 설정 - 변경 -->
+	<update id="NpAdminOptionA.NpOptionUpdate" parameterClass="java.util.HashMap">
+		UPDATE	$DB_NEOS$t_exnp_option
+		SET		set_value = #setValue#
+				, set_name = #setName#
+				, modify_seq = #empSeq#
+				, modify_date = NOW()
+		WHERE	comp_seq = #compSeq#
+		AND		form_seq = #formSeq#
+		AND		option_gbn = #optionGbn#
+		AND		option_code = #optionCode#
+	</update>
+	
+	<!-- 관리자 - 기본설정 조회 -->
+	<select id="NpAdminConfigA.NpMasterOptionSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminConfigSQL.xml - NpAdminConfigA.NpMasterOptionSelect */
+		/* 품의/결의 기본설정 데이터 조회 */
+		SELECT	opt.note
+				, option_gbn AS optionGbn
+				, option_code AS optionCode
+				, use_sw AS useSw
+				, common_code AS commonCode
+				, order_num AS orderNum
+				, base_value AS baseValue
+				, base_name AS baseName
+				, set_value AS setValue
+				, set_name AS setName
+				, option_select_type AS optionSelectType
+				, optC.optionLength AS optionLength
+				, code.optionList
+		FROM	$DB_NEOS$t_exnp_option opt
+		INNER JOIN (
+			SELECT	COUNT(*) AS optionLength
+					, option_gbn AS optionGbn
+			FROM	$DB_NEOS$t_Exnp_option
+			WHERE	comp_seq = #compSeq#
+			AND		form_seq = '0'	
+			GROUP BY option_gbn
+		) optC ON opt.option_gbn = optC.optionGbn
+		INNER JOIN (
+			SELECT	CODE
+					, CONCAT("[",GROUP_CONCAT('{\"code\":\"',detail_code,'\",\"name\":\"',detail_name,'\"}' ORDER BY detail_code),"]") AS optionList
+			FROM	$DB_NEOS$t_co_code_detail_multi
+			WHERE	CODE LIKE 'exnp%'
+			GROUP BY CODE
+		) CODE ON opt.common_code = code.code
+		WHERE	comp_seq = #compSeq#
+		AND		use_sw = 'A'
+		AND		form_seq = '0' 
+		ORDER BY option_gbn, option_code,order_num
+	</select>
+	
+	<!-- 관리자 - 품의결의 기본옵션 설정 - 변경 -->
+	<update id="NpAdminConfigA.NpMasterOptionUpdate" parameterClass="java.util.HashMap">
+	/* NpAdminConfigSQL.xml - NpAdminConfigA.NpMasterOptionUpdate */
+	/* 품의/결의 기본설정 데이터 변경 */
+		UPDATE	$DB_NEOS$t_exnp_option
+		SET		set_value = #setValue#
+				, set_name = (SELECT detail_name FROM $DB_NEOS$t_co_code_detail_multi WHERE CODE =#commonCode# AND detail_code =#setValue#)
+				, modify_seq = #empSeq#
+				, modify_date = NOW()
+		WHERE	comp_seq = #compSeq#
+		AND		use_sw = 'A'
+		AND		form_seq = '0'
+		AND		option_gbn = #optionGbn#
+		AND		option_code = #optionCode#
+	</update>
+	
+	<!-- 관리자 - 품의결의 기본옵션 설정 - 변경 -->
+	<insert id="NpAdminConfigA.NpMasterOptionInsert" parameterClass="java.util.HashMap">
+	/* NpAdminConfigSQL.xml - NpAdminConfigA.NpMasterOptionInsert */
+	/* 품의/결의 기본설정 설정 데이터 복사 */
+		INSERT IGNORE INTO $DB_NEOS$`t_exnp_option` (`comp_seq`, `form_seq`, `note`, `option_gbn`, `option_code`, `use_sw`, `order_num`, `common_code`, `base_value`, `base_name`, `base_emp_value`, `set_value`, `set_name`, `set_emp_value`, `option_select_type`, `option_process_type`, `use_yn`, `create_seq`, `modify_seq`)
+		SELECT	#compSeq#, `form_seq`, `note`, `option_gbn`, `option_code`, `use_sw`, `order_num`, `common_code`, `base_value`, `base_name`, `base_emp_value`, `set_value`, `set_name`, `set_emp_value`, `option_select_type`, `option_process_type`, `use_yn`, #empSeq#, #empSeq#
+		FROM	$DB_NEOS$t_exnp_option
+		WHERE	comp_seq = 'SYSTEM'
+		AND		form_seq = '0'
+	</insert>
+	
+	<!-- 관리자 - 항목설정 조회 -->
+	<select id="NpAdminConfigA.NpFormOptionSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* NpAdminConfigSQL.xml - NpAdminConfigA.NpFormOptionSelect */
+		/* 항목설정 데이터 조회 */
+		SELECT	opt.note
+				, option_gbn AS optionGbn
+				, option_code AS optionCode
+				, use_sw AS useSw
+				, common_code AS commonCode
+				, order_num AS orderNum
+				, base_value AS baseValue
+				, base_name AS baseName
+				, set_value AS setValue
+				, set_name AS setName
+				, option_select_type AS optionSelectType
+				, code.optionList
+		FROM	$DB_NEOS$t_exnp_option opt
+		INNER JOIN (
+			SELECT	CODE
+					, CONCAT("[",GROUP_CONCAT('{\"code\":\"',detail_code,'\",\"name\":\"',detail_name,'\"}' ORDER BY detail_code),"]") AS optionList
+			FROM	$DB_NEOS$t_co_code_detail_multi
+			WHERE	CODE LIKE 'exnp%'
+			GROUP BY CODE
+		) CODE ON opt.common_code = code.code
+		WHERE	comp_seq = #compSeq#
+		AND		form_seq = #formSeq#
+		<isEqual property="erpType" compareValue="ERPiU">
+		 AND		use_sw = 'ERPiU'
+		 <isEqual property="formDTp" compareValue="CON">
+		  AND		option_gbn = '4'
+		 </isEqual>
+		 <isEqual property="formDTp" compareValue="RES">
+		  AND		option_gbn = '5'
+		 </isEqual>
+		</isEqual>
+		
+		<isEqual property="erpType" compareValue="iCUBE">
+		 AND		use_sw = 'iCUBE'
+		 <isEqual property="formDTp" compareValue="CON">
+		  AND		option_gbn = '6'
+		 </isEqual>
+		 <isEqual property="formDTp" compareValue="RES">
+		  AND		option_gbn = '7'
+		 </isEqual>		 
+		</isEqual>
+		ORDER BY option_gbn, option_code,order_num
+	</select>
+	
+	<!-- 관리자 - 항목설정 추가 -->
+	<insert id="NpAdminConfigA.NpFormOptionInsert" parameterClass="java.util.HashMap">
+		/* NpAdminConfigSQL.xml - NpAdminConfigA.NpFormOptionInsert */
+		INSERT IGNORE INTO $DB_NEOS$`t_exnp_option` (`comp_seq`, `form_seq`, `note`, `option_gbn`, `option_code`, `use_sw`, `order_num`, `common_code`, `base_value`, `base_name`, `base_emp_value`, `set_value`, `set_name`, `set_emp_value`, `option_select_type`, `option_process_type`, `use_yn`, `create_seq`, `modify_seq`)
+		SELECT	#compSeq#, #formSeq#, `note`, `option_gbn`, `option_code`, `use_sw`, `order_num`, `common_code`, `base_value`, `base_name`, `base_emp_value`, `set_value`, `set_name`, `set_emp_value`, `option_select_type`, `option_process_type`, `use_yn`, #empSeq#, #empSeq#
+		FROM	$DB_NEOS$t_exnp_option
+		WHERE	form_seq = '0'
+		<isEqual property="erpType" compareValue="ERPiU">
+		 AND		use_sw = 'ERPiU'
+		 <isEqual property="formDTp" compareValue="CON">
+		  AND		option_gbn = '4'
+		 </isEqual>
+		 <isEqual property="formDTp" compareValue="RES">
+		  AND		option_gbn = '5'
+		 </isEqual>
+		</isEqual>
+		
+		<isEqual property="erpType" compareValue="iCUBE">
+		 AND		use_sw = 'iCUBE'
+		 <isEqual property="formDTp" compareValue="CON">
+		  AND		option_gbn = '6'
+		 </isEqual>
+		 <isEqual property="formDTp" compareValue="RES">
+		  AND		option_gbn = '7'
+		 </isEqual>		 
+		</isEqual>
+	</insert>
+	
+	<!-- 관리자 - 항목설정 변경 -->
+	<update id="NpAdminConfigA.NpFormOptionUpdate" parameterClass="java.util.HashMap">
+		/* NpAdminConfigSQL.xml - NpAdminConfigA.NpFormOptionUpdate */
+		UPDATE	$DB_NEOS$t_exnp_option
+		SET		set_value = #setValue#
+				, set_name = (SELECT detail_name FROM $DB_NEOS$t_co_code_detail_multi WHERE CODE =#commonCode# AND detail_code =#setValue#)
+				, modify_seq = #empSeq#
+				, modify_date = NOW()
+		WHERE	comp_seq = #compSeq#
+		AND		form_seq = #formSeq#
+		AND		option_gbn = #optionGbn#
+		AND		option_code = #optionCode#
+	</update>
+</sqlMap>

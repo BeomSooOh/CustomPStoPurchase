@@ -1,0 +1,2293 @@
+====================================================================================================
+# 작성방법
+  - 최신 일자가 위로 올라오도록 작성해주세요. ( 작성방법 하위로 작성해주세요. )
+  - 수정된 소스파일과, 수정 메서드를 기록해주세요.
+  - 수정 사항은 알기 쉽게 설명해주세요.
+  - 수정자가 누구인지 기록해주세요.
+  - 일자가 같은 경우에는 일자 기준으로 작성해주세요.
+  - 버전은 의미 없습니다. 일자 기준으로 등록하며, 중간주간 버전을 기록할거에요.
+====================================================================================================
+
+2020-10-28
+# 회계(영리)
+  - [1.2.122 1차][사용자-지출결의서-항목정보] 외화계정일 경우 금액 자동 계산 체크에 따라 외화입력 팝업 활성화 여부 조정 (권오광)
+    * ExExpendListPopup.jsp
+    * fnExpendListEventInit 수정
+      > fnExpendListEventInitCheckBox(체크박스 이벤트) 함수 추가
+    * fnExpendListEventInitInput 수정
+      > 금액 자동 계산 체크에 따라 공급대가, 부가세액, 세액, 공급가액, 과세표준액 클릭 시 외화입력 팝업 분기 처리
+    * fnExpendListEventInitCheckBox 추가
+      > 금액 자동 계산 체크에 따라 공급대가, 부가세액, 세액, 공급가액, 과세표준액 input에 readOnly 속성 추가
+
+2020-10-15
+# 회계(영리)
+  - [1.2.121 1차][사용자-지출결의서-분개정보] 분개정보 저장 및 수정 시 적요 값 100byte 넘어갈 경우 에러메시지 띄우도록 수정 (권오광)
+    * ExExpendSlipPopup.jsp
+    * fnExpendSlipEventInitButton 수정
+      > 적요란에 입력된 값이 100byte가 넘어갈 경우 alert 메시지 나타나도록 수정
+
+2020-10-15
+# 회계(영리)
+  - [1.2.121 1차][사용자-지출결의서] 지출결의서 작성 시 증빙유형의 대변대체계정을 표준적요의 대변계정 보다 우선으로 하여 외화계정 여부 판단 하도록 수정 (권오광)
+    * BExUserCardServiceImpl.java
+    * ExCardInfoMake 수정
+      > foreignCurrencyVO에 대변계정 넣을때 증빙유형의 대변대체계정 먼저 입력 되도록 수정
+    * ExExpendListPopup.jsp
+    * fnExpendListCallback 수정
+      > 증빙유형에 외화계정 확인 함수 추가(fnCheckForeignCurrencyAcctCode)
+    * fnCheckForeignCurrencyAcctCode 수정
+      > param에 대변계정 넣을때 증빙유형의 대변대체계정 먼저 입력 되도록 수정
+
+2020-05-20
+# 회계(영리)
+  - [1.2.111 1차][사용자-세금계산서현황] 세금계산서 이관 후 결과값 알럿창 나타나도록 추가수정 (권오광)
+    * UserETaxReportiCUBE.jsp
+    * fnCallbackOrgPop 수정
+      > 이관 시 공통조직도 콜백함수에서 ajax 동기설정 변경(비동기 -> 동기)
+
+2020-05-18
+# 회계(영리)
+  - [1.2.111 1차][지출결의서-카드사용내역-상세내역 팝업] 상세목록 중 과세유형 수정 및 공제여부 주석처리 (권오광)
+    * TaxType.java
+      > VAN에서 제공되는 과세유형 타입 추가
+    * BExUserCardService.java
+    * ExExpendCardDetailInfoSelect 수정
+      > ConnectionVO 파라미터 추가
+    * BExUserCardServiceImpl.java
+    * ExExpendCardDetailInfoSelect 수정
+      > VAN사 대응으로 vatStat 값 먼저 읽어서 과세유형 명칭 추가
+    * BExUserListServiceImpl.java
+    * ExExpendHistoryReflect 수정
+      > ExExpendCardDetailInfoSelect에 ConnectionVO 파라미터 추가
+    * VExUserPopController.java
+    * ExExpendCardDetailInfo 수정
+      > ExExpendCardDetailInfoSelect에 ConnectionVO 파라미터 추가
+    * ExUserCardSQL.xml
+    * ExExpendCardDetailInfoSelect 수정
+      > select 절에 vat_stat 컬럼 추가
+    * ExExpendCardDetailPop.jsp
+    * html 수정
+      > 공제여부 부분 주석처리
+
+2020-05-18
+# 회계(영리)
+  - [1.2.111 1차][관리자-세금계산서현황] 세금계산서 이관 후 결과값 알럿창 나타나도록 수정 (권오광)
+    * AdminETaxReportERPiU.jsp, AdminETaxReportiCUBE.jsp
+    * fnCallbackOrgPop 수정
+      > 이관 시 공통조직도 콜백함수에서 ajax 동기설정 변경(비동기 -> 동기)
+
+2020-04-10
+# 회계(영리)
+  - [1.2.108 2차][지출결의서-항목수정] 항목수정 시 기존에 카드정보가 없지만 잘못된 카드정보를 조회하여 카드에 연결된 거래처정보가 반영되는 현상 수정 (권오광)
+    * BExUserCodeServiceImpl.java
+    * ExExpendCardInfoSelectWithPartner 수정
+      > 조건문에 cardVo.getCardCode()가 있을때 iCUBE 카드정보를 조회 하도록 수정
+
+2020-04-08
+# 회계(영리)
+  - [1.2.109 1차][관리자-지출결의확인] 회계단위가 변경된 지출결의서를 전송시 ERPiU에서 전자결재 문서정보를 조회하지 못하는 현상 수정 (권오광)
+    * ExAdminReportSQL.xml
+    * ExAdminDocLinkListInfoSelect 수정
+      > 회계단위 정보를 write_seq가 아닌 emp_seq에서 가져 오도록 변경
+
+2020-04-08
+# 회계(영리)
+  - [1.2.109 1차][관리자-세금계산서현황(ERPiU)] 같은 매입세금계산서 관리번호가 존재 할 시 이관 받은자 이름 잘못 표기되는 부분 수정(권오광)
+    * ExAdminReportSQL.xml
+    * ExAdminGWEtaxInfoSelect 수정
+      > join 조건에 comp_seq를 추가하여 회사별로 구분하여 이관정보를 가져올 수 있도록 수정
+
+2020-03-31
+# 회계(영리)
+  - [1.2.108 1차][지출결의작성-항목추가-외화계정팝업] 외화계정 팝업 오픈시 적요란 자동입력 옵션 영향 안받도록 수정(권오광)
+    * ExExpendListPopup.jsp
+    * fnExpendListCallback 수정
+      > isAutoInputNoteInfo(적요란 표준적요 자동입력 옵션) 값 if문 별도 분리
+
+2020-03-13
+# 회계(영리)
+  - [지출결의작성-항목수정] iCUBE일때 항목수정 시 대변 거래처정보에 카드 거래처가 반영되지 않는 현상 수정(권오광)
+    * BExUserCodeService.java
+    * ExExpendCardInfoSelectWithPartner 추가
+      > iCUBE일때 조회된 카드정보에 거래처가 없을 시 ERP 카드정보의 거래처 조회
+    * BExUserCodeServiceImpl.java
+    * ExExpendCardInfoSelectWithPartner 추가
+      > iCUBE일때 조회된 카드정보에 거래처가 없을 시 ERP 카드정보의 거래처 조회
+    * FExUserCodeServiceIDAO.java
+    * ExCommonCodeCardSelect 수정
+      > iCUBE 카드정보 조회 별도 분리
+    * ExCommonCodeCardSelectForICUBE 추가
+      > iCUBE 카드정보 조회 메서드 추가
+    * VExUserPopController.java
+    * ExExpendListPopup 수정
+      > iCUBE일 경우 ExExpendCardInfoSelectWithPartner 메서드 호출
+
+2020-03-13
+# 회계(영리)
+  - [지출결의작성-카드사용내역-카드상세내역]에서 업종, 공제여부, 과세유형, 휴폐업일 추가(권오광)
+    * CommonBatchCms_SQL.xml
+    * CommonCmsCardTempInfoAllUpdate 수정
+      > 조회 시 CLOSED_BUSINESS_DATE(휴폐업일자) 컬럼 추가
+    * ExUserCardSQL.xml
+    * ExExpendCardDetailInfoSelect 수정
+      > 주석해제 및 조회 시 공제여부, 공제여부 명칭 추가
+    * ExExpendCardDetailPop.jsp
+    * initWindowSize 추가
+      > 업종, 공제여부, 과세유형, 휴폐업일 행이 추가될때 마다 팝업창 동적으로 조절
+    * UserCardUsageHistoryPop.jsp
+    * fnRowDblClick 수정
+      > 팝업 높이조절(570 - 535)
+    * [02] exp_mariadb_code.sql
+      > 공제여부 명칭 추가
+
+2020-03-12
+# 회계(영리)
+  - [마감설정]모든양식적용 체크 후 등록 시 오류수정(권오광)
+    * BExAdminConfigService.java
+    * ExAdminExpendCloseFormInsertChkValidate 추가
+      > 모든양식적용 시 마감기간 중 등록된 내역 있는지 확인하는 메서드 추가
+    * BExAdminConfigServiceImpl.java
+    * ExAdminExpendCloseFormInsertChkValidate 추가
+      > 모든양식적용 시 마감기간 중 등록된 내역 있는지 확인하는 메서드 추가
+    * FExAdminConfigService.java
+    * ExAdminExpendCloseFormInsertChkValidate 추가
+      > 모든양식적용 시 마감기간 중 등록된 내역 있는지 확인하는 메서드 추가
+    * FExAdminConfigServiceAImpl.java
+    * ExAdminExpendCloseFormInsertChkValidate 추가
+      > 모든양식적용 시 마감기간 중 등록된 내역 있는지 확인하는 메서드 추가
+    * ExAdminExpendCloseInsertAllForm 수정
+      > 마감기간 중 등록된 내역 있는지 확인하는 부분 제거
+      > 마감기간 중 등록된 내역 있으면 에러 결과값 전달하는 부분 제거
+    * BExAdminController.java
+    * ExAdminExpendCloseFormInsertChkValidate 추가
+      > 모든양식적용 시 마감기간 중 등록된 내역 있는지 확인하는 메서드 추가
+    * ExAdminConfigSQL.xml
+    * ExAdminExpendCloseInsertAllForm 수정
+      > 쿼리정렬 및 NOT IN 구문 변경
+    * AdimCloseDateSetting.jsp
+    * btnCloseSave 클릭 이벤트 수정
+      > 필수값 체크, 모든양식적용 시 마감일자 체크, 마감일자 등록 함수 별도 분리
+    * verifyRequiredParams 추가
+      > 마감일자 등록 전 필수값 체크하는 부분 별도 분리
+    * checkCloseDateInAllForm 추가
+      > 이미 마감등록된 양식이 있는지 확인하는 부분 추가
+    * saveExpendCloseDate 추가
+      > exceptFormList(제외할 양식시퀀스) 파라미터 추가
+      > FAIL값 리턴 시 ajax 결과 처리 부분 수정
+
+2020-03-10
+# 회계(영리)
+  - iCUBE CMS연동 관련 휴폐업일자 추가(권오광)
+    * [01] exp_mariadb_table.sql
+      > closed_business_date 컬럼 추가
+    * [02] exp_mariadb_code.sql
+      > 과세유형, 휴폐업일 명칭 추가
+
+2020-03-09
+# 회계(영리)
+  - [지출결의작성]관리항목 에러체크 시 거래처계좌번호는 예외처리 중 오류수정(권오광)
+    * BExUserServiceImpl.java
+    * ExMngErrorInfoCheck 수정
+      > assertTrue 제거
+
+2020-03-02
+# 회계(영리)
+  - [지출결의작성]관리항목 에러체크 시 거래처계좌번호는 예외처리하도록 수정(권오광)
+    * ExCommonResultVO.java
+      > mngCode, ctdCode, ctdName 필드 추가
+    * BExUserServiceImpl.java
+    * ExUserExpendErrorInfoList 수정
+      > 관리항목 누락여부 체크 별도 분리(ExMngErrorInfoCheck)
+    * ExMngErrorInfoCheck 추가
+      > 거래처계좌번호(C15)의 경우 명칭만 체크하도록 수정
+    * ExUserExpendSQL.xml
+    * ExExpendErrorMngInfoSelect 수정
+      > mngCode, ctdCode, ctdName 컬럼 추가
+
+2020-02-28
+# 회계(영리)
+  - [지출결의작성-카드사용내역-카드상세내역]에서 업종, 과세유형, 휴폐업일 추가_임시커밋(권오광)
+  	ㄴ 추가확인 사항이 생겨 확인 후 주석해제 예정
+    * TaxType.java
+      > 과세유형 타입 정의
+    * BExUserCardServiceImpl.java
+    * ExExpendCardDetailInfoSelect 수정
+      > 과세유형명 검색결과 추가
+    * VExUserPopController.java
+    * ExExpendCardDetailInfo 수정
+      > sendParam에 ERP 연동구분 값 추가
+    * CommonBatchCms_SQL.xml
+    * CommonCmsCardTempInfoAllInsert 수정
+     > closed_business_date(휴폐업일자) 추가
+    * ExUserCardSQL.xml
+    * ExExpendCardDetailInfoSelect 수정
+     > closed_business_date(휴폐업일자) 추가
+    * ExExpendCardDetailPop.jsp
+     > 업종, 과세유형, 휴폐업일에 대해 iCUBE만 조회 가능하도록 수정
+     > 업종, 과세유형, 휴폐업일 각각 데이터가 없을 경우 화면에 표시 안하도록 수정
+
+2020-02-14
+# 회계(영리)
+  - 예산계정 코드도움 조회시 회계계정연결 설정된 것 외에 다른계정 조회되는 현상 수정(권오광)
+    * FExUserCodeServiceUDAO.java
+    * checkBgAcctLinkAcct 추가
+      > 회계계정연결 설정이 있는 확인하는 메서드 추가
+    * FExUserCodeServiceUImpl.java
+    * ExUserCommCodeSelect 수정
+      > 예산계정 코드도움 조회하는 메서드 별도 분리
+      > ExCommonCodeBgAcctSelect 추가
+    * ExCode_SQL.xml
+    * checkBgAcctLinkAcct 추가
+     > 회계계정연결 설정이 있는 확인하는 쿼리 추가
+
+2020-02-12
+# 회계(영리)
+  - [지출결의작성-카드사용내역-카드상세내역]에서 업종, 과세유형, 휴폐업일 추가_임시커밋(권오광)
+    ㄴ 휴폐업일 컬럼 추가 후 주석해제 예정
+    * ExUserCardSQL.xml
+    * ExExpendCardDetailInfoSelect 수정
+      > mcc_name(업종), mcc_code(과세유형) 컬럼 추가
+    * ExExpendCardDetailPop.jsp
+    * html 수정
+      > 가맹점업종, 과세유형, 휴폐업일 추가
+
+2020-02-11
+# 회계(영리)
+  - [지출결의작성-카드사용내역]에서 정상 카드승인내역이 취소분처럼 표기되는 오류 수정(권오광)
+    * ExUserCardSQL.xml
+    * ExExpendEmpCardListInfoSelect 수정(bizboxAlpah MariaDB, Oracle 둘다 수정)
+      > 카드승인내역 조회 쿼리에 georae_stat(거래상태) 컬럼 추가
+
+2020-02-10
+# 회계(영리)
+  - [지출결의작성-매입전자세금계산] 에서 세금계산서가 표시되지 않는 부분 수(김상겸)
+    * ExUserETaxSQL.xml
+    * ExUserETaxSubAppListInfoSelect 수정
+      > t_ex_etax_aq_tmp 테이블 데이터 조회 시점 comp_seq 필수로 처리 ( ERPiU MSSQL, oracle )
+
+2020-02-07
+# 회계(영리)
+  - [지출결의작성-매입전자세금계산] 에서 세금계산서가 중복 표시되는 부분 수정(김상겸)
+    * ExETaxSQL.xml
+    * ExETaxListInfoSelect 수정
+      > 옵션에 따른 테이블 조인 변경 ( ERPiU MSSQL, oracle )
+
+2020-01-28
+# 회계(영리)
+  - [지출결의작성-카드사용내역(취소분포함)]에서 취소분 표시 안되는 부분 수정(권오광)
+  	* UserCardUsageHistoryPop.jsp
+    * fnExpendCardGridListBind 수정
+     > 금액 컬럼에 취소분 빨간색 표시 및 마이너스 표기
+
+2020-01-08
+# 회계(영리)
+  - [관리자-지출결의 현황]에서 종결된 문서 삭제시 오류발생하는  부분 수정(권오광)
+  	* BExAdminReportServiceImpl.java
+    * ExAdminExpendInfoDelete 수정
+     > 파라미터 erpSendInfo에 expendSeq가 빠져 있어서 추가
+
+2020-01-08
+# 회계(영리)
+  - 지출결의서 작성 시 매입세금계산서 팝업에서 해당 내용 저장 시 값이 반영되지 않는 부분 수정(권오광)
+  	* ExUserReportSQL.xml
+    * ExUserETaxInsert 수정
+     > emp_seq, summary_seq, auth_seq, project_seq, card_seq, budget_seq 에 null 값 입력 시 지출결의서 작성 시 문제가 발생하여 초기값 지정하여 저장되도록 변경
+
+2019-12-24
+# 회계(영리)
+  - 표준적요 및 증빙유형 설정 저장 시 코드 공백제거(권오광)
+  	* AdminSummarySetting.jsp
+    * fnConfigSummarySave 수정
+     > txtSummaryCode 공백제거
+    * AdminAuthSetting.jsp
+    * fnConfigAuthSave 수정
+     > txtConfigAuthCode 공백제거
+
+2019-12-19
+# 회계(영리)
+  - 부가세계정에도 외화정보 반영될 수 있게 수정(권오광)
+  	* ExExpendSlipVO.java
+    * setVat 수정
+     > 외화정보 입력할 수 있도록 수정
+
+2019-12-19
+# 회계(영리)
+  - 카드사용내역, 매입세금계산서 반영 시 오류메세지 나타날 수 있도록 수정(권오광)
+    * BExUserController.java
+    * ExETaxInfoMake 수정
+     > 실패 사유 팝업에 오류 메세지 나타날 수 있도록 catch 부분 수정
+
+2019-12-13
+# 회계(영리)
+  - 지출결의서 대변계정에도 외화정보 입력가능하도록 수정(권오광)
+    * ExExpendForeignCurrencyVO.java
+     > crAcctCode 대변계정코드 필드 추가
+    * ExExpendSlipVO.java
+    * setCr 수정
+     > 외화정보 입력할 수 있도록 수정
+    * BExUserCardServiceImpl.java
+    * ExCardInfoMake 수정
+     > 외화정보 담을때 대변계정 값 추가
+    * FExUserListServiceIDAO.java
+    * CheckForeignCurrencyAcctCode 수정
+     > 조회시 파라미터에 대변계정 추가
+    * FExUserListServiceUDAO.java
+    * CheckForeignCurrencyAcctCode 수정
+     > 조회시 파라미터에 대변계정 추가
+    * ExForeignCurrency.xml(iCUBE, ERPiU, ERPiU(오라클))
+    * CheckForeignCurrencyAcctCode 수정
+     > where 조건문에 대변계정 추가
+    * ExExpendListPopup.jsp
+    * fnCheckForeignCurrencyAcctCode 수정
+     > 파라미터에 대변계정 추가
+
+2019-11-14
+# 회계(영리)
+  - 지출결의서 작성 시 외화계정 연동개발_추가 수정사항(권오광)
+    * BExUserSlipServiceImpl.java
+    * ExSlipInfoMake 수정
+     > 분개 저장 전 listVo.setForeignAcctYN("N"); 추가
+     > 분개수정 시 분개정보의 금액과 외화정보의 금액이 서로 맞지 않기 때문에 수정 못하도록 N 처리
+    * sql-map-mybatis-ERPiU-config.xml
+     > 오라클용 ExForeignCurrency.xml 사용하도록 설정 추가
+    * ExCode_SQL.xml(오라클)
+     > ExCommonCodeExchangeUnitSelect(환종정보) 쿼리 추가
+    * ExForeignCurrency.xml(오라클)
+     > ExchangeRateInfoSelect(환율정보 조회), RoundingTypeInfoSelect(올림구분 조회), CheckForeignCurrencyAcctCode(외화계정인지 확인) 쿼리 추가
+    * ExExpendListPopup.jsp, ExExpendSlipPopup.jsp
+     > foreignCurrencyInfo -> 전역변수로 변경
+    * ExForeignCurrencyInputPopup.jsp
+     > fnSetForeignCurrencyInfo(외화정보 반영) 함수 추가
+     > 항목, 분개 정보 수정 시 외화정보 반영하도록 수정
+
+
+2019-10-31
+# 회계(영리)
+  - 지출결의서 작성 시 외화계정 연동개발(권오광)
+    * CommonBatchCmsDataVO.java
+     > aquiRate(환율) 필드 추가
+    * CommonInterface.java
+     > EXCHANGEUNIT(환종) 추가
+    * ExCodeCardVO.java
+     > georaeGukga(환종), aquiRate(환율), forAmount(외화금액) 필드 추가
+    * ExExpendForeignCurrencyVO.java
+     > 외화정보 관련 VO 생성
+    * ExExpendListVO.java
+     > exchangeUnitCode(환종코드), exchangeUnitName(환종명), exchangeRate(환율), foreignCurrencyAmount(외화금액), foreignAcctYN(외화계정 여부) 필드 추가
+    * ExExpendSlipVO.java
+     > exchangeUnitCode(환종코드), exchangeUnitName(환종명), exchangeRate(환율), foreignCurrencyAmount(외화금액), foreignAcctYN(외화계정 여부) 필드 추가
+    * BExUserCardServiceImpl.java
+    * ExCardInfoMake 수정
+     > 표준적요 차변계정을 기준으로 외화계정인지 체크하여 ExExpendForeignCurrencyVO에 외화정보 담도록 수정
+    * FExUserEtaxServiceAImpl.java
+    * ExETaxInfoMake 수정
+     > listParam에 외화정보 파라미터 추가
+    * FExUserCodeServiceIDAO.java
+     > ExCommonCodeExchangeUnitSelect(환종정보 조회) 메서드 추가
+    * FExUserCodeServiceIImpl.java
+    * ExUserCommCodeSelect 수정
+     > 공통코드 조회 분기처리 중 EXCHANGEUNIT(환종) 추가
+    * FExUserCodeServiceUDAO.java
+     > ExCommonCodeExchangeUnitSelect(환종정보 조회) 메서드 추가
+    * FExUserCodeServiceUImpl.java
+    * ExUserCommCodeSelect 수정
+     > 공통코드 조회 분기처리 중 EXCHANGEUNIT(환종) 추가
+    * BExUserListService.java
+     > ExchangeRateInfoSelect(환율정보 조회), RoundingTypeInfoSelect(올림구분 조회), CheckForeignCurrencyAcctCode(외화계정 확인), PointLengthInfoSelect(소수점 자릿수 조회) 메서드 추가
+    * BExUserListServiceImpl.java
+    * ExListInfoMake 수정
+     > 항목정보 저장 파라미터에 외화정보 담도록 수정
+     > ExchangeRateInfoSelect(환율정보 조회), RoundingTypeInfoSelect(올림구분 조회), CheckForeignCurrencyAcctCode(외화계정 확인), PointLengthInfoSelect(소수점 자릿수 조회) 메서드 추가
+    * FExUserListService.java
+     > CheckForeignCurrencyAcctCode(외화계정 확인) 메서드 추가
+    * FExUserListServiceAImpl.java
+     > CheckForeignCurrencyAcctCode(외화계정 확인) 메서드 추가
+    * FExUserListServiceEImpl.java
+     > CheckForeignCurrencyAcctCode(외화계정 확인) 메서드 추가
+    * FExUserListServiceIDAO.java
+     > CheckForeignCurrencyAcctCode(외화계정 확인), PointLengthInfoSelect(소수점 자릿수 조회) 메서드 추가
+    * FExUserListServiceIImpl.java
+     > CheckForeignCurrencyAcctCode(외화계정 확인) 메서드 추가
+    * FExUserListServiceUDAO.java
+     > ExchangeRateInfoSelect(환율정보 조회), RoundingTypeInfoSelect(올림구분 조회), CheckForeignCurrencyAcctCode(외화계정 확인) 메서드 추가
+    * FExUserListServiceUImpl.java
+     > CheckForeignCurrencyAcctCode(외화계정 확인) 메서드 추가
+    * BExUserMngServiceImpl.java
+    * ExMngInfoMake 수정
+     > iCUBE 외화정보 관리항목 추가(H5: 환율, I5: 외화금액, K2: 환종)
+     > ERPiU 외화정보 관리항목 추가(B24: 환종, B25: 환율, B26: 외화금액)
+    * BExUserSlipServiceImpl.java
+    * ExSlipInfoSingleMake 수정
+     > 분개정보 저장 파라미터에 외화정보 담도록 수정
+    * BExUserController.java
+     > ExchangeRateInfoSelect(환율정보 조회), RoundingTypeInfoSelect(올림구분 조회), CheckForeignCurrencyAcctCode(외화계정 확인), PointLengthInfoSelect(소수점 자릿수 조회) 메서드 추가
+    * VExUserPopController.java
+     > ExForeignCurrencyInputPopup(외화입력 팝업) 메서드 추가
+    * sql-map-mybatis-ERPiU-config.xml, sql-map-mybatis-iCUBE-config.xml
+     > ExForeignCurrency.xml 사용하도록 설정 추가
+    * CommonBatchCms_SQL.xml
+    * CommonCmsCardTempInfoInsert 수정
+     > aqui_rate 컬럼 추가
+    * ExUserCardSQL.xml
+    * ExReportCardDetailInfoSelect, ExReportCardDetailInfoWithCancelInfoSelect 수정
+     > georae_gukga(환종), aqui_rate(환율), for_amount(외화금액) 조회 컬럼 추가
+    * ExUserExpendSQL.xml
+    * ExListInfoSelect 수정
+     > exchange_unit_code(환종코드), exchange_unit_name(환종명), exchange_rate(환율), foreign_currency_amount(외화금액), foreign_acct_yn(외화계정 여부) 조회 컬럼 추가
+    * ExUserSlipSQL.xml
+    * ExSlipInfoInsert, ExSlipInfoReInsert 수정
+     > exchange_unit_code(환종코드), exchange_unit_name(환종명), exchange_rate(환율), foreign_currency_amount(외화금액), foreign_acct_yn(외화계정 여부) 컬럼 추가
+    * ExSlipInfoSelect 수정
+     > exchange_unit_code(환종코드), exchange_unit_name(환종명), exchange_rate(환율), foreign_currency_amount(외화금액), foreign_acct_yn(외화계정 여부) 조회 컬럼 추가
+    * BatchCms_SQL.xml
+    * CommonCmsERPiUInfoListSelect 수정
+     > AQUI_RATE(환율) 조회 컬럼 추가
+    * ExCode_SQL.xml(ERPiU, iCUBE 둘다)
+     > ExCommonCodeExchangeUnitSelect(환종정보 조회) 쿼리 추가
+    * ExForeignCurrency.xml(ERPiU)
+     > ExchangeRateInfoSelect(환율정보 조회), RoundingTypeInfoSelect(올림구분 조회), CheckForeignCurrencyAcctCode(외화계정 확인) 쿼리 추가
+    * ExForeignCurrency.xml(iCUBE)
+     > CheckForeignCurrencyAcctCode(외화계정 확인), PointLengthInfoSelect(소수점 자릿수 조회) 쿼리 추가
+    * CommonEX.js
+     > expendType 변수에 exchangeunit(환종) 추가
+    * jquery.ex.format.js
+    * fnSetExpendDispValue 수정
+     > 공통코드 데이터 바인딩 분기 조건에 exchangeunit(환종) 추가
+    * jquery.inputmask.js
+     > input 태그에 소수점 입력을 위해 inputmask 플러그인 추가
+    * ExExchangeUnitBody.jsp
+     > 공통코드 중 환종 조회를 위해 추가
+    * ExExpendListPopup.jsp
+    * fnExpendListCallback 수정
+     > 표준적요 조회 후 외화계정인지 체크하도록 수정
+    * fnExpendListInfoInsert 수정
+     > 저장 시 파라미터에 외화정보 추가
+    * fnExForeignCurrencyInputPopup 추가
+     > 외화입력 팝업기능 추가
+    * fnCheckForeignCurrencyAcctCode 추가
+     > 외화계정인지 체크하는 기능 추가
+    * fnApplyResultAmountCallback 추가
+     > 외화입력 팝업에서 계산된 금액을 항목금액에 반영하도록 기능 추가
+    * ExExpendMasterPopup.jsp
+    * fnSetGridMngBind
+     > 관리항목 조회 후 데이터 바인딩 시 금액부분에 소수점 금액 처리될 수 있도록 수정
+    * ExExpendSlipPopup.jsp
+    * fnExpendSlipCallback 수정
+     > 공통코드 계정 조회 후 외화계정인 체크하도록 수정
+    * fnExpendSlipInfoInsert 수정
+     > 저장 시 파라미터에 외화정보 담도록 수정
+    * fnExForeignCurrencyInputPopup 추가
+     > 외화입력 팝업 호출 기능 추가
+    * fnCheckForeignCurrencyAcctCode 추가
+     > 외화계정인지 체크하는 기능 추가
+    * fnApplyResultAmountCallback 추가
+     > 외화입력 팝업에서 계산된 금액을 분개금액에 반영하는 기능 추가
+    * ExForeignCurrencyInputPopup.jsp
+     > 외화정보를 입력할 수 있는 팝업 생성
+    * UserCmmCodePop.jsp
+     > 환종 공통코드 조회 할 수 있도록 수정
+
+2019-10-10
+# 회계(영리)
+  - 지출결의서 차변계정 기준 소계양식 개발(권오광)
+    * BCommonFormServiceImpl.java
+    * DocMaker 수정
+     > 소계양식 데이터 조회
+     > 기존 양식과 소계양식 분리 후 변환하여 다시 합치도록 수정
+    * InterlockSubtotalHtmlVO.java
+     > 소계양식 전용 데이터 파싱 클래스 생성
+    * BExUserReportService.java, BExUserReportServiceImpl.java, FExUserReportService.java, FExUserReportServiceADAO.java, FExUserReportServiceAImpl.java
+     > ExReportSubtotalInterLockInfoSelect(소계양식 정보 조회) 추가
+    * ExUserReportSQL.xml
+     > ExReportSubtotalInterLockInfoSelect(소계양식 정보 조회) 쿼리 추가
+    * formSettingTestPage.jsp
+    * fnValidation 수정
+     > 검증 시 소계양식일때는 table 두개 허용하도록 변경
+    * fnConvertHtml 수정
+     > 소계양식 CSS 클래스 추가
+
+2019-09-25
+# 회계(영리)
+  - 양식별 표준적요&증빙유형 설정 등록부분 로직 수정(권오광)
+    * BExAdminConfigServiceImpl.java
+    * ExAdminSetSummaryAuthCreate 수정
+     > 트랜잭션을 위해 @Transactional 추가(기존 트랜잭션 설정이 적용이 안되어 전파속성을 REQUIRES_NEW로 설정)
+     > 등록전 삭제기능 추가(ExAdminSetSummaryAuthDelete)
+     > 체크된 표준적요를 for문을 통해 등록(ExAdminSetSummaryAuthCreate)
+    * ExAdminSetAuthTypeAuthCreate 수정
+     > 트랜잭션을 위해 @Transactional 추가(기존 트랜잭션 설정이 적용이 안되어 전파속성을 REQUIRES_NEW로 설정)
+     > 등록전 삭제기능 추가(ExAdminSetAuthTypeAuthDelete)
+     > 체크된 증빙유형을 for문을 통해 등록(ExAdminSetAuthTypeAuthCreate)
+    * FExAdminConfigServiceAImpl.java
+    * ExAdminSetSummaryAuthDelete, ExAdminSetAuthTypeAuthDelete 수정
+     > 등록 전 삭제일 경우 summaryCode, authTypeCode 빼고 필수 파라미터 점검하도록 수정
+    * context-transaction.xml
+     > 트랜잭션 애노테이션을 사용하기 위해 tx:annotation-driven 추가
+    * ExAdminConfigSQL.xml
+    * ExAdminSetSummaryAuthDelete, ExAdminSetAuthTypeAuthDelete 수정
+     > 등록 전 삭제와 구별하기 위해 isInsert 추가
+    * AdminFormLinkCodeSetting.jsp
+    * fnSummaryPopCallback, fnAuthPopCallback 수정
+     > 삭제 부분 제거 및 체크된 데이터를 서버에서 등록 처리하도록 수정
+    * AdminFormLinkAuthPop.jsp, AdminFormLinkSummaryPop.jsp
+    * fnReflect 수정
+     > 콜백함수로 체크된 데이터 배열에 담아서 전달하도록 수정
+     > 체크 안된 데이터를 배열에서 담아서 전달하는 부분은 제거
+
+2019-09-24
+# 회계(영리)
+  - 항목수정 시 사업계획, 예산계정 정보가 잘못 반영되는 현상 수정(권오광)
+    * ExExpendListPopup.jsp
+    * $(document).ready 수정
+     > 항목수정 시 hidExpendListBizplanInfo(사업계획), hidExpendListBgAcctInfo(예산계정)에 해당 사업계획, 예산계정 담도록 수정
+
+
+2019-09-23
+# 회계(영리)
+  - 구축세팅 페이지에서 "CMS 연동모듈 설치" 진행시 취소분 버튼 함께 배포 처리
+  - 지출결의 삭제 진행 시 "전자결재 문서" 상태값 변경 및 변경 이력 기록
+
+2019-09-10
+# 회계(영리)
+  - ERPiU oracle 연동 기능 개
+    * 지출결의 작성, 전송 기능 구현
+    * ERPiU oracle 예산 연동 기능 구현
+    * ERPiU oracle 카드 연동 기능 구현
+    * ERPiU oracl 매입전자세금계산서 연동 기능 구현
+  - 관리항목 입력 개선
+    * 관리항목(이율) 입력시 소수점 입력 가능하도록 개선
+  - 나의 예실대비현황 메뉴 조회 오류 보완
+    * ERPiU 기수 정보 조회 오류 수정
+
+2019-09-06
+# 회계(영리)
+  - 관리항목 이율 부분 소수점 입력 가능하도록 수정(권오광)
+    * ExExpendMngPopup.jsp
+    * 전역변수
+     > arrDotNum(소수점 들어가는 관리항목 배열)에 'D08' 추가
+
+2019-08-21
+# 회계(영리)
+  - (관리자)지출결의현황(ERPiU)에서 전송 시 단일사업장일 경우 사업장코드 빠지는 현상 수정(권오광)
+    * BExAdminReportServiceImpl.java
+    * ExReportExpendSendListInfoSend 수정
+     > ERPiU일때 중복 사업장 처리부분에서 단일사업장일 경우 사업장 코드가 들어가지 않아 수정
+     > dummy 데이터에 사업장코드 넣는 부분을 for문 밖으로 따로 분리
+
+2019-08-21
+# 회계(영리)
+  - 헤더 클릭 시 해당 컬럼의 오름차순/내림차순 정렬되도록 개선
+    * 관리자 > 회계 > 지출결의 관리 > 지출결의 확인
+    * 관리자 > 회계 > 지출결의 관리 > 지출결의 현황
+    * 관리자 > 회계 > 지출결의 관리 > 카드 사용 현황
+    * 관리자 > 회계 > 지출결의 관리 > ICUBE 연동문서 현황
+    * 관리자 > 회계 > 지출결의 관리 > 세금계산서현황(iCUBE) ==> 기능 추가 불가 (HTML 테이블)
+    * 관리자 > 회계 > 지출결의 관리 > 세금계산서현황(ERPiU) ==> 기능 추가 불가 (HTML 테이블)
+    * 관리자 > 회계 > 지출결의 설정 > 카드 설정 ==> 기능 추가 불가 (HTML 테이블)
+    * 관리자 > 회계 > 지출결의 설정 > 표준적요 설정
+    * 관리자 > 회계 > 지출결의 설정 > 증빙유형 설정
+    * 관리자 > 회계 > 지출결의 설정 > 양식 별 표준적요 & 증빙유형 설정 ==> 기능 추가 불가 (HTML 테이블)
+    * 관리자 > 회계 > 지출결의 설정 > 환결설정 ==> 기능 추가 불가 (HTML 테이블)
+    * 관리자 > 회계 > 지출결의 설정 > 항목 설정 ==> 기능 추가 불가 (HTML 테이블)
+    * 관리자 > 회계 > 지출결의 설정 > 명칭 설정
+    * 관리자 > 회계 > 지출결의 설정 > 명칭 설정 ==> 기능 추가 불가 (HTML 테이블)
+    * 관리자 > 회계 > 지출결의 설정 > 버튼 설정 ==> 기능 추가 불가 (테이블 없음)
+    * 관리자 > 회계 > 지출결의 설정 > 매입전자세금계산서 설정 ==> 기능 추가 불가 (HTML 테이블)
+    * 관리자 > 회계 > 지출결의 설정 > 마감설정 ==> 기능 추가 불가 (HTML 테이블)
+    * 관리자 > 회계 > 예실대비 > 예실대비 현황(iCUBE)
+    * 관리자 > 회계 > 예실대비 > 예실대비 현황(ERPiU) ==> 기능 추가 불가 (행합침 표시)
+  - 변경 소스 목록 ( datatables 정의 설정 변경 : bSort >> true, bSortable >> true )
+    * AdminAuthSetting.jsp
+    * AdminCardReport.jsp
+    * AdminCardSetting.jsp
+    * AdminETaxReportERPiU.jsp
+    * AdminExpendManagerReport.jsp
+    * AdminYesilReport.jsp
+    * AdminiCUBEDocListReport.jsp
+
+2019-08-21
+# 회계(영리)
+  - (관리자)카드사용현황 사용여부 조회조건 추가_주석처리(세금계산서와 카드사용이 서로 상이하여 보류)(권오광)
+    * ExAdminReportSQL.xml
+    * ExAdminCardUseReportListInfoSelect 수정
+     > 미사용 조회조건 부분 주석처리
+    * ExAdminCardReportListInfoSelectForExcel 수정
+     > 미사용 조회조건 부분 주석처리
+    * AdminCardReport.jsp
+    * html
+     > 사용여부 조건 주석처리
+    * fnGetAjaxCallParams, fnAdminCardReportExcelDown 수정
+     > 파라미터 중 useYN(사용여부) 주석처리
+
+2019-08-21
+# 회계(영리)
+  - 예실대비 '회계기수/차기이' 예산년월 연동개발 (ERPiU만 해당) (김상겸)
+    * http://jira.duzon.com:8080/browse/UCAIMP-4135
+    * hBizboxCmm.java
+    * hERPiUAccSeq.java
+    * hBExUserCodeService.java
+    * hBExUserCodeServiceImpl.java
+    * hFExUserCodeService.java
+    * hFExUserCodeServiceAImpl.java
+    * hFExUserCodeServiceEImpl.java
+    * hFExUserCodeServiceIImpl.java
+    * hFExUserCodeServiceUImpl.java
+    * hFExUserCodeServiceUDAO.java
+    * hBExUserController.java
+    * hExCode_SQL.xml
+    * hAdminYesil2Report.jsp
+    * hUserYesil2Report.jsp
+
+2019-08-20
+# 회계(영리)
+  - 결재상신 후 분개상세정보 정렬순서 적용(분개추가 때와 동일하게)(권오광)
+    * interlockEAP_SQL.xml
+    * InterlockEAP.ExDocSlipDetailPop 수정
+     > ORDER BY CAST(slip.slip_seq AS int) 추가
+
+2019-08-19
+# 회계(영리)
+  - [UCAIMP-589] 지출결의서 양식 코드 추가 ( 카드 내역의 환종 ) (김상겸)
+  - [UCAIMP-3994] 양식필수정보 접힘/펼침 적용 ( 전자결재 옵션 적용 ) (김상겸)
+  - [UCAIMP-4137] 카드상세내역(팝업) 세로크기 조절 시 리사이징 ( 윈도우 리사이즈 이벤트 적용하여 테이블 높이 자동 조정 처리 ) (김상겸)
+  - [UCAIMP-4150] iCUBE 매입세금계산서 현황페이지 "사업장" 컬럼 추가 ( 사용자, 관리자 ) (김상겸)
+
+2019-08-19
+# 회계(영리)
+  - 표준적요 상세정보 표시 옵션 사용시 차변/대변 정보 검색 가능하도록 수정_다시 원복(권오광)
+  - like 검색 시 불필요한 검색결과가 많이 검색되어 이전에 일치(=)검색으로 개선되었음
+    * ExUserCodeSQL.xml
+    * ExCommonCodeSummarySelect 수정
+     > 이전과 동일하게 작동할 수 있도록 like 검색에서 일치(=) 검색으로 다시 수정
+
+2019-08-09
+  - (관리자)매입전자세금계산서 설정 코드등록시 중복체크 기능 추가(권오광)
+    * ExCodeETaxAuthVO.java
+     > 매입세금계산서 권한설정 관련 VO 생성
+    * BExAdminETaxService.java
+     > ExETaxAuthCodeDuplicationCheck 메서드 추가
+    * BExAdminETaxServiceImpl.java
+    * ExAdminETaxAuthInsert 수정
+     > 중복체크 로직 추가
+    * ExETaxAuthCodeDuplicationCheck 추가
+     > 중복여부 확인 기능 추가
+    * FExAdminETaxServiceADAO.java
+    * ExETaxAuthCodeDuplicationCheckSelect 추가
+     > 중복여부 조회
+    * BExAdminController.java
+    * ExETaxAuthInsert 수정
+     > CheckExistsException 추가
+     > 중복 시 에러구문 추가
+    * ExETaxAuthCodeDuplicationCheck 추가
+     > 중복체크 기능 추가
+    * ExAdminConfigSQL.xml
+    * AdminETaxAuthCodeDuplicationCheckSelect 추가
+     > 중복체크 쿼리 추가
+    * AdminETaxAuthSetting.jsp
+    * fnEventInit 수정
+     > btnCodeDuplicationCheck(중복체크) 클릭 이벤트 추가
+    * fnConfigSave 수정
+     > 신규등록 시 중복체크 여부, 수정 시 중복체크 여부 추가
+     > 결과값이 FAIL일 경우 에러문구 표시 할 수 있도록 수정
+    * fnAuthChk 수정
+     > 공급자와 수신메일 전환 시 중복체크 부분 초기화
+    * fnCodeDuplicationCheck 추가
+     > 중복체크 기능 추가
+    * html
+     > hidCompareCode - 수정시 코드 비교 input 추가
+     > btnCodeDuplicationCheck - 중복체크 버튼
+     > duplicationCheckMessage - 중복체크 후 메시지
+
+2019-08-06
+  - (관리자)세금계산서현황 이관관리 팝업 조회 시 오류수정(권오광)
+    * BExUserController.java
+    * ExUserInterfaceTransferHistory 수정
+     > addObject의 key값이 잘못되어 수정(aaData -> result)
+
+2019-08-05
+# 회계(영리)
+  - (관리자)카드사용현황 사용여부 조회조건 추가(권오광)
+    * ExReportCardVO.java
+     > 기존 필드 수정 및 추가
+    * BExAdminReportService.java
+     > ExAdminCardReportListInfoSelect 파라미터 수정(Map<String, Object> params -> ExReportCardVO reportCardVO)
+    * BExAdminReportServiceImpl.java
+    * ExAdminCardReportListInfoSelect 수정
+     > 파라미터 수정(Map<String, Object> params -> ExReportCardVO reportCardVO)
+    * FExAdminReportService.java
+     > ExAdminCardReportListInfoSelect 파라미터 수정(Map<String, Object> params -> ExReportCardVO reportCardVO)
+    * FExAdminReportServiceADAO.java
+    * ExAdminCardReportListInfoSelect 수정
+     > 파라미터 수정(Map<String, Object> params -> ExReportCardVO reportCardVO)
+    * FExAdminReportServiceAImpl.java
+    * ExAdminCardReportListInfoSelect 수정
+     > 파라미터 수정(Map<String, Object> params -> ExReportCardVO reportCardVO)
+     > 불필요한 부분 제거
+    * FExAdminReportServiceIImpl.java
+    * ExAdminCardReportListInfoSelect 수정
+     > 파라미터 수정(Map<String, Object> params -> ExReportCardVO reportCardVO)
+    * FExAdminReportServiceUImpl.java
+    * ExAdminCardReportListInfoSelect 수정
+     > 파라미터 수정(Map<String, Object> params -> ExReportCardVO reportCardVO)
+    * BExAdminController.java
+    * ExAdminCardReportListInfoSelect 수정
+     > 파라미터 수정(Map<String, Object> params -> ExReportCardVO reportCardVO)
+    * BExUserReportService.java
+     > ExUserCardReportListInfoSelect 파라미터 수정(Map<String, Object> params -> ExReportCardVO reportCardVO)
+    * BExUserReportServiceImpl.java
+    * ExUserCardReportListInfoSelect 수정
+     > 파라미터 수정(Map<String, Object> params -> ExReportCardVO reportCardVO)
+     > 불필요한 부분 제거
+    * FExUserReportService.java
+     > ExUserCardReportListInfoSelect 파라미터 수정(Map<String, Object> params -> ExReportCardVO reportCardVO)
+    * FExUserReportServiceADAO.java
+    * ExUserCardReportListInfoSelect 수정
+     > 파라미터 수정(Map<String, Object> params -> ExReportCardVO reportCardVO)
+    * FExUserReportServiceAImpl.java
+    * ExUserCardReportListInfoSelect 수정
+     > 파라미터 수정(Map<String, Object> params -> ExReportCardVO reportCardVO)
+     > 불필요한 부분 제거
+    * BExUserController.java
+    * ExUserCardReportListInfoSelect 수정
+     > 파라미터 수정(Map<String, Object> params -> ExReportCardVO reportCardVO)
+    * ExUserCardReportListNewExcelDown 수정
+     > 엑셀 다운로드 시 파라미터 reportCardVO 담아서 전달하도록 수정
+    * ExAdminReportSQL.xml
+    * ExAdminCardUseReportListInfoSelect 수정
+     > 파라미터 명칭 수정 및 미사용구분 조건 추가
+    * ExAdminCardReportListInfoSelectForExcel 수정
+     > 미사용구분 조건 추가
+    * ExUserReportSQL.xml
+    * ExUserCardReportListInfoSelect 수정
+     > 파라미터 명칭 수정
+    * AdminCardReport.jsp
+    * fnGetAjaxCallParams, fnValidateParam, fnAdminCardReportExcelDown 수정
+     > 파라미터 명칭 수정
+    * html
+     > 미사용 select box 추가
+    * UserCardReport.jsp
+    * fnGetParam, fnUserCardReportSearch, fnAdminCardReportExcelDown 수정
+     > 파라미터 명칭 수정
+    * html
+     > 미사용 select box 추가
+     > 주석 부분 제거
+
+2019-08-02
+# 회계(영리)
+  - (관리자)카드사용현황의 엑셀다운로드 조회쿼리 수정(권오광)
+    * ExAdminReportSQL.xml
+    * ExAdminCardReportListInfoSelectForExcel 수정
+     > authYn -> 카드사용현황 조회쿼리와 동일하게 결의, 미결의, 미사용 구분하여 조회
+    * AdminCardReport.jsp
+    * downloadExcelProcess 수정
+     > 엑셀의 결의상태 컬럼 표현 시 조회화면과 동일하게 결의, 미결의, 미사용 구분하여 표현하도록 수정
+
+2019-07-31
+# 회계(영리)
+  - 계정과목 공통코드 조회 시 오라클 업체의 경우 조회쿼리에 특수문자 처리(<![CDATA[ ]]>) 제대로 적용되지 않아 수정(권오광)
+    * ExCode_SQL.xml
+    * ExCommonCodeAcctSelect 수정
+     > <![CDATA[ ]]> 부분 불필요하여 제거
+
+2019-07-31
+# 회계(영리)
+  - 표준적요 상세정보 표시 옵션 사용시 차변/대변 정보 검색 가능하도록 수정(권오광)
+    * ExUserCodeSQL.xml
+    * ExCommonCodeSummarySelect 수정
+     > summryDisplayOption(표준적요 상세정보 표시 옵션)에 따라 검색가능하도록 수정
+     > name 검색 시 LIKE로 수정
+
+2019-07-31
+# 회계(영리)
+  - 프로젝트 명 특수문자(<>) 표현될 수 있게 수정(권오광)
+    * InterlockHtmlVO.java
+    * getReplaceValue 수정
+     > _projectName_(프로젝트 명), _budgetName_(예산단위 명)에 특수문자 치환 되도록 수정
+    * ConvertSpecialCharacter 추가
+     > 특수문자(<>) -> &lt, &gt로 치환
+    * ExProjectBody.jsp
+    * fnSetMainList 수정
+     > columnDefs 부분에 특수문자(<>) 변환 함수 추가
+    * fnConvertSpecialCharacter 추가
+     > 특수문자 변환 기능 추가
+
+2019-07-29
+# 회계(영리)
+  - 지출결의 작성 항목 추가 최대 150건 가능하도록 변경 (김상겸)
+    * 기존 최대 100건 입력에서 최대 150건으로 변경
+     > http://jira.duzon.com:8080/browse/UCAIMP-2034
+
+2019-07-29
+# 회계(영리)
+  - 지출결의 현황(사용자, 관리자) 지급요청일 검색조건 추가 (김상겸)
+    * 사용자 : 기안일, 문서제목, 문서상태, 회계일자, 지급요청일, 문서분류, 문서버놓, 사업장, 부서, 사용자, 자동전표번호
+    * 관리자 : 기안일자, 제목, 문서상태, 회계일자, 지급요청일, 문서분류, 문서번호, 기안자, 사업장, 사용부서, 사용자, 자동전표번호
+     > http://jira.duzon.com:8080/browse/UCAIMP-957
+
+2019-07-29
+# 회계(영리)
+  - BExAdminController.java 로그 추가(권오광)
+    * BExAdminController.java
+    * 모든 메서드
+     > 각 메서드 전달 파라미터 및 에러로그 추가
+
+2019-07-29
+# 회계(영리)
+  - 전자결재 종결시 자동전송 부분 오류사항 수정(권오광)
+    * BExAdminReportServiceImpl.java
+    * ExReportExpendSendListInfoSend 수정
+     > 자동전송 체크부분 파라미터 명 변경(authSendYN -> autoSendYN)
+
+2019-07-26
+# 회계(영리)
+  - (iCUBE)지출결의서 항목수정 시 프로젝트가 예산단위에 반영 안되는 부분 수정(권오광)
+    * ExExpendListPopup.jsp
+    * fnExpendListCallback 수정
+     > if 문에 expendBudgetInfo.erp_type 오타 수정 -> expendBudgetInfo.erpType 으로 변경
+     > 공통코드 콜백 부분에서 project일 경우 예산단위에 erpDeptSeq 대신 projectCode 입력
+
+2019-07-18
+# 회계(영리)
+  - (사용자) 분개 수정 불가 오류 현상 수정
+    * 분개를 수정할 경우 분개 정보가 삭제되고, 신규생성되지 않는 문제점 보완
+  - (사용자) 세금계산서 상세 보기 보완
+    * 세금계산서 내역에 쌍따옴표(")가 존재하는 경우 데이터 정상 표시 불가 오류 보완
+
+2019-07-11
+# 회계(영리)
+  - (관리자)전자세금계산서 현황(ERPiU, iCUBE)에서 전자세금계산서 팝업창 특수문자 처리(권오광)
+    * VNpUserPopController.java
+    * UserETaxDetailPop 수정
+     > 세금계산서 조회 결과를 큰따옴표와 작은따옴표에 대해 치환하여 다시 저장
+    * UserETaxDetailPopI.jsp
+    * $(document).ready 수정
+     > ${eTaxInfo}를 JSON Object로 변환하여 저장한 뒤 다시 화면에 보여주도록 수정
+     > 항목 리스트를 그려줄때 substring 시 에러가 나서 항목정보가 있을때만 그려주도록 수정
+    * UserETaxDetailPopU.jsp
+    * $(document).ready 수정
+     > ${eTaxInfo}를 JSON Object로 변환하여 저장한 뒤 다시 화면에 보여주도록 수정
+
+2019-07-10 (1.2.89)
+# 회계(영리)
+  - 법인카드 사용내역 반영 시 부가세 0원 표기 현상
+    * 법인카드 및 세금계산서 반영 시 부가세 금액이 표시되지 않는 문제 보완
+    * "세무구" 값 연동 문제 보완
+  - 예실대비 현황에서 집행예정 금액 상세 팝업 표기 오류
+    * 귀속월 정보의 문자 깨짐 및 I/E 팝업 표시 불가 문제 보완
+
+2019-07-09
+# 회계(영리)
+  - 카드사용내역/매입세금계산서 팝업에서 사용자 돋보기 검색버튼 화면 틀어짐 수정(권오광)
+    * UserCardUsageHistoryPop.jsp
+    * fnSetCardEmpDeptOptionSet 수정
+     > btnExpendCardEmpPop show() -> display : inline-block으로 수정
+    * ExExpendETaxPopup.jsp
+    * fnSetETaxEmpDeptOptionSet 수정
+     > btnExpendETaxEmpPop show() -> display : inline-block으로 수정
+
+2019-07-05
+# 회계(영리)
+  - [공통] 마감취소 후 재마감 할 수 있도록 기능 및 UI 개선(권오광)
+    * BExAdminConfigServiceImpl.java
+    * ExAdminExpendCloseDateUpdate 수정
+     > result.setResultName 수정(마감취소 -> 마감상태값 수정)
+    * ExAdminConfigSQL.xml
+    * ExAdminExpendCloseUpdate 수정
+     > close_type(마감구분), close_from_date(시작일), close_to_date(종료일), note(비고)
+    * AdimCloseDateSetting.jsp
+    * fnInit 수정
+     > 함수 실행순서 변경(조회시 값을 못 넘기고 있어서)
+    * fnInitInput 수정
+     > 양식명 리스트에 첫번째 로우 선택되도록 수정
+    * fnInitEvent 수정
+     > btnClose(마감) -> btnNew(신규)로 클릭이벤트 변경
+     > btnClose(마감) 숨김처리
+     > btnClose(마감) 클릭이벤트 새로 추가(마감상태 업데이트)
+     > btnCloseCancel(마감취소) 시 파라미터 값 수정
+     > tblFormList(양식리스트) 클릭시 "selected" class 제거
+    * fnCloseDateSearch 수정
+     > 마감/마감취소 시 버튼 토글 및 입력필드 사용/사용불가 상태 처리 별도 분리
+    * fnShowAndHideBtnClose 추가
+     > 마감/마감취소 시 버튼 토글 및 입력필드 사용/사용불가 상태 처리
+    * html 수정
+     > 신규버튼과 삭제버튼 순서변경
+     > 레이어 팝업에 btnClose(마감버튼) 추가
+
+2019-07-01
+# 회계(영리)
+  - [공통] 매입전자세금계산서 가져오기 팝업 내 불공제사유 입력필드 추가(권오광)
+    * ExCodeETaxVO.java
+     > authDiv ~ vaTypeName 증빙유형 관련 필드 추가
+    * FExUserEtaxServiceIImpl.java
+    * ExETaxListInfoSelect 수정
+     > 조회 된 결과값에 authDiv ~ vaTypeName 증빙유형 관련 컬럼 값 추가
+    * FExUserEtaxServiceUImpl.java
+    * ExETaxListInfoSelect 수정
+     > 조회 된 결과값에 authDiv ~ vaTypeName 증빙유형 관련 컬럼 값 추가
+    * ExUserCardSQL.xml
+    * ExExpendEmpCardListInfoSelect 수정
+     > authDiv ~ vaTypeName 증빙유형 관련 컬럼 값 추가
+    * ExExpendEmpCardListInfoWithCancelInfoSelect 수정
+     > authDiv ~ vaTypeName 증빙유형 관련 컬럼 값 추가
+    * ExUserETaxSQL.xml
+    * ExUserETaxSubListInfoSelect 수정
+     > authDiv ~ vaTypeName 증빙유형 관련 컬럼 값 추가
+    * jquery.ex.valid.js
+    * chkValid 수정
+     > 프로젝트 체크 시 필수값일 때 alert 문구 추가
+    * ExExpendETaxPopup.jsp
+    * eTaxElement 오브젝트 수정
+     > va(사유구분), noTax(불공제구분) 추가
+    * eTaxButton 오브젝트 수정
+     > va(사유구분), noTax(불공제구분) 추가
+    * fnExpendETaxEventInitButton 수정
+     > 공통팝업 버튼 클릭 이벤트에 btnExpendETaxVaPop, btnExpendETaxNoTaxPop 추가
+    * fnExpendETaxEventInitEnter 수정
+     > 공통팝업 키다운 이벤트에 txtExpendETaxDispVa, txtExpendETaxDispNoTax 추가
+    * fnOpenCommonCodePop 수정
+     > 파라미터에 vat_type(부가세 구분) 추가
+    * fnExpendETaxEventSave 수정
+     > 저장 후 입력필드 초기화 부분 추가
+    * fnExpendETaxCallback 수정
+     > 공통팝업 콜백에 va(사유구분), notax(불공제구분) 추가
+     > iCUBE와 ERPiU 일때 나누어서 처리
+    * fnExpendETaxRowClick 수정
+     > 조회 내역 행 클릭 시 증빙유형 정보 authDiv ~ vaTypeName 추가
+     > 사유구분 또는 불공제구분에 따라 값 보이도록 추가
+    * fnExpendETaxInfoReset 수정
+     > 입력필드 초기화 부분 수정
+    * fnInitExpendETaxInput 추가
+     > 입력필드 초기화 부분 공통으로 할 수 있게 따로 함수 분리
+    * html 수정
+     > hidExpendETaxVaInfo(사유구분), hidExpendETaxNoTaxInfo(불공제구분), hidExpendETaxVatTypeInfo(부가세구분) 정보 담는 input 추가
+     > ExpendETaxVa(사유구분), ExpendETaxNoTax(불공제구분) tr 추가
+    * UserCardUsageHistoryPop.jsp
+    * html 수정
+     > hidExpendCardVaInfo(사유구분), hidExpendCardNoTaxInfo(불공제구분), hidExpendCardVatTypeInfo(부가세구분) 정보 담는 input 추가
+     > ExpendCardVa(사유구분), ExpendCardNoTax(불공제구분) tr 추가
+    * cardElement 오브젝트 수정
+     > va(부가세구분), noTax(불공제구분) 추가
+    * cardButton 오브젝트 수정
+     > va(부가세구분), noTax(불공제구분) 추가
+    * fnExpendCardEventInitButton 수정
+     > 공통팝업 버튼 클릭 이벤트에 btnExpendCardVaPop, btnExpendCardNoTaxPop 추가
+    * fnExpendCardEventInitEnter 수정
+     > 공통팝업 키다운 이벤트에 txtExpendCardDispVa, txtExpendCardDispNoTax 추가
+    * fnOpenCommonCodePop 수정
+     > 파라미터에 vat_type(부가세 구분) 추가
+    * fnExpendCardInfoUpdate 수정
+     > 저장 후 입력필드 초기화 부분 추가
+    * fnExpendCardCallback 수정
+     > 공통팝업 콜백에 va(사유구분), notax(불공제구분) 추가
+     > iCUBE와 ERPiU 일때 나누어서 처리
+    * fnExpendCardRowSelect 수정
+     > 조회 내역 행 클릭 시 증빙유형 정보 authDiv ~ vaTypeName 추가
+     > 사유구분 또는 불공제구분에 따라 값 보이도록 추가
+    * fnExpendCardInfoReset 수정
+     > 저장 후 입력필드 초기화 부분 추가
+    * fnInitExpendCardInput 추가
+     > 입력필드 초기화 부분 공통으로 할 수 있게 따로 함수 분리
+
+2019-06-18
+# 회계(영리)
+  - [공통] 법인카드 지출결의 작성 시 거래처 자동 등록되는 건에 대한 옵션기능 추가(권오광)
+    * OptionCodeType.java
+     > NORMAL_AUTO_INPUT_CUSTOMER_ON_TRANSMISSION([일반설정] 지출결의 전송 시 iCUBE 거래처 자동등록 여부 설정) 추가
+    * BExUserCardServiceImpl.java
+    * ExCardInfoMake 수정
+     > 거래처 조회 전 partnerVo에 formSeq 값 담아서 전달하도록 수정
+    * FExUserCodeServiceIImpl.java
+    * ExCodePartnerInfoSelect 수정
+     > 지출결의 전송 시 iCUBE 거래처 자동등록 여부 옵션 조회해서 "Y"인 경우에만 거래처 등록하도록 수정
+    * FExUserEtaxServiceAImpl.java
+    * ExETaxInfoMake 수정
+     > 거래처 조회 전 partnerVo에 formSeq 값 담아서 전달하도록 수정
+
+2019-06-14
+# 회계(영리)
+  - 지출결의서 작성 시 ERP에 카드가 없는경우 오류메시지 나오도록 수정_코드 리펙토링(권오광)
+    * BExUserCardService.java
+    * ExReportCardDetailInfoWithCancelInfoSelect 추가
+    * BExUserCardServiceImpl.java
+    * ExCardInfoMake 수정
+     > 카드상세내역 조회시 NullPointerException이 발생 할 경우 에러 별도 처리
+    * ExReportCardDetailInfoSelect 수정
+     > Exception 발생 부분 제거
+    * ExReportCardDetailInfoWithCancelInfoSelect 추가
+    * ProgressLayerPop.jsp
+    * PLP_fnInitPop 수정
+     > PLP_btnShowPop(실패사유 보기) 클릭 이벤트 추가
+    * PLP_fnEndProgressDialog 수정
+     > PLP_btnShowPop(실패사유 보기) 클릭 이벤트 제거(별도 분리)
+    * PLP_fnShowFailReasonPop 추가
+     > PLP_btnShowPop(실패사유 보기) 클릭 이벤트에 해당하는 함수 생성
+    * ExExpendMasterPopup.jsp
+    * fnExCloseLayPop 수정
+     > 레이어 팝업 종료 시 실패사유 클릭 이벤트 버블링 때문에 unbind 함수 추가
+
+2019-06-13
+# 회계(영리)
+  - 카드상세내역 카드정보 도움창 개발_설계검수 후 수정(권오광)
+    * VExUserPopController.java
+    * UserCardInfoHelpPop 수정
+     > checkedCardInfo(선택된 카드정보) 파라미터 추가
+    * ExUserCardSQL.xml
+    * refExExpendUserCardInfoSelect 수정
+     > 데이터 중복건 발생 때문에 DISTINCT 추가
+    * UserCardInfoHelpPop.jsp
+    * fnSetCardInfoGrid 수정
+     > 그리드 최소 높이 추가
+     > 이미 선택된 카드정보에 대해 조회시 체크 표시되도록 수정
+    * UserCardUsageHistoryPop.jsp
+    * html 수정
+     > 카드정보 form 태그 추가
+     > 사업자등록번호 크기 변경(80px -> 95px)
+    * script 수정
+     > checkedCardInfo(선택된 카드정보) 전역변수 추가
+    * fnExpendCardInfoHelpPop 수정
+     > 팝업 호출 파라미터에 checkedCardInfo(선택된 카드정보) 추가
+     > 팝업 호출 방법 변경(get -> post)
+    * fnExpendCardCallbackCardInfo 수정
+     > 선택된 카드값 변환부분 분리
+     > 선택된 카드값 checkedCardInfo 변수에 저장시 깊은복사로 변경
+    * fnExpendConvertCheckedCardInfo 추가
+     > 선택된 카드번호 변환 처리(where in에 포맷에 맞게)
+    * btnExpendCardListSearch 수정
+     > searchStr 파라미터 수정
+    * fnExpendCardEventInitEnter 수정
+     > txtExpendCardNum(카드정보 텍스트) 키업 시 checkedCardInfo(선택된 카드정보) 초기화
+
+2019-06-11
+# 회계(영리)
+  - 클라우드 오류로 인한 ERP 자동전송 기능 수정(groupSeq 추가)(권오광)
+    * FExAdminReportServiceIImpl.java
+    * ExReportExpendSendListInfoSend 수정
+     > ExAdminExpendReportDocInfoSelect, ExAdminExpendReportUpdate, ExExpendEditHistoryInsert
+        각 파라미터에 groupSeq 추가
+    * ExReportExpendSendListInfoSendByList 수정
+     > ExAdminExpendReportDocInfoSelect, ExAdminExpendReportUpdate
+        각 파라미터에 groupSeq 추가
+    * FExAdminReportServiceUImpl.java
+    * ExReportExpendSendListInfoSend 수정
+     > ExAdminSendAttachAllSelectList, ExAdminExpendReportUpdateU, ExExpendEditHistoryInsert
+        각 파라미터에 groupSeq 추가
+    * ExReportExpendSendListInfoSendByList 수정
+     > ExAdminSendAttachSelectList, ExAdminExpendReportUpdateU
+        각 파라미터에 groupSeq 추가
+
+2019-06-10
+# 회계(영리)
+  - 카드상세내역 카드정보 도움창 개발(권오광)
+    * CommonMapInterface.java
+     >UserCardInfoHelpPop 추가
+    * BExUserCardService.java
+     > ExExpendUserCardInfoSelect(카드정보 조회) 추가
+    * BExUserCardServiceImpl.java
+     > ExExpendUserCardInfoSelect(카드정보 조회) 추가
+    * FExUserCardServiceADAO.java
+     > ExExpendUserCardInfoSelect(카드정보 조회) 추가
+    * BExUserController.java
+     > ExExpendUserCardInfoSelect(카드정보 조회) 추가
+    * VExUserPopController.java
+     > UserCardInfoHelpPop(카드정보 도움창 팝업) 추가
+    * ExUserCardSQL.xml
+    * ExExpendEmpCardListInfoSelect 수정
+     > 기존 파라미터(card_num, card_name, merc_name)을 card_num, merc_name, merc_saup_no로 수정
+    * ExExpendEmpCardListInfoWithCancelInfoSelect 수정
+     > 기존 파라미터(card_num, card_name, merc_name)을 card_num, merc_name, merc_saup_no로 수정
+    * refExExpendUserCardInfoSelect 추가
+    * ExExpendUserCardInfoSelect 추가
+    * ExExpendUserCardInfoSelect_TOTALCOUNT 추가
+    * tiles2.xml
+     > pudding_popup 타일즈 추가
+    * UserCardInfoHelpPop.jsp 추가
+     > 카드도움창 새로 생성
+    * UserCardUsageHistoryPop.jsp
+     > hidExpendCardCheckedCardInfo(선택된 카드정보) input태그 추가
+     > btnExpendCardInfoHelpPop(선택) 버튼 추가
+     > SearchDetail(상세검색) 박스 추가
+     > cardElement에 cardNum 수정 및 whereUsed, corporateRegistrationNumber 추가
+     > cardButton에 cardHelp 추가
+     > $("#layerExpendCard").css("top", topPosition); => 팝업창 위치조정
+    * fnExpendCardEventInitButton 수정
+     > fnExpendCardInfoHelpPop(선택) 버튼 이벤트 추가
+     > #txtWhereUsed(사용처), #txtCorporateRegistrationNumber(사업자등록번호) 키다운 이벤트 추가
+     > #txtExpendCardNum(카드정보 검색란) 키다운 이벤트 추가
+    * fnExpendCardEventInitEnter 수정
+     > txtExpendCardNum(카드정보 검색란) 키업 이벤트 추가
+    * fnExpendCardInfoHelpPop(카드정보 도움창) 추가
+    * fnExpendCardCallbackCardInfo(카드도움창 콜백함수) 추가
+    * btnExpendCardListSearch(검색) 수정
+     > 파라미터 searchStr 수정 및 whereUsed, corporateRegistrationNumber 추가
+    * pudding_contents_tiles.jsp
+     > 푸딩 UI 버전 수정(1.1.155 -> 1.1.179)
+    * pudding_popup_tiles.jsp 추가
+
+2019-05-29
+# 회계(영리)
+  - 지출결의서 카드사용내역 반영 시 카드설정 정보가 잘못되어 있을때 오류메시지 나오도록 수정(권오광)
+    * BExUserCardServiceImpl.java
+    * ExCardInfoMake 수정
+     > cardVo 값이 null 일때 메시지 오류메시지와 함께 예외 발생
+    * ExReportCardDetailInfoSelect 수정
+     > cardVo 값이 null 일때 메시지 오류메시지와 함께 예외 발생
+
+2019-05-28
+# 회계(영리)
+  - [ERPiU] 표준적요 변경시 예산정보 초기화 기능 옵션(권오광)
+    * OptionCodeType.java
+     > optionCode 값 관련 enum 타입 생성
+    * VExUserPopController.java
+    * UserCardUsageHistoryPop 수정
+     > optionCode(001002) -> LAYOUT_INPUT_SETTING_USERINFO 으로 수정
+     > 표준적요 변경 시 예산정보 초기화 설정 옵션 조회 부분 추가
+    * ExExpendListPopup 수정
+     > 표준적요 변경 시 예산정보 초기화 설정 옵션 조회 부분 추가
+    * ExExpendETaxPopup 수정
+     > optionCode(001002) -> LAYOUT_INPUT_SETTING_USERINFO 으로 수정
+     > 표준적요 변경 시 예산정보 초기화 설정 옵션 조회 부분 추가
+    * ExExpendETaxPopup.jsp
+    * fnExpendETaxCallback 수정
+     > ERPiU 이고 isSummaryChangeReset가 "Y"인 경우 예산정보 초기화
+    * ExExpendListPopup.jsp 수정
+    * fnExpendListCallback 수정
+     > ERPiU 이고 isSummaryChangeReset가 "Y"인 경우 예산정보 초기화
+    * UserCardUsageHistoryPop.jsp
+    * fnExpendCardCallback 수정
+     > ERPiU 이고 isSummaryChangeReset가 "Y"인 경우 예산정보 초기화
+
+2019-05-22
+# 회계(영리)
+  - [공통]지출결의서 전송 시 제목 정의 옵션 수정(권오광)
+    * ExErpSendiCUBEVO.java
+     > form_nm, note_option_value 필드 추가
+    * RMK_DC 수정
+     > 기존대로 다시 수정
+    * ISU_DOC 수정
+     > 제목 옵션에 따라 품의내역 수정하도록 변경
+    * ExErpSendiUVO.java
+     > form_nm, note_option_value 필드 추가
+    * NM_NOTE 수정
+     > 기존대로 다시 수정
+    * NM_PUMM 수정
+     > 제목 옵션에 따라 품의내역 수정하도록 변경
+
+2019-05-20
+# 회계(영리)
+  - [공통]지출결의서 전송 시 제목 정의 옵션(권오광)
+    * ExErpSendiCUBEVO.java
+     > form_nm, note_option_value 필드 추가
+    * RMK_DC 수정
+     > 제목 옵션에 따라 적요내용 수정하도록 변경
+    * ExErpSendiUVO.java
+     > form_nm, note_option_value 필드 추가
+    * NM_NOTE 수정
+     > 제목 옵션에 따라 적요내용 수정하도록 변경
+    * ExAdminExpendSendSQL.xml
+    * SelectExpendInfo 수정
+     > form_nm, note_option_value 추가에 따른 쿼리 수정
+     > 양식명과 제목 옵션값 추가
+    * SelectExpendInfoU 수정
+     > form_nm, note_option_value 추가에 따른 쿼리 수정
+     > 양식명과 제목 옵션값 추가
+
+2019-05-16
+# 회계(영리)
+  - ERPiU 증빙 설정 추가 및 자동전표 증빙 연동 전송(권오광)
+    * ExErpSendiUVO.java
+     > TP_EVIDENCE(ERP 증빙)관련 필드 추가에 따른 관련 메서드 생성
+    * ExErpSendiUVO.java
+    * SelectExpendInfoU 수정
+     > 조회시 표준적요의 ERP 증빙값 컬럼 추가
+    * ExAdminExpendSendSQL.xml
+    * ExReportSQL.xml
+    * ExFI_ADOCUInsert 수정
+     > insert 시 TP_EVIDENCE(ERP 증빙) 컬럼 추가
+    * ExCode_SQL.xml
+    * ExCommonCodeErpAuthSelect 수정
+     > 공통 코드(증빙유형) 조회 쿼리 추가
+    * AdminAuthSetting.jsp
+    * $(document).ready(function() 수정
+     > ifSystem에 따라 증빙설정 및 사유구분 초기화하는 부분 제거(이부분은 초기화에 영향을 주지 않아서 제거)
+    * fnConfigAuthSetTable 수정
+     > 그리드 로우 클릭 시 증빙설정 및 사유구분 초기화하는 부분 수정(ERPiU도 증빙설정을 저장할 수 있도록 변경)
+    * fnConfigAuthNew 수정
+     > 증빙설정 및 사유구분 초기화하는 부분 수정(ERPiU도 증빙설정을 저장할 수 있도록 변경)
+    * fnInitErpElement 수정
+     > hide 시 #NoTax 제거(필수체크 이미지를 보이게 하기 위해 수정)
+    * AdminSummarySetting.jsp
+    * $(document).ready(function() 수정
+     > ifSystem에 따라 ERP증빙 설정부분 초기화 하는 부분 제거(ERPiU도 ERP증빙설정 부분을 보이게 하기 위해)
+    * fnConfigSummaryNew 수정
+     > ERP증빙 부분 초기화 될 수 있도록 추가
+    * html 수정
+     > 주석처리되어 있는 html 제거
+
+2019-05-14
+# 회계(영리)
+  - 종결시 지출결의 자동전송 옵션기능 개발(권오광)
+    * BExAdminReportServiceImpl.java
+    * ExReportExpendSendListInfoSend 수정
+     > if(CommonConvert.CommonGetStr(param.get("autoSendYN")).equals("Y")) 추가
+      ㄴloginVo 세션 정보 가져올때 autoSendYN(자동전송 구분) 시 별도로 로그인정보 조회하도록 구현
+     > CommonGetConnectionInfo 파라미터 변경(compSeq => groupSeq, compSeq)
+     > ExReportExpendSendListInfoSend, ExReportExpendSendListInfoSendByList 파라미터에 loginVo 추가
+    * FExAdminReportService.java
+    * ExReportExpendSendListInfoSend, ExReportExpendSendListInfoSendByList 수정
+     > 파라미터에 loginVo 추가
+    * ExGetLoginSessionForApprovalProcess 추가
+     > 지출결의서 작성자 기준으로 로그인 정보 조회
+    * FExAdminReportServiceADAO.java
+    * ExGetLoginSessionForApprovalProcessSelect 추가
+     > 지출결의서 작성자 기준으로 로그인 정보 조회
+    * FExAdminReportServiceAImpl.java
+    * ExReportExpendSendListInfoSend, ExReportExpendSendListInfoSendByList 수정
+     > 파라미터에 loginVo 추가
+    * ExGetLoginSessionForApprovalProcess 추가
+     > 지출결의서 작성자 기준으로 로그인 정보 조회
+    * FExAdminReportServiceIImpl.java
+    * ExReportExpendSendListInfoSend 수정
+     > 파라미터에 loginVo 추가
+     > CommonConvert.CommonGetEmpVO( ); 제거
+    * ExReportExpendSendListInfoSendByList 수정
+     > 파라미터에 loginVo 추가
+     > CommonConvert.CommonGetEmpVO( ); 제거
+    * ExGetLoginSessionForApprovalProcess 추가
+     > 지출결의서 작성자 기준으로 로그인 정보 조회
+    * FExAdminReportServiceUImpl.java
+    * ExReportExpendSendListInfoSend 수정
+     > 파라미터에 loginVo 추가
+     > CommonConvert.CommonGetEmpVO( ); 제거
+    * ExReportExpendSendListInfoSendByList 수정
+     > 파라미터에 loginVo 추가
+     > CommonConvert.CommonGetEmpVO( ); 제거
+    * ExGetLoginSessionForApprovalProcess 추가
+     > 지출결의서 작성자 기준으로 로그인 정보 조회
+    * FApprovalServicePImpl.java
+    * ApprovalProcessEnd 수정
+     > ApprovalProcessExpendListInfoSend(지출결의서 ERP 전송기능) 추가
+    * ApprovalProcessExpendListInfoSend 추가
+     > 지출결의서 ERP 전송기능
+     > 환경설정 옵션값이 사용일때만 전송
+    * ExAdminExpendSendSQL.xml
+    * ExAdminExpendSend.ExGetLoginSessionForApprovalProcessSelect 추가
+     > 지출결의서 작성자 기준으로 로그인 정보 조회
+
+2019-04-23
+# 회계(영리)
+  - [ERPiU] 예산연동 사용 시 지출결의서 작성 중 필수값 체크 안되는 부분 수정(권오광)
+    * UserCardUsageHistoryPop.jsp
+    * fnExpendCardInfoUpdate 수정
+     > 예산연동 시 필수값 체크하는 부분 중 replaceAll -> trim 으로 대체
+     > replaceAll로 할 경우 공백과 비교가 안됨. 타입이 다르다고 인식하는것 같음
+
+2019-04-19
+# 회계(영리)
+  - [ERPiU] 세금계산서 현황 국세청승인번호 표시개발(권오광)
+    * ExUserReportSQL.xml
+    * ExUserETaxInsert 수정
+     > hometax_iss_no(국세청승인번호) 추가
+    * ExReportSQL.xml
+    * ExAdminETaxListInfoSelectMap 수정
+     > NO_ISS AS hometaxIssNo(국세청승인번호) 추가
+     > where 조건에 NO_ISS 추가
+    * ExETaxSQL.xml
+    * ExETaxListInfoSelect 수정
+     > where 조건에 NO_ISS 추가
+    * ExETaxListInfoSelectMap 수정
+     > where 조건에 NO_ISS 추가
+    * NpETaxSQL.xml
+    * selectETaxDetailInfo 수정
+     > NO_ISS AS "hometaxIssNo"(국세청승인번호) 추가
+    * AdminETaxReportERPiU.jsp
+    * fnSetEtaxData 수정
+     > tEtaxData.hometaxIssNo 추가
+    * fnSetGrid 수정
+     > issNo에서 hometaxIssNo로 변경
+    * UserETaxReportERPiU.jsp
+    * fnSetEtaxData 수정
+     > tEtaxData.hometaxIssNo 추가
+    * fnSetGrid 수정
+     > issNo에서 hometaxIssNo로 변경
+    * ExExpendETaxPopup.jsp
+    * fnExpendETaxGridListBind 수정
+     > issNo 대신 hometaxIssNo 보여줄 수 있도록 수정
+    * UserETaxDetailPopU.jsp
+    * $(document).ready
+     > hometaxIssNo 추가
+     > $('#taxNum').html() : taxNum(관리번호) -> hometaxIssNo(국세청승인번호) 으로 변경
+     > $('#num').html() :  num -> taxNum(관리번호) 으로 변경
+
+2019-04-16
+# 회계(영리)
+  - 법인카드 취소분 결의기능 개발(권오광)
+    * 지출결의서 작성 팝업에서 법인카드 취소내역을 조회 및 반영할 수 있게 수정
+    * BExUserCardServiceImpl.java
+    * ExExpendEmpCardListInfoSelect 메서드 수정
+     > if(params.get("isSearchWithCancel").equals("Y")) 추가
+    * ExCardInfoMake 메서드 수정
+     > if(CommonConvert.CommonGetStr(param.get("isSearchWithCancel")).equals("Y")) 추가
+    * FExUserCardServiceADAO.java
+    * ExExpendEmpCardListInfoWithCancelInfoSelect 메서드 추가
+    * ExReportCardDetailInfoWithCancelInfoSelect 메서드 추가
+    * BExUserController.java
+    * ExCardListInfoSelect 메서드 수정
+     > params.put( "isSearchWithCancel", CommonConvert.CommonGetStr(params.get( "isSearchWithCancel" ))); 추가
+    * VExUserPopController.java
+    * UserCardUsageHistoryPop 메서드 수정
+     > sendParam.put( "isSearchWithCancel", params.get("isSearchWithCancel") ); 추가
+    * ExUserCardSQL.xml
+    * ExExpendEmpCardListInfoWithCancelInfoSelect 메서드 추가
+    * ExReportCardDetailInfoWithCancelInfoSelect 메서드 추가
+    * ExExpendMasterPopup.jsp
+    * fnDefault_cardUseHistory 메서드 수정
+     > getParam에 isSearchWithCancel=N 파라미터 추가
+    * fnDefault_cardUseHistoryWithCancel 함수 추가
+    * UserCardUsageHistoryPop.jsp
+    * btnExpendCardListSearch 수정
+     > 파라미터 isSearchWithCancel 추가
+    * fnExpendCardGridListBind
+     > "targets : 2" 부분 취소건 빨간색 표시될수 있게 수정
+    * fnExpendCardToExpend
+     > 파라미터 isSearchWithCancel 추가
+
+2019-04-11
+# 회계(영리)
+  - 지출결의서 프로젝트 도움창 셀렉트 기능 개발(권오광)
+    * 프로젝트 공통 도움창에 구분상태값에 따라 조회될 수 있도록 수정
+    * VExUserPopController.java
+    * UserCmmCodePop 메서드 수정
+     > erpTypeCode를 구하기 위해 ERP 연결정보 조회
+    * ExCode_SQL.xml
+    * ExCommonCodeProjectSelect 수정
+     > where 조건절에 프로젝트 구분값 추가
+    * ExProjectSearchBox.jsp
+     > 프로젝트 도움창의 검색박스 부분 새로 작성
+    * UserCmmCodePop.jsp
+    * 화면 html 수정
+     > 기존 검색박스와 프로젝트 검색박스 분기처리
+    * 화면 초기화 시
+     > defaultInfo에 ifSystem값 추가
+    * cmmFnc_GetMaingridData 수정
+     > 조회 시 param에 selProjectStatus 추가
+
+2019-04-09
+# 회계(영리)
+  - 공백으로 분리된 카드번호 join 시 공백제거 후 비교될 수 있도록 수정(권오광)
+    * select문에서 card_num으로 join 시 공백으로 분리되어 있는 경우 join이 안되어 수정
+    * ExAdminReportSQL.xml
+    * ExAdminCardUseReportListInfoSelect 수정
+     > join 시 필요한 card_num을 조회할때 공백 제거
+    * ExAdminCardReportListInfoSelectForExcel 수정
+     > join 시 필요한 card_num을 조회할때 공백 제거
+    * ExUserCardSQL.xml
+    * ExExpendEmpCardListInfoSelect 수정
+     > join 시 필요한 card_num을 조회할때 공백 제거
+    * ExReportCardDetailInfoSelect 수정
+     > join 시 필요한 card_num을 조회할때 공백 제거
+    * ExUserReportSQL.xml
+    * refExUserCardReportListInfoSelect 수정
+     > join 시 필요한 card_num을 조회할때 공백 제거
+    * ExCode_SQL.xml
+    * ExCodeCardInfoSelect 수정
+     > cardCode 컬럼 조회 시 공백 제거 부분 다시 원상복귀
+
+2019-04-08
+# 회계(영리)
+  - 항목수정 시 항목정렬 순서 유지기능 관련 오류 사항 수정(권오광)
+    * 기존 데이터를 고려하여 order by를 order_seq 기준에서 order_seq가 없을 경우 list_seq로 정렬되도록 수정
+    * ExUserExpendSQL.xml
+    * ExListGridInfoSelect 수정
+     > ORDER BY 수정
+    * ExUserCodeSQL.xml
+    * ExpendListInfoSelect 수정
+     > ORDER BY 수정
+    * ExAdminExpendSendSQL.xml
+    * SelectExpendInfo 수정
+     > ORDER BY 수정
+    * SelectExpendInfoU 수정
+     > ORDER BY 수정
+
+2019-04-03
+# 회계(영리)
+  - ERP 공백으로 분리된 카드번호 조회 시 조건절 공백제거(권오광)
+    * ERP에 카드번호를 "-"가 아닌 공백으로 카드번호를 분리해서 매칭이 안되어 조회가 안되는 이슈가 있어 수정
+    * ExUserCardSQL.xml
+    * ExReportCardDetailInfoSelect 수정
+     > JOIN 부분에 공백제거를 위해 REPLACE 추가
+    * ExCode_SQL.xml(ERPiU, iCUBE)
+    * ExCodeCardInfoSelect 수정
+     > WHERE 부분에 공백제러를 위해 REPLACE 추가
+
+2019-03-27
+# 회계(영리)
+  - 나의 카드사용현황 중 엑셀다운로드 시 부가세 컬럼명의 lang_code 수정(권오광)
+    * lang_code가 맞지 않아 빈값으로 뜨고 있어서 lang_code 수정
+    * UserCardReport.jsp
+    * downloadExcelProcess 수정
+     > lang_code를 ex_VAT -> ex_vat로 수정
+     > 11번 DB에도 값이 ex_VAT로 되어 있어 수정함. 배포되는 데이터는 ex_vat로 되어 있음.
+
+2019-03-26
+# 회계(영리)
+  - 전자결재 상신 시 항목정보 정렬순서 유지되도록 수정(권오광)
+    * order by 수정(order_seq 기준으로 정렬)
+    * ExUserCodeSQL.xml
+    * ExpendListInfoSelect 수정
+  - 항목복사 시에도 정렬순서 유지될 수 있도록 수정(권오광)
+    * 정렬순서 채번기능 추가
+    * BExUserListServiceImpl.java
+    * ExListInfoCopy 수정
+     > ExGetOrderSeqFromListInfo 결과값 listVo.setOrderSeq에 저장 후 항목정보 insert
+  - 지출결의확인에서 ERP전송시 항목정보 정렬순서 유지되도록 수정(권오광)
+    * order by 수정(order_seq 기준으로 정렬)
+    * ExAdminExpendSendSQL.xml
+    * ExAdminExpendSend.SelectExpendInfo, ExAdminExpendSend.SelectExpendInfoU 수정
+  - 나의 세금계산서 현황 비고컬럼 추가(권오광)
+    * 나의 세금계산서 현황 조회 시 그리드에 비고컬럼 나타날 수 있도록 수정
+    * UserETaxReportiCUBE.jsp
+    * UserETaxReportERPiU.jsp
+    * fnSetEtaxData 수정
+     > tEtaxData 오브젝트에 dummy1(비고) 추가
+    * fnSetGrid 수정
+     > colGroup 추가(넓이 290)
+     > $(tr)에 dummy1컬럼 추가
+    * fnUserReportExcelDown 수정
+     > excelHeader에 dummy 추가
+    * html 수정
+     > 헤더와 그리드 부분 div로 감싼 뒤 overflow: auto; 적용
+     > 헤더에 비고 컬럼 추가
+
+2019-03-20
+# 회계(영리)
+  - 증빙유형 설정 그리드 pageLength 수정 (권오광)
+    * pageLength를 7 -> 10으로 변경(김보람 대리님 요청)
+    * AdminAuthSetting.jsp
+    * fnConfigAuthSetTable 함수 수정
+     > "pageLength" : 10 으로 수정
+
+2019-03-15
+# 회계(영리)
+  - ERPiU, iCUBE 세금계산서 현황 비고 표시 개발 (권오광)
+    * 전자세금계산서의 비고를 세금계산서 현황 그리드 컬럼에 추가
+    * AdminETaxReportiCUBE.jsp
+    * AdminETaxReportERPiU.jsp
+    * fnSetEtaxData 함수 수정
+     > tEtaxData 오브젝트에 비고(dummy1) 추가
+    * fnSetGrid 함수 수정
+     > tblUserETaxReport에 비고 컬럼 tr 추가
+    * fnAdminReportExcelDown 함수 수정
+     > 엑셀 헤더에 비고 컬럼 추가
+    * html 수정
+     > 테이블 헤더에 비고 컬럼 추가 및 가로 스크롤 생기도록 수정
+
+2019-03-13
+# 회계(영리)
+  - 증빙유형 설정 UI변경 (권오광)
+    * 삭제 시 선택하지 않아도 삭제확인 문구 뜨는 오류 수정
+    * AdminAuthSetting.jsp
+    * fnConfigAuthDelete 함수 수정
+     > 삭제 전 삭제할 증빙유형 선택되었는지 확인하는 부분 추가
+
+2019-03-11
+# 회계(영리)
+  - [공통] 항목정보 수정 시 정렬순서 유지 기능개발(권오광)
+    * 지출결의 작성 시 항목정보 수정해도 정렬순서 유지될 수 있도록 수정(결재 전, 결재 중)
+    * BExUserListServiceImpl.java
+     > 항목정보 정렬순서 채번하는 기능 추가(ExListInfoMake 메서드)
+    * FExUserListServiceADAO.java
+     > 항목정보 정렬순서 채번(ExExpendListOrderInfoSelect) 메서드 추가
+    * FExUserListService.java, FExUserListServiceEImpl.java, FExUserListServiceIImpl.java, FExUserListServiceUImpl.java
+      FExUserListServiceAImpl.java
+     > 항목정보 정렬순서 채번(ExGetOrderSeqFromListInfo) 메서드 추가
+               ㄴ FExUserListServiceAImpl 외 나머지는 exception 처리
+    * ExExpendListVO.java
+     > order_seq 필드 추가
+    * ExUserExpendSQL.xml
+     > 항목조회(ExListInfoSelect)
+               ㄴ 조회시 order_seq 컬럼 추가
+     > 항목 조회 - 작성창 그리드 표현(ExListGridInfoSelect)
+               ㄴ 조회시 order_seq 컬럼 추가
+               ㄴ ORDER BY 순서 list_seq -> order_seq로 수정
+     > 항목생성(ExListInfoInsert)
+               ㄴ 등록시 order_seq 컬럼 추가
+     > 지출결의 - 항목정보 정렬순서 채번(ExExpendListOrderInfoSelect)
+               ㄴ order_seq max값 조회
+    * t_ex_expend_list 테이블
+     > order_seq(int 11) 정렬순서 컬럼 추가
+
+2019-03-04
+# 회계(영리)
+  - 증빙유형 설정 UI변경 (권오광)
+    * 상하분리 UI에서 좌우분리 UI로 변경
+    * AdminAuthSetting.jsp
+    * <div class="twinbox"> 태그 내 table 태그 변경
+     > 좌우로 분리하기 위해 tr태그 추가
+
+2019-02-26
+# 회계(영리)
+  - 카드설정,표준적요설정 ui변경 (이준성, 남진우)
+    * AdminCardSetting.jsp
+    * AdminSummarySetting.jsp
+
+  - 지출결의서 작성시 지출결의 불러오기 팝업 오류 수정 (권오광)
+    * 조회 시 문서상태 "110(보류)"상태 추가
+    * ExExpendHistoryPopup.jsp
+    * function fnHistoryListGrid
+     > if문 분기 처리 중 110(보류)상태 체크할 수 있도록 추가
+               해당 상태값 없더라도 오류 메세지 안뜨도록 빈값 리턴하도록 수정
+
+## 검수 요청 : 2019-02-15 ##
+
+[회계 - 영리]
+1. 법인카드 승인번호 컬럼사이즈 변경 ( 20 -> 50 )
+2. 환경설정 메뉴 진입 시 다국어 오류 수정
+3. 지출결의서 가져오기 -> 반영 시 오류 수정
+   ㄴ 승인된 법인카드 및 세금계산서 데이터가 있는 경우 반영이 안되는 문제
+   ㄴ 법인카드 및 세금계산서 데이터를 제외한 항목은 복사하도록 적용
+4. IU CMS 연동 프로세스 보완
+   ㄴ 거래처 사업자번호의 빈 공백 처리 적용
+5. IU 세금계산서 연동 시 귀속사업장 관련 프로세스 보완
+   ㄴ 세금계산서에 연동되어 있는 사업장이 1:1 매칭인 경우 전표 생성 시 해당 사업장 정보 입력
+   ㄴ 세금계산서에 연동되어 있는 사업장이 다수 인 경우 관리항목 A01(귀속사업장) 값을 입력
+7. 관리항목 업무용차량 조회 안되는 현상
+   ㄴ 지출결의서 업무용 차량관리항목 조회 안됨건 수정
+8. 관리자 > 회계 > 지출결의 설정 > 환경설정 메뉴 클릭시 알럿 발생
+   ㄴ 다국어 처리 수정
+9. 이관된 세금계산서 조회 안되는건 수정
+10. 카드사용건 결의서 작성 시 금액 수정 안되는 현상
+   ㄴ 옵션보다 엘리먼트 설정이 우선 진행되어 옵션이 적용되지 않는 문제점 보안
+11. 세무구분 ‘과세’ 선택할 시 ERP(iCUBE) 증빙설정란 없어지는 현상 오류 수정
+12. 거래처 등록 프로시져 호출 시 co_cd 파라미터 값 확인.
+   ㄴ iCUBE 프로시져 변경
+   ㄴ 로그인 정보에서 ERP 연동 회사 정보 연동되도록 보완
+13. 해외 법인카드선택 상신시 거래처 정보가 자동입력 문제
+   ㄴ 사업장번호 값이 space 공백으로 데이터 입력 되어 있었음
+   ㄴ 공백문자 제거 관련 코드 추가
+14. 지출결의 확인 엑셀 다운로드 오류 수정
+15. 양식별 표준적요 등록시 표준적요 선택 팝업창 깨지는 현상 수정
+16. 세금계산서 실패시 승인구분값 변경
+   ㄴ undefined 인 경우 "알림" 으로 문구 통일
+17. 지출결의 양식이 가로 형태로되어 있어 결재완료 문서 클릭시 가로스크롤발생
+   ㄴ 팝업의 크기 ( 기존 : 900 => 변경 : 1000 )
+
+[회계 - 비영리]
+1. 품의/결의 재기안시 발의일자 반영되지 않던 오류 수정.
+2. 품의/결의 재기안시 품의구분/결의구분이 지출품의/지출결의로 고정되던 현상 수정.
+3. 품의/결의 재기안시 예산 테이블 예산잔액 표기 오류 수정
+4. 결의서 재기안시 정상적으로 채주 금액이 저장/수정되지 않던 오류 수정
+5. 예실대비 현황 품의잔액 출력 오류 수정 (품의서 - 다수 결의서 상신시 발생되었던 오류)
+6. 매입전자세금계산서(iU) 계산서 구분 출력 오류 수정(영수<->청구 반대로 나오던 현상 수정)
+7. 비영리 회계 2.0 예산과목 7단계 연동 대응 개발(t_exnp_resbudget, t_exnp_consbudget 테이블 컬럼 추가)
+8. 예산과목 7단계 양식코드 추가(양식코드 표 추후 배포 예정)
+9. 이전버전 누락되었던 배포쿼리 재정리및 재배포
+10. 매입전자 세금계산서 승인번호, 카드사용내역 승인번호 한글코드 추가
+
+[회계 - 기타]
+1. 버전업에 맞춘 구축지원 페이지 PW변경
+2. 비영리 2.0구축시 영리 메뉴 삭제처리 코드 추가
+3. 비영리 2.0구축시 외부시스템 연동코드 배포쿼리 변경
+4. 구축지원 페이지 UI변경
+
+ ====================================================================================================
+
+2019-01-10
+# 회계(영리)
+  - 지출결의 항목 추가/편집 시 증빙유형 수정의 경우 (박용욱)
+    * 입력된 금액이 증빙유형에 따라서 재계산 되도록 보완
+    * ExExpendListPopup.jsp
+    * function fnExpendListCallback
+     > 증빙 수정 callback 받는 경우 재계산 로직 추가
+
+  - 예실대비현황 팝업 오류 수정 (박용욱)
+    * 한글 URL 보완 개발
+    * VExAdminPopController.java
+    * ExAdminYesil2DetailPop 메소드
+      > 인코딩 된 값을 UTF-8로 변환 작업하도록 로직 추가
+    * AdminYesil2Report.jsp
+      > script 가져오는 부분 time 추가
+    * function fnYesil2DetailPopup()
+      > 한글 쿼리스트링 부분에 인코딩 function 적용
+
+  - 결의서 ERP사용자 정보 조회 프로세스 수정 (박용욱)
+    * CommonInterface.java
+    * FExUserCodeServiceUImpl.java
+    * FExUserCodeServiceIImpl.java
+    * FExUserCodeServiceAImpl.java
+    * FExUserCodeServiceEImpl.java
+     > ExUserCommCodeSelect 메소드 수정
+     > case 분기처리 추가 ( EMPONE )
+    * FExUserCodeServiceUDAO.java
+      > ExCommonCodeEmpSelectOne 메소드 추가
+      > 특정 사용자만 ERP정보 조회하는 메소드
+    * BExUserController.java
+     > ExExpendEmpInfoInsert 메소드 수정
+     > codeType 부분을 EMP -> EMPONE 으로 수정
+    * ExCode_SQL.xml
+     > ExCommonCodeEmpSelectOne 쿼리추가
+
+  - 지출결의 가져오기 실패 사유 표시 기능 개선 (김상겸)
+    * ExExpendHistoryPopup.jsp
+    * function fnHistoryReflectV2 (expendSeq)
+      > "지출결의 가져오기에 실패하였습니다." 고정 알림에서 서버에서 반환된 내용으로 알림표시 변환
+      > 서버 반환 내용이 없는 경우 "지출결의 가져오기에 실패하였습니다." 표시하도록 처리
+  - 누락된 스키마 추가
+    * GwAcCode_SQL.xml $DB_NEOS$ 추가
+    * Ex2UserExpend_SQL.xml $DB_NEOS$ 추가
+    * ExUserCardSQL.xml $DB_NEOS$ 추가
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------
+             #이전 무시#
+ -------------------------------------------
+-------------------------------------------
+-------------- 1.0.31 ---------------------
+-------------------------------------------
+2017-05-02
+공통팝업 표준적요 명칭 표시 옵션 반영
+지출결의 확인 전송여부 검색조건 추가
+
+2017-05-08
+아래의 부가세를 선택한 경우 ERP 전송시 전자세금계산서여부가 "여"로 들어가게 됩니다.
+ # ERPiU
+21 과세(세금계산서)
+22 불공(세금계산서)
+23 영세(세금계산서)
+26 면세(계산서)
+27 의제(계산서 2/102)
+29 의제(계산서 3/103)
+32 의제(계산서 5/105)
+38 수입(세금계산서)
+40 의제(계산서 6/106)
+43 매입자발행세금계산서
+44 재활용(계산서 6/106)
+46 재활용(계산서 10/110)
+48 의제(계산서 8/108)
+51 의제(계산서 4/104)
+54 재활용(계산서 9/109)
+65 재활용(계산서 3/103)
+
+ # iCUBE
+29 과세매입 매입자발행세금계산서분
+
+EPRiU의 거래처 코드 "00" 의 예외처리를 진행하였습니다.
+카드 선택 팝업에서 미사용중인 카드는 표시가 되지 않도록 변경되었습니다.
+
+
+
+-------------------------------------------
+-------------- 1.0.32 ---------------------
+-------------------------------------------
+지출결의 양식 설정 관련 오류 수정하였습니다.
+예산정보 정상적으로 표시
+임시 저장 문서 수정 시 전자결재 본문 미 수정 되는 현상 수정
+
+-------------------------------------------
+-------------- 1.0.35 ---------------------
+-------------------------------------------
+[지출결의(영리) 지출결의 작성]
+  - 카드사용내역 반영 시 금액 오차 수정
+  - 결재 진행중인 문서 수정 시 전자결재 본문 수정 되도록 수정
+
+[지출결의(영리) 현황]
+  - 관리자 -> 카드사용현황 문서 정보 미표시 되는 오류 수정
+
+[지출결의(영리) 전자결재 연동]
+  - 첨부파일 존재 시 항목 표시 오류 수정
+
+-------------------------------------------
+-------------- 1.0.36 ---------------------
+-------------------------------------------
+1.기초 양식 코드 수정(auth관련 오타)
+2.카드사용 내역 조회 로직 수정(작성중인 문서정보 저장 방법 수정)
+3.지출결의 현황 검색 조건 수정
+4.지출결의 현황 datepicker 형식 통일
+5.지출결의 현황 페이지 이동 부분 수정
+ * 검색 버튼 또는 엔터버튼으로 검색 시 페이지는 1페이지로 이동
+ * 전송/전송취소/삭제 시 페이지는 현재 페이지에서 이동 X
+6.마이너스 지출결의 작성 옵션 추가(예산연동 미사용일 경우에만 사용 가능) 고객 오픈 X
+7.iCUBE 연동문서 현황 페이지 개발 완료
+8.지출결의 작성 오류체크 기능 개선
+9.사용자 항목단위 입력인 경우 지출결의 작성 오류 수정
+10.카드사용내역 중 부가세 0원 내역을 과세로 처리하는 경우 금액 오차 에러 수정
+11.ERPiU 거래처 선택 시 계좌번호 코드 수정
+12.항목삭제시 첨부파일도 같이 삭제되도록 수정
+
+
+-------------------------------------------
+-------------- 1.0.40 ---------------------
+-------------------------------------------
+1. 매입세금계산서 설정 페이지 배포
+2. 계정과목에 관리항목이 없는 경우 정상적으로 ERP 전송 되게 수정
+3. ERP 전송 시 관리항목이 우선 반영되도록 수정
+4. ERP 전송 시 문서 제목 또는 적요가 긴 경우 자동으로 줄여서 전송되게 수정
+5. 카드내역 반영 시 항목 수정 또는 분개 수정에서 거래처 변경 가능하도록 수정
+6. ERP 전송 시 기존 지출결의 정렬 순서와 동일하게 변경
+7. 카드 사용 현황에서 문서번호 더블 클릭 시 문서 표시
+8. 카드 사용 현황에서 임시보관 문서의 경우 문서번호에 '임시보관문서' 로 표시
+9. 카드내역 반영 시 모든 내역이 정상적으로 반영 될 경우 카드 내역 창 자동 닫힘 추가
+10. 카드 내역 정렬순서 변경
+
+-------------------------------------------
+-------------- 1.0.41 ---------------------
+-------------------------------------------
+1. 지출결의 확인에서 안내 문구 표시
+2. 매입세금계산서 권한 설정 페이지 안내 문구 표시
+3. 카드사용내역 팝업에서 표현 개수 오류 수정
+4. 카드사용내역 카드 번호 표시
+
+-------------------------------------------
+-------------- 1.0.42 ---------------------
+-------------------------------------------
+1. 지출결의 iCUBE 0원 입력 기능 추가
+2. 지출결의 ERPiU, iCUBE 전자세금계산서 발행여부 체크 및 11일 이내 전송여부 체크 기능 추가
+3. 항목단위 전송 로직 변경
+4. 지출결의현황 삭제 시 프로그래스바 추가
+5. 계속저장 기능 오류 수정
+6. ERPiU 세금계산서 조회 시 ERP사업장에 사업장 등록번호와 일치하는 내역들만 조회
+7. ERPiU 세금계산서 전송 시 계산서상의 사업장 정보로 귀속사업장 전송
+8. 전자결재 본문 내 첨부파일 호출 방식 수정
+9. 세금계산서 현황 페이지 배포
+10. 분개정보팝업에서 불공제구분 팝업 안열리는 오류 수정
+11. iCUBE예실대비현황 조회 시 부서 조회 팝업 수정(부서 시작일 및 종료일 조회 로직 수정)
+12. 카드사용내역 반영 시 현재 문서의 회계일자로 예산정보 반영 되도록 수정
+13. 지출결의 현황 문서번호 클릭 시 문서정보 표시되도록 수정
+14. 지출결의 가져오기 시 현재 문서의 회계일자로 반영되도록 수정
+15. 지출결의 가져오기 시 카드내역 또는 세금계산서 내역 중 미상신 내역은 가져오도록 수정
+16. 카드사용현황 승인일자 및 시간으로 정렬순서 변경
+
+-------------------------------------------
+-------------- 1.0.43 ---------------------
+-------------------------------------------
+1. 지출결의 분개 작성 시 세무구분 항목 사라지는 오류 수정
+2. 지출결의 분개 작성 시 부가세 계정 필수값 체크 오류 수정
+3. 지출결의 항목, 분개 세금계산서 명칭 변경(ERPiU : 전자(세금)계산서, iCUBE : 전자세금계산서)
+4. 사용자 법인카드 내역 조회 쿼리 수정(조인 시 "-" 기호 제거)
+5. 항목설정 - 사업계획 기초코드 변경
+6. ERP 전송 시 분개 정렬순서를 지출결의와 동일하게
+7. 분개 복사 시 항목 오류 표시 수정
+8. 엔터 입력시 지출결의가져오기 팝업 열리는 오류 수정
+9. 지출결의 현황 및 확인에서 상세검색 변경(사업장을 콤보박스로 변경)
+10. 관리항목 중 세액에 공란으로 들어가있는 경우 0으로 변경
+11. 전자결재 내 지출결의 양식 코드 추가
+12. 거래처계좌번호 조회 시 해당 거래처의 계좌번호만 조회
+
+
+-------------------------------------------
+-------------- 1.0.44 ---------------------
+-------------------------------------------
+1. 예전에 작성한 지출결의 문서의 첨부파일 열람 안되는 오류
+2. 지출결의 회계일자 변경 오류 수정
+3. 지출결의 가져오기 시 예산체크 진행
+4. 지출결의 오류 체크 시 예산체크 여부 옵션 추가
+5. 항목/분개 복사 시 프로그레스바 추가 및 예산체크 로직 추가
+6. 항목/분개 생성/수정 시 예산체크 로직 변경
+7. 카드사용 내역 반영 시 해외거래처는 iCUBE 거래처 자동등록 안되도록 수정
+8. 지출결의 수정 시 첨부파일 누락되는 오류 수정
+9. 지출결의 문서 중 세금계산서 전송 시 ERP 사업장 정보 조회 쿼리 수정
+10. 표준적요 및 증빙유형 양식별 권한 설정 추가
+11. 카드사용내역 팝업에서 거래처 과세 유형 표시(거래처 뒤에)
+* 0 : 해외 / 1 : 일반 / 2 : 간이 / 3 : 면세 / 4 : 휴업 / 5 : 폐업 / 6 : 비영리 / 8 : 미등록 / 9 : 오류
+12. 증빙일자, 지급요청일자 날짜 유효성검사 기능 추가
+
+
+-------------------------------------------
+-------------- 1.0.50 ---------------------
+-------------------------------------------
+1. iCUBE 관리항목 뷰 변경
+2. 지출결의 확인 페이지 페이지 표시개수 오류 수정
+3. 현황 엑셀 다운로드 추가
+4. 지출결의 ' 기호 입력 가능하도록 수정
+5. CMS 신한은행 추가 및 ' 입력된 거래처 가져올수있도록 수정
+6. 연동관리항목 및 사용자정의 관리항목 조회 분리
+7. 전자결재 본문 내 표현 양식 추가
+8. 카드사용현황 전송여부 검색조건 추가
+9. 세금계산서 내역 반영 시 발행여부 기본 체크 추가
+10. ERPiU 사원 계좌번호 연동 되도록 수정(관리항목에 거래처 없고 사원있는경우)
+11. 세금계산서 조회 시 기본 검색조건 변경(자신의 이메일주소 기본 검색 조건에 포함)
+12. 지출결의 메인에 기안양식 특이사항 표시
+13. 양식별 표준적요 및 증빙유형 설정 메뉴 배포
+
+-------------------------------------------
+-------------- 1.0.60 ---------------------
+-------------------------------------------
+1. 항목 최대 개수 100개로 제한
+2. ' 기호 및 " 기호 입력 가능
+3. 날짜 유효성 체크 및
+4. 증빙유형 정렬 순서 입력 시 등록 안되는 오류 수정
+5. 지출결의 마감 설정 페이지 및 기능 추가
+6. 분개단위 입력 시 상신 시 유효성체크 누락 수정
+7. 분개 추가 시 세액 공란으로 들어가는 부분 수정
+8. [ERPiU] 항목 추가 시 세무구분 없는경우 과세표준액 및 세액 0원 입력 가능하도록 수정
+9. 항목에 첨부파일 존재 시 수정화면 안뜨는 오류 수정
+10. 사원 계좌번호 조회 시 회사코드 하드 코딩 제거
+11. [ERPiU] 일부 누락된 관리항목 조회 추가( B27 : 타계정대체, C13 : 자수타수구분, C22 : 결재조건)
+12. 지출결의 가져오기 시 원본 정렬 순서와 다른 오류 수정
+13. 결재 진행중 문서의 관리항목 수정 시 결재 본문 수정 안되는 오류 수정
+14. 접대비 등록 추가
+
+
+-------------------------------------------
+-------------- 1.0.61 ---------------------
+-------------------------------------------
+1. 항목/분개 증빙유형 및 세무구분에 따른 금액 필수값 표시 변경 및 필수값 체크 수정
+2. ERPiU 카드내역 반영 시 금융거래처 코드 못가져오는 오류 수정
+3. 첨부파일 오류 관련 수정(서버 쪽)
+4. 세금계산서 현황 페이지 이동 오류 및 리스트 표시 개수 오류 수정
+5. 사용자 세금계산서 내역 팝업에서 검색어 입력 부분 수정
+6. 분개단위 입력 시 분개 추가 할 경우 항목에 금액 정보 반영 안되는 오류 수정
+
+-------------------------------------------
+-------------- 1.0.62 ---------------------
+-------------------------------------------
+1. 지출결의 첨부파일 미리보기 이미지 오류 수정
+2. Kendo 셀렉트박스 제거
+
+-------------------------------------------
+-------------- 1.0.63 ---------------------
+-------------------------------------------
+1. 영세인 경우 세액 필수값 표시되는 오류 수정
+2. 금액 필수값  확인 수정
+-------------------------------------------
+-------------- 1.0.64 ---------------------
+-------------------------------------------
+1. ERPiU 00 거래처 명칭 전송 로직 수정 (비앤에프테크놀로지)
+2. 법인카드 연동 시 금액에 null 처리 안되서 총금액 안들어가는 오류 수정(케이지피 - UBA-6388)
+3. 카드사용내역 및 세금계산서내역 팝업에서 적요 자동입력 옵션 추가
+4. 인풋박스 기본 한글입력 되도록 수정
+5. 세금계산서 현황 페이지 UI 변경 및 엑셀 다운로드 기능 추가
+
+-------------------------------------------
+-------------- 1.0.65 ---------------------
+-------------------------------------------
+1. 세금계산서 권한 설정 페이지 수정(해당 회사만 표시되도록)(UBA-6938)
+2. 카드설정 ERPiU 카드가져오기 오류 수정(UBA-7137)
+3. 세금계산서 미사용처리 기능 추가(신규)
+4. iCUBE 사원정보 조회 시 동일한 사번을 가지고 있는 인원이 최상단에 나오도록 변경(신규)
+5. 나의 카드사용현황 엑셀 다운로드 기능 추가(신규)
+6. 지출결의(영리) 작성 시 첨부파일 삭제 오류 수정(UBA-4578)
+7. 예실대비현황(ERPiU) 무한로딩 임시 수정
+8. 지출결의 가져오기 시 카드내역 또는 세금계산서 내역이 이미 상신 한 경우 알럿 문구 변경
+
+-------------------------------------------
+-------------- 1.0.66 ---------------------
+-------------------------------------------
+1. 나의 세금계산서 현황 배포
+2. 세금계산서 이관 기능 추가
+3. 지출결의 ERP 전송 시 로그 추가
+4. 카드사용내역 저장 시 페이지 새로고침 안되도록 수정(UBA-8086)
+5. iCUBE 증빙연동(표준적요 및 증빙유형 설정에서 설정 가능. 증빙유형이 먼저 반영된다)
+6. ERPiU C03 관련계정 관리항목 조회 추가
+7. B25(환율), B26 (외화금액) 관리항목 전송 오류 수정
+
+-------------------------------------------
+-------------- 1.0.67 ---------------------
+-------------------------------------------
+1. 양식별 표준적요 및 증빙유형 설정 페이지 오류 수정 (UBA-8692)
+2. ERPiU 항목 추가 관련 오류 수정(UBA-8944)
+3. 카드사용내역, 세금계산서내역 팝업 지출결의 정보 저장 시 새로고침 수정
+4. 사용자 카드사용현황 엑셀 다운로드 검색어 수정(UBA-9017)
+5. 거래처 문서단위인경우 항목 추가 시 alert창 발생 수정(UBA-8932)
+6. ERPiU 요구에 따른 자동전표 삭제 판단 기준인 그룹웨어 전송여부 ( ST_BIZBOX ) 추가
+7. ERP전송/전송취소 시 hitory테이블에 이력 남기도록 수정
+8. 세금계산서이관(관리자) 진행 시 alert 문구 변경
+9. 카드사용내역/세금계산서 내역 반영 후 해당 항목의 분개 정보 복사 가능하도록 수정(UBA-9149)
+
+-------------------------------------------
+-------------- 1.0.68 ---------------------
+-------------------------------------------
+비영리
+1. 첨조품의리스트 조회 시 마이그레이션 문서에 영향 안받도록 수정(품의결의 구분값 조건 (010,020 추가)
+영리
+1. B25 환율 관리항목 조회 시 소수점 입력 오류 수정(소수점 입력시 자릿수 구분자도 찍히는지 확인 관리항목 팝업 및 지출결의 관리항목 정보 영역)
+
+-------------------------------------------
+-------------- 1.0.69 ---------------------
+-------------------------------------------
+비영리
+1. 참조품의 가져오기 성능 튜닝
+2. 사원 선택 팝업에서 기준일에 오늘일자 들어가도록 수정(UBA-8824)
+영리
+1. CMS 연동 오류 수정
+2. 사업계획 조회 팝업 수정
+3. 전자결재 연동 로직 수정(UBA-10047)
+
+-------------------------------------------
+-------------- 1.0.70 ---------------------
+-------------------------------------------
+비영리
+1. 예실대비현황 상세 팝업 타임 아웃 오류 수정(UBA-9726)
+영리
+1. 예실대비현황 개선 페이지 진입시 수동 검색으로 변경(UBA-9775)
+2. 지출결의서 작성 시 결재특이사항 기본 펼침 수정(UBA-5067)
+3. 카드설정 페이지 사용여부 검색조건 추가(UBA-9555)
+4. 지출결의 현황 검색조건 개선(UBA-7062)
+5. 카드사용내역팝업 거래처명 검색조건 추가(UBA-9545)
+6. 카드사용내역팝업,세금계산서팝업 정렬순서 검색조건 추가(UBA-9546)
+7. 세금계산서 반영 시 거래처 계좌번호 안들어가는 오류 수정
+8. 지출결의 현황 오류 수정(문서제목에 특수문자 있는경우)(UBA-10364)
+9. 지출결의 확인 결재특이사항 유무 개선(UBA-8541)
+10. 카드사용 내역 반영 시 해외 거래처 건의 경우 거래처 명만 입력되도록 수정(UBA-9135)
+11. 카드/세금계산서내역 팝업 포커스 이동 수정(UBA-10416)
+12. [ERPiU 전용]00 거래처 선택 시 사용자가 입력한 거래처 명으로 반영되도록 수정(UBA-9682)
+13. 지출결의 확인 페이지 개선(UBA-6176)
+
+-------------------------------------------
+----------- 1.0.71(1.2.32)-----------------
+-------------------------------------------
+영리
+1. [ERPiU]카드사용내역 반영 시 봉사료 금액 계산 로직 수정
+2. 카드사용내역 지출결의 초기화 기능 추가
+3. 다중 서버인 경우 선택한 IP에 대해서만 CMS 돌 수 있도록 수정
+4. [VAN사연동 전용]카드사용내역 업종 표시
+5. 카드사용내역 변경된 사용자와 연관된 예산단위가 표시되도록 수정
+
+-------------------------------------------
+----------- 1.0.72(1.2.34)-----------------
+-------------------------------------------
+비영리
+1. 지출결의서 작성 시 금액 0원 반영 현상 수정(UBA-10538)
+2. 결의서 공급가액 계산식 변경(공급가액 1010원 입력 시 공급대가 1111원, 부가세 101이 나오도록)
+영리
+1. 카드설정 페이지 공개범위 필수값 해제(UBA-11197)
+2. [iCUBE]항목 삭제 시 iCUBE 상태값 동기화 안되는 현상 수정(UBA-12539)
+
+-------------------------------------------
+----------- 1.0.73(1.2.35)-----------------
+-------------------------------------------
+비영리
+1. 재발송, 발송 인 문서가 품의/결의서 현황 메뉴에 중복으로 표시되는 오류 수정(UBA-12361)
+2. 사원 선택 시 모든 회계단위 기본 선택되도록 수정(UBA-13158)
+3. <> 기호 존재 시 G20 전송 시 특수문자로 표시되는 현상 수정(UBA-12625)
+영리
+1. ERP DB 정보 변경 시 수동 동기화 기능 추가(검수불가)
+2. [ERPiU] 환율 관리항목 수정 개선(관리항목 형태가 환율인 경우 정상진행되도록 수정)(UBA-12737)
+3. 카드설정 페이지 칸 틀어짐 수정(UBA-12747)
+
+-------------------------------------------
+----------- 1.0.74(1.2.36)-----------------
+-------------------------------------------
+비영리
+1. 품의/결의 현황에서 조회기간을 결의일자에 검색이 되도록 수정(UBA-13205)
+2. 품의/결의 현황에서 기안자 검색 시 오류 수정(UBA-13355)
+영리
+1. 카드사용내역 팝업에서 - 기호 검색 오류 수정(UBA-13332)
+2. [ERPiU] 세무구분 31, 37인 경우 항목 추가에서 현금승인번호 입력 항목 추가(UBA-10207)
+3. 지출결의 확인 회계일자 검색조건 기본값 변경(UBA-13685)
+
+-------------------------------------------
+----------- 1.0.75(1.2.38)-----------------
+-------------------------------------------
+비영리
+1. 결의서 ERP 전송 시 특수문자 전송 안되는 오류 수정(UBA-13795,UBA-13738)
+2. 적요 null 값 처리 진행
+3. 소득구분62번인 경우 필요경비율 80프로 하드코딩되어잇는부분 70으로 변경(UBA-14664)
+영리
+1. 카드사용현황에서 엑셀 저장 시 마이너스 금액 -기호 입력 안되는 현상 수정(UBA-13681)
+2. 항목 삭제 시 분개정보 없을 때 카드내역 연동 안되는 현상 수정(UBA-13797)
+3. [ERPiU-비상교육]접대비 정보 입력 팝업 표시 오류 수정
+4. [iCUBE] 거래처 자동 등록 시 ' 존재 시 발생하는 오류 수정(UBA-13818)
+5. 카드설정 ERP 동기화 진행 시 ERP 회사 정보 조회하는 로직 수정(UBA-14183)
+6. 아이큐브에 거래처 60글자 제한에 따른 로직 수정 ( 거래처명이 60글자 이상인 경우 전표테이블 데이터 insert 시 60글자로 따로 잘라서 진행 ) (UBA-13691)
+7. 세금계산서 반영 시 사용자가 하나로 나오는 오류 수정(UBA-14122)
+8. 카드사용현황 미사용 기능 추가(UBA-14673)
+9. 카드설정 공개범위 저장 안되는 오류 수정(UBA-14504)
+
+-------------------------------------------
+----------- 1.0.76(1.2.39)-----------------
+-------------------------------------------
+비영리
+1. 아이큐브(G20) 에서 ERP 데이터를 INSERT 할 때 전자결재 문서 KEY 파라미터 값 추가 적용 ( UBA-14940 )
+영리
+1. ERPiU Oracle 버전 카드내역 반영 및 계정과목 조회 오류 수정(UBA-14957)
+2. 포커스미디어코리아 M1 관리항목 반영 예외처리 진행
+3. [iCUBE] 사용자 정의관리항목(L,M) 조회 로직 수정(UBA-14958)
+4. ERPiU Oracle 버전 전송 취소 안되는 오류 수정(UBA-14894)
+
+-------------------------------------------
+----------- 1.0.77(1.2.40)-----------------
+-------------------------------------------
+비영리
+1. 카드내역 조회 오류 수정(UBA-15100)
+2. 결의일자 기준으로 필요경비율 변경처리
+영리
+1. ERpiU Oracle 카드사용내역 동기화 오류 수정
+
+
+-------------------------------------------
+----------- 1.0.79(1.2.42)-----------------
+-------------------------------------------
+영리
+1. 매입전자세금계산서 설정 오류 보안
+2. 지출결의서 [ 항목추가 ] 에서 입력 항목이 많은 경우 처음 화면에 스크롤이 안생기는 문제 보안  ( UBA-15437 )
+3. 관리항목 환율(B25), 외화금액(B26)에 소수점이 입력안되는 문제 보안 ( ERP-IU ) ( UBA-15437 )
+
+
+-------------------------------------------
+----------- 1.0.80(1.2.43)-----------------
+-------------------------------------------
+
+회계(영리)
+  - ERPiU 연동의 경우 기존 작성자 기준으로만 ERPiU 자동전표로 전송되던 기능이  지출결의 작성 시 선택한 회계단위 기준으로 전송되도록 개선
+  - 회계단위의 선택은 기존 항목단위, 분개단위에서 선택할 수 있도록 옵션으로 제공하였으나  의미가 없는 기능으로 문서에 고정하여 하나의 문서에 하나의 회계단위만 선택할 수 있도록 보완
+  - 법인카드 (아이큐브) 사용내역에서 공급가액 부분에 서비스금액이 포함되지 않았는데 이 부분 공급가액에 포함되도록 수정
+  - 예실대비 현황 메뉴에서 조회 후에 상세 팝업창 조회 시 데이터가 나오지 않는 문제 수정  ( IE에서 발생되는 한글 인코딩 문제 )
+
+-------------------------------------------
+----------- 1.0.81(1.2.44)-----------------
+-------------------------------------------
+영리
+1. 지출결의서에서 거래처 조회 검색안되는 오류 (IU ORACLE 버전에서 발생 )
+2. 법인카드 CMS 연동 로직 수정
+
+-------------------------------------------
+----------- 1.0.82(1.2.45)-----------------
+-------------------------------------------
+영리
+1. 법인카드 사용내역에서 사용자 변경시 변경 안되는 오류 수정
+2. CMS 연동으로 법인카드 데이터를 가져오지 못하는 오류 수정
+
+
+-------------------------------------------
+----------- 1.0.87(1.2.46)-----------------
+-------------------------------------------
+영리
+1. ERP IU를 오라클 사용 시 관리항목 사원 항목에서 사용자 조회 오류 수정
+2. 매입전자세금계산서에서 코스트센터 변경 시 오류 수정
+
+-------------------------------------------
+----------- 1.0.90(1.2.47)-----------------
+-------------------------------------------
+영리
+- 세금계산서 (아이큐브) 데이터 조회 오류 수정
+- 세금계산서 현황 메뉴에서 미구현 항목 숨김처리 ( 결의상태, 결의자 )
+- 매입세금계산서 ERP오라클 버전 적용
+- 관리자 > 카드사용현황 메뉴에서 날짜 변경 후 화면 refresh 로직 수정
+
+-------------------------------------------
+----------- 1.0.91(1.2.48)-----------------
+-------------------------------------------
+영리
+- 현금영수증 번호 입력 시 숫자만 입력되던 부분을 영문자도 입력되도록 추가
+
+-------------------------------------------
+----------- 1.0.92(1.2.49)-----------------
+-------------------------------------------
+영리
+- 지출결의서 팝업창에서 ERP전송 시 지출결의서 팝업창 사라지지 않는 문제 수정
+- 예산계정 - 회계계정 연결 예산계정만 조회하기 기능  추가
+
+-------------------------------------------
+----------- 1.0.93(1.2.50)-----------------
+-------------------------------------------
+영리
+- 아이큐브 법인카드(스마트증빙)연동 새로 제공받은 VIEW 적용 ( t_ex_card_aq_tmp 테이블  georae_coll 컬럼크기 50으로 변경 )
+- 전자세금계산서 오라클 쿼리 수정 적용
+- 관리항목 거래처 조회 시 보여지는 거래처 목록 과 항목추가를 통한 거래처 목록 데이터가 동일한 정렬 프로세스를
+  갖도록 수정 적용 ( ERPiU )
+
+
+ -------------------------------------------
+----------- 1.0.93(1.2.51)-----------------
+-------------------------------------------
+영리
+ - 세금계산서 ERP세팅에 따라 조회 프로세스 변경
+
+
+  -------------------------------------------
+----------- 1.0.93(1.2.52)-----------------
+-------------------------------------------
+영리
+ - [카드 설정] 공개범위 조직도 팝업 후 재활성되는 오류 수정
+
+
+  -------------------------------------------
+----------- 1.1.02(1.2.53)-----------------
+-------------------------------------------
+영리
+ - 예산계정 조회되지 않는 오류 수정
+
+
+-------------------------------------------
+----------- 1.0.93(1.2.54)-----------------
+-------------------------------------------
+영리
+- 지출결의서 확인 - 엑셀다운로드 기능 추가
+- 아이큐브 법인카드 연동시 가맹점 주소에 [ ' ] 특수문자 처리 적용
+- 매출부가세 검색 불가 처리 ( 매출 X / 지출 O )
+- 지출결의(영리) 첨부파일 ERPiU 전송
+- iCUBE 예산연동 지출결의 작성
+    ( > 강제로 문서 삭제 처리 ( 전자결재 문서 정보만 ) )
+- iCUBE 예산연동 지출결의 작성 시 집행금액 확인
+    ( 삭제된 문서의 금액이 포함되었는지 확인 필요 )
+
+-------------------------------------------
+----------- 1.1.05(1.2.55)-----------------
+-------------------------------------------
+영리
+- 인터락버튼(ex : 이전단계) 다국어가 적용
+- 매입세금계산서 프로세스 수정 적용
+
+-------------------------------------------
+----------- 1.1.09(1.2.56)-----------------
+-------------------------------------------
+영리
+ - 지출결의서 양식에서 제공되는 항목 추가 ( 사용자 사업장 코드, 사용자 사업장 명칭)
+ - 관리항목 거래처계좌번호(C15) 오류 수정
+       ㄴ 사용자를 변경해도 거래처계좌번호가 변경안되는 건
+ - 세금계산서 현황 화면 로직 수정
+       ㄴ 클라우드에서 스크립트 파일을 받지 못하면서 발생되는 오류 건
+ - 지출결의서(세금계산서) ERP 전송 시 귀속사업장 관련 오류 수정
+ - 아이큐브 CMS연동 부분 쿼리 오류 수정 (  "'" -> 이 부분 수정 )
+
+ -------------------------------------------
+----------- 1.1.12 (1.2.57)-----------------
+-------------------------------------------
+영리
+ - 관리자 -> 지출결의확인 -> 엑셀다운로드 기능 개선
+      ㄴ 기존 서버에서 엑셀파일 만드는 방식에서 클라이언트에서 엑셀파일 생성하는 방식으로 수정 적용
+
+ -------------------------------------------
+----------- 1.1.17 (1.2.58)-----------------
+-------------------------------------------
+비영리
+  * 비영리 예산연동 2.0 기능 배포 ( 신규모듈 )
+           품의서 작성, 결의서 작성, 품의/결의 현황, 예실대비현화(G20)
+
+영리
+ - 지출결의서 양식 코드 추가 ( 잔여예산 )
+ - 엑셀다운로드 기능 개선
+      ㄴ 지출결의서 현황
+      ㄴ 카드 사용 현황
+ - 클라우드 회계 엑셀다운로드 오류 수정
+ - 세금계산서 권한설정 메뉴
+       ㄴ 권한 부여시 팀만 적용되던 것을 부서까지 되도록 개선
+       ㄴ 거래처 조회 오류 수정
+ - 예산계정 조회 오류 수정
+
+ -------------------------------------------
+----------- 1.1.18 (1.2.59)-----------------
+-------------------------------------------
+영리
+ - 그룹웨어 알파 오라클 쿼리 적용
+ - 서버이중화에 따른 CMS 모듈 보완적용
+
+ -------------------------------------------
+----------- 1.1.18 (1.2.60)-----------------
+-------------------------------------------
+
+ - 패치내용 없음
+
+-------------------------------------------
+----------- 1.1.19 (1.2.61)----------------
+-------------------------------------------
+영리
+ - 세금계산서 연동 부분 보완 적용 ( ERP ORACLE 사용 )
+
+-------------------------------------------
+----------- 1.1.28 (1.2.62)----------------
+-------------------------------------------
+영리
+ - 법인카드 예산체크 프로세스 개선
+   ㄴ 증빙에 따른 승인금액 을 ( 공급가액 + 부가세 ) 분개 처리 후 예산체크가 진행되도록 수정
+
+ - 매입전자세금계산서
+    ㄴ 매입전자세금계산서 권한설정 에서 권한 삭제 시 경고창 추가
+     ㄴ 지출결의서 - 매입전자세금계산서 사용내역 팝업 - 세금계산서 상세 팝업 추가
+
+-------------------------------------------
+----------- 1.1.29 (1.2.63)----------------
+-------------------------------------------
+영리
+ - 임시보관 후 항목삭제 오류 수정 ( 클라우드 회계 )
+ - 스마트 자금관리 양식설정 옵션추가 - 적요 표현항목 옵션화
+   * 옵션에 따른 자금계획 적요 적용
+
+-------------------------------------------
+----------- 1.1.31 (1.2.64)----------------
+-------------------------------------------
+영리
+ - 지출결의서 항목추가 팝업
+   ㄴ 증빙일자 연속으로 수정 시 날짜 변경안되는 오류 수정
+   ㄴ [금액 자동 계산] 항목 사용자가 체크 OR 미체크 여부 유지되도록 개선
+
+ - 지출결의서 팝업창에서 ERP 전송 시 이중 전송되는 부분 수정
+ - SSL 적용 시 지출결의서 결재상신 오류 수정
+
+-------------------------------------------
+----------- 1.1.35 (1.2.65)----------------
+-------------------------------------------
+
+1. 품의 / 결의서 작성페이지 명칭설정 기능 적용.
+2. 결의서 필요경비율 G20 옵션 적용
+3. 지출결의 자동전송시 법인카드 승인내역 미전송 오류 수정
+4. 사용자/관리자 매입전자 세금계산서 조회 로직 변경(성능 최적화)
+5. 영리 결재 사용 고객사 결의서 현황/전송 페이지 오류 수정
+
+-------------------------------------------
+----------- 1.1.36 (1.2.66)----------------
+-------------------------------------------
+
+영리
+ - 분개정보 수정을 위해 분개 항목 클릭시 활성화 되는 화면에서 첫 언어가 한글표기 되도록 수정
+
+-------------------------------------------
+----------- 1.1.37 (1.2.67)----------------
+-------------------------------------------
+ 비영리
+  - [ 관리자/카드설정 ]       비영리 회계 사용중이나, 영리 전자결재 사용하는 경우 오류 발생 -> 회계 구분을 loginVO.eaType이 아닌 파라미터로 변경
+  - [ 사용자/카드코드팝업 ]   카드거래처(Ctr) 팝업 추가
+  - [ 사용자/프로젝트팝업 ]   사용/미사용/완료 구분에 따른 검색 기능 추가
+  - [ 사용자/양식 ]           양식코드 금액데이터 기수정보 체크하도록 로직 변경
+  - [ 사용자/품의,결의 작성 ] 작성페이지 상단에 기준 기수 표기 추가
+  - [ 사용자/품의,결의 작성 ] 품의/결의 일자 변경시 기준 기수 변경 기능 추가
+  - [ 사용자/결의 작성 ]      참조품의 가져오기 기능 사용시 기준 기수 변경 기능 추가
+

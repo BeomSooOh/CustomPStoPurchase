@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- iCUBE 공통코드 연계 -->
+<mapper namespace="AnguCode">
+	<!-- /* 공통코드 - ERP 기수 정보 */ -->
+	<select id="AnguCode.AnguGisuInfoS" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		DECLARE @CO_CD NVARCHAR(4)
+		SELECT	@CO_CD = N'${CO_CD}'
+		
+		SELECT	TOP 1 GISU, FR_DT, TO_DT, 'NOW' AS GISU_TY
+		FROM	SCO
+		WHERE	CO_CD = @CO_CD
+		UNION
+		SELECT	TOP 1 (CONVERT(INT, GISU) - 1)
+				, CONVERT(NVARCHAR(8), DATEADD(YEAR, -1, CONVERT(DATETIME, FR_DT, 112)), 112) AS FR_DT
+				, CONVERT(NVARCHAR(8), DATEADD(YEAR, -1, CONVERT(DATETIME, TO_DT, 112)), 112) AS TO_DT
+				, 'BEFORE' AS GISU_TY
+		FROM	SCO
+		WHERE	CO_CD = @CO_CD
+		UNION
+		SELECT	TOP 1 (CONVERT(INT, GISU) + 1)
+				, CONVERT(NVARCHAR(8), DATEADD(YEAR, 1, CONVERT(DATETIME, FR_DT, 112)), 112) AS FR_DT
+				, CONVERT(NVARCHAR(8), DATEADD(YEAR, 1, CONVERT(DATETIME, TO_DT, 112)), 112) AS TO_DT
+				, 'AFTER' AS GISU_TY
+		FROM	SCO
+		WHERE	CO_CD = @CO_CD
+	]]></select>
+
+	<!-- /* 공통코드 - ERP 사용자 정보 */ -->
+	<select id="AnguCode.AnguEmpInfoS" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		DECLARE @erpCompSeq NVARCHAR(4)
+		DECLARE @erpEmpSeq NVARCHAR(10)
+		
+		SELECT	@erpCompSeq = '${erpCompSeq}'
+				, @erpEmpSeq = '${erpEmpSeq}'
+		
+		SELECT	TOP 1 B.CO_CD /* ERP 회사 코드 */
+				, B.CO_NM /*  */
+				, B.CO_REG_NB /*  */
+				, B.CO_CEO_NM /*  */
+				, B.CO_ADDR1 /*  */
+				, B.CO_ADDR2 /*  */
+				, B.CO_TEL /*  */
+				
+				, D.DIV_CD /* ERP 사업장 코드 */
+				, D.DIV_NM /*  */
+				, D.DIV_NMK /*  */
+				, D.DIV_REG_NB /*  */
+				, D.DIV_CEO_NM /*  */
+				, D.DIV_ADDR1 /*  */
+				, D.DIV_ADDR2 /*  */
+				, D.DIV_TEL /*  */
+				
+				, C.DEPT_CD /* ERP 부서 코드 */
+				, C.SECT_CD /* ERP 부문 코드 */
+				, C.SECT_NM /*  */
+				, C.DEPT_NM /*  */
+				, C.DEPT_NMK /*  */
+				
+				, A.EMP_CD /* ERP 사원 번호 */
+				, A.KOR_NM /*  */
+				, A.KOR_NMK /*  */
+				, A.HCLS_CD /*  */
+				, A.HCLS_NM /*  */
+				, A.HRSP_CD /*  */
+				, A.HRSP_NM /*  */
+				, A.ENRL_FG /*  */
+				, A.ENRL_NM /*  */
+		FROM	(
+					/* 사원 */
+					SELECT	ISNULL ( CO_CD, '') AS CO_CD
+							, ISNULL ( DEPT_CD, '') AS DEPT_CD
+							, ISNULL ( EMP_CD, '') AS EMP_CD
+							, ISNULL ( KOR_NM, '') AS KOR_NM
+							, ISNULL ( KOR_NMK, '') AS KOR_NMK
+							, ISNULL ( HCLS_CD, '') AS HCLS_CD
+							, ISNULL ( HCLS_NM, '') AS HCLS_NM
+							, ISNULL ( HRSP_CD, '') AS HRSP_CD
+							, ISNULL ( HRSP_NM, '') AS HRSP_NM
+							, ISNULL ( ENRL_FG, '') AS ENRL_FG
+							, ISNULL ( ENRL_NM, '') AS ENRL_NM
+					FROM	ZA_EMP_DAIKIN
+					WHERE	CO_CD = @erpCompSeq
+					AND		EMP_CD = @erpEmpSeq
+				) A INNER JOIN (
+					/* 회사 */
+					SELECT	ISNULL ( CO_CD, '') AS CO_CD
+							, ISNULL ( CO_NM, '') AS CO_NM
+							, ISNULL ( REG_NB, '') AS CO_REG_NB
+							, ISNULL ( CEO_NM, '') AS CO_CEO_NM
+							, ISNULL ( HO_ADDR, '') AS CO_ADDR1
+							, ISNULL ( HO_ADDR1, '') AS CO_ADDR2
+							, ISNULL ( HO_TEL, '') AS CO_TEL
+					FROM	ZA_COMPANY_DAIKIN
+					WHERE	CO_CD = @erpCompSeq
+				) B ON A.CO_CD = B.CO_CD INNER JOIN (
+					/* 부서 */
+					SELECT	ISNULL ( CO_CD, '') AS CO_CD
+							, ISNULL ( DIV_CD, '') AS DIV_CD
+							, ISNULL ( DEPT_CD, '') AS DEPT_CD
+							, ISNULL ( SECT_CD, '') AS SECT_CD
+							, ISNULL ( SECT_NM, '') AS SECT_NM
+							, ISNULL ( DEPT_NM, '') AS DEPT_NM
+							, ISNULL ( DEPT_NMK, '') AS DEPT_NMK
+					FROM	ZA_DEPT_DAIKIN
+					WHERE	CO_CD = @erpCompSeq
+				) C ON A.CO_CD = C.CO_CD AND A.DEPT_CD = C.DEPT_CD INNER JOIN (
+					/* 사업장 */
+					SELECT	ISNULL ( CO_CD, '') AS CO_CD
+							, ISNULL ( DIV_CD, '') AS DIV_CD
+							, ISNULL ( DIV_NM, '') AS DIV_NM
+							, ISNULL ( DIV_NMK, '') AS DIV_NMK
+							, ISNULL ( REG_NB, '') AS DIV_REG_NB
+							, ISNULL ( CEO_NM, '') AS DIV_CEO_NM
+							, ISNULL ( DIV_ADDR, '') AS  DIV_ADDR1
+							, ISNULL ( DIV_ADDR1, '') AS  DIV_ADDR2
+							, ISNULL ( DIV_TEL, '') AS DIV_TEL
+					FROM	ZA_DIV_DAIKIN
+					WHERE	CO_CD = @erpCompSeq
+				) D ON C.CO_CD = D.CO_CD AND C.DIV_CD = D.DIV_CD
+	]]></select>
+
+	<!-- /* 공통코드 - ERP 국고보조사업 */ -->
+	<select id="AnguCode.AnguDdtlbzInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_DDTLBZ_CD_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{BSNSYEAR}
+		)
+	}
+	]]></select>
+	<!-- /* 공통코드 - ERP 이체계좌구분 */ -->
+	<select id="AnguCode.AnguTransfrInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_CMMN_CD_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{CMMN_CODE}
+		)
+	}
+	]]></select>
+	<!-- /* 공통코드 - ERP 자계좌이체사유코드 */ -->
+	<select id="AnguCode.AnguSbsacntInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_CMMN_CD_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{CMMN_CODE}
+		)
+	}
+	]]></select>
+	<!-- /* 공통코드 - ERP 코드 - 집행등록 상세 */ -->
+	<select id="AnguCode.AnguTrInfoS" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		DECLARE	@TR TABLE (
+			TR_CD NVARCHAR(60)
+			, ATTR_NM NVARCHAR(60)
+			, ATTR_NMK NVARCHAR(60)
+			, REG_NB NVARCHAR(100)
+			, BA_NB NVARCHAR(50)
+			, CEO_NM NVARCHAR(50)
+			, CEO_NMK NVARCHAR(20)
+			, TR_FG_NM NVARCHAR(100)
+			, TR_FG NVARCHAR(2)
+			, JIRO_CD NVARCHAR(10)
+			, TR_NM NVARCHAR(100)
+			, TR_NMK NVARCHAR(60)
+			, JEONJA_YN NVARCHAR(1)
+			, LIQ_RS NVARCHAR(1)
+			, EMAIL NVARCHAR(128)
+			, INTER_DT NVARCHAR(8)
+			, TRCHARGE_EMAIL NVARCHAR(128)
+			, INTER_RT NUMERIC(10,4)
+		)
+		
+		DECLARE @BTR TABLE (
+			BANK_CD NVARCHAR(20)
+			, BANK_NM NVARCHAR(100)
+			, BANK_NMK NVARCHAR(120)
+		)
+		
+		INSERT INTO @TR ( TR_CD, ATTR_NM, ATTR_NMK, REG_NB, BA_NB, CEO_NM, CEO_NMK, TR_FG_NM, TR_FG, JIRO_CD, TR_NM, TR_NMK, JEONJA_YN, LIQ_RS, EMAIL, INTER_DT, TRCHARGE_EMAIL, INTER_RT )
+		exec USP_GET_HELPCODE @LANGKIND=N'${LANGKIND}',@P_HELP_TY=N'STRADE_CODE',@P_CO_CD=N'${P_CO_CD}',@P_CODE=NULL,@P_CODE2=NULL,@P_CODE3=NULL,@P_USE_YN=N'1',@P_NAME=NULL,@P_STD_DT=NULL,@P_WHERE=NULL
+		
+		INSERT INTO @BTR ( BANK_CD, BANK_NM, BANK_NMK )
+		exec USP_GET_HELPCODE @LANGKIND=N'${LANGKIND}',@P_HELP_TY=N'SBANK_CODE',@P_CO_CD=N'${P_CO_CD}',@P_CODE=NULL,@P_CODE2=NULL,@P_CODE3=NULL,@P_USE_YN=NULL,@P_NAME=NULL,@P_STD_DT=NULL,@P_WHERE=N'DUMMY3 = ''1'''
+		
+		SELECT	A.TR_CD
+				, A.ATTR_NM
+				, ISNULL(A.ATTR_NMK, '') AS ATTR_NMK
+				, ISNULL(A.REG_NB, '' ) AS REG_NB
+				, A.BA_NB
+				, ISNULL(A.CEO_NM, '') AS CEO_NM
+				, ISNULL(A.CEO_NMK, '') AS CEO_NMK
+				, A.TR_FG_NM
+				, A.TR_FG
+				, ISNULL(A.JIRO_CD, '') AS JIRO_CD
+				, A.TR_NM
+				, A.TR_NMK
+				, A.JEONJA_YN
+				, A.LIQ_RS
+				, ISNULL(A.EMAIL, '') AS EMAIL
+				, ISNULL(A.INTER_DT, '') AS INTER_DT
+				, ISNULL(A.TRCHARGE_EMAIL, '') AS TRCHARGE_EMAIL
+				, ISNULL(A.INTER_RT, '0.0000') AS INTER_RT
+				, ISNULL(B.BANK_CD, '') AS BANK_CD
+				, ISNULL(B.BANK_NM, '') AS BANK_NM
+				, ISNULL(B.BANK_NMK, '') AS BANK_NMK
+				, C.DIV_ADDR
+				, C.TEL
+		FROM	@TR A
+				LEFT OUTER JOIN @BTR B ON A.JIRO_CD = B.BANK_CD
+				INNER JOIN (
+					SELECT	TR_CD
+							, CASE
+								WHEN ISNULL(DIV_ADDR1, '') != '' AND ISNULL(ADDR2, '') != ''
+								THEN DIV_ADDR1 + ' ' + ADDR2
+								WHEN ISNULL(DIV_ADDR1, '') != ''
+								THEN DIV_ADDR1
+								ELSE ''
+							END AS DIV_ADDR
+							, ISNULL(TEL, '') AS TEL
+					FROM	ZA_TRADE_DAIKIN
+					WHERE	CO_CD = N'${P_CO_CD}'
+				) C ON A.TR_CD = C.TR_CD
+	]]></select>
+	<!-- /* 공통코드 - ERP 금융기관 */ -->
+	<select id="AnguCode.AnguBankInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_GET_HELPCODE
+		(
+			#{LANGKIND}
+			, #{P_HELP_TY}
+			, #{P_CO_CD}
+			, #{P_CODE}
+			, #{P_CODE2}
+			, #{P_CODE3}
+			, #{P_USE_YN}
+			, #{P_NAME}
+			, #{P_STD_DT}
+			, #{P_WHERE}
+		)
+	}
+	]]></select>
+	<!-- /* 공통코드 - ERP 보조비목세목코드 */ -->
+	<!-- <select id="AnguCode.AnguAsstnInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_ASSTN_CD_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{MOSF_GISU_DT}
+			, #{MOSF_GISU_SQ}
+			, #{FSYR}
+		)
+	}
+	]]></select> -->
+	<!-- /* 공통코드 - ERP 재원구분 */ -->
+	<!-- /* iCUBE G20 협의필요 >> 작성당시 iCUBE 데이터 미생성 상태임에도, 집행등록 순번을 파라미터로 요구함... */ -->
+	<select id="AnguCode.AnguAsstnInfoS" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		DECLARE	@DDTLBZ_ID NVARCHAR(20) = '${DDTLBZ_ID}'
+		DECLARE	@FSYR NVARCHAR(4) = '${FSYR}'
+		
+		SELECT	C.ASSTN_EXPITM_TAXITM_CODE
+				, C.ASSTN_EXPITM_NM
+				, C.ASSTN_TAXITM_NM
+		FROM	(
+					SELECT	ASSTN_TAXITM_CODE
+					FROM	ANBOJO_DDTLBZINFO_PFRS
+					WHERE	BSNSYEAR = @FSYR
+					AND		DDTLBZ_ID = @DDTLBZ_ID
+				) B	LEFT OUTER JOIN ANBOJO_SBGTCDINFO C ON B.ASSTN_TAXITM_CODE = C.ASSTN_EXPITM_TAXITM_CODE
+		WHERE	C.ASSTN_EXPITM_TAXITM_SE_CODE = '002'
+		AND		C.FSYR = @FSYR
+		GROUP	BY C.ASSTN_EXPITM_TAXITM_CODE, C.ASSTN_EXPITM_NM, C.ASSTN_TAXITM_NM
+		ORDER	BY C.ASSTN_EXPITM_TAXITM_CODE, C.ASSTN_EXPITM_NM, C.ASSTN_TAXITM_NM
+	]]></select>
+	
+	
+	<select id="AnguCode.AnguFnrscInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_CMMN_CD_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{CMMN_CODE}
+		)
+	}
+	]]></select>
+	<!-- /* 공통코드 - ERP 프로젝트 */ -->
+	<select id="AnguCode.AnguMgtInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_MGT_CD_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{DDTLBZ_ID}
+		)
+	}
+	]]></select>
+	<!-- /* 공통코드 - ERP 코드 - 재원정보 */ -->
+	<select id="AnguCode.AnguBtrInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_GET_HELPCODE
+		(
+			#{LANGKIND}
+			, #{P_HELP_TY}
+			, #{P_CO_CD}
+			, #{P_CODE}
+			, #{P_CODE2}
+			, #{P_CODE3}
+			, #{P_USE_YN}
+			, #{P_NAME}
+			, #{P_STD_DT}
+			, #{P_WHERE}
+		)
+	}
+	]]></select>
+</mapper>

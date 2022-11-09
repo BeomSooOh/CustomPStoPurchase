@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ERPiU oracle -->
+<mapper namespace="UseriUForeignCurrency">
+	<select id="UseriUForeignCurrency.ExchangeRateInfoSelect" parameterType="java.util.Map" statementType="CALLABLE">
+		<!--
+		   [ ERPiU - ORACLE ] UseriUForeignCurrency.ExchangeRateInfoSelect - 환율정보 조회
+		   작성자 : 권오광
+		   작성일 : 2019-11-13
+		   변경이력
+		 -->
+		{
+			call NEOE.UP_FI_EXCH_GW_S1(
+			  #{erpCompSeq}
+			 ,#{authDate}
+			 ,#{exchangeUnitCode}
+			 ,#{resultExchangeRate, mode=OUT, jdbcType=NUMERIC, javaType=java.math.BigDecimal}
+			)
+		}
+	</select>
+	
+	<select id="UseriUForeignCurrency.RoundingTypeInfoSelect" parameterType="java.util.Map" statementType="CALLABLE">
+		<!--
+		   [ ERPiU - ORACLE ] UseriUForeignCurrency.RoundingTypeInfoSelect - 올림구분 조회
+		   작성자 : 권오광
+		   작성일 : 2019-11-13
+		   변경이력
+		 -->
+		{
+			call NEOE.UP_FI_EXCH_GW_S3(
+			  #{erpCompSeq}
+			 ,#{resultRoundingType, mode=OUT, jdbcType=VARCHAR}
+			)
+		}
+	</select>
+	
+	<select id="UseriUForeignCurrency.CheckForeignCurrencyAcctCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/*
+         * [ ERPiU - ORACLE ] CheckForeignCurrencyAcctCode - 외화계정인지 확인
+         * 작성자 : 권오광
+         * 작성일 : 2019-11-13
+         * 변경이력
+         */
+		
+		SELECT COUNT(*) "resultAcctCount"
+		  FROM FI_ACCTCODE
+		 WHERE CD_COMPANY = #{erpCompSeq}
+		   AND CD_ACCT IN (#{drAcctCode}, #{crAcctCode})
+		   AND CD_RELATION = '38'
+	</select>
+</mapper>

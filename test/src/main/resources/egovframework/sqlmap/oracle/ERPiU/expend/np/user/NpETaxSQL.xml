@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 사용자 코드 -->
+<mapper namespace="npUserETaxU">
+	<select id="selectETaxList" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT	NO_TAX AS "issNo" /* 승인번호 */
+				, YMD_WRITE AS "issDt" /* 발행일자 */
+				, BUY_NO_BIZ AS "divregNb" /* 공급받는자 사업자번호 */
+				, BUY_NM_CORP AS "divNm" /* 공급받는자 사업장상호명 */
+				, BUY_NM_CEO AS "divceoNm" /* 공급받는자 대표자명 */
+				, SELL_NO_BIZ AS "trregNb" /* 공급자 사업자번호 */
+				, SELL_NM_CORP AS "trNm" /* 공급자 거래처명 */
+				, SELL_NM_CEO AS "trceoNm" /* 공급자 거래처대표자명 */
+				, AMT AS "sumAm" /* 합계액 */
+				, AM AS "supAm" /* 공급가액 */
+				, AM_VAT AS "vatAm" /* 부가세액 */
+				, DC_RMK AS "dummy1" /* 비고 */
+				, CASE WHEN FG_BILL = '1' THEN '청구' ELSE '영수' END AS "dummy2" /* 기타(영수/청구 구분) >> 영수 OR 청구 */
+				, NVL(SELL_DAM_EMAIL, ' ') AS "emailDc" /* 공급자이메일 */
+				, NVL(BUY_DAM_EMAIL, ' ') AS "trchargeEmail" /* 공급받는자이메일 */
+		FROM    NEOE.FI_TB_TAXDOWN tax
+		/* 기본 검색조건 - 매입매출구분 */
+		WHERE   FG_IO = '2'
+        /* 기본 검색조건 - 기간 */
+		AND     YMD_WRITE BETWEEN #{searchFromDt} AND #{searchToDt}
+		/* 기본 검색조건 - 작성중인 지출결의 계산서는 제외 */
+		<if test="notInsertIssNo != ''">
+		AND		NO_TAX NOT IN ('${notInsertIssNo}')
+		</if>
+		AND     (
+			<if test="searchType == ''">
+			/* 검색조건 - 공급자 등록번호 */
+			SELL_NO_BIZ LIKE '%' || #{searchStr} || '%'
+			/* 검색조건 - 공급자명 */
+			OR     SELL_NM_CORP LIKE '%' || #{searchStr} || '%'
+			/* 검색조건 - 승인번호 */
+			OR     NO_TAX LIKE '%' || #{searchStr} || '%'
+			</if>
+			<if test="searchType == 'trNm'">
+			/* 검색조건 - 공급자명 */
+			SELL_NM_CORP LIKE '%' || #{searchStr} || '%'
+			</if>
+			<if test="searchType == 'regNb'">
+			/* 검색조건 - 공급자 등록번호 */
+			SELL_NO_BIZ LIKE '%' || #{searchStr} || '%'
+			</if>
+			<if test="searchType == 'issNo'">
+			NO_TAX LIKE '%' || #{searchStr} || '%'
+			</if>
+		)
+		AND	(
+			NO_TAX IN ('${transferIssNo}')
+			OR (
+				<if test="trchargeEmail !=''">
+				/* 기본 검색조건 - 공급받는자 이메일주소 */		
+				BUY_DAM_EMAIL IN ('${trchargeEmail}')
+				OR	
+				</if>
+				/* 기본 검색조건 - 공급받는 등록번호 */
+				SELL_NO_BIZ IN ('${trregNb}')
+				/* 기본 검색조건 - 로그인 사용자 이메일 주소(도메인 필터 X) */
+				OR	BUY_DAM_EMAIL LIKE '${baseEmailAddr}' || '%'
+			)
+		)
+		<if test="sortingType != 'ASC'">
+		ORDER BY YMD_WRITE ASC
+		</if>
+		<if test="sortingType != 'DESC'">
+		ORDER BY YMD_WRITE DESC
+		</if>
+	</select>
+	
+	<select id="npUserETaxU.selectETaxListMap" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT	NO_TAX AS "issNo" /* 승인번호 */
+				, YMD_WRITE AS "issDt" /* 발행일자 */
+				, BUY_NO_BIZ AS "divregNb" /* 공급받는자 사업자번호 */
+				, BUY_NM_CORP AS "divNm" /* 공급받는자 사업장상호명 */
+				, BUY_NM_CEO AS "divceoNm" /* 공급받는자 대표자명 */
+				, SELL_NO_BIZ AS "trregNb" /* 공급자 사업자번호 */
+				, SELL_NM_CORP AS "trNm" /* 공급자 거래처명 */
+				, SELL_NM_CEO AS "trceoNm" /* 공급자 거래처대표자명 */
+				, AMT AS "sumAm" /* 합계액 */
+				, AM AS "supAm" /* 공급가액 */
+				, AM_VAT AS "vatAm" /* 부가세액 */
+				, DC_RMK AS "dummy1" /* 비고 */
+				, CASE WHEN FG_BILL = '1' THEN '청구' ELSE '영수' END AS "dummy2" /* 기타(영수/청구 구분) >> 영수 OR 청구 */
+				, NVL(SELL_DAM_EMAIL, ' ') AS "emailDc" /* 공급자이메일 */
+				, NVL(BUY_DAM_EMAIL, ' ') AS "trchargeEmail" /* 공급받는자이메일 */
+		FROM    NEOE.FI_TB_TAXDOWN tax
+		/* 기본 검색조건 - 매입매출구분 */
+		WHERE   FG_IO = '2'
+        /* 기본 검색조건 - 기간 */
+		AND     YMD_WRITE BETWEEN #{searchFromDt} AND #{searchToDt}
+		AND     (
+			/* 검색조건 - 공급자 등록번호 */
+			SELL_NO_BIZ LIKE '%${searchPartnerNo}%'
+			<if test="searchPartnerNm != ''">
+			/* 검색조건 - 공급자명 */
+			AND     SELL_NM_CORP LIKE '%' || #{searchPartnerNm} || '%'
+			</if>
+			/* 검색조건 - 승인번호 */
+			AND     NO_TAX LIKE '%${searchIssNo}%'
+		)
+		/* 기본 검색조건 - 작성중인 지출결의 계산서는 제외 */
+		<if test="notInsertIssNo != ''">
+		AND		NO_TAX NOT IN ('${notInsertIssNo}')
+		</if>
+<!-- 	위에는 기본 아래는 이관 내역 까지 같이 조회 될 수 있도록. -->		
+		AND (
+			NO_TAX IN ('${transferIssNo}')
+			OR	(
+				<if test="trchargeEmail !=''">
+				/* 기본 검색조건 - 공급받는자 이메일주소 */		
+				BUY_DAM_EMAIL IN ('${trchargeEmail}')
+				OR	
+				</if>
+				/* 기본 검색조건 - 공급받는 등록번호 */
+				SELL_NO_BIZ IN ('${trregNb}')
+				/* 기본 검색조건 - 로그인 사용자 이메일 주소(도메인 필터 X) */
+				OR	BUY_DAM_EMAIL LIKE '${baseEmailAddr}' || '%'
+			)
+		)
+		<if test="sortingType != 'ASC'">
+		ORDER BY YMD_WRITE ASC
+		</if>
+		<if test="sortingType != 'DESC'">
+		ORDER BY YMD_WRITE DESC
+		</if>
+	</select>
+
+	<select id="npUserETaxU.selectETaxDetailInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		/* exoebd/np/user/NpETaxSQL.xml -  npUserETaxU.selectETaxDetailInfo */
+		/* [ERPiU] 전자 세금 계산서 상세 내역 조회 */
+		SELECT  
+		    NO_TAX				AS "taxNum"
+		    , NO_ISS			AS "hometaxIssNo"
+		    , NO				AS "num"
+		    , NO_VOL			AS "volNum1"
+		    , NO_ISSUE			AS "volNum2"
+		    , NO_SERIAL			AS "serial"
+		    
+		    , SELL_NO_BIZ		AS "sellBizNum"
+		    , SELL_NM_CORP		AS "sellCompName"
+		    , SELL_NM_CEO		AS "sellCeoName"
+		    , SELL_ADDR1		AS "sellAddr1"
+		    , SELL_ADDR2		AS "sellAddr2"
+		    , SELL_BIZ_STATUS	AS "sellBusinessType"
+		    , SELL_BIZ_TYPE		AS "sellJongmokName"
+		    , SELL_DAM_DEPT		AS "sellDeptName"
+		    , SELL_DAM_NM		AS "sellEmpName"
+		    , SELL_DAM_TEL1		AS "sellTell"
+		    , SELL_DAM_MOBIL1	AS "sellCellPhone"
+		    , SELL_DAM_EMAIL	AS "sellEmail"
+		    
+		    , BUY_NO_BIZ		AS "buyBizNum"
+		    , BUY_NM_CORP		AS "buyCompName"
+		    , BUY_NM_CEO		AS "buyCeoName"
+		    , BUY_ADDR1			AS "buyAddr1"
+		    , BUY_ADDR2			AS "buyAddr2"
+		    , BUY_BIZ_STATUS	AS "buyBusinessType"
+		    , BUY_BIZ_TYPE		AS "buyJongmokName"
+		    , BUY_DAM_DEPT		AS "buyDeptName"
+		    , BUY_DAM_NM		AS "buyEmpName"
+		    , BUY_DAM_TEL1		AS "buyTell"
+		    , BUY_DAM_MOBIL1	AS "buyCellPhone"
+		    , BUY_DAM_EMAIL		AS "buyEmail"
+		    
+		    , YMD_WRITE			AS "taxDate"
+		    , AM				AS "stdAmt"
+		    , AM_VAT			AS "vatAmt"
+		    , AMT				AS "amt"	
+		    , REPLACE(REPLACE(DC_RMK, chr(13), ''), chr(10), '') AS "dummy1"
+		    , FG_BILL			AS "dummy2"
+		<if test='tpTbTaxCompany == "Y"'>
+		FROM NEOE.FI_TB_TAXDOWN2 
+		</if>
+		<if test='tpTbTaxCompany == "N"'>
+		FROM NEOE.FI_TB_TAXDOWN  
+		</if>		
+		WHERE	NO_TAX	= '${syncId}'
+		
+		<if test='tpTbTaxCompany == "Y"'>
+			AND CD_COMPANY = '${erpCompSeq}'
+		</if>
+	</select>
+
+	<!-- /* ## iCUBE 매입전자세금계산서 연동 처리 ## */ -->
+	
+	<!-- /* ## iCUBE 매입전자세금계산서 연동 처리 - 보관, 상신 ## */ -->
+	<update id="npUserETaxU.updateETaxStatApproval" parameterType="java.util.Map"><![CDATA[
+		/* ## npUserETaxU.updateETaxStatApproval - MSSQL - iCUBE 매입전자세금계산서 연동 처리 - 보관, 상신 ## */
+		UPDATE	dbo.ETAXUP
+		SET		GET_FG = '1'
+				, APPRO_STATE = '0'
+				, DOCU_NO = 'Bizbox Alpha 전자결재 문서 (보관 또는 상신)'
+		WHERE	ISS_NO = #{issNo}
+		AND		CO_CD = #{erpCompSeq}
+		AND		DIV_CD = #{erpBizSeq}
+	]]></update>
+	
+	<!-- /* ## iCUBE 매입전자세금계산서 연동 처리 - 반려, 삭제 ## */ -->
+	<update id="npUserETaxU.updateETaxStatReturn" parameterType="java.util.Map"><![CDATA[
+		/* ## npUserETaxU.updateETaxStatReturn - MSSQL - iCUBE 매입전자세금계산서 연동 처리 - 반려, 삭제 ## */
+		UPDATE	dbo.ETAXUP
+		SET		GET_FG = '0'
+				, APPRO_STATE = '4'
+				, DOCU_NO = 'Bizbox Alpha 전자결재 문서 (반려 또는 삭제)'
+		WHERE	ISS_NO = #{issNo}
+		AND		CO_CD = #{erpCompSeq}
+		AND		DIV_CD = #{erpBizSeq}
+	]]></update>
+	
+	<!-- /* ## iCUBE 매입전자세금계산서 연동 처리 - 종결 ## */ -->
+	<update id="npUserETaxU.updateETaxStatEnd" parameterType="java.util.Map"><![CDATA[
+		/* ## npUserETaxU.updateETaxStatEnd - MSSQL - iCUBE 매입전자세금계산서 연동 처리 - 종결 ## */
+		UPDATE	dbo.ETAXUP
+		SET		GET_FG = '1'
+				, APPRO_STATE = '1'
+				, DOCU_NO = 'Bizbox Alpha 전자결재 문서 (종결)'
+		WHERE	ISS_NO = #{issNo}
+		AND		CO_CD = #{erpCompSeq}
+		AND		DIV_CD = #{erpBizSeq}
+	]]></update>
+	
+	<!-- /* ## FI_TB_TAXDOWN 사용 테이블 정의 옵션 조회 ## */ -->
+	<select id="npUserETaxU.GetETaxListOption" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT  NVL(CD_ENV,'N') AS "tpTbTaxCompany"
+		FROM    NEOE.MA_ENVD
+		WHERE   CD_COMPANY = #{erpCompSeq}
+		AND     TP_ENV = 'TP_TBTAXCOMPANY'
+	</select>
+	
+	<!-- /* ## 사용자 매입전자세금계산서 목록 조회 ## */ -->
+	<select id="npUserETaxU.GetETaxList" parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/* 사용자 매입전자세금계산서 목록 조회 */
+		
+		SELECT  A.ISSDT AS "issDt"
+				, A.ISSDT AS "issDate"
+		        , A.TRNAME AS "trName"
+		        , A.TRREGNB AS "trRegNb"
+		        , A.ISSNO AS "issNo"
+		        , A.ISSNO2 AS "issNo2"
+		        , A.REQAMT AS "reqAmt"
+		        , A.STDAMT AS "stdAmt"
+		        , A.VATAMT AS "vatAmt"
+		        , A.TRCHARGEEMAIL AS "trChargeEMail"
+		        , A.TAXTY AS "taxTy"
+				, A.SENDYN AS "sendYn"
+				, A.DOCSEQ AS "docSeq"
+				, A.CREATEEMPNAME AS "createEmpName"
+				, A.USEYN AS "useYn"
+				, A.NOTUSEEMPNAME AS "notUseEmpName"
+				, A.DcRmk		AS "dcRmk"
+		FROM    (
+		                SELECT  A.ISSDT
+		                        , A.TRNAME
+		                        , A.TRREGNB
+		                        , A.ISSNO
+		                        , A.ISSNO2
+		                        , A.REQAMT
+		                        , A.STDAMT
+		                        , A.VATAMT
+		                        , A.TRCHARGEEMAIL
+		                        , A.DcRmk
+		                        , A.TAXTY
+		                        /* ==================================================================================================== */
+		]]>
+		                        <if test="@common.mybatis.Test@isArrayListEmpty(eTaxSendList)"><![CDATA[
+		                        , NVL ( B.SENDYN, 'N' ) AS SENDYN
+		                        , NVL ( B.DOCSEQ, '' ) AS DOCSEQ
+		                        , NVL ( B.createEmpName, '' ) AS CREATEEMPNAME
+		                        ]]></if>
+		                        
+		                        <if test="@common.mybatis.Test@isArrayListEmptyRevers(eTaxSendList)"><![CDATA[
+		                        , 'N' AS SENDYN
+		                        , '' AS DOCSEQ
+		                        , '' AS CREATEEMPNAME
+		                        ]]></if>
+		<![CDATA[
+		                        /* ==================================================================================================== */
+		                        
+		                        
+		                        /* ==================================================================================================== */
+		]]>				
+		                        <if test="@common.mybatis.Test@isArrayListEmpty(eTaxNotUseList)"><![CDATA[
+		                        , NVL ( C.useYn, 'Y' ) AS USEYN
+		                        , NVL ( C.notUseEmpName, '' ) AS NOTUSEEMPNAME
+		                        ]]></if>
+		                        
+		                        <if test="@common.mybatis.Test@isArrayListEmptyRevers(eTaxNotUseList)"><![CDATA[
+		                        , 'Y' AS USEYN
+		                        , '' AS NOTUSEEMPNAME
+		                        ]]></if>
+		<![CDATA[
+		                        /* ==================================================================================================== */
+		                FROM    (
+		                                SELECT  A.ISSDT
+		                                        , A.TRNAME
+		                                        , A.TRREGNB
+		                                        , A.ISSNO
+		                                        , A.ISSNO2
+		                                        , A.REQAMT
+		                                        , A.STDAMT
+		                                        , A.VATAMT
+		                                        , A.TRCHARGEEMAIL
+		                                        , A.TAXTY
+		                                        , A.dcRmk
+		                                FROM    (
+		                                                SELECT  YMD_WRITE AS ISSDT
+		                                                        , SELL_NM_CORP AS TRNAME
+		                                                        , SELL_NO_BIZ AS TRREGNB
+		                                                        , NO_TAX 	AS ISSNO
+		                                                        , NO_ISS	AS ISSNO2
+		                                                        /* , NVL(SELL_DAM_EMAIL, ' ') AS SELL_DAM_EMAIL */
+		                                                        , AMT AS REQAMT
+		                                                        , AM AS STDAMT
+		                                                        , AM_VAT AS VATAMT
+		                                                        , buy_dam_email AS TRCHARGEEMAIL
+		                                                        , FG_IO AS TAXTY
+		                                                        , dc_rmk AS dcRmk
+		                                                        
+		]]>
+														<if test='tpTbTaxCompany == "Y"'>
+														FROM    NEOE.FI_TB_TAXDOWN2
+														</if>
+														<if test='tpTbTaxCompany == "N"'>
+														FROM    NEOE.FI_TB_TAXDOWN
+														</if>
+		<![CDATA[
+		                                                WHERE   YMD_WRITE BETWEEN #{issDateFrom} AND #{issDateTo}
+		                                                AND     SELL_NM_CORP LIKE '%' || #{partnerName} || '%'
+		                                                AND     SELL_NO_BIZ LIKE '%' || #{partnerRegNo} || '%'
+		                                                /* 매입외 매출도 조회되도록 검수를 위하여 임시로 조건 해제 */
+		                                                AND		FG_IO = '2'
+		]]>
+		                                                <if test='tpTbTaxCompany == "Y"'>
+		                                                AND		CD_COMPANY = #{erpCompSeq}
+		                                                </if>
+		<![CDATA[
+		                                        ) A
+		]]>
+		                                        <if test="@common.mybatis.Test@isArrayListEmpty(eTaxReceiveList)">
+		                                                <foreach collection="eTaxReceiveList" item="recv" open=" LEFT OUTER JOIN ( " close=" ) B ON ISS_NO = B.ISSNO AND ISS_DT = B.ISSDT " separator=" UNION ALL " ><![CDATA[
+		                                                SELECT	#{recv.issNo} AS ISSNO
+		                                                        , #{recv.issDt} AS ISSDT
+		                                                FROM    DUAL        
+		                                                ]]></foreach>
+		                                        </if>
+		<![CDATA[
+		                                WHERE   A.TRNAME LIKE ('%' || '' || '%')
+		                                AND	REPLACE ( NVL ( A.TRREGNB, '' ), '-', '' ) LIKE '%' || REPLACE ( NVL ( #{partnerRegNo}, '' ), '-', '' ) || '%'
+		                                AND	NVL ( A.ISSDT, '' ) LIKE '%' || NVL ( #{eTaxIssNo}, '' ) || '%'
+		]]>
+		                                <if test="@common.mybatis.Test@isArrayListEmptyRevers(eTaxReceiveList)"><![CDATA[
+		                                /* 매입전자세금계산서 수신 내역이 없는 경우 */
+		                                AND		(
+													/* 기본권한 */
+													( NVL(A.TRCHARGEEMAIL, '') LIKE ( #{id} || '@' || '%' ) )
+		                                            /* 수신자 메일 권한 */
+		                                            OR ( NVL(A.TRCHARGEEMAIL, '') LIKE ( #{id} || '@' || '%' ) OR #{mailAuth} LIKE ('%|' || NVL(A.TRCHARGEEMAIL, '') || '|%') )
+		                                            /* 거래처 메일 권한 */
+		                                            OR ( REPLACE(#{partnerAuth}, '-', '') LIKE ('%|' || NVL(A.TRREGNB, '') || '|%') )
+		                                        )
+		                                ]]></if>
+		                                
+		                                <if test="@common.mybatis.Test@isArrayListEmpty(eTaxReceiveList)"><![CDATA[
+		                                /* 매입전자세금계산서 수신 내역이 존재하는 경우 */
+		                                AND		(
+		                                                /* 매입전자세금계산서 수신 내역 */
+		                                                ( NVL(B.ISSNO, '') = NVL(B.ISSNO, '') )
+		                                                /* 기본권한 */
+		                                                OR ( NVL(A.TRCHARGEEMAIL, '') LIKE ( #{id} || '@' || '%' ) )
+		                                                /* 수신자 메일 권한 */
+		                                                OR ( NVL(A.TRCHARGEEMAIL, '') LIKE ( #{id} || '@' || '%' ) OR #{mailAuth} LIKE ('%|' || NVL(A.TRCHARGEEMAIL, '') || '|%') )
+		                                                /* 거래처 메일 권한 */
+		                                                OR ( REPLACE(#{partnerAuth}, '-', '') LIKE ('%|' || NVL(A.TRREGNB, '') || '|%') )
+		                                        )
+		                                ]]></if>
+		<![CDATA[
+		                        ) A
+		                        /* 상신 목록 조인을 위한 처리 */
+		]]>
+		                        <if test="@common.mybatis.Test@isArrayListEmpty(eTaxSendList)">
+		                        
+		                                <foreach collection="eTaxSendList" item="send" open=" LEFT OUTER JOIN ( " close=" ) B ON A.ISSNO = B.ISSNO AND A.ISSDT = B.ISSDT " separator=" UNION ALL " ><![CDATA[
+		                                        SELECT	#{send.syncId} AS SYNCID
+		                                                , #{send.issNo} AS ISSNO
+		                                                , #{send.issDt} AS ISSDT
+		                                                , #{send.partnerNo} AS PARTNERNO
+		                                                , #{send.compSeq} AS COMPSEQ
+		                                                , #{send.ifMId} AS IFMID
+		                                                , #{send.ifDId} AS IFDID
+		                                                , #{send.sendYn} AS SENDYN
+		                                                , #{send.useYn} AS USEYN
+		                                                , #{send.docSeq} AS DOCSEQ
+		                                                , #{send.resDocSeq} AS RESDOCSEQ
+		                                                , #{send.resSeq} AS RESSEQ
+		                                                , #{send.budgetSeq} AS BUDGETSEQ
+		                                                , #{send.tradeSeq} AS TRADESEQ
+		                                                , #{send.createEmpName} AS CREATEEMPNAME
+		                                        FROM    DUAL        
+		                                ]]></foreach>
+		                        </if>
+		                        <![CDATA[
+		                        /* 미사용 목록 조인을 위한 처리 */
+		                        ]]>
+		                        <if test="@common.mybatis.Test@isArrayListEmpty(eTaxNotUseList)">
+		                        
+		                                <foreach collection="eTaxNotUseList" item="notUse" open=" LEFT OUTER JOIN ( " close=" ) C ON A.ISSNO = C.ISSNO AND A.ISSDT = C.ISSDT " separator=" UNION ALL " ><![CDATA[
+		                                        SELECT	#{notUse.sync_id} AS SYNCID
+		                                                , #{notUse.iss_no} AS ISSNO
+		                                                , #{notUse.iss_dt} AS ISSDT
+		                                                , #{notUse.comp_seq} AS COMPSEQ
+		                                                , #{notUse.use_yn} AS USEYN
+		                                                , #{notUse.notUseEmpName} AS NOTUSEEMPNAME
+		                                        FROM    DUAL        
+		                                ]]></foreach>
+		                        </if>
+		                        <![CDATA[
+		                        /* 이관 목록 조인을 위한 처리 */
+		                        ]]>
+		                        <if test="@common.mybatis.Test@isArrayListEmpty(eTaxTransList)">
+		                                <foreach collection="eTaxTransList" item="trans" open=" LEFT OUTER JOIN ( " close=" ) D ON A.ISSNO = D.ISSNO AND A.ISSDT = D.ISSDT " separator=" UNION ALL " ><![CDATA[
+		                                        SELECT	#{trans.issNo} AS ISSNO
+		                                                , #{trans.issDt} AS ISSDT
+		                                        FROM    DUAL        
+		                                ]]></foreach>
+		                        </if>
+		                <if test="@common.mybatis.Test@isArrayListEmpty(eTaxTransList)"><![CDATA[
+		                        /* 검색조건 : 이관된 내역은 조회하지 않는다. */
+		                WHERE	NVL(D.ISSNO, '') = ''
+		                ]]></if>
+		<![CDATA[
+		        ) A
+		]]>
+		<if test='eTaxStat != "" and eTaxStat != "0"'>
+		<![CDATA[
+		        /* 검색조건 - 결의상태 ( 미결의 : 1 / 미사용 : 2 / 결의 : 3 ) */
+		]]>
+		</if>		
+		ORDER BY issDt DESC;
+	</select>
+	
+	
+		<!-- /* ## 사용자 매입전자세금계산서 목록 조회 ## */ -->
+	<select id="npUserETaxU.GetETaxList2" parameterType="java.util.Map" resultType="java.util.Map">
+		/* oracle\ERPiU\expend\np\user\NpETaxSQL.xml - npUserETaxU.GetETaxList2 */
+		/* 사용자 매입전자세금계산서 목록 조회 - 2차 개발 */
+		SELECT  A.ISSDT AS "issDt"
+				, A.ISSDT AS "issDate"
+		        , A.TRNAME AS "trName"
+		        , A.TRREGNB AS "trRegNb"
+		        , A.ISSNO AS "issNo"
+		        , A.REQAMT AS "reqAmt"
+		        , A.STDAMT AS "stdAmt"
+		        , A.VATAMT AS "vatAmt"
+		        , A.TRCHARGEEMAIL AS "trChargeEMail"
+		        , A.TAXTY AS "taxTy"
+				, A.SENDYN AS "sendYn"
+				, A.DOCSEQ AS "docSeq"
+				, A.CREATEEMPNAME AS "createEmpName"
+				, A.USEYN AS "useYn"
+				, A.NOTUSEEMPNAME AS "notUseEmpName"
+		FROM    (
+		                SELECT  A.ISSDT
+		                        , A.TRNAME
+		                        , A.TRREGNB
+		                        , A.ISSNO
+		                        , A.REQAMT
+		                        , A.STDAMT
+		                        , A.VATAMT
+		                        , A.TRCHARGEEMAIL
+		                        , A.TAXTY          
+		                FROM    (
+		                                SELECT  A.ISSDT
+		                                        , A.TRNAME
+		                                        , A.TRREGNB
+		                                        , A.ISSNO
+		                                        , A.REQAMT
+		                                        , A.STDAMT
+		                                        , A.VATAMT
+		                                        , A.TRCHARGEEMAIL
+		                                        , A.TAXTY
+		                                FROM    (
+		                                                SELECT  YMD_WRITE AS ISSDT
+		                                                        , SELL_NM_CORP AS TRNAME
+		                                                        , SELL_NO_BIZ AS TRREGNB
+		                                                        , NO_TAX AS ISSNO
+		                                                        /* , NVL(SELL_DAM_EMAIL, ' ') AS SELL_DAM_EMAIL */
+		                                                        , AMT AS REQAMT
+		                                                        , AM AS STDAMT
+		                                                        , AM_VAT AS VATAMT
+		                                                        , buy_dam_email AS TRCHARGEEMAIL
+		                                                        , FG_IO AS TAXTY
+														<if test='tpTbTaxCompany == "Y"'>
+														FROM    NEOE.FI_TB_TAXDOWN2
+														</if>
+														<if test='tpTbTaxCompany == "N"'>
+														FROM    NEOE.FI_TB_TAXDOWN
+														</if>
+		                                                WHERE   YMD_WRITE BETWEEN #{issDateFrom} AND #{issDateTo}
+		                                                AND     SELL_NM_CORP LIKE '%' || #{partnerName} || '%'
+		                                                AND     SELL_NO_BIZ LIKE '%' || #{partnerRegNo} || '%'
+		                                                /* 매입외 매출도 조회되도록 검수를 위하여 임시로 조건 해제 */
+		                                                AND		FG_IO = '2'
+		                                                <if test='tpTbTaxCompany == "Y"'>
+		                                                AND		CD_COMPANY = #{erpCompSeq}
+		                                                </if>
+		                                        ) A
+		                                WHERE   A.TRNAME LIKE ('%' || '' || '%')
+		                                AND	REPLACE ( NVL ( A.TRREGNB, '' ), '-', '' ) LIKE '%' || REPLACE ( NVL ( #{partnerRegNo}, '' ), '-', '' ) || '%'
+		                                AND	NVL ( A.ISSDT, '' ) LIKE '%' || NVL ( #{eTaxIssNo}, '' ) || '%'
+		                        ) A
+		        ) A
+		ORDER BY issDt DESC;
+	</select>
+</mapper>

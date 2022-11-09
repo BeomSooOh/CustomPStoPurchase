@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AnguUser">
+
+	<typeAlias alias="oracleLobMap" type="bizbox.orgchart.util.OracleLobMap"/>
+
+	<!-- /* ## [+] 국고보조 v2 ## */ -->
+	<!-- /* ## [+] 국고보조 v2 ## - 국고보조 집행등록 문서 생성 */ -->
+	<insert id="AnguUser.setAnguDocument_Insert_01" parameterClass="HashMap">
+		<selectKey keyProperty="anbojoSeq" resultClass="java.lang.String" ><![CDATA[
+			SELECT  $DB_NEOS$T_EX_ANBOJO_SEQ.NEXTVAL FROM DUAL
+		]]></selectKey>
+		
+		/* [BizboxAlpha][oracle] AnguUser.setAnguDocument_Insert_01 */
+		INSERT INTO $DB_NEOS$t_ex_anbojo ( anbojo_seq, comp_seq, doc_seq, form_seq, anbojo_stat_code, gisu_date, write_seq, json_str, erp_send_yn, erp_send_seq, erp_send_date, create_seq, create_date, modify_seq, modify_date )
+		VALUES ( #anbojoSeq#, #compSeq#, 0, #formSeq#, '', TO_CHAR(SYSDATE, 'YYYYMMDD'), null, '', 'N', '', null, #empSeq#, SYSDATE, #empSeq#, SYSDATE )
+	</insert>
+
+	<select id="AnguUser.setAnguDocument_Insert_02" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* [BizboxAlpha][oracle] AnguUser.setAnguDocument_Insert_02 */
+		/* 국고보조통합시스템 - 국고보조 집행등록 문서 생성 */
+		/* compSeq : Bizbox Alpha 회사 시퀀스 */
+		/* anbojoSeq : Bizbox Alpha 국고보조 집행등록 시퀀스 */
+		/* docSeq : BIzbox Alpha 국고보조 집행등록 전자결재 아이디 */
+		/* formSeq : Bizbox Alpha 국고보조 집행등록 양식 아이디 */
+		/* anbojoStatCode : Bizbox Alpha 국고보조 집행등록 상태 코드 */
+		/* gisuDate : Bizbox Alpha 국고보조 집행등록 작성일 */
+		/* writeSeq : Bizbox Alpha 국고보조 집행등록 작성자 정보 */
+		/* jsonStr : Bizbox Alpha 국고보조 집행등록 문서 정보 ( 미사용 ) */
+		/* erpSendYN : Bizbox Alpha 국고보조 집행등록 ERP 전송여부 ( 전송 : Y / 미전송 : N ) */
+		/* erpSendSeq : Bizbox Alpha 국고보조 집행등록 ERP 전송자 ( emp_seq ) */
+
+		/* AnguUser.setAnguDocument_Insert_02 : result sample */
+		/*	────────────┬───────────────┬───────────┬───────────┬───────────────────┬───────────────┬───────────────┬───────────┬───────────────┬─────────────	*/
+		/*	compSeq		│	anbojoSeq	│	docSeq	│	formSeq	│	anbojoStatCode	│	gisuDate	│	writeSeq	│	jsonStr	│	erpSendYN	│	erpSendSeq																																						*/				
+		/*	────────────┼───────────────┼───────────┼───────────┼───────────────────┼───────────────┼───────────────┼───────────┼───────────────┼─────────────	*/
+		/*	EXP_iCUBE	│	430			│	0		│	10102	│					│	2017067		│	0			│			│	N			│																																									*/					
+		/*	────────────┴───────────────┴───────────┴───────────┴───────────────────┴───────────────┴───────────────┴───────────┴───────────────┴─────────────	*/
+		SELECT  comp_seq AS "compSeq"
+		        , anbojo_seq AS "anbojoSeq"
+		        , NVL(doc_seq, '0') AS "docSe"
+		        , form_seq AS "formSeq"
+		        , NVL(anbojo_stat_code, '') AS "anbojoStatCode"
+		        , NVL(gisu_date, '') AS "gisuDate"
+		        , NVL(write_seq, 0) AS "writeSeq"
+		        , NVL(json_str, '') AS "jsonStr"
+		        , NVL(erp_send_yn, 'N') AS "erpSendYN"
+		        , NVL(erp_send_seq, '') AS "erpSendSeq"
+		FROM    $DB_NEOS$t_ex_anbojo
+		WHERE   anbojo_seq = #anbojoSeq#
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 국고보조 집행등록 abdocu 삭제 */ -->
+	<delete id="AnguUser.setAnguDocumentAbdocu_Delete" parameterClass="HashMap"><![CDATA[
+		/* [BizboxAlpha][oracle] AnguUser.setAnguDocumentAbdocu_Delete */
+		DELETE
+		FROM    $DB_NEOS$t_ex_anbojo_abdocu
+		WHERE   anbojo_seq = #anbojoSeq#
+	]]></delete>
+	<!-- /* ## [+] 국고보조 v2 ## - 국고보조 집행등록 abdocu B 삭제 */ -->
+	<delete id="AnguUser.setAnguDocumentAbdocuB_Delete" parameterClass="HashMap"><![CDATA[
+		/* [BizboxAlpha][oracle] AnguUser.setAnguDocumentAbdocuB_Delete */
+		DELETE
+		FROM    $DB_NEOS$t_ex_anbojo_abdocu_b
+		WHERE   anbojo_seq = #anbojoSeq#
+	]]></delete>
+	<!-- /* ## [+] 국고보조 v2 ## - 국고보조 집행등록 abdocu T 삭제 */ -->
+	<delete id="AnguUser.setAnguDocumentAbdocuT_Delete" parameterClass="HashMap"><![CDATA[
+		/* [BizboxAlpha][oracle] AnguUser.setAnguDocumentAbdocuT_Delete */
+		DELETE
+		FROM    $DB_NEOS$t_ex_anbojo_abdocu_t
+		WHERE   anbojo_seq = #anbojoSeq#
+	]]></delete>
+	<!-- /* ## [+] 국고보조 v2 ## - 국고보조 집행등록 abdocu Pay 삭제 */ -->
+	<delete id="AnguUser.setAnguDocumentAbdocuPay_Delete" parameterClass="HashMap"><![CDATA[
+		/* [BizboxAlpha][oracle] AnguUser.setAnguDocumentAbdocuPay_Delete */
+		DELETE
+		FROM    $DB_NEOS$t_ex_anbojo_abdocu_pay
+		WHERE   anbojo_seq = #anbojoSeq#
+	]]></delete>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 국고보조 집행등록 abdocu 생성 */ -->
+	<insert id="AnguUser.setAnguDocumentAbdocu_Insert" parameterClass="HashMap"><![CDATA[
+		/* [BizboxAlpha][oracle] AnguUser.setAnguDocumentAbdocu_Insert */
+		/* 2017-12-11 김상겸 : 거래처통장표시내용(BCNC_BNKB_INDICT_CN), 보조금통장표시내용(SBSIDY_BNKB_INDICT_CN) 글자 수 6자리로 제한 */
+		/*                 * TR_RMK, BOJO_RMK : SUBSTRING 처리로 입력된 내용 중 6글자만 처리 우선 진행 */
+		INSERT INTO $DB_NEOS$t_ex_anbojo_abdocu ( anbojo_seq, d_seq, erp_comp_seq, mosf_gisu_dt, mosf_pay_fg, erp_dept_seq, erp_emp_seq, erp_biz_seq, intrfc_id, bsnsyear, ddtlbz_id, pruf_se_code, card_no, ctr_cd, pruf_se_no, tax_ty, excut_requst_de, transfr_acnut_se_code, sbsacnt_trfrsn_code, sbsacnt_trfrsn_cn, bcnc_se_code, tr_cd, bcnc_lsft_no, bcnc_cmpny_nm, bcnc_rprsntv_nm, bcnc_adres, bcnc_telno, bcnc_bank_code, duzon_bank_code, bcnc_acnut_no, excut_prpos_cn, bcnc_bnkb_indict_cn, sbsidy_bnkb_indict_cn, insert_id, insert_dt, insert_ip, cntc_trget_sys_code, exc_instt_id, excut_cntc_id )
+		VALUES ( #anbojoSeq#, #dSeq#, #erpCompSeq#, CONCAT(#gisuDate#, #anguDay#), #anguPayDivCode#
+					, #erpDeptSeq#, #erpEmpSeq#, #erpBizSeq#, 'IF-EXE-EFR-0074', #anguYear#, #anguBusinessCode#, #anguAuthDivCode#
+					, '', '', #anguEtaxTaxNum#, #TAX_TY#, REPLACE(#anguEtaxTaxIssueDate#, '-', ''), #anguAccountDivCode#, #anguAccountReasonDivCode#
+					, #anguAccountReason#, #anguPartnerDivCode#, #TR_CD#, REPLACE(#anguEtaxTaxPartnerNum#, '-', ''), #anguEtaxTaxPartnerName#
+					, #BCNC_RPRSNTY_NM#, #BCNC_ADRES#, #BCNC_TELNO#, #BCNC_BANK_CODE#, #DUZON_BANK_CODE#, REPLACE(#BCNC_ACNUT_NO#, '-', '')
+					, #anguNote#, SUBSTR(#TR_RMK#, 1, 6), SUBSTR(#BOJO_RMK#, 1, 6), '', '', '', ' ', ' ', ' ')
+	]]></insert>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 국고보조 집행등록 abdocu_b 생성 */ -->
+	<insert id="AnguUser.setAnguDocumentAbdocuB_Insert" parameterClass="HashMap"><![CDATA[
+		/* [BizboxAlpha][oracle] AnguUser.setAnguDocumentAbdocuB_Insert */
+		INSERT INTO $DB_NEOS$t_ex_anbojo_abdocu_b ( anbojo_seq, d_seq, b_seq, erp_comp_seq, erp_comp_name, mosf_gisu_dt, intrfc_id, asstn_taxitm_code, prdlst_nm, INSERT_ID, insert_dt, insert_ip ,cntc_trget_sys_code, excut_cntc_id )
+		VALUES ( #anbojoSeq#, #dSeq#, #bSeq#, #erpCompSeq#, #erpCompName#
+				, NVL((SELECT mosf_gisu_dt FROM $DB_NEOS$t_ex_anbojo_abdocu WHERE anbojo_seq = #anbojoSeq# AND ROWNUM = 1), ' ')
+				, 'IF-EXE-EFR-0074', #subDetailBimokCode#, #bimokItem#, #erpEmpSeq#, SYSDATE, '', ' ', ' ')
+	]]></insert>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 국고보조 집행등록 abdocu_t 생성 */ -->
+	<insert id="AnguUser.setAnguDocumentAbdocuT_Insert" parameterClass="HashMap"><![CDATA[
+		/* [BizboxAlpha][oracle] AnguUser.setAnguDocumentAbdocuT_Insert */
+		INSERT INTO $DB_NEOS$t_ex_anbojo_abdocu_t ( anbojo_seq, d_seq, b_seq, t_seq, erp_comp_seq, erp_comp_name, mosf_gisu_dt, intrfc_id, fnrsc_se_code, mgt_cd, bottom_cd, abgt_cd, btr_cd, splpc, vat, sum_amount, insert_id, insert_dt, insert_ip, cntc_trget_sys_code, excut_cntc_id)
+		VALUES ( #anbojoSeq#, #dSeq#, #bSeq#, #tSeq#, #erpCompSeq#, #erpCompName#
+				, NVL((SELECT mosf_gisu_dt FROM $DB_NEOS$t_ex_anbojo_abdocu WHERE anbojo_seq = #anbojoSeq# AND ROWNUM = 1), ' ')
+				, 'IF-EXE-EFR-0074', #anguJaewonDivCode#, #mgtCode# , '', #BGT_CD#, #TR_CD#, #anguInputAmount#, #anguInputVatAmount#, #anguInputReqSumAmount#, #erpEmpSeq#, SYSDATE, '', ' ', ' ')
+	]]></insert>
+
+	<!-- /* ## [-] 국고보조 v2 ## */ -->
+
+	<!-- /* 국고보조 집행등록 문서 생성 */ -->
+	<insert id="AnguUser.AnguI" parameterClass="HashMap">
+		/* AnguUser.AnguI - oracle */
+		<![CDATA[
+			INSERT INTO $DB_NEOS$t_ex_anbojo (
+			        comp_seq 
+			        , doc_seq
+			        , form_seq
+			        , anbojo_stat_code
+			        , gisu_date
+			        , write_seq
+			        , json_str
+			        , erp_send_yn
+			        , erp_send_seq 
+			        , erp_send_date
+			        , create_seq
+			        , create_date
+			        , modify_seq
+			        , modify_date 
+			        )
+			VALUES (
+			        #compSeq#
+			        , #docSeq#
+			        , #formSeq#
+			        , #anbojoStatCode#
+			        , #gisuDate#
+			        , #writeSeq#
+			        , #jsonStr#
+			        , 'N'
+			        , null
+			        , null
+			        , #empSeq#
+			        , SYSDATE
+			        , #empSeq#
+			        , SYSDATE 
+			)
+		]]>
+		<selectKey keyProperty="anbojoSeq" resultClass="java.lang.String"><![CDATA[
+			SELECT  NVL(MAX(anbojo_seq), 0) AS "anbojoSeq"
+			FROM    $DB_NEOS$t_ex_anbojo
+			WHERE   comp_seq = #compSeq#
+			AND     create_seq = #empSeq#
+		]]></selectKey>
+	</insert>
+
+	<!-- /* 결의내역 등록 */ -->
+	<insert id="AnguUser.AbdocuI" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuI - oracle */
+		INSERT INTO $DB_NEOS$t_ex_anbojo_abdocu (
+			anbojo_seq, d_seq, erp_comp_seq, erp_comp_name, mosf_gisu_dt, 
+			mosf_pay_fg, erp_biz_seq, erp_biz_name, erp_dept_seq, erp_dept_name, 
+			erp_emp_seq, erp_emp_name, pruf_se_no, card_no, ctr_cd,
+			bsnsyear, ddtlbz_id, excut_prpos_cn, sbsacnt_trfrsn_cn, sbsacnt_trfrsn_code,
+			pruf_se_code, excut_requst_de, transfr_acnut_se_code,
+			insert_id, insert_dt, insert_ip, cntc_trget_sys_code, exc_instt_id, excut_cntc_id)
+		VALUES (
+			#anbojoSeq#, #dSeq#, #erpCompSeq#, #erpCompName#, #gisuDate#, 
+			#payFgCode#, #erpBizSeq#, #erpBizName#, #erpDeptSeq#, #erpDeptName#, 
+			#erpEmpSeq#, #erpEmpName#, #prufSeNo:VARCHAR#, #cardNo:VARCHAR#, #ctrCd:VARCHAR#,
+			#bsnsYear#, #ddtlbzCode#, #excutPrpos#, #sbsAcnttrfrSnDCn#, #sbsAcnttrfrSnDCode#,
+			#prufseCode#, #excuteRqust#, #transFracnutSeDCode#,
+			#erpEmpSeq#, SYSDATE, #ipAddress#, ' ', ' ', ' ' )
+	]]></insert>
+	
+	<!-- /* 증빙내역 등록 */ -->
+	<update id="AnguUser.AbdocuSubI" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuSubI - oracle */
+		UPDATE  $DB_NEOS$t_ex_anbojo_abdocu
+		SET     tr_cd = #trCode#
+		        , bcnc_lsft_no = #regNumber#
+		        , bcnc_cmpny_nm = #attrName#
+		        , bcnc_rprsntv_nm = #bcncrprsntv#
+		        , bcnc_adres = #bcncadres#
+		        , bcnc_telno = #bcnctelno#
+		        , bcnc_bank_code = #bcncseCode#
+		        , duzon_bank_code = #bankCode#
+		        , bcnc_bnkb_indict_cn = #bcncbnkbindict#
+		        , sbsidy_bnkb_indict_cn = #sbsidybankindict#
+		        , bcnc_acnut_no = #bcncacnut#
+		WHERE   anbojo_seq = #anbojoSeq#
+		AND     d_seq = #dSeq#
+	]]></update>
+	
+	<!-- /* 비목내역 등록 */ -->
+	<insert id="AnguUser.AbdocuBI" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuBI - oracle */
+		INSERT INTO $DB_NEOS$t_ex_anbojo_abdocu_b (
+		        anbojo_seq, d_seq, b_seq, erp_comp_seq, erp_comp_name
+		        , mosf_gisu_dt, asstn_taxitm_code
+		        , prdlst_nm, insert_id, insert_dt, insert_ip, cntc_trget_sys_code, excut_cntc_id )
+		VALUES (
+		        #anbojoSeq#, #dSeq#, #bSeq#, #erpCompSeq#, #erpCompName#
+		        , #gisuDate#, #asstnExpitmTaxitmCode#
+		        , #prdlst#, #erpCompSeq#, SYSDATE, #ipAddress#, ' ', ' ' )
+	]]></insert>
+	
+	<!-- /* 재원내역 등록 */ -->
+	<insert id="AnguUser.AbdocuTI" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuTI - oracle */
+		INSERT INTO $DB_NEOS$t_ex_anbojo_abdocu_t (
+		        anbojo_seq, d_seq, b_seq, t_seq, erp_comp_seq
+		        , erp_comp_name, mosf_gisu_dt, fnrsc_se_code, mgt_cd, abgt_cd
+		        , btr_cd, splpc, vat, sum_amount, insert_id
+		        , insert_dt, insert_ip, cntc_trget_sys_code, excut_cntc_id )
+		VALUES (
+		        #anbojoSeq#, #dSeq#, #bSeq#, #tSeq#, #erpCompSeq#
+		        , #erpCompName#, #gisuDate#, #fnrscseDCode#, #mgtCode#, #bgtCode#
+		        , #trCode#, #splpc#, #vat#, #amount#, #erpEmpSeq#
+		        , SYSDATE, #ipAddress#, ' ', ' ' )
+	]]></insert>
+
+	<!-- /* 재원내역 삭제 */ -->
+	<delete id="AnguUser.AbdocuPD"><![CDATA[
+		DELETE
+		FROM    $DB_NEOS$t_ex_anbojo_abdocu_pay
+		WHERE   anbojo_seq = #anbojoSeq#
+		AND     d_seq = #dSeq#
+		AND     b_seq = #bSeq#
+		AND     t_seq = #tSeq#
+	]]></delete>
+
+	<!-- /* 재원내역 등록 */ -->
+	<insert id="AnguUser.AbdocuPI">
+		/* AnguUser.AbdocuPI - oracle */
+		<selectKey keyProperty="pSeq" resultClass="java.lang.String"><![CDATA[
+			SELECT  NVL(MAX(p_seq), 0) + 1  AS "pSeq"
+			FROM    $DB_NEOS$t_ex_anbojo_abdocu_pay
+			WHERE   anbojo_seq = #anbojoSeq#
+			AND     d_seq = #dSeq#
+			AND     b_seq = #bSeq#
+			AND     t_seq = #tSeq#
+		]]></selectKey>
+		<![CDATA[
+			INSERT INTO $DB_NEOS$t_ex_anbojo_abdocu_pay (
+				anbojo_seq, d_seq, b_seq, t_seq, p_seq,
+				erp_comp_seq, bsnsyear, mosf_gisu_dt, intrfc_id, pay_fg,
+				etctr_cd, hnf_nm, hnf_lsft_no, prrt, partcptn_begin_de,
+				partcptn_end_de, pymnt_amount, etcrvrs_ym, etcdiv_cd, etcdummy1,
+				etcdummy2, ndep_am, inad_am, intx_am, rstx_am,
+				wd_am, et_yn, etcdata_cd, etcrate, ddtlbz_id, exc_instt_id, excut_cntc_id, excut_taxitm_cntc_id, hnf_regist_sn )
+			VALUES (
+				#anbojoSeq#, #dSeq#, #bSeq#, #tSeq#, #pSeq#,
+				#erpCompSeq#, #bsnsyear#, #mosfGisuDt#, #intrfcId#, #payFg#,
+				#etctrCd#, #hnfNm#, #hnfLsftNo#, #prrt#, #partcptnBeginDe#,
+				#partcptnEndDe#, #pymntAmount#, #etcrvrsYm#, #etcdivCd#, #etcdummy1#,
+				#etcdummy2#, #ndepAm#, #inadAm#, #intxAm#, #rstxAm#,
+				#wdAm#, #etYn#, #etcdataCd#, #etcrate#, ' ', ' ', ' ', ' ', ' ' )
+		]]>
+	</insert>
+
+	<!-- /* 국고보조 집행등록 상신 준비 오류 시 */ -->
+	<delete id="AnguUser.AbdocuException" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuException - oracle */
+		DELETE FROM $DB_NEOS$t_ex_anbojo_abdocu WHERE anbojo_seq = #anbojoSeq#
+	]]></delete>
+	<delete id="AnguUser.AbdocuBException" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuBException - oracle */
+		DELETE FROM $DB_NEOS$t_ex_anbojo_abdocu_b WHERE anbojo_seq = #anbojoSeq#
+	]]></delete>
+	<delete id="AnguUser.AbdocuTException" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuTException - oracle */
+		DELETE FROM $DB_NEOS$t_ex_anbojo_abdocu_t WHERE anbojo_seq = #anbojoSeq#
+	]]></delete>
+
+	<!-- /* 결의 + 증빙내역 조회 */ -->
+	<select id="AnguUser.AbdocuS" parameterClass="HashMap" resultClass="oracleLobMap"><![CDATA[
+		/* AnguUser.AbdocuS - oracle */
+		/* USP_ANGU300_H_D_INSERT */
+		SELECT  'KOR' AS "LANGKIND"
+		        , erp_comp_seq AS "CO_CD"
+		        , mosf_gisu_dt AS "MOSF_GISU_DT"
+		        , mosf_pay_fg AS "MOSF_PAY_FG"
+		        , erp_dept_seq AS "DEPT_CD"
+		        , erp_emp_seq AS "EMP_CD"
+		        , erp_biz_seq AS "DIV_CD"
+		        , 'IF-EXE-EFR-0074' AS "INTRFC_ID"
+		        , bsnsyear AS "BSNSYEAR"
+		        , ddtlbz_id AS "DDTLBZ_ID"
+		        , pruf_se_code AS "PRUF_SE_CODE"
+		        , card_no AS "CARD_NO"
+		        , ctr_cd AS "CTR_CD"
+		        , pruf_se_no AS "PRUF_SE_NO"
+		        , tax_ty AS "TAX_TY"
+		        , excut_requst_de AS "EXCUT_REQUST_DE"
+		        , transfr_acnut_se_code AS "TRANSFR_ACNUT_SE_CODE"
+		        , sbsacnt_trfrsn_code AS "SBSACNT_TRFRSN_CODE"
+		        , sbsacnt_trfrsn_cn AS "SBSACNT_TRFRSN_CN"
+		        , excut_prpos_cn AS "EXCUT_PRPOS_CN"
+		        , bcnc_se_code AS "BCNC_SE_CODE"
+		        , tr_cd AS "TR_CD"
+		        , bcnc_lsft_no AS "BCNC_LSFT_NO"
+		        , bcnc_cmpny_nm AS "BCNC_CMPNY_NM"
+		        , bcnc_rprsntv_nm AS "BCNC_RPRSNTV_NM"
+		        , bcnc_adres AS "BCNC_ADRES"
+		        , bcnc_telno AS "BCNC_TELNO"
+		        , duzon_bank_code AS "DUZON_BANK_CODE"
+		        , bcnc_acnut_no AS "BCNC_ACNUT_NO"
+		        , bcnc_bank_code AS "BCNC_BANK_CODE"
+		        , bcnc_bnkb_indict_cn AS "BCNC_BNKB_INDICT_CN"
+		        , sbsidy_bnkb_indict_cn AS "SBSIDY_BNKB_INDICT_CN"
+		        , insert_id AS "INSERT_ID"
+		        , insert_ip AS "INSERT_IP"
+		        , d_seq AS "dSeq"
+		FROM    $DB_NEOS$t_ex_anbojo_abdocu
+		WHERE   anbojo_seq = #anbojoSeq#
+		AND		(TRIM(mosf_gisu_sq) is null OR mosf_gisu_sq = '0')
+	]]></select>
+	
+	<!-- /* 비목내역 조회 */ -->
+	<select id="AnguUser.AbdocuBS" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuBS - oracle */
+		/* USP_ANGU300_B_INSERT */
+		SELECT  erp_comp_seq AS "CO_CD"
+		        , mosf_gisu_dt AS "MOSF_GISU_DT"
+		        , mosf_gisu_sq AS "MOSF_GISU_SQ"
+		        , 'IF-EXE-EFR-0074' AS "INTRFC_ID"
+		        , asstn_taxitm_code AS "ASSTN_TAXITM_CODE"
+		        , prdlst_nm AS "PRDLST_NM"
+		        , insert_id AS "INSERT_ID"
+		        , insert_ip AS "INSERT_IP"
+		        , d_seq AS "dSeq"
+		        , b_seq AS "bSeq"
+		FROM    $DB_NEOS$t_ex_anbojo_abdocu_b
+		WHERE   anbojo_seq = #anbojoSeq#
+		AND		mosf_bg_sq IS NULL
+	]]></select>
+	<!-- /* 재원내역 조회 */ -->
+	<select id="AnguUser.AbdocuTS" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuTS - oracle */
+		/* USP_ANGU300_T_INSERT */
+		SELECT  'KOR' AS "LANGKIND"
+		        , erp_comp_seq AS "CO_CD"
+		        , mosf_gisu_dt AS "MOSF_GISU_DT"
+		        , mosf_gisu_sq AS "MOSF_GISU_SQ"
+		        , mosf_bg_sq AS "MOSF_BG_SQ"
+		        , mosf_ln_sq AS "MOSF_LN_SQ"
+		        , intrfc_id AS "INTRFC_ID"
+		        , fnrsc_se_code AS "FNRSC_SE_CODE"
+		        , mgt_cd AS "MGT_CD"
+		        , bottom_cd AS "BOTTOM_CD"
+		        , abgt_cd AS "ABGT_CD"
+		        , btr_cd AS "BTR_CD"
+		        , splpc AS "SPLPC"
+		        , vat AS "VAT"
+		        , sum_amount AS "SUM_AMOUNT"
+		        , insert_id AS "INSERT_ID"
+		        , insert_ip AS "INSERT_IP"
+		        , d_seq AS "dSeq"
+		        , b_seq AS "bSeq"
+		        , t_seq AS "tSeq"
+		FROM    $DB_NEOS$t_ex_anbojo_abdocu_t t
+		WHERE   anbojo_seq = #anbojoSeq#
+		AND		mosf_ln_sq IS NULL
+	]]></select>
+	<!-- /* 인력정보 조회 */ -->
+	<select id="AnguUser.AbdocuPS" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuTS - oracle */
+		SELECT  'KOR' AS "LANGKIND"
+				, anbojo_seq AS "anbojoSeq"
+		        , d_seq AS "dSeq"
+		        , b_seq AS "bSeq"
+		        , t_seq AS "tSeq"
+		        , p_seq AS "pSeq"
+		        , erp_comp_seq AS "CO_CD"
+		        , mosf_gisu_dt AS "MOSF_GISU_DT"
+		        , mosf_gisu_sq AS "MOSF_GISU_SQ"
+		        , mosf_bg_sq AS "MOSF_BG_SQ"
+		        , mosf_ln_sq AS "MOSF_LN_SQ"
+		        , intrfc_id AS "INTRFC_ID"
+		        , hnf_regist_sn AS "HNF_REGIST_SN"
+		        , pay_fg AS "PAY_FG"
+		        , etctr_cd AS "ETCTR_CD"
+		        , hnf_nm AS "HNF_NM"
+		        , hnf_lsft_no AS "HNF_LSFT_NO"
+		        , prrt AS "PRRT"
+		        , partcptn_begin_de AS "PARTCPTN_BEGIN_DE"
+		        , partcptn_end_de AS "PARTCPTN_END_DE"
+		        , pymnt_amount AS "PYMNT_AMOUNT"
+		        , '' AS "PROCESS_RESULT_CODE"
+		        , '' AS "PROCESS_RESULT_MSSAGE"
+		        , etcrvrs_ym AS "ETCRVRS_YM"
+		        , etcdiv_cd AS "ETCDIV_CD"
+		        , etcdummy1 AS "ETCDUMMY1"
+		        , etcdummy2 AS "ETCDUMMY2"
+		        , ndep_am AS "NDEP_AM"
+		        , inad_am AS "INAD_AM"
+		        , intx_am AS "INTX_AM"
+		        , rstx_am AS "RSTX_AM"
+		        , wd_am AS "WD_AM"
+		        , '' AS "ETCPAY_DT"
+		        , et_yn AS "ET_YN"
+		        , etcdata_cd AS "ETCDATA_CD"
+		        , 0 AS "HIFE_AM"
+		        , 0 AS "NAPE_AM"
+		        , 0 AS "DDCT_AM"
+		        , 0 AS "NOIN_AM"
+		        , 0 AS "WD_AM2"
+		        , etcrate AS "ETCRATE"
+		        , '' AS "GW_STATE"
+		        , '' AS "GW_ID"
+		        , '' AS "INSERT_ID"
+		        , '' AS "INSERT_IP"
+		FROM    $DB_NEOS$t_ex_anbojo_abdocu_pay
+		WHERE   anbojo_seq = #anbojoSeq#
+	]]></select>
+
+	<!-- /* GISU_SQ 업데이트 - ABDOCU */ -->
+	<update id="AnguUser.AbdocuGisuSqU" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuGisuSqU - oracle */
+		UPDATE  $DB_NEOS$t_ex_anbojo_abdocu
+		SET     mosf_gisu_sq = #MOSF_GISU_SQ#
+		WHERE   anbojo_seq = #anbojoSeq#
+		AND     d_seq = #dSeq#
+	]]></update>
+	<!-- /* GISU_SQ 업데이트 - ABDOCU_B */ -->
+	<update id="AnguUser.AbdocuTGisuSqU" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuTGisuSqU - oracle */
+		UPDATE  $DB_NEOS$t_ex_anbojo_abdocu_b
+		SET     mosf_gisu_sq = #MOSF_GISU_SQ#
+		WHERE   anbojo_seq = #anbojoSeq#
+		AND     d_seq = #dSeq#
+	]]></update>
+	<!-- /* GISU_SQ 업데이트 - ABDOCU_T */ -->
+	<update id="AnguUser.AbdocuBGisuSqU" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuBGisuSqU - oracle */
+		UPDATE  $DB_NEOS$t_ex_anbojo_abdocu_t
+		SET     mosf_gisu_sq = #MOSF_GISU_SQ#
+		WHERE   anbojo_seq = #anbojoSeq#
+		AND     d_seq = #dSeq#
+	]]></update>
+	<!-- /* GISU_SQ 업데이트 - ABDOCU_PAY */ -->
+	<update id="AnguUser.AbdocuPGisuSqU" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuBGisuSqU - oracle */
+		UPDATE  $DB_NEOS$t_ex_anbojo_abdocu_pay
+		SET     mosf_gisu_sq = #MOSF_GISU_SQ#
+		WHERE   anbojo_seq = #anbojoSeq#
+		AND     d_seq = #dSeq#
+	]]></update>
+	<!-- /* GISU_SQ 업데이트 - ABDOCU_B */ -->
+	<update id="AnguUser.AbdocuTBgSqU" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuTBgSqU - oracle */
+		UPDATE  $DB_NEOS$t_ex_anbojo_abdocu_b
+		SET     mosf_bg_sq = #MOSF_BG_SQ#
+		WHERE   anbojo_seq = #anbojoSeq#
+		AND     d_seq = #dSeq#
+		AND     b_seq = #bSeq#
+	]]></update>
+	<!-- /* GISU_SQ 업데이트 - ABDOCU_T */ -->
+	<update id="AnguUser.AbdocuBBgSqU" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuBBgSqU - oracle */
+		UPDATE  $DB_NEOS$t_ex_anbojo_abdocu_t
+		SET     mosf_bg_sq = #MOSF_BG_SQ#
+		WHERE   anbojo_seq = #anbojoSeq#
+		AND     d_seq = #dSeq#
+		AND     b_seq = #bSeq#
+	]]></update>
+	<!-- /* GISU_SQ 업데이트 - ABDOCU_PAY */ -->
+	<update id="AnguUser.AbdocuPBgSqU" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuBBgSqU - oracle */
+		UPDATE  $DB_NEOS$t_ex_anbojo_abdocu_pay
+		SET     mosf_bg_sq = #MOSF_BG_SQ#
+		WHERE   anbojo_seq = #anbojoSeq#
+		AND     d_seq = #dSeq#
+		AND     b_seq = #bSeq#
+	]]></update>
+
+	<!-- /* GISU_SQ 업데이트 - ABDOCU_T */ -->
+	<update id="AnguUser.AbdocuBInSqU" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuBInSqU - oracle */
+		UPDATE  $DB_NEOS$t_ex_anbojo_abdocu_t
+		SET     mosf_ln_sq = #MOSF_LN_SQ#
+		WHERE   anbojo_seq = #anbojoSeq#
+		AND     d_seq = #dSeq#
+		AND     b_seq = #bSeq#
+		AND     t_seq = #tSeq#
+	]]></update>
+
+	<!-- /* GISU_SQ 업데이트 - ABDOCU_PAY */ -->
+	<update id="AnguUser.AbdocuPInSqU" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuBInSqU - oracle */
+		UPDATE  $DB_NEOS$t_ex_anbojo_abdocu_pay
+		SET     mosf_ln_sq = #MOSF_LN_SQ#
+		WHERE   anbojo_seq = #anbojoSeq#
+		AND     d_seq = #dSeq#
+		AND     b_seq = #bSeq#
+		AND     t_seq = #tSeq#
+	]]></update>
+	<!-- /* HNF_REGIST_SN 업데이트 - ABDOCU_PAY */ -->
+	<update id="AnguUser.AbdocuPRegistSnU" parameterClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuBInSqU - oracle */
+		UPDATE  $DB_NEOS$t_ex_anbojo_abdocu_pay
+		SET     hnf_regist_sn = #HNF_REGIST_SN#
+		WHERE   anbojo_seq = #anbojoSeq#
+		AND     d_seq = #dSeq#
+		AND     b_seq = #bSeq#
+		AND     t_seq = #tSeq#
+		AND     p_seq = #pSeq#
+	]]></update>
+
+	<select id="AnguUser.AbdocuSyncInfoS" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* AnguUser.AbdocuSyncInfoS - oracle */
+		SELECT  erp_comp_seq AS "CO_CD"
+				, mosf_gisu_dt AS "MOSF_GISU_DT"
+		        , mosf_gisu_sq AS "MOSF_GISU_SQ"
+		        , 'GW' AS "EXTER_FG"
+		        , #gwState# AS "GW_STATE"
+		FROM    $DB_NEOS$t_ex_anbojo_abdocu
+		WHERE   anbojo_seq = #anbojoSeq#
+	]]></select>
+
+	<delete id="AnguUser.AbdocuApprovalDel" parameterClass="HashMap">
+			/* AnguUser.AbdocuApprovalDel - oracle */
+			DELETE FROM $DB_NEOS$t_ex_anbojo_abdocu_t WHERE anbojo_seq = #anbojoSeq#
+			DELETE FROM $DB_NEOS$t_ex_anbojo_abdocu_b WHERE anbojo_seq = #anbojoSeq#
+			DELETE FROM $DB_NEOS$t_ex_anbojo_abdocu WHERE anbojo_seq = #anbojoSeq#
+	</delete>
+</sqlMap>

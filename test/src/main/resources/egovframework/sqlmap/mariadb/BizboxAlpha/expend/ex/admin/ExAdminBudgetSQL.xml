@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="ExAdminBudgetA">
+	<!-- 예산확인 - 예산기본금액 조회 -->
+	<select id="ExAdminBudgetA.ExAdminExpendBudgetCheckListInfoSelect" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* mariadb - ExAdminBudgetA.ExAdminExpendBudgetCheckListInfoSelect - 자체예산 예산확인 */
+		SELECT  budget.budget_name
+		        , budget.unit_name
+		        , budget.unit_code
+		        , budget.org_seq
+		        , budget.org_year
+		        , budget.acct_name
+		        , budget.acct_code
+		        , budget.control_gb
+		        , budget.unit_gb
+		        , amt.jan_org_amt	
+		        , amt.feb_org_amt	
+		        , amt.mar_org_amt	
+		        , amt.apr_org_amt	
+		        , amt.may_org_amt	
+		        , amt.jun_org_amt	
+		        , amt.jul_org_amt	
+		        , amt.aug_org_amt	
+		        , amt.sep_org_amt	
+		        , amt.oct_org_amt	
+		        , amt.nov_org_amt	
+		        , amt.dec_org_amt	
+		        , amt.jan_adj_amt	
+		        , amt.feb_adj_amt	
+		        , amt.mar_adj_amt	
+		        , amt.apr_adj_amt	
+		        , amt.may_adj_amt	
+		        , amt.jun_adj_amt	
+		        , amt.jul_adj_amt	
+		        , amt.aug_adj_amt	
+		        , amt.sep_adj_amt	
+		        , amt.oct_adj_amt	
+		        , amt.nov_adj_amt	
+		        , amt.dec_adj_amt	
+		        , amt.jan_shift_amt	
+		        , amt.feb_shift_amt	
+		        , amt.mar_shift_amt	
+		        , amt.apr_shift_amt	
+		        , amt.may_shift_amt	
+		        , amt.jun_shift_amt	
+		        , amt.jul_shift_amt	
+		        , amt.aug_shift_amt	
+		        , amt.sep_shift_amt	
+		        , amt.oct_shift_amt	
+		        , amt.nov_shift_amt	
+		        , amt.dec_shift_amt
+		FROM    (
+		                SELECT  org.budget_name
+		                        , org.unit_name
+		                        , org.unit_code
+		                        , org.org_seq
+		                        , org.org_year
+		                        , org.unit_gb
+		                        , acct.acct_name
+		                        , acct.acct_code
+		                        , acct.control_gb
+		                FROM    (
+		                                SELECT  org_year
+		                                        , unit_name
+		                                        , unit_code
+		                                        , budget_name
+		                                        , org_seq 
+		                                        , unit_gb
+		                                FROM    $DB_NEOS$t_ex_budget_org
+		                                WHERE   use_yn = 'Y'
+		                                AND     org_yn ='Y'
+		                                AND     org_seq = '$org_seq$'
+		                        ) org INNER JOIN (
+		                                SELECT  acct_name
+		                                        , acct_code
+		                                        , control_gb
+		                                        , org_seq
+		                                FROM 	$DB_NEOS$t_ex_budget_acct
+		                                WHERE 	acct_code = '$acct_code$'
+		                        ) acct ON org.org_seq = acct.org_seq
+		        ) budget INNER JOIN(
+		                SELECT  org_seq	
+		                        , acct_code
+		                        , jan_org_amt
+		                        , feb_org_amt
+		                        , mar_org_amt
+		                        , apr_org_amt
+		                        , may_org_amt
+		                        , jun_org_amt
+		                        , jul_org_amt
+		                        , aug_org_amt
+		                        , sep_org_amt
+		                        , oct_org_amt
+		                        , nov_org_amt
+		                        , dec_org_amt
+		                        , jan_adj_amt
+		                        , feb_adj_amt
+		                        , mar_adj_amt
+		                        , apr_adj_amt
+		                        , may_adj_amt
+		                        , jun_adj_amt
+		                        , jul_adj_amt
+		                        , aug_adj_amt
+		                        , sep_adj_amt
+		                        , oct_adj_amt
+		                        , nov_adj_amt
+		                        , dec_adj_amt
+		                        , jan_shift_amt
+		                        , feb_shift_amt
+		                        , mar_shift_amt
+		                        , apr_shift_amt
+		                        , may_shift_amt
+		                        , jun_shift_amt
+		                        , jul_shift_amt
+		                        , aug_shift_amt
+		                        , sep_shift_amt
+		                        , oct_shift_amt
+		                        , nov_shift_amt
+		                        , dec_shift_amt
+		                FROM 	$DB_NEOS$t_ex_budget_amt
+		                WHERE 	acct_code = '$acct_code$'
+		        ) amt ON budget.org_seq = amt.org_seq
+	]]></select>
+
+	<!-- 예산확인 - 예산사용금액 조회 -->
+	<select id="ExAdminBudgetA.ExAdminExpendUseAmtInfoSelect" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* mariadb - ExAdminBudgetA.ExAdminExpendUseAmtInfoSelect - 자체예산 예산확인 */
+		SELECT  SUM(total_amt) AS use_amt
+		        , acct_code
+		FROM    $DB_NEOS$t_ex_budget_use
+		WHERE   budget_ym IN ('$budget_ym$')
+		AND     org_seq = '$org_seq$'  AND acct_code = '$acct_code$'
+	]]></select>
+
+	<select id="ExAdminBudget.SelectOrgUnitList" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* mariadb - ExAdminBudgetA.ExAdminExpendUseAmtInfoSelect - 자체예산 예산확인 */
+		SELECT  comp_seq AS unit_code
+		        , comp_name AS unit_name
+		        , comp_seq AS comp_seq
+		        , 'C' AS unit_gbn
+		FROM    $DB_NEOS$t_co_comp_multi
+		WHERE   use_yn = 'Y'
+		
+		UNION
+		
+		SELECT  biz.biz_seq AS unit_code
+		        , CASE
+		                WHEN (SELECT COUNT(comp_seq) FROM $DB_NEOS$t_co_comp WHERE use_yn = 'Y') > 1 THEN CONCAT(CONCAT(CONCAT(biz.biz_name,'('),comp.comp_name),')')
+		                ELSE biz.biz_name
+		        END AS unit_name
+		        , biz.comp_seq AS comp_seq
+		        , 'B' AS unit_gbn
+		FROM    $DB_NEOS$t_co_biz_multi biz
+		        INNER JOIN $DB_NEOS$t_co_comp_multi comp ON biz.comp_seq = comp.comp_seq
+		WHERE   biz.use_yn = 'Y'
+		AND     biz.comp_seq IN (3000)
+		
+		UNION
+		
+		SELECT  dept.dept_seq
+		        , CASE
+		                WHEN (SELECT COUNT(comp_seq) FROM $DB_NEOS$t_co_comp WHERE use_yn = 'Y') > 1 THEN CONCAT(CONCAT(CONCAT(dept.dept_name,'('),comp.comp_name),')')
+		                ELSE dept.dept_name
+		        END AS dept_name
+		        , dept.comp_seq AS comp_seq
+		        , 'D' AS unit_gbn
+		FROM    $DB_NEOS$t_co_dept_multi dept
+		        INNER JOIN $DB_NEOS$t_co_comp_multi comp ON dept.comp_seq = comp.comp_seq
+		WHERE   dept.use_yn = 'Y'
+		AND     comp.use_yn = 'Y'
+		AND     dept.comp_seq IN (3000)
+	]]></select>
+
+	<select id="ExAdminBudget.SelectOrgtListSearch" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* mariadb - ExAdminBudget.SelectOrgtListSearch */
+		SELECT  org_seq
+		        , unit_code
+		        , org_year
+		        , unit_name
+		        , unit_gb
+		        , org_yn
+		        , use_yn
+		        , budget_name
+		        , CASE
+		                WHEN org_yn = 'Y' THEN '완료'
+		                ELSE    CASE
+		                                WHEN doc_id = 0 THEN '저장'
+		                                ELSE '진행중'
+		                        END
+		        END AS doc_sts
+		FROM    $DB_NEOS$t_ex_budget_org
+		WHERE   unit_code LIKE '%$unit_code$%'
+		AND     unit_gb LIKE '%$unit_gb$%'
+		AND     budget_name LIKE '%$budget_name$%'
+		AND     org_year LIKE '%$org_year$%'
+	]]></select>
+
+	<select id="ExAdminBudget.SelectOrgInfoList" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* mariadb - ExAdminBudget.SelectOrgInfoList */
+		SELECT  acct.org_seq
+		        , acct.acct_code
+		        , acct.acct_name
+		        , CASE
+		                WHEN acct.control_gb = 'Y' THEN '년'
+		                WHEN acct.control_gb = 'H' THEN '반기'
+		                WHEN acct.control_gb = 'Q' THEN '분기'
+		                WHEN acct.control_gb = 'M' THEN '월'
+		                WHEN acct.control_gb = 'N' THEN '미통제'
+		                ELSE ''
+		        END AS control_gb
+		        , jan_org_amt
+		        , feb_org_amt
+		        , mar_org_amt
+		        , apr_org_amt
+		        , may_org_amt
+		        , jun_org_amt
+		        , jul_org_amt
+		        , aug_org_amt
+		        , sep_org_amt
+		        , oct_org_amt
+		        , nov_org_amt
+		        , dec_org_amt
+		FROM    $DB_NEOS$t_ex_budget_acct acct
+		        INNER JOIN $DB_NEOS$t_ex_budget_amt amt ON acct.org_seq = amt.org_seq 
+		AND     acct.acct_code = amt.acct_code
+		WHERE   acct.org_seq = '$org_seq$'
+	]]></select>
+
+	<insert id="ExAdminBudget.InserOrgBaseInfo" parameterClass="HashMap"><![CDATA[
+		/* mariadb - ExAdminBudget.SelectOrgInfoList */
+		INSERT INTO $DB_NEOS$t_ex_budget_org
+			( doc_id, comp_seq, unit_code, org_year, unit_name, unit_gb, org_yn, use_yn, cre_id, crd_date, mod_id, mod_date, budget_name )
+		VALUES
+			( '0', '$comp_seq$', '$unit_code$', '$org_year$', '$unit_name$', '$unit_gbn$', 'N', '$use_yn$', '$cre_id$', NOW(), '$mod_id$', NOW(), '$budget_name$' )
+	]]></insert>
+
+	<select id="ExAdminBudget.ChkBudgetAmt" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* mariadb - ExAdminBudget.ChkBudgetAmt */
+		SELECT  org.org_seq
+		        , org.org_year
+		        , org.unit_code
+		        , org.unit_name
+		        , org.unit_gb
+		        , org.budget_name
+		        , acct.acct_code
+		        , acct.acct_name
+		        , acct.control_gb
+		        , amt.jan_org_amt	, amt.feb_org_amt	, amt.mar_org_amt
+		        , amt.apr_org_amt	, amt.may_org_amt	, amt.jun_org_amt
+		        , amt.jul_org_amt	, amt.aug_org_amt	, amt.sep_org_amt
+		        , amt.oct_org_amt	, amt.nov_org_amt	, amt.dec_org_amt
+		        , amt.jan_adj_amt	, amt.feb_adj_amt	, amt.mar_adj_amt
+		        , amt.apr_adj_amt	, amt.may_adj_amt	, amt.jun_adj_amt
+		        , amt.jul_adj_amt	, amt.aug_adj_amt	, amt.sep_adj_amt
+		        , amt.oct_adj_amt	, amt.nov_adj_amt	, amt.dec_adj_amt
+		        , amt.jan_shift_amt	, amt.feb_shift_amt	, amt.mar_shift_amt
+		        , amt.apr_shift_amt	, amt.may_shift_amt	, amt.jun_shift_amt
+		        , amt.jul_shift_amt	, amt.aug_shift_amt	, amt.sep_shift_amt
+		        , amt.oct_shift_amt	, amt.nov_shift_amt	, amt.dec_shift_amt
+		        , amt.jan_rec_amt	, amt.feb_rec_amt	, amt.mar_rec_amt
+		        , amt.apr_rec_amt	, amt.may_rec_amt	, amt.jun_rec_amt
+		        , amt.jul_rec_amt	, amt.aug_rec_amt	, amt.sep_rec_amt
+		        , amt.oct_rec_amt	, amt.nov_rec_amt	, amt.dec_rec_amt
+		FROM	$DB_NEOS$t_ex_budget_org org INNER JOIN (
+		                SELECT	org_seq 
+		                        , acct_code
+		                        , acct_name
+		                        , control_gb		
+		                FROM	$DB_NEOS$t_ex_budget_acct
+		                WHERE	org_seq = '$org_seq$'
+		                AND     acct_code = '$acct_code$'
+		        ) acct ON org.org_seq = acct.org_seq INNER JOIN (
+		                SELECT	org_seq
+		                        , acct_code
+		                        , jan_org_amt, feb_org_amt, mar_org_amt, apr_org_amt, may_org_amt, jun_org_amt, jul_org_amt, aug_org_amt, sep_org_amt, oct_org_amt, nov_org_amt, dec_org_amt
+		                        , jan_adj_amt, feb_adj_amt, mar_adj_amt, apr_adj_amt, may_adj_amt, jun_adj_amt, jul_adj_amt, aug_adj_amt, sep_adj_amt, oct_adj_amt, nov_adj_amt, dec_adj_amt
+		                        , jan_shift_amt, feb_shift_amt, mar_shift_amt, apr_shift_amt, may_shift_amt, jun_shift_amt, jul_shift_amt, aug_shift_amt, sep_shift_amt, oct_shift_amt, nov_shift_amt, dec_shift_amt
+		                        , jan_rec_amt, feb_rec_amt, mar_rec_amt, apr_rec_amt, may_rec_amt, jun_rec_amt, jul_rec_amt, aug_rec_amt, sep_rec_amt, oct_rec_amt, nov_rec_amt, dec_rec_amt
+		                        , cre_id
+		                        , cre_date
+		                        , mod_id
+		                        , mod_date
+		                FROM	$DB_NEOS$t_ex_budget_amt
+		                WHERE	org_seq = '$org_seq$'
+		                AND     acct_code = '$acct_code$'
+		        ) amt ON org.org_seq = amt.org_seq AND acct.acct_code = amt.acct_code
+		WHERE	org.org_seq = '$org_seq$'
+		AND     org.unit_code = '$unit_code$'
+		AND     org.org_year = '$org_year$'
+		AND     org.org_yn = 'Y'
+		AND     org.use_yn = 'Y'
+	]]></select>
+</sqlMap>

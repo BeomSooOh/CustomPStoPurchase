@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN" "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/expend/np/user/NpUserOptionSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/expend/np/user/NpUserCodeSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/expend/np/user/NpUserConsSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/expend/np/user/NpUserResSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/expend/np/user/NpUserBudgetSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/expend/np/user/NpUserReportSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/expend/np/admin/NpAdminOptionSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/expend/np/admin/NpAdminReportSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/expend/np/admin/NpAdminConfigSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/oracle/BizboxAlpha/expend/np/user/NpUserOutInterfaceSQL.xml" />
+</sqlMapConfig>

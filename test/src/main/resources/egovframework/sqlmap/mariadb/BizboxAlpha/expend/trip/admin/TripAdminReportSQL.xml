@@ -1,0 +1,667 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="TripAdminReportA">
+	<select id="TripAdminReportA.selectTripconsReport" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserResSQL.xml - "TripAdminReportA.selectTripconsReport" */
+		/* 출장 품의 문서 현황 정보 조회 */
+		SELECT	*
+		FROM	(
+			SELECT	
+				doc.trip_cons_doc_seq		AS tripConsDocSeq
+				, doc.doc_seq			AS docSeq
+				, doc.doc_status		AS docStatus
+				, IFNULL(eaDoc.c_dititle, eapDoc.doc_title) AS docTitle
+				, doc.doc_no			AS docNo
+				, DATE_FORMAT(doc.appro_date, '%Y-%m-%d')		AS approDate
+				, doc.comp_seq			AS compSeq
+				, doc.comp_name			AS compName
+				, doc.dept_seq			AS deptSeq
+				, doc.dept_name			AS deptName
+				, doc.emp_seq			AS empSeq
+				, doc.emp_name			AS empName
+				, attend.attend_seq		AS attendSeq
+				, attend.domestic_code 		AS domesticCode
+				, (
+					CASE	attend.domestic_code 
+						WHEN '0' THEN 	'국내' 
+						ELSE 		'해외' 
+					END
+				)				AS domesticName
+				, attend.trip_from_date		AS fromDate
+				, attend.trip_from_date			AS fromTime
+				, attend.trip_to_date 		AS toDate
+				, attend.trip_to_date 			AS toTime
+				, CONCAT( 	attend.trip_from_date
+						, '~',  
+						attend.trip_to_date 
+				)				AS tripDate
+				, attend.location_seq		AS locationSeq
+				, attend.location_name		AS locationName
+				, attend.location_adv		AS locationAdv
+				, attend.trip_expense_code	AS tripExpenseCode
+				, (
+					CASE	attend.trip_expense_code 
+						WHEN '0' THEN 	'대상' 
+						ELSE 		'비대상' 
+					END
+				)				AS tripExpenseName
+				, traveler.traveler
+				, CASE travelerCnt WHEN '0' THEN traveler.traveler ELSE  CONCAT( traveler.traveler, ' 외 ', travelerCnt, '명') END travelerText
+				, expense.amt			AS totalAmt
+				, member			AS member
+				, IFNULL(res.conffer_count, 0)	AS confferCount
+			FROM	$DB_NEOS$t_exnp_trip_cons_doc doc
+			INNER JOIN $DB_NEOS$t_exnp_trip_cons_attend attend
+			ON	doc.trip_cons_doc_seq = attend.trip_cons_doc_seq
+			LEFT JOIN	$DB_NEOS$a_docinfo eaDoc
+			ON	eaDoc.c_dikeycode = doc.doc_seq
+			LEFT JOIN	$DB_NEOS$teag_appdoc eapDoc
+			ON	eapDoc.doc_id = doc.doc_seq
+			INNER JOIN 	(
+				SELECT	base.trip_cons_doc_seq
+					, adv.traveler
+					, base.travelerCnt
+					, base.member
+				FROM	(
+					SELECT	trip_cons_doc_seq, emp_name , COUNT(trip_cons_doc_seq) - 1 AS travelerCnt, GROUP_CONCAT(emp_name ) AS member
+					FROM	$DB_NEOS$t_exnp_trip_cons_traveler
+					GROUP BY trip_cons_doc_seq				
+				)	base
+				INNER JOIN	(
+					SELECT	trip_cons_doc_seq, emp_name AS traveler
+					FROM	$DB_NEOS$t_exnp_trip_cons_traveler
+					WHERE	emp_name LIKE '%$triper$%'
+					GROUP	BY trip_cons_doc_seq
+				)	adv
+				ON	base.trip_cons_doc_seq = adv.trip_cons_doc_seq
+			)	traveler
+			ON	traveler.trip_cons_doc_seq = doc.trip_cons_doc_seq
+			INNER JOIN	(
+				SELECT	SUM(expense_amt)	AS amt
+					, trip_cons_doc_seq	AS trip_cons_doc_seq
+				FROM 	$DB_NEOS$t_exnp_trip_cons_expense
+				GROUP	BY trip_cons_doc_seq
+			)	expense
+			ON	expense.trip_cons_doc_seq = doc.trip_cons_doc_seq		
+			LEFT JOIN	( 
+				SELECT	
+					r.conffer_doc_seq
+					, COUNT(r.conffer_doc_seq)	AS conffer_count
+					, c.trip_cons_doc_seq
+				FROM	$DB_NEOS$t_exnp_trip_cons_budget	c
+				INNER JOIN	$DB_NEOS$t_exnp_resdoc	r
+				ON	c.cons_doc_seq = r.conffer_doc_seq
+				WHERE	IFNULL(r.doc_status, '008') IN ('001', '002', '003', '004', '006', '008', '009')
+				 AND	r.doc_seq IS NOT NULL
+				GROUP BY conffer_doc_seq
+			)	res
+			ON	doc.trip_cons_doc_seq = res.trip_cons_doc_seq			
+			WHERE	doc.comp_seq = #compSeq#	
+		)	T
+		WHERE	docNo 		LIKE '%$docNo$%'
+		 AND	locationName	LIKE '%$location$%'
+		 AND	deptName	LIKE '%$deptName$%'
+		 AND	empName		LIKE '%$aprUserName$%'
+		 AND	domesticCode 	= (CASE '$domesticCode$' WHEN '' THEN domesticCode ELSE '$domesticCode$' END)
+		 AND	tripExpenseCode = (CASE '$payRequest$' WHEN '' THEN tripExpenseCode ELSE '$payRequest$' END)
+		 AND	IFNULL(docStatus, '008') = (CASE '$docStatus$' WHEN '' THEN docStatus WHEN '0' THEN docStatus ELSE '$docStatus$' END)
+		 AND	IFNULL(docStatus, '008') != 'd'
+		 AND	docTitle	LIKE '%$searchStr$%'
+		 AND	( 
+				(
+					toDate BETWEEN 
+					(CASE '$fromDate$' WHEN '' THEN fromDate ELSE '$fromDate$' END) 
+					AND
+					(CASE '$toDate$' WHEN '' THEN toDate ELSE '$toDate$' END) 
+				) 
+				OR (	fromDate BETWEEN 
+					(CASE '$fromDate$' WHEN '' THEN fromDate ELSE '$fromDate$' END) 
+					AND 
+					(CASE '$toDate$' WHEN '' THEN toDate ELSE '$toDate$' END) 
+				)
+			)
+		AND	LEFT(approDate, 10) BETWEEN '$approvalFromDate$' AND '$approvalToDate$'		
+		ORDER BY LEFT(approDate, 10) DESC, docNo DESC  
+	</select>
+	
+	<select id="TripAdminReportA.selectTripResReport" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserResSQL.xml - "TripAdminReportA.selectTripResReport" */
+		/* 출장 결의 문서 현황 정보 조회 */
+		SELECT	*
+		FROM	(
+			SELECT	
+				doc.trip_res_doc_seq		AS tripResDocSeq
+				, doc.doc_seq			AS docSeq
+				, doc.doc_status		AS docStatus
+				, IFNULL(eaDoc.c_dititle, eapDoc.doc_title) AS docTitle
+				, doc.doc_no			AS docNo
+				, DATE_FORMAT(doc.appro_date, '%Y-%m-%d')		AS approDate
+				, doc.comp_seq			AS compSeq
+				, doc.comp_name			AS compName
+				, doc.dept_seq			AS deptSeq
+				, doc.dept_name			AS deptName
+				, doc.emp_seq			AS empSeq
+				, doc.emp_name			AS empName
+				, attend.attend_seq		AS attendSeq
+				, attend.domestic_code 		AS domesticCode
+				, (
+					CASE	attend.domestic_code 
+						WHEN '0' THEN 	'국내' 
+						ELSE 		'해외' 
+					END
+				)				AS domesticName
+				, attend.trip_from_date		AS fromDate
+				, attend.trip_from_date			AS fromTime
+				, attend.trip_to_date 		AS toDate
+				, attend.trip_to_date 			AS toTime
+				, CONCAT( 	attend.trip_from_date
+						, '~',  
+						attend.trip_to_date 
+				)				AS tripDate
+				, attend.location_seq		AS locationSeq
+				, attend.location_name		AS locationName
+				, attend.location_adv		AS locationAdv
+				, attend.trip_expense_code	AS tripExpenseCode
+				, (
+					CASE	attend.trip_expense_code 
+						WHEN '0' THEN 	'대상' 
+						ELSE 		'비대상' 
+					END
+				)				AS tripExpenseName
+				, traveler.traveler
+				, CASE travelerCnt WHEN '0' THEN traveler.traveler ELSE  CONCAT( traveler.traveler, ' 외 ', travelerCnt, '명') END travelerText
+				, expense.amt			AS totalAmt
+				, member			AS member
+				, IFNULL(res.erp_send_yn, 'N')	AS erpSendYN
+				, CASE IFNULL(doc.conffer_trip_doc_seq, 'N') WHEN 'N' THEN 'N' ELSE  'Y' END confferYN
+			FROM	$DB_NEOS$t_exnp_trip_res_doc doc
+			INNER JOIN $DB_NEOS$t_exnp_trip_res_attend attend
+			ON	doc.trip_res_doc_seq = attend.trip_res_doc_seq
+			LEFT JOIN	$DB_NEOS$a_docinfo eaDoc
+			ON	eaDoc.c_dikeycode = doc.doc_seq
+			LEFT JOIN	$DB_NEOS$teag_appdoc eapDoc
+			ON	eapDoc.doc_id = doc.doc_seq
+			INNER JOIN 	(
+				SELECT	base.trip_res_doc_seq
+					, adv.traveler
+					, base.travelerCnt
+					, base.member
+				FROM	(
+					SELECT	trip_res_doc_seq, emp_name , COUNT(trip_res_doc_seq) - 1 AS travelerCnt, GROUP_CONCAT(emp_name ) AS member
+					FROM	$DB_NEOS$t_exnp_trip_res_traveler
+					GROUP BY trip_res_doc_seq				
+				)	base
+				INNER JOIN	(
+					SELECT	trip_res_doc_seq, emp_name AS traveler
+					FROM	$DB_NEOS$t_exnp_trip_res_traveler
+					WHERE	emp_name LIKE '%$triper$%'
+					GROUP	BY trip_res_doc_seq
+				)	adv
+				ON	base.trip_res_doc_seq = adv.trip_res_doc_seq
+			)	traveler
+			ON	traveler.trip_res_doc_seq = doc.trip_res_doc_seq
+			INNER JOIN	(
+				SELECT	SUM(expense_amt)	AS amt
+					, trip_res_doc_seq	AS trip_res_doc_seq
+				FROM 	$DB_NEOS$t_exnp_trip_res_expense
+				GROUP	BY trip_res_doc_seq
+			)	expense
+			ON	expense.trip_res_doc_seq = doc.trip_res_doc_seq		
+			LEFT	JOIN	(
+				SELECT	
+					d.erp_send_yn
+					, b.trip_res_doc_seq
+				FROM	$DB_NEOS$t_exnp_trip_res_budget b
+				INNER JOIN	$DB_NEOS$t_exnp_resdoc	d
+				ON	b.res_doc_seq = d.res_doc_seq
+			)	res
+			ON	res.trip_res_doc_seq = doc.trip_res_doc_seq			
+			WHERE	doc.comp_seq = #compSeq#	
+		)	T
+		WHERE	docNo 		LIKE '%$docNo$%'
+		 AND	locationName	LIKE '%$location$%'
+		 AND	deptName	LIKE '%$deptName$%'
+		 AND	empName		LIKE '%$aprUserName$%'
+		 AND	domesticCode 	= (CASE '$domesticCode$' WHEN '' THEN domesticCode ELSE '$domesticCode$' END)
+		 AND	tripExpenseCode = (CASE '$payRequest$' WHEN '' THEN tripExpenseCode ELSE '$payRequest$' END)
+		 AND	IFNULL(docStatus, '008') = (CASE '$docStatus$' WHEN '' THEN docStatus WHEN '0' THEN docStatus ELSE '$docStatus$' END)
+		 AND	IFNULL(docStatus, '008') != 'd'
+		 AND	docTitle	LIKE '%$searchStr$%'
+		 AND	( 
+				(
+					toDate BETWEEN 
+					(CASE '$fromDate$' WHEN '' THEN fromDate ELSE '$fromDate$' END) 
+					AND
+					(CASE '$toDate$' WHEN '' THEN toDate ELSE '$toDate$' END) 
+				) 
+				OR (	fromDate BETWEEN 
+					(CASE '$fromDate$' WHEN '' THEN fromDate ELSE '$fromDate$' END) 
+					AND 
+					(CASE '$toDate$' WHEN '' THEN toDate ELSE '$toDate$' END) 
+				)
+			)
+		AND	LEFT(approDate, 10) BETWEEN '$approvalFromDate$' AND '$approvalToDate$'		
+		ORDER BY LEFT(approDate, 10) DESC, docNo DESC  
+	</select>
+
+	<select id="TripAdminReportA.selectTripResReportForBudget" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserResSQL.xml - "TripAdminReportA.selectTripResReportForBudget" */
+		/* 출장 결의 문서 현황 정보 조회 (예산과목별 엑셀저장)*/
+		SELECT	*
+		FROM	(
+			SELECT	
+				doc.trip_res_doc_seq		AS tripResDocSeq
+				, doc.doc_seq			AS docSeq
+				, doc.doc_status		AS docStatus
+				, IFNULL(eaDoc.c_dititle, eapDoc.doc_title) AS docTitle
+				, doc.doc_no			AS docNo
+				, DATE_FORMAT(doc.appro_date, '%Y-%m-%d')		AS approDate
+				, doc.comp_seq			AS compSeq
+				, doc.comp_name			AS compName
+				, doc.dept_seq			AS deptSeq
+				, doc.dept_name			AS deptName
+				, doc.emp_seq			AS empSeq
+				, doc.emp_name			AS empName
+				, attend.attend_seq		AS attendSeq
+				, attend.domestic_code 		AS domesticCode
+				, (
+					CASE	attend.domestic_code 
+						WHEN '0' THEN 	'국내' 
+						ELSE 		'해외' 
+					END
+				)				AS domesticName
+				, attend.trip_from_date		AS fromDate
+				, attend.trip_from_date			AS fromTime
+				, attend.trip_to_date 		AS toDate
+				, attend.trip_to_date 			AS toTime
+				, CONCAT( 	attend.trip_from_date
+						, '~',  
+						attend.trip_to_date 
+				)				AS tripDate
+				, attend.location_seq		AS locationSeq
+				, attend.location_name		AS locationName
+				, attend.location_adv		AS locationAdv
+				, attend.transport_name		AS transportName
+				, attend.purpose		AS purpose					
+				, attend.trip_expense_code	AS tripExpenseCode
+				, (
+					CASE	attend.trip_expense_code 
+						WHEN '0' THEN 	'대상' 
+						ELSE 		'비대상' 
+					END
+				)				AS tripExpenseName
+				, traveler.traveler
+				, CASE travelerCnt WHEN '0' THEN traveler.traveler ELSE  CONCAT( traveler.traveler, ' 외 ', travelerCnt, '명') END travelerText
+				, expense.amt			AS totalAmt
+				, expense1.amt1			AS amtClass1Amt
+				, expense2.amt2			AS amtClass2Amt
+				, expense3.amt3			AS amtClass3Amt
+				, expense4.amt4			AS amtClass4Amt
+				, expense5.amt5			AS amtClass5Amt
+				, expense6.amt6			AS amtClass6Amt
+				, budget.erp_bgt1_name          AS bgtName1
+				, budget.erp_bgt2_name          AS bgtName2
+				, budget.erp_bgt3_name          AS bgtName3
+				, budget.erp_bgt4_name          AS bgtName4
+				, IFNULL(budget.budgetCnt, "1") AS budgetCnt				
+				, member			AS member
+				, IFNULL(res.erp_send_yn, 'N')	AS erpSendYN				
+				, CASE IFNULL(doc.conffer_trip_doc_seq, 'N') WHEN 'N' THEN 'N' ELSE  'Y' END confferYN
+			FROM	$DB_NEOS$t_exnp_trip_res_doc doc
+			INNER JOIN $DB_NEOS$t_exnp_trip_res_attend attend
+			ON	doc.trip_res_doc_seq = attend.trip_res_doc_seq
+			LEFT JOIN	$DB_NEOS$a_docinfo eaDoc
+			ON	eaDoc.c_dikeycode = doc.doc_seq
+			LEFT JOIN	$DB_NEOS$teag_appdoc eapDoc
+			ON	eapDoc.doc_id = doc.doc_seq
+			LEFT JOIN	$DB_NEOS$t_exnp_trip_res_budget bg1
+			ON	doc.trip_res_doc_seq = bg1.trip_res_doc_seq				
+			INNER JOIN 	(
+				SELECT	base.trip_res_doc_seq
+					, adv.traveler
+					, base.travelerCnt
+					, base.member
+				FROM	(
+					SELECT	trip_res_doc_seq, emp_name , COUNT(trip_res_doc_seq) - 1 AS travelerCnt, GROUP_CONCAT(emp_name ) AS member
+					FROM	$DB_NEOS$t_exnp_trip_res_traveler
+					GROUP BY trip_res_doc_seq				
+				)	base
+				INNER JOIN	(
+					SELECT	trip_res_doc_seq, emp_name AS traveler
+					FROM	$DB_NEOS$t_exnp_trip_res_traveler
+					WHERE	emp_name LIKE '%$triper$%'
+					GROUP	BY trip_res_doc_seq
+				)	adv
+				ON	base.trip_res_doc_seq = adv.trip_res_doc_seq
+			)	traveler
+			ON	traveler.trip_res_doc_seq = doc.trip_res_doc_seq
+			INNER JOIN	(
+				SELECT	SUM(expense_amt)	AS amt
+					, trip_res_doc_seq	AS trip_res_doc_seq
+				FROM 	$DB_NEOS$t_exnp_trip_res_expense
+				GROUP	BY trip_res_doc_seq
+			)	expense
+			ON	expense.trip_res_doc_seq = doc.trip_res_doc_seq
+			INNER JOIN	(
+				SELECT	SUM(expense_amt)	AS amt1
+					, trip_res_doc_seq	AS trip_res_doc_seq
+				FROM 	$DB_NEOS$t_exnp_trip_res_expense
+				WHERE amt_class_code = '1'
+				GROUP	BY trip_res_doc_seq
+			)	expense1
+			ON	expense1.trip_res_doc_seq = doc.trip_res_doc_seq				
+			INNER JOIN	(
+				SELECT	SUM(expense_amt)	AS amt2
+					, trip_res_doc_seq	AS trip_res_doc_seq
+				FROM 	$DB_NEOS$t_exnp_trip_res_expense
+				WHERE amt_class_code = '2'
+				GROUP	BY trip_res_doc_seq
+			)	expense2
+			ON	expense2.trip_res_doc_seq = doc.trip_res_doc_seq	
+			INNER JOIN	(
+				SELECT	SUM(expense_amt)	AS amt3
+					, trip_res_doc_seq	AS trip_res_doc_seq
+				FROM 	$DB_NEOS$t_exnp_trip_res_expense
+				WHERE amt_class_code = '3'
+				GROUP	BY trip_res_doc_seq
+			)	expense3
+			ON	expense3.trip_res_doc_seq = doc.trip_res_doc_seq	
+			INNER JOIN	(
+				SELECT	SUM(expense_amt)	AS amt4
+					, trip_res_doc_seq	AS trip_res_doc_seq
+				FROM 	$DB_NEOS$t_exnp_trip_res_expense
+				WHERE amt_class_code = '4'
+				GROUP	BY trip_res_doc_seq
+			)	expense4
+			ON	expense4.trip_res_doc_seq = doc.trip_res_doc_seq	
+			INNER JOIN	(
+				SELECT	SUM(expense_amt)	AS amt5
+					, trip_res_doc_seq	AS trip_res_doc_seq
+				FROM 	$DB_NEOS$t_exnp_trip_res_expense
+				WHERE amt_class_code = '5'
+				GROUP	BY trip_res_doc_seq
+			)	expense5
+			ON	expense5.trip_res_doc_seq = doc.trip_res_doc_seq	
+			INNER JOIN	(
+				SELECT	SUM(expense_amt)	AS amt6
+					, trip_res_doc_seq	AS trip_res_doc_seq
+				FROM 	$DB_NEOS$t_exnp_trip_res_expense
+				WHERE amt_class_code = '6'
+				GROUP	BY trip_res_doc_seq
+			)	expense6
+			ON	expense6.trip_res_doc_seq = doc.trip_res_doc_seq
+			LEFT JOIN (
+				SELECT	  
+					  adv1.erp_bgt1_name
+					, adv1.erp_bgt2_name
+					, adv1.erp_bgt3_name
+					, adv1.erp_bgt4_name
+					, base1.budgetCnt
+					, base1.res_doc_seq
+				FROM	(
+					SELECT	res_doc_seq,  COUNT(res_doc_seq)  AS budgetCnt
+					FROM	$DB_NEOS$t_exnp_resbudget budget
+					GROUP BY res_doc_seq				
+				)	base1
+				INNER JOIN	(
+					SELECT	res_doc_seq, erp_bgt1_name, erp_bgt2_name, erp_bgt3_name, erp_bgt4_name
+					FROM	$DB_NEOS$t_exnp_resbudget budget
+				)	adv1
+				ON	base1.res_doc_seq = adv1.res_doc_seq
+			) budget
+			ON	bg1.res_doc_seq = budget.res_doc_seq								
+			LEFT	JOIN	(
+				SELECT	
+					DISTINCT d.erp_send_yn
+					, b.trip_res_doc_seq
+				FROM	$DB_NEOS$t_exnp_trip_res_budget b
+				INNER JOIN	$DB_NEOS$t_exnp_resdoc	d
+				ON	b.res_doc_seq = d.res_doc_seq
+			)	res
+			ON	res.trip_res_doc_seq = doc.trip_res_doc_seq			
+			WHERE	doc.comp_seq = #compSeq#	
+		)	T
+		WHERE	docNo 		LIKE '%$docNo$%'
+		 AND	locationName	LIKE '%$location$%'
+		 AND	deptName	LIKE '%$deptName$%'
+		 AND	empName		LIKE '%$aprUserName$%'
+		 AND	domesticCode 	= (CASE '$domesticCode$' WHEN '' THEN domesticCode ELSE '$domesticCode$' END)
+		 AND	tripExpenseCode = (CASE '$payRequest$' WHEN '' THEN tripExpenseCode ELSE '$payRequest$' END)
+		 AND	IFNULL(docStatus, '008') = (CASE '$docStatus$' WHEN '' THEN docStatus WHEN '0' THEN docStatus ELSE '$docStatus$' END)
+		 AND	IFNULL(docStatus, '008') != 'd'
+		 AND	docTitle	LIKE '%$searchStr$%'
+		 AND	( 
+				(
+					toDate BETWEEN 
+					(CASE '$fromDate$' WHEN '' THEN fromDate ELSE '$fromDate$' END) 
+					AND
+					(CASE '$toDate$' WHEN '' THEN toDate ELSE '$toDate$' END) 
+				) 
+				OR (	fromDate BETWEEN 
+					(CASE '$fromDate$' WHEN '' THEN fromDate ELSE '$fromDate$' END) 
+					AND 
+					(CASE '$toDate$' WHEN '' THEN toDate ELSE '$toDate$' END) 
+				)
+			)
+		AND	LEFT(approDate, 10) BETWEEN '$approvalFromDate$' AND '$approvalToDate$'		
+		ORDER BY LEFT(approDate, 10) DESC, docNo DESC  
+	</select>
+
+	<select id="TripAdminReportA.selectTripResReportForUser" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserResSQL.xml - "TripAdminReportA.selectTripResReportForUser" */
+		/* 출장 결의 문서 현황 정보 조회 (사용자별 엑셀저장) */
+		SELECT	*
+		FROM	(
+			SELECT
+				doc.trip_res_doc_seq		AS tripResDocSeq
+				, doc.doc_seq			AS docSeq
+				, doc.doc_status		AS docStatus
+				, IFNULL(eaDoc.c_dititle, eapDoc.doc_title) AS docTitle
+				, doc.doc_no			AS docNo
+				, DATE_FORMAT(doc.appro_date, '%Y-%m-%d')		AS approDate
+				, doc.comp_seq			AS compSeq
+				, doc.comp_name			AS compName
+				, doc.dept_seq			AS deptSeq
+				, doc.dept_name			AS deptName
+				, doc.emp_seq			AS empSeq
+				, doc.emp_name			AS empName
+				, attend.attend_seq		AS attendSeq
+				, attend.domestic_code 		AS domesticCode
+				, (
+					CASE	attend.domestic_code 
+						WHEN '0' THEN 	'국내' 
+						ELSE 		'해외' 
+					END
+				)				AS domesticName
+				, attend.trip_from_date		AS fromDate
+				, attend.trip_from_date			AS fromTime
+				, attend.trip_to_date 		AS toDate
+				, attend.trip_to_date 			AS toTime
+				, CONCAT( 	attend.trip_from_date
+						, '~',  
+						attend.trip_to_date 
+				)				AS tripDate
+				, attend.location_seq		AS locationSeq
+				, attend.location_name		AS locationName
+				, attend.location_adv		AS locationAdv
+				, attend.transport_name		AS transportName
+				, attend.purpose		AS purpose				
+				, attend.trip_expense_code	AS tripExpenseCode
+				, (
+					CASE	attend.trip_expense_code 
+						WHEN '0' THEN 	'대상' 
+						ELSE 		'비대상' 
+					END
+				)				AS tripExpenseName
+				, traveler.traveler
+				, CASE travelerCnt WHEN '0' THEN traveler.traveler ELSE  useramt.emp_name END travelerText
+				, expense.amt			AS totalAmt
+				, useramt.amt1			AS amtClass1Amt
+				, useramt.amt2			AS amtClass2Amt
+				, useramt.amt3			AS amtClass3Amt
+				, useramt.amt4			AS amtClass4Amt
+				, useramt.amt5			AS amtClass5Amt
+				, useramt.amt6			AS amtClass6Amt
+				, traveler.travelerCnt + 1		AS userCnt
+				, CASE budget.bgtcnt WHEN '1' THEN budget.erp_bgt1_name ELSE  CONCAT( budget.erp_bgt1_name,' 외 ', budget.bgtcnt-1, '건' ) END bgtName1
+				, CASE budget.bgtcnt WHEN '1' THEN budget.erp_bgt2_name ELSE  CONCAT( budget.erp_bgt2_name,' 외 ', budget.bgtcnt-1, '건' ) END bgtName2
+				, CASE budget.bgtcnt WHEN '1' THEN budget.erp_bgt3_name ELSE  CONCAT( budget.erp_bgt3_name,' 외 ', budget.bgtcnt-1, '건' ) END bgtName3
+				, CASE budget.bgtcnt WHEN '1' THEN budget.erp_bgt4_name ELSE  CONCAT( budget.erp_bgt4_name,' 외 ', budget.bgtcnt-1, '건' ) END bgtName4	
+				, member			AS member
+				, IFNULL(res.erp_send_yn, 'N')	AS erpSendYN
+				, CASE IFNULL(doc.conffer_trip_doc_seq, 'N') WHEN 'N' THEN 'N' ELSE  'Y' END confferYN
+			FROM	$DB_NEOS$t_exnp_trip_res_doc doc
+			INNER JOIN $DB_NEOS$t_exnp_trip_res_attend attend
+			ON	doc.trip_res_doc_seq = attend.trip_res_doc_seq
+			LEFT JOIN	$DB_NEOS$a_docinfo eaDoc
+			ON	eaDoc.c_dikeycode = doc.doc_seq
+			LEFT JOIN	$DB_NEOS$teag_appdoc eapDoc
+			ON	eapDoc.doc_id = doc.doc_seq
+			LEFT JOIN	$DB_NEOS$t_exnp_trip_res_budget bg1
+			ON	doc.trip_res_doc_seq = bg1.trip_res_doc_seq			
+			INNER JOIN 	(
+				SELECT	base.trip_res_doc_seq
+					, adv.traveler
+					, base.travelerCnt
+					, base.member
+				FROM	(
+					SELECT	trip_res_doc_seq, emp_name , COUNT(trip_res_doc_seq) - 1 AS travelerCnt, GROUP_CONCAT(emp_name ) AS member
+					FROM	$DB_NEOS$t_exnp_trip_res_traveler
+					GROUP BY trip_res_doc_seq				
+				)	base
+				INNER JOIN	(
+					SELECT	trip_res_doc_seq, emp_name AS traveler
+					FROM	$DB_NEOS$t_exnp_trip_res_traveler
+					WHERE	emp_name LIKE '%$triper$%'
+					GROUP	BY trip_res_doc_seq
+				)	adv
+				ON	base.trip_res_doc_seq = adv.trip_res_doc_seq
+			)	traveler
+			ON	traveler.trip_res_doc_seq = doc.trip_res_doc_seq
+			INNER JOIN	(
+				SELECT	SUM(expense_amt)	AS amt
+					, trip_res_doc_seq	AS trip_res_doc_seq
+				FROM 	$DB_NEOS$t_exnp_trip_res_expense
+				GROUP	BY trip_res_doc_seq
+			)	expense
+			ON	expense.trip_res_doc_seq = doc.trip_res_doc_seq
+			INNER JOIN (
+				SELECT
+                aa.trip_res_doc_seq
+                ,aa.emp_seq
+                ,aa.emp_name
+                ,MAX(IF(expense.amt_class_code=1,expense_amt,0)) AS amt1
+			    ,MAX(IF(expense.amt_class_code=2,expense_amt,0)) AS amt2
+			    ,MAX(IF(expense.amt_class_code=3,expense_amt,0)) AS amt3
+			    ,MAX(IF(expense.amt_class_code=4,expense_amt,0)) AS amt4
+			    ,MAX(IF(expense.amt_class_code=5,expense_amt,0)) AS amt5
+			    ,MAX(IF(expense.amt_class_code=6,expense_amt,0)) AS amt6
+                  FROM (
+                        SELECT trip_res_doc_seq, emp_seq, emp_name
+                        FROM $DB_NEOS$t_exnp_trip_res_expense
+                        GROUP BY trip_res_doc_seq, emp_seq
+                  ) aa
+                INNER JOIN
+                $DB_NEOS$t_exnp_trip_res_expense expense
+                ON aa.trip_res_doc_seq = expense.trip_res_doc_seq
+                AND aa.emp_seq = expense.emp_seq
+			GROUP BY aa.trip_res_doc_seq, aa.emp_seq
+			) useramt
+			ON useramt.trip_res_doc_seq = doc.trip_res_doc_seq																																
+			LEFT JOIN 
+			(
+				SELECT	
+				  erp_bgt1_name
+				, erp_bgt2_name
+				, erp_bgt3_name
+				, erp_bgt4_name
+				, res_doc_seq
+				, COUNT( res_doc_seq ) AS bgtcnt
+				FROM 	$DB_NEOS$t_exnp_resbudget 
+				GROUP	BY res_doc_seq
+			)	budget			
+			ON	bg1.res_doc_seq = budget.res_doc_seq						
+			LEFT	JOIN	(
+				SELECT	
+					DISTINCT d.erp_send_yn
+					, b.trip_res_doc_seq
+				FROM	$DB_NEOS$t_exnp_trip_res_budget b
+				INNER JOIN	$DB_NEOS$t_exnp_resdoc	d
+				ON	b.res_doc_seq = d.res_doc_seq
+			)	res
+			ON	res.trip_res_doc_seq = doc.trip_res_doc_seq			
+			WHERE	doc.comp_seq = #compSeq#	
+		)	T
+		WHERE	docNo 		LIKE '%$docNo$%'
+		 AND	locationName	LIKE '%$location$%'
+		 AND	deptName	LIKE '%$deptName$%'
+		 AND	empName		LIKE '%$aprUserName$%'
+		 AND	domesticCode 	= (CASE '$domesticCode$' WHEN '' THEN domesticCode ELSE '$domesticCode$' END)
+		 AND	tripExpenseCode = (CASE '$payRequest$' WHEN '' THEN tripExpenseCode ELSE '$payRequest$' END)
+		 AND	IFNULL(docStatus, '008') = (CASE '$docStatus$' WHEN '' THEN docStatus WHEN '0' THEN docStatus ELSE '$docStatus$' END)
+		 AND	IFNULL(docStatus, '008') != 'd'
+		 AND	docTitle	LIKE '%$searchStr$%'
+		 AND	( 
+				(
+					toDate BETWEEN 
+					(CASE '$fromDate$' WHEN '' THEN fromDate ELSE '$fromDate$' END) 
+					AND
+					(CASE '$toDate$' WHEN '' THEN toDate ELSE '$toDate$' END) 
+				) 
+				OR (	fromDate BETWEEN 
+					(CASE '$fromDate$' WHEN '' THEN fromDate ELSE '$fromDate$' END) 
+					AND 
+					(CASE '$toDate$' WHEN '' THEN toDate ELSE '$toDate$' END) 
+				)
+			)
+		AND	LEFT(approDate, 10) BETWEEN '$approvalFromDate$' AND '$approvalToDate$'		
+		ORDER BY LEFT(approDate, 10) DESC, docNo DESC  
+	</select>
+	
+	<update id="TripAdminReportA.deleteTripConsDoc" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserResSQL.xml - "TripAdminReportA.deleteTripConsDoc" */
+		/* 관리자] 출장품의 문서 삭제처리 */
+		UPDATE			$DB_NEOS$t_exnp_trip_cons_doc	td
+			LEFT JOIN	$DB_NEOS$t_exnp_trip_cons_budget	tb
+			 ON		td.trip_cons_doc_seq = tb.trip_cons_doc_seq
+			LEFT JOIN	$DB_NEOS$t_exnp_consdoc		d
+			 ON		tb.cons_doc_seq =  	d.cons_doc_seq
+			LEFT JOIN	$DB_NEOS$a_draftinfo	di
+			 ON		di.c_dikeycode = td.doc_seq		
+			LEFT JOIN	$DB_NEOS$a_recordinfo	ri
+			 ON		di.c_dikeycode = ri.c_dikeycode
+			LEFT JOIN	$DB_NEOS$erpgwlink	li
+			 ON		di.c_dikeycode = li.appr_dikey			 	 		
+		SET	d.doc_status = 'd'
+			, td.doc_status = 'd'
+			, di.c_distatus = 'd'
+			, ri.c_rideleteopt = 'd'
+			, li.appr_status = 'd'
+		WHERE	td.trip_cons_doc_seq IN $tripConsDocSeqs$		
+	</update>
+	
+	<update id="TripAdminReportA.deleteTripResDoc" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserResSQL.xml - "TripAdminReportA.deleteTripResDoc" */
+		/* 관리자] 출장결의 문서 삭제처리 */
+		UPDATE			$DB_NEOS$t_exnp_trip_res_doc	td
+			LEFT JOIN	$DB_NEOS$t_exnp_trip_res_budget	tb
+			 ON		td.trip_res_doc_seq = tb.trip_res_doc_seq
+			LEFT JOIN	$DB_NEOS$t_exnp_resdoc		d
+			 ON		tb.res_doc_seq =  	d.res_doc_seq
+			LEFT JOIN	$DB_NEOS$a_draftinfo	di
+			 ON		di.c_dikeycode = td.doc_seq		
+			LEFT JOIN	$DB_NEOS$a_recordinfo	ri
+			 ON		di.c_dikeycode = ri.c_dikeycode
+			LEFT JOIN	$DB_NEOS$erpgwlink	li
+			 ON		di.c_dikeycode = li.appr_dikey				 	 		
+		SET	d.doc_status = 'd'
+			, td.doc_status = 'd'
+			, di.c_distatus = 'd'
+			, ri.c_rideleteopt = 'd'
+			, li.appr_status = 'd'
+		WHERE	td.trip_res_doc_seq IN $tripResDocSeqs$
+	</update>
+	
+</sqlMap>

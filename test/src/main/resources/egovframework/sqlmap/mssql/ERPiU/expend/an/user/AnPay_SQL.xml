@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ERPiU 인건비성 -->
+<mapper namespace="AnPay">
+	<!-- 급여소득자 조회 -->
+	<select id="AnPay.AnCodeEmpTrListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnPay.AnCodeEmpTrListInfoSelect */
+	]]></select>
+
+	<!-- 급여데이터 조회 -->
+	<select id="AnPay.AnCodeEmpTrPayListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnPay.AnCodeEmpTrPayListInfoSelect */
+	]]></select>
+
+	<!-- 기타소득자 조회 -->
+	<select id="AnPay.AnCodeEtcTrListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnPay.AnCodeEtcTrListInfoSelect */
+	]]></select>
+
+	<!-- 기타소득데이터 조회 -->
+	<select id="AnPay.AnCodeEtcTrPayListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnPay.AnCodeEtcTrPayListInfoSelect */
+	]]></select>
+
+	<!-- 사업소득자 조회 -->
+	<select id="AnPay.AnCodeCompTrListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnPay.AnCodeCompTrListInfoSelect */
+	]]></select>
+
+	<!-- 사업소득데이터 조회 -->
+	<select id="AnPay.AnCodeCompTrPayListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnPay.AnCodeCompTrPayListInfoSelect */
+	]]></select>
+</mapper>

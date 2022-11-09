@@ -1,0 +1,9 @@
+이전문서
+frmPop.action = _g_contextPath+"/neos/edoc/document/mig/MigDocLocalFileDownload.do" ;
+비전자문서
+frmPop.action = _g_contextPath+"/edoc/eapproval/workflow/nonElecDocLocalFileDownload.do" ;
+배포용
+frmPop.action = _g_contextPath+"/edoc/eapproval/workflow/distributionFileDownload.do" ;
+
+비배포용
+frmPop.action = _g_contextPath+"/edoc/eapproval/workflow/DocLocalFileDownload.do" ;

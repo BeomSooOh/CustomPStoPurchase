@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="SummaryManage">
+
+    <typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    <typeAlias  alias="SummaryVO" type="neos.cmm.expense.summary.vo.SummaryVO"/>
+    
+
+    <select id="SummaryManage.getSummaryList" parameterClass="java.util.HashMap" resultClass="SummaryVO">
+        SELECT * FROM 
+        (SELECT 
+           ts.summary_seq,
+           ts.comp_seq,
+           ts.summary_cd,
+           ts.summary_nm,
+           ts.summary_div,
+           ts.dr_acct_cd,
+           ts.dr_acct_nm,
+           ts.cr_acct_cd,
+           ts.cr_acct_nm,
+           ts.vat_acct_cd,
+           ts.vat_acct_nm,
+           ts.tr_cd,
+           ts.tr_nm,
+           public_org_id,
+           public_org_div,
+           public_org_nm
+        FROM TEXG_SUMMARY ts
+        LEFT JOIN (SELECT summary_seq
+                                , GROUP_CONCAT(ORG_ID) public_org_id
+                                , GROUP_CONCAT(ORG_DIV) public_org_div
+                                , GROUP_CONCAT(ORG_NM) public_org_nm 
+                        FROM TEXG_SUMMARY_PUBLIC
+                      GROUP BY summary_seq) tsp
+        ON tsp.summary_seq  = ts.summary_seq
+        WHERE 1  = 1
+        <isNotEmpty property="comp_seq">
+        AND ts.comp_seq  = #comp_seq# 
+        </isNotEmpty>
+        <isNotEmpty property="summary_div">
+        AND ts.summary_div  = #summary_div# 
+        </isNotEmpty>    
+        <isNotEmpty property="searchType">
+           <isEqual property="searchType" compareValue="summary_nm">
+              AND ts.summary_nm like  CONCAT('%', #searchKeyword#, '%') 
+           </isEqual>
+           <isEqual property="searchType" compareValue="summary_cd">
+              AND ts.summary_cd like  CONCAT('%', #searchKeyword#, '%') 
+           </isEqual>
+           <isEqual property="searchType" compareValue="dr_acct_nm">
+              AND ts.dr_acct_nm  like  CONCAT('%', #searchKeyword#, '%') 
+           </isEqual>           
+           <isEqual property="searchType" compareValue="cr_acct_nm">
+              AND ts.cr_acct_nm  like  CONCAT('%', #searchKeyword#, '%') 
+           </isEqual>               
+        </isNotEmpty>                    
+        ORDER BY ts.summary_cd
+        ) W, ( SELECT @RNUM := 0 ) R LIMIT #startNum# , #endNum#
+    </select>
+    
+    <select id="SummaryManage.getSummaryList_TOTALCOUNT" parameterClass="java.util.HashMap" resultClass="int">
+        SELECT 
+           COUNT(*) totalCnt
+        FROM TEXG_SUMMARY ts
+        LEFT JOIN (SELECT summary_seq
+                                , GROUP_CONCAT(ORG_ID) public_org_id
+                                , GROUP_CONCAT(ORG_DIV) public_org_div
+                                , GROUP_CONCAT(ORG_NM) public_org_nm 
+                        FROM TEXG_SUMMARY_PUBLIC
+                      GROUP BY summary_seq) tsp
+        ON tsp.summary_seq  = ts.summary_seq
+        WHERE 1  = 1
+        <isNotEmpty property="comp_seq">
+        AND ts.comp_seq  = #comp_seq# 
+        </isNotEmpty>
+        <isNotEmpty property="summary_div">
+        AND ts.summary_div  = #summary_div# 
+        </isNotEmpty>    
+        <isNotEmpty property="searchType">
+           <isEqual property="searchType" compareValue="summary_nm">
+              AND ts.summary_nm like  CONCAT('%', #searchKeyword#, '%') 
+           </isEqual>
+           <isEqual property="searchType" compareValue="summary_cd">
+              AND ts.summary_cd like  CONCAT('%', #searchKeyword#, '%') 
+           </isEqual>
+           <isEqual property="searchType" compareValue="dr_acct_nm">
+              AND ts.dr_acct_nm  like  CONCAT('%', #searchKeyword#, '%') 
+           </isEqual>           
+           <isEqual property="searchType" compareValue="cr_acct_nm">
+              AND ts.cr_acct_nm  like  CONCAT('%', #searchKeyword#, '%') 
+           </isEqual>               
+        </isNotEmpty>                    
+        ORDER BY ts.summary_cd
+    </select>    
+    
+    <insert id="SummaryManage.setSummaryInfo" parameterClass="SummaryVO" >
+            INSERT INTO TEXG_SUMMARY 
+            SET summary_seq  = #summary_seq# ,
+                  comp_seq      = #comp_seq#,
+                  summary_cd   =#summary_cd#,
+                  summary_nm  = #summary_nm#,
+                  summary_div  = #summary_div#,
+                  dr_acct_cd      = #dr_acct_cd#,
+                  dr_acct_nm     = #dr_acct_nm#,
+                  cr_acct_cd      = #cr_acct_cd#,
+                  cr_acct_nm     = #cr_acct_nm#,
+                  vat_acct_cd     = #vat_acct_cd#,
+                  vat_acct_nm    = #vat_acct_nm#,
+                  tr_cd             = #tr_cd#, 
+                  tr_nm            = #tr_nm#,
+                  create_seq     =  #user_seq#,
+                  create_dt       =  SYSDATE()
+            ON DUPLICATE KEY UPDATE
+                  summary_nm  = #summary_nm#,
+                  summary_div  = #summary_div#,
+                  dr_acct_cd      = #dr_acct_cd#,
+                  dr_acct_nm     = #dr_acct_nm#,
+                  cr_acct_cd      = #cr_acct_cd#,
+                  cr_acct_nm     = #cr_acct_nm#,
+                  vat_acct_cd     = #vat_acct_cd#,
+                  vat_acct_nm    = #vat_acct_nm#,
+                  tr_cd             = #tr_cd#, 
+                  tr_nm            = #tr_nm#,            
+                  modify_seq = #user_seq#,
+                  modify_dt = SYSDATE()    
+    </insert>
+    
+    <delete id="SummaryManage.delSummaryInfo" parameterClass="SummaryVO" >
+       DELETE FROM TEXG_SUMMARY
+       WHERE comp_seq = #comp_seq#
+       AND summary_seq = #summary_seq#
+    </delete>    
+
+    <select id="SummaryManage.getCompList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"> 
+        <![CDATA[
+       SELECT cm.comp_seq, cm.comp_name 
+       FROM  t_co_comp  c , t_co_comp_multi cm
+       WHERE c.group_seq = cm.group_seq
+       AND   c.comp_seq = cm.comp_seq
+       AND   c.use_yn = 'Y'
+       AND   cm.use_yn = 'Y'
+       AND   lang_code = #langCode#
+        ]]>
+    </select>
+    
+    <delete id="SummaryManage.delSummaryPublic" parameterClass="SummaryVO" >
+       DELETE FROM TEXG_SUMMARY_PUBLIC
+       WHERE comp_seq = #comp_seq#
+       AND summary_seq = #summary_seq#
+    </delete>        
+    
+    <insert id="SummaryManage.setSummaryPublic" parameterClass="java.util.HashMap" >
+       INSERT INTO TEXG_SUMMARY_PUBLIC 
+       (  summary_seq
+         , comp_seq
+         , summary_cd
+         , org_div
+         , org_id
+         , org_nm
+         , create_seq
+         , create_dt
+       )VALUES
+       (  #summary_seq#
+         , #comp_seq#
+         , #summary_cd#
+         , #org_div#
+         , #org_id#
+         , #org_nm#
+         , #user_seq#
+         , SYSDATE()
+       )
+       
+    </insert>     
+</sqlMap>

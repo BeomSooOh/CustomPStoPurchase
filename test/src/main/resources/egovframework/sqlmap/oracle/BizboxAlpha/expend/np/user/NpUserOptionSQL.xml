@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="NpUserOptionA">
+
+	<!-- 비영리 회계 - 옵션 셋 조회 -->
+	<select id="NpUserOptionA.NpGwCommonOptionSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserOptionASQL.xml - NpUserOptionA.NpGwCommonOptionSelect */
+		/* 비영리 회계모듈 공통 옵션 조회 */
+		SELECT	
+			comp_seq				AS 'compSeq'		
+			, form_seq				AS 'formSeq'
+			, option_gbn			AS 'optionGbn'
+			, option_code			AS 'optionCode'
+			, use_sw				AS 'useSw'
+			, order_num				AS 'orderNum'
+			, common_code			AS 'commonCode'
+			, base_value			AS 'baseValue'
+			, base_name				AS 'baseName'
+			, base_emp_value		AS 'baseEmpValue'
+			, set_value				AS 'setValue'
+			, set_name				AS 'setName'
+			, set_emp_value			AS 'setEmpValue'
+			, option_select_type	AS 'optionSelectType'
+			, option_process_type	AS 'optionProcessType'
+			, use_yn		AS 'useYN'
+			, ( SELECT	COUNT(*) FROM	$DB_NEOS$t_exnp_option WHERE	comp_seq = #compSeq# AND	form_seq = #formSeq# AND	use_sw = #useSw# )
+			= 
+			( SELECT	COUNT(*) FROM	$DB_NEOS$t_exnp_option WHERE	form_seq = '0' AND	use_sw = #useSw# )	AS 'optionMatch'
+		FROM	$DB_NEOS$t_exnp_option 
+		<isNotEmpty property="formSeq">
+		WHERE	comp_seq = #compSeq#
+		 AND	form_seq = #formSeq#
+		</isNotEmpty>
+		<isEmpty property="formSeq">
+		 <isEqual property="useSw" compareValue ="iCUBE">
+		  WHERE	comp_seq = 'NP_OPTION_G20' 
+		 </isEqual>
+		 <isEqual property="useSw" compareValue ="ERPiU">
+		  WHERE	comp_seq = 'NP_OPTION_U'
+		 </isEqual>
+		 AND	form_seq = '0'
+		</isEmpty>
+		 AND	use_sw = #useSw#
+	</select>
+
+
+	<!-- 비영리 회계 - 옵션 셋 복사 -->
+	<insert id="NpUserOptionA.NpGwCommonOptionInsert" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserOptionASQL.xml - NpUserOptionA.NpGwCommonOptionInsert */
+		/* 비영리 회계모듈 공통 옵션 복사 */
+		INSERT INTO $DB_NEOS$t_exnp_option (
+				comp_seq, form_seq, note, option_gbn, option_code, use_sw, order_num, common_code
+				, base_value, base_name, base_emp_value, set_value, set_name, set_emp_value
+				, option_select_type, option_process_type, use_yn
+		)
+		SELECT	
+			#compSeq#
+			, #formSeq#
+			, o.note
+			, o.option_gbn
+			, o.option_code
+			, o.use_sw
+			, o.order_num
+			, o.common_code
+			, o.base_value
+			, o.base_name
+			, o.base_emp_value
+			, o.set_value
+			, o.set_name
+			, o.set_emp_value
+			, o.option_select_type
+			, o.option_process_type
+			, o.use_yn
+		FROM	(
+			SELECT	* 
+			FROM	$DB_NEOS$t_exnp_option o
+			<isEqual property="useSw" compareValue ="iCUBE"> 
+			  WHERE	comp_seq = 'NP_OPTION_G20'
+			</isEqual>
+			<isEqual property="useSw" compareValue ="ERPiU"> 
+			  WHERE	comp_seq = 'NP_OPTION_U'
+			</isEqual>
+			 AND	form_seq	= '0'
+			 AND	use_sw		= #useSw#
+			 <isEqual property="formDTp" compareValue="CON">
+			 AND	option_gbn = '1'
+			 </isEqual>
+			 <isEqual property="formDTp" compareValue="RES">
+			 AND	option_gbn = '2'
+			 </isEqual>
+		)	o
+		LEFT JOIN (
+			SELECT	*
+			FROM	$DB_NEOS$t_exnp_option o2
+			WHERE	comp_seq	= #compSeq#
+			 AND	form_seq	= #formSeq#
+			 AND	use_sw 		= #useSw#
+		)	o2
+		ON	o.option_gbn = o2.option_gbn
+		 AND	o.option_code = o2.option_code
+		WHERE 	o2.option_code IS NULL
+	</insert>
+	
+	<select id="NpUserOptionA.NpGwEaFormInfoSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">	
+		/* expend/np/user/NpUserOptionSQL.xml - NpUserOptionA.NpGwEaFormInfoSelect */
+		/* 비영리 전자결재 양식정보 조회 */
+		SELECT 	
+			c_tikeycode	'formSeq'
+			, c_tiname	'formName'
+			, form_tp	'formTp'
+			, form_d_tp	'formDTp'
+			, c_isurlwidth	'formWidth'
+			, c_isurlheight	'formHeight'
+		FROM	$DB_NEOS$a_templateinfo
+		WHERE	c_tikeycode = #formSeq#	
+	</select>
+	<select id="NpUserOptionA.NpGwEapFormInfoSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">	
+		/* expend/np/user/NpUserOptionSQL.xml - NpUserOptionA.NpGwEapFormInfoSelect */
+		/* 영리 전자결재 양식정보 조회 */
+		SELECT	
+			form_id 		'formSeq'
+			, form_nm		'formName'
+			, form_tp		'formTp'
+			, form_d_tp		'formDTp'
+			, interlock_width	'formWidth'
+			, interlock_height	'formHeight'
+		FROM 	$DB_NEOS$teag_form
+		WHERE	form_id = #formSeq#
+	</select>
+</sqlMap>

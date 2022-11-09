@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="NpUserETaxA">
+	<!-- /* 매입전자세금계산서 정보 조회 */ -->
+	<select id="NpUserETaxA.ETaxSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"><![CDATA[
+		/* expend/np/user/NpUserETaxSQL.xml - NpUserETaxA.ETaxSelect */
+		/* 매입전자세금계산서 정보 조회 */
+		
+		/* parameters : issNO, issDt, compSeq */
+		/* return : syncId, issNo, issDt */
+		
+		SELECT  sync_id AS syncId
+				, iss_no AS issNo
+				, iss_dt AS issDt
+				, iss_no2 AS issNo2
+		FROM    $DB_NEOS$t_ex_etax_aq_tmp
+		WHERE   iss_no = #issNo#
+		AND     iss_dt = #issDt#
+		AND     comp_seq = #compSeq#
+	]]></select>
+	
+	<!-- /* 결의서 연동 세금계산서 조회 ( 상신 처리 건 ) */ -->
+	<select id="NpUserETaxA.ETaxLinkSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"><![CDATA[
+		/* expend/np/user/NpUserETaxSQL.xml - NpUserETaxA.ETaxLinkSelect */
+		/* 결의서 연동 세금계산서 조회 ( 상신 처리 건 ) */
+		
+		/* parameters : resDocSeq, resSeq, budgetSeq, tradeSeq */
+		/* return : syncId, issNo, issDt */
+		
+		SELECT  IFNULL(B.sync_id, '') AS syncId
+		        , IFNULL(B.iss_no, '') AS issNo
+		        , IFNULL(B.iss_dt, '') AS issDt
+		        , IFNULL(B.partner_no, '') AS trSeq
+		        , IFNULL(B.comp_seq, '') AS compSeq
+		        , IFNULL(B.send_yn, '') AS sendYN
+		        , IFNULL(B.if_m_id, '') AS ifMId
+		        , IFNULL(B.if_d_id, '') AS ifDId
+		FROM    (
+		                SELECT  interface_type
+		                        , interface_seq
+		                FROM    $DB_NEOS$t_exnp_restrade
+		                WHERE   res_doc_seq = #resDocSeq#
+		                AND	res_seq = #resSeq#
+		                AND	budget_seq = #budgetSeq#
+		                AND	trade_seq = #tradeSeq#
+		                AND     interface_type = 'etax'
+		        ) A INNER JOIN (
+		                SELECT  sync_id
+		                        , iss_no
+		                        , iss_dt
+		                        , partner_no
+		                        , comp_seq
+		                        , send_yn
+		                        , note
+		                        , emp_seq
+		                        , summary_seq
+		                        , auth_seq
+		                        , project_seq
+		                        , card_seq
+		                        , budget_seq
+		                        , if_m_id
+		                        , if_d_id
+		                FROM    $DB_NEOS$t_ex_etax_aq_tmp
+		                WHERE   send_yn = #sendYN#
+		        ) B ON A.interface_seq = B.sync_id
+	]]></select>
+	
+	<!-- /* 매입전자세금계산서 생성 */ -->
+	<insert id="NpUserETaxA.ETaxInsert" parameterClass="java.util.HashMap"><![CDATA[
+		/* expend/np/user/NpUserETaxSQL.xml - NpUserETaxA.ETaxInsert */
+		/* 매입전자세금계산서 정보 생성 */
+		
+		/* parameters : issNo, issDt, trSeq, compSeq, empSeq */
+		/* return : syncId */
+		
+        INSERT IGNORE INTO $DB_NEOS$t_ex_etax_aq_tmp ( iss_no, iss_no2, iss_dt, partner_no, comp_seq, send_yn, create_seq, create_date, modify_seq, modify_date, note )
+        VALUES ( #issNo#, #issNo2#, #issDt#, #trSeq#, #compSeq#, 'N', #empSeq#, NOW(), #empSeq#, NOW(), #tradeNote# );
+		]]>
+		
+        <selectKey keyProperty="syncId" resultClass="int">
+                SELECT LAST_INSERT_ID();
+        </selectKey>
+	</insert>
+	
+	<!-- /* 매입전자세금계산서 사용자 정보 수정 */ -->
+	<update id="NpUserETaxA.ETaxEmpInfoUpdate" parameterClass="java.util.HashMap"><![CDATA[
+		/* expend/np/user/NpUserETaxSQL.xml - NpUserETaxA.ETaxEmpInfoUpdate */
+		/* 매입전자세금계산서 사용자 정보 수정 */
+		
+		/* parameters : empSeq, issNo, issDt, compSeq, syncId */
+		
+		UPDATE  $DB_NEOS$t_ex_etax_aq_tmp
+		SET     modify_seq = #empSeq#
+		        , modify_date = NOW()
+		        , if_m_id = #resDocSeq#
+		        , if_d_id = #trade_seq#
+		        , note = #tradeNote#
+		WHERE   iss_no = #issNo#
+		AND     iss_dt = #issDt#
+		AND     comp_seq = #compSeq#
+		AND     sync_id = #syncId#
+	]]></update>
+	
+	<!-- /* 매입전자세금계산서 연동정보 및 상신 상태 수정 */ -->
+	<update id="NpUserETaxA.ETaxStatInfoUpdate" parameterClass="java.util.HashMap"><![CDATA[
+		/* expend/np/user/NpUserETaxSQL.xml - NpUserETaxA.ETaxStatInfoUpdate */
+		/* 매입전자세금계산서 연동정보 및 상신 상태 수정 */
+		
+		/* parameters : empSeq, issNo, issDt, compSeq, syncId, sendYN, ifMId */
+		
+		UPDATE  $DB_NEOS$t_ex_etax_aq_tmp
+		SET     send_yn = #sendYN#
+				, if_m_id = #ifMId#
+				, if_d_id = #ifDId#
+				, modify_seq = #empSeq#
+		        , modify_date = NOW()
+		WHERE   iss_no = #issNo#
+		AND     iss_dt = #issDt#
+		AND     comp_seq = #compSeq#
+		AND     sync_id = #syncId#
+	]]></update>
+</sqlMap>

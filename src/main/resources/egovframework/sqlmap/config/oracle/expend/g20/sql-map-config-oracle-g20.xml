@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN" "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<!-- 공통 -->
+	<sqlMap resource="egovframework/sqlmap/mariadb/expend/g20/AcCommon_SQL.xml" />
+	<!-- G20 연동 결의서 -->
+	<sqlMap resource="egovframework/sqlmap/mariadb/expend/g20/AcG20Ex_GW_SQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/expend/g20/AcG20ExApp_GW_SQL.xml" />
+	<!-- G20 예산현황 -->
+	<sqlMap resource="egovframework/sqlmap/mariadb/expend/g20/AcG20State_GW_SQL.xml" />
+</sqlMapConfig>

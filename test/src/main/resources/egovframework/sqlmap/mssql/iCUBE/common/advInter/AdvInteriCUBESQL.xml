@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 사용자 코드 -->
+<mapper namespace="advInteriCUBE">
+
+	<update id="advInteriCUBE.updateAcardSunginGWState" parameterType="java.util.Map">
+		/* mssql/iCUBE/common/advInter/AdvInteriCUBESQL.xml - advInteriCUBE.updateAcardSunginGWState */
+		/* 법인카드 승인내역(ACARD_SUNGIN) 전자결재 상태 연동 */
+		USE DZICUBE;
+		UPDATE	ACARD_SUNGIN
+		SET		GW_STATE = #{gwState}
+				, DOC_NO = #{docNo}
+				, DOC_ID = #{docSeq}
+				, SYNC_ID = #{syncId}
+				, GW_ID = #{gwState}
+		WHERE	ISS_DT = #{issDt}
+		 AND	ISS_SQ = #{issSq}
+		 AND	CO_CD  = #{erpCompSeq}
+		 AND    SUNGIN_NB = #{authNum}
+		 AND    CARD_NB = #{cardNum}
+	</update>
+
+	<update id="advInteriCUBE.set_WCMS_ERP_VCRD03"  parameterType="java.util.Map">
+		/* mssql/iCUBE/common/advInter/AdvInteriCUBESQL.xml - advInteriCUBE.set_WCMS_ERP_VCRD03 */
+		/* 한아세안센터 커스터마이징 확장연동 대응 - 사용체크 */
+		USE DZICUBE;
+		UPDATE	WCMS_ERP_VCRD03 
+		SET		GW_STATE = '1'
+		WHERE	CARD_NO		= #{cardNum} 
+		 AND	APPR_DATE	= #{authDate}
+		 AND	APPR_NO		= #{authNum}
+		 AND	IF_KEY 	= substring(#{georaeColl},len(('200' + card_no + appr_date + appr_no + ACQ_CLASS)) + 1 ,10)
+	</update>
+	
+	<update id="advInteriCUBE.rollback_WCMS_ERP_VCRD03" parameterType="java.util.Map">
+		/* mssql/iCUBE/common/advInter/AdvInteriCUBESQL.xml - advInteriCUBE.set_WCMS_ERP_VCRD03 */
+		/* 한아세안센터 커스터마이징 확장연동 대응 - 롤백 */
+		USE DZICUBE;
+		UPDATE	WCMS_ERP_VCRD03 
+		SET		GW_STATE = ''
+		WHERE	CARD_NO		= #{cardNum} 
+		 AND	APPR_DATE	= #{authDate}
+		 AND	APPR_NO		= #{authNum}
+		 AND	IF_KEY 	= substring(#{georaeColl},len(('200' + card_no + appr_date + appr_no + ACQ_CLASS)) + 1 ,10)
+	</update>
+	
+</mapper>

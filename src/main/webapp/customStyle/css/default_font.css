@@ -1,0 +1,47 @@
+﻿
+@font-face {
+    font-family: "돋움체";
+    src:local("DotumChe"),local("Dotum"),
+		url('font/DotumChe.woff') format('woff');
+}
+@font-face {
+    font-family: "돋움";
+    src:local("Dotum"),
+		url('font/Dotum.woff') format('woff');
+}
+@font-face {
+    font-family: "굴림체";
+    src:local("GulimChe"),
+		url('font/GulimChe.woff') format('woff');
+}
+@font-face {
+    font-family: "굴림";
+    src:local("Gulim"),
+		url('font/Gulim.woff') format('woff');
+}
+@font-face {
+    font-family: "바탕체";
+    src:local("BatangChe"),
+		url('font/BatangChe.woff') format('woff');
+}
+@font-face {
+    font-family: "바탕";
+    src:local("Batang"),
+		url('font/Batang.woff') format('woff');
+}
+@font-face {
+    font-family: "궁서체";
+    src:local("GungsuhChe"),
+		url('font/GungsuhChe.woff') format('woff');
+}
+@font-face {
+    font-family: "궁서";
+    src:local("Gungsuh"),
+		url('font/Gungsuh.woff') format('woff');
+}
+
+@font-face {
+    font-family: "맑은 고딕";
+    src:local("Malgun Gothic"),
+		url('font/malgun.woff') format('woff');
+}

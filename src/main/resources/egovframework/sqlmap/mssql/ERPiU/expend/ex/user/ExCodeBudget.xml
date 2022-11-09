@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ERPiU mssql -->
+<mapper namespace="ExCodeBudget">
+
+	<!-- 지출결의 -->
+	<!-- 지출결의 - 임시예산 등록 -->
+	<insert
+		id="ExExpendGmmsumOtherInfoInsert"
+		parameterType="HashMap"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExExpendGmmsumOtherInfoInsert - 지출결의 - 임시예산 등록
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-27
+         * 변경이력
+         * - 변경내역 없음
+         */
+		INSERT INTO NEOE.FI_GMMSUM_OTHER (
+		    ROW_ID
+		    , ROW_NO
+		    , CD_COMPANY
+		    , CD_BUDGET
+		    , CD_BIZPLAN
+		    , CD_BGACCT
+		    , YM_ACCT
+		    , AM_ACTION
+		    , ID_INSERT
+		    , DTS_INSERT
+		    , ID_UPDATE
+		    , DTS_UPDATE )
+		VALUES (
+		    '${rowId}'
+		    , '${rowNo}'
+		    , '${erpCompSeq}'
+		    , '${budgetCode}'
+		    , '${bizplanCode}'
+		    , '${bgacctCode}'
+		    , '${budgetYm}'
+		    , '${budgetGwAct}'
+		    , '${erpEmpSeq}'
+		    , CONVERT ( NVARCHAR(14), REPLACE ( REPLACE ( REPLACE ( REPLACE ( CONVERT ( NVARCHAR(23), GETDATE(), 121 ), '-', '' ), ':', '' ), '.', '' ), ' ', '' ) )
+		    , '${erpEmpSeq}'
+		    , CONVERT ( NVARCHAR(14), REPLACE ( REPLACE ( REPLACE ( REPLACE ( CONVERT ( NVARCHAR(23), GETDATE(), 121 ), '-', '' ), ':', '' ), '.', '' ), ' ', '' ) ) )
+	]]></insert>
+
+	<!-- 지출결의 - 임시예산 삭제 -->
+	<delete
+		id="ExExpendGmmsumOtherInfoDelete"
+		parameterType="HashMap"><![CDATA[
+		/*
+         * [ ERPiU - MSSQL ] ExExpendGmmsumOtherInfoDelete - 지출결의 - 임시예산 삭제
+         * 작성자 : 권오광
+         * 작성일 : 2019-08-27
+         * 변경이력
+         * - 변경내역 없음
+         */
+        DELETE
+		FROM    NEOE.FI_GMMSUM_OTHER
+		WHERE   ROW_ID = '${rowId}'
+		AND     ROW_NO = '${rowNo}'
+    ]]></delete>
+
+	<!-- 공통코드 - 예산단위 목록 조회 -->
+	<select
+		id="ExCodeBudgetListInfoSelect"
+		parameterType="common.vo.ex.ExCodeBudgetVO"
+		resultType="common.vo.ex.ExCodeBudgetVO"><![CDATA[
+		/* ExCodeBudgetListInfoSelect - ERPiU - mssql */
+		SELECT  A.CD_COMPANY AS erp_comp_seq
+		        , A.CD_BUDGET AS budget_code
+		        , A.NM_BUDGET AS budget_name
+		FROM    (
+		            SELECT  CD_COMPANY
+		                    , CD_BUDGET
+		                    , NM_BUDGET
+		            FROM    NEOE.FI_BGCODE WITH ( NOLOCK )
+		            WHERE   CD_COMPANY = '${erp_comp_seq}'
+		            AND     YN_USE = 'Y'
+		            AND     ( CD_BUDGET LIKE '%${search_str}%' OR NM_BUDGET LIKE '%${search_str}%' )
+		        ) A INNER JOIN (
+		            SELECT  A.CD_COMPANY
+		                    , A.CD_BUDGET
+		            FROM    NEOE.FI_BGDEPT A WITH ( NOLOCK )
+		                    INNER JOIN (
+		                        SELECT  CD_COMPANY
+		                                , CD_DEPT
+		                        FROM    NEOE.MA_EMP WITH ( NOLOCK )
+		                        WHERE   NO_EMP = '${erp_emp_seq}'
+		                    ) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_DEPT = B.CD_DEPT
+		        ) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_BUDGET = B.CD_BUDGET
+	]]></select>
+
+	<!-- 공통코드 - 사업계획 목록 조회 -->
+	<select
+		id="ExCodeBizplanListInfoSelect"
+		parameterType="common.vo.ex.ExCodeBudgetVO"
+		resultType="common.vo.ex.ExCodeBudgetVO"><![CDATA[
+		/* ExCodeBizplanListInfoSelect - ERPiU - mssql */
+		SELECT  B.CD_COMPANY AS erp_comp_seq
+		        , B.CD_BIZPLAN AS bizplan_code
+		        , B.NM_BIZPLAN AS bizplan_name
+		FROM    (                    
+		            SELECT  A.CD_COMPANY
+		                    , CD_BIZPLAN
+		            FROM    NEOE.FI_BIZCODEJO2 A WITH ( NOLOCK )
+		                    INNER JOIN (
+		                        SELECT  A.CD_COMPANY
+		                                , A.CD_BUDGET
+		                        FROM    (
+		                                    SELECT  CD_COMPANY
+		                                            , CD_BUDGET
+		                                            , NM_BUDGET
+		                                    FROM    NEOE.FI_BGCODE WITH ( NOLOCK )
+		                                    WHERE   CD_COMPANY = '${erp_comp_seq}'
+		                                    AND     YN_USE = 'Y'
+		                                ) A INNER JOIN (
+		                                    SELECT  A.CD_COMPANY
+		                                            , A.CD_BUDGET
+		                                    FROM    NEOE.FI_BGDEPT A WITH ( NOLOCK )
+		                                            INNER JOIN (
+		                                                SELECT  CD_COMPANY
+		                                                        , CD_DEPT
+		                                                FROM    NEOE.MA_EMP
+		                                                WHERE   NO_EMP = '${erp_emp_seq}'
+		                                            ) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_DEPT = B.CD_DEPT
+		                                ) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_BUDGET = B.CD_BUDGET
+		                    ) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_BUDGET = B.CD_BUDGET
+		            WHERE   A.CD_COMPANY = '${erp_comp_seq}'
+		        ) A INNER JOIN (
+		            SELECT  CD_COMPANY
+		                    , CD_BIZPLAN
+		                    , NM_BIZPLAN
+		                    , H_NM_BIZPLAN
+		                    , HH_NM_BIZPLAN
+		                    , HHH_NM_BIZPLAN
+		            FROM    NEOE.V_FI_BIZPLAN WITH ( NOLOCK )
+		            WHERE   CD_COMPANY = '${erp_comp_seq}'
+		            AND     CD_BIZPLAN LIKE '%${search_str}%'
+		            AND     NM_BIZPLAN LIKE '%${search_str}%'
+		        ) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_BIZPLAN = B.CD_BIZPLAN
+    ]]></select>
+
+	<!-- 공통코드 - 예산계정 목록 조회 -->
+	<select
+		id="ExCodeBgAcctListInfoSelect"
+		parameterType="common.vo.ex.ExCodeBudgetVO"
+		resultType="common.vo.ex.ExCodeBudgetVO"><![CDATA[
+		/* ExCodeBgAcctListInfoSelect - ERPiU - mssql */
+		SELECT  C.CD_COMPANY AS erp_comp_seq
+		        , C.CD_BGACCT AS bgacct_code
+		        , C.NM_BGACCT AS bgacct_name
+		FROM    (
+		            SELECT  CD_COMPANY
+		                    , CD_BUDGET
+		                    , CD_BGACCT
+		            FROM    NEOE.FI_BUDGETACCTJO WITH ( NOLOCK )
+		            WHERE   CD_COMPANY = '${erp_comp_seq}'
+		            AND     CD_BUDGET = '${budget_code}'
+		        ) A INNER JOIN (
+		            SELECT  CD_COMPANY
+		                    , CD_BUDGET
+		            FROM    NEOE.FI_BGCODE WITH ( NOLOCK )
+		            WHERE   CD_COMPANY = '${erp_comp_seq}'
+		        ) B ON A.CD_COMPANY = B.CD_COMPANY AND A.CD_BUDGET = B.CD_BUDGET INNER JOIN (
+		            SELECT  CD_COMPANY
+		                    , CD_BGACCT
+		                    , NM_BGACCT
+		            FROM    NEOE.FI_BGACCT WITH ( NOLOCK )
+		            WHERE   CD_COMPANY = '${erp_comp_seq}'
+		            AND     CD_BGACCT LIKE '%${search_str}%' OR NM_BGACCT LIKE '%${search_str}%'
+		        ) C ON A.CD_COMPANY = C.CD_COMPANY AND A.CD_BGACCT = C.CD_BGACCT
+		GROUP   BY C.CD_COMPANY, C.CD_BGACCT, C.NM_BGACCT
+    ]]></select>
+
+	<select
+		id="getExCodeBudgetListInfoSelect"
+		parameterType="hashmap"
+		resultType="hashmap"><![CDATA[
+        /* getExCodeBudgetListInfoSelect - ERPiU mssql */
+		SELECT CD_BUDGET   AS budgetCode
+		       , NM_BUDGET AS budgetName
+		  FROM (SELECT A.CD_BUDGET
+		               , A.NM_BUDGET
+		          FROM NEOE.FI_BGCODE A WITH ( NOLOCK )
+		               INNER JOIN (SELECT DISTINCT A.CD_COMPANY
+		                                           , A.CD_BUDGET
+		                             FROM NEOE.FI_BGDEPT A WITH ( NOLOCK )
+		                                  INNER JOIN (SELECT CD_COMPANY
+		                                                     , CD_DEPT
+		                                                FROM NEOE.MA_EMP WITH ( NOLOCK )
+		                                               WHERE NO_EMP = '${erpEmpSeq}') B
+		                                          ON A.CD_COMPANY = B.CD_COMPANY
+		                                             AND A.CD_DEPT = B.CD_DEPT
+		                            WHERE A.CD_COMPANY = '${erpCompSeq}') B
+		                       ON A.CD_COMPANY = B.CD_COMPANY
+		                          AND A.CD_BUDGET = B.CD_BUDGET
+		         WHERE ( A.CD_BUDGET LIKE '%' + '${searchStr}' + '%'
+		                  OR A.NM_BUDGET LIKE '%' + '${searchStr}' + '%' )) A
+		 ORDER BY A.CD_BUDGET
+    ]]></select>
+
+	<select
+		id="getExCodeBizplanListInfoSelect"
+		parameterType="hashmap"
+		resultType="common.vo.ex.ExCodeOrgVO"><![CDATA[
+		/* getExCodeBizplanListInfoSelect - ERPiU mssql */
+		SELECT ISNULL (A.CD_BIZPLAN, '')       AS bizplanCode
+		       , ISNULL (B.NM_BIZPLAN, '')     AS bizplanName
+		       , ISNULL (B.H_NM_BIZPLAN, '')   AS bizplanNameH /* 상위사업계획 */
+		       , ISNULL (B.HH_NM_BIZPLAN, '')  AS bizplanNameHH /* 차상위사업계획 */
+		       , ISNULL (B.HHH_NM_BIZPLAN, '') AS bizplanNameHHH /* 2011.01.08 이대성추가: 차차상위사업계획 */
+		  FROM (SELECT DISTINCT A.CD_COMPANY
+		                        , A.CD_BIZPLAN
+		          FROM NEOE.FI_BIZCODEJO2 A WITH ( NOLOCK )
+		         WHERE A.CD_COMPANY = '${erpCompSeq}' /* ERP 회사코드 */
+		               AND A.CD_BUDGET = '${erpBudgetCode}' /* 예산단위코드 */
+		       ) A
+		       INNER JOIN NEOE.V_FI_BIZPLAN B
+		               ON A.CD_COMPANY = B.CD_COMPANY
+		                  AND A.CD_BIZPLAN = B.CD_BIZPLAN
+		 WHERE ( A.CD_BIZPLAN LIKE '%' + '${searchStr}' + '%'
+		          OR B.NM_BIZPLAN LIKE '%' + '${searchStr}' + '%' )
+	]]></select>
+
+	<select
+		id="getExCodeBgAcctListInfoSelect"
+		parameterType="hashmap"
+		resultType="hashmap"><![CDATA[
+        /* getExCodeBgAcctListInfoSelect - ERPiU mssql */
+		SELECT C.CD_BGACCT   AS bgAcctCode
+		       , C.NM_BGACCT AS bgAcctName
+		  FROM NEOE.FI_BUDGETACCTJO A WITH ( NOLOCK )
+		       INNER JOIN NEOE.FI_BGCODE B WITH ( NOLOCK )
+		               ON A.CD_COMPANY = B.CD_COMPANY
+		                  AND A.CD_BUDGET = B.CD_BUDGET
+		       INNER JOIN NEOE.FI_BGACCT C WITH ( NOLOCK )
+		               ON A.CD_COMPANY = C.CD_COMPANY
+		                  AND A.CD_BGACCT = C.CD_BGACCT
+		 WHERE A.CD_COMPANY = '${erpCompSeq}'
+		       AND A.CD_BUDGET = '${erpBudgetCode}'
+		       AND ( C.CD_BGACCT LIKE '%' + ISNULL ( '${searchStr}', '' ) + '%'
+		              OR C.NM_BGACCT LIKE '%' + ISNULL ( '${searchStr}', '' ) + '%' )
+		 GROUP BY C.CD_BGACCT
+		          , C.NM_BGACCT 
+	]]></select>
+</mapper>

@@ -1,0 +1,134 @@
+﻿<html>
+	<head>
+	    <title></title>
+	    <script type="text/javascript" language="javascript">
+    function fnEx2ExpendDetailPop(targetTp, ids) {
+        var tblParam = {},
+                ajaxCallParam = {};
+
+        if (targetTp == "CARD") {
+            dlg.OpenDialog('/Ex2/Ex2Card/Ex2CardDetailPop?pCallBack=&pSyncID=' + escape(ids), '400', '460', 'Card');
+        }
+        else {
+            tblParam.form_id = 0;
+            tblParam.target_tp = targetTp;
+
+            $.ajax({
+                type: "POST"
+                    , contentType: "application/json; charset=utf-8"
+                    , url: "/Ex2/Ex2Config/GetDetailDisplayPopType"
+                    , data: JSON.stringify(tblParam)
+                    , async: true
+                    , success: function (result) {
+                        var nWidth = 750;
+                        var nHeight = 700;
+                        var intLeft = screen.width / 2 - nWidth / 2;
+                        var intTop = screen.height / 2 - nHeight / 2 - 40;
+
+                        if (result.aaData.dummy3 == "Popup") {
+                            if (targetTp == "Slip") {
+                                var expend_id = (ids.split("|")[0] || "0");
+                                var list_id = (ids.split("|")[1] || "0");
+                                window.open('/Ex2/Ex2Doc/Ex2SlipDetailPop?pCallBack=&expend_id=' + escape(expend_id) + '&list_id=' + escape(list_id), 'SlipPop', 'menubar=0,resizable=0,scrollbars=1,status=no,titlebar=0,toolbar=no,width=' + nWidth + ',height=' + nHeight + ',left=' + intLeft + ',top=' + intTop);
+                            }
+                            else if (targetTp == "Mng") {
+                                var expend_id = (ids.split("|")[0] || "0");
+                                var list_id = (ids.split("|")[1] || "0");
+                                var slip_id = (ids.split("|")[2] || "0");
+                                window.open('/Ex2/Ex2Doc/Ex2MngDetailPop?pCallBack=&expend_id=' + escape(expend_id) + '&list_id=' + escape(list_id) + '&slip_id=' + escape(slip_id), 'MngPop', 'menubar=0,resizable=0,scrollbars=1,status=no,titlebar=0,toolbar=no,width=' + (nWidth - 100) + ',height=' + (nHeight - 100) + ',left=' + intLeft + ',top=' + intTop);
+                            }
+                        }
+                        else if (result.aaData.dummy3 == "Layer") {
+                            if (targetTp == "Slip") {
+                                var expend_id = (ids.split("|")[0] || "0");
+                                var list_id = (ids.split("|")[1] || "0");
+
+                                dlg.OpenDialog('/Ex2/Ex2Doc/Ex2SlipDetailPop?pCallBack=&expend_id=' + escape(expend_id) + '&list_id=' + escape(list_id), nWidth, nHeight, 'Slip');
+                            }
+                            else if (targetTp == "Mng") {
+                                var expend_id = (ids.split("|")[0] || "0");
+                                var list_id = (ids.split("|")[1] || "0");
+                                var slip_id = (ids.split("|")[2] || "0");
+
+                                dlg.OpenDialog('/Ex2/Ex2Doc/Ex2MngDetailPop?pCallBack=&expend_id=' + escape(expend_id) + '&list_id=' + escape(list_id) + '&slip_id=' + escape(slip_id), (nWidth - 100), (nHeight - 100), 'Mng');
+                            }
+                        }
+                    }
+            });
+        }
+    }
+</script>
+
+	</head>
+	
+	<body>
+	 	<h1 style="font-family:굴림">지출결의서</h1>
+	
+	   	<table class="area_sign" width="647" border="0" cellpadding="0" cellspacing="0">
+			<tr>
+				<td height="100%">
+					<table width="643" height="100%" cellpadding="0" cellspacing="0">
+						<tr>
+							<td>
+								<table width="643" height="100%" border="0" cellspacing="0" cellpadding="0">
+									<tr>
+										<td style="font-family:굴림" width="87" class="bd_color">품 의 번 호</td>
+										<td style="font-family:굴림" width="188" class="bd_color textL">&nbsp;_DF01_</td>
+										<td style="font-family:굴림" width="368" class="df05" rowspan="4">_DF05_</td>
+									</tr>
+									<tr>
+										<td style="font-family:굴림" class="bd_color">작 성 일 자</td>
+										<td style="font-family:굴림" class="bd_color textL">&nbsp;_DF02_</td>
+									</tr>
+									<tr>
+										<td style="font-family:굴림" class="bd_color">기 안 부 서</td>
+										<td style="font-family:굴림" class="bd_color textL">&nbsp;_DF03_</td>
+									</tr>
+									<tr>
+										<td style="font-family:굴림" class="bd_color">기&nbsp;&nbsp;&nbsp;안&nbsp;&nbsp;&nbsp;자</td>
+										<td style="font-family:굴림" class="bd_color textL">&nbsp;_DF04_</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<table width="643" height="100%" border="0" cellspacing="0" cellpadding="0">
+									<tr>
+										<td style="font-family:굴림" width="87" class="bd_color">수신및참조</td>
+										<td style="font-family:굴림" width="556" class="bd_color01">&nbsp;_DF07_</td>
+									</tr>
+									<tr>
+										<td style="font-family:굴림" class="bd_color">시&nbsp;&nbsp;&nbsp;행&nbsp;&nbsp;&nbsp;자</td>
+										<td style="font-family:굴림" class="bd_color01">&nbsp;_DF08_</td>
+									</tr>
+									<tr>
+										<td style="font-family:굴림" class="bd_color">시 행 일 자</td>
+										<td style="font-family:굴림" class="bd_color01">&nbsp;_DF09_</td>
+									</tr>
+									<tr>
+										<td style="font-family:굴림" class="bd_color">제&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;목</td>
+										<td style="font-family:굴림" class="bd_color01">&nbsp;_DF10_</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td id="divFormContents" style="font-family:굴림; height:500px">_DFINTER_<br>_DF11_</td>
+						</tr>
+						<tr>
+							<td>
+								<table width="643" height="100%" border="0" cellspacing="0" cellpadding="0">
+									<tr>
+										<td style="font-family:굴림; border-left:none" width="87" class="bd_color02 textC">참 조 문 서</td>
+										<td style="font-family:굴림" valign="middle" width="556" class="bd_color02 textL">&nbsp;_DFREF_</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

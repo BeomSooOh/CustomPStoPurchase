@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="InterlockEA">
+	<!-- 결재문서 정보 조회 -->
+	<select id="InterlockEA.ApprovalInfoSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* mariadb - InterlockEAP.ApprovalInfoSelect */
+		SELECT	doc.c_dikeycode AS docSeq
+				, IFNULL(rec.c_ridocfullnum,'') AS docNo
+				, IFNULL(drf.c_distatus,'') AS docStatus
+		FROM	$DB_NEOS$a_docinfo doc
+		INNER JOIN $DB_NEOS$a_recordinfo rec ON doc.c_dikeycode = rec.c_dikeycode
+		INNER JOIN $DB_NEOS$a_draftinfo drf ON doc.c_dikeycode = drf.c_dikeycode
+		WHERE	doc.c_dikeycode = #docSeq#;
+	</select>
+	
+	<select id="InterlockEA.SelectICubeCard_EXP" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* mariadb\BizboxAlpha\interlock\interlockEA_SQL.xml - InterlockEA.SelectICubeCard_EXP */
+		/* 법인카드 승인내역 정보 조회 - 영리 회계 */
+		SELECT	
+			card.iss_dt		AS issDt
+			, card.iss_sq 	AS issSq
+			, card.sync_id	AS syncId
+			, ( SELECT doc_seq FROM $DB_NEOS$t_ex_expend WHERE expend_seq = #expendSeq# )	AS docSeq
+			, ( SELECT doc_no FROM $DB_NEOS$teag_appdoc WHERE doc_id = ( SELECT doc_seq FROM $DB_NEOS$t_ex_expend WHERE expend_seq = #expendSeq# ) ) AS docNo
+			, ( SELECT MAX(comp_seq) FROM $DB_NEOS$t_ex_expend WHERE expend_seq = #expendSeq# )	AS compSeq
+			, ( SELECT erp_comp_seq FROM $DB_NEOS$t_co_erp WHERE comp_seq = ( SELECT MAX(comp_seq) FROM $DB_NEOS$t_ex_expend WHERE expend_seq = #expendSeq# ) AND achr_gbn = 'ac')	AS erpCompSeq			
+		FROM 	$DB_NEOS$t_ex_card_aq_tmp card
+		INNER JOIN	(
+			SELECT	interface_m_id
+			FROM 	$DB_NEOS$t_ex_expend_list 
+			WHERE	interface_type = 'card'
+			 AND	expend_seq = #expendSeq#
+		)	expend
+		ON	card.sync_id = expend.interface_m_id
+		WHERE	card.iss_dt IS NOT NULL
+		 AND	card.iss_sq IS NOT NULL
+	</select>
+	
+	<select id="InterlockEA.SelectICubeCard_NP" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* mariadb\BizboxAlpha\interlock\interlockEA_SQL.xml - InterlockEA.SelectICubeCard_NP */
+		/* 법인카드 승인내역 정보 조회 - 비영리 회계 */
+		SELECT	
+			card.iss_dt	AS issDt
+			, card.iss_sq 	AS issSq
+			, card.sync_id	AS syncId
+			, doc.doc_seq			AS docSeq
+			, IFNULL(doc.doc_no, '') AS docNo
+			, comp_seq		AS compSeq
+			, erp_comp_seq	AS erpCompSeq
+		FROM	$DB_NEOS$t_exnp_resdoc doc
+		INNER JOIN	$DB_NEOS$t_exnp_restrade trade 
+		ON	doc.res_doc_seq = trade.res_doc_seq 
+		 AND	trade.interface_type = 'card'
+		INNER JOIN	$DB_NEOS$t_ex_card_aq_tmp card
+		ON	card.sync_id = trade.interface_seq
+		WHERE	doc.res_doc_seq = #resDocSeq#
+	</select>
+	
+	<select id="InterlockEA.SelectICubeCardKey" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* mariadb\BizboxAlpha\interlock\interlockEA_SQL.xml - InterlockEA.SelectICubeCardKey */
+		/* 법인카드 승인내역 정보 조회 - iCUBE 원본 키 데이터 조회 */
+		SELECT	
+			  iss_dt	AS issDt
+			, iss_sq	AS issSq
+			, card_num  AS cardNum
+			, auth_num  AS authNum
+		FROM	$DB_NEOS$t_ex_card_aq_tmp
+		WHERE	sync_id 	= #syncId#	
+		ORDER BY iss_sq desc
+	</select>
+	
+</sqlMap>

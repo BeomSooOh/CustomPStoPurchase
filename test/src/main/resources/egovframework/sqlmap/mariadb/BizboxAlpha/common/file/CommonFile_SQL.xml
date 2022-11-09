@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CommonFile">
+
+	<!-- 첨부파일 정보 조회 -->
+	<select id="CommonFile.GetCommonFileSelect" parameterClass="HashMap" resultClass="HashMap">
+	<![CDATA[
+		SELECT  A.file_id AS fileId
+		        , B.file_sn AS fileSn
+		        , B.path_seq AS pathSeq
+		        , B.file_stre_cours AS fileStreCours
+		        , B.stre_file_name AS streFileName
+		        , B.orignl_file_name AS orignlFileName
+		        , B.file_extsn AS fileExtsn
+		        , B.file_size AS fileSize
+		FROM    $DB_NEOS$t_co_atch_file A
+		        INNER JOIN $DB_NEOS$t_co_atch_file_detail B ON A.file_id = B.file_id
+		AND     A.use_yn = 'Y'
+		AND     B.use_yn = 'Y'
+		AND     A.file_id = #fileId#
+		AND     B.file_sn = #fileSn#
+		LIMIT   1
+	]]>
+	</select>
+
+	<!-- 첨부파일 그룹 경로 조회 -->
+	<select id="CommonFile.GetCommonFileGroupPath" parameterClass="HashMap" resultClass="HashMap">
+	<![CDATA[
+		SELECT  group_seq AS groupSeq
+		        , path_seq AS pathSeq
+		        , path_name AS pathName
+		        , os_type AS osType
+		        , absol_path AS absolPath
+		FROM    $DB_NEOS$t_co_group_path
+		WHERE   group_seq = #groupSeq#
+		AND     path_seq = #pathSeq#
+		AND     os_type = #osType#
+		LIMIT   1
+	]]>
+	</select>
+	
+	<!-- Bizbox Suite 지출결의 첨부파일 조회 (마이그레이션 데이터) -->
+	<select id="CommonFile.GetCommonSuiteMigFileSelectList" parameterClass="HashMap" resultClass="HashMap">
+	<![CDATA[
+		/* Bizbox Suite 지출결의 첨부파일 마이그레이션 */
+		SELECT	a.file_id AS fileSeq
+				, a.file_sn AS fileSn
+				, a.path_seq AS pathSeq
+				, a.file_stre_cours AS fileStreCours
+				, a.stre_file_name AS streFileName
+				, a.orignl_file_name AS orignlFileName
+				, a.file_extsn AS fileExtSn
+				, a.file_cn AS fileExtCn
+				, a.file_size AS fileSize
+		FROM	$DB_NEOS$t_co_atch_file_detail a
+				inner join (
+					SELECT	file_seq
+					FROM	$DB_NEOS$t_ex_expend_attach
+					WHERE	`type` = 'SMIG'
+					AND		expend_seq = #expend_seq#
+					AND		list_seq = #list_seq#
+				) b on a.file_id = b.file_seq
+		WHERE	a.use_yn = 'Y'
+	]]>
+	</select>
+</sqlMap>

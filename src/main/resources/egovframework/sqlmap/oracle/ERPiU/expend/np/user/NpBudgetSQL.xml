@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 사용자 코드 -->
+<mapper namespace="npUserBudgetU">
+	<resultMap id="npUserBudgetU.iUResult" type="hashmap"></resultMap>
+	<resultMap id="npUserBudgetU.iUString" type="String"></resultMap>
+	<resultMap id="npUserBudgetU.iUInt1" type="Double"></resultMap>
+	<resultMap id="npUserBudgetU.iUInt2" type="Double"></resultMap>
+	<resultMap id="npUserBudgetU.iUInt3" type="Double"></resultMap>
+	
+	<select id="npUserBudgetU.selectAbgtBalance" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpBudgetSQL.xml - npUserBudgetU.selectAbgtBalance */
+		/* ERP iU 예산 잔액 조회 */
+		{
+            CALL UP_FI_DOCUCAUSE_BUDGET_DATA (
+                #{erpCompSeq}
+                , #{erpBudgetSeq}
+                , #{erpBizplanSeq}
+                , #{erpBgacctSeq}
+                , '1'
+                , #{expendDate}
+                , '1'
+                , #{P_AM_JSUM, mode=OUT, jdbcType=BIGINT, javaType=double, resultMap=npUserBudgetU.iUResult}
+                , #{P_AM_JSUMCAUSE, mode=OUT, jdbcType=BIGINT, javaType=double, resultMap=npUserBudgetU.iUResult}
+                , #{P_AM_ACTSUM, mode=OUT, jdbcType=BIGINT, javaType=double, resultMap=npUserBudgetU.iUResult}
+                , #{P_YN_CONTROL, mode=OUT, jdbcType=NVARCHAR, javaType=string, resultMap=npUserBudgetU.iUResult}
+            )
+        }
+	</select>
+</mapper>

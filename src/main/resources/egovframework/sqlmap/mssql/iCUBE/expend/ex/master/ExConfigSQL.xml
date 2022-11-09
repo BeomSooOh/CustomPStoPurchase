@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ERPiU mssql -->
+<mapper namespace="MasteriCUBEConfig">
+
+	<select id="ExCodeCardListInfoSelect" parameterType="HashMap" resultType="HashMap">
+		/* ExCodeCardListInfoSelect - iCUBE - mssql */
+		SELECT	CO_CD AS compSeq 
+				, TR_CD AS cardCode 
+				, BA_NB AS cardNum 
+				, TR_NM AS cardName 
+				, TR_CD AS partnerCode 
+				, TR_NM AS partnerName
+				, REG_NB AS partnerNo
+				, 'Y' AS useYN 
+				, '0' AS createSeq 
+				, '' AS createDate 
+				, '0' AS modifySeq 
+				, '' AS modifyDate
+		FROM 	ZA_TRADE_DAIKIN
+		WHERE 	CO_CD = '${erpCompSeq}'
+		AND 	TR_FG = '9'
+	</select>
+	
+	<select id="ExCodeVatTypeListInfoSelect" parameterType="HashMap" resultType="HashMap"><![CDATA[
+		/* ExCodeVatTypeListInfoSelect - ERPiU - mssql */
+		SELECT  CO_CD AS comp_seq
+		        , CTD_CD AS vat_type_code
+		        , CTD_NM AS vat_type_name
+		        , N'Y' AS use_yn
+		        , '0' AS create_seq
+		        , '' AS create_date
+		        , '0' AS modify_seq
+		        , '' AS modify_date
+		FROM    ZA_CTRL_DAIKIN
+		WHERE   CTD_FG = 'K1' /* 고정 */
+		AND     CO_CD = '${erp_comp_seq}'
+		AND     CTD_CD >= '20'
+		AND     ( CTD_CD LIKE '%' + '${search_str}' + '%' OR CTD_NM LIKE '%' + '${search_str}' + '%' )
+	]]></select>
+
+</mapper>

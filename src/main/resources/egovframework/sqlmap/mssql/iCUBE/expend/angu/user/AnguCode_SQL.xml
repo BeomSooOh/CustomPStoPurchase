@@ -1,0 +1,1643 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- iCUBE 국고보조통합시스템 연계 -->
+<mapper namespace="AnguCode">
+
+	<!-- /* ## [+] 국고보조 v2 ## */ -->
+	<!-- /* ## [+] 국고보조 v2 ## - ERP 사원정보 및 기수정보 조회 */ -->
+	<select id="AnguCode.getEmpInfoI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* [iCUBE][MSSQL] AnguCode.getEmpInfoI_Select */
+		SELECT	TOP 1
+				B.CO_CD AS erpCompSeq /* iCUBE 회사 코드 */
+				, B.CO_NM AS erpCompName /* iCUBE 회사 명칭 */
+				, B.FR_DT AS erpCompFrDate /* iCUBE 기수 시작일 */
+				, B.TO_DT AS erpCompToDate /* iCUBE 기수 종료일 */
+				, B.GISU AS erpCompGisu /* iCUBE 기수 */
+				, C.DIV_CD AS erpBizSeq /* iCUBE 사업장 코드 */
+				, C.DIV_NM AS erpBizName /* iCUBE 사업장 명칭 */
+				, D.SECT_CD AS erpSectSeq /* iCUBE 부문 코드 */
+				, D.SECT_NM AS erpSectName /* iCUBE 부문 명칭 */
+				, D.DEPT_CD AS erpDeptSeq /* iCUBE 부서 코드 */
+				, D.DEPT_NM AS erpDeptName /* iCUBE 부서 명칭 */
+				, A.EMP_CD AS erpEmpSeq /* iCUBE 사원 번호 */
+				, A.KOR_NM AS erpEmpName /* iCUBE 사원 명 */
+		FROM	(
+					SELECT	CO_CD
+							, DEPT_CD
+							, EMP_CD
+							, KOR_NM
+					FROM	ZA_EMP_DAIKIN
+					WHERE	CO_CD = #{erpCompSeq}
+					AND		EMP_CD = #{erpEmpSeq}
+				) A INNER JOIN (
+					SELECT	CO_CD
+							, CO_NM
+							, FR_DT
+							, TO_DT
+							, GISU
+					FROM	ZA_COMPANY_DAIKIN
+					WHERE	CO_CD = #{erpCompSeq}
+				) B ON A.CO_CD = B.CO_CD INNER JOIN (
+					SELECT	CO_CD
+							, DIV_CD
+							, DIV_NM
+					FROM	ZA_DIV_DAIKIN
+					WHERE	CO_CD = #{erpCompSeq}
+				) C ON A.CO_CD = C.CO_CD INNER JOIN (
+					SELECT	CO_CD
+							, DIV_CD
+							, SECT_CD
+							, SECT_NM
+							, DEPT_CD
+							, DEPT_NM
+					FROM	ZA_DEPT_DAIKIN
+					WHERE	CO_CD = #{erpCompSeq}
+				) D ON A.CO_CD = D.CO_CD AND A.DEPT_CD = D.DEPT_CD AND C.DIV_CD = D.DIV_CD
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - ERP 통장표시내용 환경 설정 */ -->
+	<select id="AnguCode.getAnguTermInfoI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguTermInfoI_Select	*/
+		
+		/*	BOJO_RMK : 보조금통장표시	*/
+		/*	TR_RMK : 거래처통장표시	*/
+		
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_TERM_SELECT'	*/
+		
+		/*	USP_ANGU300_TERM_SELECT : result sample	*/
+		
+		/*	────────┬───────────────────┬───────────────	*/
+		/*	CO_CD	│	BOJO_RMK		│	TR_RMK			*/
+		/*	────────┼───────────────────┼───────────────	*/
+		/*	3585	│	보조금통장표			│	거래처통장표			*/
+		/*	────────┴───────────────────┴───────────────	*/
+		
+		DECLARE @RESULT TABLE(
+			CO_CD NVARCHAR(50)
+			/* , BOJO_RMK NVARCHAR(20) */
+			, TR_RMK NVARCHAR(20)
+		)
+		
+		INSERT INTO @RESULT ( CO_CD, /* BOJO_RMK, */ TR_RMK )
+		EXEC USP_ANGU300_TERM_SELECT @LANGKIND=#{LANGKIND},@CO_CD=#{CO_CD}
+		
+		SELECT	CO_CD AS CO_CD /* ERP 회사 코드 */
+				/* , BOJO_RMK AS BOJO_RMK */ /* 보조금통장표시내용 */
+				, TR_RMK AS TR_RMK /* 거래처통장표시내용 */
+		FROM	@RESULT
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - ERP 국고보조사업 조회 */ -->
+	<select id="AnguCode.getAnguBusinessInfoI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* [iCUBE][MSSQL] AnguCode.getAnguBusinessInfoI_Select */
+		/* 국고보조통합시스템 - 국고보조사업 코드 조회 */
+		/* anguBusinessCode : 국고보조사업 코드 */
+		/* anguBusinessName : 국고보조사업 명칭 */
+		
+		/* EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_DDTLBZ_CD_SELECT' */
+		
+		/*	USP_ANGU300_DDTLBZ_CD_SELECT : result sample	*/
+		/*	────────────┬────────────────	*/
+		/*	DDTLBZ_ID	│	DDTLBZ_NM		*/
+		/*	────────────┼────────────────	*/
+		/*	TEST-00001	│	상세내역사업1	*/
+		/*	────────────┼────────────────	*/
+		/*	TEST-00002	│	상세내역사업2	*/
+		/*	────────────┼────────────────	*/
+		/*	TEST-00003	│	상세내역사업3	*/
+		/*	────────────┼────────────────	*/
+		/*	TEST-00004	│	상세내역사업4	*/
+		/*	────────────┼────────────────	*/
+		/*	TEST-00005	│	상세내역사업5	*/
+		/*	────────────┼────────────────	*/
+		/*	TEST-00006	│	상세내역사업6	*/
+		/*	────────────┼────────────────	*/
+		/*	TEST-00007	│	상세내역사업7	*/
+		/*	────────────┴────────────────	*/
+		
+		/*	DDTLBZ_ID > anguBusinessCode	*/
+		/*	DDTLBZ_NM > anguBusinessName	*/
+		
+		DECLARE @RESULT TABLE(
+			anguBusinessCode NVARCHAR(20)
+			, anguBusinessName NVARCHAR(300)
+		)
+		
+		INSERT INTO @RESULT ( anguBusinessCode, anguBusinessName )
+		EXEC USP_ANGU300_DDTLBZ_CD_SELECT @LANGKIND=#{LANGKIND},@CO_CD=#{CO_CD},@BSNSYEAR=#{BSNSYEAR}
+		
+		SELECT	anguBusinessCode /* 국고보조사업 코드 */
+				, anguBusinessName /* 국고보조사업 명 */
+		FROM	@RESULT
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 이체계좌구분 */ -->
+	<select id="AnguCode.getAnguAccountDivInfoI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* [iCUBE][MSSQL] AnguCode.getAnguAccountDivInfoI_Select */
+		/* 국고보조통합시스템 - 이체계좌구분 코드 조회 */
+		/* anguAccountDivCode (CMMN_DETAIL_CODE) : 이체계좌구분 코드 */
+		/* anguAccountDivName (CMMN_DETAIL_CODE_NM) : 이체계좌구분 명칭 */
+		
+		/* EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_CMMN_CD_SELECT' */
+		
+		/*	USP_ANGU300_CMMN_CD_SELECT : result sample	*/
+		/*	────────────┬───────────────┬───────────────────────┬───────────────────────┬──────────────────────	*/
+		/*	SYS_SE_CODE	│	CMMN_CODE	│	CMMN_CODE_NM		│	CMMN_DETAIL_CODE	│	CMMN_DETAIL_CODE_NM	*/
+		/*	────────────┼───────────────┼───────────────────────┼───────────────────────┼──────────────────────	*/
+		/*	001			│	1089		│	이체계좌구분코드			│	001					│	거래처계좌로이체			*/
+		/*	────────────┼───────────────┼───────────────────────┼───────────────────────┼──────────────────────	*/
+		/*	001			│	1089		│	이체계좌구분코드			│	002					│	보조금계좌로이체			*/
+		/*	────────────┴───────────────┴───────────────────────┴───────────────────────┴──────────────────────	*/
+		
+		/*	CMMN_DETAIL_CODE > anguAccountDivCode		*/
+		/*	CMMN_DETAIL_CODE_NM > anguAccountDivName	*/
+		
+		DECLARE @RESULT TABLE(
+			SYS_SE_CODE NVARCHAR(3)
+			, CMMN_CODE NVARCHAR(10)
+			, CMMN_CODE_NM NVARCHAR(200)
+			, anguAccountDivCode NVARCHAR(10)
+			, anguAccountDivName NVARCHAR(200)
+		)
+		
+		INSERT INTO @RESULT ( SYS_SE_CODE, CMMN_CODE, CMMN_CODE_NM, anguAccountDivCode, anguAccountDivName )
+		exec USP_ANGU300_CMMN_CD_SELECT @LANGKIND=#{LANGKIND},@CO_CD=#{CO_CD},@CMMN_CODE=#{CMMN_CODE}
+		
+		SELECT	anguAccountDivCode /* 이쳬계좌구분 코드 */
+				, anguAccountDivName /* 이체계좌구분 명 */
+		FROM	@RESULT
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 자계좌이체사유 */ -->
+	<select id="AnguCode.getAnguAccountReasonDivInfoI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* [iCUBE][MSSQL] AnguCode.getAnguAccountReasonDivInfoI_Select */
+		/* 국고보조통합시스템 - 자계좌이체사유 코드 조회 */
+		/* anguAccountReasonDivCode (CMMN_DETAIL_CODE) : 자계좌이체사유 코드 */
+		/* anguAccountReasonDivName (CMMN_DETAIL_CODE_NM) : 자계좌이체사유 명칭 */
+		
+		/* EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_CMMN_CD_SELECT' */
+		
+		/*	USP_ANGU300_CMMN_CD_SELECT : result sample	*/
+
+		/*	────────────┬───────────────┬───────────────────────────┬───────────────────────┬───────────────────────────────	*/
+		/*	SYS_SE_CODE	│	CMMN_CODE	│	CMMN_CODE_NM			│	CMMN_DETAIL_CODE	│	CMMN_DETAIL_CODE_NM				*/
+		/*	────────────┼───────────────┼───────────────────────────┼───────────────────────┼───────────────────────────────	*/
+		/*	001			│	0665		│	보조금계좌이체사유코드			│	001					│	보조금교부전집행내역 상계					*/
+		/*	────────────┼───────────────┼───────────────────────────┼───────────────────────┼───────────────────────────────	*/			
+		/*	001			│	0665		│	보조금계좌이체사유코드			│	002					│	인건비(원천징수 후 개별지급)				*/
+		/*	────────────┼───────────────┼───────────────────────────┼───────────────────────┼───────────────────────────────	*/
+		/*	001			│	0665		│	보조금계좌이체사유코드			│	003					│	해외송금(송금증첨부 필수)					*/
+		/*	────────────┼───────────────┼───────────────────────────┼───────────────────────┼───────────────────────────────	*/
+		/*	001			│	0665		│	보조금계좌이체사유코드			│	004					│	카드결제							*/
+		/*	────────────┼───────────────┼───────────────────────────┼───────────────────────┼───────────────────────────────	*/
+		/*	001			│	0665		│	보조금계좌이체사유코드			│	005					│	자체시스템으로 이체						*/
+		/*	────────────┼───────────────┼───────────────────────────┼───────────────────────┼───────────────────────────────	*/
+		/*	001			│	0665		│	보조금계좌이체사유코드			│	099					│	기타								*/
+		/*	────────────┴───────────────┴───────────────────────────┴───────────────────────┴───────────────────────────────	*/
+		
+		/*	CMMN_DETAIL_CODE > anguAccountReasonDivCode		*/
+		/*	CMMN_DETAIL_CODE_NM > anguAccountReasonDivName	*/
+		
+		DECLARE @RESULT TABLE(
+			SYS_SE_CODE NVARCHAR(3)
+			, CMMN_CODE NVARCHAR(10)
+			, CMMN_CODE_NM NVARCHAR(200)
+			, anguAccountReasonDivCode NVARCHAR(10)
+			, anguAccountReasonDivName NVARCHAR(200)
+		)
+		
+		INSERT INTO @RESULT ( SYS_SE_CODE, CMMN_CODE, CMMN_CODE_NM, anguAccountReasonDivCode, anguAccountReasonDivName )
+		exec USP_ANGU300_CMMN_CD_SELECT @LANGKIND=#{LANGKIND},@CO_CD=#{CO_CD},@CMMN_CODE=#{CMMN_CODE}
+		
+		SELECT	anguAccountReasonDivCode /* 자계좌이체사유 코드 */
+				, anguAccountReasonDivName /* 자계좌이체 사유 명 */
+		FROM	@RESULT
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 증빙승인번호 - 전자세금계산서(과세) */ -->
+	<select id="AnguCode.getAnguEtaxTaxInfoI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguEtaxTaxInfoI_Select	*/
+		/*	국고보조통합시스템 - 매입전자세금계산서 과세 조회	*/
+		
+		/*	anguEtaxTaxNo : No						*/
+		/*	anguEtaxTaxDiv : 분류					*/
+		/*	anguEtaxTaxWriteDate : 작성일자			*/
+		/*	anguEtaxTaxIssueDate : 발급일자			*/
+		/*	anguEtaxTaxPartnerName : 거래처명		*/
+		/*	anguEtaxTaxPartnerNum : 거래처사업번호	*/
+		/*	anguEtaxTaxAmt : 공급가액				*/
+		/*	anguEtaxTaxVat : 부가세					*/
+		/*	anguEtaxTaxReqAmt : 합계액				*/
+		/*	anguEtaxTaxNum : 전자세금계산서승인번호	*/
+		/*	anguEtaxTaxUsedAmt : 기사용금액			*/
+		/*	anguEtaxTaxNotUsedAmt : 등록가능금액	*/
+		
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_ETAX_SELECT'	*/
+		
+		/*	USP_ANGU300_ETAX_SELECT : result sample	*/
+		/*	────────────────────────────┬───────────┬───────────┬───────────────────────┬───────────────┬───────────┬───────────────┬───────────────────────┬───────────────┬───────────────────┬───────────────────┬───────────────────┬───────────────┬───────────────┬───────────┬───────────────────────┬───────────────────┬───────────────────────┬───────────────────────────────┬───────────────────┬───────────────────┬───────────────────┬───────────┬───────────────────────┬───────────────┬───────────────┬───────────────┬──────────	*/
+		/*	ISS_NO						│	CO_CD	│	DIV_CD	│	DIV_NM				│	ISS_DT		│	TAX_TY	│	ISU_DT		│	TR_NM				│	TRREG_NB	│	SUP_AM			│	VAT_AM			│	SUM_AM			│	DIVCEO_NM	│	ETAX_TY_NM	│	TR_CD	│	BCNC_CMPNY_NM		│	DUZON_BANK_CODE	│	BCNC_ACNUT_NO		│	BCNC_ADRES					│	BCNC_RPRSNTY_NM	│	BCNC_TELNO		│	BCNC_BANK_CODE	│	BANK_NM	│	EXCUT_SUM_AMOUNT	│	AM			│	SUP_M_SPLPC	│	VAT_M_VAT	│	SEND_YN	*/
+		/*	────────────────────────────┼───────────┼───────────┼───────────────────────┼───────────────┼───────────┼───────────────┼───────────────────────┼───────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────┼───────────────┼───────────┼───────────────────────┼───────────────────┼───────────────────────┼───────────────────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────┼───────────────────────┼───────────────┼───────────────┼───────────────┼──────────	*/
+		/*	201702011000000028135141	│	3585	│	1000	│	엔프롬정보기술(주)			│	20170101	│	2		│	20170101	│	엔프롬정보기술(주)			│	1111111222	│	31788173.0000	│	3178810.0000	│	34966983.0000	│	이준협			│	일반			│	10000	│	엔프롬정보기술(주)			│	030				│	100112312313		│	서울 강남구 청담동 123-11			│	민병진				│	02-633-5225		│	003				│	기업		│	193100				│	34773883	│	31597173	│	3176710		│	003		*/
+		/*	────────────────────────────┼───────────┼───────────┼───────────────────────┼───────────────┼───────────┼───────────────┼───────────────────────┼───────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────┼───────────────┼───────────┼───────────────────────┼───────────────────┼───────────────────────┼───────────────────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────┼───────────────────────┼───────────────┼───────────────┼───────────────┼──────────	*/
+		/*	2017010141000009c0003o07	│	3585	│	1000	│	용당세관				│	20170102	│	2		│	20170102	│	용당세관				│	1231231231	│	22000.0000		│	2200.0000		│	24200.0000		│	용당세관장		│	일반			│	10001	│	용당세관				│	110				│	21323123123123		│	경남 함양군 독계리 222				│	용당세관장			│	055-525-5225	│	011				│	농협중		│	1100				│	23100		│	21000		│	2100		│	003		*/
+		/*	────────────────────────────┼───────────┼───────────┼───────────────────────┼───────────────┼───────────┼───────────────┼───────────────────────┼───────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────┼───────────────┼───────────┼───────────────────────┼───────────────────┼───────────────────────┼───────────────────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────┼───────────────────────┼───────────────┼───────────────┼───────────────┼──────────	*/
+		/*	201702021000000029043804	│	3585	│	1000	│	(주)펌앤펌				│	20170103	│	2		│	20170103	│	(주)펌앤펌				│	1388160239	│	22000.0000		│	2200.0000		│	24200.0000		│	박매희			│	일반			│	10006	│	(주)펌앤펌				│	040				│	7777-77777-777777	│	충남 태안군 123-123				│	박매희				│	0419652584		│	004				│	국민		│	NULL				│	24200		│	22000		│	2200		│			*/
+		/*	────────────────────────────┴───────────┴───────────┴───────────────────────┴───────────────┴───────────┴───────────────┴───────────────────────┴───────────────┴───────────────────┴───────────────────┴───────────────────┴───────────────┴───────────────┴───────────┴───────────────────────┴───────────────────┴───────────────────────┴───────────────────────────────┴───────────────────┴───────────────────┴───────────────────┴───────────┴───────────────────────┴───────────────┴───────────────┴───────────────┴──────────	*/
+		
+		/*	ETAX_TY_NM			> anguEtaxTaxDiv			*/
+		/*	ISS_DT 				> anguEtaxTaxWriteDate		*/
+		/*	ISU_DT 				> anguEtaxTaxIssueDate		*/
+		/*	TR_NM				> anguEtaxTaxPartnerName	*/
+		/*	TRREG_NB			> anguEtaxTaxPartnerNum		*/
+		/*	SUP_AM 				> anguEtaxTaxAmt			*/
+		/*	VAT_AM 				> anguEtaxTaxVat			*/
+		/*	SUM_AM 				> anguEtaxTaxReqAmt			*/
+		/*	ISS_NO 				> anguEtaxTaxNum			*/
+		/*	EXCUT_SUM_AMOUNT	> anguEtaxTaxUsedAmt		*/
+		/*	AM					> anguEtaxTaxNotUsedAmt		*/
+		
+		/*	작성일자 : 20170101 ~ 20170921 ( DT_FG : 1 )			*/
+		/*	발행일자 : 20170101 ~ 20170921 ( DT_FG : 2 )			*/
+		/*	세무구분 : 과세 ( TAX_TY : 2 )							*/
+		/*	세무구분 : 면세 ( TAX_TY : 4 )							*/
+		/*	세금계산서분류 : 전체 ( ETAX_TY : '' )					*/
+		/*	세금계산서분류 : 일반 ( ETAX_TY : '1' )					*/
+		/*	세금계산서분류 : 일반 ( ETAX_TY : '2' )					*/
+		/*	매입거래처 : 거래처코드 ( TR_CD : 거래처코드 + '|' )	*/
+		
+		DECLARE @RESULT TABLE(
+			anguEtaxTaxNum NVARCHAR(30)
+			, CO_CD NVARCHAR(4)
+			, DIV_CD NVARCHAR(4)
+			, DIV_NM NVARCHAR(50)
+			, anguEtaxTaxWriteDate NVARCHAR(8)
+			, TAX_TY NVARCHAR(1)
+			, anguEtaxTaxIssueDate NVARCHAR(8)
+			, anguEtaxTaxPartnerName NVARCHAR(60)
+			, anguEtaxTaxPartnerNum NVARCHAR(100)
+			, anguEtaxTaxAmt NUMERIC(17,4)
+			, anguEtaxTaxVat NUMERIC(17,4)
+			, anguEtaxTaxReqAmt NUMERIC(17,4)
+			, DIVCEO_NM NVARCHAR(20)
+			, anguEtaxTaxDiv NVARCHAR(10)
+			, TR_CD NVARCHAR(10)
+			, BCNC_CMPNY_NM NVARCHAR(300)
+			, DUZON_BANK_CODE NVARCHAR(10)
+			, BCNC_ACNUT_NO NVARCHAR(108)
+			, BCNC_ADRES NVARCHAR(500)
+			, BCNC_RPRSNTY_NM NVARCHAR(100)
+			, BCNC_TELNO NVARCHAR(14)
+			, BCNC_BANK_CODE NVARCHAR(3)
+			, BANK_NM NVARCHAR(100)
+			, anguEtaxTaxUsedAmt NUMERIC(17,4)
+			, anguEtaxTaxNotUsedAmt NUMERIC(17,4)
+			, SUP_M_SPLPC NUMERIC(17,4)
+			, VAT_M_VAT NUMERIC(17,4)
+			, SEND_YN NVARCHAR(3)
+		)
+		
+		INSERT INTO @RESULT ( anguEtaxTaxNum, CO_CD, DIV_CD, DIV_NM, anguEtaxTaxWriteDate, TAX_TY, anguEtaxTaxIssueDate, anguEtaxTaxPartnerName, anguEtaxTaxPartnerNum, anguEtaxTaxAmt, anguEtaxTaxVat, anguEtaxTaxReqAmt, DIVCEO_NM, anguEtaxTaxDiv, TR_CD, BCNC_CMPNY_NM, DUZON_BANK_CODE, BCNC_ACNUT_NO, BCNC_ADRES, BCNC_RPRSNTY_NM, BCNC_TELNO, BCNC_BANK_CODE, BANK_NM, anguEtaxTaxUsedAmt, anguEtaxTaxNotUsedAmt, SUP_M_SPLPC, VAT_M_VAT, SEND_YN )
+		EXEC USP_ANGU300_ETAX_SELECT @LANGKIND=#{LANGKIND},@CO_CD=#{CO_CD},@DT_FG=#{DT_FG},@FR_DT=#{FR_DT},@TO_DT=#{TO_DT},@TAX_TY='2',@ETAX_TY='${ETAX_TY}',@TR_CD=#{TR_CD},@DDTLBZ_ID=#{DDTLBZ_ID},@TASC_CMMN_DETAIL_CODE_NM=#{TASC_CMMN_DETAIL_CODE_NM}
+		
+		SELECT	CONVERT ( NVARCHAR(10), ROW_NUMBER() OVER(ORDER BY anguEtaxTaxWriteDate, anguEtaxTaxIssueDate, anguEtaxTaxPartnerName) ) AS anguEtaxTaxNo
+				, anguEtaxTaxNum
+				, CO_CD
+				, DIV_CD
+				, DIV_NM
+				, CONVERT ( NVARCHAR(10), CONVERT ( DATETIME, anguEtaxTaxWriteDate, 112 ), 121 ) AS anguEtaxTaxWriteDate
+				, TAX_TY
+				, CONVERT ( NVARCHAR(10), CONVERT ( DATETIME, anguEtaxTaxIssueDate, 112 ), 121 ) AS anguEtaxTaxIssueDate
+				, anguEtaxTaxPartnerName
+				, anguEtaxTaxPartnerNum
+				, REPLACE ( CONVERT ( VARCHAR, CONVERT ( MONEY, anguEtaxTaxAmt ), 1 ), '.00', '' ) AS anguEtaxTaxAmt
+				, REPLACE ( CONVERT ( VARCHAR, CONVERT ( MONEY, anguEtaxTaxVat ), 1 ), '.00', '' ) AS anguEtaxTaxVat
+				, REPLACE ( CONVERT ( VARCHAR, CONVERT ( MONEY, anguEtaxTaxReqAmt ), 1 ), '.00', '' ) AS anguEtaxTaxReqAmt
+				, DIVCEO_NM
+				, anguEtaxTaxDiv
+				, TR_CD /* 거래처 코드 */
+				, BCNC_CMPNY_NM
+				, DUZON_BANK_CODE /* 은행 코드 */
+				, BCNC_ACNUT_NO /* 거래처 사업자/주민번호 */
+				, BCNC_ADRES /* 거래처 주소 */
+				, BCNC_RPRSNTY_NM
+				, BCNC_TELNO /* 거래처 전화번호 */
+				, BCNC_BANK_CODE /* 은행 코드 */
+				, BANK_NM /* 은행 명 */
+				, REPLACE ( CONVERT ( VARCHAR, CONVERT ( MONEY, ISNULL(anguEtaxTaxUsedAmt, 0.0000) ), 1 ), '.00', '' ) AS anguEtaxTaxUsedAmt
+				, REPLACE ( CONVERT ( VARCHAR, CONVERT ( MONEY, anguEtaxTaxNotUsedAmt ), 1 ), '.00', '' ) AS anguEtaxTaxNotUsedAmt
+				, REPLACE ( CONVERT ( VARCHAR, CONVERT ( MONEY, SUP_M_SPLPC ), 1 ), '.00', '' ) AS SUP_M_SPLPC
+				, REPLACE ( CONVERT ( VARCHAR, CONVERT ( MONEY, VAT_M_VAT ), 1 ), '.00', '' ) AS VAT_M_VAT
+				, SEND_YN
+		FROM	@RESULT
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 증빙승인번호 - 전자세금계산서(면제) */ -->
+	<select id="AnguCode.getAnguEtaxTaxFreeInfoI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguEtaxTaxFreeInfoI_Select	*/
+		/*	국고보조통합시스템 - 매입전자세금계산서 과세 조회	*/
+		
+		/*	anguEtaxTaxNo : No						*/
+		/*	anguEtaxTaxDiv : 분류					*/
+		/*	anguEtaxTaxWriteDate : 작성일자			*/
+		/*	anguEtaxTaxIssueDate : 발급일자			*/
+		/*	anguEtaxTaxPartnerName : 거래처명		*/
+		/*	anguEtaxTaxPartnerNum : 거래처사업번호	*/
+		/*	anguEtaxTaxAmt : 공급가액				*/
+		/*	anguEtaxTaxVat : 부가세					*/
+		/*	anguEtaxTaxReqAmt : 합계액				*/
+		/*	anguEtaxTaxNum : 전자세금계산서승인번호	*/
+		/*	anguEtaxTaxUsedAmt : 기사용금액			*/
+		/*	anguEtaxTaxNotUsedAmt : 등록가능금액	*/
+		
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_ETAX_SELECT'	*/
+		
+		/*	USP_ANGU300_ETAX_SELECT : result sample	*/
+		/*	────────────────────────────┬───────────┬───────────┬───────────────────────┬───────────────┬───────────┬───────────────┬───────────────────────┬───────────────┬───────────────────┬───────────────────┬───────────────────┬───────────────┬───────────────┬───────────┬───────────────────────┬───────────────────┬───────────────────────┬───────────────────────────────┬───────────────────┬───────────────────┬───────────────────┬───────────┬───────────────────────┬───────────────┬───────────────┬───────────────┬──────────	*/
+		/*	ISS_NO						│	CO_CD	│	DIV_CD	│	DIV_NM				│	ISS_DT		│	TAX_TY	│	ISU_DT		│	TR_NM				│	TRREG_NB	│	SUP_AM			│	VAT_AM			│	SUM_AM			│	DIVCEO_NM	│	ETAX_TY_NM	│	TR_CD	│	BCNC_CMPNY_NM		│	DUZON_BANK_CODE	│	BCNC_ACNUT_NO		│	BCNC_ADRES					│	BCNC_RPRSNTY_NM	│	BCNC_TELNO		│	BCNC_BANK_CODE	│	BANK_NM	│	EXCUT_SUM_AMOUNT	│	AM			│	SUP_M_SPLPC	│	VAT_M_VAT	│	SEND_YN	*/
+		/*	────────────────────────────┼───────────┼───────────┼───────────────────────┼───────────────┼───────────┼───────────────┼───────────────────────┼───────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────┼───────────────┼───────────┼───────────────────────┼───────────────────┼───────────────────────┼───────────────────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────┼───────────────────────┼───────────────┼───────────────┼───────────────┼──────────	*/
+		/*	201702011000000028135141	│	3585	│	1000	│	엔프롬정보기술(주)			│	20170101	│	2		│	20170101	│	엔프롬정보기술(주)			│	1111111222	│	31788173.0000	│	3178810.0000	│	34966983.0000	│	이준협			│	일반			│	10000	│	엔프롬정보기술(주)			│	030				│	100112312313		│	서울 강남구 청담동 123-11			│	민병진				│	02-633-5225		│	003				│	기업		│	193100				│	34773883	│	31597173	│	3176710		│	003		*/
+		/*	────────────────────────────┼───────────┼───────────┼───────────────────────┼───────────────┼───────────┼───────────────┼───────────────────────┼───────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────┼───────────────┼───────────┼───────────────────────┼───────────────────┼───────────────────────┼───────────────────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────┼───────────────────────┼───────────────┼───────────────┼───────────────┼──────────	*/
+		/*	2017010141000009c0003o07	│	3585	│	1000	│	용당세관				│	20170102	│	2		│	20170102	│	용당세관				│	1231231231	│	22000.0000		│	2200.0000		│	24200.0000		│	용당세관장		│	일반			│	10001	│	용당세관				│	110				│	21323123123123		│	경남 함양군 독계리 222				│	용당세관장			│	055-525-5225	│	011				│	농협중		│	1100				│	23100		│	21000		│	2100		│	003		*/
+		/*	────────────────────────────┼───────────┼───────────┼───────────────────────┼───────────────┼───────────┼───────────────┼───────────────────────┼───────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────┼───────────────┼───────────┼───────────────────────┼───────────────────┼───────────────────────┼───────────────────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────┼───────────────────────┼───────────────┼───────────────┼───────────────┼──────────	*/
+		/*	201702021000000029043804	│	3585	│	1000	│	(주)펌앤펌				│	20170103	│	2		│	20170103	│	(주)펌앤펌				│	1388160239	│	22000.0000		│	2200.0000		│	24200.0000		│	박매희			│	일반			│	10006	│	(주)펌앤펌				│	040				│	7777-77777-777777	│	충남 태안군 123-123				│	박매희				│	0419652584		│	004				│	국민		│	NULL				│	24200		│	22000		│	2200		│			*/
+		/*	────────────────────────────┴───────────┴───────────┴───────────────────────┴───────────────┴───────────┴───────────────┴───────────────────────┴───────────────┴───────────────────┴───────────────────┴───────────────────┴───────────────┴───────────────┴───────────┴───────────────────────┴───────────────────┴───────────────────────┴───────────────────────────────┴───────────────────┴───────────────────┴───────────────────┴───────────┴───────────────────────┴───────────────┴───────────────┴───────────────┴──────────	*/
+		
+		/*	ETAX_TY_NM			> anguEtaxTaxDiv			*/
+		/*	ISS_DT 				> anguEtaxTaxWriteDate		*/
+		/*	ISU_DT 				> anguEtaxTaxIssueDate		*/
+		/*	TR_NM				> anguEtaxTaxPartnerName	*/
+		/*	TRREG_NB			> anguEtaxTaxPartnerNum		*/
+		/*	SUP_AM 				> anguEtaxTaxAmt			*/
+		/*	VAT_AM 				> anguEtaxTaxVat			*/
+		/*	SUM_AM 				> anguEtaxTaxReqAmt			*/
+		/*	ISS_NO 				> anguEtaxTaxNum			*/
+		/*	EXCUT_SUM_AMOUNT	> anguEtaxTaxUsedAmt		*/
+		/*	AM					> anguEtaxTaxNotUsedAmt		*/
+		
+		/*	작성일자 : 20170101 ~ 20170921 ( DT_FG : 1 )			*/
+		/*	발행일자 : 20170101 ~ 20170921 ( DT_FG : 2 )			*/
+		/*	세무구분 : 과세 ( TAX_TY : 2 )							*/
+		/*	세무구분 : 면세 ( TAX_TY : 4 )							*/
+		/*	세금계산서분류 : 전체 ( ETAX_TY : '' )					*/
+		/*	세금계산서분류 : 일반 ( ETAX_TY : '1' )					*/
+		/*	세금계산서분류 : 일반 ( ETAX_TY : '2' )					*/
+		/*	매입거래처 : 거래처코드 ( TR_CD : 거래처코드 + '|' )	*/
+		
+		DECLARE @RESULT TABLE(
+			anguEtaxTaxNum NVARCHAR(30)
+			, CO_CD NVARCHAR(4)
+			, DIV_CD NVARCHAR(4)
+			, DIV_NM NVARCHAR(50)
+			, anguEtaxTaxWriteDate NVARCHAR(8)
+			, TAX_TY NVARCHAR(1)
+			, anguEtaxTaxIssueDate NVARCHAR(8)
+			, anguEtaxTaxPartnerName NVARCHAR(60)
+			, anguEtaxTaxPartnerNum NVARCHAR(100)
+			, anguEtaxTaxAmt NUMERIC(17,4)
+			, anguEtaxTaxVat NUMERIC(17,4)
+			, anguEtaxTaxReqAmt NUMERIC(17,4)
+			, DIVCEO_NM NVARCHAR(20)
+			, anguEtaxTaxDiv NVARCHAR(10)
+			, TR_CD NVARCHAR(10)
+			, BCNC_CMPNY_NM NVARCHAR(300)
+			, DUZON_BANK_CODE NVARCHAR(10)
+			, BCNC_ACNUT_NO NVARCHAR(108)
+			, BCNC_ADRES NVARCHAR(500)
+			, BCNC_RPRSNTY_NM NVARCHAR(100)
+			, BCNC_TELNO NVARCHAR(14)
+			, BCNC_BANK_CODE NVARCHAR(3)
+			, BANK_NM NVARCHAR(100)
+			, anguEtaxTaxUsedAmt NUMERIC(17,4)
+			, anguEtaxTaxNotUsedAmt NUMERIC(17,4)
+			, SUP_M_SPLPC NUMERIC(17,4)
+			, VAT_M_VAT NUMERIC(17,4)
+			, SEND_YN NVARCHAR(3)
+		)
+		
+		INSERT INTO @RESULT ( anguEtaxTaxNum, CO_CD, DIV_CD, DIV_NM, anguEtaxTaxWriteDate, TAX_TY, anguEtaxTaxIssueDate, anguEtaxTaxPartnerName, anguEtaxTaxPartnerNum, anguEtaxTaxAmt, anguEtaxTaxVat, anguEtaxTaxReqAmt, DIVCEO_NM, anguEtaxTaxDiv, TR_CD, BCNC_CMPNY_NM, DUZON_BANK_CODE, BCNC_ACNUT_NO, BCNC_ADRES, BCNC_RPRSNTY_NM, BCNC_TELNO, BCNC_BANK_CODE, BANK_NM, anguEtaxTaxUsedAmt, anguEtaxTaxNotUsedAmt, SUP_M_SPLPC, VAT_M_VAT, SEND_YN )
+		EXEC USP_ANGU300_ETAX_SELECT @LANGKIND=#{LANGKIND},@CO_CD=#{CO_CD},@DT_FG=#{DT_FG},@FR_DT=#{FR_DT},@TO_DT=#{TO_DT},@TAX_TY='4',@ETAX_TY='${ETAX_TY}',@TR_CD=#{TR_CD},@DDTLBZ_ID=#{DDTLBZ_ID},@TASC_CMMN_DETAIL_CODE_NM='001'
+		
+		SELECT	CONVERT ( NVARCHAR(10), ROW_NUMBER() OVER(ORDER BY anguEtaxTaxWriteDate, anguEtaxTaxIssueDate, anguEtaxTaxPartnerName) ) AS anguEtaxTaxNo
+				, anguEtaxTaxNum
+				, CO_CD
+				, DIV_CD
+				, DIV_NM
+				, CONVERT ( NVARCHAR(10), CONVERT ( DATETIME, anguEtaxTaxWriteDate, 112 ), 121 ) AS anguEtaxTaxWriteDate
+				, TAX_TY
+				, CONVERT ( NVARCHAR(10), CONVERT ( DATETIME, anguEtaxTaxIssueDate, 112 ), 121 ) AS anguEtaxTaxIssueDate
+				, anguEtaxTaxPartnerName
+				, anguEtaxTaxPartnerNum
+				, REPLACE ( CONVERT ( VARCHAR, CONVERT ( MONEY, anguEtaxTaxAmt ), 1 ), '.00', '' ) AS anguEtaxTaxAmt
+				, REPLACE ( CONVERT ( VARCHAR, CONVERT ( MONEY, anguEtaxTaxVat ), 1 ), '.00', '' ) AS anguEtaxTaxVat
+				, REPLACE ( CONVERT ( VARCHAR, CONVERT ( MONEY, anguEtaxTaxReqAmt ), 1 ), '.00', '' ) AS anguEtaxTaxReqAmt
+				, DIVCEO_NM
+				, anguEtaxTaxDiv
+				, TR_CD
+				, BCNC_CMPNY_NM
+				, DUZON_BANK_CODE
+				, BCNC_ACNUT_NO
+				, BCNC_ADRES
+				, BCNC_RPRSNTY_NM
+				, BCNC_TELNO
+				, BCNC_BANK_CODE
+				, BANK_NM
+				, REPLACE ( CONVERT ( VARCHAR, CONVERT ( MONEY, ISNULL(anguEtaxTaxUsedAmt, 0.0000) ), 1 ), '.00', '' ) AS anguEtaxTaxUsedAmt
+				, REPLACE ( CONVERT ( VARCHAR, CONVERT ( MONEY, anguEtaxTaxNotUsedAmt ), 1 ), '.00', '' ) AS anguEtaxTaxNotUsedAmt
+				, REPLACE ( CONVERT ( VARCHAR, CONVERT ( MONEY, SUP_M_SPLPC ), 1 ), '.00', '' ) AS SUP_M_SPLPC
+				, REPLACE ( CONVERT ( VARCHAR, CONVERT ( MONEY, VAT_M_VAT ), 1 ), '.00', '' ) AS VAT_M_VAT
+				, SEND_YN
+		FROM	@RESULT
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 증빙승인번호 - 전자세금계산서(면제) */ -->
+	<select id="AnguCode.getAnguCardAuthI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguCardAuthI_Select	*/
+		/*	국고보조통합시스템 - 카드권한 조회	*/
+		
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_CARD_NM_SELECT'	*/
+		/*	EXEC USP_ANGU300_CARD_NM_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@DDTLBZ_ID=N'20170125000000000787'	*/
+		
+		DECLARE @RESULT TABLE(
+			CTR_CD NVARCHAR(10)
+			, TR_NM NVARCHAR(100)
+			, BA_NB NVARCHAR(40)
+			, REG_NB NVARCHAR(20)
+			, CEO_NM NVARCHAR(60)
+		)
+		
+		INSERT INTO @RESULT ( CTR_CD, TR_NM, BA_NB, REG_NB, CEO_NM )
+		EXEC USP_ANGU300_CARD_NM_SELECT @LANGKIND=#{LANGKIND},@CO_CD=#{CO_CD},@DDTLBZ_ID=#{DDTLBZ_ID}
+		
+		SELECT	CTR_CD
+				, TR_NM
+				, BA_NB
+		FROM	@RESULT
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 증빙승인번호 - 전자세금계산서(면제) */ -->
+	<select id="AnguCode.getAnguCardInfoI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguCardInfoI_Select	*/
+		/*	국고보조통합시스템 - 카드사용내역 조회	*/
+		/* 2018-10-15 iCUBE프로시저 파라미터에 따른 프로시저 결과 차이 확인 후 보완 */
+
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_CARDINFO_CD_SELECT'	*/
+		/* 	EXEC USP_ANGU300_CARDINFO_CD_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@CONFM_DE_FR=N'20170101',@CONFM_DE_TO=N'20171122',@CARD_NO=N'5525764197210327',@MRHST_NM=N'',@PUCHAS_TAMT=0,@DDTLBZ_ID=N'20170125000000000787',@TASC_CMMN_DETAIL_CODE_NM=N'001' */
+		
+			DECLARE @RESULT TABLE(
+					CONFM_DE NVARCHAR(8)
+					, MRHST_NM NVARCHAR(50)
+					, MRBCRB_REGIST_NO NVARCHAR(10)
+					, SPLPC NUMERIC(15,0)
+					, VAT NUMERIC(15,0)
+					, PUCHAS_TAMT NUMERIC(15,0)
+					, PUCHAS_TKBAK_NO NVARCHAR(32)
+					, PUCHAS_DE NVARCHAR(8)
+					, BCNC_LSFT_NO NVARCHAR(100)
+					, BCNC_RPRSNTV_NM NVARCHAR(300)
+					, BCNC_TELNO NVARCHAR(14)
+					, TR_NM NVARCHAR(100)
+					, CTR_CD NVARCHAR(10)
+					, CARD_NO NVARCHAR(40)
+					, BCNC_BANK_CODE NVARCHAR(3)
+					, BANK_NM NVARCHAR(100)
+					, TR_CD NVARCHAR(12)
+					, BCNC_CMPNY_NM NVARCHAR(300)
+					, CEO_NM NVARCHAR(50)
+					, TEL NVARCHAR(64)
+					, DUZON_BANK_CODE NVARCHAR(10)
+					, BCNC_ACNUT_NO NVARCHAR(20)
+					, BCNC_ADRES NVARCHAR(500)
+					, BCNC_ADRES2 NVARCHAR(500)
+					, EXCUT_SUM_AMOUNT NUMERIC(15,0)
+					, AM NUMERIC(15,0)
+					, SUP_M_SPLPC NUMERIC(15,0)
+					, VAT_M_VAT NUMERIC(15,0)
+					, PUCHAS_SE_CODE NVARCHAR(3)
+			)
+		
+		IF(#{TASC_CMMN_DETAIL_CODE_NM} != '003')
+		BEGIN
+			
+			INSERT INTO @RESULT ( CONFM_DE, MRHST_NM, MRBCRB_REGIST_NO, SPLPC, VAT, PUCHAS_TAMT, PUCHAS_TKBAK_NO, PUCHAS_DE, BCNC_LSFT_NO, BCNC_RPRSNTV_NM, BCNC_TELNO, TR_NM, CTR_CD, CARD_NO, BCNC_BANK_CODE, BANK_NM, TR_CD, BCNC_CMPNY_NM, CEO_NM, TEL, DUZON_BANK_CODE, BCNC_ACNUT_NO, BCNC_ADRES, BCNC_ADRES2, EXCUT_SUM_AMOUNT, AM, SUP_M_SPLPC, VAT_M_VAT, PUCHAS_SE_CODE )
+			EXEC USP_ANGU300_CARDINFO_CD_SELECT @LANGKIND=#{LANGKIND},@CO_CD=#{CO_CD},@CONFM_DE_FR=#{CONFM_DE_FR},@CONFM_DE_TO=#{CONFM_DE_TO},@CARD_NO=#{CARD_NO},@MRHST_NM=#{MRHST_NM},@PUCHAS_TAMT=#{PUCHAS_TAMT},@DDTLBZ_ID=#{DDTLBZ_ID},@TASC_CMMN_DETAIL_CODE_NM=#{TASC_CMMN_DETAIL_CODE_NM}
+			
+			SELECT	CONFM_DE AS anguEtaxTaxIssueDate	/* 거래일자 */
+					, MRHST_NM AS anguEtaxTaxPartnerName	/* 가맹점명 */
+					, MRBCRB_REGIST_NO AS mrbcrbRegistNo
+					, SPLPC AS anguEtaxTaxAmt	/* 공급가액 */
+					, VAT AS anguEtaxTaxVat	/* 부가세 */
+					, PUCHAS_TAMT AS anguEtaxTaxReqAmt	/* 총금액 */
+					, PUCHAS_TKBAK_NO AS anguEtaxTaxNum	/* 카드승인번호 */
+					, PUCHAS_DE AS puchasDe
+					, BCNC_LSFT_NO AS anguEtaxTaxPartnerNum	/* 가맹점사업자번호 */
+					, BCNC_RPRSNTV_NM AS bcncRprsntvNm
+					, BCNC_TELNO AS bcncTelNo
+					, TR_NM AS trNm	/* 카드명 */
+					, CTR_CD AS ctrCd
+					, CARD_NO AS cardNo	/* 카드번호 */
+					, ISNULL(BCNC_BANK_CODE, '') AS bcncBankCode
+					, ISNULL(BANK_NM, '') AS bankNm
+					, ISNULL(TR_CD, '') AS trCd
+					, ISNULL(BCNC_CMPNY_NM, '') AS bcncCmpnyNm
+					, ISNULL(CEO_NM, '') AS ceoNm
+					, ISNULL(TEL, '') AS tel
+					, ISNULL(DUZON_BANK_CODE, '') AS duzonBankCode
+					, ISNULL(BCNC_ACNUT_NO, '') AS bcncAcnutNo
+					, BCNC_ADRES AS bcncAdres
+					, BCNC_ADRES2 AS bcncAdres2
+					, EXCUT_SUM_AMOUNT AS excutSumAmount	/* 기사용금액 */
+					, AM AS am	/* 등록가능공급가액 */
+					, SUP_M_SPLPC AS SUP_M_SPLPC
+					, VAT_M_VAT AS VAT_M_VAT
+					, PUCHAS_SE_CODE
+			FROM	@RESULT
+		END
+		ELSE IF (#{TASC_CMMN_DETAIL_CODE_NM} = '003')
+		BEGIN
+			
+			INSERT INTO @RESULT ( CONFM_DE, MRHST_NM, MRBCRB_REGIST_NO, SPLPC, VAT, PUCHAS_TAMT, PUCHAS_TKBAK_NO, PUCHAS_DE, BCNC_LSFT_NO, BCNC_RPRSNTV_NM, BCNC_TELNO, TR_NM, CARD_NO, BCNC_ACNUT_NO, DUZON_BANK_CODE, BCNC_BANK_CODE, BANK_NM, TR_CD, BCNC_CMPNY_NM, CEO_NM, TEL, BCNC_ADRES, BCNC_ADRES2, EXCUT_SUM_AMOUNT, AM, SUP_M_SPLPC, VAT_M_VAT, PUCHAS_SE_CODE )
+			EXEC USP_ANGU300_CARDINFO_CD_SELECT @LANGKIND=#{LANGKIND},@CO_CD=#{CO_CD},@CONFM_DE_FR=#{CONFM_DE_FR},@CONFM_DE_TO=#{CONFM_DE_TO},@CARD_NO=#{CARD_NO},@MRHST_NM=#{MRHST_NM},@PUCHAS_TAMT=#{PUCHAS_TAMT},@DDTLBZ_ID=#{DDTLBZ_ID},@TASC_CMMN_DETAIL_CODE_NM=#{TASC_CMMN_DETAIL_CODE_NM}
+			
+			SELECT	CONFM_DE AS anguEtaxTaxIssueDate	/* 거래일자 */
+					, MRHST_NM AS anguEtaxTaxPartnerName	/* 가맹점명 */
+					, MRBCRB_REGIST_NO AS mrbcrbRegistNo
+					, SPLPC AS anguEtaxTaxAmt	/* 공급가액 */
+					, VAT AS anguEtaxTaxVat	/* 부가세 */
+					, PUCHAS_TAMT AS anguEtaxTaxReqAmt	/* 총금액 */
+					, PUCHAS_TKBAK_NO AS anguEtaxTaxNum	/* 카드승인번호 */
+					, PUCHAS_DE AS puchasDe
+					, BCNC_LSFT_NO AS anguEtaxTaxPartnerNum	/* 가맹점사업자번호 */
+					, BCNC_RPRSNTV_NM AS bcncRprsntvNm
+					, BCNC_TELNO AS bcncTelNo
+					, TR_NM AS trNm	/* 카드명 */
+					, CARD_NO AS cardNo	/* 카드번호 */
+					, ISNULL(BCNC_BANK_CODE, '') AS bcncBankCode
+					, ISNULL(BANK_NM, '') AS bankNm
+					, ISNULL(TR_CD, '') AS trCd
+					, ISNULL(BCNC_CMPNY_NM, '') AS bcncCmpnyNm
+					, ISNULL(CEO_NM, '') AS ceoNm
+					, ISNULL(TEL, '') AS tel
+					, ISNULL(DUZON_BANK_CODE, '') AS duzonBankCode
+					, ISNULL(BCNC_ACNUT_NO, '') AS bcncAcnutNo
+					, BCNC_ADRES AS bcncAdres
+					, BCNC_ADRES2 AS bcncAdres2
+					, EXCUT_SUM_AMOUNT AS excutSumAmount	/* 기사용금액 */
+					, AM AS am	/* 등록가능공급가액 */
+					, SUP_M_SPLPC AS SUP_M_SPLPC
+					, VAT_M_VAT AS VAT_M_VAT
+					, PUCHAS_SE_CODE
+			FROM	@RESULT
+		END
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 증빙 - 사원 */ -->
+	<select id="AnguCode.getAnguEmpInfoI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguEmpInfoI_Select	*/
+		/*	국고보조통합시스템 - 사원 조회	*/
+		
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_SEMP_CD_SELECT'	*/
+		
+		/*	USP_GET_HELPCODE : result sample	*/
+		/*	────────┬───────────┬───────────┬───────────┬───────────────────┬───────────────┬───────────┬───────────────────────────────────────────┬───────────────────────────┬───────┬───────────────────┬───────────	*/
+		/*	CO_CD	│	EMP_CD	│	KOR_NM	│	KOR_NMK	│	DUZON_BANK_CODE	│	ACCT_NO		│	DPST_NM	│	RSRG_NO									│	RSRG_ADD				│	TEL	│	BCNC_BANK_CODE	│	BANK_NM		*/
+		/*	────────┼───────────┼───────────┼───────────┼───────────────────┼───────────────┼───────────┼───────────────────────────────────────────┼───────────────────────────┼───────┼───────────────────┼───────────	*/
+		/*	3585	│	1000	│	김재단		│	김재단		│	010				│	77777777	│	김재단		│	7000001!@1@!dpHXJheRFHAaxTvxof1NeA==	│	 서울시 강남구 대치동				│		│	001				│	한국은행		*/
+		/*	────────┴───────────┴───────────┴───────────┴───────────────────┴───────────────┴───────────┴───────────────────────────────────────────┴───────────────────────────┴───────┴───────────────────┴───────────	*/
+
+		DECLARE @RESULT TABLE(
+			CO_CD NVARCHAR(4)
+			, EMP_CD NVARCHAR(12)
+			, KOR_NM NVARCHAR(40)
+			, KOR_NMK NVARCHAR(30)
+			, DUZON_BANK_CODE NVARCHAR(10)
+			, ACCT_NO NVARCHAR(50)
+			, DPST_NM NVARCHAR(60)
+			, RSRG_NO NVARCHAR(100)
+			, RSRG_ADD NVARCHAR(80)
+			, TEL NVARCHAR(20)
+			, BCNC_BANK_CODE NVARCHAR(3)
+			, BANK_NM NVARCHAR(100)
+		)
+
+		INSERT INTO @RESULT ( CO_CD, EMP_CD, KOR_NM, KOR_NMK, DUZON_BANK_CODE, ACCT_NO, DPST_NM, RSRG_NO, RSRG_ADD, TEL, BCNC_BANK_CODE, BANK_NM )
+		EXEC USP_ANGU300_SEMP_CD_SELECT @LANGKIND=N'KOR',@CO_CD=#{erpCompSeq}
+
+		SELECT	CO_CD
+				, EMP_CD AS TR_CD
+				, ISNULL(KOR_NM, '') AS anguEtaxTaxPartnerName
+				, ISNULL(KOR_NM, '') AS BCNC_RPRSNTY_NM
+				, ISNULL(DUZON_BANK_CODE, '') AS DUZON_BANK_CODE
+				, ISNULL(ACCT_NO, '') AS BCNC_ACNUT_NO
+				, ISNULL(DPST_NM, '') AS BOJO_RMK
+				, ISNULL(RSRG_NO, '') AS anguEtaxTaxPartnerNum
+				, ISNULL(RSRG_ADD, '') AS BCNC_ADRES
+				, ISNULL(TEL, '') AS BCNC_TELNO
+				, ISNULL(BCNC_BANK_CODE, '') AS BCNC_BANK_CODE
+				, ISNULL(BANK_NM, '') AS BANK_NM
+		FROM	@RESULT
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 증빙 - 거래처 */ -->
+	<select id="AnguCode.getAnguPartnerInfoI_Select_01" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguPartnerInfoI_Select_01	*/
+		/*	국고보조통합시스템 - 거래처 조회	*/
+		
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_GET_HELPCODE'	*/
+		
+		/*	USP_GET_HELPCODE : result sample	*/
+		
+		/*	────────┬───────────────────────┬───────────────┬───────────────┬───────────────────┬───────────────┬───────────┬───────────────┬───────────┬───────────┬───────────────────────┬───────────────┬───────────────┬───────────┬───────────┬───────────────┬───────────────────┬───────────	*/
+		/*	TR_CD	│	ATTR_NM				│	ATTR_NMK	│	REG_NB		│	BA_NB			│	CEO_NM		│	CEO_NMK	│	TR_FG_NM	│	TR_FG	│	JIRO_CD	│	TR_NM				│	TR_NMK		│	JEONJA_YN	│	LIQ_RS	│	EMAIL	│	INTER_DT	│	TRCHARGE_EMAIL	│	INTER_RT	*/
+		/*	────────┼───────────────────────┼───────────────┼───────────────┼───────────────────┼───────────────┼───────────┼───────────────┼───────────┼───────────┼───────────────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────────┼───────────	*/
+		/*	10000	│	엔프롬정보기술(주)			│	NULL		│	1111111222	│	100112312313	│	민병진			│	NULL	│	일반			│	1		│	030		│	엔프롬정보기술(주)			│	무한상사		│	0			│	0		│	NULL	│	20170220	│	NULL			│	NULL		*/
+		/*	────────┼───────────────────────┼───────────────┼───────────────┼───────────────────┼───────────────┼───────────┼───────────────┼───────────┼───────────┼───────────────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────────┼───────────	*/
+		/*	10001	│	용당세관				│	NULL		│	1231231231	│	21323123123123	│	용당세관장		│	NULL	│	일반			│	1		│	110		│	용당세관				│	깅상회			│	0			│	0		│	NULL	│	20170220	│	NULL			│	NULL		*/
+		/*	────────┼───────────────────────┼───────────────┼───────────────┼───────────────────┼───────────────┼───────────┼───────────────┼───────────┼───────────┼───────────────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────────┼───────────	*/
+		/*	10002	│	에이치엔씨				│	NULL		│	1010689557	│	231231231231	│	성동제			│	NULL	│	일반			│	1		│	260		│	에이치엔씨				│	에이치엔씨		│	0			│	0		│	NULL	│	20170220	│	NULL			│	NULL		*/
+		/*	────────┴───────────────────────┴───────────────┴───────────────┴───────────────────┴───────────────┴───────────┴───────────────┴───────────┴───────────┴───────────────────────┴───────────────┴───────────────┴───────────┴───────────┴───────────────┴───────────────────┴───────────	*/
+		
+		DECLARE @RESULT TABLE(
+			TR_CD NVARCHAR(10)
+			, ATTR_NM NVARCHAR(60)
+			, ATTR_NMK NVARCHAR(60)
+			, REG_NB NVARCHAR(100)
+			, BA_NB NVARCHAR(50)
+			, CEO_NM NVARCHAR(50)
+			, CEO_NMK NVARCHAR(20)
+			, TR_FG_NM NVARCHAR(50)
+			, TR_FG NVARCHAR(2)
+			, JIRO_CD NVARCHAR(10)
+			, TR_NM NVARCHAR(100)
+			, TR_NMK NVARCHAR(60)
+			, JEONJA_YN NVARCHAR(1)
+			, LIQ_RS NVARCHAR(1)
+			, EMAIL NVARCHAR(128)
+			, INTER_DT NVARCHAR(8)
+			, TRCHARGE_EMAIL NVARCHAR(80)
+			, INTER_RT NUMERIC(8, 4)
+		)
+		
+		INSERT INTO @RESULT ( TR_CD, ATTR_NM, ATTR_NMK, REG_NB, BA_NB, CEO_NM, CEO_NMK, TR_FG_NM, TR_FG, JIRO_CD, TR_NM, TR_NMK, JEONJA_YN, LIQ_RS, EMAIL, INTER_DT, TRCHARGE_EMAIL, INTER_RT )
+		EXEC USP_GET_HELPCODE @LANGKIND=#{LANGKIND},@P_HELP_TY=N'STRADE_CODE',@P_CO_CD=#{P_CO_CD},@P_CODE=NULL,@P_CODE2=NULL,@P_CODE3=NULL,@P_USE_YN=N'1',@P_NAME=NULL,@P_STD_DT=NULL,@P_WHERE=NULL
+		
+		SELECT	TR_CD
+				, ATTR_NM AS anguEtaxTaxPartnerName
+				, ISNULL(ATTR_NMK, '') AS anguEtaxTaxPartnerNameKr
+				, ISNULL(REG_NB, '') AS anguEtaxTaxPartnerNum
+				, ISNULL(BA_NB, '') AS BCNC_ACNUT_NO
+				, ISNULL(CEO_NM, '') AS BCNC_RPRSNTY_NM
+				, ISNULL(CEO_NMK, '') AS CEO_NMK
+				, TR_FG_NM
+				, TR_FG
+				, ISNULL(JIRO_CD, '') AS JIRO_CD
+				, ISNULL(JIRO_CD, '') AS DUZON_BANK_CODE
+				, TR_NM
+				, ISNULL(TR_NMK, '') AS TR_NMK
+				, JEONJA_YN
+				, LIQ_RS
+				, ISNULL(EMAIL, '') AS EMAIL
+				, ISNULL(INTER_DT, '') AS INTER_DT
+				, ISNULL(TRCHARGE_EMAIL, '') AS TRCHARGE_EMAIL
+				, ISNULL(INTER_RT, 0.0000) AS INTER_RT
+		FROM	@RESULT
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 증빙 - 거래처 계좌 */ -->
+	<select id="AnguCode.getAnguPartnerInfoI_Select_02" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguPartnerInfoI_Select_02	*/
+		/*	국고보조통합시스템 - 거래처 조회 - 계좌정보	*/
+		
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_STRADE_CD_SELECT'	*/
+		
+		/*	USP_ANGU300_STRADE_CD_SELECT : result sample	*/
+		
+		/*	────────────┬───────────────┬───────────────────────────┬───────────────┬───────────┬───────────	*/
+		/*	DEPOSITOR	│	REG_NB		│	ADDR					│	TEL			│	BANK_CD	│	BANK_NM		*/
+		/*	────────────┼───────────────┼───────────────────────────┼───────────────┼───────────┼───────────	*/
+		/*	NULL		│	6018132551	│	경기 수원시 팔당구 332			│	0312221112	│	003		│	기업은행		*/
+		/*	────────────┴───────────────┴───────────────────────────┴───────────────┴───────────┴───────────	*/
+		
+		DECLARE @RESULT TABLE(
+			DEPOSITOR NVARCHAR(100)
+			, REG_NB NVARCHAR(100)
+			, ADDR NVARCHAR(301)
+			, TEL NVARCHAR(64)
+			, BANK_CD NVARCHAR(50)
+			, BANK_NM NVARCHAR(100)
+		)
+		
+		INSERT INTO @RESULT ( DEPOSITOR, REG_NB, ADDR, TEL, BANK_CD, BANK_NM )
+		EXEC USP_ANGU300_STRADE_CD_SELECT @LANGKIND=#{LANGKIND},@CO_CD=#{CO_CD},@TR_CD=#{TR_CD},@JIRO_CD=#{JIRO_CD},@TR_FG=#{TR_FG}
+		
+		SELECT	DEPOSITOR AS DEPOSITOR /* 예금주 */
+				, REG_NB AS anguEtaxTaxPartnerNum /* 거래처 명 */
+				, ADDR AS BCNC_ADRES /* 거래처 주소 */
+				, TEL AS BCNC_TELNO /* 거래처 전화번호 */
+				, BANK_CD AS BCNC_BANK_CODE /* 은행 코드 */
+				, BANK_NM AS BANK_NM /* 은행 명 */
+		FROM	@RESULT
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 증빙 - 금융기관(iCUBE G20) */ -->
+	<select id="AnguCode.getAnguG20BankInfoI_Select_01" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguG20BankInfoI_Select_01	*/
+		/*	국고보조통합시스템 - 금융기관 조회 - iCUBE G20 */
+		
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_GET_HELPCODE'	*/
+		
+		/*	USP_GET_HELPCODE : result sample	*/
+		/*	────────────────┬───────────┬───────────	*/
+		/*	DUZON_BANK_CODE	│	BANK_NM	│	BANK_NMK	*/
+		/*	────────────────┼───────────┼───────────	*/
+		/*	010				│	한국		│	한국			*/
+		/*	────────────────┼───────────┼───────────	*/
+		/*	030				│	기업		│	기업			*/
+		/*	────────────────┼───────────┼───────────	*/
+		/*	040				│	국민		│	국민			*/
+		/*	────────────────┴───────────┴───────────	*/
+		
+		DECLARE @RESULT TABLE(
+			BANK_CD NVARCHAR(10)
+			, BANK_NM NVARCHAR(100)
+			, BANK_NMK NVARCHAR(120)
+		)
+		
+		INSERT INTO @RESULT ( BANK_CD, BANK_NM, BANK_NMK )
+		EXEC USP_GET_HELPCODE @LANGKIND=#{LANGKIND},@P_HELP_TY=#{P_HELP_TY},@P_CO_CD=#{P_CO_CD},@P_CODE=#{P_CODE},@P_CODE2=#{P_CODE2},@P_CODE3=#{P_CODE3},@P_USE_YN=#{P_USE_YN},@P_NAME=#{P_NAME},@P_STD_DT=#{P_STD_DT},@P_WHERE=#{P_WHERE}
+		
+		SELECT	BANK_CD AS DUZON_BANK_CODE
+				, BANK_NM AS BANK_NM
+				, BANK_NMK
+		FROM	@RESULT
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 증빙 - 금융기관(e나라도움) */ -->
+	<select id="AnguCode.getAnguG20BankInfoI_Select_02" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguG20BankInfoI_Select_02	*/
+		/*	국고보조통합시스템 - 금융기관 조회 - e나라도움 */
+		
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_BANK_CD_SELECT'	*/
+		
+		/*	USP_ANGU300_BANK_CD_SELECT : result sample	*/
+		/*	────────────────┬──────────────	*/
+		/*	BCNC_BANK_CODE	│	BANK_NM		*/
+		/*	────────────────┼──────────────	*/
+		/*	005				│	외환(구)	*/
+		/*	────────────────┴──────────────	*/
+		
+		DECLARE @RESULT TABLE(
+			BANK_CD NVARCHAR(10)
+			, SBANK_NM NVARCHAR(20)
+		)
+		
+		INSERT INTO @RESULT ( BANK_CD, SBANK_NM )
+		EXEC USP_ANGU300_BANK_CD_SELECT @LANGKIND=N'KOR',@CO_CD=#{CO_CD},@BANK_CD=#{BANK_CD}
+		
+		SELECT	BANK_CD AS BCNC_BANK_CODE
+				, SBANK_NM AS BANK_NM
+		FROM	@RESULT
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 보조비목세목 */ -->
+	<select id="AnguCode.getAnguBimokInfoI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguBimokInfoI_Select	*/
+		/*	국고보조통합시스템 - 보조비목세목 조회	*/
+				
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_ASSTN_CD_SELECT'	*/
+				
+		/*	USP_ANGU300_ASSTN_CD_SELECT : result sample	*/
+		
+		/*	────────────────────────────┬───────────────────┬───────────────────	*/
+		/*	ASSTN_EXPITM_TAXITM_CODE	│	ASSTN_EXPITM_NM	│	ASSTN_TAXITM_NM		*/
+		/*	────────────────────────────┼───────────────────┼───────────────────	*/
+		/*	11003						│	인건비				│	상용임금				*/
+		/*	────────────────────────────┼───────────────────┼───────────────────	*/
+		/*	11004						│	인건비				│	일용임금				*/
+		/*	────────────────────────────┼───────────────────┼───────────────────	*/
+		/*	21001						│	운영비				│	일반수용비				*/
+		/*	────────────────────────────┼───────────────────┼───────────────────	*/
+		/*	21002						│	운영비				│	공공요금 및 제세			*/
+		/*	────────────────────────────┼───────────────────┼───────────────────	*/
+		/*	21007						│	운영비				│	임차료					*/
+		/*	────────────────────────────┼───────────────────┼───────────────────	*/
+		/*	21014						│	운영비				│	일반용역비				*/
+		/*	────────────────────────────┼───────────────────┼───────────────────	*/
+		/*	22001						│	여비				│	국내여비				*/
+		/*	────────────────────────────┼───────────────────┼───────────────────	*/
+		/*	22002						│	여비				│	국외여비				*/
+		/*	────────────────────────────┼───────────────────┼───────────────────	*/
+		/*	24001						│	업무추진비			│	사업추진비				*/
+		/*	────────────────────────────┼───────────────────┼───────────────────	*/
+		/*	26001						│	연구개발비			│	연구개발비				*/
+		/*	────────────────────────────┼───────────────────┼───────────────────	*/
+		/*	32001						│	민간이전			│	민간경상보조				*/
+		/*	────────────────────────────┼───────────────────┼───────────────────	*/
+		/*	43001						│	유형자산			│	자산취득비				*/
+		/*	────────────────────────────┴───────────────────┴───────────────────	*/
+
+		/*	ASSTN_EXPITM_TAXITM_CODE	> subDetailBimokCode	( 보조비목세목코드 )	*/
+		/*	ASSTN_EXPITM_NM				> subBimokName			( 보조비목명 )		*/
+		/*	ASSTN_TAXITM_NM				> subDetailBimokName	( 보조세목명 )		*/
+		
+		/*	DECLARE @RESULT TABLE(						*/
+		/*		ASSTN_EXPITM_TAXITM_CODE NVARCHAR(5)	*/
+		/*		, ASSTN_EXPITM_NM NVARCHAR(100)			*/
+		/*		, ASSTN_TAXITM_NM NVARCHAR(300)			*/
+		/*	)											*/
+		
+		/*	INSERT INTO @RESULT ( ASSTN_EXPITM_TAXITM_CODE, ASSTN_EXPITM_NM, ASSTN_TAXITM_NM )											*/
+		/*	EXEC USP_ANGU300_ASSTN_CD_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@MOSF_GISU_DT=N'20171008',@MOSF_GISU_SQ=1,@FSYR=N'2017'	*/
+		
+		/*	SELECT	ASSTN_EXPITM_TAXITM_CODE AS subDetailBimokCode	*/
+		/*			, ASSTN_EXPITM_NM AS subBimokName				*/
+		/*			, ASSTN_TAXITM_NM AS subDetailBimokName			*/
+		/*	FROM	@RESULT											*/
+		
+		SELECT	C.ASSTN_EXPITM_TAXITM_CODE AS subDetailBimokCode
+				, C.ASSTN_EXPITM_NM AS subBimokName
+				, C.ASSTN_TAXITM_NM AS subDetailBimokName
+		FROM	ANBOJO_DDTLBZINFO_PFRS B
+				LEFT OUTER JOIN ANBOJO_SBGTCDINFO C ON B.ASSTN_TAXITM_CODE = C.ASSTN_EXPITM_TAXITM_CODE
+		WHERE	B.BSNSYEAR = #{BSNSYEAR}
+		AND		B.DDTLBZ_ID = #{DDTLBZ_ID}
+		AND		C.FSYR = #{FSYR}
+		AND		C.ASSTN_EXPITM_TAXITM_SE_CODE = '002'
+		GROUP	BY C.ASSTN_EXPITM_TAXITM_CODE, C.ASSTN_EXPITM_NM, C.ASSTN_TAXITM_NM
+		ORDER	BY C.ASSTN_EXPITM_TAXITM_CODE, C.ASSTN_EXPITM_NM, C.ASSTN_TAXITM_NM
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 재원구분 */ -->
+	<select id="AnguCode.getAnguJaewonInfoI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguJaewonInfoI_Select	*/
+		/*	국고보조통합시스템 - 재원구분 조회	*/
+						
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_ANBOJO_B_CMMN_CODE_SELECT'	*/
+						
+		/*	USP_ANGU300_ANBOJO_B_CMMN_CODE_SELECT : result sample	*/
+		/*	────────────┬───────────────────┬───────────────────────┬───────────────────────	*/
+		/*	CMMN_CODE	│	CMMN_CODE_NM	│	CMMN_DETAIL_CODE	│	CMMN_DETAIL_CODE_NM		*/
+		/*	────────────┼───────────────────┼───────────────────────┼───────────────────────	*/
+		/*	1220		│	재원구분코드			│	001					│	보조금						*/
+		/*	────────────┴───────────────────┴───────────────────────┴───────────────────────	*/
+		
+		/*	CMMN_DETAIL_CODE > anguJaewonDivCode		*/
+		/*	CMMN_DETAIL_CODE_NM > anguJaewonDivName	*/
+		
+		DECLARE @RESULT TABLE(
+			CMMN_CODE NVARCHAR(10)
+			, CMMN_CODE_NM NVARCHAR(200)
+			, CMMN_DETAIL_CODE NVARCHAR(10)
+			, CMMN_DETAIL_CODE_NM NVARCHAR(200)
+		)
+		
+		/*	INSERT INTO @RESULT ( CMMN_CODE, CMMN_CODE_NM, CMMN_DETAIL_CODE, CMMN_DETAIL_CODE_NM )												*/
+		/*	EXEC USP_ANGU300_ANBOJO_B_CMMN_CODE_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@MOSF_GISU_DT=N'20171008',@MOSF_GISU_SQ=1,@MOSF_BG_SQ=1	*/
+		
+		SELECT	/*	D.CMMN_CODE			*/
+				/*	, E.CMMN_CODE_NM	*/
+				D.CMMN_DETAIL_CODE AS anguJaewonDivCode
+				, D.CMMN_DETAIL_CODE_NM AS anguJaewonDivName
+		FROM	(
+					SELECT	BSNSYEAR
+							, DDTLBZ_ID
+							, ASSTN_TAXITM_CODE
+							, FNRSC_SE_CODE
+					FROM	ANBOJO_DDTLBZINFO_PFRS
+					WHERE	DDTLBZ_ID = #{DDTLBZ_ID}
+					AND		BSNSYEAR = #{BSNSYEAR}
+					AND		ASSTN_TAXITM_CODE = #{ASSTN_TAXITM_CODE}
+				) C LEFT OUTER JOIN ANBOJO_CMMN_CODE_D D ON D.SYS_SE_CODE = '001' AND D.CMMN_CODE = '1220' AND C.FNRSC_SE_CODE = D.CMMN_DETAIL_CODE
+				LEFT OUTER JOIN ANBOJO_CMMN_CODE E ON D.SYS_SE_CODE = E.SYS_SE_CODE AND D.CMMN_CODE = E.CMMN_CODE
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 국고보조 집행 금액 조회 */ -->
+	<select id="AnguCode.getAnguResultAmtInfoI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguResultAmtInfoI_Select	*/
+		/*	국고보조통합시스템 - 국고보조 집행 금액 조회	*/
+								
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_RESULTERP_SELECT'	*/
+								
+		/*	USP_ANGU300_RESULTERP_SELECT : result sample	*/
+		/*	────────────────────┬───────────────────┬───────────────┬───────────────┬───────────────	*/
+		/*	EXCUT_PLAN_AMOUNT	│	EXCUT_AMOUNT	│	SUM_AMOUNT	│	SUM			│	SUB				*/
+		/*	────────────────────┼───────────────────┼───────────────┼───────────────┼───────────────	*/
+		/*	10000000			│	5000000			│	6853100		│	11853100	│	-1853100		*/
+		/*	────────────────────┴───────────────────┴───────────────┴───────────────┴───────────────	*/
+		
+		/*	EXCUT_PLAN_AMOUNT	>	excutPlanAmount		( 계획금액 )			*/
+		/*	EXCUT_AMOUNT		>	excutAmount			( E나라도움 집행금액 )	*/
+		/*	SUM_AMOUNT			>	sumAmount			( 미등록 집행금액 )		*/
+		/*	SUM					>	sum					( 집행금액 )			*/
+		/*	SUB					>	sub					( 집행잔액 )			*/
+		
+		DECLARE @RESULT TABLE(
+			EXCUT_PLAN_AMOUNT NUMERIC(15, 0)
+			, EXCUT_AMOUNT NUMERIC(15, 0)
+			, SUM_AMOUNT NUMERIC(15, 0)
+			, SUM NUMERIC(15, 0)
+			, SUB NUMERIC(15, 0)
+		)
+		
+		INSERT INTO @RESULT ( EXCUT_PLAN_AMOUNT, EXCUT_AMOUNT, SUM_AMOUNT, SUM, SUB )
+		EXEC USP_ANGU300_RESULTERP_SELECT @LANGKIND=#{LANGKIND},@CO_CD=#{CO_CD},@BSNSYEAR=#{BSNSYEAR},@DDTLBZ_ID=#{DDTLBZ_ID},@ASSTN_TAXITM_CODE=#{ASSTN_TAXITM_CODE},@FNRSC_SE_CODE=#{FNRSC_SE_CODE}
+		
+		SELECT	EXCUT_PLAN_AMOUNT AS excutPlanAmount
+				, EXCUT_AMOUNT AS excutAmount
+				, SUM_AMOUNT AS sumAmount
+				, SUM AS sum
+				, SUB AS sub
+		FROM	@RESULT
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 프로젝트 조회 */ -->
+	<select id="AnguCode.getAnguProjectInfoI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguProjectInfoI_Select	*/
+		/*	국고보조통합시스템 - 국고보조 프로젝트 조회	*/
+		
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_MGT_CD_SELECT'	*/
+		
+		/*	USP_ANGU300_MGT_CD_SELECT : result sample	*/
+		/*	EXEC USP_ANGU300_MGT_CD_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@DDTLBZ_ID=N'20170125000000000787'	*/
+		/*	────────┬───────────────────────┬───────────┬───────────	*/
+		/*	MGT_CD	│	PJT_NM				│	TR_CD	│	TR_NM		*/
+		/*	────────┼───────────────────────┼───────────┼───────────	*/
+		/*	00001	│	더존프로젝트1(한국보육)		│	NULL	│	NULL		*/
+		/*	────────┴───────────────────────┴───────────┴───────────	*/
+		
+		/*	MGT_CD	>	mgtCode		( 프로젝트 코드 )		*/
+		/*	PJT_NM	>	pjtName		( 프로젝트 명 )		*/
+		/*	TR_CD	>	TR_CD		( 거래처 코드 )		*/
+		/*	TR_NM	>	TR_NM		( 거래처 명 )		*/
+		
+		DECLARE @RESULT TABLE(
+			MGT_CD NVARCHAR(10)
+			, PJT_NM NVARCHAR(100)
+			, TR_CD NVARCHAR(60)
+			, TR_NM NVARCHAR(100)
+		)
+		
+		INSERT INTO @RESULT ( MGT_CD, PJT_NM, TR_CD, TR_NM )
+		EXEC USP_ANGU300_MGT_CD_SELECT @LANGKIND=#{LANGKIND},@CO_CD=#{CO_CD},@DDTLBZ_ID=#{DDTLBZ_ID}
+		
+		SELECT	MGT_CD AS mgtCode
+				, PJT_NM AS pjtName
+				, ISNULL(TR_CD, '') AS TR_CD
+				, ISNULL(TR_NM, '') AS TR_NM
+		FROM	@RESULT
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 예산과목 조회 */ -->
+	<select id="AnguCode.getAnguBgtInfoI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguBgtInfoI_Select	*/
+		/*	국고보조통합시스템 - 국고보조 예산과목 조회	*/
+		
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_COMMON_ACC_ABSDOCU_TERM_SELECT'				*/
+		/*	USP_COMMON_ACC_ABSDOCU_TERM_SELECT : result sample							*/
+		/*	EXEC USP_COMMON_ACC_ABSDOCU_TERM_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585'		*/
+		/*	────────┬───────────┬───────────────┬───────────┬───────────┬───────────┬───────────────────┬───────────────────┬───────────────┬────────────────	*/
+		/*	ID_NO	│	USER_NM	│	USER_NMK	│	DEF_NM	│	DEF_NMK	│	MOD_YN	│	DISP_USER_NM	│	DISP_USER_NMK	│	DISP_DEF_NM	│	DISP_DEF_NMK	*/
+		/*	────────┼───────────┼───────────────┼───────────┼───────────┼───────────┼───────────────────┼───────────────────┼───────────────┼────────────────	*/
+		/*	1		│	관		│	Level1		│	관		│	Level1	│	1		│	1. 관			│	1. Level1		│	1. 관		│	1. Level1		*/
+		/*	────────┼───────────┼───────────────┼───────────┼───────────┼───────────┼───────────────────┼───────────────────┼───────────────┼────────────────	*/
+		/*	2		│	항		│	Level2		│	항		│	Level2	│	1		│	2. 항			│	2. Level2		│	2. 항		│	2. Level2		*/
+		/*	────────┼───────────┼───────────────┼───────────┼───────────┼───────────┼───────────────────┼───────────────────┼───────────────┼────────────────	*/
+		/*	3		│	목		│	Level3		│	목		│	Level3	│	1		│	3. 목			│	3. Level3		│	3. 목		│	3. Level3		*/
+		/*	────────┼───────────┼───────────────┼───────────┼───────────┼───────────┼───────────────────┼───────────────────┼───────────────┼────────────────	*/
+		/*	4		│	세		│	Level4		│	세		│	Level4	│	1		│	4. 세			│	4. Level4		│	4. 세		│	4. Level4		*/
+		/*	────────┴───────────┴───────────────┴───────────┴───────────┴───────────┴───────────────────┴───────────────────┴───────────────┴────────────────	*/
+		
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_ANGU300_BGT_CD_SELECT'															*/
+		/*	USP_ANGU300_BGT_CD_SELECT : result sample																		*/
+		/*	EXEC USP_ANGU300_BGT_CD_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@BSNSYEAR=N'2017',@ASSTN_TAXITM_CODE=N'11003'	*/
+		/*	──────────	*/
+		/*	BGT_CD		*/
+		/*	──────────	*/
+		/*	2002003000	*/
+		/*	──────────	*/
+		/*	2002003000	*/
+		/*	──────────	*/
+		/*	2002003000	*/
+		/*	──────────	*/
+		/*	2002003000	*/
+		/*	──────────	*/
+		
+		DECLARE @ANGUBGT TABLE(
+			BGT_CD NVARCHAR(10)
+		)
+		
+		INSERT INTO @ANGUBGT ( BGT_CD )
+		EXEC USP_ANGU300_BGT_CD_SELECT @LANGKIND=#{LANGKIND},@CO_CD=#{CO_CD},@BSNSYEAR=#{BSNSYEAR},@ASSTN_TAXITM_CODE=#{ASSTN_TAXITM_CODE}
+		
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_COMMON_ACC_CUSTOMHELP_SBGTCD_SELECT'																																																									*/
+		/*	USP_COMMON_ACC_CUSTOMHELP_SBGTCD_SELECT : result sample																																																												*/
+		/*	EXEC USP_COMMON_ACC_CUSTOMHELP_SBGTCD_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@GISU=3,@FR_DT=N'20180101',@TO_DT=N'20181231',@GR_FG=N'2',@DIV_CDS=N'1000|',@MGT_CDS=N'00001|',@BOTTOM_CDS=N'',@BGT_CD=NULL,@BGT_NM=NULL,@OPT_01=N'1',@OPT_02=N'2',@OPT_03=N'1',@BGT_FR_DT=N'20180101',@GROUP_CD=N''	*/
+		/*	────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────┬───────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────┬───────────┬───────────┬───────────┬───────────────┬───────────┬───────────┬───────────┬───────────────┬───────────────┬───────────────┬───────────┬───────────────────────────────────────────────┬───────────────┬───────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬──────────────		*/
+		/*	BGT01_CD	│	BGT01_NM	│	BGT01_NMK	│	BGT02_CD	│	BGT02_NM	│	BGT02_NMK	│	BGT03_CD	│	BGT03_NM	│	BGT03_NMK	│	BGT04_CD	│	BGT04_NM	│	BGT04_NMK	│	BGT_CD		│	BGT_NM		│	BGT_NMK	│	DIV_FG	│	GROUP_CD	│	GROUP_NM	│	GROUP_NMK	│	HBGT_CD		│	USE_YN	│	CTL_FG	│	DUMMY1	│	DUMMY2	│	TO_DT		│	CARR_YN	│	DRCR_FG	│	GR_FG	│	HBGT_CD1	│	HBGT_CD2	│	HBGT_CD3	│	CP_YN	│	SYS_CD										│	LAST_YN2	│	BIZ_FG	│	LEVEL01_CD	│	LEVEL02_CD	│	LEVEL03_CD	│	LEVEL04_CD	│	LEVEL05_CD	│	LEVEL06_CD	│	LEVEL01_NM	│	LEVEL02_NM	│	LEVEL03_NM	│	LEVEL04_NM	│	LEVEL05_NM	│	LEVEL06_NM	│	LEVEL01_NMK	│	LEVEL02_NMK	│	LEVEL03_NMK	│	LEVEL04_NMK	│	LEVEL05_NMK	│	LEVEL06_NMK		*/
+		/*	────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────────────────────────────────────────┼───────────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼──────────────		*/
+		/*	2000000000	│	지출_관		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	2000000000	│	지출_관		│	NULL	│	1		│	1000		│	그룹			│	그룹			│	NULL		│	1		│	1		│	NULL	│	NULL	│	99999999	│	NULL	│	1		│	2		│	NULL		│	NULL		│	NULL		│	NULL	│	22000000000000000000000000000000000000000	│	Y			│	0		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL			*/
+		/*	────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────────────────────────────────────────┼───────────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼──────────────		*/
+		/*	2000000000	│	지출_관		│	NULL		│	2001000000	│	지출_항		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	2001000000	│	지출_항		│	NULL	│	2		│	1000		│	그룹			│	그룹			│	2000000000	│	1		│	1		│	NULL	│	NULL	│	99999999	│	NULL	│	1		│	2		│	2000000000	│	NULL		│	NULL		│	NULL	│	22000000000200100000000000000000000000000	│	Y			│	0		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL			*/
+		/*	────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────────────────────────────────────────┼───────────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼──────────────		*/
+		/*	2000000000	│	지출_관		│	NULL		│	2001000000	│	지출_항		│	NULL		│	2001001000	│	지출_목		│	NULL		│	NULL		│	NULL		│	NULL		│	2001001000	│	지출_목		│	NULL	│	3		│	1000		│	그룹			│	그룹			│	2001000000	│	1		│	1		│	NULL	│	NULL	│	99999999	│	NULL	│	1		│	2		│	2000000000	│	2001000000	│	NULL		│	NULL	│	22000000000200100000020010010000000000000	│	Y			│	0		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL			*/
+		/*	────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────────────────────────────────────────┼───────────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼──────────────		*/
+		/*	2000000000	│	지출_관		│	NULL		│	2002000000	│	사업비			│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	2002000000	│	사업비			│	NULL	│	2		│	1000		│	그룹			│	그룹			│	2000000000	│	1		│	1		│	NULL	│	NULL	│	99999999	│	NULL	│	1		│	2		│	2000000000	│	NULL		│	NULL		│	NULL	│	22000000000200200000000000000000000000000	│	Y			│	0		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL			*/
+		/*	────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────────────────────────────────────────┼───────────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼──────────────		*/
+		/*	2000000000	│	지출_관		│	NULL		│	2002000000	│	사업비			│	NULL		│	2002001000	│	인건비			│	NULL		│	NULL		│	NULL		│	NULL		│	2002001000	│	인건비			│	NULL	│	3		│	1000		│	그룹			│	그룹			│	2002000000	│	1		│	1		│	NULL	│	NULL	│	99999999	│	NULL	│	1		│	2		│	2000000000	│	2002000000	│	NULL		│	NULL	│	22000000000200200000020020010000000000000	│	Y			│	0		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL			*/
+		/*	────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────────────────────────────────────────┼───────────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼──────────────		*/
+		/*	2000000000	│	지출_관		│	NULL		│	2002000000	│	사업비			│	NULL		│	2002002000	│	회의비			│	NULL		│	NULL		│	NULL		│	NULL		│	2002002000	│	회의비			│	NULL	│	3		│	1000		│	그룹			│	그룹			│	2002000000	│	1		│	1		│	NULL	│	NULL	│	99999999	│	NULL	│	1		│	2		│	2000000000	│	2002000000	│	NULL		│	NULL	│	22000000000200200000020020020000000000000	│	Y			│	0		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL			*/
+		/*	────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────────────────────────────────────────┼───────────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼──────────────		*/
+		/*	2000000000	│	지출_관		│	NULL		│	2002000000	│	사업비			│	NULL		│	2002003000	│	복리후생비		│	NULL		│	NULL		│	NULL		│	NULL		│	2002003000	│	복리후생비		│	NULL	│	3		│	1000		│	그룹			│	그룹			│	2002000000	│	1		│	1		│	NULL	│	NULL	│	99999999	│	NULL	│	1		│	2		│	2000000000	│	2002000000	│	NULL		│	NULL	│	22000000000200200000020020030000000000000	│	Y			│	0		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL			*/
+		/*	────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────┼───────────────────────────────────────────────┼───────────────┼───────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼──────────────		*/
+		/*	2000000000	│	지출_관		│	NULL		│	2002000000	│	사업비			│	NULL		│	2002004000	│	여비교통비		│	NULL		│	NULL		│	NULL		│	NULL		│	2002004000	│	여비교통비		│	NULL	│	3		│	1000		│	그룹			│	그룹			│	2002000000	│	1		│	1		│	NULL	│	NULL	│	99999999	│	NULL	│	1		│	2		│	2000000000	│	2002000000	│	NULL		│	NULL	│	22000000000200200000020020040000000000000	│	Y			│	0		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL		│	NULL			*/
+		/*	────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────┴───────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────┴───────────┴───────────┴───────────┴───────────────┴───────────┴───────────┴───────────┴───────────────┴───────────────┴───────────────┴───────────┴───────────────────────────────────────────────┴───────────────┴───────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴───────────────┴──────────────		*/
+		
+		DECLARE @BGT TABLE(
+			BGT01_CD NVARCHAR(10)
+			, BGT01_NM NVARCHAR(40)
+			, BGT01_NMK NVARCHAR(40)
+			, BGT02_CD NVARCHAR(10)
+			, BGT02_NM NVARCHAR(40)
+			, BGT02_NMK NVARCHAR(40)
+			, BGT03_CD NVARCHAR(10)
+			, BGT03_NM NVARCHAR(40)
+			, BGT03_NMK NVARCHAR(40)
+			, BGT04_CD NVARCHAR(10)
+			, BGT04_NM NVARCHAR(40)
+			, BGT04_NMK NVARCHAR(40)
+			, BGT_CD NVARCHAR(10)
+			, BGT_NM NVARCHAR(40)
+			, BGT_NMK NVARCHAR(40)
+			, DIV_FG NVARCHAR(10)
+			, GROUP_CD NVARCHAR(50)
+			, GROUP_NM NVARCHAR(40)
+			, GROUP_NMK NVARCHAR(40)
+			, HBGT_CD NVARCHAR(10)
+			, USE_YN NVARCHAR(20)
+			, CTL_FG NVARCHAR(1)
+			, DUMMY1 NVARCHAR(300)
+			, DUMMY2 NVARCHAR(300)
+			, TO_DT NVARCHAR(8)
+			, CARR_YN NVARCHAR(1)
+			, DRCR_FG NVARCHAR(2)
+			, GR_FG NVARCHAR(1)
+			, HBGT_CD1 NVARCHAR(10)
+			, HBGT_CD2 NVARCHAR(10)
+			, HBGT_CD3 NVARCHAR(10)
+			, CP_YN NVARCHAR(1)
+			, SYS_CD NVARCHAR(201)
+			, LAST_YN2 NVARCHAR(1)
+			, BIZ_FG NVARCHAR(1)
+			, LEVEL01_CD NVARCHAR(10)
+			, LEVEL02_CD NVARCHAR(10)
+			, LEVEL03_CD NVARCHAR(10)
+			, LEVEL04_CD NVARCHAR(10)
+			, LEVEL05_CD NVARCHAR(10)
+			, LEVEL06_CD NVARCHAR(10)
+			, LEVEL01_NM NVARCHAR(40)
+			, LEVEL02_NM NVARCHAR(40)
+			, LEVEL03_NM NVARCHAR(40)
+			, LEVEL04_NM NVARCHAR(40)
+			, LEVEL05_NM NVARCHAR(40)
+			, LEVEL06_NM NVARCHAR(40)
+			, LEVEL01_NMK NVARCHAR(40)
+			, LEVEL02_NMK NVARCHAR(40)
+			, LEVEL03_NMK NVARCHAR(40)
+			, LEVEL04_NMK NVARCHAR(40)
+			, LEVEL05_NMK NVARCHAR(40)
+			, LEVEL06_NMK NVARCHAR(40)
+		)
+		
+		INSERT INTO @BGT ( BGT01_CD, BGT01_NM, BGT01_NMK, BGT02_CD, BGT02_NM, BGT02_NMK, BGT03_CD, BGT03_NM, BGT03_NMK, BGT04_CD, BGT04_NM, BGT04_NMK, BGT_CD, BGT_NM, BGT_NMK, DIV_FG, GROUP_CD, GROUP_NM, GROUP_NMK, HBGT_CD, USE_YN, CTL_FG, DUMMY1, DUMMY2, TO_DT, CARR_YN, DRCR_FG, GR_FG, HBGT_CD1, HBGT_CD2, HBGT_CD3, CP_YN, SYS_CD, LAST_YN2, BIZ_FG, LEVEL01_CD, LEVEL02_CD, LEVEL03_CD, LEVEL04_CD, LEVEL05_CD, LEVEL06_CD, LEVEL01_NM, LEVEL02_NM, LEVEL03_NM, LEVEL04_NM, LEVEL05_NM, LEVEL06_NM, LEVEL01_NMK, LEVEL02_NMK, LEVEL03_NMK, LEVEL04_NMK, LEVEL05_NMK, LEVEL06_NMK )
+		EXEC USP_COMMON_ACC_CUSTOMHELP_SBGTCD_SELECT @LANGKIND=#{LANGKIND},@CO_CD=#{CO_CD},@GISU=#{GISU},@FR_DT=#{FR_DT},@TO_DT=#{TO_DT},@GR_FG=#{GR_FG},@DIV_CDS=#{DIV_CDS},@MGT_CDS=#{MGT_CDS},@BOTTOM_CDS=#{BOTTOM_CDS},@BGT_CD=NULL,@BGT_NM=NULL,@OPT_01=#{OPT_01},@OPT_02=#{OPT_02},@OPT_03=#{OPT_03},@BGT_FR_DT=#{BGT_FR_DT},@GROUP_CD=#{GROUP_CD{}
+		
+		SELECT	ISNULL(BGT01_CD, '') AS BGT01_CD
+				, ISNULL(BGT01_NM, '') AS BGT01_NM
+				, ISNULL(BGT01_NMK , '') AS BGT01_NMK
+				, ISNULL(BGT02_CD , '') AS BGT02_CD
+				, ISNULL(BGT02_NM , '') AS BGT02_NM
+				, ISNULL(BGT02_NMK , '') AS BGT02_NMK
+				, ISNULL(BGT03_CD , '') AS BGT03_CD
+				, ISNULL(BGT03_NM , '') AS BGT03_NM
+				, ISNULL(BGT03_NMK , '') AS BGT03_NMK
+				, ISNULL(BGT04_CD , '') AS BGT04_CD
+				, ISNULL(BGT04_NM , '') AS BGT04_NM
+				, ISNULL(BGT04_NMK , '') AS BGT04_NMK
+				, ISNULL(A.BGT_CD , '') AS BGT_CD
+				, ISNULL(BGT_NM , '') AS BGT_NM
+				, ISNULL(BGT_NMK , '') AS BGT_NMK
+				, ISNULL(DIV_FG , '') AS DIV_FG
+				, ISNULL(GROUP_CD , '') AS GROUP_CD
+				, ISNULL(GROUP_NM , '') AS GROUP_NM
+				, ISNULL(GROUP_NMK , '') AS GROUP_NMK
+				, ISNULL(HBGT_CD , '') AS HBGT_CD
+				, ISNULL(USE_YN , '') AS USE_YN
+				, ISNULL(CTL_FG , '') AS CTL_FG
+				, ISNULL(DUMMY1 , '') AS DUMMY1
+				, ISNULL(DUMMY2 , '') AS DUMMY2
+				, ISNULL(TO_DT , '') AS TO_DT
+				, ISNULL(CARR_YN , '') AS CARR_YN
+				, ISNULL(DRCR_FG , '') AS DRCR_FG
+				, ISNULL(GR_FG , '') AS GR_FG
+				, ISNULL(HBGT_CD1 , '') AS HBGT_CD1
+				, ISNULL(HBGT_CD2 , '') AS HBGT_CD2
+				, ISNULL(HBGT_CD3 , '') AS HBGT_CD3
+				, ISNULL(CP_YN , '') AS CP_YN
+				, ISNULL(SYS_CD , '') AS SYS_CD
+				, ISNULL(LAST_YN2 , '') AS LAST_YN2
+				, ISNULL(BIZ_FG , '') AS BIZ_FG
+				, ISNULL(LEVEL01_CD , '') AS LEVEL01_CD
+				, ISNULL(LEVEL02_CD , '') AS LEVEL02_CD
+				, ISNULL(LEVEL03_CD , '') AS LEVEL03_CD
+				, ISNULL(LEVEL04_CD , '') AS LEVEL04_CD
+				, ISNULL(LEVEL05_CD , '') AS LEVEL05_CD
+				, ISNULL(LEVEL06_CD , '') AS LEVEL06_CD
+				, ISNULL(LEVEL01_NM , '') AS LEVEL01_NM
+				, ISNULL(LEVEL02_NM , '') AS LEVEL02_NM
+				, ISNULL(LEVEL03_NM , '') AS LEVEL03_NM
+				, ISNULL(LEVEL04_NM , '') AS LEVEL04_NM
+				, ISNULL(LEVEL05_NM , '') AS LEVEL05_NM
+				, ISNULL(LEVEL06_NM , '') AS LEVEL06_NM
+				, ISNULL(LEVEL01_NMK , '') AS LEVEL01_NMK
+				, ISNULL(LEVEL02_NMK , '') AS LEVEL02_NMK
+				, ISNULL(LEVEL03_NMK , '') AS LEVEL03_NMK
+				, ISNULL(LEVEL04_NMK , '') AS LEVEL04_NMK
+				, ISNULL(LEVEL05_NMK , '') AS LEVEL05_NMK
+				, ISNULL(LEVEL06_NMK , '') AS LEVEL06_NMK
+		FROM	( SELECT BGT_CD FROM @ANGUBGT GROUP BY BGT_CD ) A
+				INNER JOIN @BGT B ON A.BGT_CD = B.BGT_CD
+	]]></select>
+
+	<!-- /* ## [+] 국고보조 v2 ## - 금융거래처 조회 */ -->
+	<select id="AnguCode.getAnguBankPartnerInfoI_Select" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/*	[iCUBE][MSSQL] AnguCode.getAnguBankPartnerInfoI_Select	*/
+		/*	국고보조통합시스템 - 국고보조 금융거래처 조회			*/
+		
+		/*	EXEC SP_SPHELP @P_SPNAME='USP_GET_HELPCODE'				*/
+		/*	USP_GET_HELPCODE : result sample						*/
+		/*	EXEC USP_GET_HELPCODE @LANGKIND=N'KOR',@P_HELP_TY=N'STRADE_CODE',@P_CO_CD=N'3585',@P_CODE=NULL,@P_CODE2=NULL,@P_CODE3=NULL,@P_USE_YN=N'1',@P_NAME=NULL,@P_STD_DT=NULL,@P_WHERE=N'TR_FG >= ''5'''	*/
+		
+		/*	────────┬───────────────────────────┬───────────────────────────────┬───────────┬───────────────────────┬───────────┬───────────┬───────────────┬───────────┬───────────┬───────────────────────┬───────────────────────────────┬───────────────┬───────────┬───────────┬───────────────┬───────────────────┬────────────	*/
+		/*	TR_CD	│	ATTR_NM					│	ATTR_NMK					│	REG_NB	│	BA_NB				│	CEO_NM	│	CEO_NMK	│	TR_FG_NM	│	TR_FG	│	JIRO_CD	│	TR_NM				│	TR_NMK						│	JEONJA_YN	│	LIQ_RS	│	EMAIL	│	INTER_DT	│	TRCHARGE_EMAIL	│	INTER_RT	*/
+		/*	────────┼───────────────────────────┼───────────────────────────────┼───────────┼───────────────────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────────────────┼───────────────────────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────────┼────────────	*/
+		/*	90001	│	기관 보조금통장				│	자부담통장						│	NULL	│	1111122222			│	NULL	│	NULL	│	금융기관		│	5		│	030		│	기관 보조금통장			│	자부담통장						│	0			│	0		│	NULL	│	NULL		│	NULL			│	0.0000		*/
+		/*	────────┼───────────────────────────┼───────────────────────────────┼───────────┼───────────────────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────────────────┼───────────────────────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────────┼────────────	*/
+		/*	90002	│	농림수산 보조금통장				│	프로젝트1						│	NULL	│	11111-11111-11111	│	NULL	│	NULL	│	금융기관		│	5		│	110		│	농림수산 보조금통장			│	프로젝트1						│	0			│	0		│	NULL	│	NULL		│	NULL			│	0.0000		*/
+		/*	────────┼───────────────────────────┼───────────────────────────────┼───────────┼───────────────────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────────────────┼───────────────────────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────────┼────────────	*/
+		/*	90003	│	한국보육 보조금통장				│	프로젝트2관리통장					│	NULL	│	222222222222222		│	NULL	│	NULL	│	금융기관		│	5		│	260		│	한국보육 보조금통장			│	프로젝트2관리통장					│	0			│	0		│	NULL	│	NULL		│	NULL			│	0.0000		*/
+		/*	────────┼───────────────────────────┼───────────────────────────────┼───────────┼───────────────────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────────────────┼───────────────────────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────────┼────────────	*/
+		/*	90004	│	한국문학 보조금통장				│	예탁기관 통장						│	NULL	│	3333333333333		│	NULL	│	NULL	│	금융기관		│	5		│	020		│	한국문학 보조금통장			│	예탁기관 통장						│	0			│	0		│	NULL	│	NULL		│	NULL			│	0.0000		*/
+		/*	────────┼───────────────────────────┼───────────────────────────────┼───────────┼───────────────────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────────────────┼───────────────────────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────────┼────────────	*/
+		/*	91000	│	 보조금카드					│	프로젝트1카드						│	NULL	│	5525764197210327	│	NULL	│	NULL	│	신용카드		│	9		│	NULL	│	 보조금카드				│	프로젝트1카드						│	0			│	0		│	NULL	│	NULL		│	NULL			│	0.0000		*/
+		/*	────────┼───────────────────────────┼───────────────────────────────┼───────────┼───────────────────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────────────────┼───────────────────────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────────┼────────────	*/
+		/*	910002	│	농림수산 보조금카드				│	프로젝트3카드						│	NULL	│	5525764197212505	│	NULL	│	NULL	│	신용카드		│	9		│	NULL	│	농림수산 보조금카드			│	프로젝트3카드						│	0			│	0		│	NULL	│	NULL		│	NULL			│	0.0000		*/
+		/*	────────┼───────────────────────────┼───────────────────────────────┼───────────┼───────────────────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────────────────┼───────────────────────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────────┼────────────	*/
+		/*	91001	│	한국보육 보조금카드				│	프로젝트2카드						│	NULL	│	5525764197212554	│	NULL	│	NULL	│	신용카드		│	9		│	NULL	│	한국보육 보조금카드			│	프로젝트2카드						│	0			│	0		│	NULL	│	NULL		│	NULL			│	0.0000		*/
+		/*	────────┼───────────────────────────┼───────────────────────────────┼───────────┼───────────────────────┼───────────┼───────────┼───────────────┼───────────┼───────────┼───────────────────────┼───────────────────────────────┼───────────────┼───────────┼───────────┼───────────────┼───────────────────┼────────────	*/
+		/*	91003	│	한국문학 보조금카드				│	상세내역사업1 보조금카드				│	NULL	│	5525764197214980	│	NULL	│	NULL	│	신용카드		│	9		│	NULL	│	한국문학 보조금카드			│	상세내역사업1 보조금카드				│	0			│	0		│	NULL	│	NULL		│	NULL			│	0.0000		*/
+		/*	────────┴───────────────────────────┴───────────────────────────────┴───────────┴───────────────────────┴───────────┴───────────┴───────────────┴───────────┴───────────┴───────────────────────┴───────────────────────────────┴───────────────┴───────────┴───────────┴───────────────┴───────────────────┴────────────	*/
+		
+		DECLARE @RESULT TABLE(
+			TR_CD NVARCHAR(60)
+			, ATTR_NM NVARCHAR(60)
+			, ATTR_NMK NVARCHAR(60)
+			, REG_NB NVARCHAR(100)
+			, BA_NB NVARCHAR(50)
+			, CEO_NM NVARCHAR(50)
+			, CEO_NMK NVARCHAR(20)
+			, TR_FG_NM NVARCHAR(100)
+			, TR_FG NVARCHAR(2)
+			, JIRO_CD NVARCHAR(10)
+			, TR_NM NVARCHAR(100)
+			, TR_NMK NVARCHAR(60)
+			, JEONJA_YN NVARCHAR(1)
+			, LIQ_RS NVARCHAR(1)
+			, EMAIL NVARCHAR(128)
+			, INTER_DT NVARCHAR(8)
+			, TRCHARGE_EMAIL NVARCHAR(80)
+			, INTER_RT NUMERIC(8, 4)
+		)
+		
+		INSERT INTO @RESULT ( TR_CD, ATTR_NM, ATTR_NMK, REG_NB, BA_NB, CEO_NM, CEO_NMK, TR_FG_NM, TR_FG, JIRO_CD, TR_NM, TR_NMK, JEONJA_YN, LIQ_RS, EMAIL, INTER_DT, TRCHARGE_EMAIL, INTER_RT )
+		EXEC USP_GET_HELPCODE @LANGKIND=N'KOR',@P_HELP_TY=N'STRADE_CODE',@P_CO_CD=N'3585',@P_CODE=NULL,@P_CODE2=NULL,@P_CODE3=NULL,@P_USE_YN=N'1',@P_NAME=NULL,@P_STD_DT=NULL,@P_WHERE=N'TR_FG >= ''5'''
+		
+		SELECT	ISNULL(TR_CD, '') AS TR_CD
+				, ISNULL(ATTR_NM, '') AS ATTR_NM
+				, ISNULL(ATTR_NMK, '') AS ATTR_NMK
+				, ISNULL(REG_NB, '') AS REG_NB
+				, ISNULL(BA_NB, '') AS BA_NB
+				, ISNULL(CEO_NM, '') AS CEO_NM
+				, ISNULL(CEO_NMK, '') AS CEO_NMK
+				, ISNULL(TR_FG_NM, '') AS TR_FG_NM
+				, ISNULL(TR_FG, '') AS TR_FG
+				, ISNULL(JIRO_CD, '') AS JIRO_CD
+				, ISNULL(JIRO_CD, '') AS DUZON_BANK_CODE
+				, ISNULL(TR_NM, '') AS TR_NM
+				, ISNULL(TR_NMK, '') AS TR_NMK
+				, ISNULL(JEONJA_YN, '') AS JEONJA_YN
+				, ISNULL(LIQ_RS, '') AS LIQ_RS
+				, ISNULL(EMAIL, '') AS EMAIL
+				, ISNULL(INTER_DT, '') AS INTER_DT
+				, ISNULL(TRCHARGE_EMAIL, '') AS TRCHARGE_EMAIL
+				, ISNULL(INTER_RT, 0.0000) AS INTER_RT
+		FROM	@RESULT
+	]]></select>
+	<!-- /* ## [-] 국고보조 v2 ## */ -->
+
+	<!-- /* iCUBE 환경설정 정보 조회 - 거래처통장표시내용, 보조금통장표시내용 */ -->
+	<select id="AnguCode.TermInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_TERM_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+		)
+	}
+	]]></select>
+	<!-- /* 국고보조 집행등록 사용자 정보 조회 */ -->
+	<select id="AnguCode.EmpInfoS" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		SELECT	TOP 1
+				B.CO_CD AS erpCompSeq
+				, B.CO_NM AS erpCompName
+				, B.FR_DT AS erpCompFrDate
+				, B.TO_DT AS erpCompToDate
+				, B.GISU AS erpCompGisu
+				, C.DIV_CD AS erpBizSeq
+				, C.DIV_NM AS erpBizName
+				, D.SECT_CD AS erpSectSeq
+				, D.SECT_NM AS erpSectName
+				, D.DEPT_CD AS erpDeptSeq
+				, D.DEPT_NM AS erpDeptName
+				, A.EMP_CD AS erpEmpSeq
+				, A.KOR_NM AS erpEmpName
+		FROM	(
+					SELECT	CO_CD
+							, DEPT_CD
+							, EMP_CD
+							, KOR_NM
+					FROM	ZA_EMP_DAIKIN
+					WHERE	CO_CD = #{erpCompSeq}
+					AND		EMP_CD = #{erpEmpSeq}
+				) A INNER JOIN (
+					SELECT	CO_CD
+							, CO_NM
+							, FR_DT
+							, TO_DT
+							, GISU
+					FROM	ZA_COMPANY_DAIKIN
+					WHERE	CO_CD = #{erpCompSeq}
+				) B ON A.CO_CD = B.CO_CD INNER JOIN (
+					SELECT	CO_CD
+							, DIV_CD
+							, DIV_NM
+					FROM	ZA_DIV_DAIKIN
+					WHERE	CO_CD = #{erpCompSeq}
+				) C ON A.CO_CD = C.CO_CD INNER JOIN (
+					SELECT	CO_CD
+							, DIV_CD
+							, SECT_CD
+							, SECT_NM
+							, DEPT_CD
+							, DEPT_NM
+					FROM	ZA_DEPT_DAIKIN
+					WHERE	CO_CD = #{erpCompSeq}
+				) D ON A.CO_CD = D.CO_CD AND A.DEPT_CD = D.DEPT_CD AND C.DIV_CD = D.DIV_CD
+	]]></select>
+	<!-- /* 코드 - 국고보조사업 */ -->
+	<!-- /* exec USP_ANGU300_DDTLBZ_CD_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@BSNSYEAR=N'2017' */ -->
+	<select id="AnguCode.DdtlbzInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_DDTLBZ_CD_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{BSNSYEAR}
+		)
+	}
+	]]></select>
+	<!-- /* 코드 - 이체계좌구분 */ -->
+	<!-- /* exec USP_ANGU300_CMMN_CD_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@CMMN_CODE=N'1089' */ -->
+	<select id="AnguCode.TransfracnutseInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_CMMN_CD_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{CMMN_CODE}
+		)
+	}
+	]]></select>
+	<!-- /* 코드 - 자계좌이체사유코드 */ -->
+	<!-- /* exec USP_ANGU300_CMMN_CD_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@CMMN_CODE=N'0665' */ -->
+	<select id="AnguCode.SbsacnttrfrsnInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_CMMN_CD_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{CMMN_CODE}
+		)
+	}
+	]]></select>
+	<!-- /* 코드 - 전자세금계산서 */ -->
+	<!-- /* exec USP_ANGU300_ETAX_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@DT_FG=N'1',@FR_DT=N'20160101',@TO_DT=N'20170520',@TAX_TY=N'2',@ETAX_TY=N'',@TR_CD=N'1000|',@DDTLBZ_ID=N'TEST-00001',@TASC_CMMN_DETAIL_CODE_NM=N'001' */ -->
+	<select id="AnguCode.PrufsenoETaxInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_ETAX_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{DT_FG}
+			, #{FR_DT}
+			, #{TO_DT}
+			, #{TAX_TY}
+			, #{ETAX_TY}
+			, #{TR_CD}
+			, #{DDTLBZ_ID}
+			, #{TASC_CMMN_DETAIL_CODE_NM}
+		)
+	}
+	]]></select>
+	<!-- /* 코드 - 카드승인 - 카드 */ -->
+	<!-- exec USP_ANGU300_CARD_NM_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@DDTLBZ_ID=N'20170125000000000787' -->
+	<select id="AnguCode.PrufsenoCardS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_CARD_NM_SELECT
+		{
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{DDTLBZ_ID}
+		}
+	}
+	]]></select>
+	<!-- /* 코드 - 카드승인 */ -->
+	<!-- /* exec USP_ANGU300_CARDINFO_CD_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@CONFM_DE_FR=N'20160101',@CONFM_DE_TO=N'20170520',@CARD_NO=N'1234123412341234',@MRHST_NM=N'',@PUCHAS_TAMT=0,@DDTLBZ_ID=N'TEST-00001',@TASC_CMMN_DETAIL_CODE_NM=N'001' */ -->
+	<select id="AnguCode.PrufsenoCardInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_CARDINFO_CD_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{CONFM_DE_FR}
+			, #{CONFM_DE_TO}
+			, #{CARD_NO}
+			, #{MRHST_NM}
+			, #{PUCHAS_TAMT,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{DDTLBZ_ID}
+			, #{TASC_CMMN_DETAIL_CODE_NM}
+		)
+	}
+	]]></select>
+	<!-- /* 코드 - 코드 */ -->
+	<!-- /* exec USP_GET_HELPCODE @LANGKIND=N'KOR',@P_HELP_TY=N'STRADE_CODE',@P_CO_CD=N'3585',@P_CODE=NULL,@P_CODE2=NULL,@P_CODE3=NULL,@P_USE_YN=N'1',@P_NAME=NULL,@P_STD_DT=NULL,@P_WHERE=NULL */ -->
+	<select id="AnguCode.TrInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_GET_HELPCODE
+		(
+			#{LANGKIND}
+			, #{P_HELP_TY}
+			, #{P_CO_CD}
+			, #{P_CODE}
+			, #{P_CODE2}
+			, #{P_CODE3}
+			, #{P_USE_YN}
+			, #{P_NAME}
+			, #{P_STD_DT}
+			, #{P_WHERE}
+		)
+	}
+	]]></select>
+	<!-- /* 코드 - 금융기관 */ -->
+	<!-- /* exec USP_GET_HELPCODE @LANGKIND=N'KOR',@P_HELP_TY=N'SBANK_CODE',@P_CO_CD=N'3585',@P_CODE=NULL,@P_CODE2=NULL,@P_CODE3=NULL,@P_USE_YN=NULL,@P_NAME=NULL,@P_STD_DT=NULL,@P_WHERE=N'DUMMY3 = ''1''' */ -->
+	<select id="AnguCode.BcncbankInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_GET_HELPCODE
+		(
+			#{LANGKIND}
+			, #{P_HELP_TY}
+			, #{P_CO_CD}
+			, #{P_CODE}
+			, #{P_CODE2}
+			, #{P_CODE3}
+			, #{P_USE_YN}
+			, #{P_NAME}
+			, #{P_STD_DT}
+			, #{P_WHERE}
+		)
+	}
+	]]></select>
+	<!-- /* 코드 - 보조비목세목코드 */ -->
+	<!-- /* exec USP_ANGU300_ASSTN_CD_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@MOSF_GISU_DT=N'20170515',@MOSF_GISU_SQ=1,@FSYR=N'2017' */ -->
+	<!-- DDTLBZ_ID, BSNSYEAR -->
+	<select id="AnguCode.AsstntaxitmInfoS" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		SELECT C.ASSTN_EXPITM_TAXITM_CODE,
+		       C.ASSTN_EXPITM_NM,
+		       C.ASSTN_TAXITM_NM
+		FROM	ANBOJO_DDTLBZINFO_PFRS B
+				LEFT OUTER JOIN ANBOJO_SBGTCDINFO C ON B.ASSTN_TAXITM_CODE = C.ASSTN_EXPITM_TAXITM_CODE
+		WHERE	B.BSNSYEAR = #{BSNSYEAR}
+		AND		B.DDTLBZ_ID = #{DDTLBZ_ID}
+		AND		C.FSYR = #{FSYR}
+		AND		C.ASSTN_EXPITM_TAXITM_SE_CODE = '002'
+		GROUP	BY C.ASSTN_EXPITM_TAXITM_CODE, C.ASSTN_EXPITM_NM, C.ASSTN_TAXITM_NM
+		ORDER	BY C.ASSTN_EXPITM_TAXITM_CODE, C.ASSTN_EXPITM_NM, C.ASSTN_TAXITM_NM
+	]]></select>
+	<!-- /* 코드 - 재원구분 */ -->
+	<!-- /* exec USP_ANGU300_ANBOJO_B_CMMN_CODE_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@MOSF_GISU_DT=N'20170515',@MOSF_GISU_SQ=1,@MOSF_BG_SQ=1 */ -->
+	<!-- DDTLBZ_ID, BSNSYEAR, ASSTN_TAXITM_CODE -->
+	<select id="AnguCode.FnrscseInfoS" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		SELECT	D.CMMN_CODE
+				, E.CMMN_CODE_NM
+				, D.CMMN_DETAIL_CODE
+				, D.CMMN_DETAIL_CODE_NM
+		FROM	(
+					SELECT	BSNSYEAR
+							, DDTLBZ_ID
+							, ASSTN_TAXITM_CODE
+							, FNRSC_SE_CODE
+					FROM	ANBOJO_DDTLBZINFO_PFRS
+					WHERE	DDTLBZ_ID = #{DDTLBZ_ID}
+					AND		BSNSYEAR = #{BSNSYEAR}
+					AND		ASSTN_TAXITM_CODE = #{ASSTN_TAXITM_CODE}
+				) C LEFT OUTER JOIN ANBOJO_CMMN_CODE_D D ON D.SYS_SE_CODE = '001' AND D.CMMN_CODE = '1220' AND C.FNRSC_SE_CODE = D.CMMN_DETAIL_CODE
+				LEFT OUTER JOIN ANBOJO_CMMN_CODE E ON D.SYS_SE_CODE = E.SYS_SE_CODE AND D.CMMN_CODE = E.CMMN_CODE
+	]]></select>
+	<!-- /* 코드 - 프로젝트 */ -->
+	<!-- /* exec USP_ANGU300_MGT_CD_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@DDTLBZ_ID=N'TEST-00001' */ -->
+	<select id="AnguCode.MgtInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_MGT_CD_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{DDTLBZ_ID}
+		)
+	}
+	]]></select>
+	<!-- /* 코드 - 예산과목 레벨 */ -->
+	<!-- /* exec USP_COMMON_ACC_ABSDOCU_TERM_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585' */ -->
+	<select id="AnguCode.AbgtLevelInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_COMMON_ACC_ABSDOCU_TERM_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+		)
+	}
+	]]></select>
+	<!-- /* 코드 - 귀속 예산과목 코드 */ -->
+	<!-- /* exec USP_ANGU300_BGT_CD_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@BSNSYEAR=N'2017',@ASSTN_TAXITM_CODE=N'11001' */ -->
+	<select id="AnguCode.AbgtCodeInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_BGT_CD_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{BSNSYEAR}
+			, #{ASSTN_TAXITM_CODE}
+		)
+	}
+	]]></select>
+	<!-- /* 코드 - 예산과목 */ -->
+	<!-- /* exec USP_COMMON_ACC_CUSTOMHELP_SBGTCD_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@GISU=2,@FR_DT=N'20170101',@TO_DT=N'20171231',@GR_FG=N'2',@DIV_CDS=N'',@MGT_CDS=N'',@BOTTOM_CDS=N'',@BGT_CD=NULL,@BGT_NM=NULL,@OPT_01=N'1',@OPT_02=N'1',@OPT_03=N'1',@BGT_FR_DT=N'20170101',@GROUP_CD=N'' */ -->
+	<select id="AnguCode.AbgtInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_COMMON_ACC_CUSTOMHELP_SBGTCD_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{GISU,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{FR_DT}
+			, #{TO_DT}
+			, #{GR_FG}
+			, #{DIV_CDS}
+			, #{MGT_CDS}
+			, #{BOTTOM_CDS}
+			, #{BGT_CD}
+			, #{BGT_NM}
+			, #{OPT_01}
+			, #{OPT_02}
+			, #{OPT_03}
+			, #{BGT_FR_DT}
+			, #{GROUP_CD}
+		)
+	}
+	]]></select>
+	<!-- /* 코드 - 코드 */ -->
+	<!-- /* exec USP_GET_HELPCODE @LANGKIND=N'KOR',@P_HELP_TY=N'STRADE_CODE',@P_CO_CD=N'3585',@P_CODE=NULL,@P_CODE2=NULL,@P_CODE3=NULL,@P_USE_YN=N'1',@P_NAME=NULL,@P_STD_DT=NULL,@P_WHERE=N'TR_FG >= ''5''' */ -->
+	<select id="AnguCode.BtrInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_GET_HELPCODE
+		(
+			#{LANGKIND}
+			, #{P_HELP_TY}
+			, #{P_CO_CD}
+			, #{P_CODE}
+			, #{P_CODE2}
+			, #{P_CODE3}
+			, #{P_USE_YN}
+			, #{P_NAME}
+			, #{P_STD_DT}
+			, #{P_WHERE}
+		)
+	}
+	]]></select>
+	<!-- /* 코드 - 집계금액 */ -->
+	<!-- /* exec USP_ANGU300_RESULTERP_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@BSNSYEAR=N'2017',@DDTLBZ_ID=N'TEST-00001',@ASSTN_TAXITM_CODE=N'11001',@FNRSC_SE_CODE=N'001' */ -->
+	<select id="AnguCode.AmountInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_RESULTERP_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{BSNSYEAR}
+			, #{DDTLBZ_ID}
+			, #{ASSTN_TAXITM_CODE}
+			, #{FNRSC_SE_CODE}
+		)
+	}
+	]]></select>
+	<!-- /* 인력정보등록 - 코드*/ -->
+	<!-- /* exec USP_ANGU300_HPMETIC_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@BASE_DT=N'20170516' */ -->
+	<select id="AnguCode.HpmeticInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_HPMETIC_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{BASE_DT}
+		)
+	}
+	]]></select>
+	<!-- /* 인력정보등록 - 소득구분*/ -->
+	<!-- /* exec USP_GET_HELPCODE @LANGKIND=N'KOR',@P_HELP_TY=N'SCTRL_D_CODE',@P_CO_CD=N'3585',@P_CODE=N'',@P_CODE2=N'',@P_CODE3=N'',@P_USE_YN=N'1',@P_NAME=N'',@P_STD_DT=N'',@P_WHERE=N'CTRL_CD = ''G'' AND MODULE_CD = ''H'' AND CTD_CD IN(''60'', ''62'', ''63'', ''68'', ''71'', ''72'', ''73'', ''74'', ''75'', ''76'')' */ -->
+	<select id="AnguCode.PayTpInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_GET_HELPCODE
+		(
+			#{LANGKIND}
+			, #{P_HELP_TY}
+			, #{P_CO_CD}
+			, #{P_CODE}
+			, #{P_CODE2}
+			, #{P_CODE3}
+			, #{P_USE_YN}
+			, #{P_NAME}
+			, #{P_STD_DT}
+			, #{P_WHERE}
+		)
+	}
+	]]></select>
+
+	<!-- /* 카드 */ -->
+	<!-- /* 국고보조사업 귀속 카드 >> exec USP_ANGU300_CARD_NM_SELECT @LANGKIND=N'KOR',@CO_CD=N'3585',@DDTLBZ_ID=N'20170125000000000787' */ -->
+	<select id="AnguCode.CardInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_CARD_NM_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{DDTLBZ_ID}
+		)
+	}
+	]]></select>
+
+	<!-- /* 연동 거래처 정보 조회 */ -->
+	<select id="AnguCode.LinkPartnerInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_GET_HELPCODE
+		(
+			#{LANGKIND}
+			, #{P_HELP_TY}
+			, #{P_CO_CD}
+			, #{P_CODE}
+			, #{P_CODE2}
+			, #{P_CODE3}
+			, #{P_USER_YN}
+			, #{P_NAME}
+			, #{P_STD_DT}
+			, #{P_WHERE}
+		)
+	}
+	]]></select>
+
+	<!-- /* 연동 금융 거래처 정보 조회 */ -->
+	<select id="AnguCode.LinkBankInfoS" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_GET_HELPCODE
+		(
+			#{LANGKIND}
+			, #{P_HELP_TY}
+			, #{P_CO_CD}
+			, #{P_CODE}
+			, #{P_CODE2}
+			, #{P_CODE3}
+			, #{P_USER_YN}
+			, #{P_NAME}
+			, #{P_STD_DT}
+			, #{P_WHERE}
+		)
+	}
+	]]></select>
+</mapper>

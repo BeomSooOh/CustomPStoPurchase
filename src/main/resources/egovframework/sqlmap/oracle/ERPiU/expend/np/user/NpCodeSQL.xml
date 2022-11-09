@@ -1,0 +1,1075 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 사용자 코드 -->
+<mapper namespace="npUserCodeU">
+
+	<resultMap id="npUserCodeU.iUResult" type="hashmap"></resultMap>
+	<resultMap id="npUserCodeU.iUString" type="String"></resultMap>
+	<resultMap id="npUserCodeU.iUInt" type="Integer"></resultMap>
+	<select id="npUserCodeU.TestCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.TestQuery */
+		/* ERP iU 테스트 쿼리 */
+		{
+            CALL UP_HELP_COMBO_SELECT(
+                'KR'
+                , 'MA_CODEDTL'
+                , 'MA_B000057'
+                , ''
+                , ''
+                , ''
+                , '1'
+                , '2014'
+                , '1'
+                , ''
+                , 'N'
+                , 'L0'
+                , #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }
+	</select>
+
+	<select id="npUserCodeU.selectCommonDivCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonDivCode */
+		/* ERP iU 회계단위 조회 쿼리 */
+		{
+            CALL NEOE.UP_HELP_DETAILAUTH_SELECT2(
+	            'P_MA_PC_SUB' 
+				, '' 
+				, #{erpCompSeq} 		/* ERP 회사 시퀀스 */
+				, '' 
+				, '' 
+				, '' 
+				, '' 
+				, '' 
+				, '' 
+				, '' 
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, #{stdDate} 		/* 회계단위 종료일 */						
+				, 'FI'  			/* 모듈 */
+				, 'A'  				/* 사용자 권한 */
+				, '' 		/* 사업장 권한 */
+				, '^^'		/* 부서 권한 */  
+				, ''		/* 회계단위 권한 */  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, 'null'   			/* 추후 확인 필요함 */
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''			/* 검색어 필터 */							
+				, 'N'  				/* 다국어 */
+				, 'L0'  			/* 다국어 종류 */
+                , #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }
+	</select>	
+	
+	<select id="npUserCodeU.selectCommonBizCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonBizCode */
+		/* ERP iU 사업장 조회 쿼리 */
+		SELECT cd_bizarea AS erpBizSeq
+			   , nm_bizarea AS erpBizName
+			   , no_bizarea AS regNb
+		FROM 	MA_BIZAREA 
+		WHERE	CD_COMPANY = '${erpCompSeq}'
+	</select>	
+	
+	<select id="npUserCodeU.selectCommonDeptCode2" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonDeptCode2 */
+		/* ERP iU 부서 코드 조회 쿼리2 - 예실대비 현황 사용 */
+		{
+            CALL NEOE.UP_MA_DEPT_SELECT(
+            	#{erpCompSeq}
+            	, #{erpBizSeq}
+            	, #{stdDate}
+            	, 'N'
+            	, 'L0'
+            	, #{result1, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            	, #{result2, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+		   )
+        }
+	</select>	
+	<select id="npUserCodeU.selectCommonDeptCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonDeptCode */
+		/* ERP iU 부서 코드 조회 쿼리 */
+		{
+            CALL NEOE.UP_HELP_DETAILAUTH_SELECT2(
+	            'P_MA_DEPT_SUB' 
+				, '' 
+				, #{erpCompSeq}		/* ERP 회사 시퀀스 */	 
+				, '' 
+				, '' 
+				, '' 
+				, '' 
+				, '' 
+				, '' 
+				, '' 
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, #{stdDate} 		/* 부서 종료일 */						
+				, 'FI'  			/* 모듈 */
+				, 'T'  				/* 사용자 권한 */
+				, CONCAT(#{erpBizSeq},'|') 		/* 사업장 권한 */
+				, CONCAT(#{erpDeptSeq},'|')		/* 부서 권한 */  
+				, CONCAT(#{erpPcSeq},'|')		/* 회계단위 권한 */  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, 'null'   
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, #{deptName}	/* 검색어 필터 */							
+				, 'N'  
+				, 'L0'  
+                , #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }
+	</select>
+		
+	<select id="npUserCodeU.selectCommonBtrCode" parameterType="java.util.Map" resultType="java.util.Map" >
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonBtrCode */
+		/* ERP iU 입출금 계좌 조회 쿼리 */
+<!-- 		{
+            CALL UP_H_FI_BIZPLAN_DEPOSIT_S(
+				#{erpCompSeq} 	/* ERP 회사 시퀀스 */
+				, #{erpPcSeq}	 	/* 회계단위 */
+				, '1' 			/* 사업 계획 */
+				, #{searchStr}	/* 검색어 입력 */ 
+				, 'L0'			/* 다국어 코드 종류 */
+				, #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult} 
+            )
+        }		 -->
+            SELECT
+			    DE.CD_DEPOSIT
+			    , DE.NM_DEPOSIT
+			    , DE.NO_DEPOSIT
+			    , YN_USE
+			    , CD_PC
+			    , (SELECT LN_PARTNER FROM DZSN_MA_PARTNER WHERE CD_COMPANY = '${erpCompSeq}' AND CD_PARTNER = DE.CD_BANK) NM_BANK
+		    FROM    DZSN_FI_DEPOSIT DE    
+	   	 	WHERE   DE.CD_COMPANY = '${erpCompSeq}'	
+		    AND     (DE.CD_DEPOSIT LIKE '%' || '${searchStr}' || '%' OR DE.NM_DEPOSIT LIKE '%' || '${searchStr}' || '%')
+        	ORDER BY DE.CD_DEPOSIT
+	</select>	
+	
+	<select id="npUserCodeU.selectCommonBudgetCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonBudgetCode */
+		/* ERP iU 예산 단위 조회 쿼리 */
+		{
+            CALL NEOE.UP_HELP_DETAILAUTH_SELECT2(
+				'P_FI_BGCODE_DEPT_SUB' 
+				,'' 
+				, #{erpCompSeq}		/* ERP 회사 시퀀스 */ 
+				,'' 
+				,'' 
+				,#{erpPcSeq}
+				,#{erpDeptSeq}		/* 부서 코드 */ 
+				,'' 
+				,'' 
+				,'' 
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,#{stdYM} 			/* 종료 년월 */ 
+				,'FI'  				/* 회계 모듈 */
+				,'T'  				/* 사용자 권한 */
+				,''  
+				,CONCAT(#{erpDeptSeq},'|')	/* 부서 권한 */  
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,''  
+				,null 	  
+				,''  
+				,''  
+				,''  
+				,''  
+				,#{searchStr}			/* 검색어 입력 */ 
+				,'N'  					/* 다국어 사용여부 */
+				,'L0'  					/* 다국어 코드 */
+                , #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }		
+	</select>	
+	
+	<select id="npUserCodeU.selectCommonBgtLevelCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonBgtLevelCode */
+		/* ERP iU 예산 계정 조회 쿼리 */
+		{
+            CALL UP_H_FI_BIZCODEJO2_SELECT(
+            	#{erpCompSeq}		/* ERP 회사 시퀀스 */ 
+				, #{bgtLevelName}	/* 검색어 */  
+				, #{bgtYear}		/* 예산 년도 */ 
+				, #{bgtAcct}		/* 예산 과목 */
+				, #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }
+	</select>	
+	
+	<select id="npUserCodeU.selectCommonBgtInfoCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonBgtInfoCode */
+		/* ERP iU 예산 계정 상세 정보 조회 쿼리 */
+		{
+            CALL UP_FI_DOCUCAUSE_BUDGETDATA_S(
+            	#{erpCompSeq}			/* ERP 회사 시퀀스 */ 
+				, #{bgtLevelCode}		/* 예산단위코드 */  
+				, #{bizPlanCode}		/* 사업계획 */ 
+				, #{bgtAcctCode} 		/* 예산계정 코드 */
+				, '1'					/* 차대구분 */
+				, #{expendDate}			/* 회계일자 */
+				, #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }		
+	</select>
+	
+	<select id="npUserCodeU.selectCommonBgtCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonBgtCode */
+		/* ERP iU 회계 계정 조회 쿼리 */
+		{
+            CALL NEOE.UP_HELP_FI_SELECT2(
+				'P_FI_ACCTCODE_SUB'
+				, '' 
+				, #{erpCompSeq}		/* ERP 회사 시퀀스 */ 		
+				, '' 
+				, '' 
+				, '' 
+				, '' 
+				, '' 
+				, '' 
+				, '' 
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, 'FI'  			/* 모듈 코드 */
+				, 'T'  				/* 사용자 권한 */
+				, #{bizArea, mode=OUT, jdbcType=NVARCHAR, javaType=string, resultMap=npUserCodeU.iUString}  	/* bizArea */
+				, '^^' 
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, ''  
+				, 'Y'  
+				, ''  
+				, ''  
+				, ''  
+				, null   
+				, 'Y'  
+				, ''  
+				, ''  
+				, ''  
+				, #{divName}   /* 검색어 필터 */ 
+				, 'N'  
+				, 'L0'  
+                , #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }		
+	</select>
+
+	<select id="npUserCodeU.selectCommonTrCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonTrCode */
+		/* ERP iU 거래처 코드 조회 쿼리 */
+		{
+            CALL UP_HELP_MA_SELECT2(
+                  'P_MA_PARTNER_SUB'
+                , ''
+                , #{erpCompSeq}			/* 회사 시퀀스 */
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , 'FI'
+                , 'T'
+                , #{bizArea, mode=OUT, jdbcType=NVARCHAR, javaType=string, resultMap=npUserCodeU.iUString}
+                , '^^'
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , #{trGbn}		/* 거래처구분 001(주요), 002(금융), 003(개인), 004(신용), 005(기타), 006(외국어) */
+                , #{trType}		/* 거래처분류 001(매입), 002(매출), 003(통합), 004(기타) */
+                , #{useYN}		/* 사용여부 ''(전체), Y(사용), N(미사용) */
+                , #{trOpenGbn, jdbcType=NVARCHAR}		/* 휴폐업구분 null(전체), 001(정상), 002(휴업), 003(폐업) */
+                , ''
+                , ''
+                , ''
+                , ''
+                , #{searchStr}
+                , 'N'
+                , 'L0'
+                , #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }
+	</select>
+	
+	<select id="npUserCodeU.selectCommonCardCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonCardCode */
+		/* ERP iU 카드 코드 조회 쿼리 */
+		{
+            CALL NEOE.UP_HELP_FI_SELECT2(
+                  'P_FI_CARD_SUB'
+                , ''
+                , #{erpCompSeq}			/* 회사 시퀀스 */
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , 'FI'
+                , 'T'
+                , ''
+                , '^^'
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , #{useYN}	/* 사용여부 Y(사용), N(미사용), ''(전체) */
+                , #{cardGbn}    /* 신용카드 구문 ''(전체), 1(법인카드), 2(개인카드), 3(개인법인카드), 4(화물운전자복지카드) */
+                , ''
+                , ''
+                , ''
+                , ''
+                , #{cardName}	/* 검색어 */
+                , 'N'
+                , 'L0'
+                , #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }
+	</select>
+	
+	<select id="npUserCodeU.selectCommonBankCodeNotProcedure" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT  CD_SYSDEF
+				, NM_SYSDEF
+				, CD_FLAG2
+		FROM    DZSN_MA_CODEDTL 
+		WHERE   CD_COMPANY = #{erpCompSeq}  
+		AND     CD_FIELD = 'FI_T000013' AND USE_YN = 'Y' 
+		AND     (CD_SYSDEF LIKE '%' || #{searchStr} ||'%' OR NM_SYSDEF LIKE '%' ||  #{searchStr} || '%') 
+		ORDER BY CD_SYSDEF ASC NULLS FIRST
+           
+	</select>
+	<select id="npUserCodeU.selectCommonBankCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonBankCode */
+		/* ERP iU 금융기관 코드 조회 쿼리 */
+		{
+            CALL UP_HELP_MA_SELECT2(
+                  'P_MA_CODE_SUB'
+                , ''
+                , #{erpCompSeq}			/* 회사 시퀀스 */
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , #{erpEmpSeq}		/* 사용자 ERP 시퀀스 */
+                , #{erpEmpSeq}		/* 사용자 ERP 시퀀스 */
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , 'FI'
+                , 'T'
+<!--                 , #{authBizArea, mode=OUT, jdbcType=NVARCHAR, javaType=string, resultMap=npUserCodeU.iUString} -->
+                , ''
+                , '^^'
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , 'FI_T000013'	/* 확인필요 */
+                , ''
+                , ''	
+                , null    
+                , ''
+                , ''
+                , ''
+                , ''
+                , #{searchStr}	/* 검색어 */
+                , 'N'
+                , 'L0'
+                , #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }
+	</select>
+	
+	
+	<select id="npUserCodeU.selectCommonEmpCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonEmpCode */
+		/* ERP iU 사원 정보 코드 조회 쿼리 */
+		{
+            CALL NEOE.UP_HELP_DETAILAUTH_SELECT2(
+                  'P_MA_EMP_SUB'
+                , ''
+                , #{erpCompSeq}			/* 회사 시퀀스 */
+                , ''
+                , ''
+                , ''
+                , '' /* 부서연결인 경우 부서시퀀스 들어간다 */
+                , ''
+				, ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+				, 'FI'  			/* 모듈 */
+				, 'T'  				/* 사용자 권한 */
+				, ''
+				, '^^'
+				<!--, CONCAT(#{erpBizSeq},'|') 		/* 사업장 권한 */ -->
+				<!--, CONCAT(#{erpDeptSeq},'|')		/* 부서 권한 */ -->
+				<!--, CONCAT(#{erpPcSeq},'|')		/* 회계단위 권한 */  -->
+				, ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''
+                , ''	
+                , #{workType, jdbcType=NVARCHAR}    /* 고용형태(null:전체,001:상용직,002:일용직,003:파견직,004:도급직) */
+                , ''
+                , ''
+                , ''
+                , ''
+                , #{searchStr}	/* 검색어 */
+                , 'N'
+                , 'L0'
+                , #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }
+	</select>
+	
+	<select id="npUserCodeU.selectCommonTrEtcCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonTrEtcCode */
+		/* ERP iU 기타 소득자 코드 조회 */
+		{
+            CALL UP_H_FI_HEARNER_S(
+                  #{erpCompSeq}		/* 회사 시퀀스 */
+                , #{resDate}		/* 소득종료일 */
+                , 'G'				/* G(기타소득자), F(사업소득자) */
+                , #{trName}			/* 검색어 */
+                , #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }
+	</select>
+	
+	<select id="npUserCodeU.selectCommonTrBusCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonTrBusCode */
+		/* ERP iU 사업소득자 코드 조회 */
+		{
+            CALL UP_H_FI_HEARNER_S(
+                  #{erpCompSeq}		/* 회사 시퀀스 */
+                , #{resDate}		/* 소득종료일 */
+                , 'F'				/* G(기타소득자), F(사업소득자) */
+                , #{trName}			/* 검색어 */
+                , #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }
+	</select>
+	
+		
+	<select id="npUserCodeU.selectCommonAuthDeptCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonAuthDeptCode */
+		/* ERP iU 사용자 권한 부서 조회 */
+		{
+            CALL UP_MA_DETAIL_AUTH_SELECT_DEPT(
+            	#{erpCompSeq}		/* ERP 회사 시퀀스 */
+            	, #{erpBizSeq}			/* 사업장 */
+            	, #{erpEmpSeq}		/* 사용자 ERP 사번 */
+            	, 'L0'				/* 다국어 코드 */
+            	, #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }
+	</select>
+	
+	<select id="npUserCodeU.selectCommonBizplanCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonBizplanCode */
+		/* ERP iU 사업계획 조회 쿼리 */
+		CALL NEOE.UP_HELP_FI_SELECT2(	
+			'P_FI_BIZPLAN2_SUB'
+			,''
+			,#{erpCompSeq}
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,'FI' 
+			,'T' 
+			,''
+			,'^^' 
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,#{erpBudgetSeq} 			/* 예산단위 코드 */
+			,''
+			,''
+			,#{erpDivSeq}
+			,''
+			,#{searchStr}			/* 검색어 입력 */
+			,'N '
+			,'L0'
+			, #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+		)
+	</select>
+	
+	<select id="npUserCodeU.selectCommonBgacctCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonBgacctCode */
+		/* ERP iU 예산계정 조회 쿼리 */
+		CALL	NEOE.UP_H_FI_BIZCODEJO2_SELECT
+		(
+			#{erpCompSeq}
+			, #{searchStr}
+			, #{bgtYear}
+			, '${grFg}|3|'
+			, #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+		)	
+	</select>
+	
+	
+	<select id="npUserCodeU.selectCommonFiacctCode" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonFiacctCode */
+		/* ERP iU 회계계정 조회 쿼리 */
+		CALL NEOE.UP_HELP_FI_SELECT2(
+			'P_FI_ACCTCODE_NB_SUB'
+			,''
+			,#{erpCompSeq}
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,''
+			,'FI' 
+			,'T' 
+			,''
+			,'^^' 
+			,''
+			,#{erpBgacctSeq}	/* 예산과목코드 */
+			,''
+			,'2'
+			,''
+			,''
+			,''
+			,''
+			,''
+			, null 
+			,'Y' 
+			,''
+			,''
+			,''
+			,#{searchStr}	/* 검색어 */
+			,'N'
+			,'L0'
+			, #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+		)
+	</select>
+	
+	<select id="npUserCodeU.selectCommonTrGroup" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.TrGroup */
+		/* ERP iU 거래처 그룹 쿼리 */
+		{
+            CALL UP_HELP_COMBO_SELECT(
+                'KR'
+                , 'MA_CODEDTL'
+                , 'MA_B000065'
+                , ''
+                , ''
+                , ''
+                , '1'
+                , #{erpCompSeq}
+                , '1'
+                , ''
+                , 'N'
+                , 'L0'
+                , #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }
+	</select>
+	
+	<select id="npUserCodeU.selectCommonTrGroup2" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.TrGroup */
+		/* ERP iU 거래처 그룹 쿼리 */
+		{
+            CALL UP_HELP_COMBO_SELECT(
+                'KR'
+                , 'MA_CODEDTL'
+                , 'MA_B000067'
+                , ''
+                , ''
+                , ''
+                , '1'
+                , #{erpCompSeq}
+                , '1'
+                , ''
+                , 'N'
+                , 'L0'
+                , #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+        }
+	</select>
+	
+	<select id="npUserCodeU.selectCommonIncomeGbn" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonIncomeGbn */
+		/* ERP iU 소득 구분 쿼리 */
+		SELECT  CTD_CD CODE, CTD_NM NAME
+		FROM    SCTRL_D
+		WHERE   CO_CD = #{erpCompSeq}
+		AND     CTRL_CD = 'G'
+		AND     MODULE_CD = 'H'
+		AND     CTD_CD in ('60','61','62','63','65','68','69','71','72','73','74','75','76','78','79','80')
+		AND     (#{searchStr} IS NULL OR '' = ' ' OR CTD_CD LIKE '%' || #{searchStr} || '%' OR CTD_NM LIKE '%' || #{searchStr} || '%')
+		ORDER   BY CTD_CD
+	]]></select>
+	
+	<select id="npUserCodeU.selectCommonNoTax" parameterType="java.util.Map" resultType="java.util.Map">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonNoTax */
+		/* ERP iU 불공제 과세구분 조회 쿼리 */
+		
+		SELECT	CD_SYSDEF AS "stMutualSeq" /* 불공제 사유 코드 */
+				, NM_SYSDEF AS "stMutualName" /* 불공제 사유 명칭 */
+		FROM	NEOE.MA_CODEDTL
+		WHERE	CD_FIELD = 'FI_T000002' /* 불공제 사유 코드 마스터 */
+		AND		CD_COMPANY = #{erpCompSeq}
+		AND		USE_YN = 'Y'
+		AND		(
+					CD_SYSDEF LIKE ('%' || #{searchStr} || '%')
+					OR NM_SYSDEF LIKE ('%' || #{searchStr} || '%')
+				)
+	</select>
+	
+	<select id="npUserCodeU.selectCommonTrCodeNotProcedure" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonTrCodeNotProcedure */
+		/* ERP iU 거래처 조회 쿼리(프로시저에서 사용중인 내용) */
+		SELECT  a.CD_PARTNER,
+		        a.LN_PARTNER,
+		        a.SN_PARTNER,
+		        a.NO_COMPANY,
+		        a.NM_CEO,
+		        a.NO_DEPOSIT,
+		        a.NM_PTR,
+		        a.NO_RES,
+		        a.NO_TEL1,
+		        a.NO_FAX1,
+		        a.NM_PARTNER_GRP,
+		        a.NM_PARTNER_GRP_2,
+		        A.NM_DEPOSIT,
+		        a.NO_HPEMP_PARTNER,
+		        a.NM_EMP_SALE,
+		        a.CLS_PARTNER,
+		        a.NM_CON,
+		        a.NM_BANK, 
+		        a.CD_BANK,
+		        a.DC_ADS1_H,  
+		        a.DC_ADS1_D,
+		        a.CD_EMP_PARTNER,
+		        a.FG_CORPCODE,      
+		        a.E_MAIL,
+		        a.EN_PARTNER,
+		        a.CD_DEPOSITNO
+		FROM(
+			      SELECT  A.CD_PARTNER,     
+							to_single_byte(A.LN_PARTNER) LN_PARTNER,
+							to_single_byte(A.SN_PARTNER) SN_PARTNER,
+							A.NO_COMPANY,
+							A.NM_CEO,
+							P.NO_DEPOSIT,
+							A.NM_PTR, 
+							A.NO_RES,
+							A.NO_TEL1, 
+							A.NO_FAX1, 
+							B.NM_SYSDEF NM_PARTNER_GRP,
+							G.NM_SYSDEF NM_PARTNER_GRP_2,
+							A.NM_DEPOSIT NM_DEPOSIT,
+							A.NO_HPEMP_PARTNER, 
+							D.NM_KOR NM_EMP_SALE,
+							J.NM_SYSDEF CLS_PARTNER,
+							C.NM_SYSDEF NM_CON,
+							E.NM_SYSDEF NM_BANK, 
+							E.CD_SYSDEF CD_BANK,
+							A.DC_ADS1_H,            
+							A.DC_ADS1_D,            
+							A.CD_EMP_PARTNER,       
+							A.FG_CORPCODE,          
+							A.E_MAIL,
+							A.EN_PARTNER,
+							P.CD_DEPOSITNO
+					FROM   DZSN_MA_PARTNER A
+					LEFT JOIN MA_PARTNER_DEPOSIT P				 ON P.CD_PARTNER = A.cd_partner  AND P.CD_COMPANY  = #{erpCompSeq}	   AND P.HELP_USE = 'Y'
+					LEFT OUTER JOIN DZSN_MA_CODEDTL B            ON B.CD_COMPANY = #{erpCompSeq} AND B.CD_FIELD = 'MA_B000065' AND B.CD_SYSDEF = A.CD_PARTNER_GRP    /* 거래처그룹 */
+					LEFT OUTER JOIN DZSN_MA_CODEDTL C            ON C.CD_COMPANY = #{erpCompSeq} AND C.CD_FIELD = 'MA_B000073' AND C.CD_SYSDEF = NVL(A.CD_CON, '001')/* 휴폐업구분 */  
+					LEFT OUTER JOIN DZSN_MA_EMP D                ON A.CD_COMPANY = D.CD_COMPANY AND A.CD_EMP_SALE = D.NO_EMP 
+					LEFT OUTER JOIN DZSN_MA_CODEDTL E            ON E.CD_COMPANY = #{erpCompSeq} AND E.CD_FIELD = 'MA_B000043' AND E.CD_SYSDEF = P.CD_BANK
+					LEFT OUTER JOIN DZSN_MA_CODEDTL G            ON G.CD_COMPANY = #{erpCompSeq} AND G.CD_FIELD = 'MA_B000067' AND G.CD_SYSDEF = A.CD_PARTNER_GRP_2  /* 거래처그룹 */
+					LEFT OUTER JOIN DZSN_MA_CODEDTL J            ON J.CD_COMPANY = #{erpCompSeq} AND J.CD_FIELD = 'MA_B000003' AND J.CD_SYSDEF = A.CLS_PARTNER
+					WHERE   A.CD_COMPANY = #{erpCompSeq} 
+					AND     (NVL(#{trGbn},' ') = ' ' OR A.FG_PARTNER = #{trGbn})    /* 거래처구분 001(주요), 002(금융), 003(개인), 004(신용), 005(기타), 006(외국어) */
+					AND     (NVL(#{trType},' ') = ' ' OR A.CLS_PARTNER = #{trType}) /* 거래처분류 001(매입), 002(매출), 003(통합), 004(기타) */ 
+					AND     (NVL(#{useYN},' ') = ' ' OR A.USE_YN = #{useYN})        /* 사용여부 ''(전체), Y(사용), N(미사용) */
+					AND     (NVL('',' ') = ' ' OR A.CD_PARTNER IN (SELECT CD_STR FROM TABLE(NEOE.GETTABLEFROMSPLIT(''))))
+					AND     (NVL(#{trOpenGbn, jdbcType=NVARCHAR},' ') = ' ' OR A.CD_CON = #{trOpenGbn, jdbcType=NVARCHAR}) /* 휴폐업구분 null(전체), 001(정상), 002(휴업), 003(폐업) */
+					AND     (NVL(#{trGroup},' ') = ' ' OR A.CD_PARTNER_GRP = #{trGroup})      /* 거래처그룹 */
+			        AND     (NVL(#{trGroup2},' ') = ' ' OR A.CD_PARTNER_GRP_2 = #{trGroup2})    /* 거래처그룹2 */  
+					AND     (NVL('',' ') = ' ' OR A.FG_CORP IN (SELECT CD_STR FROM TABLE(NEOE.GETTABLEFROMSPLIT(''))))   /* 연결법인구분 */
+					AND     (
+						A.CD_PARTNER 			LIKE '%' || #{searchStr} || '%' 
+						OR UPPER(LN_PARTNER) 	LIKE '%' || UPPER(#{searchStr}) || '%' 
+						OR NO_COMPANY 			LIKE '%' || #{searchStr} || '%' 
+						OR NM_CEO 				LIKE '%' || #{searchStr} || '%' 
+						OR A.NO_RES 			LIKE '%' || #{searchStr} || '%' 
+						OR SN_PARTNER 			LIKE '%' || #{searchStr} || '%' 
+					)
+					ORDER BY A.CD_PARTNER NULLS FIRST
+   			 ) A
+		WHERE   ROWNUM <= 100 
+	]]>
+	</select>
+	
+	<select id="npUserCodeU.selectCommonTrAdvCode" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectCommonTrAdvCode */
+		/* ERP iU 거래처 확장 정보 조회 쿼리 */
+		SELECT  A.CD_PARTNER,     
+		        to_single_byte(A.LN_PARTNER) LN_PARTNER,
+		        to_single_byte(A.SN_PARTNER) SN_PARTNER,
+		        A.NO_COMPANY,
+		        A.NM_CEO,
+		        A.NO_DEPOSIT,
+		        A.NM_PTR, 
+		        A.NO_RES,
+		        A.NO_TEL1, 
+		        A.NO_FAX1, 
+		        B.NM_SYSDEF NM_PARTNER_GRP,
+		        G.NM_SYSDEF NM_PARTNER_GRP_2,
+		        A.NM_DEPOSIT NM_DEPOSIT,
+		        A.NO_HPEMP_PARTNER, 
+		        D.NM_KOR NM_EMP_SALE,
+		        J.NM_SYSDEF CLS_PARTNER,
+		        C.NM_SYSDEF NM_CON,
+		        E.NM_SYSDEF NM_BANK, 
+		        E.CD_SYSDEF CD_BANK,
+		        A.DC_ADS1_H,            
+		        A.DC_ADS1_D,            
+		        A.CD_EMP_PARTNER,       
+		        A.FG_CORPCODE,          
+		        A.E_MAIL,
+		        A.EN_PARTNER,
+		        P.CD_DEPOSITNO
+		FROM   DZSN_MA_PARTNER A
+		LEFT OUTER JOIN DZSN_MA_CODEDTL B            ON B.CD_COMPANY = A.CD_COMPANY AND B.CD_FIELD = 'MA_B000065' AND B.CD_SYSDEF = A.CD_PARTNER_GRP    /* 거래처그룹 */             
+		LEFT OUTER JOIN DZSN_MA_CODEDTL C            ON C.CD_COMPANY = A.CD_COMPANY AND C.CD_FIELD = 'MA_B000073' AND C.CD_SYSDEF = NVL(A.CD_CON, '001')/* 휴폐업구분 */  
+		LEFT OUTER JOIN DZSN_MA_EMP D                ON A.CD_COMPANY = D.CD_COMPANY AND A.CD_EMP_SALE = D.NO_EMP 
+		LEFT OUTER JOIN DZSN_MA_CODEDTL E            ON E.CD_COMPANY = A.CD_COMPANY AND E.CD_FIELD = 'MA_B000043' AND E.CD_SYSDEF = A.CD_BANK
+		LEFT OUTER JOIN DZSN_MA_CODEDTL G            ON G.CD_COMPANY = A.CD_COMPANY AND G.CD_FIELD = 'MA_B000067' AND G.CD_SYSDEF = A.CD_PARTNER_GRP_2  /* 거래처그룹 */
+		LEFT OUTER JOIN DZSN_MA_CODEDTL J            ON J.CD_COMPANY = A.CD_COMPANY AND J.CD_FIELD = 'MA_B000003' AND J.CD_SYSDEF = A.CLS_PARTNER
+		LEFT OUTER JOIN MA_PARTNER_DEPOSIT P		 ON P.CD_PARTNER = A.CD_PARTNER AND P.CD_COMPANY  = #{erpCompSeq}	   AND P.USE_YN = 'Y'
+		WHERE   A.CD_COMPANY = #{erpCompSeq}
+		 AND    A.NO_COMPANY = #{trRegNb}
+		 AND    A.USE_YN = 'Y'
+		 AND rownum = '1'
+	]]>
+	</select>
+	
+	
+	<select id="ExCommonCodePartnerSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.ExCommonCodePartnerSelect */
+		/* ERP iU 거래처 조회 쿼리(기존 카드설정 페이지에서 공통코드 사용 할 때) */
+		SELECT	CD_PARTNER                          AS "partnerCode"
+				, LN_PARTNER                        AS "partnerName"
+				, NO_COMPANY                        AS "partnerNo"
+				/* , CASE WHEN LENGTH(NVL(NO_RES, ' ')) > 6 THEN SUBSTRING(NVL(NO_RES, ' '), 1, 6) + '-*******' ELSE ' ' END AS "resNo */
+				, FG_PARTNER                        AS "partnerFg"
+				, NVL (NM_CEO, ' ')               AS "ceoName"
+				, NVL (TP_JOB, ' ')               AS "jobGbn"
+				, NVL (CLS_JOB, ' ')              AS "clsJobGbn"
+				, NVL (NO_DEPOSIT, ' ')           AS "depositNo"
+				, NVL (CD_BANK, ' ')              AS "bankCode"
+				, NVL (CD_EMP_PARTNER, ' ')       AS "partnerEmpCode"
+				, NVL (NO_HPEMP_PARTNER, ' ')     AS "partnerHpEmpNo"
+		FROM    NEOE.MA_PARTNER
+		WHERE 	CD_COMPANY = #{erpCompSeq}
+		AND 	USE_YN = 'Y'
+		AND 	NVL(FG_PARTNER, ' ') LIKE '%' || '${searchType}' || '%'
+		AND ( 
+				( 	
+					( NVL (CD_PARTNER, ' ') LIKE '%' || NVL ( #{searchStr}, ' ' ) || '%' )
+					OR ( NVL (LN_PARTNER, ' ') LIKE '%' || NVL ( #{searchStr}, ' ' ) || '%' )
+					OR ( NVL (NO_COMPANY, ' ') LIKE '%' || NVL ( #{searchStr}, ' ' ) || '%' )
+					OR ( NVL (CD_EMP_PARTNER, ' ') LIKE '%' || NVL ( #{searchStr}, ' ' ) || '%' ) 
+					 
+				)
+				OR	NVL (#{searchStr}, ' ') = ' '
+			)
+		AND		ROWNUM <= 100
+	]]>
+	</select>
+	
+	<select id="ExCommonCodeRegNoPartnerSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.ExCommonCodePartnerSelect */
+		/* ERP iU 거래처 조회 쿼리(기존 매입전자세금계산서 페이지에서 공통코드 사용 할 때) */
+		/* 공통 코드 조회(거래처) /  ExCommonCodeRegNoPartnerSelect */
+		SELECT 	A.CD_PARTNER                          AS "partnerCode"
+				, LN_PARTNER                        AS "partnerName"
+				, NO_COMPANY                        AS "partnerNo"
+				/* , CASE WHEN LENGTH(NVL(NO_RES, ' ')) > 6 THEN SUBSTRING(NVL(NO_RES, ' '), 1, 6) || '-*******' ELSE ' ' END AS "resNo" */
+				, FG_PARTNER                        AS "partnerFg"
+				, NVL (NM_CEO, ' ')               AS "ceoName"
+				, NVL (TP_JOB, ' ')               AS "jobGbn"
+				, NVL (CLS_JOB, ' ')              AS "clsJobGbn"
+				, NVL (A.NO_DEPOSIT, ' ')           AS "depositNo"
+				, NVL (A.CD_BANK, ' ')              AS "bankCode"
+				, NVL (CD_EMP_PARTNER, ' ')       AS "partnerEmpCode"
+				, NVL (NO_HPEMP_PARTNER, ' ')     AS "partnerHpEmpNo"
+				, NVL (A.NM_DEPOSIT, ' ')           AS "depositName"
+				, CASE
+					WHEN LENGTH(NVL(B.NM,' ')) * LENGTH(NVL(A.NO_DEPOSIT,' ')) * LENGTH(NVL(A.NM_DEPOSIT,' ')) > 0
+						THEN B.NM || '/' || A.NO_DEPOSIT || '/' || A.NM_DEPOSIT
+					ELSE ' '
+				END AS "depositConvert"
+				, NVL(deposit.CD_DEPOSITNO, ' ') AS "depositCd"
+		FROM NEOE.MA_PARTNER A
+		LEFT OUTER JOIN NEOE.MA_PARTNER_DEPOSIT deposit ON  A.NO_DEPOSIT = deposit.NO_DEPOSIT AND A.CD_PARTNER = deposit.CD_PARTNER AND A.CD_COMPANY = deposit.CD_COMPANY
+		   LEFT OUTER JOIN (SELECT CD
+		                           , NM
+		                      FROM (SELECT CD_FIELD
+		                              FROM NEOE.MA_CODE 
+		                             WHERE CD_COMPANY = '${erpCompSeq}'
+		                                   AND CD_FIELD = 'MA_B000043') A
+		                           INNER JOIN (SELECT CD_FIELD
+		                                              , CD_SYSDEF AS CD
+		                                              , NM_SYSDEF AS NM
+		                                         FROM NEOE.MA_CODEDTL 
+		                                        WHERE CD_COMPANY = '${erpCompSeq}'
+		                                              AND CD_FIELD = 'MA_B000043'
+		                                              AND USE_YN = 'Y') B
+		                                   ON A.CD_FIELD = B.CD_FIELD) B
+		                ON A.CD_BANK = B.CD
+		WHERE A.CD_COMPANY = '${erpCompSeq}'
+		AND A.USE_YN = 'Y'
+		AND REPLACE(NVL(A.NO_COMPANY, ' '),'-',' ') != ' '
+		AND	NVL(FG_PARTNER, ' ') LIKE '%' || '${searchType}' || '%'
+		AND ( 
+			(	NVL (#{searchStr}, ' ') != ' '
+				AND ( 
+					( NVL (A.CD_PARTNER, ' ') LIKE '%' || NVL ( #{searchStr}, ' ' ) || '%' )
+					OR ( NVL (A.LN_PARTNER, ' ') LIKE '%' || NVL ( #{searchStr}, ' ' ) || '%' )
+					OR ( NVL (A.NO_COMPANY, ' ') LIKE '%' || NVL ( #{searchStr}, ' ' ) || '%' )
+					OR ( NVL (A.CD_EMP_PARTNER, ' ') LIKE '%' || NVL ( #{searchStr}, ' ' ) || '%' ) 
+				) 
+			)
+			OR ( NVL (#{searchStr}, ' ') = ' '
+				AND ( NVL (#{searchStr}, ' ') = NVL (#{searchStr}, ' ') ) 
+				)
+			)
+		AND	ROWNUM <= 100
+	]]>
+	</select>
+	
+	
+	<select id="npUserCodeU.selectErpiUGisuInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectErpiUGisuInfo */
+		/* ERPiU 예산 기수 정보 조회 */
+		SELECT  * 
+		FROM    NEOE.FI_ACCSEQ 
+		WHERE   CD_COMPANY = #{erpCompSeq}	
+		ORDER BY NO_ACCSEQ
+	</select>
+	
+	<select id="npUserCodeU.selectErpiUdepositNo" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserCodeU.selectErpiUdepositNo */
+		/* ERPiU 계좌번호 정보 조회 */
+			{
+            CALL UP_HELP_MA_PARTNER_DEPOSIT_SEL (
+                #{erpCompSeq}
+                , #{searchStr}
+                , #{trSeq}
+                , ''
+                , #{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npUserCodeU.iUResult}
+            )
+     		}
+	</select>	
+
+</mapper>

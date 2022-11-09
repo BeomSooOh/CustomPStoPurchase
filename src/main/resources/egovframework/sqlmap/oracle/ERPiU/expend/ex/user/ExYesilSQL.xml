@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ERPiU oracle -->
+<mapper namespace="UseriUYesil2">
+	<resultMap id="UseriUYesil2.iUResult" type="hashmap"></resultMap>
+	<resultMap id="UseriUYesil2.iUResult2" type="hashmap"></resultMap>
+	<resultMap id="UseriUYesil2.iUString" type="String"></resultMap>
+	<resultMap id="UseriUYesil2.iUInt" type="Integer"></resultMap>
+
+	<select id="UseriUYesil2.ExUserYesil2CommonCode"
+		parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+		/*
+		 * [ ERPiU - ORACLE ] AdminiUYesil2.ExAdminYesil2CommonCode - ERPiU 공통 코드 조회
+		 * 작성자 : 김상겸
+		 * 작성일 : 2019-08-28
+		 * 변경이력
+		 * - 2019-08-28 / 김상겸 : mssql <> oracle 비교 보완
+		 */
+		 
+		{
+            CALL	NEOE.UP_MA_CODE_SELECT1 (
+	                #{erpCompSeq}
+	                , #{key}
+	                , #{RC1, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=UseriUYesil2.iUResult}
+	                , #{RC2, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=UseriUYesil2.iUResult2}
+            )
+        }
+		]]>
+	</select>
+
+	<select id="UseriUYesil2.ExUserYesil2DeptInfo"
+		parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/*
+		 * [ ERPiU - ORACLE ] UseriUYesil2.ExUserYesil2DeptInfo - ERPiU 결의부서 조회
+		 * 작성자 : 김상겸
+		 * 작성일 : 2019-08-28
+		 * 변경이력
+		 * - 2019-08-28 / 김상겸 : mssql <> oracle 비교 보완
+		 */
+
+		SELECT	C.CD_COMPANY
+				, C.CD_DEPT
+				, C.NM_DEPT
+		FROM	NEOE.MA_EMP A
+				INNER JOIN NEOE.MA_COMPANY B ON A.CD_COMPANY = B.CD_COMPANY
+				INNER JOIN NEOE.MA_DEPT C ON A.CD_COMPANY = C.CD_COMPANY AND A.CD_DEPT = C.CD_DEPT
+		WHERE	A.CD_COMPANY = #{erpCompSeq}
+		AND		A.NO_EMP = #{erpEmpSeq}
+		]]>
+	</select>
+
+	<select id="UseriUYesil2.ExUserYesil2BudgetGr"
+		parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+		/*
+		 * [ ERPiU - ORACLE ] UseriUYesil2.ExUserYesil2BudgetGr - ERPiU 예산단위그룹 조회
+		 * 작성자 : 김상겸
+		 * 작성일 : 2019-08-28
+		 * 변경이력
+		 * - 2019-08-28 / 김상겸 : mssql <> oracle 비교 보완
+		 */
+		 
+		{
+			CALL	NEOE.UP_FI_BUDGETGR_S_1 (
+					#{erpCompSeq}
+					, #{searchStr}
+					, #{grLevel}
+					, NULL
+					, NULL
+					, #{RC1, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=UseriUYesil2.iUResult}
+			)
+		}
+		]]>
+	</select>
+
+	<select id="UseriUYesil2.ExUserYesil2BudgetCodeSelect"
+		parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/*
+		 * [ ERPiU - ORACLE ] UseriUYesil2.ExUserYesil2BudgetCodeSelect - ERPiU 예산단위 budgetCode 조회
+		 * 작성자 : 김상겸
+		 * 작성일 : 2019-08-28
+		 * 변경이력
+		 * - 2019-08-28 / 김상겸 : mssql <> oracle 비교 보완
+		 */
+
+		SELECT	CD_BUDGET 
+  		FROM	TABLE(NEOE.FN_FI_BUDGETGRH_D_S(#{erpCompSeq}, ''))
+		]]>
+	</select>
+
+	<select id="UseriUYesil2.ExUserYesil2DetailAuth"
+		parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+		/*
+		 * [ ERPiU - ORACLE ] UseriUYesil2.ExUserYesil2DetailAuth - ERPiU 결의부서, 예산단위 조회
+		 * 작성자 : 김상겸
+		 * 작성일 : 2019-08-28
+		 * 변경이력
+		 * - 2019-08-28 / 김상겸 : mssql <> oracle 비교 보완
+		 */
+		 
+		{
+			CALL	NEOE.UP_HELP_DETAILAUTH_SELECT2(
+					#{helpId}
+					, #{childMode}
+					, #{erpCompSeq} /* ERP 회사 시퀀스 */
+					, #{cdGroup}
+					, #{cdBizarea}
+					, #{cdPc}
+					, #{cdDept}
+					, #{cdCc}
+					, #{noEmp}
+					, #{idUser}
+					, #{cdPlant}
+					, #{cdCcgrp}
+					, #{idMenu}
+					, #{cdItem}
+					, #{cdItemgrp}
+					, #{cdPartner}
+					, #{cdPurgrp}
+					, #{cdPurorg}
+					, #{cdSalegrp}
+					, #{cdSaleorg}
+					, #{cdSl}
+					, #{cdWc}
+					, #{cdWh}
+					, #{fgModule}
+					, #{dateStart}
+					, #{dateEnd}
+					, #{moduleParent}
+					, #{userGrant}
+					, #{authBizarea}
+					, #{authDept}
+					, #{authPc}
+					, #{cdAcct}
+					, #{tpAclevel}
+					, #{tpAcstats}
+					, #{cdMng}
+					, #{cdMngd}
+					, #{cdField1}
+					, #{cdField2}
+					, #{cdField3}
+					, #{code1}
+					, #{code2}
+					, #{code3}
+					, #{code4}
+					, #{code5}
+					, #{detailSearchCode}
+					, 'N'
+					, NULL
+					, #{RC1, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=UseriUYesil2.iUResult}
+			)
+		}
+		]]>
+	</select>
+
+	<select id="UseriUYesil2.ExUserYesil2BizPlan"
+		parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+		/*
+		 * [ ERPiU - ORACLE ] UseriUYesil2.ExUserYesil2BizPlan - ERPiU 사업계획 조회
+		 * 작성자 : 김상겸
+		 * 작성일 : 2019-08-28
+		 * 변경이력
+		 * - 2019-08-28 / 김상겸 : mssql <> oracle 비교 보완
+		 */
+		 
+		{
+			CALL	NEOE.UP_HELP_FI_SELECT2(
+					#{helpId}
+					, #{childMode}
+					, #{erpCompSeq} /* ERP 회사 시퀀스 */
+					, #{cdGroup}
+					, #{cdBizarea}
+					, #{cdPc}
+					, #{cdDept}
+					, #{cdCc}
+					, #{noEmp}
+					, #{idUser}
+					, #{cdPlant}
+					, #{cdCcgrp}
+					, #{idMenu}
+					, #{cdItem}
+					, #{cdItemgrp}
+					, #{cdPartner}
+					, #{cdPurgrp}
+					, #{cdPurorg}
+					, #{cdSalegrp}
+					, #{cdSaleorg}
+					, #{cdSl}
+					, #{cdWc}
+					, #{cdWh}
+					, #{fgModule}
+					, #{dateStart}
+					, #{dateEnd}
+					, #{moduleParent}
+					, #{userGrant}
+					, #{authBizarea}
+					, #{authDept}
+					, #{authPc}
+					, #{cdAcct}
+					, #{tpAclevel}
+					, #{tpAcstats}
+					, #{cdMng}
+					, #{cdMngd}
+					, #{cdField1}
+					, #{cdField2}
+					, #{cdField3}
+					, #{code1}
+					, #{code2}
+					, #{code3}
+					, #{code4}
+					, #{code5}
+					, #{detailSearchCode}
+					, 'N'
+					, NULL
+					, #{RC1, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=UseriUYesil2.iUResult}
+			)
+		}
+		]]>
+	</select>
+
+	<select id="UseriUYesil2.ExUserYesil2BudgetAcctInfo"
+		parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+		/*
+		 * [ ERPiU - ORACLE ] UseriUYesil2.ExUserYesil2BudgetAcctInfo - ERPiU 예산계정 조회
+		 * 작성자 : 김상겸
+		 * 작성일 : 2019-08-28
+		 * 변경이력
+		 * - 2019-08-28 / 김상겸 : mssql <> oracle 비교 보완
+		 */
+		 
+		{
+			CALL	NEOE.UP_H_FI_BUDGETACCTJO_SELECT7(
+					#{erpCompSeq}
+					, #{search}
+					, #{dateEnd}
+					, #{cdDeptPipe}
+					, #{cdBudgetPipe}
+					, #{cdBizplanPipe}
+					, #{tpAclevel}
+					, NULL
+					, #{RC1, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=UseriUYesil2.iUResult}
+			)
+		}
+		]]>
+	</select>
+
+	<select id="UseriUYesil2.ExUserYesil2InfoSelect"
+		parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/*
+		 * [ ERPiU - ORACLE ] UseriUYesil2.ExUserYesil2InfoSelect - ERPiU 예실현황 조회
+		 * 작성자 : 김상겸
+		 * 작성일 : 2019-08-28
+		 * 변경이력
+		 * - 2019-08-28 / 김상겸 : mssql <> oracle 비교 보완
+		 */
+
+		SELECT	NVL(A.CD_BUDGET, B.CD_BUDGET) AS CD_BUDGET
+				, NVL(BG.NM_BUDGET, '') AS NM_BUDGET
+				, NVL(GR.CD_BUDGETGR, '') AS CD_BUDGETGR
+				, NVL(GR.NM_BUDGETGR, '') AS NM_BUDGETGR
+				, NVL(A.CD_BIZPLAN, B.CD_BIZPLAN) AS CD_BIZPLAN
+				, NVL(BI.NM_BIZPLAN, '') AS NM_BIZPLAN
+				, NVL(A.CD_BGACCT, B.CD_BGACCT) AS CD_BGACCT
+				, NVL(AC.NM_BGACCT, '') NM_BGACCT
+				, NVL(A.YM_BUDGET, B.YM_BUDGET) AS YM_BUDGET
+				, NVL(A.AM_PROPO, 0.0000) AS AM_PROPO
+				, NVL(A.AM_ACTSUM, 0.0000) AS AM_ACTSUM
+				, NVL(B.AM_DRCR, 0.0000) AS AM_DRCR
+		FROM	(
+					SELECT	A.CD_BUDGET
+							, A.CD_BIZPLAN
+							, A.CD_BACCT AS "CD_BGACCT"
+							, A.YM_BUDGET
+							, SUM(A.AM_PROPO) AS "AM_PROPO"
+							, SUM(A.AM_ACTSUM) AS "AM_ACTSUM" 
+					FROM	NEOE.V_FI_ABUDGET A
+							INNER JOIN NEOE.FI_BIZCODEJO2 JO ON A.CD_COMPANY = JO.CD_COMPANY AND A.CD_BUDGET = JO.CD_BUDGET AND A.CD_BIZPLAN = JO.CD_BIZPLAN AND A.CD_BACCT = JO.CD_BGACCT
+					WHERE	A.CD_COMPANY = '${erpCompSeq}'
+					AND		NEOE.FN_FI_BIZPLAN(NEOE.FN_MA_ENVD('${erpCompSeq}', 'TP_BUDGETMNG'), A.CD_BIZPLAN) = 'Y' /* 사업계획 유무에 따른 데이터가 섞여있을 경우 판단하기 위해 */
+					AND		A.CD_BUDGET IN (SELECT CD_BUDGET FROM TABLE(NEOE.FN_FI_BGDEPT('${erpCompSeq}', '${cdDeptPipe}', '${cdBudgetPipe}')))
+					AND		('${budgetGrPipe}' IS NULL OR '${budgetGrPipe}' = '' OR A.CD_BUDGET IN (SELECT CD_BUDGET FROM TABLE(NEOE.FN_FI_BUDGETGRH_D_S('${erpCompSeq}', '${budgetGrPipe}')))) /* 예산단위그룹에 연결된 예산단위코드 조회 */
+					AND		('${cdBudgetPipe}' IS NULL OR '${cdBudgetPipe}' = '' OR A.CD_BUDGET IN (SELECT CD_STR FROM TABLE(NEOE.GETTABLEFROMSPLIT('${cdBudgetPipe}'))))
+					AND		('${cdBizplanPipe}' IS NULL OR '${cdBizplanPipe}' = '' OR A.CD_BIZPLAN IN (SELECT CD_STR FROM TABLE(NEOE.GETTABLEFROMSPLIT('${cdBizplanPipe}'))))
+					AND		('${cdBudgetAcctPipe}' IS NULL OR '${cdBudgetAcctPipe}' = '' OR A.CD_BACCT IN (SELECT CD_BGACCT FROM TABLE(NEOE.FN_FI_BGACCT_ALL_SELECT('${erpCompSeq}', '${cdBudgetAcctPipe}', '1'))))
+					AND		A.YM_BUDGET BETWEEN '${fromDt}' AND '${toDt}'
+					GROUP	BY A.CD_BUDGET, A.CD_BIZPLAN, A.CD_BACCT, A.YM_BUDGET
+				) A
+				FULL OUTER JOIN (
+		]]>
+		<if test='execute == "1"'>
+		<![CDATA[
+					/* 결의집행 */
+					SELECT	A.CD_BUDGET
+							, A.CD_BIZPLAN
+							, A.CD_BACCT AS "CD_BGACCT"
+							, A.YM_BUDGET
+							, SUM(A.AM_DRCR) AS "AM_DRCR"
+					FROM	V_FI_AGMMSUM A
+							INNER JOIN NEOE.FI_BIZCODEJO2 JO ON A.CD_COMPANY = JO.CD_COMPANY AND A.CD_BUDGET = JO.CD_BUDGET AND A.CD_BIZPLAN = JO.CD_BIZPLAN AND A.CD_BACCT = JO.CD_BGACCT
+					WHERE	A.CD_COMPANY = '${erpCompSeq}'
+					AND		NEOE.FN_FI_BIZPLAN(NEOE.FN_MA_ENVD('${erpCompSeq}', 'TP_BUDGETMNG'), A.CD_BIZPLAN) = 'Y' /* 사업계획 유무에 따른 데이터가 섞여있을 경우 판단하기 위해 */
+					AND		A.CD_BUDGET IN (SELECT CD_BUDGET FROM TABLE(NEOE.FN_FI_BGDEPT('${erpCompSeq}', '${cdDeptPipe}', '${cdBudgetPipe}')))
+					AND		('${budgetGrPipe}' IS NULL OR '${budgetGrPipe}' = '' OR A.CD_BUDGET IN (SELECT CD_BUDGET FROM TABLE(NEOE.FN_FI_BUDGETGRH_D_S('${erpCompSeq}', '${budgetGrPipe}')))) /* 예산단위그룹에 연결된 예산단위코드 조회 */
+					AND		('${cdBudgetPipe}' IS NULL OR '${cdBudgetPipe}' = '' OR A.CD_BUDGET IN (SELECT CD_STR FROM TABLE(NEOE.GETTABLEFROMSPLIT('${cdBudgetPipe}'))))
+					AND		('${cdBizplanPipe}' IS NULL OR '${cdBizplanPipe}' = '' OR A.CD_BIZPLAN IN (SELECT CD_STR FROM TABLE(NEOE.GETTABLEFROMSPLIT('${cdBizplanPipe}'))))
+					AND		('${cdBudgetAcctPipe}' IS NULL OR '${cdBudgetAcctPipe}' = '' OR A.CD_BACCT IN (SELECT CD_BGACCT FROM TABLE(NEOE.FN_FI_BGACCT_ALL_SELECT('${erpCompSeq}', '${cdBudgetAcctPipe}', '1'))))
+					AND		A.YM_BUDGET BETWEEN '${fromDt}' AND '${toDt}'
+					GROUP BY A.CD_BUDGET, A.CD_BIZPLAN, A.CD_BACCT, A.YM_BUDGET
+		]]>
+		</if>
+		<if test='execute != "1"'>
+		<![CDATA[
+					/* 승인집행 */
+					SELECT	A.CD_BUDGET
+							, A.CD_BIZPLAN
+							, A.CD_BACCT AS "CD_BGACCT"
+							, A.YM_BUDGET
+							, SUM(A.AM_DRCR) AS "AM_DRCR"
+					FROM    V_FI_ABGDAYSUM A
+							INNER JOIN NEOE.FI_BIZCODEJO2 JO ON A.CD_COMPANY = JO.CD_COMPANY AND A.CD_BUDGET = JO.CD_BUDGET AND A.CD_BIZPLAN = JO.CD_BIZPLAN AND A.CD_BACCT = JO.CD_BGACCT
+					WHERE	A.CD_COMPANY = '${erpCompSeq}'
+					AND		NEOE.FN_FI_BIZPLAN(NEOE.FN_MA_ENVD('${erpCompSeq}', 'TP_BUDGETMNG'), A.CD_BIZPLAN) = 'Y' /* 사업계획 유무에 따른 데이터가 섞여있을 경우 판단하기 위해 */
+					AND		A.CD_BUDGET IN (SELECT CD_BUDGET FROM TABLE(NEOE.FN_FI_BGDEPT('${erpCompSeq}', '${cdDeptPipe}', '${cdBudgetPipe}')))
+					AND		('${budgetGrPipe}' IS NULL OR '${budgetGrPipe}' = '' OR A.CD_BUDGET IN (SELECT CD_BUDGET FROM TABLE(NEOE.FN_FI_BUDGETGRH_D_S('${erpCompSeq}', '${budgetGrPipe}')))) /* 예산단위그룹에 연결된 예산단위코드조회 */
+					AND		('${cdBudgetPipe}' IS NULL OR '${cdBudgetPipe}' = '' OR A.CD_BUDGET IN (SELECT CD_STR FROM TABLE(NEOE.GETTABLEFROMSPLIT('${cdBudgetPipe}'))))
+					AND		('${cdBizplanPipe}' IS NULL OR '${cdBizplanPipe}' = '' OR A.CD_BIZPLAN IN (SELECT CD_STR FROM TABLE(NEOE.GETTABLEFROMSPLIT('${cdBizplanPipe}'))))
+					AND		('${cdBudgetAcctPipe}' IS NULL OR '${cdBudgetAcctPipe}' = '' OR A.CD_BACCT IN (SELECT CD_BGACCT FROM TABLE(NEOE.FN_FI_BGACCT_ALL_SELECT('${erpCompSeq}', '${cdBudgetAcctPipe}', '1'))))
+					AND		A.YM_BUDGET BETWEEN '${fromDt}' AND '${toDt}'
+					GROUP	BY A.CD_BUDGET, A.CD_BIZPLAN, A.CD_BACCT, A.YM_BUDGET
+		]]>
+		</if>
+		<![CDATA[
+				) B
+				ON A.CD_BUDGET = B.CD_BUDGET AND A.CD_BIZPLAN = B.CD_BIZPLAN AND A.CD_BGACCT = B.CD_BGACCT AND A.YM_BUDGET = B.YM_BUDGET
+				LEFT OUTER JOIN NEOE.FI_BGCODE BG
+				ON (A.CD_BUDGET = BG.CD_BUDGET OR B.CD_BUDGET = BG.CD_BUDGET) AND BG.CD_COMPANY = '${erpCompSeq}'
+				LEFT OUTER JOIN NEOE.FI_BIZPLAN BI
+				ON (A.CD_BIZPLAN = BI.CD_BIZPLAN OR B.CD_BIZPLAN = BI.CD_BIZPLAN) AND BI.CD_COMPANY = '${erpCompSeq}'
+				LEFT OUTER JOIN NEOE.FI_BGACCT AC
+				ON (A.CD_BGACCT = AC.CD_BGACCT OR B.CD_BGACCT = AC.CD_BGACCT) AND AC.CD_COMPANY = '${erpCompSeq}'
+				LEFT OUTER JOIN (
+									SELECT  D.CD_BUDGET, H.*
+    								FROM    GTB_FI_BUDGETGRH H
+    								INNER JOIN (
+							            SELECT  CD_BUDGET, MAX(CD_BUDGETGR) CD_BUDGETGR
+							            FROM    FI_BUDGETGRD
+							            WHERE   CD_COMPANY = '${erpCompSeq}'
+							            AND     ('${budgetGrPipe}' IS NULL OR '${budgetGrPipe}' = ''
+							                    OR CD_BUDGETGR IN ( SELECT  CD_BUDGETGR
+							                                        FROM    GTB_FI_BUDGETGRH
+							                                        WHERE   (CD_BUDGETGR1 = '${budgetGrPipe}' OR CD_BUDGETGR2 = '${budgetGrPipe}' OR CD_BUDGETGR3 = '${budgetGrPipe}'
+							                                                OR CD_BUDGETGR4 = '${budgetGrPipe}' OR CD_BUDGETGR5 = '${budgetGrPipe}')))
+							            GROUP BY CD_BUDGET
+								    ) D
+								    ON  H.CD_BUDGETGR = D.CD_BUDGETGR
+								    WHERE   H.YN_INSERT = 'Y'
+							) GR
+				ON GR.CD_BUDGET = A.CD_BUDGET or GR.CD_BUDGET = B.CD_BUDGET
+		ORDER	BY CD_BUDGETGR DESC , CD_BIZPLAN, CD_BGACCT, YM_BUDGET
+		]]>
+	</select>
+	
+	<select id="UseriUYesil2.ExUserYesil2DeptAuthority" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT	C.CD_COMPANY
+				, C.CD_DEPT
+				, C.NM_DEPT
+		FROM	NEOE.MA_EMP A 
+				INNER JOIN NEOE.MA_COMPANY B ON A.CD_COMPANY = B.CD_COMPANY
+				INNER JOIN NEOE.MA_DEPT C  ON A.CD_COMPANY = C.CD_COMPANY AND A.CD_DEPT = C.CD_DEPT
+		WHERE	A.CD_COMPANY = #{erpCompSeq}
+		AND		A.NO_EMP = #{deptAutoSeq}
+	
+	</select>
+	
+	
+</mapper>

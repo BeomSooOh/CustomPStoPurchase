@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 사용자 코드 -->
+<mapper namespace="npAdminReport">
+	<resultMap id="npAdminReport.iUResult" type="hashmap"></resultMap>
+	<resultMap id="npAdminReport.iUString" type="String"></resultMap>
+	<resultMap id="npAdminReport.iUInt1" type="Integer"></resultMap>
+	<resultMap id="npAdminReport.iUInt2" type="Integer"></resultMap>
+	<resultMap id="npAdminReport.iUInt3" type="Integer"></resultMap>
+	
+	<select	id="npAdminReport.getERPResKey" parameterType="java.util.Map" resultType="java.util.Map" >
+		/* oracle/ERPiU/expend/np/admin/NpReport.xml - npAdminReport.getERPResKey */
+		/* ERP iU 원인행위 키 조회 */
+		SELECT  NVL(MAX(NO_CDOCU), 'EMPTY') 	AS NO_CDOCU
+		FROM    fi_docucause 
+		WHERE   NO_CDOCU LIKE '${imperfectionKey}%'
+	</select>
+	
+	<select	id="npAdminReport.getERPResChinComeKey" parameterType="java.util.Map" resultType="java.util.Map" >
+		/* oracle/ERPiU/expend/np/admin/NpReport.xml - npAdminReport.getERPResChinComeKey */
+		/* ERP iU 소득등록 키 조회 */
+		SELECT NVL(MAX(CD_MNG), 'EMPTY') AS CD_MNG
+		FROM FI_CHINCOME 
+		AND CD_MNG LIKE '${chincomeKey}%'	
+	</select>
+			
+	<select	id="npAdminReport.getCheckERPColumns" parameterType="java.util.Map" resultType="java.util.Map" >
+		/* oracle/ERPiU/expend/np/admin/NpReport.xml - npAdminReport.getCheckERPColumns */
+		/* ERP APPDOCUID 컬럼 존재 여부 체크 */
+		SELECT count(*) AS existColumn 
+		FROM ALL_TAB_COLUMNS 
+		WHERE table_name = 'FI_DOCUCAUSE' 
+		AND COLUMN_NAME = 'APP_DOCU_ID'	
+	</select>
+	
+	<insert id="npAdminReport.insertFiDocucause" parameterType="java.util.Map">
+		/* oracle/ERPiU/expend/np/admin/NpReport.xml - npAdminReport.insertFiDocucause */
+		/* ERP iU 자동전표 전송 */
+		INSERT INTO fi_docucause (CD_COMPANY, CD_PC, NO_CDOCU, NO_CDOLINE, CD_WDEPT, ID_WRITE, DT_WRITE, TP_EPNOTE, DT_CACCT, DT_CAUSE, NM_PUMM, ST_CDOCU, ID_ACCEPT, ST_STATE, CD_BUDGET, CD_BIZPLAN, CD_BGACCT, NM_NOTE, AM_TAXSTD, AM_ADDTAX, AM_AMT, DT_PAYPLAN, DT_PAY, DT_REG, DT_USER, DT_START, DT_END, ID_CAUSE, CD_DEPOSIT, AM_ACTSUM, AM_JSUM, CD_DOCUPC, NO_DOCU, ST_DOCU, NM_REJECT, NO_BDOCU, NO_BDOLINE, TP_BDOCU, ST_GWARE, ID_INSERT, DTS_INSERT, ID_UPDATE, DTS_UPDATE, AM_EPNOTESUM, AM_CAUSESUM, AM_GMMSUM, AM_BGDAYSUM, NO_PAYORDER, ID_EXAM, ID_OBSER, CD_ACCT, NM_INPUT)
+		VALUES (
+			'${CD_COMPANY}'
+			, '${CD_PC}'
+			, '${NO_CDOCU}'
+			, ${NO_CDOLINE}
+			, '${CD_WDEPT}'
+			, '${ID_WRITE}'
+			, '${DT_WRITE}'
+			, '${TP_EPNOTE}'
+			, '${DT_CACCT}'
+			, '${DT_CAUSE}'
+			, '${NM_PUMM}'
+			, '${ST_CDOCU}'
+			, '${ID_ACCEPT}'
+			, '${ST_STATE}'
+			, '${CD_BUDGET}'
+			, '${CD_BIZPLAN}'
+			, '${CD_BGACCT}'
+			, '${NM_NOTE}'
+			, ${AM_TAXSTD}
+			, ${AM_ADDTAX}
+			, ${AM_AMT}
+			, '${DT_PAYPLAN}'
+			, '${DT_PAY}'
+			, '${DT_REG}'
+			, '${DT_USER}'
+			, '${DT_START}'
+			, '${DT_END}'
+			, '${ID_CAUSE}'
+			, '${CD_DEPOSIT}'
+			, ${AM_ACTSUM}
+			, ${AM_JSUM}
+			, '${CD_DOCUPC}'
+			, '${NO_DOCU}'
+			, '${ST_DOCU}'
+			, '${NM_REJECT}'
+			, '${NO_BDOCU}'
+			, ${NO_BDOLINE}
+			, '${TP_BDOCU}'
+			, '${ST_GWARE}'
+			, '${ID_INSERT}'
+			, '${DTS_INSERT}'
+			, '${ID_UPDATE}'
+			, '${DTS_UPDATE}'
+			, ${AM_EPNOTESUM}
+			, ${AM_CAUSESUM}
+			, ${AM_GMMSUM}
+			, ${AM_BGDAYSUM}
+			, '${NO_PAYORDER}'
+			, '${ID_EXAM}'
+			, '${ID_OBSER}'
+			, '${CD_ACCT}'
+			, '${NM_INPUT}'
+		)
+	</insert>
+	
+	<insert id="npAdminReport.insertFiDocucause2" parameterType="java.util.Map">
+		/* oracle/ERPiU/expend/np/admin/NpReport.xml - npAdminReport.insertFiDocucause2 */
+		/* ERP iU 자동전표 전송 */
+		INSERT INTO fi_docucause (CD_COMPANY, CD_PC, NO_CDOCU, NO_CDOLINE, CD_WDEPT, ID_WRITE, DT_WRITE, TP_EPNOTE, DT_CACCT, DT_CAUSE, NM_PUMM, ST_CDOCU, ID_ACCEPT, ST_STATE, CD_BUDGET, CD_BIZPLAN, CD_BGACCT, NM_NOTE, AM_TAXSTD, AM_ADDTAX, AM_AMT, DT_PAYPLAN, DT_PAY, DT_REG, DT_USER, DT_START, DT_END, ID_CAUSE, CD_DEPOSIT, AM_ACTSUM, AM_JSUM, CD_DOCUPC, NO_DOCU, ST_DOCU, NM_REJECT, NO_BDOCU, NO_BDOLINE, TP_BDOCU, ST_GWARE, ID_INSERT, DTS_INSERT, ID_UPDATE, DTS_UPDATE, AM_EPNOTESUM, AM_CAUSESUM, AM_GMMSUM, AM_BGDAYSUM, NO_PAYORDER, ID_EXAM, ID_OBSER, CD_ACCT, NM_INPUT, APP_DOCU_ID)
+		VALUES (
+			'${CD_COMPANY}'
+			, '${CD_PC}'
+			, '${NO_CDOCU}'
+			, ${NO_CDOLINE}
+			, '${CD_WDEPT}'
+			, '${ID_WRITE}'
+			, '${DT_WRITE}'
+			, '${TP_EPNOTE}'
+			, '${DT_CACCT}'
+			, '${DT_CAUSE}'
+			, '${NM_PUMM}'
+			, '${ST_CDOCU}'
+			, '${ID_ACCEPT}'
+			, '${ST_STATE}'
+			, '${CD_BUDGET}'
+			, '${CD_BIZPLAN}'
+			, '${CD_BGACCT}'
+			, '${NM_NOTE}'
+			, ${AM_TAXSTD}
+			, ${AM_ADDTAX}
+			, ${AM_AMT}
+			, '${DT_PAYPLAN}'
+			, '${DT_PAY}'
+			, '${DT_REG}'
+			, '${DT_USER}'
+			, '${DT_START}'
+			, '${DT_END}'
+			, '${ID_CAUSE}'
+			, '${CD_DEPOSIT}'
+			, ${AM_ACTSUM}
+			, ${AM_JSUM}
+			, '${CD_DOCUPC}'
+			, '${NO_DOCU}'
+			, '${ST_DOCU}'
+			, '${NM_REJECT}'
+			, '${NO_BDOCU}'
+			, ${NO_BDOLINE}
+			, '${TP_BDOCU}'
+			, '${ST_GWARE}'
+			, '${ID_INSERT}'
+			, '${DTS_INSERT}'
+			, '${ID_UPDATE}'
+			, '${DTS_UPDATE}'
+			, ${AM_EPNOTESUM}
+			, ${AM_CAUSESUM}
+			, ${AM_GMMSUM}
+			, ${AM_BGDAYSUM}
+			, '${NO_PAYORDER}'
+			, '${ID_EXAM}'
+			, '${ID_OBSER}'
+			, '${CD_ACCT}'
+			, '${NM_INPUT}'
+			, '${APP_DOCU_ID}'
+		)
+	</insert>
+	
+	<insert id="npAdminReport.insertFidocucausepay" parameterType="java.util.Map">
+		/* oracle/ERPiU/expend/np/admin/NpReport.xml - npAdminReport.insertFidocucausepay */
+		/* ERP iU 자동전표 전송 */
+		INSERT INTO fi_docucausepay (CD_COMPANY, CD_PC, NO_CDOCU, NO_CDOLINE, NO_PAYLINE, TP_PAY, FG_TAX, TP_CRE, AM_AMT, AM_TAXSTD, AM_ADDTAX, AM_INCOMTAX, AM_RESIDTAX, AM_ANNU, AM_INS, AM_EMPE, AM_OINS, AM_ETCTAX, CD_CODE, NM_NAME, NM_CEO, CD_BANK, NM_BANK, NO_DEPOSIT, NM_DEPOSIT, NM_NOTE, DT_TO, CD_MNG, YM, ID_INSERT, DTS_INSERT, ID_UPDATE, DTS_UPDATE, NO_CARD, NM_INPUT, ST_MUTUAL,CD_DEPOSITNO)
+		VALUES (
+			'${CD_COMPANY}'
+			, '${CD_PC}'
+			, '${NO_CDOCU}'
+			, ${NO_CDOLINE}
+			, ${NO_PAYLINE}
+			, '${TP_PAY}'
+			, '${FG_TAX}'
+			, '${TP_CRE}'
+			, ${AM_AMT}
+			, ${AM_TAXSTD}
+			, ${AM_ADDTAX}
+			, ${AM_INCOMTAX}
+			, ${AM_RESIDTAX}
+			, ${AM_ANNU}
+			, ${AM_INS}
+			, ${AM_EMPE}
+			, ${AM_OINS}
+			, ${AM_ETCTAX}
+			, '${CD_CODE}'
+			, '${NM_NAME}'
+			, '${NM_CEO}'
+			, '${CD_BANK}'
+			, '${NM_BANK}'
+			, '${NO_DEPOSIT}'
+			, '${NM_DEPOSIT}'
+			, '${NM_NOTE}'
+			, '${DT_TO}'
+			, '${CD_MNG}'
+			, '${YM}'
+			, '${ID_INSERT}'
+			, '${DTS_INSERT}'
+			, '${ID_UPDATE}'
+			, '${DTS_UPDATE}'
+			, '${NO_CARD}'
+			, '${NM_INPUT}'
+			, '${ST_MUTUAL}' /* no_tax 불공제 사유 구분 */
+			, '${CD_DEPOSITNO}' /* 계좌 코드 */
+		)
+	</insert>
+	
+	<insert id="npAdminReport.insertFichincome" parameterType="java.util.Map">
+		/* oracle/ERPiU/expend/np/admin/NpReport.xml - npAdminReport.insertFichincome */
+		/* ERP iU 소득자 정보 전송 */
+		INSERT INTO FI_CHINCOME(CD_MNG,CO_CD,DATA_CD,DIV_CD,DIV_CD3,PER_CD,YM,SQ,PAY_DT,BILL_DT,TAX_CD,INCOME_CD,PAY_AM,EXP_RT,EXP_AM,INCOME_AM,TAXRATE,INCOME_TAX,INHABIT_TAX,CD_PC,NO_CDOCU,NO_CDOLINE,NO_PAYLINE)
+		VALUES(
+				'${CD_MNG}',
+				'${CD_COMPANY}',
+				'${DATA_CD}',
+				'${BIZ_SEQ}',
+				'${BIZ_SEQ}',
+				'${CD_CODE}',
+				'${YM}',
+				'${SQ}',
+				'${PAY_DT}',
+				'${BILL_DT}',
+				'${TAX_CD}',
+				'${INCOME_CD}',
+				'${PAY_AM}',
+				'${EXP_RT}',
+				'${EXP_AM}',
+				'${INCOME_AM}',
+				'${TAXRATE}',
+				'${INCOME_TAX}',
+				'${INHABIT_TAX}',
+				'${CD_PC}',
+				'${NO_CDOCU}',
+				'${NO_CDOLINE}',
+				'${NO_PAYLINE}'
+		)
+	</insert>
+	
+	<insert id="npAdminReport.insertHincome" parameterType="java.util.Map">
+		/* oracle/ERPiU/expend/np/admin/NpReport.xml - npAdminReport.insertHincome */
+		/* ERP iU 소득자 정보 전송 ( 결의서 원인행위 옵션 사용 ) */
+		INSERT INTO HINCOME(
+			CO_CD
+			, DATA_CD
+			, DIV_CD
+			, DIV_CD3
+			, PER_CD
+			, YM
+			, SQ
+			, PAY_DT
+			, BILL_DT
+			, TAX_CD
+			, INCOME_CD
+			, FIX_AM01
+			, FIX_AM02
+			, FIX_AM03
+			, FIX_AM51
+			, FIX_AM52
+			, FIX_AM53
+			, PAY_AM
+			, EXP_RT
+			, EXP_AM
+			, INCOME_AM
+			, TAXRATE
+			, INCOME_TAX
+			, INHABIT_TAX
+			, CORP_TAX
+			, FARM_TAX
+			, ISU_SQ
+			, SLIP_YN
+			, NO_DOCU
+			, INTEREST_R
+			, VARDATA_CD
+			, NO_DOLINE
+			, REP_YY
+		)
+		VALUES(
+			'${CD_COMPANY}',
+			'${DATA_CD}',
+			'${BIZ_SEQ}',
+			'${BIZ_SEQ}',
+			'${CD_CODE}',
+			'${YM}',
+			(
+				SELECT	MAX(SQ)+1 
+				FROM	(
+					SELECT	SQ 
+					FROM	HINCOME
+					WHERE	CO_CD = '${CD_COMPANY}' 
+					 AND	DATA_CD = '${DATA_CD}'
+					 AND	DIV_CD = '${BIZ_SEQ}'
+					 AND	DIV_CD3 = '${BIZ_SEQ}'
+					 AND	PER_CD = '${CD_CODE}'
+					 AND	YM = '${YM}'
+					UNION
+					SELECT 	0 AS SQ 
+					FROM	DUAL
+				)
+			) ,
+			'${PAY_DT}',
+			'${BILL_DT}',
+			'${TAX_CD}',
+			'${INCOME_CD}',
+			'${0}',
+			'${0}',
+			'${0}',
+			'${0}',
+			'${0}',
+			'${0}',
+			'${PAY_AM}',
+			'${EXP_RT}',
+			'${EXP_AM}',
+			'${INCOME_AM}',
+			'${TAXRATE}',
+			'${INCOME_TAX}',
+			'${INHABIT_TAX}',
+			'${0}',
+			'${0}',
+			'${0}',
+			'${1}',
+			'${NO_DOCU}',
+			'${0}',
+			'${0}',
+			'${NO_DOLINE}',
+			substr('${YM}',0,4)
+		)
+	</insert>
+	
+	<insert id="npAdminReport.insertFiGoodState" parameterType="java.util.Map">
+		/* oracle/ERPiU/expend/np/admin/NpReport.xml - npAdminReport.insertFiGoodState */
+		/* ERP iU 물품명세 전송 */
+		INSERT INTO fi_goodstate (CD_COMPANY, CD_PC, NO_CDOCU, NO_CDOLINE, NO_LINE, NM_GOOD, NM_SIZE, NM_UNIT, QT_GOOD, AM_PRC, AM_GOOD, NM_NOTE)
+		VALUES (
+			'${CD_COMPANY}'
+			, '${CD_PC}'
+			, '${NO_CDOCU}'
+			, '${NO_CDOLINE}'
+			, '${NO_LINE}'
+			, '${NM_GOOD}'
+			, '${NM_SIZE}'
+			, '${NM_UNIT}'
+			, '${QT_GOOD}'
+			, '${AM_PRC}'
+			, '${AM_GOOD}'
+			, '${NM_NOTE}'
+		)
+	</insert>
+	
+	<select	id="npAdminReport.selectFidocucause" parameterType="java.util.Map" resultType="java.util.Map" >
+		/* oracle/ERPiU/expend/np/admin/NpReport.xml - npAdminReport.selectFidocucause */
+		/* ERP iU 전표 정보 조회 */
+		SELECT	*
+		FROM	FI_DOCUCAUSE 
+		WHERE	NO_CDOCU = '${erpNoCDocu}' 
+		 AND	CD_COMPANY = '${erpCompSeq}'		
+	</select>
+	
+	<delete	id="npAdminReport.deleteFidocucause" parameterType="java.util.Map" >
+		/* oracle/ERPiU/expend/np/admin/NpReport.xml - npAdminReport.deleteFidocucause */
+		/* ERP iU 결의서 정보 삭제 */
+		DELETE
+		FROM	FI_DOCUCAUSE 
+		WHERE	NO_CDOCU = '${erpNoCDocu}' 
+		 AND	CD_COMPANY = '${erpCompSeq}'		
+	</delete>
+	
+	<delete	id="npAdminReport.deleteFidocucausePay" parameterType="java.util.Map" >
+		/* oracle/ERPiU/expend/np/admin/NpReport.xml - npAdminReport.deleteFidocucausePay */
+		/* ERP iU 결의서 거래처 정보 삭제 */
+		DELETE
+		FROM	FI_DOCUCAUSEPAY 
+		WHERE	NO_CDOCU = '${erpNoCDocu}' 
+		 AND	CD_COMPANY = '${erpCompSeq}'	
+	</delete>
+	
+	<delete	id="npAdminReport.deleteFichincome" parameterType="java.util.Map" >
+		/* oracle/ERPiU/expend/np/admin/NpReport.xml - npAdminReport.deleteFichincome */
+		/* ERP iU 결의서 소득정보 삭제 */
+		DELETE
+		FROM	FI_CHINCOME 
+		WHERE	NO_CDOCU = '${erpNoCDocu}' 
+		 AND	CO_CD = '${erpCompSeq}'	
+	</delete>
+	
+	<delete	id="npAdminReport.deleteHincome" parameterType="java.util.Map" >
+		/* oracle/ERPiU/expend/np/admin/NpReport.xml - npAdminReport.deleteHincome */
+		/* ERP iU 결의서 소득정보( 결의서 원인행위 기타/사업소득자 옵션 대응 ) 삭제 */
+		DELETE
+		FROM	HINCOME 
+		WHERE	NO_DOCU like '${erpNoCDocu}%' 
+		 AND	CO_CD = '${erpCompSeq}'	
+	</delete>
+	
+	<delete	id="npAdminReport.deleteGoodState" parameterType="java.util.Map" >
+		/* oracle/ERPiU/expend/np/admin/NpReport.xml - npAdminReport.deleteGoodState */
+		/* ERP iU 결의서 물품명세 삭제 */
+		DELETE
+		FROM	FI_GOODSTATE
+		WHERE	NO_CDOCU = '${erpNoCDocu}' 
+		 AND	CO_CD = '${erpCompSeq}'	
+	</delete>
+	
+	<select	id="npAdminReport.NPAdminETaxListInfoSelectMap" parameterType="java.util.Map" resultType="java.util.Map" >
+		/* NPAdminETaxListInfoSelectMap - ERPiU - mssql */
+		SELECT  ROW_NUMBER() over (ORDER BY YMD_WRITE) AS "rowNum"
+       			, NO_TAX AS "issNo" /* 승인번호 */
+				, YMD_WRITE AS "issDt" /* 발행일자 */
+				, BUY_NO_BIZ AS "divregNb" /* 공급받는자 사업자번호 */
+				, BUY_NM_CORP AS "divNm" /* 공급받는자 사업장상호명 */
+				, BUY_NM_CEO AS "divceoNm" /* 공급받는자 대표자명 */
+				, SELL_NO_BIZ AS "trregNb" /* 공급자 사업자번호 */
+				, SELL_NM_CORP AS "trNm" /* 공급자 거래처명 */
+				, SELL_NM_CEO AS "trceoNm" /* 공급자 거래처대표자명 */
+				, AMT AS "sumAm" /* 합계액 */
+				, AM AS "supAm" /* 공급가액 */
+				, AM_VAT AS "vatAm" /* 부가세액 */
+				, DC_RMK AS "dummy1" /* 비고 */
+				, CASE WHEN FG_BILL = '1' THEN '청구' ELSE '영수' END AS "dummy2" /* 기타(영수/청구 구분) >> 영수 OR 청구 */
+				, NVL(SELL_DAM_EMAIL, ' ') AS "emailDc" /* 공급자이메일 */
+				, NVL(BUY_DAM_EMAIL, ' ') AS "trchargeEmail" /* 공급받는자이메일 */
+		FROM    NEOE.FI_TB_TAXDOWN
+        /* 기본 검색조건 - 매입매출구분 */
+		WHERE   FG_IO = '2'
+        /* 기본 검색조건 - 기간 */
+		AND     YMD_WRITE BETWEEN '${searchFromDt}' AND '${searchToDt}'
+		AND     (
+			/* 검색조건 - 공급자 등록번호 */
+			SELL_NO_BIZ LIKE '%${trregNb}%'
+			/* 검색조건 - 공급자명 */
+			AND     SELL_NM_CORP LIKE '%${trNm}%'
+			/* 검색조건 - 승인번호 */
+			AND     NO_TAX LIKE '%${issNo}%'
+		)
+	</select>
+	
+	<select id="npAdminReport.NPAdminYesilReportSelect" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/admin/NpReportSQL.xml - npAdminReport.NPAdminYesilReportSelect */
+		/* ERP iU 예산 승인 금액 조회 */
+		{
+            CALL NEOE.UP_FI_CAU_BGRPT_S(
+                #{erpCompSeq}
+                , #{erpDeptSeq}
+                , #{erpBudgetSeq}
+                , #{erpBizplanSeq}
+                , ''
+                , #{erpBgacctSeqs}
+                , #{erpGisuFromDate}
+                , #{erpGisuToDate}
+                , '1'
+                , '1'
+                , #{result1, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npAdminReport.iUResult}
+                , #{result2, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npAdminReport.iUResult}
+                , #{result3, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npAdminReport.iUResult}
+                , #{result4, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npAdminReport.iUResult}
+                , #{result5, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npAdminReport.iUResult}
+                , #{result6, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npAdminReport.iUResult}
+                , #{result7, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npAdminReport.iUResult}
+            )
+        }	
+	</select>
+	
+	<select id="npAdminReport.NPAdminYesilResApplyReportSelect" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/admin/NpReportSQL.xml - npAdminReport.NPAdminYesilResApplyReportSelect */
+		/* ERP iU 예산 전표 승인 금액 조회 */
+		SELECT	CD_BUDGET 
+				, CD_BIZPLAN
+				, CD_BGACCT
+				, NULLIF(SUM(AM_AMTSUM),0) AS AM_AMTSUM
+		FROM	V_FI_DOCUCAUSE_SUM 
+		WHERE	CD_COMPANY = #{erpCompSeq}
+		AND		CD_BUDGET = #{bpErpBudgetSeq}
+		AND		CD_BIZPLAN = #{bpErpBizplanSeq}
+		AND	 	YM_WRITE BETWEEN #{erpGisuFromDate} AND #{erpGisuToDate}
+		GROUP BY CD_BIZPLAN, CD_BUDGET ,CD_BGACCT 
+	</select>	
+	
+
+	<select id="npAdminReport.NPAdminYesilApplyReportSelect" parameterType="java.util.Map" resultType="java.util.Map" statementType="CALLABLE">
+		/* oracle/ERPiU/expend/np/admin/NpReportSQL.xml - npAdminReport.NPAdminYesilApplyReportSelect */
+		/* ERP iU 예산 전표 승인 금액 조회 */
+		{
+            CALL NEOE.UP_FI_BG_RPT2011_2_S(
+                #{erpCompSeq}
+                , #{erpDeptSeq}
+                , #{erpBudgetSeq}
+                , #{erpBizplanSeq}
+                , ''
+                , #{erpBgacctSeqs}
+                , #{erpGisuFromDate}
+                , #{erpGisuToDate}
+                , '1'
+                , #{result1, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npAdminReport.iUResult}
+                , #{result2, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npAdminReport.iUResult}
+                , #{result3, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npAdminReport.iUResult}
+                , #{result4, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npAdminReport.iUResult}
+                , #{result5, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npAdminReport.iUResult}
+                , #{result6, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=npAdminReport.iUResult}
+            )
+        }	
+	</select>	
+</mapper>

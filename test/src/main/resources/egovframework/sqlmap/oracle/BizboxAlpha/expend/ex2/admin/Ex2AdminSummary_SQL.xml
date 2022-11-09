@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Ex2AdminSummary">
+	<!-- 표준적요 생성 -->
+	<insert id="setAdminSummaryInsert" parameterClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminSummary.setAdminSummaryInsert */
+		INSERT INTO $DB_NEOS$t_ex_summary (comp_seq, summary_code, summary_name, summary_div, dr_acct_code, dr_acct_name, cr_acct_code, cr_acct_name, vat_acct_code, vat_acct_name, erp_auth_code, erp_auth_name, bank_partner_code, bank_partner_name, use_yn, create_seq, create_date, modify_seq, modify_date, order_num)
+		VALUES(#compSeq#, #summaryCode#, #summaryName#, 'A', #drAcctCode#, #drAcctName#, #crAcctCode#, #crAcctName#, #vatAcctCode#, #vatAcctName#, #erpAuthCode#, #erpAuthName#, #bankPartnerCode#, #bankPartnerName#, #useYN#, #empSeq#, NOW(), #empSeq#, NOW(), #orderNum#)
+	]]></insert>
+
+	<!-- 표준적요 멀티 생성 -->
+	<insert id="setAdminSummaryMultiInsert" parameterClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminSummary.setAdminSummaryMultiInsert */
+		INSERT INTO $DB_NEOS$t_ex_summary_multi (comp_seq, summary_code, lang_code, summary_default_name, summary_name, dr_acct_default_name, dr_acct_name, cr_acct_default_name, cr_acct_name, vat_acct_default_name, vat_acct_name, bank_partner_default_name, bank_partner_name, erp_auth_default_name, erp_auth_name, create_seq, create_date, modify_seq, modify_date)
+		VALUES (#compSeq#, #summaryCode#, #langCode#, #summaryName#, #summaryName#, #drAcctName#, #drAcctName#, #crAcctName#, #crAcctName#, #vatAcctName#, #vatAcctName#, #bankPartnerName#, #bankPartnerName#, #erpAuthName#, #erpAuthName#, #empSeq#, NOW(), #empSeq#, NOW())
+	]]></insert>
+
+	<!-- 표준적요 수정 -->
+	<update id="setAdminSummaryUpdate" parameterClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminSummary.setAdminSummaryUpdate */
+		UPDATE $DB_NEOS$t_ex_summary 
+		SET 	comp_seq = #compSeq# 
+				, summary_code = #summaryCode#  
+				, summary_name = #summaryName#  
+				, dr_acct_code = #drAcctCode# 
+				, dr_acct_name = #drAcctName# 
+				, cr_acct_code = #crAcctCode# 
+				, cr_acct_name = #crAcctName# 
+				, vat_acct_code = #vatAcctCode# 
+				, vat_acct_name = #vatAcctName# 
+				, erp_auth_code = #erpAuthCode# 
+				, erp_auth_name = #erpAuthName# 
+				, bank_partner_code = #bankPartnerCode# 
+				, bank_partner_name = #bankPartnerName# 
+				, use_yn = #useYN# 
+				, modify_seq = #empSeq#
+				, modify_date = NOW()
+				, order_num = #orderNum#
+		WHERE   comp_seq = #compSeq# 
+		AND 	summary_code = #summaryCode# 
+	]]></update>
+
+	<!-- 표준적요 멀티 수정 -->
+	<update id="setAdminSummaryMultiUpdate" parameterClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminSummary.setAdminSummaryMultiUpdate */
+		UPDATE $DB_NEOS$t_ex_summary_multi 
+		SET	summary_default_name = #summaryDefaultName# , 
+			summary_name = #summaryName# , 
+			dr_acct_default_name = #drAcctName# , 
+			dr_acct_name = #drAcctName# , 
+			cr_acct_default_name = #crAcctName# , 
+			cr_acct_name = #crAcctName# , 
+			vat_acct_default_name = #vatAcctName# , 
+			vat_acct_name = #vatAcctName# , 
+			bank_partner_default_name = #bankPartnerName# , 
+			bank_partner_name = #bankPartnerName# , 
+			erp_auth_default_name = #erpAuthName# , 
+			erp_auth_name = #erpAuthName# , 
+			create_seq = #empSeq# , 
+			create_date = NOW() , 
+			modify_seq = #empSeq# , 
+			modify_date = NOW()
+		WHERE comp_seq = #compSeq# 
+		  AND summary_code = #summaryCode# 
+		  AND lang_code = #langCode#
+	]]></update>
+
+	<!-- 표준적요 삭제 -->
+	<delete id="setAdminSummaryDelete" parameterClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminSummary.setAdminSummaryDelete */
+		DELETE 
+		FROM 	$DB_NEOS$t_ex_summary 
+		WHERE 	comp_seq = #compSeq#
+		AND 	summary_code = #summaryCode#
+	]]></delete>
+
+	<!-- 표준적요 멀티 삭제 -->
+	<delete id="setAdminSummaryMultiDelete" parameterClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminSummary.setAdminSummaryMultiDelete */
+		DELETE 
+		FROM 	$DB_NEOS$t_ex_summary_multi 
+		WHERE 	comp_seq = #compSeq#
+		AND 	summary_code = #summaryCode#
+	]]></delete>
+
+	<!-- 표준적요 조회 -->
+	<select id="setAdminSummarySelect" parameterClass="HashMap"
+		resultClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminSummary.setAdminSummarySelect */
+		SELECT 	  NVL(comp_seq, '') as "compSeq"
+				, NVL(summary_code, '') as "summaryCode"
+				, NVL(summary_name, '') as "summaryName"
+				, NVL(summary_div, '') as "summaryDiv"
+				, NVL(dr_acct_code, '') as "drAcctCode"
+				, NVL(dr_acct_name, '') as "drAcctName"
+				, NVL(cr_acct_code, '') as "crAcctCode"
+				, NVL(cr_acct_name, '') as "crAcctName"
+				, NVL(vat_acct_code, '') as "vatAccCode"
+				, NVL(vat_acct_name, '') as "vatAccName"
+				, NVL(erp_auth_code, '') as "erpAuthCode"
+				, NVL(erp_auth_name, '') as "erpAuthName"
+				, NVL(bank_partner_code, '') as "bankPartnerCode"
+				, NVL(bank_partner_name, '') as "bankPartnerName"
+				, NVL(use_yn, '') as "useYN"
+				, NVL(order_num, '') as "orderNum"
+		FROM 	$DB_NEOS$t_ex_summary 
+		WHERE	(
+					   NVL(summary_code, '') LIKE '%$searchStr$%'
+					OR NVL(summary_name, '') LIKE '%$searchStr$%'
+					OR NVL(dr_acct_code, '') LIKE '%$searchStr$%'
+					OR NVL(dr_acct_name, '') LIKE '%$searchStr$%'
+					OR NVL(cr_acct_code, '') LIKE '%$searchStr$%'
+					OR NVL(cr_acct_name, '') LIKE '%$searchStr$%'
+					OR NVL(erp_auth_code, '') LIKE '%$searchStr$%'
+					OR NVL(erp_auth_name, '') LIKE '%$searchStr$%'
+					OR NVL(bank_partner_code, '') LIKE '%$searchStr$%'
+					OR NVL(bank_partner_name, '') LIKE '%$searchStr$%'
+					OR NVL(vat_acct_code, '') LIKE '%$searchStr$%'
+					OR NVL(vat_acct_name, '') LIKE '%$searchStr$%'
+				)
+		AND		(
+					( '$useYN$' = '' AND use_yn = use_yn )
+					OR ( '$useYN$' = 'Y' AND use_yn = 'Y' )
+					OR ( '$useYN$' = 'N' AND use_yn = 'N' )
+				)
+	]]></select>
+
+	<select id="setAdminSummaryListSelect" parameterClass="HashMap"
+		resultClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminSummary.setAdminSummaryListSelect */
+		SELECT 	IFNULL(A.comp_seq, '') as compSeq
+				, IFNULL(A.summary_code, '') as summaryCode
+				, IFNULL(A.summary_name, '') as summaryName
+				, IFNULL(A.summary_div, '') as summaryDiv
+				, IFNULL(A.dr_acct_code, '') as drAcctCode
+				, IFNULL(A.dr_acct_name, '') as drAcctName
+				, IFNULL(A.cr_acct_code, '') as crAcctCode
+				, IFNULL(A.cr_acct_name, '') as crAcctName
+				, IFNULL(A.vat_acct_code, '') as vatAcctCode
+				, IFNULL(A.vat_acct_name, '') as vatAcctName
+				, IFNULL(A.erp_auth_code, '') as erpAuthCode
+				, IFNULL(A.erp_auth_name, '') as erpAuthName
+				, IFNULL(A.bank_partner_code, '') as bankPartnerCode
+				, IFNULL(A.bank_partner_name, '') as bankPartnerName
+				, IFNULL(A.use_yn, '') as useYN
+				, IFNULL(A.order_num, '') as orderNum
+				, IFNULL(B.summary_name, A.summary_name) AS summaryNameKr
+				, IFNULL(C.summary_name, A.summary_name) AS summaryNameEn
+				, IFNULL(D.summary_name, A.summary_name) AS summaryNameCn
+				, IFNULL(E.summary_name, A.summary_name) AS summaryNameJp
+				, (CASE order_num WHEN 0 THEN 9999999999 ELSE order_num END)AS 'orderBy'
+		FROM 	$DB_NEOS$t_ex_summary A
+		LEFT OUTER JOIN $DB_NEOS$t_ex_summary_multi B ON A.summary_code = B.summary_code AND B.lang_code = 'kr'
+		LEFT OUTER JOIN $DB_NEOS$t_ex_summary_multi C ON A.summary_code = C.summary_code AND C.lang_code = 'en'
+		LEFT OUTER JOIN $DB_NEOS$t_ex_summary_multi D ON A.summary_code = D.summary_code AND D.lang_code = 'cn'
+		LEFT OUTER JOIN $DB_NEOS$t_ex_summary_multi E ON A.summary_code = E.summary_code AND E.lang_code = 'jp'
+		WHERE	(
+					IFNULL(A.summary_code, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.summary_name, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.dr_acct_code, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.dr_acct_name, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.cr_acct_code, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.cr_acct_name, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.erp_auth_code, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.erp_auth_name, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.bank_partner_code, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.bank_partner_name, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.vat_acct_code, '') LIKE '%$searchStr$%'
+					OR IFNULL(A.vat_acct_name, '') LIKE '%$searchStr$%'
+				)
+		AND		(
+					( '$useYN$' = '' AND use_yn = use_yn )
+					OR ( '$useYN$' = 'Y' AND use_yn = 'Y' )
+					OR ( '$useYN$' = 'N' AND use_yn = 'N' )
+				)
+		AND		A.comp_seq = '$compSeq$'
+		ORDER BY orderBy
+	]]></select>
+
+	<select id="setAdminSummaryErpSendYN" parameterClass="HashMap"
+		resultClass="HashMap"><![CDATA[
+		/* [Bizbox Alpha][oracle] Ex2AdminSummary.setAdminSummaryErpSendYN */
+		SELECT    COUNT(*)			as "cnt"
+				, '$summaryCode$'	as "summaryCode"
+		FROM   	$DB_NEOS$t_ex_expend_list A
+		INNER JOIN (
+			SELECT expend_seq
+			FROM   $DB_NEOS$t_ex_expend
+			WHERE  NVL(erp_send_yn, ' ') != 'Y'
+			AND    NVL(doc_seq, ' ') != ' ' AND NVL(doc_seq, ' ') != '0'
+			AND    comp_seq = '$compSeq$'
+			AND    NVL(expend_stat_code, ' ') != '999'
+		) B
+		ON A.expend_seq = B.expend_Seq
+		WHERE  A.summary_seq IN (
+			SELECT seq
+			FROM   $DB_NEOS$t_ex_expend_summary
+			WHERE  summary_code = '$summaryCode$'
+			AND  summary_div = 'A'
+		)
+	]]></select>
+
+</sqlMap>

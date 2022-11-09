@@ -1,0 +1,59 @@
+﻿ol, ul{list-style:none;}
+
+a:link {text-decoration:none;} 
+a:visited {text-decoration:none;}
+a:hover, a:active,a:focus{text-decoration:none;}
+
+#index_contents {}
+#index_contents #menu{width:100%;height:100%;overflow:hidden;padding:0% 0% 0% 0%}
+#index_contents #menu li{float:left;margin-left:8px;}
+#index_contents #menu li span{display:block;width:62px;text-align:center;color:#575757;font-size:12px;padding:7px 0 14px}
+
+.ea_content_table{width:100%;border-collapse:collapse; background:#fff;}
+.ea_content_table td{font-size:12px;border:1px solid #aaa;padding:5px;}
+.ea_content_table td p{font-size:10pt;}
+.ea_content_table .ac{text-align:center}
+.ea_content_table .strong {font-weight:bold;}
+
+#appagr_list ul{list-style-type:none; padding-left:0px;}
+#appagr_list ul li {color:#275c6e;text-align:left;font-size:12px;padding-left:0px; padding-bottom:5px;}
+
+#relaydoc ul{padding-left:0px;}
+#relaydoc ul li {color:#275c6e;text-align:left;font-size:14px;padding-left:0px; padding-bottom:5px;}
+
+
+#file_list h1{padding:10px 2px 2px 0; font-size:14px;color:#363636;}
+#file_list ul{}
+#file_list ul li {background:url(/neobizboxmw/image/kr/fileclip.gif) no-repeat 0 0;color:#275c6e;text-align:left;font-size:14px;padding-left:14px;padding-top:0px;padding-bottom:10px;}
+
+#file_list2 h1{padding:0px 0px 0px 0; font-size:14px;color:#363636;}
+#file_list2 ul {float:none;padding:4px 3px; height:100%;}
+#file_list2 ul li {background:url(/neobizboxmw/image/kr/fileclip.gif) no-repeat 0 0;color:#275c6e;text-align:left;font-size:14px;padding-left:14px;padding-top:0px;padding-bottom:10px;}
+
+
+#relation_list h1{padding:10px 2px 2px 0; font-size:14px;color:#363636;}
+#relation_list ul{}
+#relation_list ul li {height:18px;color:#275c6e;text-align:left;font-size:14px;padding-left:14px;}
+
+#contents{background:url(/neobizboxmw/image/kr/bg_06.gif) repeat-y right top;padding:10px;}
+#contents_wrap{background:url(/neobizboxmw/image/kr/bg_05.gif) repeat-y left top #eceaea; margin:0 9px;}
+#sub_container{width:100%;min-width:240px;}
+
+#top {height:48px;background:#2a5990; color:#fff;}
+#top span {float:left;padding:11px 0 0 9px; color:#ffffff; font-weight:bold; font-size:14px;}
+#top ul {float:right;padding:4px 3px; height:100%;}
+#top ul li {float:left; margin-left:1px;}
+#top ul li.button_bg input {border:0; height:27px;}
+
+
+
+.TD_search_line {background-color:#B9CFD7;}
+.TD_search_back {background-color:#F2F7F9;padding:1px;}
+.TD_SO_02 {font-family: dotum, sans-serif;font-size: 9pt;font-weight: bold;font-style: normal;color: #FF6600;padding-top : 2px;}
+.TD_SO_03 {font-family: dotum, sans-serif;font-size: 9pt;font-weight: bold;font-style: normal;color: #656565;padding-top : 2px;}
+.TD_SO_07 {font-family: dotum, sans-serif;font-size: 9pt;font-weight: bold;font-style: normal;padding-top : 3px;padding-left : 5px;background-color:#FFFFFF;}
+span.SPAN_TABLE_SO {overflow: hidden;white-space:pre-wrap;width : 100%;font-family: dotum, sans-serif;font-size : 9pt;line-height: 100%;}
+.board_right {float:right;margin:0 10px 0 0;font-family: dotum, sans-serif;font-size : 9pt;}
+.list_item {cursor:hand;width:100%;height:100%;overflow:hidden;font-family: dotum, sans-serif;font-size : 9pt;}
+.list_table {cursor:hand;width:100%;height:100%;overflow:hidden;}
+

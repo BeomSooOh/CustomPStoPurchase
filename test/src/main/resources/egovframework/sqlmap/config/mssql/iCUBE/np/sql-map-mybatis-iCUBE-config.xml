@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<settings>
+		<setting name="logImpl" value="LOG4J" />
+	</settings>
+
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="UNPOOLED">
+				<property name="driver" value="${driver}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" />
+			</dataSource>
+
+		</environment>
+	</environments>
+
+	<mappers>
+		<!-- 지출결의(user-code) -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/np/user/NpOptionSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/np/user/NpCodeSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/np/user/NpBudgetSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/np/user/NpETaxSQL.xml" />
+	</mappers>
+</configuration>

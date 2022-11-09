@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- iCUBE 국고보조통합시스템 연계 -->
+<mapper namespace="Angu">
+
+
+	<!-- /* 집행등록 & 집행등록 상세 생성 */ -->
+	<update id="Angu.USP_ANGU300_H_D_INSERT" statementType="CALLABLE" parameterType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_H_D_INSERT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{MOSF_GISU_DT}
+			, #{MOSF_GISU_SQ,mode=OUT,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{MOSF_PAY_FG}
+			, #{DEPT_CD}
+			, #{EMP_CD}
+			, #{DIV_CD}
+			, #{INTRFC_ID}
+			, #{BSNSYEAR}
+			, #{DDTLBZ_ID}
+			, #{PRUF_SE_CODE}
+			, #{CARD_NO}
+			, #{CTR_CD}
+			, #{PRUF_SE_NO}
+			, #{TAX_TY}
+			, #{EXCUT_REQUST_DE}
+			, #{TRANSFR_ACNUT_SE_CODE}
+			, #{SBSACNT_TRFRSN_CODE}
+			, #{SBSACNT_TRFRSN_CN}
+			, #{EXCUT_PRPOS_CN}
+			, #{BCNC_SE_CODE}
+			, #{TR_CD}
+			, #{BCNC_LSFT_NO}
+			, #{BCNC_CMPNY_NM}
+			, #{BCNC_RPRSNTV_NM}
+			, #{BCNC_ADRES}
+			, #{BCNC_TELNO}
+			, #{DUZON_BANK_CODE}
+			, #{BCNC_ACNUT_NO}
+			, #{BCNC_BNKB_INDICT_CN}
+			, #{SBSIDY_BNKB_INDICT_CN}
+			, #{KOR_NM,mode=OUT,jdbcType=VARCHAR,javaType=java.lang.String}
+			, #{INSERT_ID}
+			, #{INSERT_IP}
+		)
+	}
+	]]></update>
+	<!-- /* 집행등록 조회 */ -->
+	<select id="Angu.USP_ANGU300_D_SELECT" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_D_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{DEPT_CD}
+			, #{DIV_CD}
+			, #{EMP_CD}
+			, #{MOSF_GISU_DT}
+			, #{MOSF_GISU_SQ,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{PRUF_SE_CODE}
+			, #{PRUF_SE_NO}
+			, #{TRANSFR_ACNUT_SE_CODE}
+		)
+	}
+	]]></select>
+	<!-- /* 비목정보 생성 */ -->
+	<update id="Angu.USP_ANGU300_B_INSERT" statementType="CALLABLE" parameterType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_B_INSERT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{MOSF_GISU_DT}
+			, #{MOSF_GISU_SQ,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{MOSF_BG_SQ,mode=OUT,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{INTRFC_ID}
+			, #{ASSTN_TAXITM_CODE}
+			, #{PRDLST_NM}
+			, #{INSERT_ID}
+			, #{INSERT_IP}
+		)
+	}
+	]]></update>
+	<!-- /* 비목정보 조회 */ -->
+	<select id="Angu.USP_ANGU300_B_SELECT" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_B_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{MOSF_GISU_DT}
+			, #{MOSF_GISU_SQ,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{FSYR}
+		)
+	}
+	]]></select>
+	<!-- /* 재원정보 생성 */ -->
+	<update id="Angu.USP_ANGU300_T_INSERT" statementType="CALLABLE" parameterType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_T_INSERT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{MOSF_GISU_DT}
+			, #{MOSF_GISU_SQ,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{MOSF_BG_SQ,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{MOSF_LN_SQ,mode=OUT,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{INTRFC_ID}
+			, #{FNRSC_SE_CODE}
+			, #{MGT_CD}
+			, #{BOTTOM_CD}
+			, #{ABGT_CD}
+			, #{BTR_CD}
+			, #{SPLPC,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{VAT,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{SUM_AMOUNT,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{INSERT_ID}
+			, #{INSERT_IP}
+		)
+	}
+	]]></update>
+	<!-- /* 재원정보 조회 */ -->
+	<select id="Angu.USP_ANGU300_T_SELECT" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_T_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{MOSF_GISU_DT}
+			, #{MOSF_GISU_SQ,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{MOSF_BG_SQ,mode=IN,jdbcType=NUMERIC,javaType=java.lang.Double}
+		)
+	}
+	]]></select>
+</mapper>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN" "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/user/ExUserCodeSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/user/ExUserReportSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/user/ExUserCardSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/user/ExUserMngSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/user/ExUserExpendSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/user/ExUserSlipReportSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/user/ExUserSlipSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/user/ExUserBudget.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/user/ExUserETaxSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/admin/ExAdminReportSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/admin/ExAdminSlipReportSQL.xml" />	
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/admin/ExAdminBudgetSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/admin/ExAdminExpendSendSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/master/ExMasterConfigSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/admin/ExAdminYesilSQL.xml" />
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/expend/ex/user/ExUserYesilSQL.xml" />
+</sqlMapConfig>

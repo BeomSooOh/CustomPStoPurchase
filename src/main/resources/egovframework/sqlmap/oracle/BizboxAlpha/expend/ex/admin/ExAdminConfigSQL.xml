@@ -1,0 +1,1281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- Bizbox Alpha oracle -->
+<sqlMap namespace="ExAdminConfig">
+
+	<resultMap class="java.util.HashMap" id="eTaxAuthList">
+		<result property="eTaxSeq" column="eTaxSeq" />
+		<result property="compSeq" column="compSeq" />
+		<result property="authType" column="authType" />
+		<result property="useYN" column="useYN" />
+		<result property="name" column="name" />
+		<result property="code" column="code" />
+		<result property="publicYN" column="publicYN" />
+		<result property="publicJson" column="publicJson" jdbcType="CLOB" javaType="java.lang.String" />  
+	</resultMap>
+
+	<typeAlias alias="oracleLobMap" type="bizbox.orgchart.util.OracleLobMap"/>
+
+	<!-- /* ################################################## */ -->
+	<!-- /* [810000000]..회계 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810100000]..└ 지출결의 관리 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810101000]....└ 지출결의 확인 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810102000]....└ 지출결의 현황 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810103000]....└ 카드 사용 현황 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810200000]..└ 지출결의 설정 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810201000]....└ 계정과목 설정 */ /* 관리자 > 회계 > 지출결의 설정 > 계정과목 설정 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- 계정과목 목록 조회 -->
+	<select id="ExAdminConfig.ExAdminConfigAcctListInfoSelect"
+		parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* oracle - /expend/ex/admin/ExAdminConfigSQL.xml - ExAdminConfig.ExAdminConfigAcctListInfoSelect */
+		SELECT  acct_code AS "acctCode"
+		        , acct_name AS "acctName"
+		        , vat_yn AS "vatYN"
+		        , use_yn AS "useYN"
+		FROM    $DB_NEOS$t_ex_acct
+		WHERE   comp_seq = '$compSeq$'
+		AND     (
+		                ( '$useYN$' = '' AND use_yn = use_yn )
+		                OR ( '$useYN$' != '' AND use_yn = '$useYN$' )
+		        )
+	]]></select>
+
+	<!-- 계정과목 생성 & 수정 -->
+	<update id="ExAdminConfig.ExAdminConfigAcctInfoInsert"
+		parameterClass="HashMap"><![CDATA[
+		/* oracle - /expend/ex/admin/ExAdminConfigSQL.xml - ExAdminConfig.ExAdminConfigAcctInfoInsert */
+		MERGE INTO $DB_NEOS$t_ex_acct
+		USING DUAL
+		   ON (comp_seq  = #comp_seq#
+		  AND  acct_code = #acct_code#)
+         WHEN MATCHED THEN
+              UPDATE SET acct_name = '$acctName$'
+		               , vat_yn = '$vatYN$'
+		               , use_yn = '$useYN$'
+		               , modify_seq = '$empSeq$'
+		               , modify_date = SYSDATE
+         WHEN NOT MATCHED THEN
+              INSERT (
+                      comp_seq
+                    , acct_code
+                    , acct_name
+                    , vat_yn
+                    , use_yn
+                    , create_seq
+                    , create_date
+                    , modify_seq
+                    , modify_date	
+				     )
+				    
+		      VALUES (
+		              '$compSeq$'
+		            , '$acctCode$'
+		            , '$acctName$'
+		            , '$vatYN$'
+		            , '$useYN$'
+		            , '$empSeq$'
+		            , SYSDATE
+		            , '$empSeq$'
+		            , SYSDATE
+		             )  
+	]]></update>
+
+	<!-- 계정과목 삭제 -->
+	<delete id="ExAdminConfig.ExAdminConfigAcctInfoDelete"
+		parameterClass="HashMap"><![CDATA[
+		/* oracle - /expend/ex/admin/ExAdminConfigSQL.xml - ExAdminConfig.ExAdminConfigAcctInfoDelete */
+		DELETE
+		FROM    $DB_NEOS$t_ex_acct
+		WHERE   comp_seq = '$compSeq$'
+		AND     acct_code = '$acctCode$'
+	]]></delete>
+
+	<!-- /* ################################################## */ -->
+	<!-- /* [810202000]....└ 증빙 설정 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810203000]....└ 카드 설정 */ /* 관리자 > 회계 > 지출결의 설정 > 카드 설정 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810204000]....└ 표준적요 설정 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810205000]....└ 증빙유형 설징 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810206000]....└ 환경 설정 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810207000]....└ 양식 설정 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810208000]....└ 항목 설정 */ /* 관리자 > 회계 > 지출결의 설정 > 항목 설정 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- 항목 설정 목록 조회 -->
+	<select id="ExAdminConfig.ExAdminConfigItemListInfoSelect"
+		parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* oracle - /expend/ex/admin/ExAdminConfigSQL.xml - ExAdminConfig.ExAdminConfigItemListInfoSelect */
+		SELECT 
+			compSeq AS "compSeq"
+			, formSeq AS "formSeq"
+			, itemGbn AS "itemGbn"
+			, langpackCode AS "langpackCode"
+			, langpackName AS "langpackName"
+			, orderNum AS "orderNum"
+			, displayAlign AS "displayAlign"
+			, headCode AS "headCode"
+			, selectYN AS "selectYN"
+		FROM(
+			SELECT  '$compSeq$' AS compSeq
+					, '$formSeq$' AS formSeq
+					, CASE WHEN B.item_gbn IS NOT NULL THEN B.item_gbn ELSE A.item_gbn END AS itemGbn
+					, CASE WHEN B.langpack_code IS NOT NULL THEN B.langpack_code ELSE A.langpack_code END AS langpackCode
+					, CASE WHEN B.langpack_name IS NOT NULL THEN B.langpack_name ELSE A.langpack_name END AS langpackName
+					, CASE WHEN B.order_num IS NOT NULL THEN B.order_num ELSE A.order_num END AS orderNum
+					, CASE WHEN B.display_align IS NOT NULL THEN B.display_align ELSE A.display_align END AS displayAlign
+					, CASE WHEN B.head_code IS NOT NULL THEN B.head_code ELSE A.head_code END AS headCode
+					, CASE WHEN B.select_yn IS NOT NULL THEN B.select_yn ELSE A.select_yn END AS selectYN
+			FROM    (
+							SELECT  comp_seq
+									, form_seq
+									, item_gbn
+									, langpack_code
+									, langpack_name
+									, NVL(order_num, 0) AS order_num
+									, display_align
+									, head_code
+									, select_yn
+							FROM    $DB_NEOS$t_ex_item
+							WHERE   comp_seq = '0'
+							AND     form_seq = '0'
+					) A LEFT OUTER JOIN (
+							SELECT  comp_seq
+									, form_seq
+									, item_gbn
+									, langpack_code
+									, langpack_name
+									, NVL(order_num, 0) AS order_num
+									, display_align
+									, head_code
+									, select_yn
+							FROM    $DB_NEOS$t_ex_item
+							WHERE   comp_seq = '$compSeq$'
+							AND     form_seq = '$formSeq$'
+					) B ON A.item_gbn = B.item_gbn AND A.langpack_code = B.langpack_code
+			WHERE   (
+						( '$itemGbn$' = 'CODEALL' AND A.item_gbn = A.item_gbn )
+						OR ( '$itemGbn$' != 'CODEALL' AND A.item_gbn IN ( 'ALL', '$itemGbn$' ) )
+					)
+			ORDER   BY selectYN, orderNum, langpackName
+		)T
+	]]></select>
+
+	<!-- 항목 설정 생성 & 수정 -->
+	<update id="ExAdminConfig.ExAdminConfigItemInfoInsert"
+		parameterClass="HashMap"><![CDATA[
+		/* oracle - /expend/ex/admin/ExAdminConfigSQL.xml - ExAdminConfig.ExAdminConfigItemInfoInsert */
+		MERGE INTO $DB_NEOS$t_ex_item
+			USING DUAL
+				ON(comp_seq = '$compSeq$' AND form_seq = '$formSeq$' AND item_gbn = '$itemGbn$' AND langpack_code = '$langpackCode$')
+		WHEN MATCHED THEN
+			UPDATE SET 
+				langpack_name = '$langpackName$'
+				, order_num = '$orderNum$'
+				, display_align = '$displayAlign$'
+				, head_code = '$headCode$'
+				, select_yn = '$selectYN$'
+				, modify_seq = '$empSeq$'
+				, modify_date = SYSDATE
+		WHEN NOT MATCHED THEN
+			INSERT ( comp_seq, form_seq, item_gbn, langpack_code, langpack_name, order_num, display_align, head_code, select_yn, create_seq, create_date, modify_seq, modify_date )
+			VALUES ( '$compSeq$', '$formSeq$', '$itemGbn$', '$langpackCode$', '$langpackName$', '$orderNum$', '$displayAlign$', '$headCode$', '$selectYN$', '$empSeq$', SYSDATE, '$empSeq$', SYSDATE)				  
+	]]></update>
+
+	<!-- 항목 설정 초기화 -->
+	<delete id="ExAdminConfig.ExAdminConfigItemListInfoDelete"><![CDATA[
+		/* oracle - /expend/ex/admin/ExAdminConfigSQL.xml - ExAdminConfig.ExAdminConfigItemListInfoDelete */
+		DELETE
+		FROM    $DB_NEOS$t_ex_item
+		WHERE   comp_seq = '$compSeq$'
+		AND     form_seq = '$formSeq$'
+		AND		item_gbn IN ( 'ALL', '$itemGbn$' )
+	]]></delete>
+	<!-- /* ################################################## */ -->
+	<!-- /* [810209000]....└ 관리항목 설정 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810210000]....└ 버튼 설정 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810300000]..└ 자금관리 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810301000]....└ 자금일보 양식 설정 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810302000]....└ 자금관리 권한 설정 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810400000]..└ G20 품의/결의서 관리 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810401000]....└ 예실대비 현황 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810402000]....└ 예산 단계별 현황 */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* ################################################## */ -->
+	<!-- /* [810403000]....└ 품의/결의서 현황 */ -->
+	<!-- /* ################################################## */ -->
+
+	<!-- 관리자 카드설정 - 카드조회 -->
+	<select id="ExCodeCardInfoSelect" parameterClass="HashMap"
+		resultClass="oracleLobMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL - ExCodeCardInfoSelect */
+		/* 법인카드 설정페이지 / 카드 리스트 정보 조회 */
+		SELECT	
+			comp_seq 		AS "compSeq"
+			, card_code		AS "cardCode"
+			, card_num		AS "cardNum"
+			, card_name		AS "cardName"
+			, partner_code		AS "partnerCode"
+			, partner_name		AS "partnerName"
+			, card_public_json	AS "cardPublicJson"
+			, use_yn		AS "useYN"
+		FROM	$DB_NEOS$t_ex_card
+		WHERE 	comp_Seq = '$compSeq$'
+		AND	(
+				REPLACE(card_num,'-','') LIKE REPLACE('%$textFilter$%','-','')
+			OR	card_name LIKE '%$textFilter$%'
+			OR	partner_code LIKE '%$textFilter$%'
+			OR	partner_name LIKE '%$textFilter$%'
+		)
+		AND		use_yn LIKE '%$useYN$%'
+		
+	]]></select>
+
+	<!-- 관리자 카드설정 - 카드조회 -->
+	<select id="NpExCodeCardInfoSelect" parameterClass="HashMap"
+		resultClass="oracleLobMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL - NpExCodeCardInfoSelect */
+		/* 법인카드 설정페이지 / 카드 리스트 정보 조회 */
+		SELECT	
+			comp_seq 		AS "compSeq"
+			, card_code		AS "cardCode"
+			, card_num		AS "cardNum"
+			, card_name		AS "cardName"
+			, partner_code		AS "partnerCode"
+			, partner_name		AS "partnerName"
+			, card_public_json	AS "cardPublicJson"
+			, use_yn		AS "useYN"
+		FROM	$DB_NEOS$t_ex_card
+		WHERE 	comp_Seq = '$compSeq$'
+		  AND   card_name like ('%' || NVL(#searchCardName#, '') || '%')
+		  AND   REPLACE(card_num, '-', '') like ('%' || REPLACE(NVL(#searchCardNum#, ''), '-', '') || '%')
+		  AND   partner_code like '%$searchPartnerCode$%'
+		  AND   partner_name like '%'|| NVL(#searchPartnerName#, '') ||'%'
+		  AND	card_public_json LIKE '%$public$%'
+		  AND	use_yn LIKE '%$useYN$%'
+		  	
+	]]></select>
+
+	<!-- 공통코드 - 카드등록 -->
+	<update id="ExCodeCardInfoInsert" parameterClass="HashMap"><![CDATA[
+		/* ExCodeCardInfoInsert - BizboxA - oracle */
+		MERGE INTO $DB_NEOS$t_ex_card
+			USING DUAL
+				ON(comp_seq = '$compSeq$' AND card_code = '$cardCode$')
+			WHEN MATCHED THEN
+				UPDATE SET
+					card_num = '$cardNum$'
+					, card_name = #cardName#
+					, partner_code = '$partnerCode$'
+					, partner_name = #partnerName#
+					, card_public_json = #cardPublicJson#
+					, use_yn = '$useYN$'
+					, create_seq = '$createSeq$'
+					, create_date = SYSDATE
+					, modify_seq = '$modifySeq$'
+					, modify_date = SYSDATE
+			WHEN NOT MATCHED THEN						
+				INSERT (
+					comp_seq
+					, card_code
+					, card_num
+					, card_name
+					, partner_code
+					, partner_name
+					, card_public_json
+					, use_yn
+					, create_seq
+					, create_date
+					, modify_seq
+					, modify_date )
+				VALUES (
+					'$compSeq$'
+					, '$cardCode$'
+					, '$cardNum$'
+					, #cardName#
+					, '$partnerCode$'
+					, #partnerName#
+					, #cardPublicJson#
+					, '$useYN$'
+					, '$createSeq$'
+					, SYSDATE
+					, '$modifySeq$'
+					, SYSDATE
+				)
+	]]></update>
+
+	<!-- 공통코드 - 카드 수정 -->
+	<update id="ExCodeCardInfoUpdate" parameterClass="HashMap"><![CDATA[
+		/* ExCodeCardInfoUpdate - BizboxA - oracle */
+		UPDATE  $DB_NEOS$t_ex_card
+		SET     card_name = #cardName#
+		        , partner_code = '$partnerCode$'
+		        , partner_name = #partnerName#
+		        , card_public_json = #cardPublicJson#
+		        , modify_seq = '$modifySeq$'
+		        , modify_date = SYSDATE
+		WHERE   comp_seq = '$compSeq$'
+		AND     ( REPLACE(card_num, '-', '') = REPLACE('$cardNum$', '-', '') OR card_num = '$cardCode$' )
+	]]></update>
+
+	<!-- 공통코드 - 카드 전체 삭제 -->
+	<delete id="ExCodeCardInfoDeleteAll" parameterClass="HashMap"><![CDATA[
+		/* ExCodeCardInfoDeleteAll - BizboxA - oracle */
+		DELETE
+		FROM    $DB_NEOS$t_ex_card
+		WHERE   comp_seq = '$compSeq$'
+	]]></delete>
+
+	<!-- 공통코드 - 카드 삭제 -->
+	<delete id="ExCodeCardInfoDelete" parameterClass="HashMap"><![CDATA[
+		/* ExCodeCardInfoDelete - BizboxA - oracle */
+		DELETE
+		FROM    $DB_NEOS$t_ex_card
+		WHERE   comp_seq = '$compSeq$'
+		AND     ( REPLACE(card_num, '-', '') = REPLACE('$cardNum$', '-', '') OR card_num = '$cardCode$' )
+	]]></delete>
+
+	<!-- 공통코드 - 카드 공개범위 등록 -->
+	<insert id="ExCodeCardPublicListInfoInsert" parameterClass="HashMap"><![CDATA[
+		/* ExCodeCardPublicListInfoInsert - oracle */
+		INSERT INTO $DB_NEOS$t_ex_card_public ( 
+		    comp_seq
+		    , card_num
+		    , org_div
+		    , org_id
+		    , create_seq
+		    , create_dt
+		    , modify_seq
+		    , modify_dt )
+		VALUES (
+		    '$compSeq$'
+		    , '$cardNum$'
+		    , '$orgDiv$'
+		    , '$orgId$'
+		    , '$createSeq$'
+		    , SYSDATE
+		    , '$modifySeq$'
+		    , SYSDATE
+		)
+	]]></insert>
+
+	<!-- 공통코드 - 카드 공개범위 삭제 -->
+	<delete id="ExCodeCardPublicListInfoDelete" parameterClass="HashMap"><![CDATA[
+		/* ExCodeCardPublicListInfoDelete - oracle */
+		DELETE
+		FROM    $DB_NEOS$t_ex_card_public
+		WHERE   comp_seq = '$compSeq$'
+		AND     ( REPLACE(card_num, '-', '') = REPLACE('$cardNum$', '-', '') OR card_num = '$cardCode$' )
+	]]></delete>
+
+	<select id="ExAdminConfig.SelectAccItemList" parameterClass="HashMap"
+		resultClass="HashMap"><![CDATA[
+		/* oracle/expend/ex/admin/ExAdminConfigSQL.xml - ExAdminConfig.SelectAccItemList */
+		/* 계정과목 관리 / 계정과목 아이템 조회 (풀 스캔) */
+		SELECT	
+			comp_seq
+			, acct_code
+			, acct_name
+			, vat_yn
+			, use_yn
+			, parent_code
+			, path
+		FROM	$DB_NEOS$t_ex_acct 
+		WHERE 	CAST(comp_seq AS CHAR ) = #compSeq#
+			AND	acct_name	LIKE '%$acctName$%'
+		ORDER BY path ASC
+	]]></select>
+
+	<insert id="ExAdminConfig.InsertAccItemList" parameterClass="HashMap"><![CDATA[
+		/* oracle/expend/ex/admin/ExAdminConfigSQL.xml - ExAdminConfig.InsertAccItemList */
+		/* 계정과목 관리 / 계정과목 아이템 신규 생성 */
+		INSERT INTO $DB_NEOS$t_ex_acct (
+			comp_seq
+			, acct_code
+			, acct_name
+			, vat_yn
+			, use_yn
+			, parent_code
+			, path
+			, create_seq
+			, create_date
+			, modify_seq
+			, modify_date
+		)
+		VALUES	(
+			#compSeq#
+			, #acctCode#
+			, #acctName#
+			, #vatYn#	
+			, #useYn#
+			, #parentCode#
+			, #path#
+			, #empSeq#
+			, SYSDATE
+			, #empSeq#
+			, SYSDATE
+		)	
+	]]></insert>
+
+	<update id="ExAdminConfig.UpdateAccItemList" parameterClass="HashMap"><![CDATA[
+		/* oracle/expend/ex/admin/ExAdminConfigSQL.xml - ExAdminConfig.UpdateAccItemList */
+		/* 계정과목 관리 / 계정과목 아이템 갱신 */
+		UPDATE 	$DB_NEOS$t_ex_acct
+		SET	
+			acct_name = #acctName#
+			, vat_yn = #vatYn#
+			, use_yn = #useYn#
+			, parent_code = #parentCode#
+			, path = #path#
+			, modify_seq = #modifySeq#
+			, modify_date = SYSDATE
+		WHERE 	comp_seq = #compSeq#
+			AND acct_code = #acctCode#
+	
+	]]></update>
+
+	<select id="ExAdminConfigOptionSelect" parameterClass="HashMap"
+		resultClass="HashMap"><![CDATA[
+		/* exAdminConfigOptionSelect - oracle */
+		SELECT	opt.comp_seq AS "comp_seq"
+				, opt.form_seq AS "form_seq"
+				, opt.option_gbn AS "option_gbn"
+				, opt.option_code AS "option_code"
+				, mul.option_name AS "option_name"
+				, opt.use_sw AS "use_sw"
+				, opt.base_value AS "base_value"
+				, opt.base_name AS "base_name"
+				, opt.base_emp_value AS "base_emp_value"
+				, NVL(opt.set_value, opt.base_value) AS "set_value"
+				, NVL(opt.set_name, opt.base_name) AS "base_name"
+				, opt.set_emp_value AS "set_emp_value"
+		FROM 	$DB_NEOS$t_ex_option opt
+		INNER JOIN $DB_NEOS$t_ex_option_multi mul
+		ON 		opt.option_code = mul.option_code AND opt.use_sw = mul.use_sw
+		WHERE	opt.comp_seq = '$compSeq$'
+		AND		opt.form_seq = '$formSeq$'
+		AND		opt.use_sw = '$useSw$'
+		AND		opt.option_code = '$optionCode$'
+		AND		opt.option_gbn IN ('001','002','003')
+		AND		opt.use_yn = 'Y'	
+	]]></select>
+
+	<select id="ExAdminLabelInfoListSelect" parameterClass="HashMap"
+		resultClass="HashMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL.xml / ExAdminLabelInfoListSelect */
+		/* 회사별 전체 명칭설정 정보 조회 */
+		SELECT	
+			BASE.compSeq						AS "compSeq"				
+			, BASE.langCode						AS "langCode"
+			, BASE.langType						AS "langType"
+			, BASE.basicName					AS "basicName"
+			, NVL(ADV.langKR, BASE.langKR) 	AS "langKR"
+			, NVL(ADV.langEN, BASE.langEN) 	AS "langEN"
+			, NVL(ADV.langJP, BASE.langJP) 	AS "langJP"
+			, NVL(ADV.langCN, BASE.langCN) 	AS "langCN"
+			, NVL(ADV.tooltip, BASE.tooltip) AS "tooltip"
+		FROM	(
+			SELECT	
+				'$compSeq$'					AS compSeq
+				, MAX(lang_type) KEEP (DENSE_RANK FIRST ORDER BY comp_seq ASC, lang_type ASC, lang_code ASC) AS langType
+				, lang_code					AS langCode
+				, MAX(basic_name) KEEP (DENSE_RANK FIRST ORDER BY comp_seq ASC, lang_type ASC, lang_code ASC) AS basicName
+				, MAX(DECODE( lang_type, 'kr', lang_name, '' )) AS langKR
+				, MAX(DECODE( lang_type, 'en', lang_name, '' )) AS langEN
+				, MAX(DECODE( lang_type, 'jp', lang_name, '' )) AS langJP
+				, MAX(DECODE( lang_type, 'cn', lang_name, '' )) AS langCN
+				, MAX(tooltip)KEEP (DENSE_RANK FIRST ORDER BY comp_seq ASC, lang_type ASC, lang_code ASC) AS tooltip
+			FROM	$DB_NEOS$t_ex_langpack
+			WHERE 	comp_seq = 'EXP_LANGPACK'
+			GROUP BY comp_seq, lang_code
+		)	BASE
+		 LEFT JOIN	(
+			SELECT	
+				comp_seq					AS compSeq			
+				, MAX(lang_type) KEEP (DENSE_RANK FIRST ORDER BY comp_seq ASC, lang_type ASC, lang_code ASC) AS langType
+				, lang_code					AS langCode
+				, MAX(basic_name) KEEP (DENSE_RANK FIRST ORDER BY comp_seq ASC, lang_type ASC, lang_code ASC) AS basicName
+				, MAX(DECODE( lang_type, 'kr', lang_name, '' )) AS langKR
+				, MAX(DECODE( lang_type, 'en', lang_name, '' )) AS langEN
+				, MAX(DECODE( lang_type, 'jp', lang_name, '' )) AS langJP
+				, MAX(DECODE( lang_type, 'cn', lang_name, '' )) AS langCN
+				, MAX(tooltip)KEEP (DENSE_RANK FIRST ORDER BY comp_seq ASC, lang_type ASC, lang_code ASC) AS tooltip				
+			FROM	$DB_NEOS$t_ex_langpack
+			WHERE 	comp_seq = '$compSeq$'
+			GROUP BY comp_seq, lang_code
+		 )	ADV
+		  ON BASE.compSeq = ADV.compSeq
+		   AND BASE.langCode = ADV.langCode
+		   AND BASE.langType = ADV.langType
+	]]></select>
+
+	<update id="ExAdminLabelInfoListUpdate" parameterClass="HashMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL.xml /  ExAdminLabelInfoListUpdate */
+		/* 명칭정보 갱신 */
+		UPDATE	$DB_NEOS$t_ex_langpack
+		SET	
+			lang_name = '$langName$'
+			, modify_seq = '$modifySeq$'
+			, modify_date = SYSDATE
+		WHERE	comp_seq = '$compSeq$'
+		 AND	lang_type = '$langType$'
+		 AND	lang_code = '$langCode$'
+	]]></update>
+
+	<update id="ExAdminLabelTolltipInfoListUpdate" parameterClass="HashMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL.xml /  ExAdminLabelTolltipInfoListUpdate */
+		/* 명칭 툴팁 정보 갱신 */
+		UPDATE	$DB_NEOS$t_ex_langpack
+		SET	
+			tooltip = '$tooltip$'
+			, modify_seq = '$modifySeq$'
+			, modify_date = SYSDATE
+		WHERE	comp_seq = '$compSeq$'
+		 AND	lang_code = '$langCode$'
+	]]></update>
+
+	<insert id="ExAdminLabelInfoListInsert" parameterClass="HashMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL.xml /  ExAdminLabelInfoListInsert */
+		/* 명칭정보 신규 생성 (업데이트 실패의 경우) */
+		INSERT INTO $DB_NEOS$t_ex_langpack (comp_seq, lang_type, basic_name, lang_code, lang_name, create_seq, create_date, modify_seq, modify_date, tooltip, langpack_code)
+		VALUES	(
+			'$compSeq$'
+			, '$langType$'
+			, '$basicName$'
+			, '$langCode$'
+			, '$langName$'
+			, '$createSeq$'
+			, SYSDATE
+			, '$modifySeq$'
+			, SYSDATE
+			, '$tooltip$'
+			, ' '
+		)
+	]]></insert>
+
+	<delete id="ExAdminLabelInfoinInitialization" parameterClass="HashMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL.xml /  ExAdminLabelInfoinInitialization */
+		DELETE
+		FROM    $DB_NEOS$t_ex_langpack
+		WHERE   comp_seq = '$compSeq$'
+	]]></delete>
+
+	<insert id="ExAdminLabelInfoWholeInsert" parameterClass="HashMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL.xml /  ExAdminLabelInfoWholeInsert */
+		/* 명칭정보 최초생성 (기초데이터에서 데이터 전체 복사) */
+		INSERT	INTO	$DB_NEOS$t_ex_langpack
+		SELECT	
+			'$compSeq$'		AS comp_seq
+			, lang_seq
+			, lang_type
+			, basic_name
+			, lang_code
+			, lang_name
+			, '$empSeq$' 	AS create_seq
+			, SYSDATE			AS create_date
+			, '$empSeq$'	AS modify_seq
+			, SYSDATE		AS modify_date
+		FROM 	$DB_NEOS$t_ex_langpack
+		WHERE 	comp_seq = 'EXP_COMPSEQ'
+	]]></insert>
+
+	<select id="ExAdminButtonInfoListSelect" parameterClass="HashMap"
+		resultClass="oracleLobMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL.xml /  ExAdminButtonInfoListSelect */
+		/* 버튼 정보 조회 */	
+		SELECT	
+			comp_seq	AS "compSeq"
+			, form_seq	AS "formSeq"
+			, page_seq	AS "pageSeq"
+			, btn_seq	AS "btnSeq"
+			, POSITION	AS "position"
+			, order_num	AS "orderNum"
+			, display_yn	AS "displayYN"
+			, license_yn	AS "licenseYN"
+			, nm_basic	AS "nmBasic"
+			, nm_kr		AS "nmKR"
+			, nm_en		AS "nmEN"
+			, nm_jp		AS "nmJP"
+			, nm_cn		AS "nmCN"
+			, btn_size	AS "btnSize"
+			, default_yn	AS "defaultYN"
+			, default_code	AS "defaultCode"
+			, call_url	AS "callURL"
+			, call_param	AS "callParam"
+			, callback_url	AS "callbackUrl"
+			, callback_type	AS "callbackType"
+			, callback_key	AS "callbackKey"
+		FROM	$DB_NEOS$t_ex_button
+		WHERE 	comp_seq = '$compSeq$'
+		 AND	form_seq = '$formSeq$'
+		ORDER BY POSITION, order_num	
+	]]></select>
+
+	<insert id="ExAdminButtonInfoListCopy" parameterClass="HashMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL.xml /  ExAdminButtonInfoListCopy */
+		/* 기초데이터에서 데이터 전체 복사 */	
+		INSERT INTO	$DB_NEOS$t_ex_button( 
+			comp_seq
+			, form_seq
+			, page_seq
+			, POSITION
+			, order_num
+			, display_yn
+			, license_yn
+			, btn_size
+			, nm_basic
+			, nm_kr
+			, nm_en
+			, nm_jp
+			, nm_cn
+			, default_yn
+			, default_code
+			, call_url
+			, call_param
+			, callback_url
+			, callback_type
+			, callback_key
+			, default_elemId 
+			, default_elemClass
+		)
+		SELECT	
+			'$compSeq$'		AS	comp_seq
+			, '$formSeq$'	AS	form_seq
+			, BASE.page_seq
+			, BASE.POSITION
+			, BASE.order_num
+			, BASE.display_yn
+			, BASE.license_yn
+			, BASE.btn_size
+			, BASE.nm_basic
+			, BASE.nm_kr
+			, BASE.nm_en
+			, BASE.nm_jp
+			, BASE.nm_cn
+			, BASE.default_yn
+			, BASE.default_code
+			, BASE.call_url
+			, BASE.call_param
+			, BASE.callback_url
+			, BASE.callback_type
+			, BASE.callback_key
+			, BASE.default_elemId 
+			, BASE.default_elemClass
+		FROM	(
+			SELECT	* 
+			FROM	$DB_NEOS$t_ex_button 
+			WHERE	comp_seq = 'EXP_BUTTON'
+			 AND	form_seq = '0'
+		)	BASE
+			LEFT JOIN 	(
+				SELECT	* 
+				FROM	$DB_NEOS$t_ex_button 
+				WHERE	comp_seq = '$compSeq$'
+				 AND	form_seq = '$formSeq$'
+			)	ADV
+			ON BASE.default_code = ADV.default_code
+		WHERE 	ADV.default_code IS NULL
+	]]></insert>
+
+	<update id="ExAdminButtonLocationInfoUpdate" parameterClass="HashMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL.xml /  ExAdminButtonLocationInfoUpdate */
+		/* 버튼 위치정보 갱신 */
+		UPDATE	$DB_NEOS$t_ex_button 
+		SET		order_num		= '$orderNum$'
+				, display_yn	= '$displayYN$'
+		WHERE 	comp_seq = '$compSeq$'
+		 AND 	form_seq = '$formSeq$'
+		 AND	page_seq = '$pageSeq$'
+		 AND	btn_seq = '$btnSeq$'
+	]]></update>
+
+	<update id="ExAdminButtonInfoUpdate" parameterClass="HashMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL.xml /  ExAdminButtonLocationInfoUpdate */
+		/* 버튼 상세정보 갱신 */
+		UPDATE	$DB_NEOS$t_ex_button 
+		SET	nm_basic 	= '$nmBasic$'
+			, nm_kr 	= '$nmKR$'
+			, nm_en 	= '$nmEN$'
+			, nm_cn 	= '$nmCN$'
+			, nm_jp 	= '$nmJP$'
+			, btn_size 	= '$btnSize$'
+			
+			, call_url 	= '$callURL$'
+			, call_param 	= '$callParam$'
+			, callback_url 	= '$callbackURL$'
+			, callback_type	= '$callbackType$'
+			, callback_key	= '$callbackKey$'
+			, license_yn 	= '$licenseYN$'
+			
+		WHERE 	comp_seq 	= '$compSeq$'
+		 AND 	form_seq 	= '$formSeq$'
+		 AND	page_seq 	= '$pageSeq$'
+		 AND	btn_seq 	= '$btnSeq$'		
+	]]></update>
+
+	<update id="ExAdminButtonLicenseInfoUpdate" parameterClass="HashMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL.xml /  ExAdminButtonLicenseInfoUpdate */
+		/* 버튼 라이선스 정보 갱신 */
+		UPDATE	$DB_NEOS$t_ex_button 
+		SET		license_yn 	= '$licenseYN$'
+		WHERE 	default_code = '$defaultCode$'		
+	]]></update>
+
+	<insert id="ExAdminButtonInfoInsert" parameterClass="HashMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL.xml /  ExAdminButtonInfoInsert */
+		/* 개발자 버튼 데이터 신규 생성 */	
+		INSERT INTO	$DB_NEOS$t_ex_button( comp_seq, form_seq, page_seq, POSITION, order_num, display_yn, license_yn, btn_size, nm_basic, nm_kr, nm_en, nm_jp, nm_cn, default_yn, default_code, call_url, call_param, callback_url, callback_type, callback_key ) 
+		SELECT	
+			'EXP_BUTTON'		AS comp_seq
+			, '0'				AS form_seq
+			, '$pageSeq$'		AS page_seq
+			, '$position$'		AS "position"
+			, '99'				AS order_num
+			, 'N'				AS display_yn
+			, '$licenseYN$'		AS license_yn
+			, '$btnSize$'		AS btn_size
+			, '$nmBasic$'		AS nm_basic
+			, '$nmKR$'			AS nm_kr
+			, '$nmEN$'			AS nm_en
+			, '$nmJP$'			AS nm_jp
+			, '$nmCN$'			AS nm_cn
+			, 'N'				AS default_yn
+			, '$defaultCode$'	AS default_code
+			, '$callURL$'		AS call_url
+			, '$callParam$'		AS call_param
+			, ''				AS callback_url
+			, '$callbackType$'	AS callback_type
+			, '$callbackKey$'	AS callback_key
+			FROM	DUAL	
+	]]></insert>
+
+	<insert id="ExAdminButtonInfoDelete" parameterClass="HashMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL.xml /  ExAdminButtonInfoInsert */
+		/* 개발자 버튼 데이터 삭제 */	
+		DELETE 
+		FROM 	$DB_NEOS$t_ex_button 
+		WHERE 	default_code	= '$defaultCode$' 
+		AND 	default_yn		= 'N'
+	]]></insert>
+
+	<select id="ExAdminGetFormInfoSelect" parameterClass="HashMap"
+		resultClass="HashMap"><![CDATA[
+		/* oracle/BizboxAlpha/expend/ex/admin/ExAdminConfigSQL.xml /  ExAdminGetFormInfoSelect */
+		/* 문서 옵션 조회 */
+		SELECT	set_value	AS 	"setValue"
+		FROM	$DB_NEOS$t_ex_option 
+		WHERE	comp_Seq = '$compSeq$'
+		 AND	form_seq = '$formSeq$'
+		 AND 	option_gbn = '001'
+		 AND	option_code = '001001' 
+		 AND	use_sw = '$useSw$' 	
+	]]></select>
+
+	<select id="AdminETaxAuthAllListSelect" parameterClass="HashMap" resultMap="eTaxAuthList"><![CDATA[
+		/* AdminETaxAuthListAllSelect - oracle */
+		/* parameter : compSeq */
+		/* 기능 : 매입전자세금계산서 설정 정보 전체 조회 ( 조건 : 회사 ) */
+		
+		SELECT  NVL(etax_seq, '') AS "eTaxSeq" /* 세금계산서 권한 시퀀스 */
+		        , NVL(comp_seq, '') AS "compSeq" /* 회사 시퀀스 */
+		        , NVL(auth_type, '') AS "authType" /* 권한타입 ( P : 거래처 / E : 이메일 ) */
+		        , NVL(use_yn, '') AS "useYN" /* 사용여부 ( Y : 사용 / N : 미사용 / "" : 미사용 ) */
+		        , NVL(name, '') AS "name" /* 대상 명칭 ( auth_type==P : 거래처명 / auth_type==E : 이메일 주소 ) */
+		        , NVL(code, '') AS "code" /* 대상 코드 ( auth_type==P : 사업자등록번호 / auth_type==E : 이메일 주소 ) */
+		        , CASE
+		                WHEN (SELECT COUNT(*) FROM $DB_NEOS$t_ex_etax_public WHERE A.etax_seq = etax_seq AND A.comp_seq = comp_seq) > 0 THEN 'Y'
+		                ELSE 'N'
+		        END AS "publicYN" /* 공개범위 설정 여부 ( Y : 설정 / N : 미설정 ) */
+		        , NVL(public_json, '') AS "publicJson" /* 공개범위 JSON */
+		FROM    $DB_NEOS$t_ex_etax A
+		WHERE   comp_seq = #compSeq#
+	]]></select>
+
+	<select id="AdminETaxAuthListSelect" parameterClass="HashMap"
+		resultClass="HashMap">
+		SELECT etax.etax_seq AS "etaxSeq"
+		, etax.comp_seq AS "compSeq"
+		, etax.auth_type AS "authType"
+		, etax.use_yn AS "useYN"
+		, etax.name AS "name"
+		, etax.code AS "code"
+		, NVL(etax.public_json,'') as "publicJson"
+		FROM $DB_NEOS$t_ex_etax etax
+		WHERE comp_seq = #compSeq#
+		AND
+		(
+		/* 검새조건 - 권한구분 */
+		etax.auth_type LIKE '%' || #searchType# || '%'
+		/* 검새조건 - 사용여부 */
+		AND etax.use_yn LIKE '%' || #searchUseYN# || '%'
+		AND (
+		/* 검새조건 - 조회대상 */
+		etax.name LIKE '%' || #searchStr# || '%'
+		/* 검새조건 - 조회대상 */
+		OR etax.code LIKE '%' || #searchStr# || '%'
+		)
+		)
+		<isNotEqual property="searchType" compareValue="">
+			ORDER BY
+			etax.name
+		</isNotEqual>
+	</select>
+
+	<insert id="AdminETaxAuthInsert" parameterClass="HashMap">
+		<selectKey keyProperty="etaxSeq" resultClass="int">
+			SELECT $DB_NEOS$T_EX_ETAX_SEQ.nextval AS "etaxSeq" FROM DUAL
+		</selectKey>
+		INSERT INTO $DB_NEOS$t_ex_etax (etax_seq, comp_seq, auth_type,
+		use_yn, name, code, public_json) VALUES (
+		#etaxSeq#
+		, #compSeq#
+		, #authType#
+		, #useYN#
+		, #name#
+		, #code#
+		, #publicJson#
+		)
+	</insert>
+
+	<delete id="AdminETaxAuthDelete" parameterClass="HashMap">
+		DELETE
+		FROM
+		$DB_NEOS$t_ex_etax
+		WHERE comp_seq = #compSeq#
+		AND etax_seq = #etaxSeq#
+	</delete>
+
+	<update id="AdminETaxAuthUpdate" parameterClass="HashMap">
+		UPDATE
+		$DB_NEOS$t_ex_etax
+		SET use_yn = #useYN#
+		, name = #name#
+		, code = #code#
+		, public_json = #publicJson#
+		WHERE comp_seq = #compSeq#
+		AND etax_seq =
+		#etaxSeq#
+	</update>
+
+	<select id="AdminETaxAuthPulicSelect" parameterClass="HashMap"
+		resultClass="HashMap">
+		SELECT etax_seq AS "etaxSeq"
+		, comp_seq AS "compSeq"
+		, type AS "type"
+		, code AS "code"
+		, name AS "name"
+		, group_seq AS "groupSeq"
+		, dept_seq AS "deptSeq"
+		FROM $DB_NEOS$t_ex_etax_public
+		WHERE comp_seq =
+		#compSeq#
+		AND etax_seq = #etaxSeq#
+	</select>
+
+	<insert id="AdminETaxAuthPulicInsert" parameterClass="HashMap">
+		<selectKey keyProperty="pupblicSeq" resultClass="int">
+			SELECT $DB_NEOS$T_EX_ETAX_PUBLIC_SEQ.nextval AS "pupblicSeq" FROM DUAL
+		</selectKey>
+		INSERT INTO $DB_NEOS$t_ex_etax_public (pupblic_seq, etax_seq, comp_seq, type,
+		code, name, group_seq, dept_seq) VALUES (
+			#pupblicSeq#,
+			#etaxSeq#,
+			#compSeq#,
+			#type#,
+			#code#,
+			#name#,
+			#groupSeq#,
+			#deptSeq#
+		)
+	</insert>
+
+	<delete id="AdminETaxAuthPulicDelete" parameterClass="HashMap">
+		DELETE
+		FROM
+		$DB_NEOS$t_ex_etax_public
+		WHERE comp_seq = #compSeq#
+		AND etax_seq =
+		#etaxSeq#
+	</delete>
+
+	<!-- /* ## 양식별 표준적요 설정 ## */ -->
+	<!-- /* ## 양식별 표준적요 설정 ## - 표준적요 등록 */ -->
+	<update id="ExAdminSetSummaryAuthCreate" parameterClass="HashMap"><![CDATA[
+		/* exAdminSetSummaryAuthCreate - oracle */
+		MERGE INTO $DB_NEOS$t_ex_formlink_summary_auth
+			USING DUAL
+				ON(comp_seq = #compSeq# AND form_seq = #formSeq# AND type_div = 'summary' AND code_div = 'A' AND code = #summaryCode#)
+			WHEN MATCHED THEN
+				UPDATE SET 
+					create_seq = #empSeq#
+					, create_date = SYSDATE
+					, modify_seq = #empSeq#
+					, modify_date = SYSDATE
+			WHEN NOT MATCHED THEN
+				INSERT ( comp_seq, form_seq, type_div, code_div, code, create_seq, create_date, modify_seq, modify_date )
+				VALUES ( #compSeq#, #formSeq#, 'summary', 'A', #summaryCode#, #empSeq#, SYSDATE, #empSeq#, SYSDATE )		
+	]]></update>
+	
+	<!-- /* ## 양식별 표준적요 설정 ## - 표쥰적요 삭제 */ -->
+	<delete id="ExAdminSetSummaryAuthDelete" parameterClass="HashMap"><![CDATA[
+		/* 표준적요 삭제 exAdminSetSummaryAuthDelete - oracle */
+		DELETE FROM $DB_NEOS$t_ex_formlink_summary_auth WHERE comp_seq = #compSeq# AND form_seq = #formSeq# AND type_div = 'summary' AND code_div = 'A' AND code = #summaryCode#
+	]]></delete>
+	
+	<!-- /* ## 양식별 증빙유형 설정 ## */ -->
+	<!-- /* ## 양식별 증빙유형 설정 ## - 증빙유형 등록 */ -->
+	<update id="ExAdminSetAuthTypeAuthCreate" parameterClass="HashMap"><![CDATA[
+		/* 증빙유형 등록 exAdminSetAuthTypeAuthCreate - oracle */
+		MERGE INTO $DB_NEOS$t_ex_formlink_summary_auth
+			USING DUAL
+				ON(comp_seq = #compSeq# AND form_seq = #formSeq# AND type_div = 'auth' AND code_div = 'A' AND code = #authTypeCode#)
+			WHEN MATCHED THEN
+				UPDATE SET 
+					create_seq = #empSeq#
+					, create_date = SYSDATE
+					, modify_seq = #empSeq#
+					, modify_date = SYSDATE
+			WHEN NOT MATCHED THEN
+				INSERT ( comp_seq, form_seq, type_div, code_div, code, create_seq, create_date, modify_seq, modify_date )
+				VALUES ( #compSeq#, #formSeq#, 'auth', 'A', #authTypeCode#, #empSeq#, SYSDATE, #empSeq#, SYSDATE )		
+	]]></update>
+	
+	<!-- /* ## 양식별 증빙유형 설정 ## - 증빙유형 삭제 */ -->
+	<delete id="ExAdminSetAuthTypeAuthDelete" parameterClass="HashMap"><![CDATA[
+		/* 증빙유형 삭제 exAdminSetAuthTypeAuthDelete - oracle */
+		DELETE FROM $DB_NEOS$t_ex_formlink_summary_auth WHERE comp_seq = #compSeq# AND form_seq = #formSeq# AND type_div = 'auth' AND code_div = 'A' AND code = #authTypeCode#
+	]]></delete>
+
+	<select id="ExFormLinkAuthListSelect" parameterClass="HashMap"
+		resultClass="HashMap">
+		/* exFormLinkAuthListSelect - oracle */
+		SELECT
+			authCode AS "authCode"
+			, authName AS "authName"
+			, vatTypeName AS "vatTypeName"
+			, hasFormLink AS "hasFormLink"
+			, orderBy AS "orderBy"
+		FROM(
+			SELECT total.auth_code AS authCode
+			, total.auth_name AS authName
+			, total.vat_type_name AS vatTypeName
+			, CASE
+			WHEN form.code IS NULL THEN 'N'
+			ELSE 'Y'
+			END AS hasFormLink
+			, (CASE total.order_num WHEN 0 THEN 9999999999 ELSE order_num END) AS orderBy
+			FROM $DB_NEOS$t_ex_auth total
+			LEFT OUTER JOIN
+			$DB_NEOS$t_ex_formlink_summary_auth form ON (
+			total.auth_code = form.code
+			AND total.comp_seq = form.comp_seq
+			AND form.type_div = 'auth'
+			AND form.form_seq = #formSeq#
+			)
+			WHERE total.comp_seq = #compSeq#
+			AND (
+			/* 검색조건 - 증빙유형 코드*/
+			total.auth_code LIKE ('%' || #searchStr# || '%') OR
+			/* 검색조건 - 증빙유형 명칭*/
+			total.auth_name LIKE ('%' || #searchStr# || '%')
+			)
+			ORDER BY hasFormLink DESC, orderBy
+		)T
+	</select>
+
+	<select id="ExFormLinkSummaryListSelect" parameterClass="HashMap"
+		resultClass="HashMap">
+		/* exFormLinkSummaryListSelect - oracle */
+		SELECT 
+		summaryCode AS "summaryCode"
+		, summaryName AS "summaryName"
+		, drAcctName AS "drAcctName"
+		, vatAcctName AS "vatAcctName"
+		, crAcctName AS "crAcctName"
+		, hasFormLink AS "hasFormLink"
+		, orderBy AS "orderBy"
+		FROM(
+			SELECT total.summary_code AS summaryCode
+			, total.summary_name AS summaryName
+			, total.dr_acct_name AS drAcctName
+			, total.vat_acct_name AS vatAcctName
+			, total.cr_acct_name AS crAcctName
+			, CASE
+				WHEN form.code IS NULL THEN 'N'
+				ELSE 'Y'
+				END AS hasFormLink
+			, (CASE total.order_num WHEN 0 THEN 9999999999 ELSE order_num END) AS orderBy
+			FROM $DB_NEOS$t_ex_summary total
+			LEFT OUTER JOIN
+			$DB_NEOS$t_ex_formlink_summary_auth form ON (
+			total.summary_code = form.code
+			AND total.comp_seq = form.comp_seq
+			AND form.type_div = 'summary'
+			AND form.form_seq = #formSeq#
+	
+			)
+			WHERE total.comp_seq = #compSeq#
+			AND (
+			/* 검색조건 - 표준적요 코드*/
+			total.summary_code LIKE ('%' || #searchStr# || '%') OR
+			/* 검색조건 - 표준적요 명칭*/
+			total.summary_name LIKE ('%' || #searchStr# || '%')
+			)
+			ORDER BY hasFormLink DESC, orderBy,
+			total.summary_name, total.summary_code
+		)T
+	</select>
+
+	<!-- /* ## 양식별 증빙유형 설정 ## - 증빙유형 링크 리스트 조회 */ -->
+	<select id="ExFormLinkSettingAuthListSelect" parameterClass="HashMap"
+		resultClass="HashMap"><![CDATA[
+		/* exFormLinkSettingAuthListSelect - oracle */
+		SELECT  A.comp_seq AS "compSeq"
+		        , A.form_seq AS "formSeq"
+		        , A.type_div AS "typeDiv"
+		        , A.code_div AS "codeDiv"
+		        , B.auth_name AS "authName"
+		        , B.auth_code AS "authCode"
+		        , B.vat_type_code AS "vatTypeCode"
+		        , B.vat_type_name AS "vatTypeName"
+		FROM    (
+		                SELECT  comp_seq
+		                        , form_seq
+		                        , type_div
+		                        , code_div
+		                        , code
+		                FROM    $DB_NEOS$t_ex_formlink_summary_auth
+		                WHERE   comp_seq = #compSeq#
+		                AND     form_seq = #formSeq#
+		                AND     type_div = 'auth'
+		                AND     code_div = 'A'
+		        ) A INNER JOIN (
+		                SELECT  comp_seq
+		                        , auth_name
+		                        , auth_code
+		                        , vat_type_code
+		                        , vat_type_name
+		                        , (CASE WHEN order_num = 0 THEN 9999999999 ELSE order_num END) AS order_num
+		                FROM    $DB_NEOS$t_ex_auth
+		                WHERE   comp_seq = #compSeq#
+		                AND     auth_div = 'A'
+		        ) B ON A.comp_seq  = B.comp_seq AND A.code = B.auth_code
+		ORDER   BY B.order_num, B.auth_name, B.auth_code
+
+	]]></select>
+
+	<!-- /* ## 양식별 증빙유형 설정 ## - 표준적요 링크 리스트 조회 */ -->
+	<select id="ExFormLinkSettingSummaryListSelect" parameterClass="HashMap"
+		resultClass="HashMap"><![CDATA[
+		/* exFormLinkSettingSummaryListSelect - oracle */
+		SELECT  A.comp_seq AS "compSeq"
+		        , A.form_seq AS "formSeq"
+		        , A.type_div AS "typeDiv"
+		        , A.code_div AS "codeDiv"
+		        , B.summary_name AS "summaryName"
+		        , B.summary_code AS "summaryCode"
+		        , B.dr_acct_name AS "drAcctName"
+		        , B.dr_acct_code AS "drAcctCode"
+		        , B.vat_acct_name AS "vatAcctName"
+		        , B.vat_acct_code AS "vatAcctCode"
+		        , B.cr_acct_code AS "crAcctCode"
+		        , B.cr_acct_name AS "crAcctName"
+		FROM    (
+		                SELECT  comp_seq
+		                        , form_seq
+		                        , type_div
+		                        , code_div
+		                        , code
+		                FROM    $DB_NEOS$t_ex_formlink_summary_auth
+		                WHERE   comp_seq = #compSeq#
+		                AND     form_seq = #formSeq#
+		                AND     type_div = 'summary'
+		                AND     code_div = 'A'
+		        ) A INNER JOIN (
+		                SELECT  comp_seq
+		                        , summary_name
+		                        , summary_code
+		                        , dr_acct_name
+		                        , dr_acct_code
+		                        , NVL(vat_acct_name, '') AS vat_acct_name
+		                        , NVL(vat_acct_code, '') AS vat_acct_code
+		                        , cr_acct_code
+		                        , cr_acct_name
+		                        , (CASE WHEN order_num = 0 THEN 9999999999 ELSE order_num END) AS order_num
+		                FROM    $DB_NEOS$t_ex_summary
+		                WHERE   comp_seq = #compSeq#
+		AND     summary_div = 'A'
+		        ) B ON A.comp_seq  = B.comp_seq AND A.code = B.summary_code
+		ORDER   BY B.order_num, B.summary_name, B.summary_code
+	]]></select>
+
+
+	<insert id="ExAdminExpendCloseInsert" parameterClass="HashMap">
+		/* 지출결의 마감 등록 exAdminExpendCloseInsert - oracle */
+		INSERT INTO $DB_NEOS$t_ex_close
+		(comp_seq,form_seq,seq,close_type,close_from_date,close_to_date,close_stat,note,create_seq,create_date,modify_seq,modify_name,modify_date)
+		SELECT #compSeq#,#formSeq#,(NVL(MAX(seq),0) +
+		1),#closeType#,#closeFromDate#,#closeToDate#,#closeStat#,#note#,#createSeq#,SYSDATE,#modifySeq#,#modifyName#,SYSDATE
+		FROM $DB_NEOS$t_ex_close WHERE comp_seq = #compSeq# AND form_Seq =
+		#formSeq#
+		<selectKey keyProperty="seq" resultClass="int">
+			SELECT MAX(seq) FROM $DB_NEOS$t_ex_close WHERE comp_seq = #compSeq# AND
+			form_Seq = #formSeq#
+		</selectKey>
+	</insert>
+
+	<insert id="ExAdminExpendCloseInsertAllForm" parameterClass="HashMap">
+		/* 지출결의 마감 등록(전체양식) exAdminExpendCloseInsertAllForm - oracle */
+		INSERT INTO $DB_NEOS$t_ex_close
+		(comp_seq,form_seq,seq,close_type,close_from_date,close_to_date,close_stat,note,create_seq,create_date,modify_seq,modify_name,modify_date)
+		SELECT #compSeq#,A.form_id,( SELECT (NVL(MAX(seq),0) + 1) FROM
+		$DB_NEOS$t_ex_close WHERE comp_seq = #compSeq# AND form_seq =
+		A.form_id
+		),#closeType#,#closeFromDate#,#closeToDate#,#closeStat#,#note#,#createSeq#,SYSDATE,#modifySeq#,#modifyName#,SYSDATE
+		FROM $DB_NEOS$TEAG_FORM A WHERE FORM_TP = 'EA0000' AND FORM_D_TP IN (
+		'EXPENDI', 'EXPENDU', 'EXPENDA' ) AND form_id NOT IN (#exceptFormSeq#)
+	</insert>
+
+	<update id="ExAdminExpendCloseUpdate" parameterClass="HashMap">
+		/* 지출결의 마감 수정 exAdminExpendCloseUpdate - oracle */
+		UPDATE $DB_NEOS$t_ex_close
+		SET close_stat = #closeStat#,
+		modify_seq = #modifySeq#,
+		modify_name = #modifyName#,
+		modify_date = SYSDATE
+		WHERE comp_seq = #compSeq#
+		AND form_seq = #formSeq#
+		AND seq = #seq#
+	</update>
+
+	<delete id="ExAdminExpendCloseDelete" parameterClass="HashMap">
+		/* 지출결의 마감 삭제 exAdminExpendCloseDelete - oracle */
+		DELETE
+		FROM $DB_NEOS$t_ex_close
+		WHERE comp_seq = #compSeq#
+		AND
+		form_seq = #formSeq#
+		AND seq = #seq#
+	</delete>
+
+	<select id="ExAdminExpendCloseSelect" parameterClass="HashMap"
+		resultClass="oracleLobMap"><![CDATA[
+		/* 지출결의 마감 조회 exAdminExpendCloseSelect - oracle */
+		SELECT	comp_seq AS "compSeq"
+				, form_seq AS "formSeq"
+				, seq AS "seq"
+				, close_type AS "closeType" 
+				, close_from_date AS "closeFromDate"
+				, close_to_date AS "closeToDate"
+				, close_stat AS "closeStat"
+				, note AS "note"
+				, create_seq AS "createSeq" 
+				, TO_CHAR(create_date,'YYYYMMDD') AS "createDate"
+				, modify_seq AS "modifySeq"
+				, modify_name AS "modifyName"
+				, TO_CHAR(modify_date,'YYYYMMDD') AS "modifyDate"
+		FROM	$DB_NEOS$t_ex_close
+		WHERE	comp_seq = #compSeq#
+		AND		form_seq = #formSeq#
+		/* 검색조건 - 마감기간 */
+		AND		(
+			( close_from_date BETWEEN #fromDate# AND #toDate# ) OR
+			( close_to_date BETWEEN #fromDate# AND #toDate# ) OR
+			( close_from_date <= #fromDate# AND close_to_date >= #toDate#)
+		)
+		/* 검색조건 - 마감구분 */
+		AND		close_type LIKE ('%' || #closeType# || '%')
+		/* 검색조건 - 마감상태 */
+		AND		close_stat LIKE ('%'|| #closeStat# || '%')
+		/* 검색조건 - 마감자 */
+		AND	(
+			modify_seq LIKE ('%' || #modifyStr# || '%') OR
+			modify_name LIKE ('%'|| #modifyStr# || '%')
+		)
+		ORDER BY close_from_date DESC
+	]]></select>
+
+	<insert id="ExAdminExpendCloseHistoryInsert" parameterClass="HashMap">
+		/* 지출결의 마감 이력 등록 exAdminExpendCloseHistoryInsert - oracle  */
+		INSERT INTO $DB_NEOS$t_ex_close_history
+		(comp_seq,form_seq,close_seq,seq,close_stat,hitory_info,create_seq,create_date)
+		SELECT #compSeq#,#formSeq#,#closeSeq#,(NVL(MAX(seq),0) +
+		1),#closeStat#,#historyInfo#,#createSeq#,SYSDATE
+		FROM
+		$DB_NEOS$t_ex_close_history WHERE comp_seq = #compSeq# AND form_Seq =
+		#formSeq# AND close_seq = #closeSeq#
+		<selectKey keyProperty="seq" resultClass="int">
+			SELECT MAX(seq) FROM $DB_NEOS$t_ex_close_history WHERE comp_seq = #compSeq#
+			AND form_Seq = #formSeq# AND close_seq = #closeSeq#
+		</selectKey>
+	</insert>
+
+	<select id="ExAdminExpendCloseFormInsertChkValidate"
+		parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* exAdminExpendCloseFormInsertChkValidate - oracle */
+		SELECT	form_seq AS "formSeq"
+		FROM	$DB_NEOS$t_ex_close
+		WHERE	comp_seq = #compSeq#
+		AND		close_type = #closeType#
+		AND		close_stat = 'Y'
+		AND		(
+			#closeFromDate# BETWEEN close_from_date AND close_to_date OR
+			#closeToDate# BETWEEN close_from_date AND close_to_date OR
+			(#closeFromDate# <= close_from_date AND close_to_date <= #closeToDate# )
+		)
+		GROUP BY form_seq
+	]]></select>
+
+	<select id="ExAdminExpendCloseFormInsertChkValidateOneForm"
+		parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* exAdminExpendCloseFormInsertChkValidateOneForm - oracle */
+		SELECT	form_seq AS "formSeq"
+		FROM	$DB_NEOS$t_ex_close
+		WHERE	comp_seq = #compSeq#
+		AND		form_seq = #formSeq#
+		AND		close_type = #closeType#
+		AND		close_stat = 'Y'
+		AND		(
+			#closeFromDate# BETWEEN close_from_date AND close_to_date OR
+			#closeToDate# BETWEEN close_from_date AND close_to_date OR
+			(#closeFromDate# <= close_from_date AND close_to_date <= #closeToDate# )
+		)
+	]]></select>
+</sqlMap>

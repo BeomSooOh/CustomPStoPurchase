@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- iCUBE 예산과목 연계 -->
+<mapper namespace="AnguBgt">
+	<!-- /* 보조비세목코드 귀속 예산과목 코드 조회 */ -->
+	<select id="AnguBgt.USP_ANGU300_BGT_CD_SELECT" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_ANGU300_BGT_CD_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{BSNSYEAR}
+			, #{ASSTN_TAXITM_CODE}
+		)
+	}
+	]]></select>
+	<!-- /* G20 예산과목 코드 조회 */ -->
+	<select id="AnguBgt.USP_COMMON_ACC_CUSTOMHELP_SBGTCD_SELECT" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_COMMON_ACC_CUSTOMHELP_SBGTCD_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+			, #{GISU,jdbcType=NUMERIC,javaType=java.lang.Double}
+			, #{FR_DT}
+			, #{TO_DT}
+			, #{GR_FG}
+			, #{DIV_CDS}
+			, #{MGT_CDS}
+			, #{BOTTOM_CDS}
+			, #{BGT_CD}
+			, #{BGT_NM}
+			, #{OPT_01}
+			, #{OPT_02}
+			, #{OPT_03}
+			, #{BGT_FR_DT}
+			, #{GROUP_CD}
+		)
+	}
+	]]></select>
+	<!-- /* G20 예산과목 레벨 조회 */ -->
+	<select id="AnguBgt.USP_COMMON_ACC_ABSDOCU_TERM_SELECT" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	{
+		call USP_COMMON_ACC_ABSDOCU_TERM_SELECT
+		(
+			#{LANGKIND}
+			, #{CO_CD}
+		)
+	}
+	]]></select>
+</mapper>

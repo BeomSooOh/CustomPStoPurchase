@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="InterlockEAP">
+	<select id="InterlockEAP.ApprovalContentInfoSelect" parameterClass="java.util.HashMap" resultClass="java.lang.String"><![CDATA[
+		/* mariadb - InterlockEAP.ApprovalContentInfoSelect */
+		SELECT  NVL(doc_xml, ' ') AS "content"
+		  FROM  $DB_NEOS$teag_appdoc_interlock
+		 WHERE  doc_id = '$docSeq$'
+		   AND  ROWNUM = 1
+	]]></select>
+
+	<!-- 지출결의 이전 상태값 조회 -->
+	<select id="InterlockEAP.ApprovalProcessExStatusInfoSelect" parameterClass="java.util.HashMap" resultClass="java.lang.String"><![CDATA[
+		/* mariadb - InterlockEAP.ApprovalProcessExStatusInfoSelect */
+		SELECT  expend_stat_code AS "expend_stat_code"
+		  FROM  $DB_NEOS$t_ex_expend
+		 WHERE  expend_seq = '$expendSeq$'
+	]]></select>
+
+	<!-- 지출결의 상태 값 전자결재 상태 값과 동기화 -->
+	<update id="InterlockEAP.ApprovalProcessExStatusInfoUpdate" parameterClass="java.util.HashMap"><![CDATA[
+		/* mariadb - InterlockEAP.ApprovalProcessExStatusInfoUpdate */
+		UPDATE  $DB_NEOS$t_ex_expend
+		   SET  expend_stat_code = '$docSts$'
+		      , doc_seq = '$docSeq$'
+		 WHERE  expend_seq = '$expendSeq$'
+	]]></update>
+	
+	<!-- 이지바로 상태 값 전자결재 상태 값과 동기화 -->
+	<update id="InterlockEAP.ApprovalProcessEzbaroStatusInfoUpdate" parameterClass="java.util.HashMap"><![CDATA[
+		/* mariadb - InterlockEAP.ApprovalProcessEzbaroStatusInfoUpdate */
+		UPDATE 	$DB_NEOS$t_ez_master
+		SET 	doc_sts = '$docSts$'
+				, doc_seq = '$docSeq$'
+		WHERE 	seq = '$seq$'
+	]]></update>
+	
+	
+	<!-- 결재문서 항목 상세 팝업 -->
+	<select id="InterlockEAP.ExDocSlipDetailPop" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	(
+				CASE
+						WHEN drcr_gbn = 'dr' THEN '차변'
+						WHEN drcr_gbn = 'vat' THEN '차변'
+						WHEN drcr_gbn = 'cr' THEN '대변'
+					END
+				) AS "drcrGbn"
+				, slip.acct_name	AS "acctName"
+				, project.project_name 	AS "projectName"
+				, partner.partner_name	AS "partnerName"
+				, card.card_num		AS "cardNum"
+				, card.card_name	AS "cardName"
+				, emp.erp_emp_name	AS "empName"
+				, slip.amt		AS "amt"
+				, slip.slip_seq		AS "slipSeq"
+				, slip.list_seq		AS "listSeq"			
+				, slip.expend_seq	AS "expendSeq"
+				, ( CASE WHEN UPPER(slip.interface_type) = 'CARD' THEN interface_m_id ELSE ' ' END ) AS "syncId"
+				, NVL(slip.note, ' ') AS note	
+		FROM 	$DB_NEOS$t_ex_expend_slip slip
+				LEFT OUTER JOIN $DB_NEOS$t_ex_expend_project project ON slip.project_seq = project.seq
+				LEFT OUTER JOIN $DB_NEOS$t_ex_expend_partner partner ON slip.partner_seq = partner.seq
+				LEFT OUTER JOIN $DB_NEOS$t_ex_expend_card card ON slip.card_seq = card.seq
+				LEFT OUTER JOIN $DB_NEOS$t_ex_expend_emp emp ON slip.emp_seq = emp.seq
+		WHERE	expend_seq = #expend_seq#
+		AND		list_seq = #list_seq#
+	</select>
+	
+	<!-- 결재문서 관리항목 상세 팝업 -->
+	<select id="InterlockEAP.ExDocMngDetailPop" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	mng_code as "mng_code",
+				mng_name as "mng_name",
+				ctd_code as "ctd_code",
+				ctd_name as "ctd_name" 
+		 FROM	$DB_NEOS$t_ex_expend_mng
+		WHERE	expend_seq = '$expend_seq$'
+		  AND	list_seq = '$list_seq$'
+		  AND	slip_seq = '$slip_seq$'
+	</select>
+	
+	<!-- 지출결의 첨부파일 정보 조회 -->
+	<select id="InterlockEAP.ApprovalSelectAttachInfo" parameterClass="HashMap" resultClass="HashMap">
+		/* mariadb/BizboxAlpha/Interlock/interlockEAP_SQL.xml - InterlockEAP.ApprovalSelectAttachInfo */
+		/* 첨부파일 정보 조회 */
+		SELECT att.type		AS	"type",
+			   att.expend_seq	AS	"expendSeq",
+			   att.list_seq		AS	"listSeq",
+			   att.slip_seq		AS	"slipSeq",
+			   att.file_seq		AS	"fileSeq"
+		 FROM  $DB_NEOS$t_ex_expend_attach att
+		WHERE  expend_seq = '$expend_seq$'
+	</select>
+	
+	<!-- 지출결의 첨부파일 상세 정보 조회 -->
+	<select id="InterlockEAP.ApprovalSelectAttachInfoDetail" parameterClass="HashMap" resultClass="HashMap">
+		/* mariadb/BizboxAlpha/Interlock/interlockEAP_SQL.xml - InterlockEAP.ApprovalSelectAttachInfoDetail */
+		/* 첨부파일 상세 정보 조회 */
+		SELECT	file_id	 AS	"fileSeq",
+			    file_sn	 AS	"fileSn",
+			 	path_seq  AS "pathSeq",
+			 	file_stre_cours	 AS	"fileStreCours",
+			 	stre_file_name  AS "streFileName",
+			 	orignl_file_name  AS "orignlFileName",
+			 	file_extsn  AS "fileExtSn",
+			 	file_cn  AS	"fileCn",
+			 	file_size  AS "fileSize"
+		FROM	$DB_NEOS$t_co_atch_file_detail
+		WHERE 	file_id IN	(
+							SELECT	file_seq
+							  FROM	$DB_NEOS$t_ex_expend_attach 
+							 WHERE	expend_seq = '$expend_seq$'
+							   AND	list_seq = '$list_seq$'
+							 <isNotNull property="slip_seq">
+							   AND	slip_seq = '$slip_seq$'
+							 </isNotNull>
+							 )
+		 AND	use_yn = 'Y'		
+	</select>
+	
+	<!-- 결재문서 정보 조회 -->
+	<select id="InterlockEAP.ApprovalInfoSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* mariadb - InterlockEAP.ApprovalInfoSelect */
+		SELECT	doc_id AS "docSeq",
+				NVL(doc_no,' ') AS "docNo",
+				NVL(doc_sts,' ') AS "docStatus"
+		  FROM	$DB_NEOS$teag_appdoc
+		 WHERE	doc_id = #docSeq#
+	</select>	
+</sqlMap>

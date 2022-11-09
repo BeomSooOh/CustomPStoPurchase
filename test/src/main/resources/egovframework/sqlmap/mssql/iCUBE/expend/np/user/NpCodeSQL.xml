@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 사용자 코드 -->
+<mapper namespace="npUserCodeI">
+	<select id="npUserCodeI.TestCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpCodeSQL.xml - NpTestQuery */
+		/* iCUBE 테스트 쿼리 */
+		USE DZICUBE;
+		SELECT	* 
+		FROM	ABDOCU;
+	</select>
+	
+	<select id="npUserCodeI.selectCommonEmpCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpCodeSQL.xml - npUserCodeI.selectCommonEmpCode */
+		/* iCUBE G20 사원코드 조회 프로시저 */
+		USE DZICUBE;
+		exec USP_GET_HELPCODE 
+			@LANGKIND=N'KOR'
+			,@P_HELP_TY=N'SEMP_CODE'
+			,@P_CO_CD=#{erpCompSeq}
+			,@P_CODE=#{empName}
+			,@P_CODE2=NULL
+			,@P_CODE3=NULL
+			,@P_USE_YN=NULL
+			,@P_NAME=NULL
+			,@P_STD_DT=#{stdDate}
+			,@P_WHERE=NULL
+	</select>
+	
+	<select id="npUserCodeI.selectCommonProjectCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpCodeSQL.xml - npUserCodeI.selectCommonProjectCode */
+		/* iCUBE G20 프로젝트 조회 프로시저 */
+		USE DZICUBE;
+		exec USP_GET_HELPCODE 
+			@LANGKIND=N'KOR'
+			,@P_HELP_TY=N'SPJT_CODE'
+			,@P_CO_CD=#{erpCompSeq}
+			,@P_CODE=NULL
+			,@P_CODE2=NULL
+			,@P_CODE3=NULL
+			,@P_USE_YN=#{useYn}
+			,@P_NAME=NULL
+			,@P_STD_DT=NULL
+			,@P_WHERE=N'PJT_CD IN ( SELECT SPJT.PJT_CD 
+		                FROM SPJT
+		                        LEFT OUTER JOIN SPJT_D 
+		                                    ON SPJT.CO_CD = SPJT_D.CO_CD
+		                                    AND SPJT.PJT_CD = SPJT_D.PJT_CD
+		                WHERE SPJT.CO_CD = ''${erpCompSeq}'' 
+		                    AND ( CASE WHEN SPJT.PJT_AUTH = ''1'' THEN 1
+		                            WHEN SPJT.PJT_AUTH = ''0'' AND SPJT_D.EMP_CD = ''${erpEmpSeq}'' THEN 1
+		                            ELSE 0 END ) = 1 )'
+	</select>
+	
+	<select id="npUserCodeI.selectCommonBtrCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpCodeSQL.xml - npUserCodeI.selectCommonBtrCode */
+		/* iCUBE G20 입출금계좌 조회 프로시저 */
+		USE DZICUBE;
+		exec USP_GET_HELPCODE 
+			@LANGKIND=N'KOR'
+			,@P_HELP_TY=N'STRADE_CODE'
+			,@P_CO_CD=#{erpCompSeq}
+			,@P_CODE=NULL
+			,@P_CODE2=NULL
+			,@P_CODE3=NULL
+			,@P_USE_YN=#{useYn}
+			,@P_NAME=NULL
+			,@P_STD_DT=NULL
+			,@P_WHERE=N'TR_FG > ''${trFg}'''
+	</select>	
+	
+	<select id="npUserCodeI.selectCommonTrCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpCodeSQL.xml - npUserCodeI.selectCommonTrCode */
+		/* iCUBE G20 거래처 조회 프로시저 */
+		USE DZICUBE;
+		exec USP_GET_HELPCODE 
+			@LANGKIND=N'KOR'
+			,@P_HELP_TY=N'STRADE_CODE'
+			,@P_CO_CD=#{erpCompSeq}
+			,@P_CODE=#{trName}
+			,@P_CODE2=NULL
+			,@P_CODE3=NULL
+			,@P_USE_YN=#{useYn}
+			,@P_NAME=NULL
+			,@P_STD_DT=NULL
+			,@P_WHERE=NULL              
+	</select>
+	
+	<select id="npUserCodeI.selectCommonBankCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpCodeSQL.xml - npUserCodeI.selectCommonBankCode */
+		/* iCUBE G20 금융기관 코드 조회 프로시저 */
+		USE DZICUBE;
+		exec USP_GET_HELPCODE 
+			@LANGKIND=N'KOR'
+			,@P_HELP_TY=N'SBANK_CODE'
+			,@P_CO_CD=#{erpCompSeq}
+			,@P_CODE=NULL
+			,@P_CODE2=NULL
+			,@P_CODE3=NULL
+			,@P_USE_YN=NULL
+			,@P_NAME=NULL
+			,@P_STD_DT=NULL
+			,@P_WHERE=N' DUMMY3 = ''1'' '
+	</select>
+	
+	<select id="npUserCodeI.selectCommonTrEmpCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpCodeSQL.xml - npUserCodeI.selectCommonTrEmpCode */
+		/* iCUBE G20 사원등록 거래처 코드 조회 프로시저 */
+		USE DZICUBE;
+		exec USP_GET_HELPCODE 
+			@LANGKIND=N'KOR'
+			,@P_HELP_TY=N'SEMP_CODE'
+			,@P_CO_CD=#{erpCompSeq}
+			,@P_CODE=NULL
+			,@P_CODE2=NULL
+			,@P_CODE3=NULL
+			,@P_USE_YN=NULL
+			,@P_NAME=NULL
+			,@P_STD_DT=#{stdDt}		
+			,@P_WHERE=NULL
+	</select>
+	
+	<select id="npUserCodeI.selectCommonCauseCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpCodeSQL.xml - npUserCodeI.selectCommonCauseCode */
+		/* iCUBE G20 원인행위자 코드 조회 프로시저 */
+		USE DZICUBE;
+		exec USP_GET_HELPCODE 
+			@LANGKIND=N'KOR'
+			,@P_HELP_TY=N'SEMP_CODE'
+			,@P_CO_CD=#{erpCompSeq}
+			,@P_CODE=NULL
+			,@P_CODE2=NULL
+			,@P_CODE3=NULL
+			,@P_USE_YN=N''
+			,@P_NAME=NULL
+			,@P_STD_DT=#{stdDt}		
+			,@P_WHERE=N'USR_YN =''1'''
+	</select>
+	
+	<select id="npUserCodeI.selectCommonDeptCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpCodeSQL.xml - npUserCodeI.selectCommonDeptCode */
+		/* iCUBE G20 부서 코드 조회 프로시저 */
+		USE DZICUBE;
+		exec USP_GET_HELPCODE 
+			@LANGKIND=N'KOR'
+			,@P_HELP_TY=N'SDEPT_CODE'
+			,@P_CO_CD=#{erpCompSeq}
+			,@P_CODE=NULL
+			,@P_CODE2=N'1000'
+			,@P_CODE3=NULL
+			,@P_USE_YN=N'1'
+			,@P_NAME=NULL
+			,@P_STD_DT=#{stdDt}	
+			,@P_WHERE=N' DIV_CD = ''1000'''
+	</select>
+	
+	<select id="npUserCodeI.selectCommonBizCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpCodeSQL.xml - npUserCodeI.selectCommonBizCode */
+		/* iCUBE G20 사업장 코드 조회 프로시저 */
+		USE DZICUBE;
+		exec USP_GET_HELPCODE 
+			@LANGKIND=N'KOR'
+			,@P_HELP_TY=N'SDIV_CODE'
+			,@P_CO_CD=#{erpCompSeq}
+			,@P_CODE=NULL
+			,@P_CODE2=NULL
+			,@P_CODE3=NULL
+			,@P_USE_YN=NULL
+			,@P_NAME=NULL
+			,@P_STD_DT=#{stdDt}	
+			,@P_WHERE=NULL
+	</select>
+	
+	<select id="npUserCodeI.selectCommonTrEtcCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpCodeSQL.xml - selectCommonTrEtcCode */
+		/* iCUBE G20 기타소득자 코드 조회 프로시저 */
+		USE DZICUBE;
+		exec USP_ANA0006_BY_HPMETIC_SELECT 
+			@LANGKIND=N'KOR'
+			,@CO_CD=#{erpCompSeq}
+			,@BASE_DT=#{stdDate}
+	</select>
+	
+	<select id="npUserCodeI.selectCommonBgtLabelCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpCodeSQL.xml - selectCommonBgtLabelCode */
+		/* iCUBE G20 예산과목 사용자 정의 명칭 조회 프로시저 */
+		USE DZICUBE;
+		exec USP_COMMON_ACC_ZN_SBGTLEVEL_TERM_SELECT 
+			#{langKind}
+			,#{erpCompSeq}
+	</select>
+	
+	<select id="npUserCodeI.selectCommonBgtCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpCodeSQL.xml - npUserCodeI.selectCommonBgtCode */
+		/* iCUBE G20 예산과목 코드 조회 프로시저 */
+		USE DZICUBE;
+		exec USP_COMMON_ACC_CUSTOMHELP_SBGTCD_SELECT 
+			 @LANGKIND='KOR'
+			,@CO_CD= #{erpCompSeq}
+			,@GISU= #{gisu}			/* ERP 기수 */
+			,@FR_DT= #{frDate}		/* 기수 시작일 */
+			,@TO_DT= #{toDate}		/* 기수 종료일 */
+			,@GR_FG= #{grFg}		/* 지출/수입 예산 여부 :  1.수입 2.지출 */
+			,@DIV_CDS= #{erpDivCode}/* 회계단위| */
+			,@MGT_CDS= #{mgtCode} 	/* 프로젝트 코드| */
+			,@BOTTOM_CDS= #{bottomCode} /* 하위 사업코드 : 001| */
+			,@BGT_CD= #{bgtCode} 	/* 검색어 - 예산계정코드 */
+			,@BGT_NM= #{bgtName} 	/* 검색어 - 예산계정명칭 */
+			,@OPT_01= #{opt01} 		/* 예산과목표시 옵션 : 1. 모든 예산과목 표시, 2.당기 예산편성된 과목만 표시, 3. 프로젝트기간 예산편성된 과목만 표시 */
+			,@OPT_02= #{opt02} 		/* 사용기한 옵션 : 1. 모두 표시, 2. 사용기한 경과분 숨김 */
+			,@OPT_03= #{opt03} 		/* 상위과목표시 옵션 : 1. 모두 표시, 2. 최하위 표시 */
+			,@BGT_FR_DT= #{bgtFrDate} /* 품의서 월일(8자리) : 20171116 */
+			,@GROUP_CD= ''			
+	</select>
+	
+		<select id="npUserCodeI.selectCommonTrBusCode" parameterType="java.util.Map" resultType="java.util.Map">
+		/* mssql/iCUBE/expend/np/user/NpCodeSQL.xml - npUserCodeI.selectCommonTrBusCode */
+		/* iCUBE G20 사업소득자 코드 조회 프로시저 */
+		USE DZICUBE;
+		exec USP_ANA0005_BY_HINCOME_TRFG9_SELECT 
+			@LANGKIND=N'KOR'
+			,@CO_CD=#{erpCompSeq}
+	</select>
+</mapper>

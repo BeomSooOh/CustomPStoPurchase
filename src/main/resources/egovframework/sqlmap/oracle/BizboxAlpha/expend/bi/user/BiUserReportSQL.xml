@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="BiUserReportSQL">
+	<select	id="BiUserCarCloseListSelect" parameterClass="HashMap" resultClass="HashMap">
+		/* 사용자 - 업무용승용차 차량운행기록부 조회 */
+		/* 필요 파라미터 compSeq, useDate, carCode(예 : 111','333','222 이런식으로) */
+		SELECT	erp_comp_seq AS erpCoCd
+				, comp_seq AS compSeq
+				, car_code AS carCode
+		FROM	$DB_NEOS$t_ex_biz_car_person
+		WHERE	comp_seq = '$compSeq$'
+		AND		car_code IN ('$carCode$')
+		AND		use_date LIKE '%$useDate$%'
+		</select>
+</sqlMap>

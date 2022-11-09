@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CommonFormDAO">
+	<select id="CommonFormBizboxDAO.CommonFormSendParam"
+		parameterClass="hashMap" resultClass="hashMap">
+		<![CDATA[
+			/* CommonFormBizboxDAO.CommonFormSendParam - BizboxA - mariaDB */
+			/* 소속회사의 양식정보 호출 */
+			SELECT 
+				form_id		AS 'formSeq'
+				, form_nm	AS 'formNm'
+			FROM	$DB_NEOS$teag_form A 
+				LEFT OUTER JOIN $DB_NEOS$teag_out_process B 
+				 ON 	A.form_d_tp = B.out_process_id 
+			WHERE	A.form_tp 	= 'ea0000'
+			 AND	A.co_id 	IN ( '$compSeq$', '0' ) 
+			 AND	B.detail_code_div = 'ea0060'
+		]]>
+	</select>
+
+	<select id="CommonFormBizboxDAO.CommonFormDataInfo"
+		parameterClass="hashmap" resultClass="hashMap">
+		<![CDATA[
+			/* CommonFormBizboxDAO.CommonFormDataInfo - BizboxA - mariaDB */
+			/* 선택 양식의 본문 HTML조회 */
+			SELECT 
+				form_id		AS 'formSeq'
+				, co_id		AS 'compSeq'
+				, form_nm	AS 'formNm'
+				, IFNULL(form_nm_en, '') AS 'formNmEn'
+				, IFNULL(form_nm_jp, '') AS 'formNmJp'
+				, IFNULL(form_nm_cn, '') AS 'formNmCn'
+				, (CASE 
+					WHEN use_yn = '1' THEN 'Y'	 
+					WHEN use_yn = '0' THEN 'N'
+					END 
+				)			AS 'useYN'
+				, IFNULL(B.form_content, '') 	AS 'formContent'
+			FROM $DB_NEOS$teag_form A 
+				LEFT JOIN $DB_NEOS$t_ex_form B 
+				 ON 	A.form_id = B.form_seq 
+			WHERE	A.form_id = '$formSeq$'
+			 AND	A.co_id IN ('$compSeq$', '0')
+			ORDER BY B.modify_date DESC
+			LIMIT 1 
+		]]>
+	</select>
+
+
+	<select id="CommonFormBizboxDAO.CommonNPEapFormDataInfo"
+		parameterClass="hashmap" resultClass="hashMap">
+		<![CDATA[
+			/* CommonFormBizboxDAO.CommonNPEapFormDataInfo - BizboxA - mariaDB */
+			/* 선택 양식의 본문 HTML조회 */
+			SELECT 
+				A.form_id	AS 'formSeq'
+				, A.co_id	AS 'compSeq'
+				, A.form_nm	AS 'formNm'
+				, IFNULL(form_nm_en, '') AS 'formNmEn'
+				, IFNULL(form_nm_jp, '') AS 'formNmJp'
+				, IFNULL(form_nm_cn, '') AS 'formNmCn'
+				, (CASE 
+					WHEN use_yn = '1' THEN 'Y'	 
+					WHEN use_yn = '0' THEN 'N'
+					END 
+				)			AS 'useYN'
+				, IFNULL(B.form_change_content, orgForm.form_change_content) 	AS 'formContent'
+			FROM	$DB_NEOS$teag_form	A 
+				LEFT JOIN $DB_NEOS$t_exnp_form B 
+				 ON 	A.form_id = B.form_seq
+				LEFT JOIN $DB_NEOS$t_exnp_form orgForm
+				 ON 	A.form_d_tp = orgForm.comp_seq
+				 AND	orgForm.form_seq = '0'				  
+			WHERE	A.form_id = '$formSeq$'
+			 AND	A.co_id IN ('$compSeq$', '0')
+			ORDER BY B.modify_date DESC
+			LIMIT 1 
+			;
+		]]>
+	</select>
+
+	<select id="CommonFormBizboxDAO.CommonNPEaFormDataInfo"
+		parameterClass="hashmap" resultClass="hashMap">
+		<![CDATA[
+			/* CommonFormBizboxDAO.CommonNPFormDataInfo - BizboxA - mariaDB */
+			/* 선택 양식의 본문 HTML조회 */
+			SELECT 
+				A.c_tikeycode		AS 'formSeq'
+				, A.c_tiorgcode		AS 'compSeq'
+				, A.c_tiname	AS 'formNm'
+				, IFNULL('', '') AS 'formNmEn'
+				, IFNULL('', '') AS 'formNmJp'
+				, IFNULL('', '') AS 'formNmCn'
+				, (CASE 
+					WHEN c_tiuseflag = '000' THEN 'Y'	 
+					ELSE 'N'
+					END 
+				)			AS 'useYN'
+				, IFNULL(B.form_change_content, orgForm.form_change_content) 	AS 'formContent'
+			FROM $DB_NEOS$a_templateinfo A 
+				LEFT JOIN $DB_NEOS$t_exnp_form B 
+				 ON 	A.c_tikeycode = B.form_seq 
+				LEFT JOIN $DB_NEOS$t_exnp_form orgForm
+				 ON 	A.form_d_tp = orgForm.comp_seq
+				 AND	orgForm.form_seq = '0'					 
+			WHERE	A.c_tikeycode = '$formSeq$'
+			 AND	B.comp_seq = '$compSeq$'
+			 AND	A.c_tiorgcode IN ('$compSeq$', '0')
+			ORDER BY B.modify_date DESC
+			LIMIT 1 
+		]]>
+	</select>
+
+	<update id="CommonFormBizboxDAO.CommonFormInfoInsert"
+		parameterClass="hashMap">
+		<![CDATA[
+		/* CommonFormBizboxDAO.CommonFormInfoInsert - BizboxA - mariaDB */
+			INSERT INTO $DB_NEOS$t_ex_form ( form_seq, comp_seq, form_content, form_change_content, create_seq, create_date, modify_seq, modify_date )
+			values ( '$formSeq$', '$compSeq$', '$content$', '$change_content$', '$empSeq$', NOW(), '$empSeq$', NOW() )
+			ON DUPLICATE KEY UPDATE form_content = '$content$', form_change_content = '$change_content$' , modify_seq = '$empSeq$', modify_date = NOW()
+		]]>
+	</update>
+
+	<update id="CommonFormBizboxDAO.CommonNpFormInfoInsert"
+		parameterClass="hashMap">
+		<![CDATA[
+		/* CommonFormBizboxDAO.CommonNpFormInfoInsert - BizboxA - mariaDB */
+			INSERT INTO $DB_NEOS$t_exnp_form ( form_seq, comp_seq, form_content, form_change_content, create_seq, create_date, modify_seq, modify_date )
+			values ( '$formSeq$', '$compSeq$', '$content$', '$change_content$', '$empSeq$', NOW(), '$empSeq$', NOW() )
+			ON DUPLICATE KEY UPDATE form_content = '$content$', form_change_content = '$change_content$' , modify_seq = '$empSeq$', modify_date = NOW()
+		]]>
+	</update>
+
+	<select id="CommonFormBizboxDAO.CommonFormSampleInfoSelect"
+		parameterClass="hashMap" resultClass="hashMap">
+		<![CDATA[
+			/* CommonFormBizboxDAO.CommonFormSampleInfoSelect - BizboxA - mariaDB */
+			/* 양식 샘플 조회 */
+			SELECT seq
+			      ,comp_seq			AS compSeq
+			      ,sample_name		AS sampleName 
+			      ,sample_content	AS sampleContent 
+			FROM $DB_NEOS$t_ex_form_sample
+		]]>
+	</select>
+
+	<select id="CommonFormBizboxDAO.CommonNPFormSampleInfoSelect"
+		parameterClass="hashMap" resultClass="hashMap">
+		<![CDATA[
+			/* CommonFormBizboxDAO.CommonNPFormSampleInfoSelect - BizboxA - mariaDB */
+			/* 양식 샘플 조회 */
+			SELECT seq
+			      ,comp_seq			AS compSeq
+			      ,sample_name		AS sampleName 
+			      ,sample_content	AS sampleContent 
+			FROM $DB_NEOS$t_exnp_form_sample
+		]]>
+	</select>
+
+	<insert id="CommonFormBizboxDAO.CopyFormDetailInfo"
+		parameterClass="hashMap">
+		<![CDATA[
+			/* CommonFormBizboxDAO.CopyFormDetailInfo - BizboxA - mariaDB */
+			/* 해당 양식에 대한 양식 기본값 복사 */
+			INSERT INTO	$DB_NEOS$t_ex_form
+			SELECT	'$formSeq$'		AS 'form_seq'
+				, '$compSeq$'	AS 'comp_seq'
+				, form_content
+				, form_change_content
+				, '$empSeq$'	AS 'create_seq'
+				, NOW()		AS 'create_date'
+				, '$empSeq$'	AS 'modify_seq'
+				, NOW()		AS 'modify_date'
+			FROM	$DB_NEOS$t_ex_form
+			WHERE	comp_seq = 'EXP_FORM'
+			 AND	form_seq = '0'
+		]]>
+	</insert>
+
+	<select id="CommonFormBizboxDAO.CommonFormDefaultInfo"
+		parameterClass="hashMap" resultClass="hashMap">
+		<![CDATA[
+			/* CommonFormBizboxDAO.CommonFormDefaultInfo - BizboxA - mariaDB */
+			/* 해당 양식에 대한 기초 코드 조회 */
+			SELECT	
+				form_seq	AS 'formSeq'
+				, comp_seq	AS 'compSeq'
+				, form_change_content	AS 'formContent'
+			FROM	$DB_NEOS$t_ex_form
+			WHERE	form_seq = '0'
+			 AND	comp_seq = 'EXP_FORM'
+		]]>
+	</select>
+
+	<select id="CommonFormBizboxDAO.CommonFormDetailInfo"
+		parameterClass="hashMap" resultClass="hashMap">
+		<![CDATA[
+			/* CommonFormBizboxDAO.CommonFormDetailInfo - BizboxA - mariaDB */
+			/* 해당 양식에 대한 양식 코드 조회 */
+			SELECT	
+				form_seq	AS 'formSeq'
+				, comp_seq	AS 'compSeq'
+				, form_change_content	AS 'formContent'
+			FROM	$DB_NEOS$t_ex_form
+			WHERE	form_seq = '$formSeq$'
+			 AND	comp_seq = '$compSeq$'
+			ORDER BY modify_date DESC
+			LIMIT 1			 
+		]]>
+	</select>
+
+	<select id="CommonFormBizboxDAO.CommonFormCodeInfoSelect"
+		parameterClass="hashmap" resultClass="hashMap">
+		<![CDATA[
+			/* CommonFormBizboxDAO.CommonFormCodeInfoSelect - BizboxA - mariaDB */
+			/* 양식설정에서 사용되는 코드 키워드 아이템 조회 */
+			SELECT 
+				CODE				AS 'code'
+				, code_gbn			AS 'codeGbn'
+				, code_name			AS 'codeName'
+				, IFNULL(required_yn, 'N')	AS 'requried_yn'
+			FROM $DB_NEOS$t_ex_form_code
+			ORDER BY codeGbn DESC, requried_yn DESC, codeName ASC
+		]]>
+	</select>
+
+	<insert id="CommonFormBizboxDAO.CopyNpFormDetailInfo"
+		parameterClass="hashMap">
+		<![CDATA[
+			/* CommonFormBizboxDAO.CopyNpFormDetailInfo - BizboxA - mariaDB */
+			/* 해당 양식에 대한 양식 기본값 복사 */
+			INSERT INTO	$DB_NEOS$t_exnp_form
+			SELECT	'$formSeq$'		AS 'form_seq'
+				, '$compSeq$'		AS 'comp_seq'
+				, form_content
+				, form_change_content
+				, '$empSeq$'		AS 'create_seq'
+				, NOW()				AS 'create_date'
+				, '$empSeq$'		AS 'modify_seq'
+				, NOW()				AS 'modify_date'
+			FROM	$DB_NEOS$t_exnp_form
+			WHERE	comp_seq = '$formTp$'
+			 AND	form_seq = '0'
+		]]>
+	</insert>
+
+	<select id="CommonFormBizboxDAO.CommonNPFormCodeInfoSelect"
+		parameterClass="hashmap" resultClass="hashMap">
+		<![CDATA[
+			/* CommonFormBizboxDAO.CommonNPFormCodeInfoSelect - BizboxA - mariaDB */
+			/* 양식설정에서 사용되는 코드 키워드 아이템 조회 */
+			SELECT 	DISTINCT
+				CODE				AS 'code'
+				, code_gbn			AS 'codeGbn'
+				, code_name			AS 'codeName'
+				, IFNULL(required_yn, 'N')	AS 'requried_yn'
+			FROM $DB_NEOS$t_exnp_form_code
+			ORDER BY codeGbn DESC, requried_yn DESC, codeName ASC
+		]]>
+	</select>
+
+	<select id="CommonFormBizboxDAO.CommonNpFormDetailInfo"
+		parameterClass="hashMap" resultClass="hashMap">
+		<![CDATA[
+			/* CommonFormBizboxDAO.CommonNpFormDetailInfo - BizboxA - mariaDB */
+			/* 해당 양식에 대한 양식 코드 조회 */
+			SELECT	
+				form_seq	AS 'formSeq'
+				, comp_seq	AS 'compSeq'
+				, conf_yn   AS 'confYn'
+				, form_change_content	AS 'formContent'
+			FROM	$DB_NEOS$t_exnp_form
+			WHERE	form_seq = '$formSeq$'
+			 AND	comp_seq = '$compSeq$'
+			ORDER BY modify_date DESC
+			LIMIT 1			 
+		]]>
+	</select>
+
+	<select id="CommonFormBizboxDAO.CommonPFormOptionInfoSelect_ea230"
+		parameterClass="hashMap" resultClass="hashMap">
+		<![CDATA[
+			/* CommonFormBizboxDAO.CommonPFormOptionInfoSelect_ea230 - BizboxA - mariaDB */
+			/* 전자결재 옵션 조회 */
+			SELECT	IFNULL(B.option_value, A.option_d_value) AS optionValue
+					/* [0] 접힘 : 관리자 > 전자결재 > 결재옵션관리 > 전자결재옵션설정 > 양식필수정보 접힘/펼침 기본 설정 > 아니오 */
+					/* [1] 펼침 : 관리자 > 전자결재 > 결재옵션관리 > 전자결재옵션설정 > 양식필수정보 접힘/펼침 기본 설정 > 예 */
+			FROM	$DB_NEOS$TCMG_OPTIONSET A
+					LEFT JOIN $DB_NEOS$TCMG_OPTIONVALUE B ON A.option_id = B.option_id  and B.co_id = #compSeq#
+			WHERE	A.option_id = 'ea230'
+			LIMIT	1	 
+		]]>
+	</select>
+	
+	<select id="CommonFormBizboxDAO.CommonAInterlockUpdate_docSelect" parameterClass="hashMap" resultClass="hashMap">
+		/* CommonFormBizboxDAO.CommonAInterlockUpdate_docSelect - BizboxA - mariaDB */
+		/* 생성된 전자결재 정보 조회 - 비영리 */
+		SELECT	
+			COUNT(*)					AS docExist
+			, IFNULL( c_dikeycode, '' )	AS docSeq
+		FROM	$DB_NEOS$a_docinterlock 
+		WHERE	approkey = #approKey#;
+	</select>
+	
+	<select id="CommonFormBizboxDAO.CommonPInterlockUpdate_docSelect" parameterClass="hashMap" resultClass="hashMap">
+		/* CommonFormBizboxDAO.CommonPInterlockUpdate_docSelect - BizboxA - mariaDB */
+		/* 생성된 전자결재 정보 조회 - 영리 */
+		SELECT	
+			COUNT(*)					AS docExist
+			, IFNULL(MAX(doc_id), '')	AS docSeq
+		FROM	$DB_NEOS$teag_appdoc 
+		WHERE	approkey = #approKey#;
+	</select>
+	
+	<update id="CommonFormBizboxDAO.CommonAInterlockUpdate" parameterClass="hashMap">
+		/* CommonFormBizboxDAO.CommonAInterlockUpdate - BizboxA - mariaDB */
+		/* 전자결재 INTER정보 업데이트 - 비영리 */	
+		UPDATE	$DB_NEOS$a_docinterlock
+		SET	doc_contents = #newDocContents#
+		WHERE	approkey = #approKey#
+	</update>
+	
+	<update id="CommonFormBizboxDAO.CommonPInterlockUpdate" parameterClass="hashMap">
+		/* CommonFormBizboxDAO.CommonPInterlockUpdate - BizboxA - mariaDB */
+		/* 전자결재 INTER정보 업데이트 - 영리 */
+		UPDATE	$DB_NEOS$teag_appdoc_contents
+		SET	doc_contents = #newDocContents#
+		WHERE	doc_id = #docSeq#		
+	</update>
+	
+	<insert id="CommonFormBizboxDAO.CopyInterlock" parameterClass="hashMap">
+		<![CDATA[
+			/* CommonFormBizboxDAO.CopyInterlock - BizboxA - mariaDB */
+			/* 해당 양식에 대한 양식 기본값 복사 */
+			INSERT IGNORE INTO $DB_NEOS$t_exnp_form
+			SELECT	#formSeq#
+				, #compSeq#
+				, '0'
+				, form_content
+				, form_change_content
+				, #empSeq#
+				, NOW()
+				, #empSeq#
+				, NOW()
+			FROM $DB_NEOS$t_exnp_form
+			WHERE comp_seq = #ErpType#
+		]]>
+	</insert>
+</sqlMap>

@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- iCUBE - MSSQL - 매입전자세금계산서 -->
+<mapper namespace="NpAdminETax">
+
+	<select id="AdminETaxList" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	/* NpAdminETaxSQL.xml - iCUBE - MSSQL - 매입전자세금계산서 */
+	/* 매입전자세금계산서 현황 조회 */
+	USE DZICUBE;
+		DECLARE @GW_ETAX_TMP_TABLE TABLE (
+				DIV_CD nvarchar(4) NOT NULL,
+				TAX_TY nvarchar(1) NOT NULL,
+				ETAX_TY nvarchar(1) NULL,
+				ISS_DT nvarchar(8) NOT NULL,
+				ISU_DT nvarchar(8) NOT NULL,
+				ISS_YMD nvarchar(8) NULL,
+				TR_CD nvarchar(10) NULL,
+				TR_NM nvarchar(50) NULL,
+				TRREG_NB nvarchar(100) NOT NULL,
+				SUP_AM numeric(17,4) NULL,
+				VAT_AM numeric(17,4) NULL,
+				SUM_AM numeric(17,4) NULL,
+				ADOCU_YN nvarchar(5) NOT NULL,
+				ADOCU_FG nvarchar(8) NOT NULL,
+				DUMMY2 nvarchar(100) NULL,
+				ISS_NO nvarchar(30) NOT NULL,
+				ITEM_DC nvarchar(40) NULL,
+				TRSUB_NB nvarchar(5) NULL,
+				DUMMY1 nvarchar(100) NULL,
+				EMAIL_DC nvarchar(40) NULL,
+				TRCHARGE_EMAIL nvarchar(40) NULL,
+				GW_INSERT_DT datetime NULL,
+				APPRO_STATE nvarchar(1) NULL,
+				DOCU_NO nvarchar(50) NULL,
+				ISS_YN nvarchar(5) NULL,
+				DOCU_INFO nvarchar(100) NULL
+		)
+		
+		/*
+		DECLARE @CO_CD nvarchar(4) = '3585'
+		DECLARE @FR_DT nvarchar(8) = '20180101'
+		DECLARE @TO_DT nvarchar(8) = '20181231'
+		DECLARE @TAX_TY nvarchar(1) = '0'
+		DECLARE @DOCU_ST nvarchar(1) = '0'
+		DECLARE @TR_NM nvarchar(50) = ''
+		DECLARE @TRREG_NB nvarchar(100) = ''
+		DECLARE @ISS_NO nvarchar(30) = ''
+		DECLARE @MAIL_AUTH nvarchar(max) = ''
+		DECLARE @PARTNER_AUTH nvarchar(max) = ''
+		DECLARE @ID nvarchar(100) = ''
+		*/
+		
+		DECLARE @CO_CD nvarchar(4)
+		DECLARE @FR_DT nvarchar(8)
+		DECLARE @TO_DT nvarchar(8)
+		DECLARE @TAX_TY nvarchar(1)
+		DECLARE @DOCU_ST nvarchar(1)
+		DECLARE @TR_NM nvarchar(50) 
+		DECLARE @TRREG_NB nvarchar(100)
+		DECLARE @ISS_NO nvarchar(30)
+		DECLARE @MAIL_AUTH nvarchar(max)
+		DECLARE @PARTNER_AUTH nvarchar(max)
+		DECLARE @ID nvarchar(100)
+
+        SELECT @CO_CD = #{erpCompSeq}
+        ,@FR_DT= #{issDateFrom}
+        ,@TO_DT = #{issDateTo}
+        ,@TAX_TY = '0'
+        ,@DOCU_ST = '0'
+        ,@TR_NM = #{partnerName}
+        ,@TRREG_NB = #{partnerRegNo}
+        ,@ISS_NO = #{eTaxIssNo}
+        ,@MAIL_AUTH  = #{mailAuth}
+        ,@PARTNER_AUTH  = #{partnerAuth}
+        ,@ID  = #{id}
+		
+		INSERT INTO @GW_ETAX_TMP_TABLE ( DIV_CD, TAX_TY, ETAX_TY, ISS_DT, ISU_DT, ISS_YMD, TR_CD, TR_NM, TRREG_NB, SUP_AM, VAT_AM, SUM_AM, ADOCU_YN, ADOCU_FG, DUMMY2, ISS_NO, ITEM_DC, TRSUB_NB, DUMMY1, EMAIL_DC, TRCHARGE_EMAIL, GW_INSERT_DT, APPRO_STATE, DOCU_NO, ISS_YN, DOCU_INFO )
+		EXECUTE [dbo].[USP_BIZBOXA_ACM0050_DOCU_CHK] 
+		   @CO_CD
+		  , ''
+		  , @FR_DT
+		  , @TO_DT
+		  , @TAX_TY
+		  , @DOCU_ST
+
+		]]>
+
+		<![CDATA[
+		SELECT	DISTINCT *
+		FROM	(
+					SELECT	A.bizSeq
+							, A.taxTy
+							, A.eTaxTy
+							, A.eTaxTy2
+							, A.issDt
+							, A.issDt AS issDate
+							, A.isuDt
+							, A.isuDt AS isuDate
+							, A.issYMD
+							, A.trSeq
+							, A.trName
+							, A.trRegNb
+							, A.stdAmt
+							, A.stdAmtCon
+							, A.vatAmt
+							, A.vatAmtCon
+							, A.reqAmt
+							, A.reqAmtCon
+							, A.adocuYn
+							, A.adocuFg
+							, A.dummary2
+							, A.issNo
+							, A.itemDc
+							, A.trSubNb
+							, A.dummary1
+							, A.eMailDc
+							, A.trChargeEMail
+							, A.gwInsertDt
+							, A.approState
+							, A.docuNo
+							, A.issYn
+							, A.docuInfo
+							]]>
+							
+							/* ==================================================================================================== */
+							<if test="@common.mybatis.Test@isArrayListEmpty(eTaxSendList)"><![CDATA[
+							, ISNULL ( B.sendYn, 'N' ) AS sendYn
+							, ISNULL ( B.docSeq, '' ) AS docSeq
+							, ISNULL ( B.createEmpName, '' ) AS createEmpName
+							]]></if>
+							
+							<if test="@common.mybatis.Test@isArrayListEmptyRevers(eTaxSendList)"><![CDATA[
+							, 'N' AS sendYn
+							, '' AS docSeq
+							, '' AS createEmpName
+							]]></if>
+							/* ==================================================================================================== */
+							
+							
+							/* ==================================================================================================== */				
+							<if test="@common.mybatis.Test@isArrayListEmpty(eTaxNotUseList)"><![CDATA[
+							, ISNULL ( C.useYn, 'Y' ) AS useYn
+							, ISNULL ( C.notUseEmpName, '' ) AS notUseEmpName
+							]]></if>
+							
+							<if test="@common.mybatis.Test@isArrayListEmptyRevers(eTaxNotUseList)"><![CDATA[
+							, 'Y' AS useYn
+							, '' AS notUseEmpName
+							]]></if>
+							/* ==================================================================================================== */
+							
+							<![CDATA[
+					FROM	(
+								SELECT	ISNULL(DIV_CD, '') AS bizSeq						/* 사업장 */
+										, ISNULL(TAX_TY, '') AS taxTy						/* 구분 ( 0.전체 1.매출 2.매입 3.면세매출 4.면세매입 ) */
+										, ISNULL(ETAX_TY, '') AS eTaxTy						/* 분류 */
+										, (CASE WHEN ISNULL(ETAX_TY, '1') = '1' THEN '일반' ELSE '수정' END)       AS eTaxTy2 /* 분류 */ 
+										, ISNULL(ISS_DT, '') AS issDt						/* 작성일자 */
+										, ISNULL(ISU_DT, '') AS isuDt						/* 발급일자 */
+										, ISNULL(ISS_YMD, '') AS issYMD						/* 전송일자 */
+										, ISNULL(TR_CD, '') AS trSeq						/* 코드 */
+										, ISNULL(TR_NM, '') AS trName						/* 거래처명 */
+										, ISNULL(TRREG_NB, '') AS trRegNb					/* 사업자번호 */
+										, ISNULL(SUP_AM, 0.0000) AS stdAmt					/* 공급가액 */
+										, REPLACE ( CONVERT ( CHAR, CONVERT ( MONEY, ISNULL(SUP_AM, 0.0000) ), 1 ), '.00', '' ) AS stdAmtCon
+										, ISNULL(VAT_AM, 0.0000) AS vatAmt					/* 세액 */
+										, REPLACE ( CONVERT ( CHAR, CONVERT ( MONEY, ISNULL(VAT_AM, 0.0000) ), 1 ), '.00', '' ) AS vatAmtCon
+										, ISNULL(SUM_AM, 0.0000) AS reqAmt					/* 합계금액 */
+										, REPLACE ( CONVERT ( CHAR, CONVERT ( MONEY, ISNULL(SUM_AM, 0.0000) ), 1 ), '.00', '' ) AS reqAmtCon
+										, ISNULL(ADOCU_YN, '') AS adocuYn 					/* 전표여부 ( 0.미발행  1.발행 ) */
+										, ISNULL(ADOCU_FG, '') AS adocuFg					/* 전표구분 ( 공란, 전표발행, 결의서발행, GW 상신 ) */
+										, ISNULL(DUMMY2, '') AS dummary2					/* 구분 */
+										, ISNULL(ISS_NO, '') AS issNo						/* 승인번호 */
+										, ISNULL(ITEM_DC, '') AS itemDc						/* 품목명 */
+										, ISNULL(TRSUB_NB, '') AS trSubNb 					/* 종사업장 */
+										, ISNULL(DUMMY1, '') AS dummary1 					/* 비고 */
+										, ISNULL(EMAIL_DC, '') AS eMailDc 					/* 공급자 이메일 */
+										, ISNULL(TRCHARGE_EMAIL, '') AS trChargeEMail		/* 공급받는자 이메일 */
+										, ISNULL(GW_INSERT_DT, '') AS gwInsertDt 			/* 결재 상신일 */
+										, ISNULL(APPRO_STATE, '') AS approState 			/* 전자결재상태 */
+										, ISNULL(DOCU_NO, '') AS docuNo 					/* 상신문서번호 */
+										, ISNULL(ISS_YN, '') AS issYn 						/* 전표상태 */
+										, ISNULL(DOCU_INFO, '') AS docuInfo 				/* 결의정보 */
+								FROM	@GW_ETAX_TMP_TABLE A
+							]]>
+							<![CDATA[
+								WHERE	ISNULL ( TAX_TY, '' ) IN ( '2', '4' )
+								AND		ISNULL ( TR_NM, '' ) LIKE '%' + ISNULL ( @TR_NM, '') + '%'
+								AND		REPLACE ( ISNULL ( TRREG_NB, '' ), '-', '' ) LIKE '%' + REPLACE ( ISNULL ( @TRREG_NB, '' ), '-', '' ) + '%'
+								AND		ISNULL ( ISS_NO, '' ) LIKE '%' + ISNULL ( @ISS_NO, '' ) + '%'
+							) A
+							]]>
+
+							<![CDATA[				
+							/* collection : 전달받은 인자, List 또는 Array 형태만 가능 */
+							/* item : 전달받은 인자값의 Alias 명으로 대체 */
+							/* open : 해당 구문이 시잘될때 삽입할 문자열 */
+							/* close : 해당 구문이 종료될때 삽입할 문자열 */
+							/* separator : 반복 되는 사이에 출력할 문자열 */
+							]]>
+							
+							<![CDATA[/* 상신 목록 조인을 위한 처리 */]]>
+							<if test="@common.mybatis.Test@isArrayListEmpty(eTaxSendList)">
+								<foreach collection="eTaxSendList" item="send" open=" LEFT OUTER JOIN ( " close=" ) B ON A.issNo = B.issNo AND A.issDt = B.issDt " separator=" UNION ALL " ><![CDATA[
+									SELECT	#{send.syncId} AS syncId
+											, #{send.issNo} AS issNo
+											, #{send.issDt} AS issDt
+											, #{send.partnerNo} AS partnerNo
+											, #{send.compSeq} AS compSeq
+											, #{send.ifMId} AS ifMId
+											, #{send.ifDId} AS ifDId
+											, #{send.sendYn} AS sendYn
+											, #{send.useYn} AS useYn
+											, #{send.docSeq} AS docSeq
+											, #{send.resDocSeq} AS resDocSeq
+											, #{send.resSeq} AS resSeq
+											, #{send.budgetSeq} AS budgetSeq
+											, #{send.tradeSeq} AS tradeSeq
+											, #{send.createEmpName} AS createEmpName
+								]]></foreach>
+							</if>
+							
+							<![CDATA[/* 미사용 목록 조인을 위한 처리 */]]>
+							<if test="@common.mybatis.Test@isArrayListEmpty(eTaxNotUseList)">
+								<foreach collection="eTaxNotUseList" item="notUse" open=" LEFT OUTER JOIN ( " close=" ) C ON A.issNo = C.issNo AND A.issDt = C.issDt " separator=" UNION ALL " ><![CDATA[
+									SELECT	#{notUse.sync_id} AS syncId
+											, #{notUse.iss_no} AS issNo
+											, #{notUse.iss_dt} AS issDt
+											, #{notUse.comp_seq} AS compSeq
+											, #{notUse.use_yn} AS useYn
+											, #{notUse.notUseEmpName} AS notUseEmpName
+								]]></foreach>
+							</if>					
+				) A
+		ORDER BY issDt DESC , issNo DESC;
+		</select>
+</mapper>

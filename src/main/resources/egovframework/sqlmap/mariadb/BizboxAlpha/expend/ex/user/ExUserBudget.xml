@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="ExUserBudgetA">
+<!-- 공통코드 - BizboxA - 예산확인 for iCUBE -->
+	<select id="ExCodeiCUBEBudgetAmtInfoSelect" parameterClass="HashMap" resultClass="common.vo.ex.ExCodeBudgetVO">
+	<![CDATA[
+		/* ExCodeiCUBEBudgetAmtInfoSelect - BizboxA - mariaDB */
+		SELECT  IFNULL(B.acct_code, '$bgacctCode$') AS bgacctCode 
+		        , IFNULL(B.acct_name, #bgacctName#) AS bgacctName
+		        , IFNULL(CASE WHEN '$budgetType$' = 'P' THEN project_code WHEN '$budgetType$' = 'D' THEN erp_dept_seq END, '$budgetCode$') AS budgetCode
+		        , IFNULL(CASE WHEN '$budgetType$' = 'P' THEN project_name WHEN '$budgetType$' = 'D' THEN erp_dept_name END, #budgetName#) AS budgetName
+		        , IFNULL(SUM(amt), '0.00') AS budgetJsum
+		FROM    (
+		            SELECT  expend_seq
+		            FROM    $DB_NEOS$t_ex_expend a
+							INNER JOIN $DB_NEOS$teag_appdoc b ON A.doc_seq = b.doc_id
+		            WHERE   erp_send_yn != 'Y'
+		            AND     IFNULL(b.use_yn, '') = '1'
+		            AND     (
+		                        /* 예산편성 년월이 분기인 경우 */
+		                        ( INSTR('$budYm$','Q') > 0 AND
+		                            (
+		                                (REPLACE('$budYm$', 'Q', '') = '1' AND SUBSTRING(expend_date, 1, 6) BETWEEN(CONCAT(SUBSTRING('$budgetYm$', 1, 4), '01')) AND (CONCAT(SUBSTRING('$budgetYm$', 1, 4), '03')))
+		                                OR (REPLACE('$budYm$', 'Q', '') = '2' AND SUBSTRING(expend_date, 1, 6) BETWEEN(CONCAT(SUBSTRING('$budgetYm$', 1, 4), '04')) AND (CONCAT(SUBSTRING('$budgetYm$', 1, 4), '06')))
+		                                OR (REPLACE('$budYm$', 'Q', '') = '3' AND SUBSTRING(expend_date, 1, 6) BETWEEN(CONCAT(SUBSTRING('$budgetYm$', 1, 4), '07')) AND (CONCAT(SUBSTRING('$budgetYm$', 1, 4), '09')))
+		                                OR (REPLACE('$budYm$', 'Q', '') = '4' AND SUBSTRING(expend_date, 1, 6) BETWEEN(CONCAT(SUBSTRING('$budgetYm$', 1, 4), '10')) AND (CONCAT(SUBSTRING('$budgetYm$', 1, 4), '12')))
+		                            )
+		                        )
+		                        /* 예산편성 년월이 반기인 경우 */
+		                        OR ( INSTR('$budYm$', 'H') > 0 AND
+		                            (
+		                                (REPLACE('$budYm$', 'H', '') = '1' AND SUBSTRING(expend_date, 1, 6) BETWEEN(CONCAT(SUBSTRING('$budgetYm$', 1, 4), '01')) AND (CONCAT(SUBSTRING('$budgetYm$', 1, 4), '06')))
+		                                OR (REPLACE('$budYm$', 'H', '') = '2' AND SUBSTRING(expend_date, 1, 6) BETWEEN(CONCAT(SUBSTRING('$budgetYm$', 1, 4), '07')) AND (CONCAT(SUBSTRING('$budgetYm$', 1, 4), '12')))
+		                            )
+		                        )
+		                        /* 예산편성 년월이 년인 경우 */
+		                        OR ( INSTR('$budYm$', 'Y') > 0 AND
+		                            (
+		                                (REPLACE('$budYm$', 'Y', '') = '1' AND SUBSTRING(expend_date, 1, 6) BETWEEN(CONCAT(SUBSTRING('$budgetYm$', 1, 4), '01')) AND (CONCAT(SUBSTRING('$budgetYm$', 1, 4), '12')))
+		                            )
+		                        )
+		                        /* 예산편성 년월이 월인 경우 */
+		                        OR ( LENGTH('$budYm$') = 6 AND SUBSTRING(expend_date, 1, 6) = '$budgetYm$' )
+		                    )
+		                    /* 문서가 상신되었고. */
+		            AND     ( doc_seq != '' AND doc_seq != '0' )
+		                    /* 문서의 상태가 반려, 삭제, 미상신 상태가 아닌 경우 */
+		            AND     ( expend_stat_code != '' AND expend_stat_code != '100' AND expend_stat_code != '999' )
+		            AND		comp_seq = '$compSeq$'
+		        ) A INNER JOIN (
+		            SELECT  expend_seq
+		                    , list_seq
+		                    , slip_seq
+		                    , emp_seq
+		                    , project_seq
+		                    , acct_code
+		                    , acct_name
+		                    , amt
+		            FROM    $DB_NEOS$t_ex_expend_slip
+		            WHERE   drcr_gbn = 'dr'
+		            AND     acct_code = '$bgacctCode$'
+		        ) B ON A.expend_seq = B.expend_seq LEFT OUTER JOIN (
+		            SELECT  seq
+		                    , erp_dept_seq
+		                    , erp_dept_name
+		            FROM    $DB_NEOS$t_ex_expend_emp
+		        ) D ON B.emp_seq = D.seq LEFT OUTER JOIN (
+		            SELECT  seq
+		                    , project_code
+		                    , project_name
+		            FROM    $DB_NEOS$t_ex_expend_project
+		        ) E ON B.project_seq = E.seq
+		WHERE   ( ( '$budgetType$' = 'P' AND project_code = '$budgetCode$' )
+		        OR ( '$budgetType$' = 'D' AND erp_dept_seq = '$budgetCode$' ) )
+		]]></select>
+		
+		<select id="ExExpendUseBudgetInfoSelect" parameterClass="HashMap" resultClass="common.vo.ex.ExCodeBudgetVO">
+		<![CDATA[
+				SELECT  expend_seq AS expendSeq
+						,list_seq AS listSeq
+						,slip_seq AS slipSeq
+						,budget_seq AS budgetSeq
+						,seq 
+						,budget_type AS budgetType
+						,IFNULL(bud_ym,'') AS budym
+						,budget_ym AS budgetYm
+						,IFNULL(budget_gbn,'') AS budgetGbn
+						,IFNULL(budget_code,'') AS budgetCode
+						,IFNULL(bizplan_code,'') AS bizplanCode
+						,IFNULL(bgacct_code,'')AS bgacctCode
+						,IFNULL(dracct_amt,'0') AS dracctAmt
+						,IFNULL(budget_jsum,'0') AS budgetJsum
+						,IFNULL(budget_actsum,'0') AS budgetActsum
+						,IFNULL(budget_control_yn,'0') AS budgetControlYN
+						,IFNULL(yn_control,'') AS ynControl 
+				FROM(
+						SELECT expend_seq, list_seq, slip_seq, budget_seq 
+						FROM   $DB_NEOS$t_ex_expend_slip 
+						WHERE  expend_seq = '$expendSeq$' AND drcr_gbn = 'dr' 
+				)A INNER JOIN(
+						SELECT  seq
+							,budget_type
+							,bud_ym
+							,budget_ym
+							,budget_gbn
+							,budget_control_yn
+							,budget_code
+							,bizplan_code
+							,bgacct_code
+							,dracct_amt
+							,budget_jsum
+							,budget_actsum
+							,yn_control
+						FROM $DB_NEOS$t_ex_expend_budget
+				)B ON A.budget_seq = B.seq				
+		]]>
+		</select>
+		
+		<select id="ExExpendUseBudgetInfoSelect2" parameterClass="HashMap" resultClass="common.vo.ex.ExCodeBudgetVO">
+		<![CDATA[
+			SELECT	A.EXPEND_SEQ AS expendSeq
+					, MIN(A.LIST_SEQ) AS listSeq
+					, MIN(A.SLIP_SEQ) AS slipSeq
+					, SUM(A.AMT) AS amt
+					, B.BUDGET_YM AS budgetYm
+					, B.BUDGET_CODE AS budgetCode
+					, B.BIZPLAN_CODE AS bizplanCode
+					, B.CD_BGLEVEL AS cdBgLevel
+					, B.YN_CONTROL AS ynControl
+					, B.TP_CONTROL AS tpControl
+			FROM	(
+						SELECT	EXPEND_SEQ
+								, LIST_SEQ
+								, SLIP_SEQ
+								, BUDGET_SEQ
+								, AMT
+						FROM	$DB_NEOS$T_EX_EXPEND_SLIP
+						WHERE	EXPEND_SEQ = #expendSeq#
+						AND		DRCR_GBN = 'DR'
+					) A INNER JOIN $DB_NEOS$T_EX_EXPEND_BUDGET B ON A.BUDGET_SEQ = B.SEQ
+			WHERE	B.YN_CONTROL = 'Y'
+			GROUP	BY EXPEND_SEQ, BUDGET_YM, BUDGET_CODE, BIZPLAN_CODE, CD_BGLEVEL, YN_CONTROL, TP_CONTROL
+
+		]]>
+		</select>
+		
+		<select id="ExInterlockCompInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+			<![CDATA[				
+				SELECT A.expend_seq AS expendSeq
+						,A.erp_type AS erpType
+						,A.doc_seq AS docSeq
+						,A.form_seq AS formSeq 
+						,A.erp_comp_seq AS erpCompSeq
+						,A.comp_seq AS compSeq
+						,IFNULL(A.set_value, B.set_value) AS budgetYN
+						,A.group_seq AS groupSeq 
+				FROM(
+					SELECT   COMP.expend_seq
+							,erp_type 
+							,COMP.doc_seq
+							,COMP.form_seq
+							,COMP.erp_comp_seq
+							,COMP.comp_seq
+							,COMP.base_comp_seq
+							,COMP.base_form_seq
+							,OPT.set_value
+							,COMP.group_seq
+					FROM(
+						SELECT  A.expend_seq
+								,B.form_d_tp
+								, CASE 
+									WHEN B.form_d_tp = 'EXPENDI' THEN 'iCUBE'
+									WHEN B.form_d_tp = 'EXPENDU' THEN 'ERPiU'
+									ELSE 'EXPENDA' 
+								  END AS erp_type 
+								, B.doc_id AS doc_seq
+								, B.form_id AS form_seq
+								, C.erp_comp_seq
+								, C.comp_seq
+								, '0' AS base_comp_seq
+								, '0' AS base_form_seq
+								, A.group_seq
+						FROM(
+							SELECT expend_seq
+									, CASE WHEN IFNULL(doc_seq, '0') = '0' OR IFNULL(doc_seq, '0') = '' THEN '$docSeq$' ELSE doc_seq END AS doc_seq
+									, emp_seq
+									, b.group_seq
+							FROM $DB_NEOS$t_ex_expend a 
+							INNER JOIN $DB_NEOS$t_co_comp b ON a.comp_seq=  b.comp_seq
+							WHERE expend_seq ='$expendSeq$'
+						)A INNER JOIN(
+							
+							SELECT A.doc_id
+									,A.form_id
+									,B.form_d_tp
+							FROM(
+								SELECT  doc_id
+								        ,form_id
+								FROM    $DB_NEOS$teag_appdoc
+								WHERE   doc_id = '$docSeq$'
+								AND     (
+								                ( doc_sts IS NULL AND use_yn = use_yn )
+								                OR ( doc_sts IS NOT NULL AND use_yn = '1' )
+								                OR (doc_sts IS NOT NULL AND use_yn = '0')
+								        )
+							)A INNER JOIN(
+								SELECT form_id
+										,form_d_tp
+								FROM $DB_NEOS$teag_form
+							)B ON A.form_id = B.form_id
+							
+						)B ON A.doc_seq = B.doc_id INNER JOIN(
+							SELECT seq
+									,erp_comp_seq
+									,comp_seq
+							FROM $DB_NEOS$t_ex_expend_emp 
+						)C ON A.emp_seq = C.seq
+					)COMP LEFT OUTER JOIN(	
+						SELECT comp_seq
+								,form_seq
+								,set_value
+								,use_sw
+						FROM $DB_NEOS$t_ex_option 
+						WHERE option_code ='003301' 
+					)OPT ON COMP.comp_seq = OPT.comp_seq AND COMP.form_seq = OPT.form_seq  AND COMP.erp_type = OPT.use_sw
+				)A INNER JOIN(
+						SELECT comp_seq
+								,form_seq
+								,base_value AS set_value
+								,use_sw
+						FROM $DB_NEOS$t_ex_option 
+						WHERE option_code ='003301'
+						AND comp_seq = '0' AND form_seq = '0'
+				)B ON A.base_comp_seq = B.comp_seq AND A.base_form_seq = B.form_seq AND A.erp_type = B.use_sw
+			]]>
+		</select>
+		
+		
+		<select id="ExInterlockERPiUBudgetInfoSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"><![CDATA[
+		
+		/* ExInterlockERPiUBudgetInfoSelect - 임시데이터 row_id , row_no 생성*/
+			SELECT	A.expend_seq AS expendSeq
+					, A.list_seq AS listSeq
+					, A.slip_seq AS slipSeq
+					, CASE
+						WHEN IFNULL( A.gmmsum_id, '' ) = ''
+						THEN CONCAT(LPAD(A.expend_seq,10,'0'),
+							    LPAD(A.list_seq,5,'0'),
+							    LPAD(A.slip_seq,5,'0' ))
+						ELSE IFNULL( A.gmmsum_id, '' )
+					  END AS rowId
+					, CASE
+				  		WHEN IFNULL( A.gmmsum_id, '' ) = ''
+				  		THEN A.RNUM
+				  		ELSE IFNULL( A.gmmsum_no, '' )
+				  	  END AS rowNo 	  
+				 	, B.budget_code AS budgetCode
+				 	, CASE 
+						WHEN IFNULL( B.bizplan_code, '' ) = ''
+						THEN '***' 
+						ELSE B.bizplan_code 
+					  END AS bizplanCode
+				 	, IFNULL( B.bgacct_code, '' ) AS bgacctCode
+				 	, IFNULL( B.budget_ym, '' ) AS budgetYm
+				 	, IFNULL( B.yn_control, '') AS ynControl
+				 	, amt AS budgetGwAct
+				 	, C.erp_emp_seq AS erpEmpSeq
+				 	, C.erp_comp_seq AS erpCompSeq
+				 	, A.comp_seq AS compSeq
+				 	, D.group_seq AS groupSeq
+			FROM(
+					SELECT 	C.expend_seq
+							, C.list_seq
+							, C.slip_seq
+							, IFNULL(C.row_id, '' ) AS gmmsum_id
+							, IFNULL(C.row_no, '' ) AS gmmsum_no
+							, C.amt AS amt
+							, CASE	WHEN C.budget_seq != 0 THEN C.budget_seq 
+								WHEN B.budget_seq != 0 THEN B.budget_seq 
+								WHEN A.budget_seq != 0 THEN A.budget_seq 
+								ELSE 0 END AS expend_budget_seq
+							, CASE	WHEN C.emp_seq != 0 THEN C.emp_seq 
+								WHEN B.emp_seq != 0 THEN B.emp_seq
+								WHEN A.emp_seq != 0 THEN A.emp_seq
+								ELSE 0 END AS emp_seq
+							,@rownum := @rownum+1 AS RNUM
+							, A.comp_seq
+					FROM(
+						SELECT  comp_seq	
+								,expend_seq	
+								,doc_seq	
+								,form_seq	
+								,expend_stat_code	
+								,expend_date	
+								,expend_req_date	
+								,erp_send_yn	
+								,write_seq	
+								,emp_seq	
+								,budget_seq	
+								,project_seq	
+								,partner_seq	
+								,card_seq	
+								,json_str	
+								,erp_send_seq	
+								,erp_send_date	
+								,row_id	
+								,in_dt	
+								,in_sq	
+						FROM $DB_NEOS$t_ex_expend
+						WHERE	expend_seq = '$expendSeq$'
+					)A INNER JOIN(
+						SELECT  expend_seq	
+								,list_seq	
+								,summary_seq	
+								,auth_seq	
+								,write_seq	
+								,emp_seq	
+								,budget_seq	
+								,project_seq	
+								,partner_seq	
+								,card_seq	
+								,auth_date	
+								,note	
+								,std_amt	
+								,tax_amt	
+								,amt	
+								,sub_std_amt	
+								,sub_tax_amt	
+								,interface_type	
+								,interface_m_id	
+								,interface_d_id	
+								,json_str	
+						FROM $DB_NEOS$t_ex_expend_list
+					)B ON A.expend_seq = B.expend_seq INNER JOIN(
+						SELECT  expend_seq	
+								,list_seq	
+								,slip_seq	
+								,summary_seq	
+								,auth_seq	
+								,write_seq	
+								,emp_seq	
+								,budget_seq	
+								,project_seq	
+								,partner_seq	
+								,card_seq	
+								,drcr_gbn	
+								,acct_code	
+								,acct_name	
+								,auth_date	
+								,note	
+								,amt	
+								,sub_std_amt	
+								,sub_tax_amt	
+								,interface_type	
+								,interface_m_id	
+								,interface_d_id	
+								,row_id	
+								,row_no	
+								,json_str	
+						FROM $DB_NEOS$t_ex_expend_slip
+						WHERE drcr_gbn = 'dr'
+					)C ON B.expend_seq = C.expend_seq AND B.list_seq = C.list_seq , (SELECT @rownum :=0) AS R
+					ORDER BY expend_seq, list_seq, slip_seq
+				)A INNER JOIN $DB_NEOS$t_ex_expend_budget B ON A.expend_budget_seq = B.seq INNER JOIN $DB_NEOS$t_ex_expend_emp C ON A.emp_seq = C.seq
+				   INNER JOIN $DB_NEOS$t_co_comp D ON A.comp_seq = D.comp_seq
+		]]>
+		</select>
+		
+		<select id="ExInterlockERPiURowInfoSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"><![CDATA[
+				SELECT   C.expend_seq AS expendSeq
+						,C.list_seq AS listSeq
+						,C.slip_seq AS slipSeq
+						,C.row_id AS rowId
+						,C.row_no AS rowNo
+						,D.group_seq AS groupSeq
+				FROM(
+						SELECT expend_seq
+							, comp_seq
+						FROM $DB_NEOS$t_ex_expend
+						WHERE expend_seq = '$expendSeq$'
+				)A INNER JOIN(
+						SELECT expend_seq
+						      ,list_seq
+						FROM $DB_NEOS$t_ex_expend_list
+				)B ON A.expend_seq = B.expend_seq INNER JOIN(
+					SELECT   expend_seq
+							,list_seq
+							,slip_seq
+							,row_id
+							,row_no
+					FROM 	$DB_NEOS$t_ex_expend_slip
+					WHERE 	drcr_gbn = 'dr'
+				)C ON A.expend_seq = C.expend_seq AND B.list_seq = C.list_seq
+				INNER JOIN $DB_NEOS$t_co_comp D ON A.comp_seq = D.comp_seq
+		]]>
+		</select>
+		
+		
+		<select id="ExSameBudgetInfoSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+			SELECT	IFNULL(SUM(dracct_amt),0) AS totalBudgetAmt
+					, CASE
+						WHEN e.expend_stat_code = '' THEN 'N'
+						ELSE 'Y'
+					END AS isApproval
+			FROM	$DB_NEOS$t_ex_expend e
+			INNER JOIN (
+				/* slip_seq 없는 경우 현재 항목 외 예산 조회 */
+				SELECT	expend_seq
+						, list_seq
+						, slip_seq
+						, budget_seq
+						, drcr_gbn
+				FROM	$DB_NEOS$t_ex_expend_slip
+				WHERE	expend_seq = '$expendSeq$'
+				AND		drcr_gbn = 'dr'
+				<isNotEmpty property="listSeq">
+					AND		list_seq != '$listSeq$'
+				</isNotEmpty>
+				<isNotEmpty property="slipSeq">
+					UNION
+					/* slip_seq가 있는경우 현재 항목 내 분개 예산 조회 */
+					SELECT	expend_seq
+							, list_seq
+							, slip_seq
+							, budget_seq
+							, drcr_gbn
+					FROM	$DB_NEOS$t_Ex_expend_slip
+					WHERE	expend_seq = '$expendSeq$'
+					AND		drcr_gbn = 'dr'
+					AND		list_seq = '$listSeq$'
+					AND		slip_seq != '$slipSeq$'
+				</isNotEmpty>	
+			) s ON e.expend_seq = s.expend_seq
+			INNER JOIN $DB_NEOS$t_ex_expend_budget b ON s.budget_seq = b.seq
+			WHERE	e.expend_seq = '$expendSeq$'
+			AND		b.budget_code = '$budgetCode$'
+			/* 2019-01-16 김상겸 : ERPiU예산의 경우에는 사업계획을 사용하지 않는 경우 기본 "***" 처리한다. */
+			/* 기존 공백으로 등록된 값이 존재할 경우 금액 산정에 문제가 발생될 수 있어, 저장된 값의 공백인 경우에도 예외처리를 진행한다. */
+			AND		(case when IFNULL(b.bizplan_code, '') = '' then '***' else b.bizplan_code end) = (case when '$bizplanCode$' = '' then '***' else '$bizplanCode$' end)
+			AND		b.bgacct_code = '$bgacctCode$'
+		</select>
+		
+		<select id="ExSameBudgetInfoSelectERPiU" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		
+			/* ExSameBudgetInfoSelectERPiU */
+			SELECT	IFNULL(MAX(A.ERPIU_BUDGET_VER), '') AS erpiuBudgetVer
+					, A.EXPEND_SEQ AS expendSeq
+					, SUM(A.AMT) AS amt
+					, B.BUDGET_YM AS budgetYm
+					, B.BUDGET_CODE AS budgetCode
+					, B.BIZPLAN_CODE AS bizplanCode
+					, B.CD_BGLEVEL AS cdBgLevel
+					, B.YN_CONTROL AS ynControl
+					, B.TP_CONTROL AS tpControl
+			FROM	(
+			 			SELECT	TEES.EXPEND_SEQ
+			 					, TEES.LIST_SEQ
+			 					, TEES.SLIP_SEQ
+			 					, TEES.AMT
+			 					, TEES.BUDGET_SEQ
+			 					, IFNULL(TEE.ERPIU_BUDGET_VER, '') AS ERPIU_BUDGET_VER
+			 			FROM	$DB_NEOS$t_ex_expend TEE
+			 			INNER JOIN $DB_NEOS$T_EX_EXPEND_SLIP TEES ON TEE.expend_seq = TEES.expend_seq 
+			 			WHERE	TEE.EXPEND_SEQ = #expendSeq#
+			 			<isEqual property="isEdit" compareValue="true">
+			 			AND     TEES.LIST_SEQ != #listSeq#
+			 			</isEqual>
+			 			AND		TEES.BUDGET_SEQ != 0
+			 			AND		TEE.expend_stat_code NOT IN ('10', '20', '30', '40', '50', '60', '70', '80', '90')
+				) A INNER JOIN $DB_NEOS$T_EX_EXPEND_BUDGET B ON A.BUDGET_SEQ = B.SEQ
+			WHERE		B.BUDGET_CODE = #budgetCode#
+			AND		B.BIZPLAN_CODE = #bizplanCode#
+			AND		B.CD_BGLEVEL = #cdBgLevel#
+			GROUP	BY A.EXPEND_SEQ, B.BUDGET_YM, B.BUDGET_CODE, B.BIZPLAN_CODE, B.CD_BGLEVEL, B.YN_CONTROL, B.TP_CONTROL
+		</select>
+</sqlMap>

@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- Bizbox Alpha mariadb -->
+<sqlMap namespace="ExAdminYesilA">
+	<select id="ExAdminYesilA.ExAdminYesilDetailPopInfo" remapResults="true" parameterClass="HashMap" resultClass="HashMap">
+		/* mariadb/BizboxAlpha/expend/ex/admin/ExAdminYesil.xml - ExAdminYesilA.ExAdminYesilDetailPopInfo */
+		/* 예실대비 지출결의현황 조회 - iCUBE */
+		<isEqual property="dataType" compareValue="1"> 
+		<![CDATA[
+		SELECT DATE_FORMAT(expend_date, "%Y-%m-%d") AS expend_date 
+			,expend_seq
+			,drcr_gb
+			,IFNULL(amt, 0) AS amt
+			,ex_dept_cd
+			,ex_dept_nm
+			,ex_emp_no
+			,ex_emp_nm
+			,doc_id
+			,form_id
+			,doc_title
+			,doc_no
+			,doc_sts
+			,doc_sts_cd
+			,ea_dept_nm
+			,ea_dept_id
+			,ea_user_nm
+			,ea_user_id
+			,IFNULL(card_name,'') AS card_name
+			,IFNULL(card_num,'') AS card_num
+			]]>
+		</isEqual>
+		<isEqual property="dataType" compareValue="2">
+		<![CDATA[
+			SELECT sum(amt) AS total_expend
+		]]>
+		</isEqual>
+		<![CDATA[
+		FROM(
+		      SELECT	EXPEND.expend_date /* 결의(회계) 일자 */
+		      			,EXPEND.expend_seq 
+	        			,CASE EXPEND.drcr_gb
+	        				WHEN 'Dr' THEN  '차변'
+	        				WHEN 'Cr' THEN  '대변'
+	        				WHEN 'Vat' THEN  '부가세'
+	        			 END AS drcr_gb
+	        			, EXPEND.amt
+	        			, EXPEND.interface_type
+	        			, EXPEND.interface_m_id
+	        			, EXPEND.erp_dept_seq AS ex_dept_cd
+	        			, EXPEND.erp_dept_name AS ex_dept_nm
+	        			, EXPEND.erp_emp_seq AS ex_emp_no
+	        			, EXPEND.erp_emp_name AS ex_emp_nm
+	        			, DOC.doc_id
+	        			, DOC.form_id
+	        			, DOC.doc_title
+	        			, DOC.doc_no
+	        			,CASE DOC.doc_sts
+	        				WHEN '10' THEN  '임시저장'
+	        				WHEN '20' THEN  '상신'
+	        				WHEN '30' THEN  '진행'
+	        				WHEN '40' THEN  '발신종결'
+	        				WHEN '50' THEN  '수신상신'
+	        				WHEN '60' THEN  '수신진행'
+	        				WHEN '70' THEN  '수신반려'
+	        				WHEN '80' THEN  '수신확인'
+	        				WHEN '90' THEN  '종결'
+	               			WHEN '100' THEN '반려'
+	        				WHEN '110' THEN '보류'
+	        			 END AS doc_sts
+	        			, DOC.doc_sts AS doc_sts_cd
+	        			, DOC.dept_nm AS ea_dept_nm
+	        			, DOC.dept_id AS ea_dept_id
+	        			, DOC.user_nm AS ea_user_nm
+	        			, DOC.user_id AS ea_user_id
+		      FROM(
+		            SELECT	A.expend_date /* 결의(회계) 일자 */
+		            		, A.expend_seq 
+            				, A.doc_seq
+            				, A.form_seq
+            				, A.drcr_gb
+            				, A.amt
+            				, A.interface_type
+            				, A.interface_m_id
+            				, B.erp_dept_seq
+            				, B.erp_dept_name
+            				, B.erp_emp_seq
+            				, B.erp_emp_name
+            				, A.list_seq
+            				, A.slip_seq
+		            FROM(
+		                  SELECT A.expend_date /* 결의(회계) 일자 */
+		                  		, A.expend_seq
+	                  			, A.doc_seq
+	                  			, A.form_seq
+	                  			, B.drcr_gb
+	                  			, B.amt
+	                  			, B.interface_type
+	                  			, B.interface_m_id
+	                  			, B.list_seq
+	                  			, B.slip_seq
+		                  FROM( SELECT  expend_seq
+	                        		    , doc_seq
+	                        		    , form_seq
+	                        		    , expend_date /* 결의(회계) 일자 */
+		                        FROM $DB_NEOS$t_ex_expend 
+		                        WHERE erp_send_yn = '$sendYn$'
+		                        AND SUBSTRING(expend_date,1,6) IN ( $budgetDate$ )
+		                        ) A INNER JOIN 
+		                            ( SELECT	budget_ym
+		                                  		,bgacct_code
+		                                  		,budget_seq
+		                                  		,expend_seq
+		                                  		,list_seq
+		                                  		,slip_seq
+		                                  		,drcr_gb
+		                                  		,amt
+		                                  		,interface_type
+		                                  		,interface_m_id
+		                                      FROM( SELECT B.budget_ym, B.bgacct_code, B.dracct_amt AS amt, B.budget_seq, A.expend_seq
+		                                        	        ,A.list_seq ,A.slip_seq ,A.drcr_gb ,A.interface_type ,A.interface_m_id
+		                                            FROM (SELECT budget_seq
+		                                              		, expend_seq
+		                                              		, list_seq
+		                                              		, 0 AS slip_seq
+		                                              		, 'Dr' AS drcr_gb
+		                                              		, amt
+		                                              		, interface_type
+		                                              		, interface_m_id
+		                                                	FROM $DB_NEOS$t_ex_expend_list
+		                                                	WHERE expend_seq IN ( SELECT  expend_seq
+		                                                                    		FROM	$DB_NEOS$t_ex_expend 
+		                                                                    		WHERE doc_seq <> '0'
+		                                                                    		AND SUBSTRING(expend_date,1,6) IN ( $budgetDate$ )
+		                                                                    		)
+		                                          	      UNION ALL
+		                                                	SELECT budget_seq
+		                                                    		,expend_seq
+		                                                    		,list_seq
+		                                                    		,slip_seq
+		                                                    		,drcr_gbn
+		                                                    		,amt 
+		                                                    		,IFNULL(interface_type,'') AS interface_type
+		                                                    		,IFNULL(interface_m_id,'') AS interface_m_id
+		                                                	FROM $DB_NEOS$t_ex_expend_slip
+		                                                	WHERE expend_seq IN(SELECT expend_seq
+		                                                            			    FROM	 $DB_NEOS$t_ex_expend 
+		                                                            			    WHERE doc_seq <> '0'
+		                                                            			    AND SUBSTRING(expend_date,1,6) IN ( $budgetDate$ )
+		                                                            			    ) 
+		                                                	AND acct_code = '$acctCd$'
+		                                                	AND drcr_gbn = 'Dr' ) AS A INNER JOIN
+		                                          ( SELECT budget_ym
+		                                                   ,bgacct_code
+		                                                   ,dracct_amt
+		                                                   ,seq AS budget_seq
+		                                        		FROM $DB_NEOS$t_ex_expend_budget
+		                                        		WHERE budget_control_yn = 'Y'
+		                                        		AND budget_code = '$budgetCd$') AS B ON B.budget_seq = A.budget_seq ) A ) B 
+		            ON A.expend_seq = B.expend_seq) A INNER JOIN(
+		                SELECT B.erp_dept_seq
+		                       ,B.erp_dept_name
+		                       ,B.erp_emp_seq
+		                       ,B.erp_emp_name
+		                       ,A.expend_seq
+		                       ,A.list_seq
+		                       ,A.slip_seq
+		                FROM( 
+		                      SELECT A.expend_seq, A.list_seq, A.slip_seq, A.emp_seq
+		                      FROM ( SELECT C.expend_seq, C.list_seq, C.slip_seq,
+		                                    CASE WHEN IFNULL(C.emp_seq, 0) != 0 THEN C.emp_seq 
+		                                         WHEN IFNULL(B.emp_seq, 0) != 0 THEN B.emp_seq 
+		                                         WHEN IFNULL(A.emp_seq, 0) != 0 THEN A.emp_seq 
+		                                         ELSE 0 
+		                                    END AS emp_seq
+		                             FROM( SELECT expend_seq, emp_seq  
+		                                   FROM $DB_NEOS$t_ex_expend ) A INNER JOIN 
+		                                  (SELECT expend_seq, list_seq, emp_seq 
+		                                   FROM $DB_NEOS$t_ex_expend_list) AS B ON A.expend_seq = B.expend_seq INNER JOIN
+		                                  (SELECT expend_seq, list_seq, slip_seq, emp_seq 
+		                                   FROM $DB_NEOS$t_ex_expend_slip) AS C ON B.expend_seq = C.expend_seq AND B.list_seq = C.list_seq ) A
+		                      WHERE expend_seq IN ( SELECT expend_seq
+		                                  			    FROM	 $DB_NEOS$t_ex_expend 
+		                                  			    WHERE doc_seq <> '0'
+               			    							AND SUBSTRING(expend_date,1,6) IN ( $budgetDate$ )
+		                                  			     ) ) A INNER JOIN
+		                      (SELECT seq, erp_dept_seq, erp_dept_name, erp_emp_seq, erp_emp_name
+		                       FROM $DB_NEOS$t_ex_expend_emp ) B ON A.emp_seq = B.seq ) B ON A.expend_seq = B.expend_seq AND A.list_seq = B.list_seq AND A.slip_seq = B.slip_seq
+		      )EXPEND INNER JOIN(
+		            SELECT doc_id
+		                   ,form_id
+		                   ,doc_title
+		                   ,doc_no
+		                   ,doc_sts
+		                   ,dept_nm
+		                   ,dept_id
+		                   ,user_nm
+		                   ,user_id
+		            FROM $DB_NEOS$teag_appdoc
+		            WHERE co_id = '$compSeq$'
+		            AND doc_id in (SELECT doc_seq
+		                			     FROM	 $DB_NEOS$t_ex_expend 
+		                			     WHERE doc_seq <> '0'
+		                			     AND SUBSTRING(expend_date,1,6) IN ( $budgetDate$ )
+		                			     )
+		            AND use_yn = '1' AND doc_sts NOT IN('999' , '100') ) DOC ON EXPEND.doc_seq = DOC.doc_id ) A LEFT OUTER JOIN
+		(SELECT	 IFNULL(card_name,'') AS card_name
+		         ,CASE LENGTH(card_num)
+		         WHEN 16 THEN CONCAT( SUBSTRING( card_num, 1, 4 ) , '-' , SUBSTRING( card_num, 5, 4 ) , '-' , SUBSTRING( card_num, 9, 4 ) , '-' , SUBSTRING( card_num, 13, 4 ))
+		         ELSE card_num
+		         END AS card_num
+		         ,sync_id
+		 FROM $DB_NEOS$t_ex_card_aq_tmp) B ON A.interface_m_id= B.sync_id
+		 ORDER BY expend_date asc
+		 ]]>
+	</select>
+	
+	<select id="ExAdminYesilA.ExAdminYesil2DetailPopInfo" remapResults="true" parameterClass="HashMap" resultClass="HashMap">
+		/* mariadb/BizboxAlpha/expend/ex/admin/ExAdminYesil.xml - ExAdminYesilA.ExAdminYesilDetailPopInfo */
+		/* 예실대비 지출결의현황 조회 - iU */
+		<isEqual property="dataType" compareValue="1"> 
+		<![CDATA[
+		SELECT DATE_FORMAT(expend_date, "%Y-%m-%d") AS expend_date 
+			,expend_seq
+			,drcr_gb
+			,IFNULL(amt, 0) AS amt
+			,ex_dept_cd
+			,ex_dept_nm
+			,ex_emp_no
+			,ex_emp_nm
+			,doc_id
+			,form_id
+			,doc_title
+			,doc_no
+			,doc_sts
+			,doc_sts_cd
+			,ea_dept_nm
+			,ea_dept_id
+			,ea_user_nm
+			,ea_user_id
+			,IFNULL(card_name,'') AS card_name
+			,IFNULL(card_num,'') AS card_num
+			]]>
+		</isEqual>
+		<isEqual property="dataType" compareValue="2">
+		<![CDATA[
+			SELECT sum(amt) AS total_expend
+		]]>
+		</isEqual>
+		<![CDATA[
+		FROM(
+		      SELECT	EXPEND.expend_date /* 결의(회계) 일자 */
+		      			,EXPEND.expend_seq 
+	        			,CASE EXPEND.drcr_gb
+	        				WHEN 'Dr' THEN  '차변'
+	        				WHEN 'Cr' THEN  '대변'
+	        				WHEN 'Vat' THEN  '부가세'
+	        			 END AS drcr_gb
+	        			, EXPEND.amt
+	        			, EXPEND.interface_type
+	        			, EXPEND.interface_m_id
+	        			, EXPEND.erp_dept_seq AS ex_dept_cd
+	        			, EXPEND.erp_dept_name AS ex_dept_nm
+	        			, EXPEND.erp_emp_seq AS ex_emp_no
+	        			, EXPEND.erp_emp_name AS ex_emp_nm
+	        			, DOC.doc_id
+	        			, DOC.form_id
+	        			, DOC.doc_title
+	        			, DOC.doc_no
+	        			,CASE DOC.doc_sts
+	        				WHEN '10' THEN  '임시저장'
+	        				WHEN '20' THEN  '상신'
+	        				WHEN '30' THEN  '진행'
+	        				WHEN '40' THEN  '발신종결'
+	        				WHEN '50' THEN  '수신상신'
+	        				WHEN '60' THEN  '수신진행'
+	        				WHEN '70' THEN  '수신반려'
+	        				WHEN '80' THEN  '수신확인'
+	        				WHEN '90' THEN  '종결'
+	               			WHEN '100' THEN '반려'
+	        				WHEN '110' THEN '보류'
+	        			 END AS doc_sts
+	        			, DOC.doc_sts AS doc_sts_cd
+	        			, DOC.dept_nm AS ea_dept_nm
+	        			, DOC.dept_id AS ea_dept_id
+	        			, DOC.user_nm AS ea_user_nm
+	        			, DOC.user_id AS ea_user_id
+		      FROM(
+		            SELECT	A.expend_date /* 결의(회계) 일자 */
+		            		, A.expend_seq 
+            				, A.doc_seq
+            				, A.form_seq
+            				, A.drcr_gb
+            				, A.amt
+            				, A.interface_type
+            				, A.interface_m_id
+            				, B.erp_dept_seq
+            				, B.erp_dept_name
+            				, B.erp_emp_seq
+            				, B.erp_emp_name
+            				, A.list_seq
+            				, A.slip_seq
+		            FROM(
+		                  SELECT A.expend_date /* 결의(회계) 일자 */
+		                  		, A.expend_seq
+	                  			, A.doc_seq
+	                  			, A.form_seq
+	                  			, B.drcr_gb
+	                  			, B.amt
+	                  			, B.interface_type
+	                  			, B.interface_m_id
+	                  			, B.list_seq
+	                  			, B.slip_seq
+		                  FROM( SELECT  expend_seq
+	                        		    , doc_seq
+	                        		    , form_seq
+	                        		    , expend_date /* 결의(회계) 일자 */
+		                        FROM $DB_NEOS$t_ex_expend 
+		                        WHERE erp_send_yn = '$sendYn$'
+		                        AND SUBSTRING(expend_date,1,6) IN ( $budgetDate$ )
+		                        ) A INNER JOIN 
+		                            ( SELECT	budget_ym
+		                                  		,bgacct_code
+		                                  		,budget_seq
+		                                  		,expend_seq
+		                                  		,list_seq
+		                                  		,slip_seq
+		                                  		,drcr_gb
+		                                  		,amt
+		                                  		,interface_type
+		                                  		,interface_m_id
+		                                      FROM( SELECT B.budget_ym, B.bgacct_code, B.dracct_amt AS amt, B.budget_seq, A.expend_seq
+		                                        	        ,A.list_seq ,A.slip_seq ,A.drcr_gb ,A.interface_type ,A.interface_m_id
+		                                            FROM (SELECT budget_seq
+		                                              		, expend_seq
+		                                              		, list_seq
+		                                              		, 0 AS slip_seq
+		                                              		, 'Dr' AS drcr_gb
+		                                              		, amt
+		                                              		, interface_type
+		                                              		, interface_m_id
+		                                                	FROM $DB_NEOS$t_ex_expend_list
+		                                                	WHERE expend_seq IN ( SELECT  expend_seq
+		                                                                    		FROM	$DB_NEOS$t_ex_expend 
+		                                                                    		WHERE doc_seq <> '0'
+		                                                                    		AND SUBSTRING(expend_date,1,6) IN ( $budgetDate$ )
+		                                                                    		)
+		                                          	      UNION ALL
+		                                                	SELECT budget_seq
+		                                                    		,expend_seq
+		                                                    		,list_seq
+		                                                    		,slip_seq
+		                                                    		,drcr_gbn
+		                                                    		,amt 
+		                                                    		,IFNULL(interface_type,'') AS interface_type
+		                                                    		,IFNULL(interface_m_id,'') AS interface_m_id
+		                                                	FROM $DB_NEOS$t_ex_expend_slip
+		                                                	WHERE expend_seq IN(SELECT expend_seq
+		                                                            			    FROM	 $DB_NEOS$t_ex_expend 
+		                                                            			    WHERE doc_seq <> '0'
+		                                                            			    AND SUBSTRING(expend_date,1,6) IN ( $budgetDate$ )
+		                                                            			    ) 
+		                                                	AND drcr_gbn = 'Dr' ) AS A INNER JOIN
+		                                          ( SELECT budget_ym
+		                                                   ,bgacct_code
+		                                                   ,dracct_amt
+		                                                   ,seq AS budget_seq
+		                                        		FROM $DB_NEOS$t_ex_expend_budget
+		                                        		WHERE bgacct_code = '$acctCd$'
+		                                        		AND budget_code = '$budgetCd$'
+		                                        		]]>
+		                                        		<isNotEmpty property="bizplanCd">
+		                                        			<![CDATA[
+		                                        			AND bizplan_code = '$bizplanCd$'
+		                                        			]]>
+		                                        		</isNotEmpty>
+		                                        		<![CDATA[
+		                                        		) AS B ON B.budget_seq = A.budget_seq ) A ) B 
+		            ON A.expend_seq = B.expend_seq) A INNER JOIN(
+		                SELECT B.erp_dept_seq
+		                       ,B.erp_dept_name
+		                       ,B.erp_emp_seq
+		                       ,B.erp_emp_name
+		                       ,A.expend_seq
+		                       ,A.list_seq
+		                       ,A.slip_seq
+		                FROM( 
+		                      SELECT A.expend_seq, A.list_seq, A.slip_seq, A.emp_seq
+		                      FROM ( SELECT C.expend_seq, C.list_seq, C.slip_seq,
+		                                    CASE WHEN IFNULL(C.emp_seq, 0) != 0 THEN C.emp_seq 
+		                                         WHEN IFNULL(B.emp_seq, 0) != 0 THEN B.emp_seq 
+		                                         WHEN IFNULL(A.emp_seq, 0) != 0 THEN A.emp_seq 
+		                                         ELSE 0 
+		                                    END AS emp_seq
+		                             FROM( SELECT expend_seq, emp_seq  
+		                                   FROM $DB_NEOS$t_ex_expend ) A INNER JOIN 
+		                                  (SELECT expend_seq, list_seq, emp_seq 
+		                                   FROM $DB_NEOS$t_ex_expend_list) AS B ON A.expend_seq = B.expend_seq INNER JOIN
+		                                  (SELECT expend_seq, list_seq, slip_seq, emp_seq 
+		                                   FROM $DB_NEOS$t_ex_expend_slip) AS C ON B.expend_seq = C.expend_seq AND B.list_seq = C.list_seq ) A
+		                      WHERE expend_seq IN ( SELECT expend_seq
+		                                  			    FROM	 $DB_NEOS$t_ex_expend 
+		                                  			    WHERE doc_seq <> '0'
+               			    							AND SUBSTRING(expend_date,1,6) IN ( $budgetDate$ )
+		                                  			     ) ) A INNER JOIN
+		                      (SELECT seq, erp_dept_seq, erp_dept_name, erp_emp_seq, erp_emp_name
+		                       FROM $DB_NEOS$t_ex_expend_emp 
+		                       WHERE erp_dept_seq IN ( $deptCd$ ) ) B ON A.emp_seq = B.seq ) B ON A.expend_seq = B.expend_seq AND A.list_seq = B.list_seq AND A.slip_seq = B.slip_seq
+		      )EXPEND INNER JOIN(
+		            SELECT doc_id
+		                   ,form_id
+		                   ,doc_title
+		                   ,doc_no
+		                   ,doc_sts
+		                   ,dept_nm
+		                   ,dept_id
+		                   ,user_nm
+		                   ,user_id
+		            FROM $DB_NEOS$teag_appdoc
+		            WHERE co_id = '$compSeq$'
+		            AND doc_id in (SELECT doc_seq
+		                			     FROM	 $DB_NEOS$t_ex_expend 
+		                			     WHERE doc_seq <> '0'
+		                			     AND SUBSTRING(expend_date,1,6) IN ( $budgetDate$ )
+		                			     )
+		            AND use_yn = '1' AND doc_sts NOT IN('999' , '100') ) DOC ON EXPEND.doc_seq = DOC.doc_id ) A LEFT OUTER JOIN
+		(SELECT	 IFNULL(card_name,'') AS card_name
+		         ,CASE LENGTH(card_num)
+		         WHEN 16 THEN CONCAT( SUBSTRING( card_num, 1, 4 ) , '-' , SUBSTRING( card_num, 5, 4 ) , '-' , SUBSTRING( card_num, 9, 4 ) , '-' , SUBSTRING( card_num, 13, 4 ))
+		         ELSE card_num
+		         END AS card_num
+		         ,sync_id
+		 FROM $DB_NEOS$t_ex_card_aq_tmp) B ON A.interface_m_id= B.sync_id
+		 ORDER BY expend_date asc
+		 ]]>
+	</select>
+</sqlMap>

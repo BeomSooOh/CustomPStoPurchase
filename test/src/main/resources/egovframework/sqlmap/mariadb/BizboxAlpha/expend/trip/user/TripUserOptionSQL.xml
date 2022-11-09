@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="TripUserOptionA">
+
+	<select id="TripUserOptionA.TripTransPortOptionSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/trip/user/TripAdminOptionSQL.xml - TripAdminOptionA.TripTransPortOptionSelect */
+		/* 교통수단 조회 */
+				SELECT	
+					transport_seq		AS	transportSeq
+					, comp_seq			AS	compSeq
+					, comp_name			AS	compName
+					, CASE #langCode#
+						WHEN 'kr' THEN transport_name_kr
+						WHEN 'en' THEN transport_name_en
+						WHEN 'jp' THEN transport_name_jp
+						WHEN 'cn' THEN transport_name_cn
+					END 				AS transportName
+					, transport_name_kr AS	transportNameKr
+					, transport_name_en AS	transportNameEn
+					, transport_name_jp AS	transportNameJp
+					, transport_name_cn AS	transportNameCn
+					, note				AS	note
+					, order_num			AS	orderNum
+				FROM	$DB_NEOS$t_exnp_trip_set_transport
+				WHERE	comp_seq = #compSeq#
+				AND	use_yn = 'Y'
+				ORDER BY CASE order_num WHEN '' THEN '9999999' ELSE order_num END
+			;
+	</select>
+	
+	
+	<select id="TripUserOptionA.TripLocationOptionSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* expend/trip/user/TripAdminOptionSQL.xml - TripUserOptionA.TripLocationOptionSelect */
+		/* 출장복명 출장지 조회 */
+		SELECT	location_seq	AS	locationSeq
+				, comp_seq		AS	compSeq
+				, comp_name		AS	compNm
+				, domestic_code	AS	domesticCode
+				, CASE #langCode#
+					WHEN 'kr' THEN location_name_kr
+					WHEN 'en' THEN location_name_en
+					WHEN 'jp' THEN location_name_jp
+					WHEN 'cn' THEN location_name_cn
+				END 			AS locationName
+				, location_name_kr	AS	locationNameKr 
+				, location_name_en	AS	locationNameEn
+				, location_name_jp	AS	locationNameJp
+				, location_name_cn	AS	locationNameCn
+				, location_edit_yn	AS	locationEditYN
+				, order_num 		AS	orderNum
+				, note				AS	note
+		FROM	$DB_NEOS$t_exnp_trip_set_location
+		WHERE	use_yn = 'Y'
+		AND	comp_seq = #compSeq#
+		ORDER BY CASE order_num WHEN '' THEN '9999999' ELSE order_num END
+		]]>
+	</select>
+	
+	<select id="TripUserOptionA.TripAmtOptionSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"><![CDATA[
+		/* expend/trip/user/TripAdminOptionSQL.xml - TripUserOptionA.TripAmtOptionSelect */
+		/* 출장복명 사용자 경비내역 조회 */
+		SELECT	
+			IFNULL(empName,'')			AS empName
+			, IFNULL(empSeq,'')			AS empSeq
+			, compSeq
+			, compName
+			, IFNULL(dutyName,'')		AS dutyName
+			, IFNULL(amtClass1Seq,0)	AS amtClass1Seq
+			, IFNULL(amtClass1Amt,0)	AS amtClass1Amt
+			, IFNULL(amtClass1Name,'')	AS amtClass1Name
+			, IFNULL(amtClass1DomesticCode,0)	AS amtClass1DomesticCode
+			, IFNULL(amtClass1HoldCode,0)	AS amtClass1HoldCode
+			, IFNULL(amtClass2Seq,0)	AS amtClass2Seq
+			, IFNULL(amtClass2Amt,0)	AS amtClass2Amt
+			, IFNULL(amtClass2Name,'')	AS amtClass2Name
+			, IFNULL(amtClass2DomesticCode,0)	AS amtClass2DomesticCode
+			, IFNULL(amtClass2HoldCode,0)	AS amtClass2HoldCode
+			, IFNULL(amtClass3Seq,0)	AS amtClass3Seq
+			, IFNULL(amtClass3Amt,0)	AS amtClass3Amt
+			, IFNULL(amtClass3Name,'')	AS amtClass3Name
+			, IFNULL(amtClass3DomesticCode,0)	AS amtClass3DomesticCode
+			, IFNULL(amtClass3HoldCode,0)	AS amtClass3HoldCode
+			, IFNULL(amtClass4Seq,0)	AS amtClass4Seq
+			, IFNULL(amtClass4Amt,0)	AS amtClass4Amt
+			, IFNULL(amtClass4Name,'')	AS amtClass4Name
+			, IFNULL(amtClass4DomesticCode,0)	AS amtClass4DomesticCode
+			, IFNULL(amtClass4HoldCode,0)	AS amtClass4HoldCode
+			, IFNULL(amtClass5Seq,0)	AS amtClass5Seq
+			, IFNULL(amtClass5Amt,0) 	AS amtClass5Amt
+			, IFNULL(amtClass5Name,'')	AS amtClass5Name
+			, IFNULL(amtClass5DomesticCode,0)	AS amtClass5DomesticCode
+			, IFNULL(amtClass5HoldCode,0)	AS amtClass5HoldCode
+			, IFNULL(amtClass6Seq,0)	AS amtClass6Seq
+			, IFNULL(amtClass6Amt,0)	AS amtClass6Amt
+			, IFNULL(amtClass6Name,'')	AS amtClass6Name
+			, IFNULL(amtClass6DomesticCode,0)	AS amtClass6DomesticCode
+			, IFNULL(amtClass6HoldCode,0)	AS amtClass6HoldCode
+			, IFNULL((amtClass1Amt + amtClass2Amt + amtClass3Amt + amtClass4Amt + amtClass5Amt + amtClass6Amt),0) AS amtClassSum
+			, dutyGroupSeq				AS dutyGroupSeq
+			, dutyItemSeq				AS dutyItemSeq
+			, locationSeq				AS locationSeq
+			, transportSeq			AS transportSeq
+		FROM(
+			SELECT	
+				emp_name AS empName
+				, emp_seq AS empSeq
+				, dp_name AS dutyName
+				, comp_seq AS compSeq
+				, comp_name AS compName
+				, MAX(IF(amt.amt_class_code=1,amt,0)) AS amtClass1Amt
+				, MAX(IF(amt.amt_class_code=1,amt_seq,0)) AS amtClass1Seq
+				, MAX(IF(amt.amt_class_code=1,amt_class_name,'일비')) AS amtClass1Name
+				, MAX(IF(amt.amt_class_code=1,domestic_code,0)) AS amtClass1DomesticCode
+				, MAX(IF(amt.amt_class_code=1,amt_hold_code,0)) AS amtClass1holdCode
+				, MAX(IF(amt.amt_class_code=2,amt,0)) AS amtClass2Amt
+				, MAX(IF(amt.amt_class_code=2,amt_seq,0)) AS amtClass2Seq
+				, MAX(IF(amt.amt_class_code=2,amt_class_name,'식비')) AS amtClass2Name
+				, MAX(IF(amt.amt_class_code=2,domestic_code,0)) AS amtClass2DomesticCode
+				, MAX(IF(amt.amt_class_code=2,amt_hold_code,0)) AS amtClass2holdCode
+				, MAX(IF(amt.amt_class_code=3,amt,0)) AS amtClass3Amt
+				, MAX(IF(amt.amt_class_code=3,amt_seq,0)) AS amtClass3Seq
+				, MAX(IF(amt.amt_class_code=3,amt_class_name,'숙박비')) AS amtClass3Name
+				, MAX(IF(amt.amt_class_code=3,domestic_code,0)) AS amtClass3DomesticCode
+				, MAX(IF(amt.amt_class_code=3,amt_hold_code,0)) AS amtClass3holdCode
+				, MAX(IF(amt.amt_class_code=4,amt,0)) AS amtClass4Amt
+				, MAX(IF(amt.amt_class_code=4,amt_seq,0)) AS amtClass4Seq
+				, MAX(IF(amt.amt_class_code=4,amt_class_name,'교통비')) AS amtClass4Name
+				, MAX(IF(amt.amt_class_code=4,domestic_code,0)) AS amtClass4DomesticCode
+				, MAX(IF(amt.amt_class_code=4,amt_hold_code,0)) AS amtClass4holdCode
+				, MAX(IF(amt.amt_class_code=5,amt,0)) AS amtClass5Amt
+				, MAX(IF(amt.amt_class_code=5,amt_seq,0)) AS amtClass5Seq
+				, MAX(IF(amt.amt_class_code=5,amt_class_name,'기타여비1')) AS amtClass5Name
+				, MAX(IF(amt.amt_class_code=5,domestic_code,0)) AS amtClass5DomesticCode
+				, MAX(IF(amt.amt_class_code=5,amt_hold_code,0)) AS amtClass5holdCode
+				, MAX(IF(amt.amt_class_code=6,amt,0)) AS amtClass6Amt
+				, MAX(IF(amt.amt_class_code=6,amt_seq,0)) AS amtClass6Seq
+				, MAX(IF(amt.amt_class_code=6,amt_class_name,'기타여비2')) AS amtClass6Name
+				, MAX(IF(amt.amt_class_code=6,domestic_code,0)) AS amtClass6DomesticCode
+				, MAX(IF(amt.amt_class_code=6,amt_hold_code,0)) AS amtClass6holdCode
+				, userinfo.duty_group_seq			  AS dutyGroupSeq
+				, userinfo.duty_item_seq			  AS dutyItemSeq
+				, location_seq						  AS locationSeq
+				, transport_seq					AS transportSeq
+			FROM	(
+				SELECT 
+					userinfo.emp_name
+				    , userinfo.emp_seq
+				    , dutyposition.dp_seq
+				    , dutyposition.dp_name
+				    , duty_group_seq
+				    , duty_item_seq
+				FROM	(
+					SELECT	
+						e.group_seq	AS 'group_seq'
+						, ed.comp_seq	AS 'comp_seq'
+						, ed.dept_seq	AS 'dept_seq'
+						, e.emp_seq	AS 'emp_seq'
+						, login_id	AS 'login_id'
+						, ed.main_comp_yn	AS 'main_comp_yn'
+						, ed.main_dept_yn	AS 'main_dept_yn'
+						, ed.duty_code		AS 'duty_code'
+						, ed.position_code	AS 'position_code'
+						, cm.comp_name		AS 'comp_name'
+						, dm.dept_name		AS 'dept_name'
+						, em.emp_name	AS 'emp_name'								
+					FROM	$DB_NEOS$t_co_emp		e
+					INNER JOIN	$DB_NEOS$t_co_emp_multi em
+					ON	e.emp_seq	= em.emp_seq
+					 AND	e.group_seq	= em.group_seq
+					 AND	em.lang_code = 'kr'
+					INNER JOIN	$DB_NEOS$t_co_emp_dept	ed
+					ON 	e.emp_seq	= ed.emp_seq
+					 AND	e.group_seq	= ed.group_seq
+					INNER JOIN $DB_NEOS$t_co_dept_multi dm
+					ON	e.group_seq	= dm.group_seq
+					 AND	ed.comp_seq	= dm.comp_seq
+					 AND	ed.dept_seq	= dm.dept_seq
+					 AND	dm.lang_code = 'kr'
+					INNER JOIN $DB_NEOS$t_co_comp_multi cm
+					ON	e.group_seq	= cm.group_seq
+					 AND	ed.comp_seq	= cm.comp_seq
+					 AND	cm.lang_code = 'kr'
+					WHERE	em.use_yn = 'Y'
+				)	userinfo
+				LEFT JOIN	$DB_NEOS$t_exnp_trip_set_dutyitem item
+				ON			item.duty_code = userinfo.duty_code
+				INNER JOIN	$DB_NEOS$t_co_comp_duty_position_multi dutyposition
+				ON 			userinfo.duty_code = dutyposition.dp_seq
+				 AND		dutyposition.dp_type = 'DUTY'
+				 AND		dutyposition.lang_code = #langCode#
+				WHERE	emp_seq IN $empSeq$
+				 AND	userinfo.comp_seq = #compSeq#
+			)	userinfo
+			LEFT JOIN	(
+				SELECT amt.*
+				FROM $DB_NEOS$t_exnp_trip_set_amt amt
+				INNER JOIN ( SELECT	duty_group_seq,location_seq,IFNULL(transport_seq,0) AS transport_seq ,amt_class_code,MAX(apply_date) AS apply_date
+							FROM	$DB_NEOS$t_exnp_trip_set_amt amt
+							WHERE	apply_date < NOW()
+							AND 	location_seq = #locationSeq#
+							GROUP BY duty_group_seq,location_seq,transport_seq,amt_class_code
+							 ) amt_temp
+				ON			IFNULL(amt.transport_seq,0) = amt_temp.transport_seq
+				AND			amt.location_seq = amt_temp.location_seq
+				AND			amt.duty_group_seq = amt_temp.duty_group_seq
+				AND			amt.amt_class_code = amt_temp.amt_class_code
+				AND			amt.apply_date = amt_temp.apply_date
+			) AS amt
+			ON			amt.duty_group_seq = userinfo.duty_group_seq
+			WHERE 	IFNULL(amt.location_seq, #locationSeq#)   =  #locationSeq#
+			GROUP BY emp_seq
+		) amt
+		ORDER BY amtClassSum DESC, empSeq ASC
+	]]></select>
+	
+	<select id="TripUserOptionA.TripDutyItemOptionSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"><![CDATA[
+		/* expend/trip/user/TripAdminOptionSQL.xml - TripUserOptionA.TripDutyItemOptionSelect */
+		/* 출장복명 사용자 직책그룹 조회 */
+		select		item.duty_group_seq as dutyGroupSeq
+					, item.duty_item_seq as dutyItemSeq
+					, item.duty_code as dutyCode
+					, item.duty_name as dutyName
+		from		$DB_NEOS$t_exnp_trip_set_dutyitem item
+		inner join	$DB_NEOS$t_exnp_trip_set_dutygroup group1
+		on 			item.duty_group_seq = group1.duty_group_seq
+		where 		group1.domestic_code = #domesticCode#
+		AND			group1.comp_seq = #compSeq#
+		and 		item.duty_code in ($dutyCode$)
+	]]></select>
+	
+</sqlMap>

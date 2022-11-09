@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="AuthorManageDAO">
+	
+	<select id="AuthorManageDAO.selectAuthorList" resultClass="hashMap" parameterClass="hashMap">
+	<![CDATA[		
+	    /* AuthorManageDAO.selectAuthorList - mariadb */
+	    SELECT
+		       t.AUTHOR_CODE as authorCode
+		     , $DB_NEOS$FN_GetMultiLang(#langCode#,tm.AUTHOR_NM_MULTI) as authorNm
+		     , tm.AUTHOR_DC as authorDc
+		     , AUTHOR_TYPE as authorType
+		     , IFNULL(AUTHOR_BASE_YN, 'N') as authorBaseYn 
+		     , IFNULL(AUTHOR_USE_YN, 'N') as authorUseYn
+		     , $DB_NEOS$get_code_detail_info('0', 'COM505', AUTHOR_TYPE, #langCode#) AS authorTypeNm
+		     , $DB_NEOS$get_code_detail_info('0','COM514',IFNULL(AUTHOR_BASE_YN, 'N'),#langCode#) AS authorBaseYnNm			
+		     , $DB_NEOS$get_code_detail_info('0','COM521',IFNULL(AUTHOR_USE_YN, 'N'),#langCode#) AS authorUseYnNm  
+		     , IFNULL(T.COMP_SEQ, 0 ) AS compSeq
+		     , $DB_NEOS$FN_GetMultiLang(#langCode#,CM.COMP_NAME_MULTI) AS compNm
+		  FROM $DB_NEOS$t_co_authcode T
+		  LEFT JOIN $DB_NEOS$v_t_co_authcode_multi tm
+		    ON t.AUTHOR_CODE = tm.AUTHOR_CODE
+		  LEFT JOIN $DB_NEOS$V_T_CO_COMP_MULTI CM
+		    ON T.COMP_SEQ   = CM.COMP_SEQ
+		   AND CM.USE_YN    = 'Y' 
+		  LEFT JOIN $DB_NEOS$T_CO_GROUP G
+		    ON T.GROUP_SEQ   = G.GROUP_SEQ
+		   AND G.USE_YN    = 'Y'   
+		 WHERE AUTHOR_NM LIKE CONCAT('%' , #searchKeyword# , '%')
+           AND (IFNULL(T.GROUP_SEQ, '0') = '0' or T.GROUP_SEQ = #group_seq#)
+	]]>
+	       <isNotEmpty property="comp_seq"> <!-- 회사선택할경우 -->
+           AND T.COMP_SEQ  = #comp_seq#
+           </isNotEmpty> 
+			<isNotEmpty property="searchAuthorType" >
+           AND   AUTHOR_TYPE = #searchAuthorType# 		
+			</isNotEmpty>
+			<isNotEmpty property="searchAuthorBaseYn" >
+           AND   AUTHOR_BASE_YN = #searchAuthorBaseYn# 	
+			</isNotEmpty>
+			<isNotEmpty property="searchAuthorUseYn" >
+           AND   AUTHOR_USE_YN = #searchAuthorUseYn# 	
+			</isNotEmpty>													
+	<![CDATA[						                 
+         ORDER BY authorCode DESC   	
+	]]>
+	</select>
+	
+	<select id="AuthorManageDAO.selectAuthorInfo" parameterClass="hashMap" resultClass="hashMap">
+	<![CDATA[
+	    /* AuthorManageDAO.selectAuthorInfo - mariadb */
+		SELECT t.AUTHOR_CODE AS authorCode,
+		       $DB_NEOS$FN_GetMultiLang(#langCode#,tm.AUTHOR_NM_MULTI) AS authorNm,
+		       tm.AUTHOR_DC AS authorDc,
+		       t.AUTHOR_TYPE AS authorType,
+		       t.AUTHOR_BASE_YN AS authorBaseYn,
+		       IFNULL(t.AUTHOR_USE_YN, 'N') AS authorUseYn,
+		       t.COMP_SEQ AS comp_seq,
+		       t.order_num
+		  FROM $DB_NEOS$t_co_authcode t
+		 INNER JOIN $DB_NEOS$v_t_co_authcode_multi tm
+		    ON t.AUTHOR_CODE  = tm.AUTHOR_CODE
+		 WHERE t.AUTHOR_CODE  = #authorCode# 
+	]]>
+	</select>
+	
+	<!-- 권한코드 삭제  -->
+	<delete id="AuthorManageDAO.deleteAuthCode" parameterClass="hashMap">
+        <![CDATA[
+            /* AuthorManageDAO.deleteAuthorInfo - mariadb */
+            DELETE FROM $DB_NEOS$t_co_authcode 
+            WHERE AUTHOR_CODE = #authorCode#
+        ]]>
+    </delete>
+    
+	<delete id="AuthorManageDAO.deleteAuthCodeMulti" parameterClass="hashMap">
+        <![CDATA[
+            /* AuthorManageDAO.deleteAuthCodeMulti - mariadb */
+            DELETE FROM $DB_NEOS$t_co_authcode_multi 
+             WHERE AUTHOR_CODE = #authorCode#
+        ]]>
+    </delete>    
+    
+    <insert id="AuthorManageDAO.insertAuthCode" parameterClass="hashMap">
+        <selectKey keyProperty="authorCode" resultClass="String">
+           SELECT CONCAT('A', $DB_NEOS$nextval('authorCode') ) as authorCode from dual
+        </selectKey>
+        <![CDATA[   
+           /* AuthorManageDAO.insertAuthCode - mariadb */ 
+           INSERT INTO $DB_NEOS$t_co_authcode 
+           (        
+                    AUTHOR_CODE
+                  , AUTHOR_TYPE
+                  , AUTHOR_BASE_YN
+                  , AUTHOR_USE_YN
+                  , GROUP_SEQ
+                  , COMP_SEQ
+                  , CREATE_SEQ
+                  , CREATE_DATE
+           )
+           VALUES ( 
+                    #authorCode#
+                  , #authorType#  
+                  , #authorBaseYn#
+                  , #authorUseYn#
+                  , #group_seq#
+                  , #comp_seq#
+                  , #emp_seq#
+                  , NOW() 
+           )
+        ]]>  
+    </insert>
+    
+    <insert id="AuthorManageDAO.insertAuthCodeMulti" parameterClass="hashMap">
+        <![CDATA[   
+           /* AuthorManageDAO.insertAuthCodeMulti - mariadb */ 
+           INSERT INTO $DB_NEOS$t_co_authcode_multi 
+           (        
+                    AUTHOR_CODE
+                  , LANG_CODE
+                  , AUTHOR_NM
+                  , AUTHOR_DC
+                  , CREATE_SEQ
+                  , CREATE_DATE
+           )
+           VALUES ( 
+                    #authorCode#
+                  , #langCode#
+                  , #authorNm#
+                  , #authorDc#
+                  , #emp_seq#
+                  , NOW() 
+           )
+        ]]>  
+    </insert>    
+
+    <update id="AuthorManageDAO.updateAuthCode" parameterClass="hashMap">
+        <![CDATA[
+            /* AuthorManageDAO.updateAuthCode - mariadb */
+            UPDATE $DB_NEOS$t_co_authcode 
+               SET AUTHOR_TYPE    = #authorType#
+                 , AUTHOR_BASE_YN = #authorBaseYn#
+                 , AUTHOR_USE_YN  = #authorUseYn#
+                 , MODIFY_SEQ     = #emp_seq#
+                 , MODIFY_DATE    = NOW()                
+             WHERE AUTHOR_CODE    = #authorCode#
+        ]]>
+    </update>
+    
+    <update id="AuthorManageDAO.updateAuthCodeMulti" parameterClass="hashMap">
+        <![CDATA[
+            /* AuthorManageDAO.updateAuthCodeMulti - mariadb */
+            UPDATE $DB_NEOS$t_co_authcode_multi 
+               SET AUTHOR_NM   = #authorNm#
+                 , AUTHOR_DC   = #authorDc#
+                 , MODIFY_SEQ  = #emp_seq#
+                 , MODIFY_DATE = NOW()
+             WHERE AUTHOR_CODE = #authorCode#
+               AND LANG_CODE   = #langCode#
+        ]]>
+    </update>    
+
+	<select id="AuthorManageDAO.selectAuthorClassList" resultClass="hashMap" parameterClass="hashMap">
+		<![CDATA[
+		    /* AuthorManageDAO.selectAuthorClassList - mariadb */
+			SELECT
+				    b.dp_seq AS CODE_ID 
+                  , b.dp_name AS CODE_NM
+                  , CASE WHEN c.AUTHOR_CODE IS NULL THEN 'N'
+	                     ELSE 'Y'
+                    END CHECK_YN
+			FROM $DB_NEOS$t_co_comp_duty_position a, $DB_NEOS$v_t_co_comp_duty_position_multi b 
+			LEFT OUTER JOIN $DB_NEOS$t_co_auth_class_relate c ON b.dp_seq = c.detail_code
+			WHERE 1=1
+				AND a.dp_seq = b.dp_seq
+		]]>			
+
+		<isEqual property="authorTypeCode" compareValue="003">
+			<![CDATA[	AND a.dp_type = 'DUTY' 		]]>
+		</isEqual>	
+		<isEqual property="authorTypeCode" compareValue="004">
+			<![CDATA[	AND a.dp_type = 'POSITION' 		]]>
+		</isEqual>	
+<!-- 		<isNotEmpty property="compSeq"> -->
+<!-- 		    AND a.comp_seq = #compSeq# -->
+<!-- 		</isNotEmpty>					 -->
+		<![CDATA[					
+				AND b.lang_code = #langCode#
+				AND a.comp_seq = #compSeq#
+			ORDER BY order_num		
+		]]>				
+	</select>
+
+
+	<delete id="AuthorManageDAO.deleteAuthorRelate" parameterClass="hashMap">
+        /* AuthorManageDAO.deleteAuthorRelate - mariadb */
+        DELETE FROM $DB_NEOS$t_co_auth_relate 
+        WHERE  AUTHOR_CODE = #authorCode#
+        <dynamic>
+        <isNotEmpty property="authorList">
+	       <iterate property="authorList" open="AND (COMP_SEQ, DEPT_SEQ, EMP_SEQ) IN (" close=")" conjunction="," >
+    	       (#authorList[].compSeq#, #authorList[].deptSeq#, #authorList[].empSeq#)
+	       </iterate>
+	    </isNotEmpty>
+	    </dynamic>
+    </delete>
+
+	<delete id="AuthorManageDAO.deleteAuthorClass" parameterClass="hashMap">
+        /* AuthorManageDAO.deleteAuthorClass - mariadb */ 
+            DELETE FROM $DB_NEOS$t_co_auth_class_relate 
+            WHERE  AUTHOR_CODE = #authorCode#
+		<isNotEmpty property="detailCode" >
+			AND    CODE_TYPE   = #authorTypeCode#
+			AND    DETAIL_CODE = #detailCode#
+		</isNotEmpty>	        
+    </delete>
+    
+ 	<delete id="AuthorManageDAO.deleteAuthorMenu" parameterClass="hashMap">
+ 	    /* AuthorManageDAO.deleteAuthorMenu - mariadb */
+ 		DELETE FROM $DB_NEOS$t_co_menu_auth
+ 		WHERE  AUTHOR_CODE = #authorCode#
+ 		<isNotEmpty property="menuGubun">
+ 		AND    MENU_NO	in ( SELECT MENU_NO FROM 
+ 		                     <isEqual property="authorType" compareValue="005">
+ 		                     $DB_NEOS$t_co_menu_adm
+ 		                     </isEqual>
+ 		                     <isNotEqual property="authorType" compareValue="005">
+ 		                     $DB_NEOS$t_co_menu
+ 		                     </isNotEqual> 
+ 		                     WHERE MENU_GUBUN = #menuGubun# 
+ 		                    )
+ 		</isNotEmpty>
+ 	</delete>
+ 	
+	<insert id="AuthorManageDAO.insertAuthorRelate" parameterClass="hashMap">		
+		/* AuthorManageDAO.insertAuthorRelate - mariadb */
+		INSERT INTO $DB_NEOS$t_co_auth_relate  
+		(author_code, author_type, comp_seq, dept_seq, emp_seq) 
+		VALUES
+	   <dynamic>
+	   	   <iterate property="authorList" conjunction="," >
+		(#authorCode#, (SELECT author_type FROM $DB_NEOS$t_co_authcode WHERE author_code = #authorCode#),  #authorList[].compSeq#, #authorList[].deptSeq#, #authorList[].empSeq#)
+	       </iterate>
+	   </dynamic>
+	</insert>	
+	 	
+
+    <insert id="AuthorManageDAO.insertAuthorClass" parameterClass="hashMap">
+        <![CDATA[    
+            INSERT INTO $DB_NEOS$t_co_auth_class_relate 
+                  ( DETAIL_CODE
+                  , AUTHOR_CODE
+                  , CODE_TYPE )
+           VALUES ( #authClass#
+                  , #authorCode#
+                  , #authorTypeCode# )
+        ]]>  
+    </insert>    
+	
+	<insert id="AuthorManageDAO.insertAuthorMenu" parameterClass="HashMap">		
+		/* AuthorManageDAO.insertAuthorMenu - mariadb */
+		INSERT INTO $DB_NEOS$t_co_menu_auth  (MENU_NO, AUTHOR_CODE) VALUES
+	   <dynamic>
+	       <iterate conjunction=",">
+    	       (#[].menuNo#, #[].authorCode#)
+	       </iterate>
+	   </dynamic>
+	   
+	</insert>	
+        
+	<select id="AuthorManageDAO.selectMenuTreeList" parameterClass="hashmap" resultClass="egovMap" >
+	    /* AuthorManageDAO.selectMenuTreeList - mariadb */
+	    SELECT C.menu_no
+	         , C.menu_gubun
+	         , C.upper_menu_no
+	         , $DB_NEOS$FN_GetMultiLang(#langCode#,D.menu_nm_multi) as name
+	         , D.menu_dc
+	         , C.url_path
+	         , C.sso_use_yn
+	         , A.LEVEL AS lvl
+	         , (SELECT COUNT(menu_no) FROM $DB_NEOS$t_co_menu WHERE upper_menu_no = C.menu_no AND use_yn = 'Y' AND IFNULL(delete_yn , 'N') <![CDATA[ <> ]]> 'Y') AS child_count
+	         , (SELECT menu_no FROM $DB_NEOS$t_co_menu_auth WHERE menu_no = A.menu_no AND author_code = #authorCode#) AS auth_menu_no
+	         , C.url_gubun
+	         , C.menu_img_class
+	         , IF( IFNULL(C.url_path, '') = '' , 'folder' , 'file') AS spriteCssClass
+	         , C.menu_ordr
+	    FROM    (
+				SELECT  $DB_NEOS$get_menu_connect_by_id(menu_no) AS menu_no, @level AS LEVEL
+				FROM    (
+					SELECT  @start_with := 0,
+						@menu_no := @start_with,
+						@level := 0
+					) vars, $DB_NEOS$t_co_menu
+				WHERE   @menu_no IS NOT NULL
+		         ) A
+	    INNER JOIN $DB_NEOS$t_co_menu C ON C.menu_no = A.menu_no
+	    LEFT OUTER JOIN $DB_NEOS$v_t_co_menu_multi D ON C.menu_no = D.menu_no
+	    LEFT OUTER JOIN $DB_NEOS$t_co_menu_comp E ON C.menu_no = E.menu_no AND  E.comp_seq = #compSeq# 	
+	    WHERE C.use_yn = 'Y'
+	    AND IFNULL(delete_yn , 'N') <![CDATA[ <> ]]> 'Y'
+<!-- 		AND   C.menu_no = E.menu_no -->
+		AND   IF(public_yn = 'Y' , #compSeq# , IFNULL(E.comp_seq, '0')) = #compSeq#
+		<isNotEmpty property="menuGubun">
+		AND   C.menu_gubun = #menuGubun#
+		</isNotEmpty>
+		GROUP BY A.menu_no
+		ORDER BY lvl , menu_ordr
+	</select>     
+	
+	<select id="AuthorManageDAO.selectAdmMenuTreeList" parameterClass="hashmap" resultClass="egovMap" >
+	    /* AuthorManageDAO.selectAdmMenuTreeList - mariadb */
+	    SELECT C.menu_no
+	         , C.menu_gubun
+	         , C.upper_menu_no
+	         , $DB_NEOS$FN_GetMultiLang(#langCode#,D.menu_nm_multi) as name
+	         , D.menu_dc
+	         , C.url_path
+	         , C.sso_use_yn
+	         , A.LEVEL AS lvl
+	         , (SELECT COUNT(menu_no) FROM $DB_NEOS$t_co_menu_adm WHERE upper_menu_no = C.menu_no AND use_yn = 'Y' AND IFNULL(delete_yn , 'N') <![CDATA[ <> ]]> 'Y') AS child_count
+	         , (SELECT menu_no FROM $DB_NEOS$t_co_menu_auth WHERE menu_no = A.menu_no AND author_code = #authorCode#) AS auth_menu_no		
+	         , C.url_gubun
+	         , C.menu_img_class
+	         , IF( IFNULL(C.url_path, '') = '' , 'folder' , 'file') AS spriteCssClass
+	         , C.menu_ordr
+	    FROM    (
+					SELECT  $DB_NEOS$get_adm_menu_connect_by_id2(menu_no,'ADMIN') AS menu_no, @level AS LEVEL
+					FROM    (
+						SELECT  @start_with := 0,
+							@menu_no := @start_with,
+							@level := 0
+						) vars, $DB_NEOS$t_co_menu_adm
+					WHERE   @menu_no IS NOT NULL AND use_yn = 'Y' AND IFNULL(delete_yn , 'N') <![CDATA[ <> ]]> 'Y'
+		         ) A
+	    INNER JOIN $DB_NEOS$t_co_menu_adm C ON C.menu_no = A.menu_no
+	    LEFT OUTER JOIN $DB_NEOS$v_t_co_menu_adm_multi D ON C.menu_no = D.menu_no
+<!-- 		        , t_co_menu_adm_comp E		 -->
+	    LEFT OUTER JOIN $DB_NEOS$t_co_menu_adm_comp E ON   C.menu_no = E.menu_no AND  E.comp_seq = #compSeq# 
+	    WHERE C.use_yn = 'Y'
+<!-- 		AND   C.menu_no = E.menu_no -->
+	    AND   IF(public_yn = 'Y' , #compSeq# , IFNULL(E.comp_seq, '0')) = #compSeq#
+	    AND   C.menu_auth_type = 'ADMIN'
+	    <isNotEmpty property="menuGubun">
+	    AND   C.menu_gubun = #menuGubun#
+	    </isNotEmpty>			
+<!-- 		AND C.use_yn = 'Y'		 -->
+	    <isNotEmpty property="level">
+	    AND   A.LEVEL = $level$
+	    </isNotEmpty>
+	    <isNotEmpty property="gubun">
+	    AND   C.url_gubun = #gubun#
+	    </isNotEmpty>
+	    GROUP BY A.menu_no
+	    ORDER BY lvl , menu_ordr
+	</select>     
+	
+<!-- 	<update id="AuthorManageDAO.updateAuthorMaster" parameterClass="hashmap"> -->
+<!-- 		/* AuthorManageDAO.updateAuthorMaster - mariadb */ -->
+<!-- 		UPDATE t_co_emp_option -->
+<!-- 		SET    master_use_yn   =  #masterUseYn# -->
+<!-- 		  ,    modify_date     =  now() -->
+<!-- 		  ,    modify_seq      =  #loginVO.uniqId#      -->
+<!-- 		WHERE EMP_SEQ IN ( -->
+<!-- 	   <dynamic>  -->
+<!-- 	   	   <iterate property="authorMasterList" conjunction="," > -->
+<!-- 		   #authorMasterList[].empSeq# -->
+<!-- 	       </iterate> -->
+<!-- 	   </dynamic> -->
+<!-- 	   )	 -->
+<!-- 	</update> -->
+	
+    <insert id="AuthorManageDAO.updateAuthorMaster" parameterClass="hashmap">
+        /* AuthorManageDAO.updateAuthorMaster - mariadb */
+        INSERT INTO $DB_NEOS$t_co_emp_option 
+        SET
+            emp_seq       = #empSeq#,               	 
+<!-- 		admin_use_yn  = #adminUseYn#,           	  -->
+<!-- 		cus_use_yn    = #cusUseYn#,   -->
+            master_use_yn = #masterUseYn#,     
+            create_seq 	  = #createSeq#,
+            create_date   = NOW()  
+         ON DUPLICATE KEY UPDATE
+<!-- 		admin_use_yn  = #adminUseYn#,           	  -->
+<!-- 		cus_use_yn    = #cusUseYn#, -->
+            master_use_yn = #masterUseYn#,
+            modify_seq    = #createSeq#,            	   
+            modify_date   = NOW()  
+    </insert>	
+</sqlMap>

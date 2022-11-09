@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ERPiU mssql -->
+<mapper namespace="AdminiUReport">
+	<select id="ExFI_ADOCUKeySelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+
+		/* [ ERPiU - ORACLE ] ExFI_ADOCUKeySelect - 전표 키 확인  
+		 * 전표 키 확인 
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-27
+         * 변경이력	
+ 		 * 2019-08-27 / 이준성 : 쿼리 확인  
+ 	     */
+		
+		SELECT  ( ( CASE
+		                WHEN MAX(ROW_ID) IS NULL THEN 0
+		                ELSE CAST(SUBSTR(MAX(ROW_ID), 11, 5) AS INT)
+		        END ) + 1 ) AS "ROW_ID"
+		FROM    FI_ADOCU
+		WHERE   ROW_ID LIKE ( '%' || #{UNFINISHED_ROW_ID} || '%' )
+	]]></select>
+
+	<insert id="ExFI_ADOCUInsert" parameterType="java.util.Map"><![CDATA[
+
+		/* [ ERPiU - ORACLE ] ExFI_ADOCUInsert - 전표 데이터 인입 
+		 * 전표 데이터 인입
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-29
+         * 변경이력	
+ 		 * 2019-08-29 / 이준성 : ST_BIZBOX 추가 및 쿼리 확인   
+ 	     */
+		
+		INSERT INTO NEOE.FI_ADOCU(ROW_ID,ROW_NO,CD_COMPANY,NO_DOLINE,NO_DOCU,NO_TAX,CD_PC,CD_WDEPT,ID_WRITE,CD_DOCU,DT_ACCT,ST_DOCU,TP_DRCR,CD_ACCT,AMT,CD_PARTNER,DT_START,DT_END,AM_TAXSTD,AM_ADDTAX,TP_TAX,NO_COMPANY,NM_NOTE,CD_BIZAREA,CD_DEPT,CD_CC,CD_PJT,CD_FUND,CD_BUDGET,NO_CASH,ST_MUTUAL,CD_CARD,NO_DEPOSIT,CD_BANK,UCD_MNG1,UCD_MNG2,UCD_MNG3,UCD_MNG4,UCD_MNG5,CD_EMPLOY,CD_MNG,NO_BDOCU,NO_BDOLINE,TP_DOCU,NO_ACCT,TP_TRADE,CD_EXCH,RT_EXCH,CD_TRADE,NO_CHECK2,NO_CHECK3,NO_CHECK4,TP_CROSS,ERP_CD,AM_EX,NO_TO,DT_SHIPPING,TP_GUBUN,NO_INVOICE,NO_ITEM,MD_TAX1,NM_ITEM1,NM_SIZE1,QT_TAX1,AM_PRC1,AM_SUPPLY1,AM_TAX1,NM_NOTE1,CD_BIZPLAN,CD_BGACCT,CD_MNGD1,NM_MNGD1,CD_MNGD2,NM_MNGD2,CD_MNGD3,NM_MNGD3,CD_MNGD4,NM_MNGD4,CD_MNGD5,NM_MNGD5,CD_MNGD6,NM_MNGD6,CD_MNGD7,NM_MNGD7,CD_MNGD8,NM_MNGD8,YN_ISS,TP_BILL,ST_TAX,MD_TAX2,NM_ITEM2,NM_SIZE2,QT_TAX2,AM_PRC2,AM_SUPPLY2,AM_TAX2,NM_NOTE2,MD_TAX3,NM_ITEM3,NM_SIZE3,QT_TAX3,AM_PRC3,AM_SUPPLY3,AM_TAX3,NM_NOTE3,MD_TAX4,NM_ITEM4,NM_SIZE4,QT_TAX4,AM_PRC4,AM_SUPPLY4,AM_TAX4,NM_NOTE4,FINAL_STATUS,NO_BILL,NO_ASSET,TP_RECORD,TP_ETCACCT,SELL_DAM_NM,SELL_DAM_EMAIL,SELL_DAM_MOBIL,ST_GWARE,NM_PUMM,JEONJASEND15_YN,DT_WRITE,NM_PTR,EX_HP,EX_EMIL,NM_PARTNER,ST_BIZBOX,CD_BIZCAR,TP_EVIDENCE)
+		VALUES(#{ROW_ID},#{ROW_NO},#{CD_COMPANY},${NO_DOLINE},#{NO_DOCU},#{NO_TAX},#{CD_PC},#{CD_WDEPT},#{ID_WRITE},#{CD_DOCU},#{DT_ACCT},#{ST_DOCU},#{TP_DRCR},#{CD_ACCT},${AMT},#{CD_PARTNER},#{DT_START},#{DT_END},${AM_TAXSTD},${AM_ADDTAX},#{TP_TAX},#{NO_COMPANY},#{NM_NOTE},#{CD_BIZAREA},#{CD_DEPT},#{CD_CC},#{CD_PJT},#{CD_FUND},#{CD_BUDGET},#{NO_CASH},#{ST_MUTUAL},#{CD_CARD},#{NO_DEPOSIT},#{CD_BANK},#{UCD_MNG1},#{UCD_MNG2},#{UCD_MNG3},#{UCD_MNG4},#{UCD_MNG5},#{CD_EMPLOY},#{CD_MNG},#{NO_BDOCU},${NO_BDOLINE},#{TP_DOCU},${NO_ACCT},#{TP_TRADE},#{CD_EXCH},${RT_EXCH},#{CD_TRADE},#{NO_CHECK2},#{NO_CHECK3},#{NO_CHECK4},#{TP_CROSS},#{ERP_CD},${AM_EX},#{NO_TO},#{DT_SHIPPING},#{TP_GUBUN},#{NO_INVOICE},#{NO_ITEM},#{MD_TAX1},#{NM_ITEM1},#{NM_SIZE1},${QT_TAX1},${AM_PRC1},${AM_SUPPLY1},${AM_TAX1},#{NM_NOTE1},#{CD_BIZPLAN},#{CD_BGACCT},#{CD_MNGD1},#{NM_MNGD1},#{CD_MNGD2},#{NM_MNGD2},#{CD_MNGD3},#{NM_MNGD3},#{CD_MNGD4},#{NM_MNGD4},#{CD_MNGD5},#{NM_MNGD5},#{CD_MNGD6},#{NM_MNGD6},#{CD_MNGD7},#{NM_MNGD7},#{CD_MNGD8},#{NM_MNGD8},#{YN_ISS},#{TP_BILL},#{ST_TAX},#{MD_TAX2},#{NM_ITEM2},#{NM_SIZE2},${QT_TAX2},${AM_PRC2},${AM_SUPPLY2},${AM_TAX2},#{NM_NOTE2},#{MD_TAX3},#{NM_ITEM3},#{NM_SIZE3},${QT_TAX3},${AM_PRC3},${AM_SUPPLY3},${AM_TAX3},#{NM_NOTE3},#{MD_TAX4},#{NM_ITEM4},#{NM_SIZE4},${QT_TAX4},${AM_PRC4},${AM_SUPPLY4},${AM_TAX4},#{NM_NOTE4},#{FINAL_STATUS},#{NO_BILL},#{NO_ASSET},#{TP_RECORD},#{TP_ETCACCT},#{SELL_DAM_NM},#{SELL_DAM_EMAIL},#{SELL_DAM_MOBIL},#{ST_GWARE},#{NM_PUMM},#{JEONJASEND15_YN},#{DT_WRITE},#{NM_PTR},#{EX_HP},#{EX_EMIL},#{NM_PARTNER, jdbcType=VARCHAR}, '1', #{CD_BIZCAR}, #{TP_EVIDENCE})
+	]]></insert>
+
+	<insert id="FI_RECEPTRELAInsert" parameterType="java.util.Map"><![CDATA[
+
+		/* [ ERPiU - ORACLE ] FI_RECEPTRELAInsert - FI_RECEPTRELAInsert 데이터 인입 
+		 * FI_RECEPTRELAInsert 데이터 인입
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-29
+         * 변경이력	
+ 		 * 2019-08-29 / 이준성 :  쿼리 확인   
+ 	     */
+		
+		INSERT INTO FI_RECEPTRELA(ROW_ID,ROW_NO,CD_COMPANY,CD_PC,NO_DOCU,NO_DOLINE,CD_ACCT,DT_START,CD_DEPT,CD_EMP,TP_RECEPT,RECEPT_GU,CD_CARD,NO_COMPANY,NM_CEO,NO_RES,NO_RES1,NM_CEO1,NO_COMPANY1,NM_ADRESS,USE_AREA,USE_COST,AM_MATIRIAL,AM_SERVICE,NM_NOTE,RECEPT_GU10,NM_NOTE1,ST_DOCU,CD_PARTNER,CD_PARTNER1,NM_RECEPT,NM_RECEPT1,TP_RECEPTION,TP_COMPANY)
+		VALUES (#{ROW_ID},#{ROW_NO},#{CD_COMPANY},#{FEE_CD_PC},#{NO_DOCU},#{NO_DOLINE},#{FEE_CD_ACCT},#{FEE_DT_START},#{FEE_CD_DEPT},#{FEE_CD_EMP},#{FEE_TP_RECEPT},#{FEE_RECEPT_GU},#{FEE_CD_CARD},#{FEE_NO_COMPANY},#{FEE_NM_CEO},#{FEE_NO_RES},#{FEE_NO_RES1},#{FEE_NM_CEO1},#{FEE_NO_COMPANY1},#{FEE_NM_ADRESS},#{FEE_USE_AREA},#{FEE_USE_COST},#{FEE_AM_MATIRIAL},#{FEE_AM_SERVICE},#{FEE_NM_NOTE},#{FEE_RECEPT_GU10},#{FEE_NM_NOTE1},#{FEE_ST_DOCU},#{FEE_CD_PARTNER},#{FEE_CD_PARTNER1},#{FEE_NM_RECEPT},#{FEE_NM_RECEPT1},#{FEE_TP_RECEPTION},#{FEE_TP_COMPANY})
+	]]></insert>
+
+	<select id="ExCheckCanDelete" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+
+		/* [ ERPiU - ORACLE ] ExCheckCanDelete - 전표 갯수 체크 
+		 * 전표 갯수 체크  
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-27
+         * 변경이력	
+ 		 * 2019-08-27 / 이준성 : 쿼리 확인  
+ 	     */
+		
+		SELECT  COUNT(*) AS "COUNT"
+		FROM    NEOE.FI_ADOCU
+		WHERE   ROW_ID = #{rowId}
+		AND     CD_COMPANY = #{cdCompany}
+		AND     TP_DOCU = 'N'
+	]]></select>
+	
+	
+	<select id="ExCheckCancleTpDocu" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT  TP_DOCU AS "tpDocu"
+		        ,ROW_ID AS "rowId"
+		 FROM	NEOE.FI_ADOCU
+		WHERE	ROW_ID = '${rowId}'
+		  AND	CD_COMPANY = '${cdCompany}'	
+	</select>
+
+	<!-- MSSQL : ExFI_ADOCUDelete -->
+	<select id="ExFI_ADOCUDelete_01" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+	
+		/* [ ERPiU - ORACLE ] ExFI_ADOCUDelete_01 - 전표 갯수 체크 
+		 * 전표 갯수 체크  
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-27
+         * 변경이력	
+ 		 * 2019-08-27 / 이준성 : 쿼리 확인  
+ 	     */
+
+		SELECT  COUNT(*) AS "count"
+		FROM    NEOE.FI_ADOCU
+		WHERE   CD_COMPANY = #{cdCompany}
+		AND     ROW_ID = #{rowId}
+	]]></select>
+	
+	<delete id="ExFI_ADOCUDelete_02" parameterType="java.util.Map"><![CDATA[
+
+		/* [ ERPiU - ORACLE ] ExFI_ADOCUDelete_02 - 전표 삭제 
+		 * 전표 삭제   
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-27
+         * 변경이력	
+ 		 * 2019-08-27 / 이준성 : 쿼리 확인  
+ 	     */
+		
+		DELETE
+		FROM    NEOE.FI_ADOCU
+		WHERE   CD_COMPANY = #{cdCompany}
+		AND     ROW_ID = #{rowId}
+	]]></delete>
+	
+	<delete id="ExFI_ADOCUDelete_03" parameterType="java.util.Map"><![CDATA[
+
+		/* [ ERPiU - ORACLE ] ExFI_ADOCUDelete_03 - FI_RECEPTRELA 삭제 
+		 * FI_RECEPTRELA 삭제    
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-27
+         * 변경이력	
+ 		 * 2019-08-27 / 이준성 : 쿼리 확인  
+ 	     */
+		
+		DELETE
+		FROM    FI_RECEPTRELA
+		WHERE   CD_COMPANY = #{cdCompany}
+		AND     ROW_ID = #{rowId}
+	]]></delete>
+	
+	<delete id="ExFI_ADOCUDelete_04" parameterType="java.util.Map"><![CDATA[
+
+		/* [ ERPiU - ORACLE ] ExFI_ADOCUDelete_04 -  문서 링크 삭제 
+		 * 문서 링크 삭제  
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-27
+         * 변경이력	
+ 		 * 2019-08-27 / 이준성 : WHERE -> AND   NO_DOCU = rowId AND 로수정 
+ 	     */
+	
+		DELETE
+		FROM    FI_GWDOCU_LINK
+		WHERE   CD_COMPANY = #{cdCompany}
+	    AND     NO_DOCU = #{rowId}
+	]]></delete>
+	
+	<delete id="ExFI_ADOCUDelete_05" parameterType="java.util.Map"><![CDATA[
+
+		/* [ ERPiU - ORACLE ] ExFI_ADOCUDelete_04 -  문서 첨부파일 삭제 
+		 * 문서 첨부파일 삭제  
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-27
+         * 변경이력	
+ 		 * 2019-08-27 / 이준성 : WHERE -> AND   NO_DOCU = rowId AND 로수정 
+ 	     */
+		
+		DELETE
+		FROM    NEOE.FI_ADOCU_FILE
+		WHERE   CD_COMPANY = #{cdCompany}
+		AND     NO_DOCU = #{rowId}
+	]]></delete>
+
+	<select id="ExAdminExpendSendERPDataDelete_01" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+
+		/* [ ERPiU - ORACLE ] "ExAdminExpendSendERPDataDelete_01" - 전표 전송 상태 확인 
+		 * 전표 전송 상태 확인   
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-29
+         * 변경이력	
+ 		 * 2019-08-29 / 이준성 : 쿼리 확인 
+ 	     */
+		
+		SELECT  COUNT(*) AS "count"
+		FROM    NEOE.FI_ADOCU
+		WHERE   ROW_ID = #{rowId}
+		AND     TP_DOCU = 'N'
+	]]></select>
+	
+	<delete id="ExAdminExpendSendERPDataDelete_02" parameterType="java.util.Map"><![CDATA[
+
+		/* [ ERPiU - ORACLE ] "ExAdminExpendSendERPDataDelete_02" - 전표 삭제 
+		 * 전표 삭제   
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-29
+         * 변경이력	
+ 		 * 2019-08-29 / 이준성 : 쿼리 확인 
+ 	     */
+		
+		DELETE
+		FROM    NEOE.FI_ADOCU
+		WHERE   ROW_ID = #{rowId}
+	]]></delete>
+	
+	<delete id="ExAdminExpendSendERPDataDelete_03" parameterType="java.util.Map"><![CDATA[
+
+		/* [ ERPiU - ORACLE ] "ExAdminExpendSendERPDataDelete_03" - 전표 삭제 
+		 * 전표 삭제   
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-29
+         * 변경이력	
+ 		 * 2019-08-29 / 이준성 : 쿼리 확인 
+ 	     */
+		
+		DELETE
+		FROM    NEOE.FI_ADOCU_FILE
+		WHERE   ROW_ID = #{rowId}
+	]]></delete>
+	
+	<delete id="ExAdminExpendSendERPDataDelete_04" parameterType="java.util.Map"><![CDATA[
+
+		/* [ ERPiU - ORACLE ] ExAdminExpendSendERPDataDelete_04 -  문서 링크 삭제 
+		 * 문서 링크 삭제  
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-27
+         * 변경이력	
+ 		 * 2019-08-27 / 이준성 : 쿼리 확인 
+ 	     */
+ 	     
+		DELETE
+		FROM    FI_GWDOCU_LINK
+		WHERE   NO_DOCU = #{rowId}
+	]]></delete>
+
+	<select id="ExAdminExpendERPBudgetDelete" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+
+		/* [ ERPiU - ORACLE ] ExAdminExpendERPBudgetDelete -  other 금액 삭제 
+		 * other 금액 삭제 
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-27
+         * 변경이력	
+ 		 * 2019-08-27 / 이준성 : 쿼리 확인 
+ 	     */
+		
+		DELETE		
+		FROM	NEOE.FI_GMMSUM_OTHER	
+		WHERE	ROW_ID = #{rowId}
+		AND		ROW_NO = #{rowNo}
+	]]></select>
+	
+	<select id="ExTaxListCompOption" parameterType="java.util.Map" resultType="java.util.Map">
+		
+
+		/* [ ERPiU - ORACLE ] ExTaxListCompOption -  세금계산서 옵션 
+		 * 세금계산서 옵션  확인 
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-27
+         * 변경이력	
+ 		 * 2019-08-27 / 이준성 : 쿼리 확인  
+ 	     */
+	
+		SELECT	NVL(CD_ENV,'N') AS "tpTbTaxCompany"
+		FROM	NEOE.MA_ENVD
+		WHERE	CD_COMPANY = #{erpCompSeq}
+		AND		TP_ENV = 'TP_TBTAXCOMPANY'
+	</select>
+	
+	<select id="ExAdminETaxListInfoSelectMap" parameterType="HashMap" resultType="HashMap">
+	
+		/* [ ERPiU - ORACLE ] ExAdminETaxListInfoSelectMap -  세금계산서 조회  
+		 * 세금계산서 조회  
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-27
+         * 변경이력	
+ 		 * 2019-08-27 / 이준성 : hometaxIssNo  국세청 번호  추가 
+ 		 *            /       emailDc  검색조건 - 공급받는자이메일 추가 
+ 		 *            /         NOLOCK  제거
+ 		 *		      /        LIKE issNo LIKE 수정 
+ 		 * 2019-09-04 / 권오광 : 조건문 순서 조정. CDATA 제거. OR 조건문 AND 조건문으로 변경.
+ 	     */
+ 	     
+		SELECT  ROW_NUMBER() OVER(ORDER BY YMD_WRITE) AS "rowNum"
+		        , NVL(NO_TAX, ' ') AS "issNo" /* 승인번호 */
+		        , NVL(NO_ISS, ' ') AS "hometaxIssNo" /* 국세청 번호 */
+		        , NVL(YMD_WRITE, ' ') AS "issDt" /* 발행일자 */
+		        , NVL(BUY_NO_BIZ, ' ') AS "divregNb" /* 공급받는자 사업자번호 */
+		        , NVL(BUY_NM_CORP, ' ') AS "divNm" /* 공급받는자 사업장상호명 */
+		        , NVL(BUY_NM_CEO, ' ') AS "divceoNm" /* 공급받는자 대표자명 */
+		        , NVL(SELL_NO_BIZ, ' ') AS "trregNb" /* 공급자 사업자번호 */
+		        , NVL(SELL_NM_CORP, ' ') AS "trNm" /* 공급자 거래처명 */
+		        , NVL(SELL_NM_CEO, ' ') AS "trceoNm" /* 공급자 거래처대표자명 */
+		        , AMT AS "sumAm" /* 합계액 */
+		        , AM AS "supAm" /* 공급가액 */
+		        , AM_VAT AS "vatAm" /* 부가세액 */
+		        , NVL(DC_RMK, ' ') AS "dummy1" /* 비고 */
+				, CASE WHEN FG_BILL = '1' THEN '청구' ELSE '영수' END AS "dummy2" /* 기타(영수/청구 구분) >> 영수 OR 청구 */
+		        , NVL(SELL_DAM_EMAIL, ' ') AS "emailDc" /* 공급자이메일 */
+		        , NVL(BUY_DAM_EMAIL, ' ') AS "trchargeEmail" /* 공급받는자이메일 */
+			<if test='tpTbTaxCompany == "Y"'>
+			FROM NEOE.FI_TB_TAXDOWN2
+			</if>
+			<if test='tpTbTaxCompany == "N"'>
+			FROM NEOE.FI_TB_TAXDOWN
+			</if>	
+			WHERE FG_IO = '2' /* 기본 검색조건 - 매입매출구분 */
+			<if test='tpTbTaxCompany == "Y"'>
+			  AND CD_COMPANY = #{erpCompSeq}
+			</if>
+			  AND YMD_WRITE BETWEEN #{searchFromDt} AND #{searchToDt} /* 기본 검색조건 - 기간 */
+			  AND NVL(SELL_NO_BIZ,' ') LIKE ( '%' || #{trregNb} || '%' ) /* 검색조건 - 공급자 등록번호 */
+			  AND NVL(SELL_NM_CORP,' ') LIKE ( '%' || #{trNm} || '%' ) /* 검색조건 - 공급자명 */
+			  AND NVL(NO_ISS,' ') LIKE ( '%' || #{issNo} || '%' ) /* 검색조건 - 국세청 승인번호 */
+			  AND NVL(BUY_DAM_EMAIL,' ') LIKE ( '%' || #{emailDc} || '%' ) /* 검색조건 - 공급받는자이메일 */
+	</select>
+
+	<select id="ExAdminETaxBizInfoSelect" parameterType="HashMap" resultType="HashMap">
+	
+		<![CDATA[
+
+		/* [ ERPiU - ORACLE ] ExAdminETaxBizInfoSelect -  세금계산서 조회 
+		 * 세금계산서 조회 
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-27
+         * 변경이력	
+ 		 * 2019-08-27 / 이준성 : 쿼리 확인  
+		 * 2020-06-04 / 이준성 : FI_TB_TAXDOWN2 CD_COMPANY 추가 
+ 	     */
+	
+			SELECT  
+			  tax.NO_TAX AS "issNo"
+			, biz.CD_BIZAREA AS "bizCd"
+			, biz.NM_BIZAREA AS "bizNm"
+		]]>
+		
+		<if test='tpTbTaxCompany == "Y"'>
+		FROM NEOE.FI_TB_TAXDOWN2 tax
+		INNER JOIN NEOE.MA_BIZAREA biz ON tax.CD_COMPANY = biz.CD_COMPANY AND tax.BUY_NO_BIZ = biz.NO_BIZAREA
+		</if>
+		<if test='tpTbTaxCompany == "N"'>
+		FROM NEOE.FI_TB_TAXDOWN tax
+		INNER JOIN NEOE.MA_BIZAREA biz ON tax.BUY_NO_BIZ = biz.NO_BIZAREA
+		</if>
+		
+		<![CDATA[
+		WHERE   tax.NO_TAX IN ('${issNo}')
+		AND     biz.CD_COMPANY = #{erpCoCd}
+		]]>
+		
+	</select>
+	
+	<insert id="ExAdminDocLinkList" parameterType="HashMap">
+	<![CDATA[
+	
+		/* [ ERPiU - ORACLE ] ExAdminDocLinkList -  링크 인입 
+		 * 링크 인입
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-27
+         * 변경이력	
+ 		 * 2019-08-27 / 이준성 : 쿼리 확인   
+ 	     */
+
+		INSERT INTO FI_GWDOCU_LINK ( CD_COMPANY, CD_PC, NO_DOCU, NM_LINK, DC_RMK, DOC_NO, APP_NO )
+		VALUES ( #{P_CD_COMPANY}, #{P_CD_PC}, #{P_NO_DOCU}, #{P_NM_LINK}, #{P_DC_RMK}, #{P_DOC_NO}, #{P_APP_NO} )
+	]]></insert>
+	
+	<insert id="ExAdminDocAttachListInfoInsert" parameterType="HashMap">
+	
+		/* [ ERPiU - ORACLE ] ExAdminDocAttachListInfoInsert -  전표 파일 인입 
+		 * 전표 파일 인입
+		 * 작성자 : 이준성 
+ 		 * 작성일 : 2019-08-27
+         * 변경이력	
+ 		 * 2019-08-27 / 이준성 : 쿼리 확인  
+ 	     */
+	
+		<![CDATA[
+		INSERT INTO NEOE.FI_ADOCU_FILE ( ROW_ID, NO_SEQ, NO_DOCU, CD_PC, CD_COMPANY, FILE_PATH, FILE_NAME, ID_INSERT, DTS_INSERT, YN_GW )
+		]]>
+		
+		<foreach collection="fileList" item="file" open="" close="" separator=" UNION ALL " ><![CDATA[
+			SELECT	#{file.rowId}
+					, #{file.rowNum}
+					, #{file.noDocu}
+					, #{file.cdPc}
+					, #{file.cdCompany}
+					, #{file.filePath}
+					, #{file.fileName}
+					, #{file.idInsert}
+					, #{file.dtsInsert}
+					, 'Y'
+			FROM	dual
+		]]></foreach>
+	</insert>
+</mapper>

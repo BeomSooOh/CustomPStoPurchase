@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ERPiU 공통코드 -->
+<mapper namespace="AnCommonCode">
+	<!-- 지급구분 조회 -->
+	<select id="AnCommonCode.AnCodeMosfPayFGListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnCommonCode.AnCodeMosfPayFGListInfoSelect */
+	]]></select>
+
+	<!-- 자계좌입금구분 조회 -->
+	<select id="AnCommonCode.AnCodeTransfrAcnutListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnCommonCode.AnCodeTransfrAcnutListInfoSelect */
+	]]></select>
+
+	<!-- 자계좌이체사유코드 조회 -->
+	<select id="AnCommonCode.AnCodeSbsacntTrfrsnListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnCommonCode.AnCodeSbsacntTrfrsnListInfoSelect */
+	]]></select>
+
+	<!-- 증빙구분 조회 -->
+	<select id="AnCommonCode.AnCodePrufListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnCommonCode.AnCodePrufListInfoSelect */
+	]]></select>
+
+	<!-- 거래처구분 조회 -->
+	<select id="AnCommonCode.AnCodeBcncListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnCommonCode.AnCodeBcncListInfoSelect */
+	]]></select>
+
+	<!-- 재원구분 조회 -->
+	<select id="AnCommonCode.AnCodeFnrscListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnCommonCode.AnCodeFnrscListInfoSelect */
+	]]></select>
+
+	<!-- 지급처 구분 조회 -->
+	<select id="AnCommonCode.AnCodePayFGListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnCommonCode.AnCodePayFGListInfoSelect */
+	]]></select>
+
+	<!-- 금융기관 조회 -->
+	<select id="AnCommonCode.AnCodeBankListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - ERPiU - AnCommonCode.AnCodeBankListInfoSelect */
+	]]></select>
+</mapper>

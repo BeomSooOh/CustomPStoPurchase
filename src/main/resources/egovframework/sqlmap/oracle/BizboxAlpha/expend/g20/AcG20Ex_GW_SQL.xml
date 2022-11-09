@@ -1,0 +1,1235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AcG20ExGw">
+
+    <typeAlias alias="abdocu_H" type="common.vo.g20.Abdocu_H" />
+    <typeAlias alias="abdocu_B" type="common.vo.g20.Abdocu_B" />
+    <typeAlias alias="abdocu_T" type="common.vo.g20.Abdocu_T" />
+    <typeAlias alias="abdocu_D" type="common.vo.g20.Abdocu_D" />
+    <typeAlias alias="abdocu_TH" type="common.vo.g20.Abdocu_TH" />
+    <typeAlias alias="abdocu_TD" type="common.vo.g20.Abdocu_TD" />
+    <typeAlias alias="abdocu_TD2" type="common.vo.g20.Abdocu_TD2" />
+    <typeAlias alias="aCardVO" type="common.vo.g20.ACardVO" />
+    <typeAlias alias="payDataVO" type="common.vo.g20.PayDataVO" />
+    
+    <select id="AcG20ExGw.getAbdocu_H" parameterClass="HashMap" resultClass="abdocu_H">
+        /* AcG20ExGw.Abdocu_H_SELECT - oracle */
+        SELECT *
+        FROM	G20_ABDOCU_H
+        WHERE	ABDOCU_NO	=	#abdocu_no#
+    </select>
+    
+	<insert id="AcG20ExGw.insertAbdocu_H" parameterClass="HashMap">
+        /* AcG20ExGw.insertAbdocu_H - oracle */
+        INSERT INTO G20_ABDOCU_H 
+        (
+			  ABDOCU_NO
+			, DOCU_MODE
+			, abdocu_no_reffer
+			, DOCU_FG
+			, DOCU_FG_TEXT
+			, ERP_CO_CD
+			, ERP_CO_NM
+			, ERP_YEAR, ERP_GISU, ERP_GISU_DT    /* 회계년도 , 기수, 회계일자 */
+			, ERP_GISU_FROM_DT
+			, ERP_GISU_TO_DT
+			, ERP_DIV_NM, ERP_DIV_CD
+			, ERP_DEPT_NM, ERP_DEPT_CD
+			, ERP_EMP_NM, ERP_EMP_CD 
+			, MGT_NM, MGT_CD
+			, BOTTOM_NM, BOTTOM_CD
+			, BTR_NM, BTR_CD, BTR_NB
+			, RMK_DC
+			, EDIT_PROC
+			, IT_BUSINESSLINK
+			, INSERT_ID, INSERT_DT
+<!-- 			, HC_NM, HC_CD -->
+        )
+        VALUES
+        (
+			  f_nextval('abdocuNo')
+			, #docu_mode#
+			, #abdocu_no_reffer#
+			, #docu_fg#
+			, #docu_fg_text#
+			, #erp_co_cd#
+			, #erp_co_nm#
+			, #erp_year#, #erp_gisu#, #erp_gisu_dt#
+			, #erp_gisu_from_dt#, #erp_gisu_to_dt#
+			, #erp_div_nm#, #erp_div_cd#
+			, #erp_dept_nm#, #erp_dept_cd#
+			, #erp_emp_nm#, #erp_emp_cd# 
+			, #mgt_nm_encoding#, #mgt_cd#
+			, #bottom_nm#, #bottom_cd#
+			, #btr_nm#, #btr_cd#, #btr_nb#
+			, #rmk_dc#
+			, #edit_proc#
+			, #it_businessLink#
+			, #insert_id#, SYSDATE			
+<!-- 			, #hc_nm#, #hc_cd# -->
+        )
+        <selectKey keyProperty="abdocu_no" resultClass="java.lang.String">
+<!-- 			(select SEQ_G20_ABDOCU_H.CURRVAL FROM DUAL) -->
+			 SELECT CURRVAL FROM $DB_NEOS$t_seq WHERE name  = 'abdocuNo'
+        </selectKey>
+	</insert>
+	
+	<update id="AcG20ExGw.updateAbdocu_H" parameterClass="HashMap">
+        /* AcG20ExGw.updateAbdocu_H - oracle */	
+        UPDATE G20_ABDOCU_H
+        SET    
+                  ERP_CO_CD        = #erp_co_cd#        /* 회사코드  */
+                , ERP_CO_NM        = #erp_co_nm#        /* 회사명 */  
+                , ERP_YEAR         = #erp_year#         /* 회계년도  */
+                , ERP_GISU         = #erp_gisu#         /* 기수  */
+                , ERP_GISU_FROM_DT = #erp_gisu_from_dt# /* 기수시작일  */
+                , ERP_GISU_TO_DT   = #erp_gisu_to_dt#   /* 기수종료일  */
+                , ERP_DIV_NM       = #erp_div_nm#       /* 회계단위명  */
+                , ERP_DIV_CD       = #erp_div_cd#       /* 회계단위명  */
+                , ERP_DEPT_NM      = #erp_dept_nm#      /* 부서명  */
+                , ERP_DEPT_CD      = #erp_dept_cd#      /* 부서코드 */
+                , ERP_EMP_NM       = #erp_emp_nm#       /* 사원명  */
+                , ERP_EMP_CD       = #erp_emp_cd#       /* 사원코드  */
+                , MGT_NM           = #mgt_nm_encoding#  /* 프로젝트명  */
+                , MGT_CD           = #mgt_cd#			 /* 프로젝트코드 */
+                , BOTTOM_NM        = #bottom_nm#        /* 하위사업명 */
+                , BOTTOM_CD        = #bottom_cd#        /* 하위사업코드 */
+                , BTR_NM           = #btr_nm#           /* 입출금계좌 명 */
+                , BTR_CD           = #btr_cd#           /* 입출금계좌 코드 */
+                , BTR_NB           = #btr_nb#           /* 입출금계좌 번호 */
+                , RMK_DC           = #rmk_dc#			 /* 적용 */
+                , EDIT_PROC        = #edit_proc#        /* */
+                , IT_BUSINESSLINK  = #it_businessLink#   /* 보조비연도 여부 */
+                , MODIFY_ID        = #modify_id#        /* 수장자  */
+                , MODIFY_DT        = SYSDATE            /* 수정일자 */
+        WHERE  ABDOCU_NO           = #abdocu_no#         
+	</update>
+
+	<select id="AcG20ExGw.getAbdocuB_List" parameterClass="HashMap" resultClass="abdocu_B">
+        /* AcG20ExGw.getAbdocuB_List - oracle 결의서 예산리스트 */
+        SELECT  *
+        FROM 	G20_ABDOCU_B
+        WHERE	ABDOCU_NO        = #abdocu_no#
+        ORDER BY ABDOCU_B_NO
+	</select>
+	
+	<insert id="AcG20ExGw.insertAbdocu_B" parameterClass="HashMap">
+        /* AcG20ExGw.insertAbdocu_B - oracle */	
+        INSERT INTO	G20_ABDOCU_B
+        (
+              ABDOCU_NO, ABDOCU_B_NO, ERP_CO_CD, DOCU_MODE
+            , ABGT_NM, ABGT_CD
+            , ERP_BGT_NM1, ERP_BGT_NM2, ERP_BGT_NM3, ERP_BGT_NM4, CTL_FG
+            , SET_FG, VAT_FG, TR_FG
+            , DIV_NM2, DIV_CD2, RMK_DC
+            , OPEN_AM, APPLY_AM, BANK_SQ, BANK_DT, TRAN_CD
+            , IT_USE_WAY, IT_SBGTCDLINK
+            , CONFER_RETURN
+            , INSERT_ID, INSERT_DT
+        )
+        VALUES
+        (
+              #abdocu_no#, f_nextval('abdocuBNo'), #erp_co_cd#, #docu_mode#
+            , #abgt_nm#, #abgt_cd#
+            , #erp_bgt_nm1#, #erp_bgt_nm2#, #erp_bgt_nm3#, #erp_bgt_nm4#, #ctl_fg#
+            , NVL(#set_fg#, '1'), #vat_fg#, NVL(#tr_fg#, '1')            
+            , #div_nm2#, #div_cd2#, #rmk_dc#
+            , NVL(#open_am#, 0), NVL(#apply_am#, 0), #bank_sq#, #bank_dt#, #tran_cd#            
+            , #it_use_way#, #it_sbgtcdLink#
+            , #confer_return#
+            , #insert_id#, SYSDATE
+        )
+        <selectKey keyProperty="abdocu_b_no" resultClass="java.lang.String">
+<!-- 			(select SEQ_G20_ABDOCU_B.CURRVAL from DUAL) -->
+             SELECT CURRVAL FROM $DB_NEOS$t_seq WHERE name  = 'abdocuBNo'
+        </selectKey>
+	</insert>
+	
+	<update id="AcG20ExGw.updateAbdocu_B" parameterClass="HashMap">
+	    /* AcG20ExGw.updateAbdocu_B - oracle */
+	    UPDATE	G20_ABDOCU_B
+	    SET 
+	            ABGT_NM			= NVL(#abgt_nm#, ABGT_NM)
+	          , ABGT_CD			= NVL(#abgt_cd#, ABGT_CD)
+	          , ERP_BGT_NM4		= NVL(#erp_bgt_nm4#, ERP_BGT_NM4)
+	          , ERP_BGT_NM3		= NVL(#erp_bgt_nm3#, ERP_BGT_NM3)
+	          , ERP_BGT_NM2		= NVL(#erp_bgt_nm2#, ERP_BGT_NM2)
+	          , ERP_BGT_NM1		= NVL(#erp_bgt_nm1#, ERP_BGT_NM1)
+	          , CTL_FG			= NVL(#ctl_fg#, CTL_FG)
+	          , SET_FG			= NVL(#set_fg#, SET_FG)
+	          , VAT_FG			= NVL(#vat_fg#, VAT_FG)
+	          , TR_FG			= NVL(#tr_fg#, TR_FG)
+	          , DIV_NM2			= NVL(#div_nm2#, DIV_NM2)
+	          , DIV_CD2			= NVL(#div_cd2#, DIV_CD2)
+	          , RMK_DC			= NVL(#rmk_dc#, RMK_DC)
+	          , OPEN_AM			= NVL(#open_am#, OPEN_AM)
+	          , APPLY_AM		= NVL(#apply_am#, APPLY_AM)
+	          , TRAN_CD			= NVL(#tran_cd#, TRAN_CD)
+	          , IT_USE_WAY		= #it_use_way#
+	          , BANK_SQ			= NVL(#bank_sq#, BANK_SQ)
+	          , BANK_DT			= NVL(#bank_dt#, BANK_DT)
+	          , IT_SBGTCDLINK   = #it_sbgtcdLink#
+	          , MODIFY_ID		= #modify_id#
+	          , MODIFY_DT		= SYSDATE
+		WHERE	ABDOCU_B_NO		= #abdocu_b_no#
+
+	</update>	
+
+	<select id="AcG20ExGw.getBudgetConsUseAmt" parameterClass="HashMap" resultClass="java.util.HashMap">
+	    /* AcG20ExGw.getBudgetConsUseAmt - oracle */
+		SELECT /*+ INDEX(H IDX_G20_ABDOCU_H_MGT_CD )  INDEX(B IDX_G20_ABDOCU_B_BGT_CD) */
+		CASE	WHEN	#DOCU_MODE# = '0' 
+						AND	COUNT((SELECT B2.ABDOCU_NO FROM G20_ABDOCU_B B2 WHERE B2.ABDOCU_NO = B.ABDOCU_NO AND B.ABDOCU_B_NO = B2.ABDOCU_B_NO)) > 0
+				THEN	NVL(SUM(NVL(APPLY_AM,0)),0)
+							+ NVL(SUM((SELECT APPLY_AM FROM G20_ABDOCU_B B2 WHERE B2.CONFER_RETURN = B.ABDOCU_B_NO)), 0) || ''
+        		ELSE	NVL(SUM(NVL(APPLY_AM,0)),0) || ''	
+        		END		AS APPLY_AM,
+				NVL(SUM(NVL(OPEN_AM, 0)),0) || '' AS OPEN_AM,
+				NVL(SUM(NVL(OPEN_AM, 0)) - SUM(NVL(APPLY_AM,0)),0) || '' AS LEFT_AM
+		FROM 	G20_ABDOCU_H H
+		JOIN 	G20_ABDOCU_B B
+		ON 		H.ABDOCU_NO = B.ABDOCU_NO
+		AND 	C_DIKEYCODE IS NOT NULL
+		AND		H.DOCU_MODE = #DOCU_MODE#
+		AND     H.ERP_CO_CD = #CO_CD#
+		AND		H.MGT_CD 	= #MGT_CD#
+		AND		B.ABGT_CD 	= #BGT_CD#
+		AND     H.ERP_DIV_CD =  #DIV_CD# 
+		AND     H.ERP_GISU_FROM_DT =  #FROM_DT# 
+		AND     H.ERP_GISU_TO_DT = #TO_DT#
+		AND     H.ERP_GISU_DT BETWEEN #FROM_DT# AND #TO_DT#
+		JOIN	    ERPGWLINK LINK
+		ON		LINK.APPR_DIKEY =  H.C_DIKEYCODE
+		AND		APPR_STATUS IN ('002', '003', '008', '009')    
+		<isNotEmpty property="BOTTOM_CD">
+            AND H.BOTTOM_CD = #BOTTOM_CD# 
+        </isNotEmpty>
+	</select>
+
+	<select id="AcG20ExGw.getBudgetRefResUseAmt" parameterClass="HashMap" resultClass="java.util.HashMap">
+	    /* AcG20ExGw.getBudgetRefResUseAmt - oracle */
+		SELECT	/*+ INDEX(H IDX_G20_ABDOCU_H_MGT_CD )  INDEX(B IDX_G20_ABDOCU_B_BGT_CD) */
+				NVL(SUM(NVL(APPLY_AM,0)),0) || '' AS APPLY_AM,
+				NVL(SUM(NVL(OPEN_AM, 0)),0) || '' AS OPEN_AM,
+				NVL(SUM(NVL(OPEN_AM, 0)) - SUM(NVL(APPLY_AM,0)),0) || '' AS LEFT_AM
+		FROM 	G20_ABDOCU_H H
+		JOIN 	G20_ABDOCU_B B
+		ON		H.ABDOCU_NO		= B.ABDOCU_NO
+		AND		C_DIKEYCODE IS NOT NULL
+		AND		H.ABDOCU_NO_REFFER IS NOT NULL
+		AND		H.DOCU_MODE		= #DOCU_MODE#
+		AND     H.ERP_CO_CD     = #CO_CD#
+		AND     H.ERP_DIV_CD    = #DIV_CD#
+		AND		H.MGT_CD		= #MGT_CD#
+		AND		B.ABGT_CD		= #BGT_CD#
+		AND     H.ERP_GISU_FROM_DT =  #FROM_DT# 
+		AND     H.ERP_GISU_TO_DT = #TO_DT#
+		AND     H.ERP_GISU_DT BETWEEN #FROM_DT# AND #TO_DT#
+		JOIN	    ERPGWLINK LINK
+		ON 		LINK.APPR_DIKEY	=  H.C_DIKEYCODE
+		AND		APPR_STATUS IN ('002', '003', '008', '009')
+        <isNotEmpty property="BOTTOM_CD">
+            AND H.BOTTOM_CD = #BOTTOM_CD# 
+        </isNotEmpty>		
+	</select>
+	
+<!-- 	<delete id="AcG20ExGw.deleteAbdocu_H" parameterClass="HashMap"> -->
+<!-- 	    /* AcG20ExGw.deleteAbdocu_H - oracle */ -->
+<!-- 	    DELETE  FROM	G20_ABDOCU_H -->
+<!-- 		WHERE	ABDOCU_NO		= #abdocu_no# -->
+<!-- 	</delete> -->
+		
+	<delete id="AcG20ExGw.deleteAbdocu_B" parameterClass="HashMap">
+	    /* AcG20ExGw.deleteAbdocu_B - oracle */
+	    DELETE  FROM	G20_ABDOCU_B
+	    WHERE	ABDOCU_NO		= #abdocu_no#
+	    <isNotEmpty>
+	    AND 	ABDOCU_B_NO		= #abdocu_b_no#
+	    </isNotEmpty>
+	</delete>	
+	
+	<select id="AcG20ExGw.getAbdocuT_List" parameterClass="HashMap" resultClass="abdocu_T">
+	    /* AcG20ExGw.getAbdocuT_List - oracle */
+	    SELECT *
+	    FROM   G20_ABDOCU_T
+	    WHERE  ABDOCU_B_NO	=	#abdocu_b_no#
+	    ORDER BY ABDOCU_T_NO ASC
+	</select>
+	
+	<insert id="AcG20ExGw.insertAbdocu_T" parameterClass="HashMap">
+	    /* AcG20ExGw.insertAbdocu_T - oracle */
+	    INSERT INTO G20_ABDOCU_T
+	    (
+	          ABDOCU_NO, ABDOCU_B_NO, ABDOCU_T_NO, ABDOCU_NO_REFFER
+	        , ERP_CO_CD, DOCU_MODE
+	        , TR_NM, TR_CD
+	        , ITEM_NM, ITEM_CNT, ITEM_AM
+	        , UNIT_AM, SUP_AM, VAT_AM, WD_AM
+	        , RSTX_AM, NDEP_AM, INTX_AM, INAD_AM
+	        , JIRO_NM, JIRO_CD
+	        , CTR_NM, CTR_CD, CTR_APPDT
+	        , CEO_NM, BTR_NM, BTR_CD, BA_NB, DEPOSITOR
+	        , ATTR_NM, PPL_NB, ADDR, TEL, REG_NB, CHAIN_NAME
+	        , TRAN_CD, TAX_DT, RMK_DC, REF_ABIN_LN_NO
+	        , LINK_TYPE, IT_USE_NO, IT_USE_DT, IT_CARD_NO, ISS_SQ, ISS_DT
+	        , ETCRVRS_YM, ETCDUMMY1, ETCDATA_CD, ETCDIV_CD, ET_YN, EDIT_PROC
+	        , CMS_NAME, BK_SQ, BANK_SQ, BANK_DT
+	        , TR_FG ,TR_FG_NM , EMP_NM
+	        , TRCHARGE_EMP, ETCRATE, CTR_CARD_NUM
+	        , INSERT_ID, INSERT_DT
+	    )
+	    VALUES
+	    (
+	          #abdocu_no#, #abdocu_b_no#, f_nextval('abdocuTNo'), #abdocu_no_reffer#
+	        , #erp_co_cd#, #docu_mode#
+	        , #tr_nm#, #tr_cd#
+	        , #item_nm#, #item_cnt#, #item_am#
+	        , #unit_am#, #sup_am#, #vat_am#, #wd_am#
+	        , #rstx_am#, #ndep_am#, #intx_am#, #inad_am#
+	        , #jiro_nm#, #jiro_cd#
+	        , #ctr_nm#, #ctr_cd#, #ctr_appdt#
+	        , #ceo_nm#, #btr_nm#, #btr_cd#, #ba_nb#, #depositor#
+	        , #attr_nm#, #ppl_nb#, #addr#, #tel#, #reg_nb#, #chain_name#
+	        , #tran_cd#, #tax_dt#, #rmk_dc#, #ref_abin_ln_no#
+	        , #link_type#, #it_use_no#, #it_use_dt#, #it_card_no#
+	        , #iss_sq#, #iss_dt#
+	        , #etcrvrs_ym#, #etcdummy1#, #etcdata_cd#, #etcdiv_cd#, #et_yn#, #edit_proc#
+	        , #cms_name#, #bk_sq#, NVL(#bank_sq#, 0), #bank_dt#
+	        , #tr_fg# ,#tr_fg_nm#, #emp_nm#
+	        , #trcharge_emp#, #etcrate#, #ctr_card_num#
+	        , #insert_id#, SYSDATE
+	    )
+	    <selectKey keyProperty="abdocu_t_no" resultClass="java.lang.String">
+<!-- 	    (select SEQ_G20_ABDOCU_T.CURRVAL from DUAL) -->
+	        SELECT CURRVAL FROM $DB_NEOS$t_seq WHERE name  = 'abdocuTNo'
+	    </selectKey>
+	</insert>
+	
+	<update id="AcG20ExGw.updateAbdocu_T" parameterClass="HashMap">
+	    /* AcG20ExGw.updateAbdocu_T - oracle */
+	    UPDATE G20_ABDOCU_T
+	    SET     TR_NM				= NVL(#tr_nm#,TR_NM)
+	          , TR_CD				= NVL(#tr_cd#,TR_CD)
+	          , ITEM_NM				= NVL(#item_nm#,ITEM_NM)
+	          , ITEM_CNT			= NVL(#item_cnt#,ITEM_CNT)
+	          , ITEM_AM             = NVL(#item_am#,ITEM_AM)
+	          , JIRO_NM				= NVL(#jiro_nm#,JIRO_NM)
+	          , JIRO_CD				= NVL(#jiro_cd#,JIRO_CD)
+	          , TEL					= NVL(#tel#,TEL)
+	          , TAX_DT				= NVL(#tax_dt#,TAX_DT)
+	          , UNIT_AM				= NVL(#unit_am#, UNIT_AM)
+	          , SUP_AM				= NVL(#sup_am#,SUP_AM)
+	          , VAT_AM				= NVL(#vat_am#,VAT_AM)
+	          , WD_AM				= NVL(#wd_am#,WD_AM)
+	          , RSTX_AM				= NVL(#rstx_am#,RSTX_AM)
+	          , NDEP_AM				= NVL(#ndep_am#,NDEP_AM)
+	          , INTX_AM				= NVL(#intx_am#,INTX_AM)
+	          , INAD_AM				= NVL(#inad_am#,INAD_AM)
+	          , RMK_DC				= NVL(#rmk_dc#,RMK_DC)
+	          , REG_NB				= NVL(#reg_nb#,REG_NB)
+	          , REF_ABIN_LN_NO		= NVL(#ref_abin_ln_no#,REF_ABIN_LN_NO)
+	          , LINK_TYPE			= NVL(#link_type#,LINK_TYPE)
+	          , IT_USE_NO			= NVL(#it_use_no#,IT_USE_NO)
+	          , IT_USE_DT			= NVL(#it_use_dt#,IT_USE_DT)
+	          , IT_CARD_NO			= NVL(#it_card_no#,IT_CARD_NO)
+	          , ISS_SQ				= NVL(#iss_sq#,ISS_SQ)
+	          , ISS_DT				= NVL(#iss_dt#,ISS_DT)
+	          , ETCRVRS_YM			= NVL(#etcrvrs_ym#,ETCRVRS_YM)
+	          , ETCDUMMY1			= NVL(#etcdummy1#,ETCDUMMY1)
+	          , ETCDATA_CD          = NVL(#etcdata_cd#,ETCDATA_CD)
+	          , ETCDIV_CD			= NVL(#etcdiv_cd#,ETCDIV_CD)
+	          , ET_YN				= NVL(#et_yn#,ET_YN)
+	          , EDIT_PROC			= NVL(#edit_proc#,EDIT_PROC)
+	          , DEPOSITOR			= NVL(#depositor#,DEPOSITOR)
+	          , CTR_NM				= NVL(#ctr_nm#,CTR_NM)
+	          , CTR_CD				= NVL(#ctr_cd#,CTR_CD)
+	          , CTR_APPDT			= NVL(#ctr_appdt#,CTR_APPDT)
+	          , CMS_NAME			= NVL(#cms_name#,CMS_NAME)
+	          , CHAIN_NAME			= NVL(#chain_name#,CHAIN_NAME)
+	          , CEO_NM				= NVL(#ceo_nm#,CEO_NM)
+	          , BTR_NM				= NVL(#btr_nm#,BTR_NM)
+	          , BTR_CD				= NVL(#btr_cd#,BTR_CD)
+	          , BK_SQ				= NVL(#bk_sq#,BK_SQ)
+	          , BANK_SQ				= NVL(#bank_sq#,BANK_SQ)
+	          , BANK_DT				= NVL(#bank_dt#,BANK_DT)
+	          , BA_NB				= NVL(#ba_nb#,BA_NB)
+	          , EMP_NM				= NVL(#emp_nm#,EMP_NM)
+	          , TR_FG				= NVL(#tr_fg#,TR_FG)
+	          , TR_FG_NM			= NVL(#tr_fg_nm#,TR_FG_NM)
+	          , ATTR_NM				= NVL(#attr_nm#,ATTR_NM)
+	          , PPL_NB				= NVL(#ppl_nb#,PPL_NB)
+	          , ADDR				= NVL(#addr#,ADDR)
+	          , TRCHARGE_EMP		= NVL(#trcharge_emp#,TRCHARGE_EMP)
+	          , ETCRATE             = NVL(#etcrate#,ETCRATE)
+	          , CTR_CARD_NUM        = NVL(#ctr_card_num#,CTR_CARD_NUM)
+			  , MODIFY_ID			= NVL(#modify_id#,MODIFY_ID)
+	          , MODIFY_DT			= SYSDATE
+	    WHERE	ABDOCU_T_NO			= #abdocu_t_no#
+	</update>
+		
+	<delete id="AcG20ExGw.deleteAbdocu_T" parameterClass="HashMap">
+	    /* AcG20ExGw.deleteAbdocu_T - oracle */
+	    DELETE  FROM	G20_ABDOCU_T
+	    WHERE	ABDOCU_T_NO		= #abdocu_t_no#
+	</delete>	
+	
+	
+	<update id="AcG20ExGw.updateAbdocuB_ApplyAm" parameterClass="HashMap">
+	    /* AcG20ExGw.updateAbdocuB_ApplyAm - oracle */
+	    UPDATE	G20_ABDOCU_B
+	    SET		APPLY_AM = (SELECT SUM(UNIT_AM) FROM G20_ABDOCU_T WHERE ABDOCU_B_NO = #abdocu_b_no#)
+	    WHERE ABDOCU_B_NO	= #abdocu_b_no#
+	</update>
+	
+	<select id="AcG20ExGw.getAbdocuB_One" parameterClass="HashMap" resultClass="abdocu_B">
+        SELECT  *
+		FROM 	G20_ABDOCU_B
+		WHERE 	ABDOCU_B_NO		= #abdocu_b_no#	
+	</select>
+	
+	<select id="AcG20ExGw.getBgtApplyAmSumThis" parameterClass="HashMap" resultClass="Abdocu_B">
+	    /* AcG20ExGw.getBudgetApplyAmSumThis - oracle 예산별 집행액 총합 */
+	    SELECT  
+	          NVL(SUM(NVL(APPLY_AM, 0)), 0) AS APPLY_AM
+	    FROM  G20_ABDOCU_B
+	    WHERE ABDOCU_NO = #abdocu_no#
+	    AND   ABGT_CD = #abgt_cd#
+	</select>
+
+	<select id="AcG20ExGw.getBgtApplyAmSumReffer" parameterClass="HashMap" resultClass="Abdocu_B">
+	    /* AcG20ExGw.getBgtApplyAmSumReffer - oracle */
+	    SELECT
+	            (( SELECT	
+	                     NVL(SUM(NVL(APPLY_AM, 0)), 0) AS APPLY_AM
+	              FROM	 G20_ABDOCU_H H
+	              JOIN	 G20_ABDOCU_B B
+	              ON	 H.ABDOCU_NO		= B.ABDOCU_NO
+	              JOIN	 ERPGWLINK LINK
+	              ON	 LINK.APPR_DIKEY =  H.C_DIKEYCODE
+	              AND	 APPR_STATUS IN ('002', '003', '008', '009')  					
+	              WHERE	 H.ABDOCU_NO_REFFER = #abdocu_no_reffer#
+	              AND    B.ABDOCU_B_NO_REFFER = #abdocu_b_no_reffer#
+	              AND	 B.ABGT_CD = #abgt_cd#)  
+	              + 
+	             ( SELECT 
+	                    NVL(SUM(NVL(APPLY_AM, 0)), 0)
+	              FROM	G20_ABDOCU_B
+	              WHERE	ABDOCU_B_NO = #abdocu_b_no#
+	              )
+	            ) AS APPLY_AM   <!-- 결의금액합계  (현 결의서결의금액 포함)-->
+	         ,  ( SELECT	
+	                    NVL(SUM(NVL(APPLY_AM, 0)), 0) AS APPLY_AM
+	              FROM	G20_ABDOCU_H H
+	              JOIN	G20_ABDOCU_B B
+	              ON		H.ABDOCU_NO		= B.ABDOCU_NO
+	              JOIN	ERPGWLINK LINK
+	              ON		LINK.APPR_DIKEY =  H.C_DIKEYCODE
+	              AND		APPR_STATUS IN ('002', '003', '008', '009')  					
+	              WHERE	H.ABDOCU_NO = #abdocu_no_reffer#
+	              AND	B.ABGT_CD = #abgt_cd#
+	              AND   B.ABDOCU_B_NO = #abdocu_b_no_reffer#
+	             ) AS OPEN_AM   <!-- 품의금액 --> 
+	    FROM DUAL
+	</select>
+	
+	<select id="AcG20ExGw.getResApplyAmThis" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    /* AcG20ExGw.getResApplyAmThis - oracle */
+        SELECT SUM(NVL(APPLY_AM,0))|| '' AS APPLY_AM
+        FROM  G20_ABDOCU_H H
+        JOIN    G20_ABDOCU_B B
+        ON      H.ABDOCU_NO = B.ABDOCU_NO
+        AND     H.DOCU_MODE = '1'
+        AND     H.MGT_CD    = #MGT_CD#
+        AND     B.ABGT_CD   = #BGT_CD#
+        AND     H.ABDOCU_NO = #abDocuNo#
+        AND     H.ABDOCU_NO_REFFER IS NOT NULL
+    </select> 
+	
+	<select id="AcG20ExGw.getReferConfer" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+	    /* AcG20ExGw.getReferConfer - oracle 품의문서 리스트 (참조품의) */
+	    SELECT 
+	            CASE WHEN T.CONFER_RETURN <![CDATA[ > ]]> ' ' THEN 'rollBack'
+	                 ELSE CASE WHEN OPEN_AM - APPLY_AM  <![CDATA[ <> ]]>  0  THEN  'return' ELSE '' END 
+	            END AS BUTTON
+	          , DOCU_FG_TEXT
+	          , DOCNUMBER
+	          , USERNAME
+	          , MGT_NM
+	          , MGT_CD
+	          , ABGT_NM
+	          , ABDOCU_NO
+	          ,	ABDOCU_B_NO
+	          , TO_CHAR(OPEN_AM,'999,999,999,999,999,999,999,999') AS OPEN_AM
+	          , TO_CHAR(APPLY_AM,'999,999,999,999,999,999,999,999') AS APPLY_AM
+	          , RMK_DC
+	          , ERP_GISU_DT
+	          , CASE WHEN CONFER_RETURN <![CDATA[ > ]]>  ' ' THEN	'정산'
+	                 ELSE	TO_CHAR(OPEN_AM - APPLY_AM,'999,999,999,999,999,999,999,999')
+	            END AS LEFT_AM
+		FROM (
+			SELECT
+				   DOCU_FG_TEXT
+				,  $DB_NEOS$F_GETDOCNUMBER(H.C_DIKEYCODE) AS DOCNUMBER
+				,  MGT_NM, MGT_CD, B.ABGT_NM, H.ABDOCU_NO
+				,  B.APPLY_AM AS OPEN_AM
+				,  NVL((	SELECT SUM(NVL(APPLY_AM,0))
+							FROM	G20_ABDOCU_B B2
+							JOIN	G20_ABDOCU_H H2
+							ON		B2.ABDOCU_NO = H2.ABDOCU_NO
+							AND      H2.C_DIKEYCODE IS NOT NULL
+							JOIN	ERPGWLINK A2
+							ON      A2.APPR_DIKEY =  H2.C_DIKEYCODE
+							AND		NVL(A2.APPR_STATUS, '009' ) IN ('002', '003', '008', '009')   		
+    						WHERE	B2.ABDOCU_NO_REFFER = B.ABDOCU_NO
+    						AND     B2.ABDOCU_B_NO_REFFER = B.ABDOCU_B_NO
+							AND		B2.ABGT_CD = B.ABGT_CD),0) AS APPLY_AM
+				, H.RMK_DC
+				, B.ABDOCU_B_NO
+				, (SELECT CONFER_RETURN FROM G20_ABDOCU_B B2 WHERE B2.CONFER_RETURN = B.ABDOCU_B_NO AND ROWNUM = 1) CONFER_RETURN
+				, TO_CHAR(TO_DATE(H.ERP_GISU_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS ERP_GISU_DT
+				, $DB_NEOS$F_GETUSERINFO('1', REQU_USERKEY, #langCode#) AS USERNAME
+			FROM  ERPGWLINK A , 
+                  G20_ABDOCU_H H,
+                  G20_ABDOCU_B B
+            WHERE A.APPR_DIKEY = H.C_DIKEYCODE
+              AND H.ABDOCU_NO = B.ABDOCU_NO
+              AND NVL(A.APPR_STATUS, '009') IN ('008', '009')    
+              AND H.DOCU_MODE = '0'
+              AND H.C_DIKEYCODE  > ' '
+        <isEmpty property="ABDOCU_B_NO"> 
+        <isEmpty property="getConferType" >
+              AND A.REQU_USERKEY  = #empSeq#
+        </isEmpty>
+        <isNotEmpty property="getConferType" >
+           <isEqual property="getConferType"  compareValue="DEPT">
+              AND $DB_NEOS$F_GETDRAFTINFO('7','000', APPR_DIKEY) = #deptSeq#
+           </isEqual>
+           <isNotEqual property="getConferType" compareValue="DEPT">
+              AND A.REQU_USERKEY  = #empSeq#
+           </isNotEqual>
+        </isNotEmpty>                      
+              AND H.ERP_CO_CD     = #CO_CD#
+              AND B.CONFER_RETURN        IS NULL
+        <isNotEmpty property="FROM_DT" >
+              AND H.ERP_GISU_FROM_DT =  #FROM_DT# 
+              AND H.ERP_GISU_TO_DT =  #TO_DT#
+              AND H.ERP_GISU_DT BETWEEN #FROM_DT# AND #TO_DT#
+        </isNotEmpty>
+        <isEqual property="GR_FG" compareValue="1">
+              AND  H.DOCU_FG = '8'
+        </isEqual>
+        <isNotEqual property="GR_FG" compareValue="1">
+              AND  H.DOCU_FG <![CDATA[<>]]> '8'
+        </isNotEqual>           
+        <isNotEmpty property="ABGT_CD">
+              AND B.ABGT_CD = #ABGT_CD#
+        </isNotEmpty> 
+		<isNotEmpty property="searchText">
+              AND (B.ABGT_NM LIKE '%$searchText$%' OR H.MGT_NM LIKE '%$searchText_encode$%' OR $DB_NEOS$F_GETUSERINFO('1', REQU_USERKEY, #langCode#) LIKE '%$searchText$%')
+		</isNotEmpty>
+		</isEmpty>
+        <isNotEmpty property="ABDOCU_B_NO">
+              AND B.ABDOCU_B_NO	= #ABDOCU_B_NO#
+        </isNotEmpty>		
+		) T
+		WHERE	1=1
+		<isEqual property="isAllView" compareValue="001">
+		AND		(OPEN_AM - APPLY_AM)  <![CDATA[<>]]> 0
+		AND	    T.CONFER_RETURN IS NULL
+		</isEqual>
+		<isEqual property="isAllView" compareValue="002">
+		AND		(OPEN_AM - APPLY_AM) = 0
+		</isEqual>
+		ORDER BY ABDOCU_NO DESC
+	</select>
+	    
+	<select id="AcG20ExGw.getReferConferAll" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+	      <![CDATA[
+		SELECT /* AcG20ExGw.getReferConferAll 품의문서 리스트 (참조품의) 전체 */
+		CASE	WHEN T.CONFER_RETURN > ' '
+					THEN	'<input type="button" onclick="abdocu.returnConferBudgetRollBack(this)" value="예산환원취소" class="budget" />'
+        			ELSE    CASE WHEN OPEN_AM - APPLY_AM  <> 0  THEN  '<input type="button" onclick="abdocu.returnConferBudget(this)" value="예산환원" class="budget" />' ELSE '' END 
+        		END AS BUTTON,		
+		DOCU_FG_TEXT,
+		DOCNUMBER,
+        USERNAME,
+		MGT_NM,
+		MGT_CD,
+		ABGT_NM,
+		ABDOCU_NO,
+		ABDOCU_B_NO,
+		TO_CHAR(OPEN_AM,'999,999,999,999,999,999,999,999') AS OPEN_AM,
+		TO_CHAR(APPLY_AM,'999,999,999,999,999,999,999,999') AS APPLY_AM,
+		RMK_DC,
+		ERP_GISU_DT,
+		CASE	WHEN CONFER_RETURN > ' '
+					THEN	'정산'
+        			ELSE	TO_CHAR(OPEN_AM - APPLY_AM,'999,999,999,999,999,999,999,999')
+        		END AS LEFT_AM
+		FROM(
+			SELECT
+					DOCU_FG_TEXT, $DB_NEOS$F_GETDOCNUMBER(H.C_DIKEYCODE) AS DOCNUMBER,
+					MGT_NM, MGT_CD, B.ABGT_NM, H.ABDOCU_NO,
+					B.APPLY_AM AS OPEN_AM,
+					NVL((	SELECT SUM(NVL(APPLY_AM,0))
+							FROM	G20_ABDOCU_B B2
+							JOIN	    G20_ABDOCU_H H2
+							ON		B2.ABDOCU_NO = H2.ABDOCU_NO
+							AND      H2.C_DIKEYCODE IS NOT NULL
+							JOIN	    $DB_NEOS$A_DRAFTINFO A2
+							ON       A2.C_DIKEYCODE =  H2.C_DIKEYCODE
+                            AND		NVL(A2.C_DISTATUS, '009' ) IN ('002', '003', '008', '009')
+                            AND      C_DISEQNUM =          '0000000001'           		
+    						WHERE	B2.ABDOCU_NO_REFFER = B.ABDOCU_NO
+    						AND      B2.ABDOCU_B_NO_REFFER = B.ABDOCU_B_NO
+							AND		B2.ABGT_CD = B.ABGT_CD),0) AS APPLY_AM,
+					H.RMK_DC,
+					B.ABDOCU_B_NO,
+					(SELECT CONFER_RETURN FROM G20_ABDOCU_B B2 WHERE B2.CONFER_RETURN = B.ABDOCU_B_NO AND ROWNUM = 1) CONFER_RETURN, 
+					TO_CHAR(TO_DATE(H.ERP_GISU_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS ERP_GISU_DT,
+				    $DB_NEOS$F_GETUSERNAME('1', C_DIUSERKEY) AS USERNAME
+			  FROM    $DB_NEOS$A_DRAFTINFO A , 
+                       G20_ABDOCU_H H,
+                       G20_ABDOCU_B B
+             WHERE A.C_DIKEYCODE = H.C_DIKEYCODE
+               AND H.ABDOCU_NO = B.ABDOCU_NO
+               AND NVL(A.C_DISTATUS, '009' ) IN ('008', '009')    
+               AND H.DOCU_MODE = '0'
+               AND H.C_DIKEYCODE  > ' '
+               AND C_DISEQNUM = '0000000001'
+               AND H.ERP_CO_CD = #CO_CD#
+        ]]>
+        <isNotEmpty property="FROM_DT" >
+               AND H.ERP_GISU_FROM_DT =  #FROM_DT# 
+               AND H.ERP_GISU_TO_DT = #TO_DT#
+               AND H.ERP_GISU_DT BETWEEN #FROM_DT# AND #TO_DT#
+        </isNotEmpty>
+        <isNotEmpty property="ABDOCU_B_NO">
+               AND B.ABDOCU_B_NO		= #ABDOCU_B_NO#
+        </isNotEmpty>
+        <isNotEmpty property="ABGT_CD">
+               AND B.ABGT_CD		= #ABGT_CD#
+        </isNotEmpty>        
+        <isEqual property="GR_FG" compareValue="1">
+               AND  H.DOCU_FG = '8'
+        </isEqual>
+        <isNotEqual property="GR_FG" compareValue="1">
+               AND  H.DOCU_FG <![CDATA[<> ]]>'8'
+        </isNotEqual>
+               AND B.CONFER_RETURN        IS NULL
+		)T
+		WHERE	1=1
+		<isNotEqual property="isAllView" compareValue="1">
+		AND		(OPEN_AM - APPLY_AM) <![CDATA[ <> ]]>0
+		AND	 T.CONFER_RETURN IS NULL
+		</isNotEqual>
+		ORDER BY ABDOCU_NO DESC
+	</select>
+	
+	<insert id="AcG20ExGw.INSERT-ReferConfer-H" parameterClass="HashMap">
+	    /* AcG20ExGw.INSERT-ReferConfer-H - oracle */
+		INSERT INTO G20_ABDOCU_H
+		(
+			  ABDOCU_NO, abdocu_no_reffer, DOCU_MODE, DOCU_FG, DOCU_FG_TEXT
+			, ERP_CO_CD, ERP_CO_NM, ERP_YEAR, ERP_GISU, ERP_GISU_TO_DT, ERP_GISU_FROM_DT, ERP_GISU_DT
+			, ERP_DIV_NM, ERP_DIV_CD
+			, ERP_DEPT_NM, ERP_DEPT_CD
+			, ERP_EMP_NM, ERP_EMP_CD
+			, MGT_NM, MGT_CD, BOTTOM_NM, BOTTOM_CD, BTR_NM, BTR_CD, BTR_NB, RMK_DC
+			, EDIT_PROC, IT_BUSINESSLINK, INSERT_ID, INSERT_DT
+		)
+		SELECT
+				f_nextval('abdocuNo'), ABDOCU_NO, '1', #docu_fg#, #docu_fg_text#
+				, ERP_CO_CD, ERP_CO_NM, ERP_YEAR, ERP_GISU, ERP_GISU_TO_DT, ERP_GISU_FROM_DT, #erp_gisu_dt#
+				, ERP_DIV_NM, ERP_DIV_CD
+				, NVL(#erp_dept_nm#, ERP_DEPT_NM), NVL(#erp_dept_cd#, ERP_DEPT_CD)
+				, NVL(#erp_emp_nm#, ERP_EMP_NM), NVL(#erp_emp_cd#, ERP_EMP_CD)
+				, MGT_NM, MGT_CD, BOTTOM_NM, BOTTOM_CD, BTR_NM, BTR_CD, BTR_NB, RMK_DC
+				, EDIT_PROC, IT_BUSINESSLINK, #insert_id#, SYSDATE
+		FROM	G20_ABDOCU_H
+		WHERE	ABDOCU_NO		= #abdocu_no_reffer#
+		<selectKey keyProperty="abdocu_no" resultClass="java.lang.String">
+			SELECT CURRVAL FROM $DB_NEOS$t_seq WHERE name  = 'abdocuNo'
+		</selectKey>
+	</insert>	
+	
+	<select id="AcG20ExGw.SELECT-ReferConfer-B" parameterClass="HashMap" resultClass="abdocu_B">
+	    /* AcG20ExGw.SELECT-ReferConfer-B - oralce */
+		<![CDATA[
+		SELECT  #abdocu_no# AS ABDOCU_NO, f_nextval('abdocuBNo') AS ABDOCU_B_NO
+		      , #abdocu_no_reffer# AS ABDOCU_NO_REFFER, ABDOCU_B_NO AS ABDOCU_B_NO_REFFER
+			  , ERP_CO_CD, DIV_NM2, DIV_CD2
+			  , ABGT_NM, ABGT_CD, ERP_BGT_NM1, ERP_BGT_NM2, ERP_BGT_NM3, ERP_BGT_NM4
+			  , SET_FG, VAT_FG, TR_FG,	RMK_DC, IT_USE_WAY, APPLY_AM
+			  , TRAN_CD, CTL_FG, BANK_SQ, BANK_DT
+		FROM	G20_ABDOCU_B B
+		WHERE	1=1
+		AND		ABDOCU_NO		= #abdocu_no_reffer#
+		AND		(SELECT COUNT(*) FROM G20_ABDOCU_B B2 WHERE B2.CONFER_RETURN = B.ABDOCU_B_NO ) < 1
+		AND		(B.APPLY_AM - 
+						NVL((	SELECT SUM(NVL(APPLY_AM,0))
+								FROM	G20_ABDOCU_B B2
+								JOIN	G20_ABDOCU_H H2
+								ON		B2.ABDOCU_NO = H2.ABDOCU_NO
+								AND		H2.C_DIKEYCODE IS NOT NULL
+								JOIN	ERPGWLINK LINK
+								ON		LINK.APPR_DIKEY =  H2.C_DIKEYCODE
+								AND		APPR_STATUS IN ('002', '003', '008', '009')        		
+								WHERE	B2.ABDOCU_NO_REFFER = B.ABDOCU_NO
+								AND      B2.ABDOCU_B_NO_REFFER = B.ABDOCU_B_NO 
+								AND		B2.ABGT_CD = B.ABGT_CD),0)) <> 0
+		]]>
+	</select>
+
+	<insert id="AcG20ExGw.INSERT-ReferConfer-B" parameterClass="HashMap">
+	    /* AcG20ExGw.INSERT-ReferConfer-B - oracle */
+        INSERT INTO    G20_ABDOCU_B
+        (
+                ABDOCU_NO, ABDOCU_NO_REFFER, ABDOCU_B_NO, ABDOCU_B_NO_REFFER
+              , ERP_CO_CD, DOCU_MODE, DIV_NM2, DIV_CD2
+			  , ABGT_NM, ABGT_CD, ERP_BGT_NM1, ERP_BGT_NM2, ERP_BGT_NM3, ERP_BGT_NM4
+			  , SET_FG, VAT_FG, TR_FG, RMK_DC, IT_USE_WAY, APPLY_AM, OPEN_AM
+			  , TRAN_CD, CTL_FG, BANK_SQ, BANK_DT
+              , INSERT_ID,INSERT_DT 
+        )
+		VALUES
+		(   
+                #abdocu_no#, #abdocu_no_reffer#, #abdocu_b_no#, #abdocu_b_no_reffer#
+			  , #erp_co_cd#, '1', #div_nm2#, #div_cd2#
+			  , #abgt_nm#, #abgt_cd#, #erp_bgt_nm1#, #erp_bgt_nm2#, #erp_bgt_nm3#, #erp_bgt_nm4#
+              , #set_fg#, #vat_fg#, #tr_fg#, #rmk_dc#, #it_use_way#, #apply_am#, 0              
+              , #tran_cd#, #ctl_fg#, #bank_sq#, #bank_dt#
+              , #insert_id#, SYSDATE  		
+		)
+	</insert>
+	
+	<select id="AcG20ExGw.SELECT-ReferConfer-T" parameterClass="HashMap" resultClass="abdocu_T">
+	    /* AcG20ExGw.SELECT-ReferConfer-T - oracle */
+		SELECT
+	                #abdocu_no# AS ABDOCU_NO, #abdocu_b_no# AS ABDOCU_B_NO, f_nextval('abdocuTNo') AS ABDOCU_T_NO, #abdocu_no_reffer# AS ABDOCU_NO_REFFER
+	              , ERP_CO_CD
+	              , TR_NM, TR_CD, CEO_NM, BTR_NM, BTR_CD, BA_NB, ATTR_NM
+	              , JIRO_NM, JIRO_CD, TEL, ADDR, PPL_NB, REG_NB, DEPOSITOR
+	              , ITEM_NM, ITEM_CNT, ITEM_AM, TAX_DT, RMK_DC
+	              , UNIT_AM, SUP_AM, VAT_AM, NDEP_AM, INAD_AM, INTX_AM, RSTX_AM, WD_AM
+	              , ETCRVRS_YM, ETCDIV_CD, ETCDUMMY1, ET_YN
+	              , IT_USE_NO, IT_USE_DT, IT_CARD_NO
+	              , ISS_SQ, ISS_DT, BK_SQ, BANK_SQ, BANK_DT, EDIT_PROC
+	              , TRAN_CD, REF_ABIN_LN_NO, LINK_TYPE
+	              , CTR_NM, CTR_CD, CTR_APPDT
+	              , CMS_NAME, CHAIN_NAME, TR_FG, TR_FG_NM
+	              , EMP_NM, TRCHARGE_EMP					
+        FROM   
+        (
+            SELECT * FROM G20_ABDOCU_T
+            WHERE       ABDOCU_NO = #abdocu_no_reffer#
+            AND         ABDOCU_B_NO     = #abdocu_b_no_reffer#
+            ORDER BY ABDOCU_T_NO
+        ) T 
+	</select>
+
+	<insert id="AcG20ExGw.INSERT-ReferConfer-T" parameterClass="HashMap">
+	    /* AcG20ExGw.INSERT-ReferConfer-T - oracle */
+        INSERT INTO G20_ABDOCU_T
+        (
+                ABDOCU_NO, ABDOCU_B_NO, ABDOCU_T_NO, ABDOCU_NO_REFFER
+              , DOCU_MODE, ERP_CO_CD
+              , TR_NM, TR_CD, CEO_NM, BTR_NM, BTR_CD, BA_NB, ATTR_NM
+              , JIRO_NM, JIRO_CD, TEL, ADDR, PPL_NB, REG_NB, DEPOSITOR
+              , ITEM_NM, ITEM_CNT, ITEM_AM, TAX_DT, RMK_DC
+              , UNIT_AM, SUP_AM, VAT_AM, NDEP_AM, INAD_AM, INTX_AM, RSTX_AM, WD_AM
+              , ETCRVRS_YM, ETCDIV_CD, ETCDUMMY1, ET_YN
+              , IT_USE_NO, IT_USE_DT, IT_CARD_NO
+              , ISS_SQ, ISS_DT, BK_SQ, BANK_SQ, BANK_DT, EDIT_PROC
+              , TRAN_CD, REF_ABIN_LN_NO, LINK_TYPE
+              , CTR_NM, CTR_CD, CTR_APPDT
+              , CMS_NAME, CHAIN_NAME, TR_FG, TR_FG_NM
+              , EMP_NM, TRCHARGE_EMP
+              , INSERT_ID, INSERT_DT
+        )
+        VALUES
+        (   
+                #abdocu_no#, #abdocu_b_no#, #abdocu_t_no#, #abdocu_no_reffer#
+              , '1', #erp_co_cd#
+              , #tr_nm#, #tr_cd#, #ceo_nm#, #btr_nm#, #btr_cd#, #ba_nb#, #attr_nm#
+              , #jiro_nm#, #jiro_cd#, #tel#, #addr#, #ppl_nb#, #reg_nb#, #depositor#
+              , #item_nm#, #item_cnt#, #item_am#, #tax_dt#, #rmk_dc#
+              , #unit_am#, #sup_am#, #vat_am#, #ndep_am#, #inad_am#, #intx_am#, #rstx_am#, #wd_am#
+              , #etcrvrs_ym#, #etcdiv_cd#, #etcdummy1#, #et_yn#
+              , #it_use_no#, #it_use_dt#, #it_card_no#
+              , #iss_sq#, #iss_dt#, #bk_sq#, NVL(#bank_sq#, 0), #bank_dt#, #edit_proc#
+              , #tran_cd#, #ref_abin_ln_no#, #link_type#
+              , #ctr_nm#, #ctr_cd#, #ctr_appdt#
+              , #cms_name#, #chain_name#, #tr_fg#, #tr_fg_nm#
+              , #emp_nm#, #trcharge_emp# 
+              , #insert_id#, SYSDATE           
+        )
+	</insert>	
+	
+	<select id="AcG20ExGw.getConferBalance" parameterClass="HashMap" resultClass="java.lang.String">
+	    /* AcG20ExGw.getConferBalance 품의잔액 가져오기  - oracle */
+	    SELECT 
+                  TO_CHAR(OPEN_AM - APPLY_AM,'999,999,999,999,999,999,999,999') AS LEFT_AM 
+        FROM
+        (
+            SELECT 
+                    B.APPLY_AM AS OPEN_AM,
+                    NVL((    SELECT SUM(NVL(APPLY_AM,0))
+                            FROM    G20_ABDOCU_B B2
+                            JOIN    G20_ABDOCU_H H2
+                            ON        B2.ABDOCU_NO = H2.ABDOCU_NO
+                            AND      H2.C_DIKEYCODE IS NOT NULL
+                            JOIN    $DB_NEOS$A_DRAFTINFO A2
+                            ON      A2.C_DIKEYCODE =  H2.C_DIKEYCODE
+                            AND        NVL(A2.C_DISTATUS, '009') IN ('002', '003', '008', '009')                
+                            WHERE    B2.ABDOCU_NO_REFFER = B.ABDOCU_NO
+                            AND      B2.ABDOCU_B_NO_REFFER = B.ABDOCU_B_NO
+                            AND        B2.ABGT_CD = B.ABGT_CD),0) AS APPLY_AM,
+                    B.ABDOCU_B_NO
+              FROM    G20_ABDOCU_B B
+             WHERE ABDOCU_B_NO = #abdocu_b_no_reffer#
+        )	
+	</select>
+	
+    <select id="AcG20ExGw.getUseSpendStandingCnt" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        /* AcG20ExGw.getUseSpendStandingCnt - oracle */
+        SELECT COUNT(*) 
+          FROM G20_ABDOCU_H H , G20_ABDOCU_B B , ERPGWLINK EL 
+         WHERE H.ABDOCU_NO = B.ABDOCU_NO 
+           AND TO_CHAR(H.ABDOCU_NO) = EL.DOCX_NUMB
+           AND H.C_DIKEYCODE =  EL.APPR_DIKEY 
+           AND B.ABDOCU_B_NO_REFFER = #ABDOCU_B_NO#
+           AND APPR_STATUS IN ('002', '003')
+    </select>
+    
+    
+	<select id="AcG20ExGw.getReturnConferBudgetRollBackInfo" parameterClass="HashMap" resultClass="abdocu_B">
+        /* AcG20ExGw.getReturnConferBudgetRollBackInfo - oracle */
+		SELECT
+				VAT_FG, TRAN_CD, TR_FG, SET_FG, SESSIONID,
+				RMK_DC, MODIFY_ID, MODIFY_DT, IT_USE_WAY, INSERT_ID,
+				INSERT_DT, OPEN_AM, ERP_CO_CD, ERP_BGT_NM4, ERP_BGT_NM3,
+				ERP_BGT_NM2, ERP_BGT_NM1, APPLY_AM, DOCU_MODE, DIV_NM2,
+				DIV_CD2, CTL_FG, BANK_SQ, BANK_DT, ABGT_NM,
+				ABGT_CD, ABDOCU_NO, ABDOCU_NO_REFFER, ABDOCU_B_NO, CONFER_RETURN
+		FROM 	G20_ABDOCU_B
+		WHERE 	CONFER_RETURN		= #confer_return#
+	</select>  
+
+    <select id="AcG20ExGw.getACardSungin_List"  parameterClass="HashMap" resultClass="aCardVO">
+        /* AcG20ExGw.getACardSungin_List - oracle */   
+        SELECT SG.* , to_char(to_date(ISS_DT || ADMIT_DT,'YYYYMMDDHH24MISS'),'YYYY-MM-DD HH24:MI:SS') ISS_DATE
+        FROM G20_ACARD_SUNGIN SG
+        WHERE ABDOCU_NO = #abdocu_no#
+        AND ABDOCU_B_NO = #abdocu_b_no#
+    </select>    
+    
+    <select id="AcG20ExGw.getACardList" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap" >
+       /* AcG20ExGw.getACardList - oracle */
+      SELECT CARD_NUM, CARD_NAME, CARD_CO_CD, CARD_CD , CARD_CEO_NM, CARD_TR_CD, CARD_TR_NM, CARD_TR_BANB, CARD_FLAG, CARD_FLAG_NM
+        FROM(
+            SELECT CI.* 
+                      , CASE CARD_FLAG WHEN '1' THEN '법인'  WHEN '2' THEN  '개인' ELSE '기타' END AS CARD_FLAG_NM
+                      , TO_NUMBER($DB_NEOS$F_GETAUTHCHECK((
+                                                SELECT WM_CONCAT(DISTINCT CP.PUBLIC_ID) AS PUBLIC_ID
+                                                FROM A_COCARDPUBLIC CP
+                                                WHERE CP.CARD_NUM = CI.CARD_NUM
+                                            ), ',', #empSeq#
+                                                                    )) AS IS_PUBLIC
+              FROM A_COCARDINFO CI 
+              WHERE CARD_CO_CD = #erp_co_cd#
+      )
+      WHERE IS_PUBLIC > 0
+      
+    </select>    
+    
+    <delete id="AcG20ExGw.deleteACardSungin"  parameterClass="HashMap">
+         /* AcG20ExGw.deleteACardSungin - oracle */
+         DELETE FROM G20_ABDOCU_T
+          WHERE ABDOCU_NO = #abdocu_no#
+            AND ABDOCU_B_NO = #abdocu_b_no#
+            AND TRAN_CD = '301'
+    </delete>    
+
+    <insert id="AcG20ExGw.insertACardSungin" parameterClass="HashMap">
+        /* AcG20ExGw.insertACardSungin - oracle */    
+        INSERT INTO G20_ACARD_SUNGIN
+        ( 
+           ABDOCU_NO, ABDOCU_B_NO, ABDOCU_T_NO, ERP_CO_CD, ISS_DT, ISS_SQ, 
+           CHAIN_NAME, CHAIN_REGNB, SUNGIN_NB, SUNGIN_AM, VAT_AM, TOT_AM,
+           USER_TYPE, GW_STATE, GW_STATE_HAN, PKEY, CTR_CD, CTR_NM, ADMIT_DT, CHAIN_BUSINESS, CANCEL_YN
+        )
+        VALUES
+        (  
+           #abdocu_no#, #abdocu_b_no#, #abdocu_t_no#, #erp_co_cd#, replace(#ISS_DT#, '-', ''), #ISS_SQ#, 
+           #CHAIN_NAME#, #CHAIN_REGNB#, #SUNGIN_NB#, #SUNGIN_AM#, #VAT_AM#, #TOT_AM#, 
+           #USER_TYPE#, DECODE(#GW_STATE#, 'null', ''), #GW_STATE_HAN#, #PKEY#, #CTR_CD#, #CTR_NM#, #ADMIT_DT#, #CHAIN_BUSINESS#, #CANCEL_YN#
+        )   
+    </insert>   
+
+    <insert id="AcG20ExGw.insertAbdocu_T_ACard" parameterClass="HashMap">
+        /* AcG20ExGw.insertAbdocu_T_ACard - oracle */   
+            INSERT INTO G20_ABDOCU_T
+            ( ABDOCU_T_NO, ABDOCU_NO, ABDOCU_B_NO, DOCU_MODE, ERP_CO_CD,
+              TR_NM, REG_NB, UNIT_AM, SUP_AM, VAT_AM,
+              BANK_DT, BANK_SQ, CTR_CD, CTR_NM, TRAN_CD, INSERT_ID, INSERT_DT,
+              NDEP_AM, INAD_AM, INTX_AM, RSTX_AM, CTR_CARD_NUM, TAX_DT
+            )
+            VALUES
+            ( f_nextval('abdocuTNo'), #abdocu_no#, #abdocu_b_no#, '1' , #erp_co_cd#, 
+              #CHAIN_NAME#, #CHAIN_REGNB#,  #TOT_AM#,  #SUNGIN_AM# , #VAT_AM#,
+              REPLACE(#ISS_DT#, '-', ''), #ISS_SQ#,#CTR_CD#, #CTR_NM#, '301', #emp_cd#, SYSDATE,
+               '0', '0', '0', '0', #CARD_NB#, replace(#ISS_DT#, '-', '')
+            )
+        <selectKey keyProperty="abdocu_t_no" resultClass="java.lang.String">
+            SELECT CURRVAL FROM $DB_NEOS$t_seq WHERE name  = 'abdocuTNo'
+        </selectKey>
+        
+    </insert>       
+    
+    <!-- 여비명세금액 총합 -->
+    <select id="AcG20ExGw.getTravelItemsTotal" parameterClass="HashMap" resultClass="java.util.HashMap" >
+        /* AcG20ExGw.getTravelItemsTotal - oracle */
+        SELECT  SUM(TOTAL_AM) TOTAL_AM
+        FROM    G20_ABDOCU_TD2
+        WHERE   ABDOCU_NO = #abdocu_no#
+    </select>
+    
+    <!-- 일반물품명세금액 총합 -->
+    <select id="AcG20ExGw.getGoodsItemsTotal" parameterClass="HashMap" resultClass="java.util.HashMap" >
+        /* AcG20ExGw.getGoodsItemsTotal - oracle */
+        SELECT SUM(CT_AM) TOTAL_AM
+        FROM G20_ABDOCU_D
+        WHERE ABDOCU_NO = #abdocu_no#  
+    </select>
+        
+    <select id="AcG20ExGw.getAbdocuTH" parameterClass="HashMap"  resultClass="abdocu_TH">
+        /* AcG20ExGw.getAbdocuTH - oracle */
+        SELECT * FROM G20_ABDOCU_TH TH
+        WHERE ABDOCU_NO     = #abdocu_no#
+    </select>
+    
+
+    <select id="AcG20ExGw.getAbdocuTD_List" parameterClass="HashMap"  resultClass="abdocu_TD">
+        /* AcG20ExGw.getAbdocuTD_List - oracle  */
+        SELECT * FROM G20_ABDOCU_TD
+        WHERE ABDOCU_NO     = #abdocu_no#
+        ORDER BY ABDOCU_TD_NO
+    </select>    
+    
+    <select id="AcG20ExGw.getAbdocuTD2_List" parameterClass="HashMap"  resultClass="abdocu_TD2">
+        /* AcG20ExGw.getAbdocuTD2_List - oracle */
+        SELECT *
+          FROM G20_ABDOCU_TD2 TD2
+        WHERE ABDOCU_NO     = #abdocu_no#
+        ORDER BY ABDOCU_TD2_NO
+    </select>
+    
+    <insert id="AcG20ExGw.insertAbdocu_TH" parameterClass="HashMap">
+        /* AcG20ExGw.insertAbdocu_TH - oracle */
+        INSERT INTO G20_ABDOCU_TH
+        (
+            ABDOCU_NO, ABDOCU_TH_NO, ERP_CO_CD,
+            TS_DT, TE_DT, TDAY_CNT, SITE_NM, ONTRIP_NM, REQ_NM, RSV_NM, SCOST_AM, RCOST_AM, 
+            INSERT_ID, INSERT_DT, BIZTRIP_APPL_ID
+        )
+        VALUES
+        (
+            #abdocu_no#, f_nextval('abdocuTHNo'), #erp_co_cd#, 
+            #ts_dt#, #te_dt#, #tday_cnt#, #site_nm#, substr(#ontrip_nm#,1,40), #req_nm#, #rsv_nm#, #scost_am#, #rcost_am#, 
+            #insert_id#, sysdate, #biztrip_appl_id#
+        )
+        <selectKey keyProperty="abdocu_th_no" resultClass="java.lang.String">
+            SELECT CURRVAL FROM $DB_NEOS$t_seq WHERE name  = 'abdocuTHNo'
+        </selectKey>
+    </insert>    
+    
+    <update id="AcG20ExGw.updateAbdocu_TH" parameterClass="HashMap">
+        /* AcG20ExGw.updateAbdocu_TH - oracle */
+        UPDATE  G20_ABDOCU_TH
+        SET 
+                TS_DT          = NVL(#ts_dt#, TS_DT),
+                TE_DT          = NVL(#te_dt#, TE_DT),
+                TDAY_CNT       = NVL(#tday_cnt#, TDAY_CNT),
+                SITE_NM        = NVL(#site_nm#, SITE_NM),
+                ONTRIP_NM      = NVL(#ontrip_nm#, ONTRIP_NM),
+                REQ_NM         = NVL(#req_nm#, REQ_NM),
+                RSV_NM         = NVL(#rsv_nm#, RSV_NM),
+                SCOST_AM       = NVL(#scost_am#, SCOST_AM),
+                RCOST_AM       = NVL(#rcost_am#, RCOST_AM),
+                MODIFY_ID      = NVL(#modify_id#, MODIFY_ID),
+                MODIFY_DT      = sysdate
+        WHERE   ABDOCU_TH_NO   = #abdocu_th_no#
+        AND     ABDOCU_NO      = #abdocu_no#
+    </update>     
+    
+    
+    <delete id="AcG20ExGw.deleteAbdocu_TH" parameterClass="HashMap">
+        /* AcG20ExGw.deleteAbdocu_TH - oracle */
+          DELETE  
+          FROM    G20_ABDOCU_TH
+          WHERE   ABDOCU_NO     = #abdocu_no#
+        <isNotEmpty property="abdocu_th_no">
+          AND     ABDOCU_TH_NO       = #abdocu_th_no#
+        </isNotEmpty>
+    </delete>
+    
+    <update id="AcG20ExGw.updateAbdocu_TD" parameterClass="HashMap">
+        /* AcG20ExGw.updateAbdocu_TD - oracle  */
+        UPDATE  G20_ABDOCU_TD
+        SET 
+                JONG_NM          = NVL(#jong_nm#, JONG_NM),
+                JKM_CNT          = NVL(#jkm_cnt#, JKM_CNT),
+                JGRADE           = NVL(#jgrade#, JGRADE),
+                JUNIT_AM         = NVL(#junit_am#, JUNIT_AM),
+                JTOT_AM          = NVL(#jtot_am#, JTOT_AM)
+        WHERE   ABDOCU_TD_NO     = #abdocu_td_no#
+        AND     ABDOCU_NO        = #abdocu_no#
+    </update>    
+    
+    <insert id="AcG20ExGw.insertAbdocu_TD" parameterClass="HashMap">
+        /* AcG20ExGw.insertAbdocu_TD - oracle */
+        INSERT INTO G20_ABDOCU_TD
+        (
+                ABDOCU_NO, ABDOCU_TD_NO, ERP_CO_CD,
+                JONG_NM, JKM_CNT, JGRADE, JUNIT_AM, JTOT_AM
+        )
+        VALUES
+        (
+                #abdocu_no#, f_nextval('abdocuTDNo'), #erp_co_cd#, 
+                #jong_nm#, #jkm_cnt#, #jgrade#, #junit_am#, #jtot_am#
+        )
+       <selectKey keyProperty="abdocu_td_no" resultClass="java.lang.String">
+          SELECT CURRVAL FROM $DB_NEOS$t_seq WHERE name  = 'abdocuTDNo'
+       </selectKey>
+    </insert>    
+        
+    <delete id="AcG20ExGw.deleteAbdocu_TD" parameterClass="HashMap">
+        /* AcG20ExGw.deleteAbdocu_TD - oracle  */
+          DELETE  
+          FROM    G20_ABDOCU_TD
+          WHERE   ABDOCU_NO     = #abdocu_no#
+        <isNotEmpty property="abdocu_td_no">
+          AND     ABDOCU_TD_NO       = #abdocu_td_no#
+        </isNotEmpty>
+    </delete>   
+    
+   <update id="AcG20ExGw.updateAbdocu_TD2" parameterClass="HashMap">
+       /* AcG20ExGw.updateAbdocu_TD2 - oracle */
+        UPDATE  G20_ABDOCU_TD2
+        SET 
+                DEPT_NM          = NVL(#dept_nm#, DEPT_NM),
+                HCLS_NM          = NVL(#hcls_nm#, HCLS_NM),
+                EMP_NM           = NVL(#emp_nm#, EMP_NM),
+                TRIP_DT          = NVL(#trip_dt#, TRIP_DT),
+                TRIP_DT2         = NVL(#trip_dt2#, TRIP_DT2),
+                NT_CNT           = NVL(#nt_cnt#, NT_CNT),
+                DAY_CNT          = NVL(#day_cnt#, DAY_CNT),
+                START_NM         = NVL(#start_nm#, START_NM),
+                CROSS_NM         = NVL(#cross_nm#, CROSS_NM),
+                ARR_NM           = NVL(#arr_nm#, ARR_NM),
+                JONG_NM          = NVL(#jong_nm#, JONG_NM),
+                KM_AM            = NVL(#km_am#, KM_AM),
+                FAIR_AM          = NVL(#fair_am#, FAIR_AM),
+                DAY_AM           = NVL(#day_am#, DAY_AM),
+                FOOD_AM          = NVL(#food_am#, FOOD_AM),
+                ROOM_AM          = NVL(#room_am#, ROOM_AM),
+                OTHER_AM         = NVL(#other_am#, OTHER_AM),
+                TOTAL_AM         = NVL(#total_am#, TOTAL_AM),
+                TRMK_DC          = NVL(#trmk_dc#, TRMK_DC),
+                NA_DAY_AM		 = NVL(#na_day_am#, NA_DAY_AM),
+                NA_ROOM_AM		 = NVL(#na_room_am#, NA_ROOM_AM),
+                NA_FOOD_AM		 = NVL(#na_food_am#, NA_FOOD_AM)
+        WHERE   ABDOCU_TD2_NO    = #abdocu_td2_no#
+        AND     ABDOCU_NO        = #abdocu_no#
+    </update>
+    
+    <insert id="AcG20ExGw.insertAbdocu_TD2" parameterClass="HashMap">
+        /* AcG20ExGw.insertAbdocu_TD2 - oracle  */   
+        INSERT INTO G20_ABDOCU_TD2
+        (
+             ABDOCU_NO, ABDOCU_TD2_NO, ERP_CO_CD,
+             DEPT_NM, HCLS_NM, EMP_NM, TRIP_DT, NT_CNT, DAY_CNT, START_NM, CROSS_NM, ARR_NM, 
+             JONG_NM, KM_AM, FAIR_AM, DAY_AM, FOOD_AM, ROOM_AM, OTHER_AM, TOTAL_AM, TRMK_DC,
+             BIZTRIP_APPL_ID , BIZTRIP_NO_SEQ, TRIP_DT2, NA_DAY_AM, NA_ROOM_AM, NA_FOOD_AM
+        )
+        VALUES
+        (
+             #abdocu_no#, f_nextval('abdocuTD2No'), #erp_co_cd#, 
+             #dept_nm#, #hcls_nm#, #emp_nm#, #trip_dt#, #nt_cnt#, #day_cnt#, #start_nm#, #cross_nm#, #arr_nm#,
+             #jong_nm#, #km_am#, #fair_am#, #day_am#, #food_am#, #room_am#, #other_am#, #total_am#, #trmk_dc#,
+             #biztrip_appl_id#, #biztrip_no_seq#, #trip_dt2#, #na_day_am#, #na_room_am#, #na_food_am#
+        )
+        <selectKey keyProperty="abdocu_td2_no" resultClass="java.lang.String">
+            SELECT CURRVAL FROM $DB_NEOS$t_seq WHERE name  = 'abdocuTD2No'
+        </selectKey>
+    </insert>   
+        
+    <delete id="AcG20ExGw.deleteAbdocu_TD2" parameterClass="HashMap">
+        /* AcG20ExGw.deleteAbdocu_TD2 - oracle */
+          DELETE  
+          FROM    G20_ABDOCU_TD2
+          WHERE   ABDOCU_NO     = #abdocu_no#
+        <isNotEmpty property="abdocu_td2_no">
+          AND     ABDOCU_TD2_NO       = #abdocu_td2_no#
+        </isNotEmpty>
+    </delete>        
+    
+    <select id="AcG20ExGw.getAbdocuD_List" parameterClass="HashMap"  resultClass="abdocu_D">
+        /* AcG20ExGw.getAbdocuD_List - oracle */
+        SELECT *
+        FROM    G20_ABDOCU_D
+        WHERE   ABDOCU_NO        = #abdocu_no#
+        ORDER BY ABDOCU_D_NO
+    </select>    
+        
+    <update id="AcG20ExGw.updateAbdocu_D" parameterClass="HashMap">
+        /* AcG20ExGw.updateAbdocu_D - oracle */
+        UPDATE  G20_ABDOCU_D
+        SET 
+                ITEM_NM          = NVL(#item_nm#, ITEM_NM),
+                ITEM_DC          = NVL(#item_dc#, ITEM_DC),
+                UNIT_DC          = NVL(#unit_dc#, UNIT_DC),
+                CT_QT            = NVL(#ct_qt#, CT_QT),
+                UNIT_AM          = NVL(#unit_am#, UNIT_AM),
+                CT_AM            = NVL(#ct_am#, CT_AM),
+                RMK_DC           = NVL(#rmk_dc#, RMK_DC),
+                MODIFY_ID        = NVL(#modify_id#, MODIFY_ID),
+                MODIFY_DT        = sysdate
+        WHERE   ABDOCU_D_NO      = #abdocu_d_no#
+        AND     ABDOCU_NO        = #abdocu_no#
+    </update> 
+        
+    <insert id="AcG20ExGw.insertAbdocu_D" parameterClass="HashMap">
+        /* AcG20ExGw.insertAbdocu_D - oracle */
+            INSERT INTO G20_ABDOCU_D
+            (
+                ABDOCU_NO, ABDOCU_D_NO, ERP_CO_CD,
+                ITEM_NM, ITEM_DC, UNIT_DC, CT_QT, UNIT_AM, CT_AM, RMK_DC,
+                INSERT_ID, INSERT_DT
+            )
+            VALUES
+            (
+                #abdocu_no#, f_nextval('abdocuDNo'), #erp_co_cd#, 
+                #item_nm#, #item_dc#, #unit_dc#, #ct_qt#, #unit_am#, #ct_am#, #rmk_dc#, 
+                #insert_id#, sysdate
+            )
+        <selectKey keyProperty="abdocu_d_no" resultClass="java.lang.String">
+            SELECT CURRVAL FROM $DB_NEOS$t_seq WHERE name  = 'abdocuDNo'
+        </selectKey>
+    </insert>
+            
+    <delete id="AcG20ExGw.deleteAbdocu_D" parameterClass="HashMap">
+        /* AcG20ExGw.deleteAbdocu_D - oracle */
+         DELETE  
+         FROM    G20_ABDOCU_D
+         WHERE   ABDOCU_NO     = #abdocu_no#
+        <isNotEmpty property="abdocu_d_no">
+         AND     ABDOCU_D_NO       = #abdocu_d_no#
+        </isNotEmpty>
+    </delete>    
+    
+    
+    <select id="AcG20ExGw.getETCDUMMY1" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+        /* AcG20ExGw.getETCDUMMY1 - oracle */
+        SELECT * FROM
+        (    SELECT ETCDUMMY1, ETCDATA_CD FROM
+             (    
+                   SELECT ETCDUMMY1, G20T.ETCDATA_CD, G20H.ABDOCU_NO,  G20H.C_DIKEYCODE 
+                    FROM G20_ABDOCU_T G20T , G20_ABDOCU_B G20B, G20_ABDOCU_H G20H
+                   WHERE G20B.ABDOCU_NO = G20H.ABDOCU_NO  
+                     AND G20T.ABDOCU_NO = G20H.ABDOCU_NO
+                     AND G20H.ERP_CO_CD = #CO_CD#
+                     AND G20B.TR_FG = '4'
+                     AND G20T.TR_CD = #TR_CD#
+              ) G20, ERPGWLINK GW
+              WHERE  TO_CHAR(G20.ABDOCU_NO) = DOCX_NUMB
+              AND    APPR_STATUS <![CDATA[ >= ]]> '002'
+              ORDER BY ABDOCU_NO DESC
+         )
+         WHERE ROWNUM = 1
+     </select>
+     
+    <update id="AcG20ExGw.updateAbdocuCause" parameterClass="HashMap">
+        /* AcG20ExGw.updateAbdocuCause - oracle */
+        UPDATE G20_ABDOCU_H
+           SET CAUSE_DT    = #cause_dt#
+             , SIGN_DT     = #sign_dt#
+             , INSPECT_DT  = #inspect_dt#
+             , CAUSE_ID    = #cause_id#
+             , CAUSE_NM    = #cause_nm#
+           WHERE ABDOCU_NO   = #abdocu_no#
+    </update>
+    
+    <select id="AcG20ExGw.getThisPayDataList" parameterClass="java.util.HashMap" resultClass="payDataVO">
+        /* AcG20ExGw.getThisPayDataList - oracle */
+        SELECT HP.*
+          FROM G20_HPOMNPY_PADATA HP
+         WHERE ABDOCU_NO = #abdocu_no#
+           AND ABDOCU_B_NO = #abdocu_b_no#
+    </select>
+
+    <delete id="AcG20ExGw.deleteAbdocu_T_PayData"  parameterClass="HashMap">
+        /* AcG20ExGw.deleteAbdocu_T_PayData - oracle */
+        DELETE FROM G20_ABDOCU_T
+         WHERE ABDOCU_NO = #abdocu_no#
+           AND ABDOCU_B_NO = #abdocu_b_no#
+           AND ET_YN = '5'
+    </delete>    
+
+    <insert id="AcG20ExGw.insertPayData" parameterClass="HashMap">
+        /* AcG20ExGw.insertPayData - oracle */
+        INSERT INTO G20_HPOMNPY_PADATA
+        (  
+            ABDOCU_NO, ABDOCU_B_NO, ABDOCU_T_NO, EMP_TR_CD, RVRS_YM, SQ
+          , KOR_NM, DEPT_NM, GISU_DT, PAY_DT, TPAY_AM, SUP_AM, VAT_AM, INTX_AM, RSTX_AM, ETC_AM
+          , ACCT_NO, PYTB_CD, DPST_NM, BANK_NM, RSRG_NO, PJT_NM, PKEY
+        )
+        VALUES( 
+            #abdocu_no#, #abdocu_b_no#, #abdocu_t_no#, #EMP_TR_CD#, #RVRS_YM#, #SQ#
+          , #KOR_NM#, #DEPT_NM#, #GISU_DT#, #PAY_DT#, #TPAY_AM#, #SUP_AM#,#VAT_AM#, #INTX_AM#, #RSTX_AM#, #ETC_AM#
+          , #ACCT_NO#, #PYTB_CD#, #DPST_NM#, #BANK_NM#, #RSRG_NO#, #PJT_NM#, #PKEY#
+        )     
+    </insert>   
+
+    <insert id="AcG20ExGw.insertAbdocu_T_PayData" parameterClass="HashMap">
+        /* AcG20ExGw.insertAbdocu_T_PayData - oracle */
+        INSERT INTO G20_ABDOCU_T
+        ( 
+            ABDOCU_T_NO, ABDOCU_NO, ABDOCU_B_NO, DOCU_MODE, ERP_CO_CD
+          , TR_CD, TR_NM, UNIT_AM, SUP_AM, VAT_AM, INTX_AM, RSTX_AM, WD_AM, NDEP_AM, INAD_AM
+          , DEPOSITOR, ETCRVRS_YM, ETCDUMMY1, JIRO_CD ,BTR_NM, BA_NB, ET_YN, INSERT_ID, INSERT_DT
+         )
+         VALUES
+         (  
+            f_nextval('abdocuTNo'), #abdocu_no#, #abdocu_b_no#, '1' , #erp_co_cd#
+          , #EMP_TR_CD#,  #KOR_NM#, NVL(#TPAY_AM#,0) , NVL(#SUP_AM#,0), NVL(#VAT_AM#,0), NVL(#INTX_AM#,0), NVL(#RSTX_AM#,0), NVL(#ETC_AM#,0),'0', '0'
+          , #DPST_NM#, #RVRS_YM#, #SQ#, #PYTB_CD#, #BANK_NM#, #ACCT_NO#, '5', #emp_cd#, SYSDATE
+         )
+        <selectKey keyProperty="abdocu_t_no" resultClass="java.lang.String">
+            SELECT CURRVAL FROM $DB_NEOS$t_seq WHERE name  = 'abdocuTNo'
+        </selectKey>
+     </insert> 
+     
+	<update id="AcG20ExGw.updateErpGwLink" parameterClass="java.util.HashMap">
+	    /* AcG20ExGw.updateErpGwLink - oracle */
+		UPDATE ERPGWLINK
+		   SET APPR_STATUS    = #apprStatus#,
+		       MODIFY_ID      = #modifyId#, 
+		       MODIFY_USERKEY = #modifyUserkey#, 
+		       MODIFY_DT      = SYSDATE
+		 WHERE APPR_DIKEY     = #apprDikey#	
+	</update>
+
+    <select id="AcG20ExGw.chkGwAcExDoExist" parameterClass="HashMap" resultClass="int">
+        /* AcG20ExGw.chkGwAcExDoExist - oracle */
+        SELECT  COUNT(*)
+          FROM  G20_ABDOCU_H H
+          JOIN  ERPGWLINK LINK
+            ON  LINK.APPR_DIKEY =  H.C_DIKEYCODE
+           AND  APPR_STATUS IN ('001', '002', '003', '008', '009')
+         WHERE  C_DIKEYCODE IS NOT NULL
+           AND  H.ABDOCU_NO_REFFER =  #abdocu_no#
+           AND  H.DOCU_MODE             = '1'  
+    </select>         
+</sqlMap>

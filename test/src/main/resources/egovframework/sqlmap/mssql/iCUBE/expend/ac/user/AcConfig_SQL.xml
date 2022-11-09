@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- iCUBE 설정정보 -->
+<mapper namespace="AcErpConfig">
+	<select id="AcErpConfig.AcErpConfigListInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - iCUBE - AcErpConfig.AcErpConfigListInfoSelect */
+		SELECT	ISNULL ( CO_CD, '' ) AS CO_CD
+				, ISNULL ( MODULE_CD, '' ) AS MODULE_CD
+				, ISNULL ( CTR_CD, '' ) AS CTR_CD
+				, ISNULL ( CTR_NM, '' ) AS CTR_NM
+				, ISNULL ( CTR_FG, '' ) AS CTR_FG
+				, ISNULL ( CTR_NB, '' ) AS CTR_NB
+				, ISNULL ( USE_YN, '' ) AS USE_YN
+				, ISNULL ( FG_TY, '' ) AS FG_TY
+				, ISNULL ( SEL_DOC, '' ) AS SEL_DOC
+				, ISNULL ( EDIT_YN, '' ) AS EDIT_YN
+				, ISNULL ( REG_DT, '' ) AS REG_DT
+				, ISNULL ( CT_VAL, '' ) AS CT_VAL
+				, ISNULL ( DUMMY1, '' ) AS DUMMY1
+				, ISNULL ( CTR_NMK, '' ) AS CTR_NMK
+				, ISNULL ( SEL_DOCK, '' ) AS SEL_DOCK
+				, ISNULL ( INSERT_ID, '' ) AS INSERT_ID
+				, ISNULL ( INSERT_DT, '' ) AS INSERT_DT
+				, ISNULL ( INSERT_IP, '' ) AS INSERT_IP
+				, ISNULL ( MODIFY_ID, '' ) AS MODIFY_ID
+				, ISNULL ( MODIFY_DT, '' ) AS MODIFY_DT
+				, ISNULL ( MODIFY_IP, '' ) AS MODIFY_IP
+				, ISNULL ( UNIT_FG, '' ) AS UNIT_FG
+				, ISNULL ( UNIT_TR, '' ) AS UNIT_TR
+				, ISNULL ( DUMMY2, '' ) AS DUMMY2
+		FROM	SYSCFG
+		WHERE	CO_CD = '${CO_CD}'
+	]]></select>
+
+	<select id="AcErpConfig.AcErpTaxConfigInfoSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* mssql - iCUBE - AcErpConfig.AcErpTaxConfigInfoSelect */
+		SELECT	TOP 1 NDEP_RT /* 필요경비율 */
+				, STA_RT /* 기타소득세율 */
+				, JTA_RT /* 주민세율 */
+				, MTAX_AM /* 과세최저한 */
+		FROM	(
+					SELECT	A.NDEP_RT /* 필요경비율 */
+							, A.STA_RT /* 기타소득세율 */
+							, A.JTA_RT /* 주민세율 */
+							, A.MTAX_AM /* 과세최저한 */
+					FROM	ABSDOCU A
+							INNER JOIN SCO S
+							ON A.CO_CD = S.CO_CD AND A.ACCTDEF_FG = S.ACCT_FG
+					WHERE	A.CO_CD = '${CO_CD}'
+		
+					UNION
+		
+					SELECT	0.0000 AS NDEP_RT /* 필요경비율 */
+							, 0.0000 AS STA_RT /* 기타소득세율 */
+							, 0.0000 AS JTA_RT /* 주민세율 */
+							, 0.0000 AS MTAX_AM /* 과세최저한 */
+				) A
+	]]></select>
+</mapper>

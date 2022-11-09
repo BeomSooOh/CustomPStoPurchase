@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<settings>
+		<setting name="logImpl" value="LOG4J" />
+		<setting name="defaultStatementTimeout" value="300"/>
+		<setting name="callSettersOnNulls" value="true"/>
+	</settings>
+
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="UNPOOLED">
+				<property name="driver" value="${driver}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" />
+			</dataSource>
+
+		</environment>
+	</environments>
+
+	<mappers>
+		<!-- ERPiU 비영리 지출결의(user-code) -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/np/admin/NpReportSQL.xml" />
+
+		<!-- ERPiU 영리 지출결의 -->
+		<!-- ERPiU 영리 지출결의 - batch -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/common/batch/BatchCms_SQL.xml" />
+		<!-- ERPiU 영리 지출결의 - master -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/master/ExConfigSQL.xml" />
+		<!-- ERPiU 영리 지출결의 - admin -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/admin/ExConfigSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/admin/ExReportSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/admin/ExYesilSQL.xml" />
+		<!-- ERPiU 영리 지출결의 - user -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExCode_SQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExCodeBudget.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExMngSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExYesilSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExETaxSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExForeignCurrency.xml" />
+		<!-- ERPiU 매입전자세금계산서 - user -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/np/user/NpETaxSQL.xml" />
+		<!-- ERPiU 매입전자세금계산서 - admin -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/np/admin/NpETaxSQL.xml" />
+		<!-- 코드 -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex2/user/Ex2UserCode_SQL.xml" />
+	</mappers>
+</configuration>

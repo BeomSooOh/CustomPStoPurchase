@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="ExUserETax">
+	<!-- 매입전자세금계산서 - 목록 조회 -->
+	<select id="ExUserETaxSubListInfoSelect" parameterClass="HashMap" resultClass="common.vo.ex.ExCodeETaxVO">
+	    /* ExUserETaxSubListInfoSelect - BizboxA - mariaDB */
+	    /* 2020. 02. 27. 김상겸, ERPiU 예산통제 기준 변경으로 분리 관리를 위하여 예상통제 버전 추가 기록 진행 */
+		SELECT  A.sync_id AS syncId
+		        , A.iss_no AS issNo
+		        , A.hometax_iss_no AS hometaxIssNo /* 국세청번호 */
+		        , A.iss_dt AS issDt
+		        , A.partner_no AS trregNb 
+		        , A.comp_seq AS compSeq
+		        , A.send_yn AS sendYN
+		        , IFNULL(B.seq, 0) AS expendEmpSeq
+		        , IFNULL(B.erp_emp_seq, IFNULL(B.emp_seq, 0)) AS empSeq
+		        , IFNULL(B.erp_emp_name, IFNULL(B.emp_name, '')) AS empName
+		        , IFNULL(B.erp_dept_seq, IFNULL(B.dept_seq, 0)) AS deptSeq
+		        , IFNULL(B.erp_dept_name, IFNULL(B.dept_name ,'')) AS deptName
+		        , IFNULL(B.erp_pc_seq, 0) AS erpPcSeq
+		        , IFNULL(B.erp_pc_name, 0) AS erpPcName
+		        , IFNULL(B.erp_cc_seq, 0) AS erpCcSeq
+		        , IFNULL(B.erp_cc_name, 0) AS erpCcName
+		        , IFNULL(C.seq, 0) AS expendSummarySeq
+		        , IFNULL(C.summary_code, '') AS summaryCode
+		        , IFNULL(C.summary_name, '') AS summaryName
+		        , IFNULL(C.dr_acct_code, '') AS drAcctCode
+		        , IFNULL(C.dr_acct_name, '') AS drAcctName
+		        , IFNULL(A.note, '') AS note
+		        , IFNULL(D.seq, 0) AS expendAuthSeq
+		        , IFNULL(D.auth_div, '') AS authDiv 
+				, IFNULL(D.auth_code, '') AS authCode 
+				, IFNULL(D.auth_name, '') AS authName 
+				, IFNULL(D.cash_type, '') AS cashType 
+				, IFNULL(D.cr_acct_code, '') AS crAcctCode 
+				, IFNULL(D.cr_acct_name, '') AS crAcctName 
+				, IFNULL(D.vat_acct_code, '') AS vatAcctCode 
+				, IFNULL(D.vat_acct_name, '') AS vatAcctName
+				, IFNULL(D.vat_type_code, '') AS vatTypeCode 
+				, IFNULL(D.vat_type_name, '') AS vatTypeName 
+				, IFNULL(D.erp_auth_code, '') AS erpAuthCode 
+				, IFNULL(D.erp_auth_name, '') AS erpAuthName 
+				, IFNULL(D.auth_required_yn, '') AS expendAuthRequiredYN 
+				, IFNULL(D.partner_required_yn, '') AS expendPartnerRequiredYN 
+				, IFNULL(D.card_required_yn, '') AS expendCardRequiredYN 
+				, IFNULL(D.project_required_yn, '') AS expendProjectRequiredYN 
+				, IFNULL(D.note_required_yn, '') AS expendNoteRequiredYN 
+				, IFNULL(D.no_tax_code, '') AS noTaxCode 
+				, IFNULL(D.no_tax_name, '') AS noTaxName 
+				, IFNULL(D.va_type_code, '') AS vaTypeCode 
+				, IFNULL(D.va_type_name, '') AS vaTypeName 
+		        , IFNULL(E.seq, 0) AS expendProjectSeq
+		        , IFNULL(E.project_code, '') AS projectCode
+		        , IFNULL(E.project_name, '') AS projectName
+		        , IFNULL(F.seq,0) AS expendCardSeq
+		        , IFNULL(F.card_num, '') AS cardNum
+		        , IFNULL(F.card_name, '') AS cardName
+		        , IFNULL(G.seq,0) AS expendBudgetSeq
+				, IFNULL(G.budget_code,'') AS budgetCode
+				, IFNULL(G.budget_name,'') AS budgetName
+				, IFNULL(G.bizplan_code,'') AS bizplanCode
+				, IFNULL(G.bizplan_name,'') AS bizplanName
+				, IFNULL(G.bgacct_code,'') AS bgacctCode
+				, IFNULL(G.bgacct_name,'') AS bgacctName
+				, H.auth_required_yn AS authRequiredYN
+				, H.partner_required_yn AS partnerRequiredYN
+				, H.card_required_yn AS cardRequiredYN
+				, H.project_required_yn AS projectRequiredYN
+				, H.note_required_yn AS noteRequiredYN
+				, IFNULL(G.cd_bglevel, '') AS cdBgLevel
+				, IFNULL(G.yn_control, '') AS ynControl
+				, IFNULL(G.tp_control, '') AS tpControl
+		FROM    (
+		            SELECT  sync_id
+		                    , iss_no
+		                    , hometax_iss_no
+		                    , iss_dt
+		                    , partner_no
+		                    , comp_seq
+		                    , send_yn
+		                    , note
+		                    , emp_seq
+		                    , summary_seq
+		                    , auth_seq
+		                    , project_seq
+		                    , card_seq
+		                    , budget_seq
+		            FROM    $DB_NEOS$t_ex_etax_aq_tmp
+		            WHERE   comp_seq = '$compSeq$'
+		            /*AND     send_yn = 'N'*/
+		            AND     iss_dt BETWEEN '$searchFromDt$' AND '$searchToDt$'
+		            AND     partner_no LIKE '%$searchPartnerNo$%'
+		            AND		iss_no IN ('$notInsertIssNo$')
+		        ) A LEFT OUTER JOIN $DB_NEOS$t_ex_expend_emp B ON A.emp_seq = B.seq
+		        LEFT OUTER JOIN $DB_NEOS$t_ex_expend_summary C ON A.summary_seq = C.seq
+		        LEFT OUTER JOIN $DB_NEOS$t_ex_expend_auth D ON A.auth_seq = D.seq
+		        LEFT OUTER JOIN $DB_NEOS$t_ex_expend_project E ON A.project_seq = E.seq
+		        LEFT OUTER JOIN $DB_NEOS$t_ex_expend_card F ON A.card_seq = F.seq
+		        LEFT OUTER JOIN $DB_NEOS$t_ex_expend_budget G ON A.budget_seq = G.seq
+		        LEFT OUTER JOIN $DB_NEOS$t_ex_auth H ON A.comp_seq = H.comp_seq AND D.auth_code = H.auth_code
+    </select>
+
+	<!-- 매입전자세금계산서 - 현재 작성중인 세금계산서, 미사용 세금계산서 제외 -->
+	<select id="ExUserETaxSubAppListInfoSelect" parameterClass="HashMap" resultClass="common.vo.ex.ExCodeETaxVO"><![CDATA[
+		/* ExUserETaxSubAppListInfoSelect - BizboxA - mariaDB */
+		/* 2020-01-07 남진우 ERPiU 옵션값에 따른 조건문 추가 */
+		/* 2020-02-10 김상겸 t_ex_etax_aq_tmp 테이블 데이터 조회 시점 comp_seq 필수로 처리 */
+		/* 2020-03-12 이관시 미사용 처리 변경에 따른 쿼리수정 (마사용 - if_m_id = 'D') */
+        SELECT	sync_id AS syncId
+				, iss_no AS issNo
+		FROM	(
+			SELECT	interface_type
+					, interface_m_id
+			FROM	$DB_NEOS$t_ex_expend_list
+			WHERE	expend_seq = '$expendSeq$'
+			AND		interface_type = 'etax'
+		
+			UNION
+		
+			SELECT	interface_type
+					, interface_m_id
+			FROM	$DB_NEOS$t_ex_expend_slip
+			WHERE	expend_seq = '$expendSeq$'
+			AND		interface_type = 'etax'
+		) A INNER JOIN (
+			SELECT	sync_id
+					,iss_no
+			FROM	$DB_NEOS$t_ex_etax_aq_tmp
+			WHERE	iss_dt BETWEEN #searchFromDt# AND #searchToDt#
+		) B ON A.interface_m_id = B.sync_id
+		
+		UNION
+		
+		/* 미사용 건 조회 */
+		SELECT	sync_id AS syncId
+				, iss_no AS issNo
+		FROM	$DB_NEOS$t_ex_etax_aq_tmp
+		WHERE	if_m_id ='D'
+		AND		iss_dt BETWEEN #searchFromDt# AND #searchToDt#
+    	AND		comp_seq = #compSeq#
+    	
+		UNION
+		
+		SELECT	'0' AS syncId
+				, iss_no AS issNo
+		FROM	$DB_NEOS$t_ex_etax_transfer
+		WHERE  	transfer_seq  = #empSeq#
+		AND		iss_no NOT IN (
+			SELECT	iss_no
+			FROM	$DB_NEOS$t_ex_etax_transfer
+			WHERE	transfer_seq  = 'ADMIN'
+			AND 		receive_seq = #empSeq#
+		)
+		AND    	iss_dt BETWEEN #searchFromDt# AND #searchToDt# 
+    ]]></select>
+
+	<!-- 매입전자세금계산서 - 연동 코드 조회 -->
+	<select id="ExUserETaxSubInfoSelect" parameterClass="HashMap" resultClass="common.vo.ex.ExCodeETaxVO"><![CDATA[
+		/* ExUserETaxSubInfoSelect - BizboxA - mariaDB */
+		SELECT  sync_id AS syncId
+		        , iss_no AS issNo
+		        , hometax_iss_no AS hometaxIssNo
+		        , iss_dt AS issDt
+		        , partner_no AS partnerNo
+		        , comp_seq AS compSeq
+		        , send_yn AS sendYN
+		        , note AS note
+		        , emp_seq AS expendEmpSeq  
+		        , summary_seq AS expendSummarySeq
+		        , auth_seq AS expendAuthSeq
+		        , project_seq AS expendProjectSeq
+		        , card_seq AS expendCardSeq
+		        , budget_seq AS expendBudgetSeq
+		FROM    $DB_NEOS$t_ex_etax_aq_tmp
+		WHERE   iss_no = '$issNo$'
+		AND     comp_seq = '$compSeq$'
+    ]]></select>
+
+	<insert id="ExUserETaxSubInfoInsert" parameterClass="HashMap"><![CDATA[
+		/* ExUserETaxSubInfoInsert - BizboxA - mariaDB */
+		INSERT IGNORE INTO $DB_NEOS$t_ex_etax_aq_tmp ( iss_no, hometax_iss_no, comp_seq, iss_dt, partner_no, send_yn, note, emp_seq, summary_seq, auth_seq, project_seq, card_seq, budget_seq, create_seq, create_date, modify_seq, modify_date )
+	    VALUES ( '$issNo$','$hometaxIssNo$', '$compSeq$', '$issDt$', '$trregNb$', '$sendYN$', #note#, '$expendEmpSeq$', '$expendSummarySeq$', '$expendAuthSeq$', '$expendProjectSeq$', '$expendCardSeq$', '$expendBudgetSeq$', '$createSeq$', NOW(), '$modifySeq$', NOW() )
+    ]]></insert>
+
+	<update id="ExUserETaxSubInfoUpdate" parameterClass="HashMap"><![CDATA[
+		/* ExUserETaxSubInfoUpdate - BizboxA - mariaDB */
+		UPDATE  $DB_NEOS$t_ex_etax_aq_tmp
+				SET     send_yn = '$sendYN$'
+		        , note = #note#
+		        , hometax_iss_no = '$hometaxIssNo$'
+		        , emp_seq = '$expendEmpSeq$'
+		        , summary_seq = '$expendSummarySeq$'
+		        , auth_seq = '$expendAuthSeq$'
+		        , project_seq = '$expendProjectSeq$'
+		        , card_seq = '$expendCardSeq$'
+		        , budget_seq = '$expendBudgetSeq$'
+		        , modify_seq = '$modifySeq$'
+		        , modify_date = NOW()
+		WHERE   iss_no = '$issNo$'
+		AND     comp_seq = '$compSeq$'
+		
+		
+    ]]></update>
+
+	<!-- 매입전자세금계산서 - 매입전자세금계산서 사용내역 수정 -->
+	<update id="ExUserETaxInfoUpdate" parameterClass="HashMap"><![CDATA[
+        /* ExUserETaxInfoUpdate - BizboxA - mariaDB */
+		UPDATE  $DB_NEOS$t_ex_etax_aq_tmp
+		SET     send_yn = '$sendYN$'
+        		, if_m_id = CASE WHEN '$sendYN$' = 'N' THEN '0' ELSE ( CASE WHEN '$ifMId$' != '' AND '$ifMId$' != '0' THEN '$ifMId$' ELSE if_m_id END ) END
+        		, if_d_id = CASE WHEN '$sendYN$' = 'N' THEN '0' ELSE ( CASE WHEN '$ifDId$' != '' AND '$ifDId$' != '0' THEN '$ifDId$' ELSE if_d_id END ) END
+		        , modify_date = NOW()
+		WHERE   sync_id = '$syncId$'
+    ]]></update>
+
+	<!-- /* 전자결재 연동 - 매입전자세금계산서 상신 상태값 동기화 */ -->
+	<!-- /* 전자결재 연동 - 매입전자세금계산서 상신 상태값 동기화 *//* 상태값 동기화 대상 조회 */ -->
+	<select id="ExUserEtaxA.ExUserETaxStateSyncListInfoSelect" parameterClass="hashmap" resultClass="hashmap"><![CDATA[
+		/* ExUserETaxInfoUpdate - BizboxA - mariaDB */
+		SELECT  interface_type AS interfaceType /* 매입전자세금계산서 : etax / 카드 사용 내역 : card */
+		        , interface_m_id AS interfaceMId
+		        , interface_d_id AS interfaceDId
+		        , expend_seq AS expendSeq
+		        , list_seq AS listSeq
+		FROM    $DB_NEOS$t_ex_expend_list
+		WHERE   expend_seq = '$expendSeq$'
+		AND     interface_type = 'etax' /* 매입전자세금계산서 : etax */
+		UNION
+		SELECT  interface_type AS interfaceType /* 매입전자세금계산서 : etax / 카드 사용 내역 : card */
+		        , interface_m_id AS interfaceMId
+		        , interface_d_id AS interfaceDId
+		        , expend_seq AS expendSeq
+		        , list_seq AS listSeq
+		FROM    $DB_NEOS$t_ex_expend_slip
+		WHERE   expend_seq = '$expendSeq$'
+		AND     interface_type = 'etax' /* 매입전자세금계산서 : etax */
+	]]></select>
+	<!-- /* 전자결재 연동 - 매입전자세금계산서 상신 상태값 동기화 *//* 상태값 업데이트 */ -->
+	<update id="ExUserEtaxA.ExUserETaxStateInfoUpdate" parameterClass="hashmap"><![CDATA[
+		/* ExUserETaxInfoUpdate - BizboxA - mariaDB */
+		UPDATE  $DB_NEOS$t_ex_etax_aq_tmp
+		SET     send_yn = CASE WHEN '$sendYN$' != '' THEN '$sendYN$' ELSE send_yn END
+				, if_m_id = CASE WHEN '$sendYN$' = 'N' THEN '0' ELSE ( CASE WHEN '$expendSeq$' != '' AND '$expendSeq$' != '0' THEN '$expendSeq$' ELSE if_m_id END ) END
+				, if_d_id = CASE WHEN '$sendYN$' = 'N' THEN '0' ELSE ( CASE WHEN '$listSeq$' != '' AND '$listSeq$' != '0' THEN '$listSeq$' ELSE if_d_id END ) END
+		WHERE   sync_id = '$interfaceMId$'
+	]]></update>
+	
+	<select id="ExuserEtaxA.ExuserETaxISSNoInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	etax.iss_no AS issNo
+				, expend.expend_seq AS expendSeq
+		FROM $DB_NEOS$t_ex_expend expend
+		INNER JOIN $DB_NEOS$t_ex_expend_slip slip ON expend.expend_seq = slip.expend_seq AND slip.interface_type = 'etax'
+		INNER JOIN $DB_NEOS$t_ex_etax_aq_tmp etax ON sync_id = slip.interface_m_id
+		WHERE expend.expend_seq = '$expendSeq$'
+		AND	slip.interface_m_id=  '$interfaceMId$'
+		GROUP BY iss_no;
+	</select>
+	
+	<select id="ExExpendCompSeqSelect" parameterClass="HashMap" resultClass="String">
+		SELECT	comp_seq as compSeq
+		FROM	$DB_NEOS$t_ex_expend
+		WHERE	expend_seq = '$expendSeq$'
+	</select>
+	
+	<select id="ExExpendETaxAuthSelect" parameterClass="HashMap" resultClass="HashMap">		
+	<![CDATA[ 
+		/*
+		 * [ BizboxA - MARIADB ] ExExpendETaxAuthSelect - 수정세금계산서 권한 조회
+		 * 작성자 : 김상겸
+		 * 작성일 : 2019-09-17
+		 * 변경이력
+		 * - 2019-09-17 / 김상겸 : v_user_info 제외 처리
+		 */
+		 
+		SELECT	auth_type AS authType
+				, CASE
+					WHEN auth_type = 'P' THEN REPLACE(CODE,'-','')
+					ELSE `code`
+				END AS `code`
+		FROM	$DB_NEOS$t_ex_etax
+		WHERE	etax_seq IN (
+					/* 사용자 ( 세금계산서 권한 ) */
+					SELECT	etax_seq
+					FROM	$DB_NEOS$t_ex_etax_public
+					WHERE	`code` = #empSeq#
+					AND		comp_seq = #compSeq#
+					AND		`type` = 'u'
+			
+					UNION
+			
+					/* 부서 ( 세금계산서 권한 ) */
+					SELECT	C.etax_seq
+					FROM	(
+								SELECT	comp_seq
+										, `code`
+										, pupblic_seq
+										, etax_seq
+								FROM	$DB_NEOS$t_ex_etax_public
+								WHERE	comp_seq = #compSeq#
+								AND		`type` = 'd'
+							) AS C INNER JOIN $DB_NEOS$v_org_chart o ON CONCAT('|',o.path,'|') LIKE CONCAT('%|', C.code, '|%' ) AND o.comp_seq = C.comp_seq AND o.gbn_org = 'd'
+							INNER JOIN (
+								SELECT	C.comp_seq
+										, C.dept_seq
+								FROM	(
+											SELECT	emp_seq
+													, main_comp_seq
+											FROM	$DB_NEOS$t_co_emp a
+											WHERE	emp_seq = #empSeq#
+										) A INNER JOIN $DB_NEOS$t_co_emp_comp B ON A.emp_seq = B.emp_seq
+										INNER JOIN $DB_NEOS$t_co_emp_dept C ON B.emp_seq = C.emp_seq AND B.comp_seq = C.comp_seq
+								GROUP	BY C.comp_seq, C.dept_seq
+							) V ON V.dept_seq = O.seq AND V.comp_seq = O.comp_seq
+				)
+		AND		comp_seq = #compSeq#
+		AND		use_yn = 'Y'
+	]]>
+	</select>
+	
+	<select id="ExExpendEtaxGWInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	sync_id AS syncId
+				, iss_no AS issNo
+				, iss_dt AS issDt
+				, send_yn AS sendYN
+				, note
+		FROM	$DB_NEOS$t_ex_etax_aq_tmp
+		WHERE	sync_id = '$syncId$'
+	</select>
+	
+	<select id="ExExpendTransferETaxListSelect" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	iss_no AS issNo
+				, iss_dt AS issDt
+				, partner_no AS partnerNo
+				, partner_name AS partnerName
+				, amt AS amt
+				, transfer_seq AS transferSeq 
+				, transfer_name AS transferName
+				, receive_seq AS receiveSeq
+				, receive_name AS receiveName
+				, create_date AS createDate
+		FROM	$DB_NEOS$t_ex_etax_transfer
+		WHERE	receive_seq = #empSeq#
+		AND     iss_dt BETWEEN '$searchFromDt$' AND '$searchToDt$' 
+	</select>
+	
+	<select id="ExUserETaxExpendInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		/* 매입전자세금계산서 - 지출결의 정보 조회 */
+		/* ExUserETaxSQL.xml - mariaDB - ExUserETaxExpendInfoSelect */
+		SELECT	etax.sync_id AS syncId
+				, etax.iss_no AS issNo
+				, etax.iss_dt AS issDt
+				, etax.send_yn AS sendYN
+				, IFNULL(tr.transferType,'') AS transferType
+				, IFNULL(tr.supperKey, '') AS supperKey
+				, IFNULL(etax.if_m_id,'') AS ifMId
+				, IFNULL(etax.if_m_id,'') AS ifMId
+				, IFNULL(doc.doc_title,'') AS docTitle
+				, IFNULL(doc.doc_no,'') AS docNo
+				, IFNULL(doc.user_id,'') AS empSeq
+				, IFNULL(doc.user_nm,'') AS empName
+				, IFNULL(transferName, '') AS transferName
+				, IFNULL(receiveName, '') AS receiveName
+		FROM	$DB_NEOS$t_ex_etax_aq_tmp etax
+		LEFT OUTER JOIN (
+			SELECT	e.expend_seq
+					, e.doc_seq
+					, e.expend_stat_code
+					, s.interface_type
+					, s.interface_m_id
+					, d.doc_title
+					, d.doc_no
+					, d.user_id
+					, d.user_nm
+			FROM	$DB_NEOS$t_ex_expend e
+			INNER JOIN $DB_NEOS$t_ex_expend_slip s ON e.expend_seq = s.expend_seq
+			INNER JOIN $DB_NEOS$teag_appdoc d ON e.doc_seq = d.doc_id
+			WHERE	e.expend_stat_code NOT IN ('','100','999')
+			AND		s.interface_type  = 'etax'
+			GROUP BY s.interface_m_id
+			ORDER BY CAST(e.expend_seq AS INT)	
+		) doc ON etax.sync_id = doc.interface_m_id
+		LEFT OUTER JOIN (
+			/* 내가 이관한 내역들 */
+			SELECT	iss_no
+					, 'T' AS transferType
+					, IFNULL(GROUP_CONCAT(supper_key),'') AS supperKey
+					, IFNULL(transfer_name, '') AS transferName
+					, IFNULL(receive_name, '') AS receiveName
+			FROM	$DB_NEOS$t_Ex_etax_transfer
+			WHERE	transfer_seq = #empSeq#
+			GROUP BY iss_no
+			UNION
+			/* 내가 이관 받은 내역들 */
+			SELECT	iss_no
+					, 'R' AS transferType
+					, IFNULL(GROUP_CONCAT(supper_key),'') AS supperKey
+					, IFNULL(transfer_name, '') AS transferName
+					, IFNULL(receive_name, '') AS receiveName
+			FROM	$DB_NEOS$t_Ex_etax_transfer
+			WHERE	receive_seq = #empSeq#
+			GROUP BY iss_no
+		) tr ON tr.iss_no = etax.iss_no
+		WHERE	etax.comp_Seq = #compSeq#
+		AND		etax.iss_dt BETWEEN #searchFromDt# AND #searchToDt#
+	</select>
+	
+	<delete id="ExUserETax.ExUserETaxStateInfoReset" parameterClass="HashMap">
+		/* ExUserETax.ExUserETaxStateInfoReset */
+		
+		DELETE
+		FROM	$DB_NEOS$T_EX_ETAX_AQ_TMP
+		WHERE	SYNC_ID = #syncId#
+		AND	IFNULL(SEND_YN, 'N') != 'Y'
+	</delete>
+	
+	<insert id="ExUserETax.ExUserETaxStateInfoResetLogInsert" parameterClass="HashMap">
+		/* ExUserETax.ExUserETaxStateInfoResetLogInsert */
+	
+		INSERT INTO	$DB_NEOS$t_ex_expend_history (expend_seq, history_info, doc_seq, create_seq, create_date)
+		VALUES ('etax', '$historyInfo$', '', '$empSeq$', NOW())
+	</insert>
+</sqlMap>

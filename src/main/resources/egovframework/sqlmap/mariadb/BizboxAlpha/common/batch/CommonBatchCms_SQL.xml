@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CommonBatchCmsDAO">
+
+	<typeAlias alias="configVo" type="common.vo.batch.CommonBatchCmsConfigVO" />
+	<typeAlias alias="dataVo" type="common.vo.batch.CommonBatchCmsDataVO" />
+
+	<!-- Batch - CMS -->
+	<!-- Batch - CMS - Config -->
+	<!-- Batch - CMS - Config - Insert -->
+	<insert id="CommonBatchCmsBizboxDAO.CommonCmsConfigInfoInsert" parameterClass="HashMap">
+		<![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsConfigInfoInsert - BizboxA - mariadb */
+		INSERT IGNORE $DB_NEOS$t_ex_cms_sync ( `comp_seq`, `cms_sync_yn`, `cms_batch_yn`, `cms_process_yn`, `cms_base_date`, `cms_base_day` `modify_date` )
+        VALUES ( '$compSeq$', '$cmsSyncYN$', '$cmsBatchYN$', '$cmsProcessYN$', ( CASE WHEN '$cmsBaseDate$' = '' THEN DATE_FORMAT(NOW(), '%Y%m%d') ELSE '$cmsBaseDate$' END ), ( CASE WHEN '$cmsBaseDay$' = '' THEN '7' ELSE '$cmsBaseDay$' END ), NOW() )
+        ]]>
+
+		<selectKey resultClass="int">
+        <![CDATA[
+		SELECT COUNT(*) FROM $DB_NEOS$t_ex_cms_sync WHERE comp_seq = '$compSeq$'
+        ]]>
+		</selectKey>
+	</insert>
+
+	<!-- Batch - CMS - Config - Delete -->
+	<delete id="CommonBatchCmsBizboxDAO.CommonCmsConfigInfoDelete" parameterClass="HashMap"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsConfigInfoDelete - BizboxA - mariadb */
+		DELETE SELECT $DB_NEOS$t_ex_cms_sync WHERE comp_seq = '$compSeq$'
+    ]]></delete>
+
+	<!-- Batch - CMS - Config - List -->
+	<select id="CommonBatchCmsBizboxDAO.CommonCmsConfigInfoListSelect" resultClass="configVo" parameterClass="HashMap"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsConfigInfoListSelect - BizboxA - mariadb */
+		SELECT  comp_seq AS compSeq
+			    , cms_sync_yn AS cmsSyncYN
+			    , cms_batch_yn AS cmsBatchYN
+			    , cms_process_yn AS cmsProcessYN
+			    , custom_yn AS customYN
+			    , IFNULL(cms_base_date, DATE_FORMAT(NOW(), '%Y%m%d')) AS cmsBaseDate
+			    , IFNULL(cms_base_day, '7') AS cmsBaseDay
+			    , run_yn AS runYN
+			    , IFNULL(server_ip,'') AS serverIp
+				, all_comp_sync_yn AS allCompSyncYN
+		     	, custom_new_type_yn AS customNewTypeYN
+			    , modify_date AS modifyDate
+		FROM    $DB_NEOS$t_ex_cms_sync
+		WHERE   IFNULL(cms_sync_yn, 'N') = 'Y'
+        AND     IFNULL(cms_batch_yn, 'N') = 'Y'
+        AND     IFNULL(cms_process_yn, 'N') = 'N'
+    ]]></select>
+
+	<!-- Batch - CMS - Config - Update -->
+	<!-- Batch - CMS - Config - Update - Setting -->
+	<update id="CommonBatchCmsBizboxDAO.CommonCmsConfigInfoUpdate" parameterClass="HashMap"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsConfigInfoUpdate - BizboxA - mariadb */
+		UPDATE  $DB_NEOS$t_ex_cms_sync
+		SET     cms_sync_yn = '$cmsSyncYN$'
+		        , cms_batch_yn = '$cmsBatchYN$'
+		        , modify_date = NOW()
+		WHERE   comp_seq = '$compSeq$'
+    ]]></update>
+
+	<!-- Batch - CMS - Config - Update - Process Y -->
+	<update id="CommonBatchCmsBizboxDAO.CommonCmsConfigInfoProcessUpdate_Y"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsConfigInfoProcessUpdate_Y - BizboxA - mariadb */
+		UPDATE  $DB_NEOS$t_ex_cms_sync
+		SET     cms_process_yn = 'Y'
+		        , modify_date = NOW()
+		WHERE   cms_sync_yn = 'Y'
+		AND     cms_batch_yn = 'Y'
+		AND     cms_process_yn = 'N'
+    ]]></update>
+
+	<!-- Batch - CMS - Config - Update - Process N -->
+	<update id="CommonBatchCmsBizboxDAO.CommonCmsConfigInfoProcessUpdate_N" parameterClass="HashMap"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsConfigInfoProcessUpdate_N - BizboxA - mariadb */
+		UPDATE  $DB_NEOS$t_ex_cms_sync
+		SET     cms_process_yn = 'N'
+		        , modify_date = NOW()
+		WHERE   cms_sync_yn = 'Y'
+		AND     cms_batch_yn = 'Y'
+		AND     cms_process_yn = 'Y'
+    ]]></update>
+
+	<!-- /* Batch - CMS - CARDAQTMP */ -->
+	<!-- /* Batch - CMS - CARDAQTMP - Select */ -->
+	<select id="CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoSelect" parameterClass="HashMap" resultClass="int"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoSelect - BizboxA - mariadb */
+		SELECT  COUNT(sync_id)
+		FROM    $DB_NEOS$t_ex_card_aq_tmp
+		WHERE   auth_date = '$authDate$'
+		AND     auth_num = '$authNum$'
+		AND     card_num = '$cardNum$'
+		AND     georae_stat = '$georaeStat$'
+		AND		request_amount = '$requestAmount$'
+		AND		auth_time = '$authTime$'
+		AND		REPLACE(REPLACE(IFNULL(merc_saup_no, ''), ' ', ''), '-', '') = REPLACE(REPLACE(IFNULL('$mercSaupNo$', ''), ' ', ''), '-', '')
+		AND		REPLACE(georae_coll, ' ', '') = REPLACE('$georaeColl$', ' ', '')
+		LIMIT   1
+	]]></select>
+
+	<select id="CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoAllEBANK_KEYSelect" parameterClass="HashMap" resultClass="int"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoAllEBANK_KEYSelect - BizboxA - mariadb */
+		SELECT  COUNT(sync_id)
+		FROM	$DB_NEOS$t_ex_card_aq_tmp
+		WHERE	EBANK_KEY = #EBANK_KEY#
+		LIMIT	1
+	]]></select>
+	
+	<select id="CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoAllPKSelect" parameterClass="HashMap" resultClass="int"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoAllPKSelect - BizboxA - mariadb */
+		SELECT  COUNT(sync_id)
+		FROM	$DB_NEOS$t_ex_card_aq_tmp
+		WHERE	PK1 = #PK1#
+		AND		PK2 = #PK2#
+		AND		PK3 = #PK3#
+		AND		PK4 = #PK4#
+		AND		PK5 = #PK5#
+		AND		PK6 = #PK6#
+		AND		PK7 = #PK7#
+		LIMIT	1
+	]]></select>
+
+	<!-- /* Batch - CMS - CARDAQTMP - Insert */ -->
+	<insert id="CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoInsert" parameterClass="HashMap">
+        <![CDATA[
+        /* CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoInsert - BizboxA - mariadb */
+		INSERT INTO $DB_NEOS$t_ex_card_aq_tmp ( `card_num`, `auth_num`, `auth_date`, `auth_time`, `georae_coll`, `georae_stat`, `georae_cand`, `request_amount`, `amt_amount`, `vat_amount`, `ser_amount`, `fre_amount`, `amt_md_amount`, `vat_md_amount`, `georae_gukga`, `for_amount`, `usd_amount`, `merc_name`, `merc_saup_no`, `merc_addr`, `merc_repr`, `merc_tel`, `merc_zip`, `mcc_name`, `mcc_code`, `mcc_stat`, `vat_stat`, `gongje_no_chk`, `abroad`, `aqui_rate` )
+		VALUES ( REPLACE('$cardNum$','-',''), '$authNum$', '$authDate$', '$authTime$', '$georaeColl$', '$georaeStat$', '$georaeCand$', '$requestAmount$', '$amtAmount$', '$vatAmount$', '$serAmount$', '$freAmount$', '$amtMdAmount$', '$vatMdAmount$', '$georaeGukga$', '$forAmount$', '$usdAmount$', #mercName#, REPLACE(REPLACE(IFNULL('$mercSaupNo$', ''), ' ', ''), '-', ''), '$mercAddr$', '$mercRepr$', '$mercTel$', '$mercZip$', '$mccName$', '$mccCode$', '$mccStat$', '$vatStat$', '$gongjeNoChk$', '$abroad$', '$aquiRate$' )
+        ]]>
+        
+		<selectKey resultClass="String"><![CDATA[
+	        SELECT  CAST(COUNT(sync_id) AS INTEGER)
+	        FROM    $DB_NEOS$t_ex_card_aq_tmp
+	        WHERE   auth_date = '$authDate$'
+	        AND     auth_num = '$authNum$'
+	        AND     card_num = '$cardNum$'
+	        AND     georae_coll = '$georaeColl$'
+	        AND     georae_stat = '$georaeStat$'
+	        LIMIT   1
+		]]></selectKey>
+	</insert>
+	
+	<insert id="CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoAllInsert" parameterClass="HashMap">
+        <![CDATA[
+        /* CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoAllInsert - BizboxA - mariadb */
+		INSERT INTO $DB_NEOS$T_EX_CARD_AQ_TMP ( 
+			PK1, PK2, PK3, PK4, PK5
+			, PK6, PK7, ISS_DT, ISS_SQ
+			, CARD_NUM, AUTH_NUM, AUTH_DATE, AUTH_TIME, GEORAE_COLL
+			, GEORAE_STAT, GEORAE_CAND, REQUEST_AMOUNT, AMT_AMOUNT, VAT_AMOUNT
+			, SER_AMOUNT, FRE_AMOUNT, AMT_MD_AMOUNT, VAT_MD_AMOUNT, GEORAE_GUKGA
+			, FOR_AMOUNT, USD_AMOUNT, MERC_NAME, MERC_SAUP_NO, MERC_ADDR
+			, MERC_REPR, MERC_TEL, MERC_ZIP, MCC_NAME, MCC_CODE
+			, MCC_STAT, VAT_STAT, GONGJE_NO_CHK, ABROAD, AQUI_RATE
+			, EBANK_KEY, created_dt, closed_business_date )
+		VALUES (
+			#PK1#, #PK2#, #PK3#, #PK4#, #PK5#
+			, #PK6#, #PK7#, #ISS_DT#, #ISS_SQ#
+			, REPLACE('$CARD_NO$','-',''), '$APPR_NO$', '$APPR_DT$', REPLACE('$APPR_TM$', ':', ''), 'GEORAECOLL'
+			, '$CANCEL_YN$', '', '$APPRTOT_AM$', '$SUPPLY_AM$', '$VAT_AM$'
+			, '$SERVICE_AM$', '$FEE_AM$', '$SUPPLY_AM$', '$VAT_AM$', '$CUR_CD$'
+			, '0', '0', #CHAIN_NM#, REPLACE(REPLACE(TRIM('$CHAIN_REG_NO$'), '-', ''), ' ', ''), CONCAT('$CHAIN_ADDR1$', ' ', '$CHAIN_ADDR2$')
+			, SUBSTR('$CHAIN_CEO_NM$',0,30), '$CHAIN_TEL$', '$CHAIN_ZIP_CD$', '$BUSINESS_NM$', '$TAX_TY$'
+			, '', '', '$DEDUCT_YN$', ( CASE WHEN '$CUR_CD$' != 'KRW' THEN 'B' ELSE 'A' END ), '0'
+			, #EBANK_KEY#, NOW(), '$CHAIN_CESS_DT$' )
+        ]]>
+        
+		<selectKey resultClass="String"><![CDATA[
+	        SELECT  CAST(COUNT(sync_id) AS INTEGER)
+	        FROM    $DB_NEOS$t_ex_card_aq_tmp
+	        WHERE   auth_date = '$authDate$'
+	        AND     auth_num = '$authNum$'
+	        AND     card_num = '$cardNum$'
+	        AND     georae_coll = '$georaeColl$'
+	        AND     georae_stat = '$georaeStat$'
+	        LIMIT   1
+		]]></selectKey>
+	</insert>
+	
+	<select id="CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoAllSyncId" parameterClass="HashMap" resultClass="HashMap">
+	<![CDATA[
+			SELECT  CONVERT(SYNC_ID, CHAR) AS SYNC_ID
+			FROM    $DB_NEOS$t_ex_card_aq_tmp
+			WHERE   PK1 = #PK1#
+			AND		PK2 = #PK2#
+			AND		PK3 = #PK3#
+			AND		PK4 = #PK4#
+			AND		PK5 = #PK5#
+			AND		PK6 = #PK6#
+			AND		PK7 = #PK7#
+			LIMIT	1
+	]]>
+	</select>
+	
+	<update id="CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoAllUpdate">
+		<![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoAllUpdate - BizboxA - mariadb */
+		UPDATE	$DB_NEOS$T_EX_CARD_AQ_TMP
+		SET		ISS_DT = #ISS_DT#
+				, ISS_SQ = #ISS_SQ#
+				, CARD_NUM = REPLACE('$CARD_NO$','-','')
+				, AUTH_NUM = '$APPR_NO$'
+				, AUTH_DATE = '$APPR_DT$'
+				, AUTH_TIME = REPLACE('$APPR_TM$', ':', '')
+				, GEORAE_COLL = 'GEORAECOLL'
+				, GEORAE_STAT = '$CANCEL_YN$'
+				, GEORAE_CAND = ''
+				, REQUEST_AMOUNT = '$APPRTOT_AM$'
+				, AMT_AMOUNT = '$SUPPLY_AM$'
+				, VAT_AMOUNT = '$VAT_AM$'
+				, SER_AMOUNT = '$SERVICE_AM$'
+				, FRE_AMOUNT = '$FEE_AM$'
+				, AMT_MD_AMOUNT = '$SUPPLY_AM$'
+				, VAT_MD_AMOUNT = '$VAT_AM$'
+				, GEORAE_GUKGA = '$CUR_CD$'
+				, FOR_AMOUNT = '0'
+				, USD_AMOUNT = '0'
+				, MERC_NAME = #CHAIN_NM#
+				, MERC_SAUP_NO = REPLACE(REPLACE(IFNULL('$CHAIN_REG_NO$', ''), ' ', ''), '-', '')
+				, MERC_ADDR = CONCAT('$CHAIN_ADDR1$', ' ', '$CHAIN_ADDR2$')
+				, MERC_REPR = '$CHAIN_CEO_NM$'
+				, MERC_TEL = '$CHAIN_TEL$'
+				, MERC_ZIP = '$CHAIN_ZIP_CD$'
+				, MCC_NAME = '$BUSINESS_NM$'
+				, MCC_CODE = '$TAX_TY$'
+				, MCC_STAT = ''
+				, VAT_STAT = ''
+				, GONGJE_NO_CHK = '$DEDUCT_YN$'
+				, ABROAD = ( CASE WHEN '$CUR_CD$' != 'KRW' THEN 'B' ELSE 'A' END )
+				, AQUI_RATE = '0'
+				, EBANK_KEY = #EBANK_KEY#
+				, edited_dt = NOW()
+				, CLOSED_BUSINESS_DATE = '$CHAIN_CESS_DT$'
+		WHERE   PK1 = #PK1#
+		AND		PK2 = #PK2#
+		AND		PK3 = #PK3#
+		AND		PK4 = #PK4#
+		AND		PK5 = #PK5#
+		AND		PK6 = #PK6#
+		AND		PK7 = #PK7#
+		]]>
+	</update>
+	
+	<!-- Batch - CMS - Config - Update - Process N -->
+	<update id="CommonBatchCmsBizboxDAO.CommonCmsConfigInfoModifyDate" parameterClass="HashMap"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsConfigInfoModifyDate - BizboxA - mariadb */
+		UPDATE  $DB_NEOS$t_ex_cms_sync
+		SET		modify_date = NOW()
+		WHERE   IFNULL(cms_sync_yn, 'N') = 'Y'
+        AND     IFNULL(cms_batch_yn, 'N') = 'Y'
+        AND     IFNULL(cms_process_yn, 'N') = 'N'
+    ]]></update>
+	
+	<insert id="CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoAllSubInsert" parameterClass="HashMap">
+	<![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoAllSubInsert - BizboxA - mariadb */
+        INSERT IGNORE INTO $DB_NEOS$T_EX_CARD_AQ_TMP_SUB ( CO_CD, ISS_DT, ISS_SQ, PK1, PK2, PK3, PK4, PK5, PK6, PK7 )
+        VALUES ( #CO_CD#, #ISS_DT#, #ISS_SQ#, #PK1#, #PK2#, #PK3#, #PK4#, #PK5#, #PK6#, #PK7# )
+	]]>
+	</insert>
+	
+	<insert id="CommonBatchCmsBizboxDAO.CommonCmsACardTempInfoInsert" parameterClass="HashMap">
+			INSERT INTO $DB_NEOS$acard_temp ( `iss_dt`,`iss_sq`,`card_num`, `auth_num`, `auth_date`, `auth_time`, `georae_coll`, `georae_stat`, `georae_cand`, `request_amount`, `amt_amount`, `vat_amount`, `ser_amount`, `fre_amount`, `amt_md_amount`, `vat_md_amount`, `georae_gukga`, `for_amount`, `usd_amount`, `merc_name`, `merc_saup_no`, `merc_addr`, `merc_repr`, `merc_tel`, `merc_zip`, `mcc_name`, `mcc_code`, `mcc_stat`, `vat_stat`, `gongje_no_chk`, `abroad`, `aqui_rate`, PK1, PK2, PK3, PK4, PK5, PK6, PK7 )
+			VALUES $cardData$
+	</insert>
+	
+	<update id="CommonBatchCmsBizboxDAO.CommonCmsCardTempUpdate" parameterClass="HashMap">
+			UPDATE $DB_NEOS$t_ex_card_aq_tmp card
+			INNER JOIN $DB_NEOS$acard_temp temp
+			ON	card.PK1 = temp.PK1
+			AND	card.PK2 = temp.PK2
+			AND	card.PK3 = temp.PK3
+			AND	card.PK4 = temp.PK4
+			AND	card.PK5 = temp.PK5
+			AND	card.PK6 = temp.PK6
+			AND	card.PK7 = temp.PK7
+			SET card.iss_dt = temp.iss_dt, 
+				card.iss_sq = temp.iss_sq, 
+				card.card_num = temp.card_num, 
+				card.auth_num = temp.auth_num, 
+				card.auth_date = temp.auth_date ,
+				card.auth_time = temp.auth_time, 
+				card.georae_coll = temp.georae_coll, 
+				card.georae_stat = temp.georae_stat, 
+				card.georae_cand = temp.georae_cand, 
+				card.request_amount = temp.request_amount, 
+				card.amt_amount = temp.amt_amount, 
+				card.vat_amount = temp.vat_amount, 
+				card.ser_amount = temp.ser_amount, 
+				card.fre_amount = temp.fre_amount, 
+				card.amt_md_amount = temp.amt_md_amount, 
+				card.vat_md_amount = temp.vat_md_amount, 
+				card.georae_gukga = temp.georae_gukga, 
+				card.for_amount = temp.for_amount, 
+				card.usd_amount = temp.usd_amount, 
+				card.merc_name = temp.merc_name, 
+				card.merc_saup_no = temp.merc_saup_no, 
+				card.merc_addr = temp.merc_addr, 
+				card.merc_repr = temp.merc_repr, 
+				card.merc_tel = temp.merc_tel, 
+				card.merc_zip = temp.merc_zip, 
+				card.mcc_name = temp.mcc_name, 
+				card.mcc_code = temp.mcc_code, 
+				card.mcc_stat = temp.mcc_stat, 
+				card.vat_stat = temp.vat_stat, 
+				card.gongje_no_chk = temp.gongje_no_chk, 
+				card.abroad = temp.abroad, 
+				card.aqui_rate = temp.aqui_rate, 
+				card.pk1 = temp.pk1, 
+				card.pk2 = temp.pk2,
+				card.pk3 = temp.pk3, 
+				card.pk4 = temp.pk4,
+				card.pk5 = temp.pk5,
+				card.pk6 = temp.pk6,
+				card.pk7 = temp.pk7
+			WHERE	IFNULL(CARD.SEND_YN,'N') = 'N'
+	</update>
+	
+	<insert id="CommonBatchCmsBizboxDAO.CommonCmsCardTempInsert" parameterClass="HashMap">
+			INSERT INTO $DB_NEOS$t_ex_card_aq_tmp 
+            ( 
+                   iss_dt , 
+                   iss_sq , 
+                   card_num , 
+                   auth_num , 
+                   auth_date , 
+                   auth_time , 
+                   georae_coll , 
+                   georae_stat , 
+                   georae_cand , 
+                   request_amount , 
+                   amt_amount , 
+                   vat_amount , 
+                   ser_amount , 
+                   fre_amount , 
+                   amt_md_amount , 
+                   vat_md_amount , 
+                   georae_gukga , 
+                   for_amount , 
+                   usd_amount , 
+                   merc_name, 
+                   merc_saup_no, 
+                   merc_addr, 
+                   merc_repr, 
+                   merc_tel, 
+                   merc_zip, 
+                   mcc_name, 
+                   mcc_code, 
+                   mcc_stat, 
+                   vat_stat, 
+                   gongje_no_chk, 
+                   abroad, 
+                   aqui_rate, 
+                   pk1, 
+                   pk2, 
+                   pk3, 
+                   pk4, 
+                   pk5, 
+                   pk6, 
+                   pk7 
+           ) 
+			SELECT  temp.iss_dt, 
+				temp.iss_sq, 
+				temp.card_num, 
+				temp.auth_num, 
+				temp.auth_date, 
+				temp.auth_time, 
+				temp.georae_coll, 
+				temp.georae_stat, 
+				temp.georae_cand, 
+				temp.request_amount, 
+				temp.amt_amount, 
+				temp.vat_amount, 
+				temp.ser_amount, 
+				temp.fre_amount, 
+				temp.amt_md_amount, 
+				temp.vat_md_amount, 
+				temp.georae_gukga, 
+				temp.for_amount, 
+				temp.usd_amount, 
+				temp.merc_name, 
+				temp.merc_saup_no, 
+				temp.merc_addr, 
+				temp.merc_repr, 
+				temp.merc_tel, 
+				temp.merc_zip, 
+				temp.mcc_name, 
+				temp.mcc_code, 
+				temp.mcc_stat, 
+				temp.vat_stat, 
+				temp.gongje_no_chk, 
+				temp.abroad, 
+				temp.aqui_rate, 
+				temp.pk1, 
+				temp.pk2, 
+				temp.pk3, 
+				temp.pk4, 
+				temp.pk5, 
+				temp.pk6, 
+				temp.pk7 
+			FROM $DB_NEOS$acard_temp temp
+			LEFT JOIN $DB_NEOS$t_ex_card_aq_tmp card
+			ON	card.PK1 = temp.PK1
+			AND	card.PK2 = temp.PK2
+			AND	card.PK3 = temp.PK3
+			AND	card.PK4 = temp.PK4
+			AND	card.PK5 = temp.PK5
+			AND	card.PK6 = temp.PK6
+			AND	card.PK7 = temp.PK7
+			WHERE card.auth_num IS NULL
+	</insert>
+	
+	
+	<delete id="CommonBatchCmsBizboxDAO.CommonCmsACardTempTruncate" parameterClass="HashMap">
+	<![CDATA[
+			TRUNCATE TABLE $DB_NEOS$ACARD_TEMP
+	]]>
+	</delete>
+	
+	<update id="CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoAllSubUpdate" parameterClass="HashMap">
+	<![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsCardTempInfoAllSubUpdate - BizboxA - mariadb */
+		UPDATE	$DB_NEOS$T_EX_CARD_AQ_TMP_SUB
+		SET		SYNC_ID = #SYNC_ID#
+		WHERE	CO_CD = #CO_CD#
+		AND		PK1 = #PK1#
+		AND		PK2 = #PK2#
+		AND		PK3 = #PK3#
+		AND		PK4 = #PK4#
+		AND		PK5 = #PK5#
+		AND		PK6 = #PK6#
+		AND		PK7 = #PK7#
+	]]>
+	</update>
+	
+	<select id="CommonBatchCmsBizboxDAO.CommonCmsConfigDiffrentGeoraeCall" parameterClass="HashMap" resultClass="int"><![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsConfigDiffrentGeoraeCall - BizboxA - mariadb */
+		SELECT COUNT(georae_coll) AS georaeCollDiffCount
+		FROM (
+			SELECT georae_coll
+			FROM $DB_NEOS$t_ex_card_aq_tmp
+			WHERE auth_date >= #issDtFrom#
+			AND	  auth_date <= #issDtTo#
+			GROUP BY georae_coll
+		) t_ex_card_aq_tmp
+	]]></select>
+	
+	<update id="CommonBatchCmsBizboxDAO.CommonCmsRunYnUpdate" parameterClass="HashMap">
+	<![CDATA[
+		/* CommonBatchCmsBizboxDAO.CommonCmsRunYnUpdate - BizboxA - mariadb */
+		UPDATE	$DB_NEOS$T_EX_CMS_SYNC
+		SET		RUN_YN = #runYn#
+		WHERE	comp_seq = #compSeq#
+	]]>
+	</update>
+	
+	
+	
+</sqlMap>

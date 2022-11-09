@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+
+	<!-- <bean id="egov.propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:/egovframework/egovProps/globals.properties</value>
+			</list>
+		</property>
+	</bean> -->
+
+	<!-- DB 프로퍼티 설정 분리 -->
+	<!-- <util:properties id="db" location="file:#{'${Globals.OsType}' == 'WINDOWS' ? '${Globals.DbPropertise.WINDOWS}' : '${Globals.DbPropertise.UNIX}'}" /> -->
+	<util:properties id="bizboxa" location="file:${Globals.BizboxA.path}" />
+
+	<!-- 실행환경에서 빈이름 참조(EgovAbstractDAO) -->
+	<bean id="egov.lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler" lazy-init="true" />
+
+	<!-- SqlMap setup for iBATIS Database Layer -->
+	<bean id="egov.sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocations">
+			<list>
+				<value>classpath:/egovframework/sqlmap/config/#{bizboxa['BizboxA.DbType']}/BizboxAlpha/egov/*.xml
+				</value>
+				<value>classpath:/egovframework/sqlmap/config/#{bizboxa['BizboxA.DbType']}/BizboxAlpha/neos/*.xml
+				</value>
+				<value>classpath:/egovframework/sqlmap/config/#{bizboxa['BizboxA.DbType']}/BizboxAlpha/cmm/*.xml
+				</value>
+				<!-- ******************************************************************************************* -->
+				<!-- 공통 -->
+				<!-- ******************************************************************************************* -->
+				<value>classpath:/egovframework/sqlmap/config/#{bizboxa['BizboxA.DbType']}/BizboxAlpha/common/*.xml
+				</value>
+				<!-- ******************************************************************************************* -->
+				<!-- 지출결의 -->
+				<!-- ******************************************************************************************* -->
+				<value>classpath:/egovframework/sqlmap/config/#{bizboxa['BizboxA.DbType']}/BizboxAlpha/expend/ex/*.xml
+				</value>
+				<!-- ******************************************************************************************* -->
+				<!-- 지출결의2.0 -->
+				<!-- ******************************************************************************************* -->
+				<value>classpath:/egovframework/sqlmap/config/#{bizboxa['BizboxA.DbType']}/BizboxAlpha/expend/ex2/*.xml
+				</value>
+				<!-- ******************************************************************************************* -->
+				<!-- 이지바로 / 결의서 -->
+				<!-- ******************************************************************************************* -->
+				<value>classpath:/egovframework/sqlmap/config/#{bizboxa['BizboxA.DbType']}/BizboxAlpha/expend/ez/*.xml
+				</value>
+				<!-- ******************************************************************************************* -->
+				<!-- G20 품의서 / 결의서 -->
+				<!-- ******************************************************************************************* -->
+				<value>classpath:/egovframework/sqlmap/config/#{bizboxa['BizboxA.DbType']}/BizboxAlpha/expend/ac/*.xml
+				</value>
+				<!-- ******************************************************************************************* -->
+				<!-- 비영리 회계(NP) -->
+				<!-- ******************************************************************************************* -->
+				<value>classpath:/egovframework/sqlmap/config/#{bizboxa['BizboxA.DbType']}/BizboxAlpha/expend/np/*.xml
+				</value>
+				<!-- ******************************************************************************************* -->
+				<!-- 출장복명(TRIP) -->
+				<!-- ******************************************************************************************* -->
+				<value>
+					classpath:/egovframework/sqlmap/config/#{bizboxa['BizboxA.DbType']}/BizboxAlpha/expend/trip/*.xml
+				</value>
+				<!-- ******************************************************************************************* -->
+				<!-- 국고보조통합시스템 집행결의 -->
+				<!-- ******************************************************************************************* -->
+				<value>classpath:/egovframework/sqlmap/config/#{bizboxa['BizboxA.DbType']}/BizboxAlpha/expend/angu/*.xml
+				</value>
+				<!-- ******************************************************************************************* -->
+				<!-- Interlock -->
+				<!-- ******************************************************************************************* -->
+				<value>classpath:/egovframework/sqlmap/config/#{bizboxa['BizboxA.DbType']}/BizboxAlpha/interlock/*.xml
+				</value>
+				<!-- ******************************************************************************************* -->
+				<!-- 개발지원 -->
+				<!-- ******************************************************************************************* -->
+				<value>classpath:/egovframework/sqlmap/config/#{bizboxa['BizboxA.DbType']}/BizboxAlpha/devmanager/*.xml
+				</value>
+				<!-- ******************************************************************************************* -->
+				<!-- 업무용승용차 -->
+				<!-- ******************************************************************************************* -->
+				<value>classpath:/egovframework/sqlmap/config/#{bizboxa['BizboxA.DbType']}/BizboxAlpha/expend/bi/*.xml
+				</value>
+				
+				<value>classpath:/egovframework/sqlmap/config/#{bizboxa['BizboxA.DbType']}/BizboxAlpha/purchase/*.xml
+				</value>				
+			</list>
+		</property>
+		<property name="dataSource" ref="egov.dataSource" />
+		<property name="lobHandler" ref="egov.lobHandler" />
+	</bean>
+</beans>	

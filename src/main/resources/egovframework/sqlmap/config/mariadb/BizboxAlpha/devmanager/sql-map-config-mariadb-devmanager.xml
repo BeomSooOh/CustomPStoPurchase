@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN" "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<!-- Langpack 관리 -->
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/devmanager/DevMgrLangPackSQL.xml" />
+	<!-- Cms 관리 -->
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/devmanager/DevMgrCmsSQL.xml" />
+	<!-- 배포 관리 -->
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/devmanager/DevMgrBuildAssistSQL.xml"/>
+	<!-- 신입사원 테스트 페이지 -->
+	<sqlMap resource="egovframework/sqlmap/mariadb/BizboxAlpha/devmanager/DevMgrTestSQL.xml"/>
+</sqlMapConfig>

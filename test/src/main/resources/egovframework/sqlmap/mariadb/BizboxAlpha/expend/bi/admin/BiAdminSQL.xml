@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="BiAdminSQL">
+	<select id="BiAdminCarListSelect" parameterClass="HashMap" resultClass="HashMap">
+		/* 관리자 - 차량정보 조회 */
+		/* 필요파라미터 - compSeq, searchStr(선택/검색) */
+		SELECT	@rowNum := @rowNum + 1 rowNum
+				, erp_comp_seq AS erpCompSeq
+				, car_code AS carCode
+				, car_number AS carNumber
+				, car_name AS carName
+				, erp_dept_seq AS erpDeptSeq
+				, erp_dept_name AS erpDeptName
+				, erp_emp_seq AS erpEmpSeq
+				, erp_emp_name AS erpEmpName
+				, use_yn AS useYN
+				, erp_biz_seq AS erpBizSeq
+				, duty AS duty
+				, get_date AS getDate
+				, expend_type AS expendType
+				, insur_yn AS insurYN
+				, insur_tr_code AS insurTrCode
+				, insur_from_date AS insurFromDate
+				, insur_to_date AS insurToDate
+				, lease_yn AS leaseYN
+				, lease_from_date AS leaseFromDate
+				, lease_to_date AS leaseToDate
+				, biz_flag AS bizFlag
+				, comp_seq AS compSeq
+				, biz_seq AS bizSeq
+				, dept_seq AS deptSeq
+				, emp_seq AS empSeq
+				, create_seq AS createSeq
+				, create_date AS createDate
+				, modify_seq AS modifySeq
+				, modify_date AS modifyDate
+		FROM	$DB_NEOS$t_ex_biz_car, (SELECT @rowNum:=0) AS R
+		WHERE	comp_seq = '$compSeq$'
+		/* 검색조건 - 사용여부 */
+		AND		
+		(
+			car_code LIKE '%$searchStr$%' OR
+			car_number LIKE '%$searchStr$%' OR
+			car_name LIKE '%$searchStr$%'
+		)
+		<isNotEmpty property="useYN">
+			/* 검색조건 - 사용여부 */
+			AND		use_yn = '$useYN$'
+		</isNotEmpty>
+		
+	</select>
+	
+	<insert id="BiAdminCarListInsert" parameterClass="HashMap">
+		/* 관리자 - 차량정보 등록 */
+		/* 필요파라미터 - compSeq, carCode */
+		INSERT INTO $DB_NEOS$t_ex_biz_car (erp_comp_seq,car_code,car_number,car_name,erp_dept_seq,erp_dept_name,erp_emp_seq,erp_emp_name,use_yn,duty,erp_biz_seq,get_date,expend_type,insur_yn,insur_tr_code,insur_from_date,insur_to_date,lease_yn,lease_from_date,lease_to_date,biz_flag,comp_seq,biz_seq,dept_seq,emp_seq,create_seq,create_date,modify_seq,modify_date)
+		VALUES('$erpCompSeq$','$carCode$','$carNumber$','$carName$','$erpDeptSeq$','$erpDeptName$','$erpEmpSeq$','$erpEmpName$','$useYN$','$duty$','$erpBizSeq$','$getDate$','$expendType$','$insurYN$','$insurTrCode$','$insurFromDate$','$insurToDate$','$leaseYN$','$leaseFromDate$','$leaseToDate$','$bizFlag$','$compSeq$','$bizSeq$','$deptSeq$','$empSeq$','$empSeq$',NOW(),'$empSeq$',NOW());
+	</insert>
+	
+	<delete id="BiAdminCarListDelete" parameterClass="HashMap">
+		/* 관리자 - 차량정보 전체 삭제 */
+		/* 필요파라미터 - compSeq */
+		DELETE	FROM $DB_NEOS$t_ex_biz_car
+		WHERE	comp_seq = '$compSeq$'
+	</delete>
+</sqlMap>

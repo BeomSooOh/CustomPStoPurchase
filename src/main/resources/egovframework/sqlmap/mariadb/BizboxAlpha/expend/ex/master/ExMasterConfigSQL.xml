@@ -1,0 +1,935 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ExMasterConfigSQL">
+	<!-- select | insert | update -->
+	<!-- parameterClass | resultClass -->
+	<!-- HashMap | integer | String -->
+	<!-- prepend Statement에 붙을 오버라이딩 가능한 SQL부분(옵션) -->
+	<!-- property 비교되는 property(필수) -->
+	<!-- compareProperty 비교되는 다른 property (필수 또는 compareValue) -->
+	<!-- compareValue 비교되는 값(필수 또는 compareProperty) -->
+	<!-- <isEqual> 프로퍼티가 값 또는 다른 프로퍼티가 같은지 체크 -->
+	<!-- <isNotEqual> 프로퍼티가 값 또는 다른 프로퍼티가 같지 않은지 체크 -->
+	<!-- <isGreaterThan> 프로퍼티가 값 또는 다른 프로퍼티 보다 큰지 체크 -->
+	<!-- <isGreaterEqual> 프로퍼티가 값 또는 다른 프로퍼티 보다 크거나 같은지 체크 -->
+	<!-- <isLessThan> 프로퍼티가 값 또는 다른 프로퍼티 보다 작은지 체크 -->
+	<!-- <isLessEqual> 프로퍼티가 값 또는 다른 프로퍼티 보다 작거나 같은지 체크 사용법 예제) <isLessEqual prepend="AND" property="age" compareValue="18"> ADOLESCENT = 'TRUE' </isLessEqual> -->
+	<!-- prepend statement에 붙을 오버라이딩 가능한 SQL부분(옵션) -->
+	<!-- property 체크하기 위한 프로퍼티(필수) -->
+	<!-- <isPropertyAvailable>프로퍼티가 유효한지 체크(이를 테면 파라미터의 프로퍼티이다.) -->
+	<!-- <isNotPropertyAvailable>프로퍼티가 유효하지 않은지 체크(이를 테면 파라미터의 프로퍼티가 아니다.) -->
+	<!-- <isNull>프로퍼티가 null인지 체크 -->
+	<!-- <isNotNull>프로퍼티가 null이 아닌지 체크 -->
+	<!-- <isEmpty>Collection, 문자열 또는 String.valueOf() 프로퍼티가 null이거나 empty(“” or size() < 1)인지 체크 -->
+	<!-- <isNotEmpty>Collection, 문자열 또는 String.valueOf() 프로퍼티가 null 이아니거나 empty(“” or size() < 1)가 아닌지 체크 사용법 예제) <isNotEmpty prepend="AND" property="firstName"> FIRST_NAME = '$firstName$' </isNotEmpty> -->
+	<!-- 참고 : http://yth2626.blogspot.kr/2012/01/ibatis.html -->
+	<!-- 참고 : http://narrowway.tistory.com/79 -->
+	
+	
+
+	<!-- 지출결의 환경설정 -->
+	<select
+		id="ExConfigOptionListInfoSelect"
+		parameterClass="HashMap"
+		resultClass="HashMap"><![CDATA[
+		SELECT  A.option_gbn
+		        , A.option_code
+		        , A.use_sw
+		        , A.common_code
+		        , A.set_value
+		        , A.set_name
+		        , A.set_emp_value
+		        , A.option_select_type
+		        , A.option_process_type
+		        , B.option_name
+		        , B.option_note
+		FROM    (
+		            SELECT  IFNULL(CASE WHEN B.option_gbn IS NOT NULL THEN B.option_gbn ELSE A.option_gbn END, '') AS option_gbn
+		                    , IFNULL(CASE WHEN B.option_code IS NOT NULL THEN B.option_code ELSE A.option_code END, '') AS option_code
+		                    , IFNULL(CASE WHEN B.use_sw IS NOT NULL THEN B.use_sw ELSE A.use_sw END, '') AS use_sw
+		                    , IFNULL(CASE WHEN B.common_code IS NOT NULL THEN B.common_code ELSE A.common_code END, '') AS common_code
+		                    , IFNULL(CASE WHEN B.set_value IS NOT NULL THEN B.set_value ELSE A.set_value END, '') AS set_value
+		                    , IFNULL(CASE WHEN B.set_name IS NOT NULL THEN B.set_name ELSE A.set_name END, '') AS set_name
+		                    , IFNULL(CASE WHEN B.set_emp_value IS NOT NULL THEN B.set_emp_value ELSE A.set_emp_value END, '') AS set_emp_value
+		                    , IFNULL(CASE WHEN B.option_select_type IS NOT NULL THEN B.option_select_type ELSE A.option_select_type END, '') AS option_select_type
+		                    , IFNULL(CASE WHEN B.option_process_type IS NOT NULL THEN B.option_process_type ELSE A.option_process_type END, '') AS option_process_type
+		            FROM    (
+		                        SELECT  option_gbn
+		                                , option_code
+		                                , use_sw
+		                                , common_code
+		                                , base_value AS set_value
+		                                , base_name AS set_name
+		                                , base_emp_value AS set_emp_value
+		                                , option_select_type
+		                                , option_process_type
+		                        FROM    $DB_NEOS$t_ex_option
+		                        WHERE   comp_seq = 0
+		                        AND     form_seq = 0
+		                        AND     use_yn = 'Y'
+		                        AND     option_gbn = '$option_gbn$'
+		                        AND     use_sw = ''
+		
+		                        UNION
+		
+		                        SELECT  option_gbn
+		                                , option_code
+		                                , use_sw
+		                                , common_code
+		                                , base_value AS set_value
+		                                , base_name AS set_name
+		                                , base_emp_value AS set_emp_value
+		                                , option_select_type
+		                                , option_process_type
+		                        FROM    $DB_NEOS$t_ex_option
+		                        WHERE   comp_seq = 0
+		                        AND     form_seq = 0
+		                        AND     use_yn = 'Y'
+		                        AND     option_gbn = '$option_gbn$'
+		                        AND     use_sw = '$use_sw$'
+		                    ) A LEFT OUTER JOIN (
+		                        SELECT  option_gbn
+		                                , option_code
+		                                , use_sw
+		                                , common_code
+		                                , set_value
+		                                , set_name
+		                                , set_emp_value
+		                                , option_select_type
+		                                , option_process_type
+		                        FROM    $DB_NEOS$t_ex_option
+		                        WHERE   comp_seq = '$comp_seq$'
+		                        AND     form_seq = '$form_seq$'
+		                        AND     use_yn = 'Y'
+		                        AND     option_gbn = '$option_gbn$'
+		                        AND     use_sw = ''
+		
+		                        UNION
+		
+		                        SELECT  option_gbn
+		                                , option_code
+		                                , use_sw
+		                                , common_code
+		                                , set_value
+		                                , set_name
+		                                , set_emp_value
+		                                , option_select_type
+		                                , option_process_type
+		                        FROM    $DB_NEOS$t_ex_option
+		                        WHERE   comp_seq = '$comp_seq$'
+		                        AND     form_seq = '$form_seq$'
+		                        AND     use_yn = 'Y'
+		                        AND     option_gbn = '$option_gbn$'
+		                        AND     use_sw = '$use_sw$'
+		                    ) B ON A.option_gbn = B.option_gbn AND A.option_code = B.option_code AND A.use_sw = B.use_sw
+		        ) A INNER JOIN (
+		            SELECT  IFNULL(option_gbn, '') AS option_gbn
+		                    , IFNULL(option_code, '') AS option_code
+		                    , IFNULL(use_sw, '') AS use_sw
+		                    , IFNULL(option_name, '') AS option_name
+		                    , IFNULL(option_note, '') AS option_note
+		            FROM    $DB_NEOS$t_ex_option_multi
+		            WHERE   use_yn = 'Y'
+		            AND     option_gbn = '$option_gbn$'
+		            AND     lang_code = '$lang_code$'
+		        ) B ON A.option_gbn = B.option_gbn AND A.option_code = B.option_code AND A.use_sw = B.use_sw
+	]]></select>
+
+	<!-- 지출결의 환경설정 - 옵션 하위코드 조회 -->
+	<select
+		id="ExConfigOptionCodeListInfoSelect"
+		parameterClass="HashMap"
+		resultClass="HashMap"><![CDATA[
+		SELECT  B.detail_code AS common_code
+		        , C.detail_name AS common_name
+		FROM    (
+		            SELECT  `code`
+		            FROM    $DB_NEOS$t_co_code
+		            WHERE   `code` = (
+		                    SELECT  IFNULL(CASE WHEN B.common_code IS NOT NULL THEN B.common_code ELSE A.common_code END, '') AS common_code
+		                    FROM    (
+		                                SELECT  option_gbn
+		                                        , option_code
+		                                        , use_sw
+		                                        , common_code
+		                                FROM    $DB_NEOS$t_ex_option
+		                                WHERE   comp_seq = 0
+		                                AND     form_seq = 0
+		                                AND     use_yn = 'Y'
+		                                AND     option_gbn = '$option_gbn$'
+		                                AND     option_code = '$option_code$'
+		                            ) A LEFT OUTER JOIN (
+		                                SELECT  option_gbn
+		                                        , option_code
+		                                        , use_sw
+		                                        , common_code
+		                                FROM    $DB_NEOS$t_ex_option
+		                                WHERE   comp_seq = '$comp_seq$'
+		                                AND     form_seq = '$form_seq$'
+		                                AND     use_yn = 'Y'
+		                                AND     option_gbn = '$option_gbn$'
+		                                AND     option_code = '$option_code$'
+		                            ) B ON A.option_gbn = B.option_gbn AND A.option_code = B.option_code AND A.use_sw = B.use_sw
+		                    LIMIT   1
+		                )
+		            AND use_yn = 'Y'
+		        ) A INNER JOIN $DB_NEOS$t_co_code_detail B ON A.code = B.code
+		        INNER JOIN ( SELECT `code`, `detail_code`, `detail_name`, `note` FROM $DB_NEOS$t_co_code_detail_multi WHERE lang_code = '$lang_code$' AND use_yn = 'Y' ) C ON B.code = C.code AND B.detail_code = C.detail_code
+    ]]></select>
+
+	<update
+		id="ExConfigOptionInfoUpdate"
+		parameterClass="HashMap"><![CDATA[
+		INSERT INTO $DB_NEOS$t_ex_option ( comp_seq, form_seq, option_gbn, use_sw, order_num, common_code, set_value, set_name, set_emp_value, option_select_type, option_process_type, use_yn, create_seq, create_date, modify_seq, modify_date ) VALUES
+		( '$comp_seq$', '$form_seq$', '$option_gbn$', '$use_sw$', '$order_num$', '$common_code$', '$set_value$', '$set_name$', '$set_emp_value$', '$option_select_type$', '$option_process_type$', '$use_yn$', '$create_seq$', NOW(), '$modify_seq$', NOW() )
+		ON DUPLICATE KEY UPDATE set_value = '$set_value$', set_name = '$set_name$', set_emp_value = '$set_emp_value$', modify_seq = '$modify_seq$', modify_date = NOW()
+    ]]></update>
+
+	<select
+		id="getExUtilSystemType"
+		parameterClass="HashMap"
+		resultClass="HashMap">
+        /* getExUtilSystemType - BizboxA - mariadb */
+        SELECT  `database_type` AS `databaseType` /* 데이터베이스 타입 */
+		        , `driver` AS `driver` /* 드라이버 */
+		        , `url` AS `url` /* URL */
+		        , `userid` AS `userId` /* 접속계정 */
+		        , `password` AS `password` /* 접속비번 */
+		        , `erp_type_code` AS erpTypeCode /* 연동ERP구분 */
+		FROM    $DB_NEOS$t_co_erp /* 회사 검색조건 */
+		WHERE   comp_seq = '$compSeq$' /* 연동 ERP 검색조건 [ ac : 회계 / etc : 기타 ] */
+		AND     ( achr_gbn = 'ac' OR achr_gbn = 'etc' ) /* 정렬순서 적용 ( 회계우선 ) */
+		ORDER   BY achr_gbn LIMIT 1
+    </select>
+    
+    
+    <!-- 지출결의 환경설정 - 회사 리스트 조회 -->
+    <select id="ExConfigCompListInfo" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* ExConfigCompListInfo - BizboxA - mariaDB */
+			SELECT	a.comp_seq
+					, a.comp_seq AS common_code
+					, b.comp_name AS common_name
+					, c.erp_seq AS erp_comp_seq
+					, c.erp_type_code AS CODE
+			FROM	$DB_NEOS$t_co_comp a
+			INNER JOIN $DB_NEOS$t_co_comp_multi b ON a.comp_seq = b.comp_seq AND lang_code = '$lang_code$'
+			INNER JOIN $DB_NEOS$t_co_erp c ON a.comp_seq = c.comp_seq AND c.achr_gbn = 'ac'
+			INNER JOIN (
+				SELECT	org_id AS comp_seq
+				FROM 	$DB_NEOS$teag_form_auth a
+				INNER JOIN (
+					SELECT	co_id AS comp_seq
+						, form_id
+					FROM	$DB_NEOS$teag_form
+					WHERE 	form_tp = 'ea0060'
+					AND	form_d_tp BETWEEN '1001' AND '3000'
+					AND	use_yn = '1'
+					AND	display_yn = '1'
+				) b ON a.form_id = b.form_id
+				WHERE 	org_div = 'c'
+			) d ON a.comp_seq = d.comp_seq
+			WHERE a.use_yn = 'Y'
+			ORDER BY a.comp_seq * 1;
+	]]></select>
+	
+	<!-- 지출결의 환경설정 - form 리스트 조회 -->
+    <select id="ExConfigFormListInfo" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* ExConfigFormListInfo - BizboxA - mariaDB */
+				SELECT	form_id AS common_code
+						, CASE
+							WHEN '$lang_code$' = 'kr' THEN IFNULL(form_nm,'')
+							WHEN '$lang_code$' = 'jp' THEN IFNULL(form_nm_jp,'')
+							WHEN '$lang_code$' = 'cn' THEN IFNULL(form_nm_cn,'')
+							WHEN '$lang_code$' = 'en' THEN IFNULL(form_nm_en,'')
+							ELSE IFNULL(form_nm,'')
+						END AS common_name
+						,co_id AS comp_seq
+				FROM	$DB_NEOS$teag_form
+				WHERE 	form_id IN(
+					SELECT 	form_id
+					FROM 	$DB_NEOS$teag_form_auth
+					WHERE	org_div = 'c'
+					AND	org_id = '$comp_seq$'
+				)
+				AND 	form_tp = 'ea0060'
+				AND	form_d_tp BETWEEN '1001' AND '3000'
+				AND	use_yn = '1'
+				AND	display_yn = '1';
+	]]></select>
+
+	<!-- 지출결의 환경설정 - 항목설정 존재여부 확인 -->
+    <select id="ExConfigIsEmptyItemList" parameterClass="HashMap" resultClass="common.vo.ex.ExConfigItemVO"><![CDATA[
+		/* ExConfigIsEmptyItemList - BizboxA - mariaDB */
+				SELECT 	comp_seq
+						, form_seq
+						, item_gbn
+						, langpack_code
+						, langpack_name
+						, order_num
+						, display_align
+						, head_code
+						, select_yn 
+				FROM 	$DB_NEOS$t_ex_item 
+				WHERE 	comp_seq = '$comp_seq$' 
+				AND 	form_seq = '$form_seq$' 
+				AND 	item_gbn = '$item_gbn$' 
+				LIMIT 1;
+	]]></select>
+
+	<!-- 지출결의 환경설정 - 항목설정 최초 조회 -->
+    <select id="ExConfigFirstItemList" parameterClass="HashMap" resultClass="common.vo.ex.ExConfigItemVO"><![CDATA[
+		/* ExConfigFirstItemList - BizboxA - mariaDB */
+				SELECT 	'$comp_seq$' AS comp_seq
+						, '$form_seq$' AS form_seq
+						, '$item_gbn$' AS item_gbn
+						, langpack_code
+						, langpack_name
+						, order_num
+						, display_align
+						, head_code
+						, select_yn
+				FROM	$DB_NEOS$t_ex_item
+				WHERE	comp_seq = '0'
+				AND		form_seq = '0'
+				AND		item_gbn IN('all', '$item_gbn$')
+				ORDER BY order_num;
+	]]></select>
+
+	<!-- 지출결의 환경설정 - 항목설정 조회 -->
+    <select id="ExConfigItemListS" parameterClass="HashMap" resultClass="common.vo.ex.ExConfigItemVO"><![CDATA[
+		/* ExConfigItemList - BizboxA - mariaDB */
+				SELECT 	comp_seq
+						, form_seq
+						, item_gbn
+						, langpack_code
+						, langpack_name
+						, order_num
+						, display_align
+						, head_code
+						, select_yn
+				FROM	$DB_NEOS$t_ex_item
+				WHERE	comp_seq = '$comp_seq$'
+				AND		form_seq = '$form_seq$'
+				AND		item_gbn = '$item_gbn$'
+				ORDER BY order_num;
+	]]></select>
+	
+	<!-- 지출결의 환경설정 - 항목설정 삭제 -->
+	<delete id="ExConfigItemListD" parameterClass="HashMap">
+		<![CDATA[
+			/* ExConfigItemListD - BizboxA - mariaDB */
+					DELETE FROM $DB_NEOS$t_ex_item 
+					WHERE comp_seq = '$comp_seq$' AND form_seq = '$form_seq$' AND item_gbn = '$item_gbn$'
+		]]>
+	</delete>
+
+	<!-- 지출결의 환경설정 - 항목설정 추가 -->
+	<insert id="ExConfigItemListI"  parameterClass="HashMap">
+		<![CDATA[
+			/* ExConfigItemListI - BizboxA - mariaDB */
+					INSERT INTO $DB_NEOS$t_ex_item (comp_seq, form_seq, item_gbn, langpack_code
+						, langpack_name, order_num, display_align, head_code, select_yn)
+					VALUES('$comp_seq$','$form_seq$','$item_gbn$','$langpack_code$'
+						,'$langpack_name$','$order_num$','$display_align$','$head_code$','$select_yn$')
+		]]>
+	</insert>
+
+	<!-- 지출결의 작성 - 테이블 헤더 조회 -->
+	<select id="ExMasterGridItemInfoS" parameterClass="HashMap" resultClass="common.vo.ex.ExConfigItemVO">
+	<!-- 	SELECT	comp_seq
+				, form_seq
+				, item_gbn
+				, langpack_code
+				, langpack_name
+				, order_num
+				, CASE
+					WHEN display_align = 'center' THEN 'center'
+					WHEN display_align = 'right' THEN 'td_ri'		
+					WHEN display_align = 'left' THEN 'td_le'
+				  END AS display_align
+				, head_code
+				, select_yn
+		FROM 	$DB_NEOS$t_ex_item 
+		WHERE 	comp_seq = '$comp_seq$'
+		AND 	form_seq = '$form_seq$' 
+		AND 	select_yn = 'Y' 
+		AND 	item_gbn = '$item_gbn$' 
+		ORDER BY order_num; -->
+			<!-- [허준녕] 다국어 변환을 위해 쿼리 수정 -->
+		SELECT item.comp_seq
+			, item.form_seq
+			, item.item_gbn
+			, item.langpack_code
+			, langpack.lang_name AS langpack_name
+			, item.order_num
+			, item.display_align
+			, item.head_code
+			, item.select_yn
+		FROM (		
+				SELECT	comp_seq
+						, form_seq
+						, item_gbn
+						, langpack_code
+						, langpack_name
+						, order_num
+						, CASE
+							WHEN display_align = 'center' THEN 'center'
+							WHEN display_align = 'right' THEN 'td_ri'		
+							WHEN display_align = 'left' THEN 'td_le'
+						  END AS display_align
+						, head_code
+						, select_yn
+		FROM 	$DB_NEOS$t_ex_item 
+				WHERE 	comp_seq = '$comp_seq$'
+				AND 	form_seq = '$form_seq$' 
+				AND 	select_yn = 'Y' 
+				AND 	item_gbn = '$item_gbn$' 
+			)	item
+		INNER JOIN 	$DB_NEOS$t_ex_langpack	langpack
+		ON		langpack.basic_name = item.langpack_name
+		WHERE		langpack.lang_type = '$lang_type$'
+		GROUP BY	langpack_name	
+		ORDER BY 	order_num
+	</select>
+
+	<select id="ExConfigOptionSelect" parameterClass="HashMap" resultClass="HashMap">
+	        /* ExConfigOptionSelect - BizboxA - mariadb */
+			SELECT  B.option_name AS option_name
+					, A.common_code AS option_code
+					, A.common_value AS option_value
+			FROM(	
+					SELECT  CASE WHEN B.common_code IS NOT NULL THEN  B.common_code ELSE A.common_code END AS common_code
+							,CASE WHEN B.common_value IS NOT NULL THEN  B.common_value ELSE A.common_value END AS common_value
+							,CASE WHEN B.use_sw IS NOT NULL THEN  B.use_sw ELSE A.use_sw END AS use_sw
+					FROM(
+						SELECT option_code AS common_code
+								, CASE WHEN common_code IS NOT NULL THEN base_value ELSE base_name END AS common_value 
+								, use_sw
+						FROM $DB_NEOS$t_ex_option
+						WHERE comp_seq = '0' AND form_seq = '0' AND use_yn = 'Y' AND (use_sw = '' OR use_sw = '$ifSystem$') 
+					)A LEFT OUTER JOIN( 
+						SELECT option_code AS common_code
+								, CASE WHEN common_code IS NOT NULL THEN set_value ELSE set_name END AS common_value 
+								, use_sw 
+						FROM $DB_NEOS$t_ex_option
+						WHERE comp_seq = '$comp_seq$' AND form_seq = '$form_seq$' AND use_yn = 'Y' AND (use_sw = '' OR use_sw = '$ifSystem$') 
+					)B ON A.common_code = B.common_code AND A.use_sw = B.use_sw
+			)A LEFT OUTER JOIN(
+					SELECT    option_code
+							, option_name
+							, use_sw
+					FROM $DB_NEOS$t_ex_option_multi
+			)B ON A.common_code = B.option_code AND A.use_sw = B.use_sw
+	    </select>
+
+	<!-- 지출결의설정 - 환경설정 정보 조회 -->
+	<select id="ExConfigExpendSettingItems" parameterClass="HashMap" resultClass="HashMap">
+		/* !  [EX] 지출결의설정 아이템 조회 쿼리 */
+		/* mariadb/ex/config/ExConfig_SQL.xml - ExConfigExpendSettingItems */
+		SELECT 	
+			OPT.option_gbn				AS 'optionGbn'
+			, OPT.option_code			AS 'optionCode'
+			, OPT.common_code			AS 'commonCode'
+			, OPT.use_sw				AS 'useSw'
+			, OPT.base_value			AS 'baseValue'
+			, OPT.base_emp_value		AS 'baseEmpValue'	
+			, OPT.base_name				AS 'baseName'
+			, OPT.order_num				AS 'orderNum'
+			, OPT.set_value				AS 'setValue'
+			, OPT.set_emp_value			AS 'setEmpValue'
+			, OPT.set_name				AS 'setName'	
+			, OPT.option_select_type 	AS 'optionSelectType'
+			, OPT.option_process_type 	AS 'optionProcessType'
+			, OPT.use_yn 				AS 'useYn'	
+			, OPTM.option_name 			AS 'optionName'
+			, CODM.name 				AS 'name'
+			, CODDM.detail_code			AS 'detailCode'
+			, CODDM.detail_name			AS 'detailName'
+			, CODDM.order_num			AS 'orderNum'
+		FROM	(
+			SELECT	baseOpt.comp_seq
+					, baseOpt.form_seq
+					, baseOpt.option_gbn
+					, baseOpt.option_code
+					, baseOpt.use_sw
+					, baseOpt.order_num
+					, baseOpt.common_code
+					, baseOpt.base_value
+					, baseOpt.base_name
+					, baseOpt.base_emp_value
+					, IFNULL(compOpt.set_value,IFNULL(baseOpt.base_value,baseOpt.base_name)) AS set_value
+					, IFNULL(compOpt.set_name,baseOpt.base_name) AS set_name
+					, baseOpt.set_emp_value
+					, baseOpt.option_select_type
+					, baseOpt.option_process_type
+					, baseOpt.use_yn
+					, baseOpt.create_seq
+					, baseOpt.create_date
+					, baseOpt.modify_seq
+					, baseOpt.modify_date
+			FROM	$DB_NEOS$t_ex_option baseOpt
+			LEFT OUTER JOIN (
+				SELECT	option_gbn
+						, option_code
+						, set_value
+						,set_name
+				FROM	$DB_NEOS$t_ex_option 
+				WHERE 	comp_seq	= '$sCompSeq$' /* compSeq 변경필요 */ 
+				AND		form_seq	= '$sFormSeq$' /* formId 변경필요 */
+				AND		use_sw 		= '$useSw$' /* useSw 변경필요 */
+				AND		use_yn 		= 'Y'
+			) compOpt ON baseOpt.option_gbn = compOpt.option_gbn AND baseOpt.option_code = compOpt.option_code
+			WHERE 	comp_seq	= 0
+			AND		form_seq	= 0
+			AND		use_sw 		= '$useSw$' /* useSw 변경필요 */
+			AND		use_yn 		= 'Y'
+			AND		baseOpt.option_gbn 	IN ('001','002','003')
+		)	OPT
+			
+			LEFT OUTER JOIN	$DB_NEOS$t_ex_option_multi OPTM
+				ON		OPT.option_gbn 	= OPTM.option_gbn
+					AND	OPT.option_code = OPTM.option_code
+					AND	OPT.use_sw 		= OPTM.use_sw
+					AND	OPTM.lang_code 	= '$langCode$' /* langCode 변경필요 */
+					AND	OPTM.use_yn 	= 'Y'
+			
+			LEFT OUTER JOIN	$DB_NEOS$t_co_code COD
+				ON		OPT.common_code = COD.code
+					AND	COD.use_yn 		= 'Y'
+			
+			LEFT OUTER JOIN	$DB_NEOS$t_co_code_multi CODM
+				ON		COD.code 		= CODM.code
+					AND	OPTM.lang_code 	= CODM.lang_code
+					AND	CODM.use_yn 	= 'Y'
+			
+<!-- 			LEFT OUTER JOIN	$DB_NEOS$t_co_code_detail_multi CODDM -->
+			LEFT OUTER JOIN (
+					SELECT	m.detail_code
+							, m.code
+							, m.lang_code
+							, m.detail_name
+							, m.use_yn
+							, IFNULL(d.order_num,0) AS order_num
+					FROM	$DB_NEOS$t_co_code_detail_multi m
+					INNER JOIN $DB_NEOS$t_co_code_detail d ON m.code = d.code AND m.detail_code = d.detail_code
+				) CODDM
+				ON		COD.code 		= CODDM.code
+					AND	OPTM.lang_code 	= CODDM.lang_code
+					AND	CODM.use_yn 	= 'Y'		
+		ORDER BY OPT.option_code, CODDM.order_num
+	
+	</select>
+	<update id="ExConfigExpendUpdateItems" parameterClass="HashMap">
+		UPDATE 	$DB_NEOS$t_ex_option
+		SET 	set_value 		= '$setValue$'
+				, set_emp_value = '$setEmpValue$'
+				, set_name 		= '$setName$'
+				, modify_seq 	= $empSeq$
+				, modify_date 	= NOW()
+		WHERE 	comp_seq 	= '$compSeq$'
+			AND form_seq 	= '$formSeq$'
+			AND option_gbn 	= '$optionGbn$'
+			AND option_code = '$optionCode$'
+			AND use_sw 		= '$useSw$'
+	</update>
+
+	<delete id = "ExConfigExpendDeleteItems" parameterClass="HashMap">
+		DELETE FROM $DB_NEOS$t_ex_option
+		WHERE		comp_seq = '$compSeq$'
+		AND			form_seq = '$formSeq$'
+		AND			use_sw = '$useSw$'
+	</delete>
+
+	<insert id="ExConfigExpendInsertItems" parameterClass="HashMap"><![CDATA[
+		INSERT INTO 	$DB_NEOS$t_ex_option
+		(comp_seq, form_seq, option_gbn, option_code, use_sw, order_num, common_code
+		, base_value, base_name, base_emp_value, set_value, set_name, set_emp_value, option_select_type
+		, option_process_type, use_yn, create_seq, create_date, modify_seq, modify_date)
+		VALUES(
+		'$compSeq$', '$formSeq$', '$optionGbn$', '$optionCode$', '$useSw$', '$orderNum$', '$commonCode$'
+		, '$baseValue$', '$baseName$', '$baseEmpValue$', '$setValue$', '$setName$', '$setEmpValue$'
+		, '$optionSelectType$', '$optionProcessType$', '$useYn$', '$createSeq$', NOW(), '$modifySeq$', NOW()
+		)
+    ]]></insert>
+    
+    
+    <!-- 생성 -->
+	<insert id="ExCodeAcctInfoInsert" parameterClass="HashMap"><![CDATA[
+		/* ExCodeAcctInfoInsert - BizboxA - mariaDB */
+		INSERT IGNORE
+		INTO   $DB_NEOS$t_ex_acct
+		       (
+		              comp_seq,
+		              acct_code,
+		              acct_name ,
+		              vat_yn,
+		              use_yn ,
+		              create_seq,
+		              create_date,
+		              modify_seq ,
+		              modify_date
+		       )
+		       VALUES
+		       (
+		              '$comp_seq$',
+		              '$acct_code$',
+		              '$acct_name$',
+		              '$vat_yn$',
+		              '$use_yn$',
+		              '$create_seq$',
+		              NOW(),
+		              '$modify_seq$',
+		              NOW()
+		       );
+	]]></insert>
+
+	<!-- 수정 -->
+	<update id="ExCodeAcctInfoUpdate" parameterClass="HashMap"><![CDATA[
+		/* ExCodeAcctInfoUpdate - BizboxA - mariaDB */
+		UPDATE $DB_NEOS$t_ex_acct
+		   SET acct_name = '$acct_name$'
+		       , vat_yn = '$vat_yn$'
+		       , use_yn = '$use_yn$'
+		       , modify_seq = '$modify_seq$'
+		       , modify_date = NOW()
+		 WHERE comp_seq = '$comp_seq$'
+		       AND acct_code = '$acct_code$'; 
+	]]></update>
+
+	<!-- 삭제 -->
+	<delete id="ExCodeAcctInfoDelete" parameterClass="HashMap"><![CDATA[
+		/* ExCodeAcctInfoDelete - BizboxA - mariaDB */
+		DELETE FROM $DB_NEOS$t_ex_acct
+		 WHERE comp_seq = '$comp_seq$'
+		       AND acct_code = '$acct_code$';
+	]]></delete>
+	
+    <!-- 공통코드 - 증빙유형 등록 -->
+	<insert id="ExCodeAuthInfoInsert" parameterClass="HashMap">
+		/* ExCodeAuthInfoInsert - BizboxA - mariaDB */
+		INSERT INTO $DB_NEOS$t_ex_auth (
+		    comp_seq
+		    , auth_div
+		    , auth_code
+		    , auth_name
+		    , cash_type
+		    , cr_acct_code
+		    , cr_acct_name
+		    , vat_acct_code
+		    , vat_acct_name
+		    , vat_type_code
+		    , vat_type_name
+		    , erp_auth_code
+		    , erp_auth_name
+		    , auth_required_yn
+		    , partner_required_yn
+		    , card_required_yn
+		    , project_required_yn
+		    , note_required_yn
+		    , no_tax_code
+		    , no_tax_name
+		    , order_num
+		    , use_yn
+		    , va_type_code
+		    , va_type_name
+		    , create_seq
+		    , create_date
+		    , modify_seq
+		    , modify_date )
+		VALUES (
+		    '$compSeq$'
+		    , '$authDiv$'
+		    , '$authCode$'
+		    , #authName#
+		    , '$cashType$'
+		    , '$crAcctCode$'
+		    , #crAcctName#
+		    , '$vatAcctCode$'
+		    , #vatAcctName#
+		    , '$vatTypeCode$'
+		    , #vatTypeName#
+		    , '$erpAuthCode$'
+		    , #erpAuthName#
+		    , '$authRequiredYN$'
+		    , '$partnerRequiredYN$'
+		    , '$cardRequiredYN$'
+		    , '$projectRequiredYN$'
+		    , '$noteRequiredYN$'
+		    , '$noTaxCode$'
+		    , #noTaxName#
+		    <isEmpty property="orderNum">
+		    , 0
+		    </isEmpty>
+		    <isNotEmpty property="orderNum">
+		    , '$orderNum$'
+		    </isNotEmpty>
+		    , '$useYN$'
+		    , '$vaTypeCode$'
+		    , '$vaTypeName$'
+		    , '$createSeq$'
+		    , NOW()
+		    , '$modifySeq$'
+		    , NOW() )
+	</insert>
+
+	<!-- 공통코드 - 증빙유형 수정 -->
+	<update id="ExCodeAuthInfoUpdate" parameterClass="HashMap"><![CDATA[
+		/* ExCodeAuthInfoUpdate - BizboxA - mariaDB */
+		UPDATE  $DB_NEOS$t_ex_auth
+		SET     auth_name = '$authName$'
+		        , cash_type = '$cashType$'
+		        , cr_acct_code = '$crAcctCode$'
+		        , cr_acct_name = #crAcctName#
+		        , vat_acct_code = '$vatAcctCode$'
+		        , vat_acct_name = #vatAcctName#
+		        , vat_type_code = '$vatTypeCode$'
+		        , vat_type_name = #vatTypeName#
+		        , erp_auth_code = '$erpAuthCode$'
+		        , erp_auth_name = #erpAuthName#
+		        , auth_required_yn = '$authRequiredYN$'
+		        , partner_required_yn = '$partnerRequiredYN$'
+		        , card_required_yn = '$cardRequiredYN$'
+		        , project_required_yn = '$projectRequiredYN$'
+		        , note_required_yn = '$noteRequiredYN$'
+		        , no_tax_code = '$noTaxCode$'
+		        , no_tax_name = #noTaxName#
+		        , order_num = '$orderNum$'
+		        , use_yn = '$useYN$'
+		        , va_type_code = '$vaTypeCode$'
+		        , va_type_name = #vaTypeName#
+		        , modify_seq = '$modifySeq$'
+		        , modify_date = NOW()
+		WHERE   comp_seq = '$compSeq$'
+		AND     auth_div = '$authDiv$'
+		AND     auth_code = '$authCode$'
+	]]></update>
+    
+   	<!-- 공통코드 -증빙유형 삭제 -->
+	<delete id="ExCodeAuthInfoDelete" parameterClass="HashMap"><![CDATA[
+		/* ExCodeAuthInfoDelete - BizboxA - mariaDB */
+		DELETE
+		FROM    $DB_NEOS$t_ex_auth
+		WHERE   comp_seq = '$compSeq$'
+		AND     auth_div = '$authDiv$'
+		AND     auth_code = '$authCode$'
+	]]></delete>
+	
+	
+	
+	
+
+	
+	
+	<!-- 관리항목 설정 - 관리항목 설정 정보 조회 -->
+	<select id="ExConfigMngListInfoSelect" parameterClass="HashMap" resultClass="common.vo.ex.ExCodeMngVO"><![CDATA[
+		/* ExConfigMngListInfoSelect - BizboxA - mariaDB */
+        SELECT  comp_seq AS compSeq
+                , A.form_seq AS formSeq
+                , A.mng_code AS mngCode
+                , A.mng_name AS mngName
+                , A.ctd_code AS ctdCode
+                , A.ctd_name AS ctdName
+                , A.drcr_gbn AS drcrGbn
+                , A.note AS note
+                , A.use_gbn AS useGbn
+                , B.detail_name AS useGbnName
+                , A.cust_set AS custSet
+                , A.cust_set_target AS custSetTarget
+                , A.modify_yn AS modifyYN
+        FROM    $DB_NEOS$t_ex_mng_option A
+	            INNER JOIN (
+                    SELECT  detail_code
+                            , detail_name
+                    FROM    $DB_NEOS$t_co_code_detail_multi
+                    WHERE   `lang_code` = 'kr'
+                    AND     `code` = 'ex00018'
+	            ) B ON A.use_gbn = B.detail_code
+		WHERE   comp_seq = '$compSeq$'
+        AND     form_seq = '$formSeq$'
+        AND     drcr_gbn = '$drcrGbn$'
+        AND     use_gbn != 'Default'
+        AND     ( mng_code LIKE '%$searchStr$%' OR mng_name LIKE '%$searchStr$%' )
+	]]></select>
+
+	<!-- 관리항목 설정 - 관리항목 설정 정보 생성 -->
+	<insert id="ExConfigMngInfoInsert" parameterClass="HashMap"><![CDATA[
+		/* ExConfigMngInfoInsert - BizboxA - mariaDB */
+		INSERT IGNORE INTO $DB_NEOS$t_ex_mng_option ( `comp_seq`, `form_seq`, `drcr_gbn`, `mng_code`, `mng_name`, `use_gbn`, `ctd_code`, `ctd_name`, `note`, `cust_set`, `cust_set_target`, `modify_yn`, `create_seq`, `create_date`, `modify_seq`, `modify_date` )
+		VALUES ( '$compSeq$', '$formSeq$', '$drcrGbn$', '$mngCode$', '$mngName$', '$useGbn$', '$ctdCode$', '$ctdName$', '$note$', '$custSet$', '$custSetTarget$', '$modifyYN$', '$createSeq$', NOW(), '$modifySeq$', NOW() )
+    ]]></insert>
+
+	<!-- 관리항목 설정 - 관리항목 설정 정보 삭제 -->
+	<delete id="ExConfigMngInfoDelete" parameterClass="HashMap"><![CDATA[
+		/* ExConfigMngInfoDelete - BizboxA - mariaDB */
+		DELETE
+		FROM    $DB_NEOS$t_ex_mng_option
+		WHERE   `comp_seq` = '$compSeq$'
+		AND     `form_seq` = '$formSeq$'
+		AND     `drcr_gbn` = '$drcrGbn$'
+		AND     `mng_code` = '$mngCode$'
+		AND     `modify_yn` = 'Y'
+    ]]></delete>
+    
+    <!-- 공통코드 - 표준적요 등록 -->
+	<insert id="ExCodeSummaryInfoInsert" parameterClass="HashMap">
+		/* ExCodeSummaryInfoInsert - BizboxA - mariaDB */
+		/* 표준 적요 등록 / 신규 생성 */
+		INSERT INTO $DB_NEOS$t_ex_summary ( 
+			comp_seq
+			, summary_code
+			, summary_name
+			, summary_div
+			, dr_acct_code
+			, dr_acct_name
+			, cr_acct_code
+			, cr_acct_name
+			, vat_acct_code
+			, vat_acct_name
+			, erp_auth_code
+			, erp_auth_name
+			, bank_partner_code
+			, bank_partner_name
+			, create_seq, create_date
+			, modify_seq
+			, modify_date
+			, order_num
+		)
+		VALUES ( 
+			'$compSeq$'
+			, '$summaryCode$'
+			, #summaryName#
+			, '$summaryDiv$'
+			, '$drAcctCode$'
+			, #drAcctName#
+			, '$crAcctCode$'
+			, #crAcctName#
+			, '$vatAcctCode$'
+			, #vatAcctName#
+			, #erpAuthCode#
+			, #erpAuthName#
+			, '$bankPartnerCode$'
+			, #bankPartnerName#
+			, '$createSeq$'
+			, NOW()
+			, '$modifySeq$'
+			, NOW() 
+			<isEmpty property="orderNum">
+				, 0
+			</isEmpty>
+			<isNotEmpty property="orderNum">
+				, '$orderNum$'
+			</isNotEmpty>
+		)
+	</insert>
+	
+	<!-- 공통코드 - 표준적요 수정 -->
+	<update id="ExCodeSummaryInfoUpdate" parameterClass="HashMap">
+		/* ExCodeSummaryInfoUpdate - BizboxA - mariaDB */
+		/* 표준적요 정보 갱신 / 수정 */
+		UPDATE 	$DB_NEOS$t_ex_summary
+		SET 	summary_name = #summaryName#
+				, dr_acct_code = '$drAcctCode$'
+				, dr_acct_name = #drAcctName#
+				, cr_acct_code = '$crAcctCode$'
+				, cr_acct_name = #crAcctName#
+				, vat_acct_code = '$vatAcctCode$'
+				, vat_acct_name = #vatAcctName#
+				, erp_auth_code = #erpAuthCode#
+				, erp_auth_name = #erpAuthName#
+				, bank_partner_code = '$bankPartnerCode$'
+				, bank_partner_name = #bankPartnerName#
+				, modify_seq = '$modifySeq$'
+				, modify_date = NOW()
+				, order_num = ( CASE WHEN IFNULL('$orderNum$', '') = '' THEN 0 ELSE '$orderNum$' END )
+		WHERE 	comp_seq = '$compSeq$'
+		AND		summary_code = '$summaryCode$'
+		AND		summary_div = '$summaryDiv$'
+	</update>
+	
+	<!-- 공통코드 - 표준적요 삭제 -->
+	<delete id="ExCodeSummaryInfoDelete" parameterClass="HashMap">
+		/* ExCodeSummaryInfoDelete - BizboxA - mariaDB */
+		/* 표준 적요 정보삭제 */
+		DELETE 
+		FROM 	$DB_NEOS$t_ex_summary
+		WHERE 	comp_seq = '$compSeq$'
+		 AND	summary_code = '$summaryCode$'
+		 AND	summary_div = '$summaryDiv$'
+	</delete>
+	
+	<!-- 공통코드 - 표준적요 조회 -->
+	<select id="ExCodeSummaryInfoSelect" parameterClass="HashMap" resultClass="common.vo.ex.ExCodeSummaryVO">
+		/* ExCodeSummaryInfoSelect - BizboxA - mariaDB */
+		SELECT comp_seq , summary_code , summary_name , summary_div , dr_acct_code , dr_acct_name , cr_acct_code , cr_acct_name , vat_acct_code , vat_acct_name , bank_partner_code , bank_partner_name , create_seq , create_date , modify_seq , modify_date
+		FROM $DB_NEOS$t_ex_summary
+		WHERE comp_seq = '$comp_seq$'
+		AND summary_div = '$summary_div$'
+		AND ( ( summary_code LIKE '%$search_str$%' ) OR ( summary_name LIKE '%$search_str$%' ) OR ( dr_acct_code LIKE '%$search_str$%' ) OR ( dr_acct_name LIKE '%$search_str$%' ) OR ( cr_acct_code LIKE '%$search_str$%' ) OR ( cr_acct_name LIKE '%$search_str$%' ) OR ( vat_acct_code LIKE '%$search_str$%' ) OR ( vat_acct_name LIKE '%$search_str$%' ) )
+		LIMIT 1
+	</select>
+	
+	<!-- 공통코드 - 부가세 구분 목록 조회 -->
+	<select id="ExCodeVatTypeListInfoSelect" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+        /* ExCodeVatTypeListInfoSelect - BizboxA - mariaDB */
+        SELECT  comp_seq
+	            , vat_code AS vat_type_code
+	            , vat_name AS vat_type_name
+	            , use_yn
+	            , create_seq
+	            , modify_seq
+        FROM    $DB_NEOS$t_ex_vat
+        WHERE   comp_seq = '$comp_seq$'
+        AND     ( ( vat_code LIKE '%$search_str$%' ) OR ( vat_name LIKE '%$search_str$%' ) )
+    ]]></select>
+    
+    
+    <!-- 공통코드 - 부가세 구분 등록 -->
+	<insert
+		id="ExCodeVatTypeInfoInsert"
+		parameterClass="HashMap"><![CDATA[
+		/* ExCodeVatTypeInfoInsert - BizboxA - mariaDB */
+		INSERT IGNORE INTO $DB_NEOS$t_ex_vat (
+		    comp_seq
+		    , vat_code
+		    , vat_name
+		    , use_yn
+		    , create_seq
+		    , create_date
+		    , modify_seq
+		    , modify_date )
+		VALUES (
+		    '$compSeq$'
+		    , '$vatTypeCode$'
+		    , '$vatTypeName$'
+		    , '$useYN$'
+		    , '$createSeq$'
+		    , NOW()
+		    , '$modifySeq$'
+		    , NOW() )
+	]]></insert>
+
+	<!-- 공통코드 - 부가세 구분 수정 -->
+	<update
+		id="ExCodeVatTypeInfoUpdate"
+		parameterClass="HashMap"><![CDATA[
+		/* ExCodeVatTypeInfoUpdate - BizboxA - mariaDB */
+		UPDATE  $DB_NEOS$t_ex_vat
+		SET     vat_name = '$vatTypeName$'
+		        , use_yn = '$useYN$'
+		        , modify_seq = '$modifySeq$'
+		        , modify_date = NOW()
+		WHERE   comp_seq = '$compSeq$'
+		AND     vat_code = '$vatTypeCode$'
+	]]></update>
+
+	<!-- 공통코드 - 부가세 구분 삭제 -->
+	<delete
+		id="ExCodeVatTypeInfoDelete"
+		parameterClass="HashMap"><![CDATA[
+		/* ExCodeVatTypeInfoDelete - BizboxA - mariaDB */
+		DELETE
+		FROM    $DB_NEOS$t_ex_vat
+		WHERE   comp_seq = '$compSeq$'
+		AND     vat_code = '$vatTypeCode$'
+	]]></delete>
+</sqlMap>

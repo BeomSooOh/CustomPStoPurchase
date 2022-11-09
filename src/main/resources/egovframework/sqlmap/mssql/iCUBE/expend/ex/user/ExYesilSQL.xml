@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ERPiCUBE mssql -->
+<mapper namespace="UseriCUBEYesil">
+	<select id="ExUserYesilBudgetFG" parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExYesilSQL.xml */
+		/* 부서, 프로젝트 구분 조회 / ExUserYesilBudgetFG  */
+			SELECT DISTINCT CASE
+								WHEN (SELECT USE_YN FROM DBO.SYSCFG WHERE CO_CD = '${erpCompSeq}' AND MODULE_CD = 'A' AND CTR_CD = '21') = '0' THEN 'N'
+								WHEN (SELECT USE_YN FROM DBO.SYSCFG WHERE CO_CD = '${erpCompSeq}' AND MODULE_CD = 'A' AND CTR_CD = '21' ) = '1' 
+									 AND (SELECT FG_TY FROM DBO.SYSCFG WHERE CO_CD = '${erpCompSeq}' AND MODULE_CD = 'A' AND CTR_CD = '20' ) = '2' THEN 'P'
+								ELSE 'D'
+							END AS BUDGET_FG
+			FROM SYSCFG
+			WHERE CO_CD = '${erpCompSeq}'
+			AND MODULE_CD = 'A'
+			AND CTR_CD IN ('20', '21')
+		]]>
+	</select>
+	
+	<select id="ExUserYesilProjectInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExYesilSQL.xml */
+		/* 프로젝트 정보 조회 / ExUserYesilProjectInfo  */
+			SELECT A.NO_PROJECT, 
+				   A.NM_PROJECT
+			FROM(
+				SELECT ROW_NUMBER() OVER(ORDER BY A.PJT_CD ) AS r_num,
+						PJT_CD AS NO_PROJECT,
+						PJT_NM AS NM_PROJECT
+				FROM ZA_PJT_DAIKIN A
+				WHERE CO_CD = '${erpCompSeq}'
+				) A
+			WHERE r_num = 1
+		]]>
+	</select>
+	
+	<select id="ExUserYesilInfoSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExYesilSQL.xml */
+		/* 예실대비현황 조회 / ExUserYesilInfoSelect  */
+			exec USP_ACD0040_UC_BUDGETINFO_ACCT
+			@CO_CD = '${erpCompSeq}', 
+			@BUDGET_FG = '${budgetFlag}', 
+			@DEPT_CD = '${searchCode}', 
+			@BUD_YM_F = '${fromDt}', 
+			@BUD_YM_T = '${toDt}'
+		]]> 
+	</select>
+	
+	<select id="ExUserYesilDetailSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExYesilSQL.xml */
+		/* 예실대비현황 상세조회 / ExUserYesilDetailSelect  */
+			exec USP_ACD0040_UC_SUM_SELECT 
+			@CO_CD = '${erpCompSeq}', 
+			@BUDGET_FG = '${budgetFlag}', 
+			@DEPT_CDS = '${searchCode}', 
+			@BUD_YM_F = '${fromDt}', 
+			@BUD_YM_T = '${toDt}', 
+			@ACCT_CDS = '${ACCT_CD}'
+		]]>
+	</select>
+	
+	<select id="ExYesilProjectSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExYesilSQL.xml */
+		/* 프로젝트 목록 조회 / ExYesilProjectSelect  */
+		SELECT	NO_PROJECT, NM_PROJECT
+		FROM	(
+            SELECT	ROW_NUMBER() OVER(ORDER BY A.PJT_CD ) AS r_num
+                    , A.PJT_CD AS NO_PROJECT
+                    , A.PJT_NM AS NM_PROJECT
+            FROM	ZA_PJT_DAIKIN A
+            WHERE	CO_CD = '${erpCompSeq}'
+            AND		( ( ISNULL ( '${search_str}' , '' ) <> '' AND ( ( ISNULL ( REPLACE(A.PJT_CD, '', ''), '' ) LIKE '%' + ISNULL ( REPLACE( '${search_str}' , '', ''), '' ) + '%' )
+		                                                 OR ( ISNULL ( REPLACE(A.PJT_NM, '', ''), '' ) LIKE '%' + ISNULL ( REPLACE( '${search_str}' , '', ''), '' ) + '%' ) ) )
+                    OR( ISNULL ( '${search_str}' , '' ) = '' AND ( ISNULL ( '${search_str}' , '' ) = ISNULL ( '${search_str}' , '' ) ) ) )
+        ) A
+		]]>
+	</select>
+</mapper>

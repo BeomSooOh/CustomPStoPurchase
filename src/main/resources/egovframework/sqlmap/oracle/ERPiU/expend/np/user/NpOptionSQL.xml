@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 사용자 코드 -->
+<mapper namespace="npUserOptionU">
+	<select id="NpTestQuery" parameterType="java.util.Map" resultType="java.util.Map">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - NpTestQuery */
+		/* ERP iU 테스트 쿼리 */
+		SELECT	'1'
+		FROM	DUAL;
+	</select>
+	
+	<select id="npUserOptionU.selectUserBaseInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserOptionU.selectUserBaseInfo */
+		/* ERP iU 사용자 기본 정보 조회 */
+		SELECT B.CD_COMPANY   AS erpCompSeq
+		       , B.NM_COMPANY AS erpCompName
+		       , C.CD_BIZAREA AS erpBizSeq
+		       , C.NM_BIZAREA AS erpBizName
+		       , D.CD_DEPT    AS erpDeptSeq
+		       , D.NM_DEPT    AS erpDeptName
+		       , A.NO_EMP     AS erpEmpSeq
+		       , A.NM_KOR     AS erpEmpName
+		       , E.CD_PC      AS erpPcSeq
+		       , E.NM_PC      AS erpPcName
+		       , F.CD_CC      AS erpCcSeq
+		       , F.NM_CC      AS erpCcName
+		       /* 급여 계좌 */
+		       , A.CTD_CD2 AS depositCd2
+		       , A.CTD_NM2 AS depositName2
+		       /* 경비 계좌 */
+		       , A.CTD_CD AS depositCd
+		       , A.CTD_NM AS depositName
+		  FROM (SELECT 	CD_COMPANY
+						, CD_BIZAREA
+						, CD_DEPT
+						, NO_EMP
+						, NM_KOR
+						, CD_CC
+						, CD_INCOM
+						/* 급여 계좌 */
+						, NVL ( CD_BANK2, '' ) AS CD_BANK2
+						, NVL ( NO_BANK2, '' ) AS NO_BANK2
+						, NVL ( NM_DEPOSIT2, '' ) AS NM_DEPOSIT2
+						, '' AS CTD_CD
+						, NVL ( CD_BANK2, '' ) || '/' || NVL ( ( SELECT NM_SYSDEF FROM NEOE.MA_CODEDTL WHERE CD_COMPANY = '${erpCompSeq}' AND CD_FIELD = 'MA_B000043' AND CD_SYSDEF = NVL ( CD_BANK2, '' ) ), '' ) || '/' || NVL ( NO_BANK2, '' ) || '/' || NVL ( NM_DEPOSIT2, '' ) AS CTD_NM
+						
+						/* 경비 계좌 */
+						, NVL ( CD_BANK1, '' ) AS CD_BANK1
+						, NVL ( NO_BANK1, '' ) AS NO_BANK1
+						, NVL ( NM_DEPOSIT1, '' ) AS NM_DEPOSIT1
+						, '' AS CTD_CD2
+						, NVL ( CD_BANK1, '' ) || '/' || NVL ( ( SELECT NM_SYSDEF FROM NEOE.MA_CODEDTL WHERE CD_COMPANY = '${erpCompSeq}' AND CD_FIELD = 'MA_B000043' AND CD_SYSDEF = NVL ( CD_BANK1, '' ) ), '' ) || '/' || NVL ( NO_BANK1, '' ) || '/' || NVL ( NM_DEPOSIT1, '' ) AS CTD_NM2
+		          FROM NEOE.MA_EMP
+		         WHERE CD_COMPANY = '${erpCompSeq}'
+		               AND CD_INCOM != '099') A
+		       INNER JOIN (SELECT CD_COMPANY
+		                          , NM_COMPANY
+		                     FROM NEOE.MA_COMPANY
+		                    WHERE CD_COMPANY = '${erpCompSeq}') B
+		               ON A.CD_COMPANY = B.CD_COMPANY
+		       INNER JOIN (SELECT CD_COMPANY
+		                          , CD_BIZAREA
+		                          , NM_BIZAREA
+		                          , CD_PC
+		                     FROM NEOE.MA_BIZAREA
+		                    WHERE CD_COMPANY = '${erpCompSeq}') C
+		               ON A.CD_COMPANY = C.CD_COMPANY
+		                  AND A.CD_BIZAREA = C.CD_BIZAREA
+		       INNER JOIN (SELECT CD_COMPANY
+		                          , CD_BIZAREA
+		                          , CD_DEPT
+		                          , NM_DEPT
+		                     FROM NEOE.MA_DEPT
+		                    WHERE CD_COMPANY = '${erpCompSeq}') D
+		               ON A.CD_COMPANY = D.CD_COMPANY
+		                  AND A.CD_BIZAREA = D.CD_BIZAREA
+		                  AND A.CD_DEPT = D.CD_DEPT
+		       LEFT OUTER JOIN (SELECT CD_COMPANY
+		                               , CD_PC
+		                               , NM_PC
+		                          FROM MA_PC
+		                         WHERE CD_COMPANY = '${erpCompSeq}') E
+		                    ON C.CD_COMPANY = E.CD_COMPANY
+		                       AND C.CD_PC = E.CD_PC
+		       LEFT OUTER JOIN (SELECT CD_COMPANY
+		                               , CD_CC
+		                               , NM_CC
+		                          FROM NEOE.MA_CC
+		                         WHERE CD_COMPANY = '${erpCompSeq}'
+		                         AND		YN_USE = 'Y' ) F
+		                    ON A.CD_COMPANY = F.CD_COMPANY
+		                       AND A.CD_CC = F.CD_CC
+		 WHERE A.NO_EMP = '${erpEmpSeq}'
+
+	</select>
+	
+	<select id="npUserOptionU.selectAbgtInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		/* oracle/ERPiU/expend/np/user/NpCodeSQL.xml - npUserOptionU.selectAbgtInfo */
+		/* ERP iU 예산계정 사용자 설정 정보 조회 */	
+	    SELECT  
+	        TP_BUNIT		AS	tpBunit		/* 예산 통제 구분 1: 예산과목아님, 2: 실적집계, 3: 예산조회, 4: 입력통제, 5: 실적 미집계 */
+	        , TP_BGACCT     AS	tpBgacct    /* 예산 구분 1: 지출, 2: 수입, 3: 자본예산 */
+	        , TP_BMSG       AS	tpBmsg		/* 메시지 구분 1: 항상본다, 2: 초과시에만 본다 */
+	    FROM    NEOE.FI_BGACCT 
+	    WHERE   CD_COMPANY  = #{erpCompSeq}
+	     AND    CD_BGACCT   = #{erpBgacctSeq}		
+	</select>
+	
+	<!-- 원인행위 부가세 예산 포함여부 -->
+	<select id="npUserOptionU.certainOptionSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/* 원인행위등록시 부가세 예산 포함여부를 설정함. */
+			SELECT	
+				CD_COMPANY AS erpCompSeq
+				, NVL(TP_ENV, 'N') AS tpEnv
+				, NVL(CD_ENV, '') AS USE_YN
+				, NVL(NM_TEXT, '') AS nmText
+				, 0 AS viewOrder
+			FROM	NEOE.MA_ENVD
+			WHERE	NVL(CD_COMPANY, '') = #{erpCompSeq}
+			AND		TP_ENV = 'YN_JITAX'		
+		]]>
+	</select>
+	
+	<select id="npUserOptionU.optionSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/* ERPiU 원인행위 연동 옵션 조회 */
+		SELECT	'NON_DEDUCTIBLE' AS TP_ENV
+			  	, USE_YN AS CD_ENV
+			  	, '' AS CD_FLAG1 
+			  	, '' AS CD_FLAG2
+			  	, '' AS CD_FLAG3
+		FROM	MA_CODEDTL 
+		WHERE	CD_COMPANY= #{erpCompSeq} 
+		 AND	CD_FIELD='FI_P000043' 
+		 AND	CD_SYSDEF='4'
+		UNION
+		SELECT  TP_ENV
+		        , CD_ENV
+		        , CD_FLAG1
+		        , CD_FLAG2
+		        , CD_FLAG3
+		        /* , NM_TEXT */
+		FROM    NEOE.MA_ENVD
+		WHERE   CD_COMPANY = #{erpCompSeq}
+		AND     TP_ENV IN (
+		            'YN_PAYORDER_AUTOSEQ' /* 결의서(원인행위) 지급명령번호 자동채번 */
+					, 'TP_DOCUCASE' /* 결의서(원인행위)등록 예산구분 */
+					, 'TP_DOCUCAUSE_DTAUTO' /* 결의서(원인행위) 회계발의일, 지출/수입일 자동입력 */
+					, 'YN_BIZDEPOSIT' /* 결의서(원인행위)등록 사업계획별 입출금계좌 입력 */
+					, 'YN_DEPOSITJO' /* 결의서(원인행위)등록 예산계정-예적금계좌연결 사용여부 */
+					, 'TP_CHINCOME_RELATION' /* 결의서(원인행위)등록 사업/기타소득연동 */
+					, 'YN_CAUSE_DTACCTCHECK' /* 결의서(원인행위)등록 발의일자/회계일자체크 */
+					, 'TP_BGACCTJO' /* 회계계정 도움창 예산계정 연결여부 */
+					, 'YN_CAUSE_USE' /* 원인행위등록사용여부 */
+					, 'TP_GWDOCUCAUSE' /* 그룹웨어사용여부 */
+					, 'YN_UPDATE_DT_WRITE' /* 결의서(원인행위)등록 발의일자수정여부 */
+					, 'YN_UPDATE_CAUSEINFO' /* 원인행위정보수정여부 */
+					, 'YN_JITAX' /* 원인행위 부가세 예산 포함여부 */
+					, 'YN_DOCUCAUSEBAN' /* 반제관리 사용여부 */
+					, 'YN_CAUVATDEL' /* 결의서(원인행위) 전표부가세라인삭제 */
+					, 'YN_BUSINESS' /* 회계단위 메뉴 비영리 사업유형 추가 */
+					, 'YN_CAUSE_HIS' /* 결의서(원인행위) 이력관리 사용여부 */
+					, 'YN_DCF_DOCU_HIS' /* (이월) 결의서 이력관리 사용여부 */
+					, 'TP_BUDGETMNG' /* 사업계획 사용여부 [0 : 사업계획 미사용, 1 : 사업계획 사용 ] */
+					, 'YN_BIZPLANFILTER' /* 사업계획 도움창 회계단위 필터링 여부 UBA-85431 한국지방재정공제회 요청 */
+					, 'YN_BGDEPTFILTER' /* 예산단위 도움창 회계단위 필터링 여부 */
+		        )
+		]]>
+	</select>
+</mapper>

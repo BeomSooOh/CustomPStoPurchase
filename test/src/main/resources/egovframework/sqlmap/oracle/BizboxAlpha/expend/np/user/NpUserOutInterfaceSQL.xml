@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="NpUserOutInterfaceA">
+
+	<!-- /* 품의서 외부 연동 정보 조회 */ -->
+	<select id="NpUserOutInterfaceA.ConsOutInterfaceSelect"
+		parameterClass="java.util.HashMap" resultClass="java.util.HashMap"><![CDATA[
+		/* expend/np/user/NpUserOutInterfaceSQL.xml - NpUserOutInterfaceA.ConsOutInterfaceSelect */
+		/* 품의서 외부 연동 정보 조회 */
+		
+		SELECT  NVL(B.interface_id, ' ') AS "interfaceId"
+		        , NVL(B.iframe_url, ' ') AS "iframeUrl"
+		        , NVL(B.iframe_height, ' ') AS "iframeHeight"
+		        , NVL(B.interface_call_save, ' ') AS "interfaceCallSave"
+		        , NVL(B.interface_call_approval, ' ') AS "interfaceCallApproval"
+		        , NVL(B.interface_call_return, ' ') AS "interfaceCallReturn"
+		        , NVL(B.interface_call_end, ' ') AS "interfaceCallEnd"
+		        , NVL(B.interface_call_delete, ' ') AS "interfaceCallDelete"
+		        , NVL(B.licence, ' ') AS "licence"
+		        , NVL(A.out_process_interface_m_id, ' ') AS "outProcessInterfaceMId"
+		        , NVL(A.out_process_interface_d_id, ' ') AS "outProcessInterfaceDId"
+		FROM    (
+		                SELECT  NVL(out_process_interface_id, ' ') AS out_process_interface_id
+		                        , NVL(out_process_interface_m_id, ' ') AS out_process_interface_m_id
+		                        , NVL(out_process_interface_d_id, ' ') AS out_process_interface_d_id
+		                FROM    $DB_NEOS$t_exnp_consdoc
+		                WHERE   cons_doc_seq = #consDocSeq#
+		        ) A INNER JOIN (
+		                SELECT  interface_id
+		                        , iframe_url
+		                        , iframe_height
+		                        , interface_call_save
+		                        , interface_call_approval
+		                        , interface_call_return
+		                        , interface_call_end
+		                        , interface_call_delete
+		                        , licence
+		                FROM    $DB_NEOS$t_exnp_out_process
+		        ) B ON A.out_process_interface_id = B.interface_id
+	]]></select>
+	
+	<!-- /* 결의서 외부 연동 정보 조회 */ -->
+	<select id="NpUserOutInterfaceA.ResOutInterfaceSelect"
+		parameterClass="java.util.HashMap" resultClass="java.util.HashMap"><![CDATA[
+		/* expend/np/user/NpUserOutInterfaceSQL.xml - NpUserOutInterfaceA.ResOutInterfaceSelect */
+		/* 결의서 외부 연동 정보 조회 */
+		
+		SELECT  NVL(B.interface_id, ' ') AS interfaceId
+		        , NVL(B.iframe_url, ' ') AS iframeUrl
+		        , NVL(B.iframe_height, ' ') AS iframeHeight
+		        , NVL(B.interface_call_save, ' ') AS interfaceCallSave
+		        , NVL(B.interface_call_approval, ' ') AS interfaceCallApproval
+		        , NVL(B.interface_call_return, ' ') AS interfaceCallReturn
+		        , NVL(B.interface_call_end, ' ') AS interfaceCallEnd
+		        , NVL(B.interface_call_delete, ' ') AS interfaceCallDelete
+		        , NVL(B.licence, ' ') AS licence
+		        , NVL(A.out_process_interface_m_id, ' ') AS outProcessInterfaceMId
+		        , NVL(A.out_process_interface_d_id, ' ') AS outProcessInterfaceDId
+		FROM    (
+		                SELECT  NVL(out_process_interface_id, ' ') AS out_process_interface_id
+		                        , NVL(out_process_interface_m_id, ' ') AS out_process_interface_m_id
+		                        , NVL(out_process_interface_d_id, ' ') AS out_process_interface_d_id
+		                FROM    $DB_NEOS$t_exnp_resdoc
+		                WHERE   res_doc_seq = #resDocSeq#
+		        ) A INNER JOIN (
+		                SELECT  interface_id
+		                        , iframe_url
+		                        , iframe_height
+		                        , interface_call_save
+		                        , interface_call_approval
+		                        , interface_call_return
+		                        , interface_call_end
+		                        , interface_call_delete
+		                        , licence
+		                FROM    $DB_NEOS$t_exnp_out_process
+		        ) B ON A.out_process_interface_id = B.interface_id
+	]]></select>
+	
+	<!-- /* 호출 이력 기록 */ -->
+	<insert id="NpUserOutInterfaceA.OutInterfaceHisInsert" parameterClass="java.util.HashMap"><![CDATA[
+		/* expend/np/user/NpUserOutInterfaceSQL.xml - NpUserOutInterfaceA.OutInterfaceHisInsert */
+		/* 호출 이력 기록 */
+		
+		INSERT INTO $DB_NEOS$t_exnp_out_process_his ( interface_type, approval_status_code, interface_url, interface_param, create_seq, create_date, modify_seq, modify_date )
+		VALUES ( #interfaceType#, #approvalStatusCode#, #interfaceUrl#, #interfaceParam#, #empSeq#, SYSDATE, #empSeq#, SYSDATE )
+	]]></insert>
+</sqlMap>

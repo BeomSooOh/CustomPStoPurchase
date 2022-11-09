@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ERPiU mssql -->
+<mapper namespace="AdminiUReport">
+	<select id="AdminiUReport.ExFI_ADOCUKeySelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/* sqlmap/mssql/iU/expend/ex/admin/ExReport_SQL.xml */
+		/* 전표 순번 생성하여 가지고 오기(ROW_NO) / ExFI_ADOCUKeySelect  */
+		/*
+		 * [ ERPiU - MSSQL ] AdminiUReport.ExFI_ADOCUKeySelect - 전표 순번 생성하여 가지고오기 (ROW_NO)
+		 * 작성자 : 이준성 
+		 * 작성일 : 2019-08-30
+		 * 변경이력
+		 * 2019-08-30 / 이준성 : 쿼리 확인 
+		 */
+		
+		
+		SELECT	CONVERT(INTEGER, SUBSTRING(ISNULL(MAX(ROW_ID), '0'),11, 5)) + 1 AS 'ROW_ID'
+		FROM	NEOE.FI_ADOCU WITH ( NOLOCK )
+		WHERE	ROW_ID like '${UNFINISHED_ROW_ID}%'			
+	</select>
+
+	<insert id="AdminiUReport.ExFI_ADOCUInsert" parameterType="java.util.Map">
+		/* http://jira.duzon.com:8080/browse/UBA-9223 : ST_BIZBOX 추가 ( 김상겸 ) */
+		/*
+		 * [ ERPiU - MSSQL ] AdminiUReport.ExFI_ADOCUInsert - 전표 인입 
+		 * 작성자 : 이준성 
+		 * 작성일 : 2019-08-30
+		 * 변경이력
+		 * 2019-08-30 / 이준성 : 쿼리 확인 
+		 */
+		
+		INSERT INTO NEOE.FI_ADOCU(ROW_ID,ROW_NO,CD_COMPANY,NO_DOLINE,NO_DOCU,NO_TAX,CD_PC,CD_WDEPT,ID_WRITE,CD_DOCU,DT_ACCT,ST_DOCU,TP_DRCR,CD_ACCT,AMT,CD_PARTNER,DT_START,DT_END,AM_TAXSTD,AM_ADDTAX,TP_TAX,NO_COMPANY,NM_NOTE,CD_BIZAREA,CD_DEPT,CD_CC,CD_PJT,CD_FUND,CD_BUDGET,NO_CASH,ST_MUTUAL,CD_CARD,NO_DEPOSIT,CD_BANK,UCD_MNG1,UCD_MNG2,UCD_MNG3,UCD_MNG4,UCD_MNG5,CD_EMPLOY,CD_MNG,NO_BDOCU,NO_BDOLINE,TP_DOCU,NO_ACCT,TP_TRADE,CD_EXCH,RT_EXCH,CD_TRADE,NO_CHECK2,NO_CHECK3,NO_CHECK4,TP_CROSS,ERP_CD,AM_EX,NO_TO,DT_SHIPPING,TP_GUBUN,NO_INVOICE,NO_ITEM,MD_TAX1,NM_ITEM1,NM_SIZE1,QT_TAX1,AM_PRC1,AM_SUPPLY1,AM_TAX1,NM_NOTE1,CD_BIZPLAN,CD_BGACCT,CD_MNGD1,NM_MNGD1,CD_MNGD2,NM_MNGD2,CD_MNGD3,NM_MNGD3,CD_MNGD4,NM_MNGD4,CD_MNGD5,NM_MNGD5,CD_MNGD6,NM_MNGD6,CD_MNGD7,NM_MNGD7,CD_MNGD8,NM_MNGD8,YN_ISS,TP_BILL,ST_TAX,MD_TAX2,NM_ITEM2,NM_SIZE2,QT_TAX2,AM_PRC2,AM_SUPPLY2,AM_TAX2,NM_NOTE2,MD_TAX3,NM_ITEM3,NM_SIZE3,QT_TAX3,AM_PRC3,AM_SUPPLY3,AM_TAX3,NM_NOTE3,MD_TAX4,NM_ITEM4,NM_SIZE4,QT_TAX4,AM_PRC4,AM_SUPPLY4,AM_TAX4,NM_NOTE4,FINAL_STATUS,NO_BILL,NO_ASSET,TP_RECORD,TP_ETCACCT,SELL_DAM_NM,SELL_DAM_EMAIL,SELL_DAM_MOBIL,ST_GWARE,NM_PUMM,JEONJASEND15_YN,DT_WRITE,NM_PTR,EX_HP,EX_EMIL,NM_PARTNER,ST_BIZBOX,CD_BIZCAR,TP_EVIDENCE,NO_ISS)
+		VALUES(#{ROW_ID},#{ROW_NO},#{CD_COMPANY},${NO_DOLINE},#{NO_DOCU},#{NO_TAX},#{CD_PC},#{CD_WDEPT},#{ID_WRITE},#{CD_DOCU},#{DT_ACCT},#{ST_DOCU},#{TP_DRCR},#{CD_ACCT},${AMT},#{CD_PARTNER},#{DT_START},#{DT_END},${AM_TAXSTD},${AM_ADDTAX},#{TP_TAX},#{NO_COMPANY},#{NM_NOTE},#{CD_BIZAREA},#{CD_DEPT},#{CD_CC},#{CD_PJT},#{CD_FUND},#{CD_BUDGET},#{NO_CASH},#{ST_MUTUAL},#{CD_CARD},#{NO_DEPOSIT},#{CD_BANK},#{UCD_MNG1},#{UCD_MNG2},#{UCD_MNG3},#{UCD_MNG4},#{UCD_MNG5},#{CD_EMPLOY},#{CD_MNG},#{NO_BDOCU},${NO_BDOLINE},#{TP_DOCU},${NO_ACCT},#{TP_TRADE},#{CD_EXCH},${RT_EXCH},#{CD_TRADE},#{NO_CHECK2},#{NO_CHECK3},#{NO_CHECK4},#{TP_CROSS},#{ERP_CD},${AM_EX},#{NO_TO},#{DT_SHIPPING},#{TP_GUBUN},#{NO_INVOICE},#{NO_ITEM},#{MD_TAX1},#{NM_ITEM1},#{NM_SIZE1},${QT_TAX1},${AM_PRC1},${AM_SUPPLY1},${AM_TAX1},#{NM_NOTE1},#{CD_BIZPLAN},#{CD_BGACCT},#{CD_MNGD1},#{NM_MNGD1},#{CD_MNGD2},#{NM_MNGD2},#{CD_MNGD3},#{NM_MNGD3},#{CD_MNGD4},#{NM_MNGD4},#{CD_MNGD5},#{NM_MNGD5},#{CD_MNGD6},#{NM_MNGD6},#{CD_MNGD7},#{NM_MNGD7},#{CD_MNGD8},#{NM_MNGD8},#{YN_ISS},#{TP_BILL},#{ST_TAX},#{MD_TAX2},#{NM_ITEM2},#{NM_SIZE2},${QT_TAX2},${AM_PRC2},${AM_SUPPLY2},${AM_TAX2},#{NM_NOTE2},#{MD_TAX3},#{NM_ITEM3},#{NM_SIZE3},${QT_TAX3},${AM_PRC3},${AM_SUPPLY3},${AM_TAX3},#{NM_NOTE3},#{MD_TAX4},#{NM_ITEM4},#{NM_SIZE4},${QT_TAX4},${AM_PRC4},${AM_SUPPLY4},${AM_TAX4},#{NM_NOTE4},#{FINAL_STATUS},#{NO_BILL},#{NO_ASSET},#{TP_RECORD},#{TP_ETCACCT},#{SELL_DAM_NM},#{SELL_DAM_EMAIL},#{SELL_DAM_MOBIL},#{ST_GWARE},#{NM_PUMM},#{JEONJASEND15_YN},#{DT_WRITE},#{NM_PTR},#{EX_HP},#{EX_EMIL},#{NM_PARTNER, jdbcType=VARCHAR}, '1', #{CD_BIZCAR}, #{TP_EVIDENCE},#{NO_ISS})
+	</insert>
+	
+	<insert id="AdminiUReport.FI_RECEPTRELAInsert" parameterType="java.util.Map">
+	
+		/*
+		 * [ ERPiU - MSSQL ] AdminiUReport.FI_RECEPTRELAInsert - 전표 인입 
+		 * 작성자 : 이준성 
+		 * 작성일 : 2019-08-30
+		 * 변경이력
+		 * 2019-08-30 / 이준성 : 쿼리 확인 
+		 */
+	
+
+		INSERT INTO	NEOE.FI_RECEPTRELA(ROW_ID,ROW_NO,CD_COMPANY,CD_PC,NO_DOCU,NO_DOLINE,CD_ACCT,DT_START,CD_DEPT,CD_EMP,TP_RECEPT,RECEPT_GU,CD_CARD,NO_COMPANY,NM_CEO,NO_RES,NO_RES1,NM_CEO1,NO_COMPANY1,NM_ADRESS,USE_AREA,USE_COST,AM_MATIRIAL,AM_SERVICE,NM_NOTE,RECEPT_GU10,NM_NOTE1,ST_DOCU,CD_PARTNER,CD_PARTNER1,NM_RECEPT,NM_RECEPT1,TP_RECEPTION,TP_COMPANY)
+		VALUES		(#{ROW_ID},#{ROW_NO},#{CD_COMPANY},#{FEE_CD_PC},#{NO_DOCU},#{NO_DOLINE},#{FEE_CD_ACCT},#{FEE_DT_START},#{FEE_CD_DEPT},#{FEE_CD_EMP},#{FEE_TP_RECEPT},#{FEE_RECEPT_GU},#{FEE_CD_CARD},#{FEE_NO_COMPANY},#{FEE_NM_CEO},#{FEE_NO_RES},#{FEE_NO_RES1},#{FEE_NM_CEO1},#{FEE_NO_COMPANY1},#{FEE_NM_ADRESS},#{FEE_USE_AREA},#{FEE_USE_COST},#{FEE_AM_MATIRIAL},#{FEE_AM_SERVICE},#{FEE_NM_NOTE},#{FEE_RECEPT_GU10},#{FEE_NM_NOTE1},#{FEE_ST_DOCU},#{FEE_CD_PARTNER},#{FEE_CD_PARTNER1},#{FEE_NM_RECEPT},#{FEE_NM_RECEPT1},#{FEE_TP_RECEPTION},#{FEE_TP_COMPANY})		
+	</insert>
+			
+	<select id="AdminiUReport.ExCheckCanDelete" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* sqlmap/mssql/iU/expend/ex/admin/ExReport_SQL.xml */
+		/*
+		 * [ ERPiU - MSSQL ] AdminiUReport.ExCheckCanDelete - 전표 발행 여부 파악(TP_DOCU) 
+		 * 작성자 : 이준성 
+		 * 작성일 : 2019-08-30
+		 * 변경이력
+		 * 2019-08-30 / 이준성 : 쿼리 확인 
+		 */
+		
+		
+		 SELECT	COUNT( * )	AS	'COUNT'
+		 FROM	NEOE.FI_ADOCU WITH ( NOLOCK )
+		 WHERE	ROW_ID = '${rowId}'
+		 	AND	CD_COMPANY = '${cdCompany}'
+		 	AND	TP_DOCU = N'N'
+	]]></select>	
+	
+	
+	<select id="AdminiUReport.ExCheckCancleTpDocu" parameterType="java.util.Map" resultType="java.util.Map">
+		/* sqlmap/mssql/iU/expend/ex/admin/ExReport_SQL.xml */
+		/* 자동 전표 전송 취소 / AdminiUReport.ExCheckCancleTpDocu  */
+		/*
+		 * [ ERPiU - MSSQL ] AdminiUReport.ExCheckCancleTpDocu -  전표 발행 체크
+		 * 작성자 : 이준성 
+		 * 작성일 : 2021-02-17
+		 * 변경이력
+		 * 2021-02-17 / 이준성 : 쿼리 확인 
+		 */
+		SELECT  TP_DOCU AS tpDocu
+		        ,ROW_ID AS rowId
+		  FROM	NEOE.FI_ADOCU WITH ( NOLOCK )
+		 WHERE	ROW_ID = '${rowId}'
+		   AND	CD_COMPANY = '${cdCompany}'	
+	
+	</select>
+	
+	
+	<select id="AdminiUReport.ExFiDocuDelete" parameterType="java.util.Map" resultType="java.util.Map">
+		/* sqlmap/mssql/iU/expend/ex/admin/ExReport_SQL.xml */
+		/* 자동 전표 전송 취소 / AdminiUReport.ExFiDocuDelete  */
+		/*
+		 * [ ERPiU - MSSQL ] AdminiUReport.ExFiDocuDelete -  자동 전표 삭제  
+		 * 작성자 : 이준성 
+		 * 작성일 : 2021-02-17
+		 * 변경이력
+		 * 2021-02-17 / 이준성 : 쿼리 확인 
+		 */
+		DECLARE @rowId NVARCHAR(40)
+		DECLARE @erpCompSeq NVARCHAR(10)
+
+		SELECT	@rowId = '${rowId}'
+				, @erpCompSeq = '${cdCompany}'
+
+		BEGIN
+			DELETE
+			FROM	NEOE.FI_ADOCU
+			WHERE	CD_COMPANY = @erpCompSeq
+			AND		ROW_ID = @rowId
+			
+			DELETE
+			FROM	NEOE.FI_RECEPTRELA
+			WHERE	CD_COMPANY = @erpCompSeq
+			AND		ROW_ID = @rowId
+			
+			DELETE
+			FROM	NEOE.FI_GWDOCU_LINK
+			WHERE	CD_COMPANY = @erpCompSeq
+			AND		NO_DOCU = @rowId
+			
+			DELETE
+			FROM	NEOE.FI_ADOCU_FILE
+			WHERE	CD_COMPANY = @erpCompSeq
+			AND		NO_DOCU = @rowId
+		END
+	
+	</select>
+	
+	
+	<select id="AdminiUReport.ExFI_ADOCUDelete" parameterType="java.util.Map" resultType="java.util.Map">
+		/* sqlmap/mssql/iU/expend/ex/admin/ExReport_SQL.xml */
+		/* 자동 전표 전송 취소 / ExFI_ADOCUDelete  */
+		/*
+		 * [ ERPiU - MSSQL ] AdminiUReport.ExFI_ADOCUDelete -  자동 전표 전송 취소 
+		 * 작성자 : 이준성 
+		 * 작성일 : 2019-08-30
+		 * 변경이력
+		 * 2019-08-30 / 이준성 : 쿼리 확인 
+		 */
+		
+		DECLARE @rowId NVARCHAR(40)
+		DECLARE @erpCompSeq NVARCHAR(10)
+		DECLARE @resultValue INT
+
+		SELECT	@rowId = '${rowId}'
+				, @erpCompSeq = '${cdCompany}'
+				, @resultValue = 0
+		
+		SET @resultValue = (
+			SELECT COUNT(*) FROM NEOE.FI_ADOCU
+			WHERE	CD_COMPANY = @erpCompSeq
+			AND		ROW_ID = @rowId
+		)
+
+		BEGIN TRY
+			DELETE
+			FROM	NEOE.FI_ADOCU
+			WHERE	CD_COMPANY = @erpCompSeq
+			AND		ROW_ID = @rowId
+			
+			DELETE
+			FROM	NEOE.FI_RECEPTRELA
+			WHERE	CD_COMPANY = @erpCompSeq
+			AND		ROW_ID = @rowId
+			
+			DELETE
+			FROM	NEOE.FI_GWDOCU_LINK
+			WHERE	CD_COMPANY = @erpCompSeq
+			AND		NO_DOCU = @rowId
+			
+			DELETE
+			FROM	NEOE.FI_ADOCU_FILE
+			WHERE	CD_COMPANY = @erpCompSeq
+			AND		NO_DOCU = @rowId
+			
+			SET		@resultValue = (
+				SELECT  @resultValue  - COUNT(*) 
+				FROM	NEOE.FI_ADOCU
+				WHERE	CD_COMPANY = @erpCompSeq
+				AND		ROW_ID = @rowId 
+			)
+		END TRY
+		BEGIN CATCH
+			SELECT	@resultValue = 0
+		END CATCH
+
+		SELECT	@resultValue AS returnValue
+	</select>
+	
+	<select id="AdminiUReport.ExAdminExpendSendERPDataDelete" parameterType="java.util.Map" resultType="java.util.Map">
+		/*
+		 * [ ERPiU - MSSQL ] AdminiUReport.ExAdminExpendSendERPDataDelete -  자동 전표/첨부파일 삭제 사용 여부 기능 
+		 * 작성자 : 이준성 
+		 * 작성일 : 2019-08-30
+		 * 변경이력
+		 * 2019-08-30 / 이준성 : 쿼리 확인 
+		 */
+	
+	
+		DECLARE @rowId NVARCHAR(40) = '${rowId}'			
+		DECLARE @processYN NVARCHAR(2)			
+					
+		BEGIN TRAN			
+		BEGIN TRY			
+			IF EXISTS ( SELECT * FROM NEOE.FI_ADOCU WHERE ROW_ID = @rowId AND TP_DOCU = 'N' )		
+			BEGIN		
+				/* 자동전표 삭제가능, 자동전표 삭제 처리 */	
+				DELETE	
+				FROM	NEOE.FI_ADOCU
+				WHERE	ROW_ID = @rowId
+					
+				/* 첨부파일 삭제처리 */	
+				DELETE	
+				FROM	NEOE.FI_ADOCU_FILE
+				WHERE	ROW_ID = @rowId
+				
+				DELETE
+				FROM	NEOE.FI_GWDOCU_LINK
+				WHERE	NO_DOCU = @rowId
+					
+				SELECT	@processYN = 'Y'
+			END		
+			ELSE IF EXISTS ( SELECT * FROM NEOE.FI_ADOCU WHERE ROW_ID = @rowId AND TP_DOCU = 'Y' )		
+			BEGIN		
+				/* 자동전표 삭제불가 */	
+				SELECT	@processYN = 'N'
+			END		
+			ELSE		
+			BEGIN		
+				/* 자동전표 미존재 - 계속 진행 */	
+				SELECT	@processYN = 'Y'
+			END		
+		END TRY			
+		BEGIN CATCH			
+			ROLLBACK TRAN		
+			SELECT	@processYN = 'N'	
+		END CATCH			
+					
+		IF(@@TRANCOUNT > 0)			
+		BEGIN			
+			COMMIT TRAN		
+		END			
+					
+		SELECT	@processYN AS processYN		
+	</select>
+	
+	<select id="AdminiUReport.ExAdminExpendERPBudgetDelete" parameterType="java.util.Map" resultType="java.util.Map">
+		/* 3. ERPiU 임시예산 삭제 */
+		/*
+		 * [ ERPiU - MSSQL ] AdminiUReport.ExAdminExpendERPBudgetDelete -  ERPiU 임시예산 삭제
+		 * 작성자 : 이준성 
+		 * 작성일 : 2019-08-30
+		 * 변경이력
+		 * 2019-08-30 / 이준성 : 쿼리 확인 
+		 */
+		
+					
+		DECLARE @rowId NVARCHAR(20) = '${rowId}'
+		DECLARE @rowNo NVARCHAR(20) = '${rowNo}'
+					
+		DECLARE @processYN NVARCHAR(2)			
+					
+		BEGIN TRAN			
+		BEGIN TRY			
+			DELETE		
+			FROM	NEOE.FI_GMMSUM_OTHER	
+			WHERE	ROW_ID = @rowId	
+			AND		ROW_NO = @rowNo
+					
+			SELECT	@processYN = 'Y'	
+		END TRY			
+		BEGIN CATCH			
+			ROLLBACK TRAN		
+			SELECT	@processYN = 'N'	
+		END CATCH			
+					
+		IF ( @@TRANCOUNT > 0 )			
+		BEGIN			
+			COMMIT TRAN		
+		END			
+					
+		SELECT	@processYN AS processYN		
+	</select>
+	
+	<select id="AdminiUReport.ExTaxListCompOption" parameterType="java.util.Map" resultType="java.util.Map">
+		/*
+		 * [ ERPiU - MSSQL ] AdminiUReport.ExTaxListCompOption -  세금 옵션 체크 
+		 * 작성자 : 이준성 
+		 * 작성일 : 2019-08-30
+		 * 변경이력
+		 * 2019-08-30 / 이준성 : 쿼리 확인 
+		 */
+	
+		SELECT	ISNULL(CD_ENV,'N') AS tpTbTaxCompany
+		FROM	NEOE.MA_ENVD
+		WHERE	CD_COMPANY = #{erpCompSeq}
+		AND		TP_ENV = 'TP_TBTAXCOMPANY'
+	</select>
+	
+	
+	<select id="AdminiUReport.ExAdminETaxListInfoSelectMap" parameterType="HashMap" resultType="HashMap">
+		/* AdminiUReport.ExAdminETaxListInfoSelectMap - ERPiU - mssql */
+		/*
+		 * [ ERPiU - MSSQL ] AdminiUReport.ExAdminETaxListInfoSelectMap -  세금계산서  조회  
+		 * 작성자 : 이준성 
+		 * 작성일 : 2019-08-30
+		 * 변경이력
+		 * 2019-08-30 / 이준성 : 쿼리 확인 / 추가된 기능 확인 
+		 */
+		
+		SELECT 	
+			ROW_NUMBER() over (ORDER BY YMD_WRITE <if test="orderBy == 'desc'">DESC</if>) AS rowNum
+		, 	NO_TAX AS issNo /* 승인번호 */
+		, 	NO_ISS AS hometaxIssNo /* 국세청 번호 */
+		, 	YMD_WRITE AS issDt /* 발행일자 */
+		, 	BUY_NO_BIZ AS divregNb /* 공급받는자 사업자번호 */
+		, 	BUY_NM_CORP AS divNm /* 공급받는자 사업장상호명 */
+		, 	BUY_NM_CEO AS divceoNm /* 공급받는자 대표자명 */
+		, 	SELL_NO_BIZ AS trregNb /* 공급자 사업자번호 */
+		, 	SELL_NM_CORP AS trNm /* 공급자 거래처명 */
+		, 	SELL_NM_CEO AS trceoNm /* 공급자 거래처대표자명 */
+		, 	AMT AS sumAm /* 합계액 */
+		, 	AM AS supAm /* 공급가액 */
+		, 	AM_VAT AS vatAm /* 부가세액 */
+		, 	DC_RMK AS dummy1 /* 비고 */
+		, 	CASE WHEN FG_BILL = '1' THEN '청구' ELSE '영수' END AS dummy2 /* 기타(영수/청구 구분) >> 영수 OR 청구 */
+		, 	ISNULL(SELL_DAM_EMAIL, '') AS emailDc /* 공급자이메일 */
+		, 	ISNULL(BUY_DAM_EMAIL, '') AS trchargeEmail /* 공급받는자이메일 */
+		<if test='tpTbTaxCompany == "Y"'>
+		FROM NEOE.FI_TB_TAXDOWN2 WITH ( NOLOCK )
+		</if>
+		<if test='tpTbTaxCompany == "N"'>
+		FROM NEOE.FI_TB_TAXDOWN WITH ( NOLOCK )
+		</if>	
+		WHERE	FG_IO = '2' /* 기본 검색조건 - 매입매출구분 */
+		<if test='tpTbTaxCompany == "Y"'>
+		AND		CD_COMPANY = #{erpCompSeq}
+		</if>
+		AND		YMD_WRITE BETWEEN '${searchFromDt}' AND '${searchToDt}' /* 기본 검색조건 - 기간 */
+		AND		ISNULL(SELL_NO_BIZ, '') LIKE '%' + REPLACE(ISNULL(#{trregNb}, ''), '-', '') + '%' /* 검색조건 - 공급자 등록번호 */
+		AND		ISNULL(SELL_NM_CORP, '') LIKE '%' + ISNULL(#{trNm}, '') + '%' /* 검색조건 - 공급자명 */
+		AND		ISNULL(NO_ISS, '') LIKE '%' + ISNULL(#{issNo}, '') + '%' /* 검색조건 - 국세청승인번호 */
+		AND		ISNULL(BUY_DAM_EMAIL, '') LIKE '%' + ISNULL(#{emailDc}, '') + '%' /* 검색조건 - 공급받는 이메일 */
+     </select>
+       
+	<select id="AdminiUReport.ExAdminETaxBizInfoSelect" parameterType="HashMap" resultType="HashMap">
+	
+		/*
+		 * [ ERPiU - MSSQL ] AdminiUReport.ExAdminETaxBizInfoSelect -  세금계산서에 매핑되어진 사업장 확인   
+		 * 작성자 : 이준성 
+		 * 작성일 : 2019-08-30
+		 * 변경이력
+		 * 2019-08-30 / 이준성 : 쿼리 확인 
+		 * 2020-06-04 / 이준성 : FI_TB_TAXDOWN2 CD_COMPANY 추가 
+		 */
+		
+		SELECT	
+			tax.NO_TAX AS issNo
+		,   tax.NO_ISS AS noIss	
+		, 	biz.CD_BIZAREA AS bizCd
+		, 	biz.NM_BIZAREA AS bizNm
+		<if test='tpTbTaxCompany == "Y"'>
+		FROM NEOE.FI_TB_TAXDOWN2 tax WITH ( NOLOCK )
+		INNER JOIN NEOE.MA_BIZAREA biz ON tax.CD_COMPANY = biz.CD_COMPANY AND tax.BUY_NO_BIZ = biz.NO_BIZAREA
+		</if>
+		<if test='tpTbTaxCompany == "N"'>
+		FROM NEOE.FI_TB_TAXDOWN tax WITH ( NOLOCK )
+		INNER JOIN NEOE.MA_BIZAREA biz ON tax.BUY_NO_BIZ = biz.NO_BIZAREA
+		</if>	
+		WHERE	tax.NO_TAX IN ('${issNo}')
+		AND		biz.CD_COMPANY = '${erpCoCd}'	
+					
+	</select>
+	
+	
+	<insert id="AdminiUReport.ExAdminDocLinkList" parameterType="HashMap"><![CDATA[
+		/*
+		 * [ ERPiU - MSSQL ] AdminiUReport.ExAdminDocLinkList -  자동전표 에서 전자결재 조회 
+		 * 작성자 : 이준성 
+		 * 작성일 : 2019-08-30
+		 * 변경이력
+		 * 2019-08-30 / 이준성 : 쿼리 확인 
+		 */
+
+		DECLARE	@P_CD_COMPANY NVARCHAR(7)  /* ERPiU 회사 코드 */
+				, @P_CD_PC NVARCHAR(7)   /* ERPiU 코스트센터 */
+				, @P_NO_DOCU NVARCHAR(20)  /* FI_ADOCU.ROW_ID */
+				, @P_NM_LINK NVARCHAR(1024)  /* 전자결재 호출 URL */
+				, @P_DC_RMK NVARCHAR(100)  /* [전자결재 문서 번호] 전자결재 문서 제목 (100 제한) */
+				, @P_DTS_INSERT NVARCHAR(14) /* 자동전표 전송일시 */
+				, @P_ID_INSERT NVARCHAR(15)  /* 자동전표 전송자 사원번호 */
+				, @P_DTS_UPDATE NVARCHAR(14) /* 자동전표 전송일시 */
+				, @P_ID_UPDATE NVARCHAR(15)  /* 자동전표 전송자 사원번호 */
+				, @P_DOC_NO NVARCHAR(50)  /* 전자결재 문서 번호 */
+				, @P_APP_NO NVARCHAR(50)  /* 전자결재 문서 아이디 */
+				, @P_DOC_ID INT /* 전자결재 문서 아이디 */
+				, @P_FORM_ID INT  /* 전자결재 양식 시퀀스 */
+		
+		SELECT	@P_CD_COMPANY = #{P_CD_COMPANY}
+				, @P_CD_PC = #{P_CD_PC}
+				, @P_NO_DOCU = #{P_NO_DOCU}
+				, @P_NM_LINK = #{P_NM_LINK}
+				, @P_DC_RMK = #{P_DC_RMK}
+				, @P_DTS_INSERT = REPLACE ( CONVERT ( VARCHAR(8), GETDATE(), 112 ) + CONVERT ( VARCHAR(8), GETDATE(), 114), ':','' )
+				, @P_ID_INSERT = #{erpEmpSeq}
+				, @P_DTS_UPDATE = REPLACE ( CONVERT ( VARCHAR(8), GETDATE(), 112 ) + CONVERT ( VARCHAR(8), GETDATE(), 114), ':','' )
+				, @P_ID_UPDATE = #{erpEmpSeq}
+				, @P_DOC_NO = #{P_DOC_NO}
+				, @P_APP_NO = #{P_APP_NO}
+				, @P_DOC_ID = #{P_DOC_ID}
+				, @P_FORM_ID = #{P_FORM_ID}
+		
+		IF NOT EXISTS ( SELECT 1 FROM NEOE.FI_GWDOCU_LINK WHERE CD_COMPANY = @P_CD_COMPANY AND CD_PC = @P_CD_PC AND NO_DOCU = @P_NO_DOCU )
+		BEGIN
+		 INSERT INTO NEOE.FI_GWDOCU_LINK ( CD_COMPANY, CD_PC, NO_DOCU, NM_LINK, DC_RMK, DTS_INSERT, ID_INSERT, DTS_UPDATE, ID_UPDATE, DOC_NO, APP_NO, DOC_ID, FORM_ID )
+		 VALUES ( @P_CD_COMPANY, @P_CD_PC, @P_NO_DOCU, @P_NM_LINK, @P_DC_RMK, @P_DTS_INSERT, @P_ID_INSERT, @P_DTS_UPDATE, @P_ID_UPDATE, @P_DOC_NO, @P_APP_NO, @P_DOC_ID, @P_FORM_ID )
+		END
+	]]></insert>
+	
+	<insert id="AdminiUReport.ExAdminDocAttachListInfoInsert" parameterType="HashMap">
+	/*
+		 * [ ERPiU - MSSQL ] AdminiUReport.ExAdminDocAttachListInfoInsert -  자동전표 에서 파일 인입  
+		 * 작성자 : 이준성 
+		 * 작성일 : 2019-08-30
+		 * 변경이력
+		 * 2019-08-30 / 이준성 : 쿼리 확인 
+		 */
+		<![CDATA[
+		INSERT INTO NEOE.FI_ADOCU_FILE ( ROW_ID, NO_SEQ, NO_DOCU, CD_PC, CD_COMPANY, FILE_PATH, FILE_NAME, ID_INSERT, DTS_INSERT, YN_GW )
+		]]>
+		
+		<foreach collection="fileList" item="file" open="" close="" separator=" UNION ALL " ><![CDATA[
+			SELECT	#{file.rowId}
+					, #{file.rowNum}
+					, #{file.noDocu}
+					, #{file.cdPc}
+					, #{file.cdCompany}
+					, #{file.filePath}
+					, #{file.fileName}
+					, #{file.idInsert}
+					, #{file.dtsInsert}
+					, 'Y'
+		]]></foreach>
+	</insert>
+	
+</mapper>

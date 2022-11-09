@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- Bizbox Alpha G20 정보 조회 -->
+<sqlMap namespace="GwAcCode">
+
+	<!-- #. 영리 양식정보 조회 -->
+	<select id="PGwAcCode.AcExFormInfoSelect" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* GwAcCode.AcExFormInfoSelect - BizboxA - mariaDB */
+		SELECT  formSeq /*  */
+		        , formName /*  */
+		        , formTp /*  */
+		        , formDTp /*  */
+		        , formMode /*  */
+		        , eaType /*  */
+		FROM    (
+		                SELECT  c_tikeycode AS formSeq
+		                        , c_tiname AS formName
+		                        , '' AS formTp
+		                        , c_cikind AS formDTp
+		                        , '1' AS formMode
+		                        , 'ea' AS eaType
+		                FROM    $DB_NEOS$A_TEMPLATEINFO
+		                        /* form_id */
+		                WHERE   c_tikeycode = '$formSeq$'
+		                        /* form_d_tp */
+		                AND     ( c_cikind = '011' OR c_cikind = '010' )
+		
+		                UNION
+		
+		                SELECT  form_id AS formSeq
+		                        , form_nm AS formName
+		                        , form_tp AS formTp
+		                        , form_d_tp AS formDTp
+		                        , form_mode AS formMode
+		                        , 'eap' AS eaType
+		                FROM    $DB_NEOS$TEAG_FORM
+		                WHERE   form_id = '$formSeq$'
+		                AND     form_tp = 'ea0060'
+		        ) A
+		WHERE   eaType = '$eaType$'
+	]]></select>
+</sqlMap>

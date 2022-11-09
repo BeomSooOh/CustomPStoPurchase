@@ -1,0 +1,599 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- Bizbox Alpha oracle -->
+<sqlMap namespace="ExUserCardA">
+
+	<!-- 카드사용내역 -->
+
+	<!-- 지출결의 - 카드 사용내역 수정 -->
+	<update id="ExExpendCardSubInfoUpdate" parameterClass="HashMap"><![CDATA[
+		/* [BizboxAlpha][oracle] ExExpendCardSubInfoUpdate */
+		UPDATE  $DB_NEOS$t_ex_card_aq_tmp
+        SET     send_yn = CASE WHEN '$sendYN$' != ' ' THEN '$sendYN$' ELSE send_yn END
+		        , user_send_yn = CASE WHEN '$userSendYN$' != ' ' THEN '$userSendYN$' ELSE user_send_yn END
+        		, if_m_id = CASE WHEN '$sendYN$' = 'N' THEN '0' ELSE ( CASE WHEN '$ifMId$' != ' ' AND '$ifMId$' != '0' THEN '$ifMId$' ELSE if_m_id END ) END
+        		, if_d_id = CASE WHEN '$sendYN$' = 'N' THEN '0' ELSE ( CASE WHEN '$ifDId$' != ' ' AND '$ifDId$' != '0' THEN '$ifDId$' ELSE if_d_id END ) END
+		        , emp_seq = CASE WHEN '$empSeq$' != ' ' AND '$empSeq$' != '0' THEN '$empSeq$' ELSE emp_seq END
+		        , summary_seq = CASE WHEN '$summarySeq$' != ' ' AND '$summarySeq$' != '0' THEN '$summarySeq$' ELSE summary_seq END
+		        , detail = CASE WHEN #note# != ' ' THEN #note# ELSE detail END
+		        , auth_seq = CASE WHEN '$authSeq$' != ' ' AND '$authSeq$' != '0' THEN '$authSeq$' ELSE auth_seq END
+		        , project_seq = CASE WHEN '$projectSeq$' != ' ' THEN '$projectSeq$' ELSE project_seq END
+		        , budget_seq = CASE WHEN '$budgetSeq$' != ' ' AND '$budgetSeq$' != '0' THEN '$budgetSeq$' ELSE budget_seq END
+		WHERE   sync_id = '$syncId$'
+    ]]></update>
+
+
+	<!-- 지출결의 - 카드 상신 목록 조회 ( 사용자 ) -->
+	<select id="ExExpendEmpCardListInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		/* [BizboxAlpha][oracle] ExExpendEmpCardListInfoSelect */
+		SELECT 	A.sync_id AS "syncId"  /* 카드 사용내역 키 */
+				, A.card_name AS "cardName"
+				, A.card_num AS "cardNum"
+				, A.auth_date AS "authDate" /* 증빙일자 ( yyyyMMdd ) */
+				, A.auth_time AS "authTime" /* 증빙시간 ( hhmmss ) */
+				, A.georae_cand AS "georaeCand" /* 취소일자 ( hhmmss ) */
+				, A.merc_name AS "mercName" /* 거래처 명칭 */
+				, A.merc_saup_no AS "mercSaupNo" /* 거래처 사업자 등록 번호 */
+				, A.gongje_no_chk AS "gongjeNoChke" /* 매입 불공처리 여부 */
+				, A.mcc_stat AS "mccStat" /* 사업자 등록 구분 */
+				, NVL(A.mcc_name,' ') AS "mccName" /* 사업자 업종 명칭 */
+				, NVL(A.mcc_code,' ') AS "mccCode" /* 사업자 업종 코드 */
+				, A.abroad AS "abroad" /* 사용 구분 ( 국내(A), 해외(B) ) */
+				, A.request_amount AS "requestAmount" /* 공급대가 */
+				, A.vat_md_amount AS "vatMdAmount" /* 부가세액 */
+				, A.amt_md_amount AS "amtMdAmount" /* 공급가액 */
+				, ( A.amt_md_amount + NVL(A.ser_amount, 0) ) AS "amtSerMdAmount" /* 공급가액 + 서비스금액 */
+				, A.emp_seq AS "empSeq" /* 사용자 정보 시퀀스 */
+				, NVL(B.dept_seq, ' ') AS "deptSeq" /* 사용자 정보 부서 시퀀스 */
+				, NVL(B.erp_dept_seq, ' ') AS "erpDeptSeq" /* 사용자 정보 ERP 부서 시퀀스 */
+				, NVL(B.erp_dept_name, ' ') AS "erpDeptName" /* 사용자 정보 ERP 부서 명 */
+				, NVL(B.emp_name, ' ') AS "empName" /* 사용자 정보 사원 명 */
+				, NVL(B.erp_emp_seq, ' ') AS "erpEmpSeq" /* 사용자 정보 ERP 사원 시퀀스 */
+				, NVL(B.erp_emp_name, ' ') AS "erpEmpName" /* 사용자 정보 ERP 사원 명 */
+				, NVL(B.erp_pc_seq, ' ') AS "erpPcSeq" /* 사용자 정보 ERP 회계단위 시퀀스 */
+				, NVL(B.erp_pc_name, ' ') AS "erpPcName" /* 사용자 정보 ERP 회계단위 명 */
+				, NVL(B.erp_cc_seq, ' ') AS "erpCcSeq" /* 사용자 정보 ERP 코스트센터 시퀀스 */
+				, NVL(B.erp_cc_name, ' ') AS "erpCcName" /* 사용자 정보 ERP 코스트센터 명 */
+				, NVL(B.erp_biz_seq, ' ') AS "erpBizSeq" /* 사용자 정보 ERP 사업장 시퀀스 */
+				, NVL(B.erp_biz_name, ' ') AS "erpBizName" /* 사용자 정보 ERP 사업장 명 */
+				, A.summary_seq AS "summarySeq" /* 표준적요 정보 시퀀스 */
+				, NVL(C.summary_name, ' ') AS "summaryName" /* 표준적요 정보 표준적요 명칭 */
+				, NVL(C.summary_code, ' ') AS "summaryCode" /* 표준적요 정보 표준적요 코드 */
+				, NVL(C.dr_acct_code, ' ') AS "drAcctCode" /* 표준적요 정보 차변 계정과목 코드 */
+				, NVL(C.dr_acct_name, ' ') AS "drAcctName" /* 표준적요 정보 차변 계정과목 명칭 */
+				, A.note AS "note"
+				, A.auth_seq AS "authSeq" /* 증빙유형 정보 시퀀스 */
+				, NVL(D.auth_name, ' ') AS "authName" /* 증빙유형 정보 증빙유형 명칭 */
+				, NVL(D.auth_code, ' ') AS "authCode" /* 증빙유형 정보 증빙유형 코드 */
+				, A.project_seq AS "projectSeq" /* 프로젝트 정보 시퀀스 */
+				, NVL(E.project_name, ' ') AS "projectName" /* 프로젝트 정보 프로젝트 명칭 */
+				, NVL(E.project_code, ' ') AS "projectCode" /* 프로젝트 정보 프로젝트 코드 */
+				, A.budget_seq AS "budgetSeq" /* 예산정보 시퀀스 */
+				, NVL(F.budget_name, ' ') AS "budgetName" /* 예산정보 예산단위 명칭 */
+				, NVL(F.budget_code, ' ') AS "budgetCode" /* 예산정보 예산단위 코드 */
+				, NVL(F.bizplan_name, ' ') AS "bizplanName" /* 예산정보 사업계획 명칭 */
+				, NVL(F.bizplan_code, ' ') AS "bizplanCode" /* 예산정보 사업계획 코드 */
+				, NVL(F.bgacct_name, ' ') AS "bgacctName" /* 예산정보 예산계정 명칭 */
+				, NVL(F.bgacct_code, ' ') AS "bgacctCode" /* 예산정보 예산계정 코드 */
+				, A.if_m_id AS "if_m_id" /* 외부 연동 키 */
+				, A.if_d_id AS "if_d_id" /* 외부 연동 키 */
+				, A.vat_stat AS "vatStat" /* 부가세구분 ( 0 : 해외 / 1 : 일반 / 2 : 간이 / 3 : 면세 / 4 : 휴업 / 5 : 폐업 / 6 : 비영리 / 8 : 미등록 / 9 : 오류 ) */
+				, A.georae_stat AS georaeStat /* 승인취소 구분 */
+		FROM    (
+		            SELECT  A.*
+		                    , B.card_name
+		            FROM    (
+		                        SELECT  /* 기준정보 */
+		                                sync_id
+		                                , A.auth_num
+		                                , A.auth_date
+		                                , A.auth_time
+		                                , A.georae_cand
+		                                , A.card_num
+		                                , NVL(A.abroad, 'A') AS abroad
+		                                /* 금액정보 */
+		                                , A.request_amount + NVL(B.request_amount, 0) AS request_amount
+		                                , A.ser_amount + NVL(B.ser_amount, 0) AS ser_amount
+		                                , A.amt_amount + NVL(B.amt_amount, 0) AS amt_amount
+		                                , A.vat_amount + NVL(B.vat_amount, 0) AS vat_amount
+		                                , A.amt_md_amount + NVL(B.amt_md_amount, 0) AS amt_md_amount
+		                                , A.vat_md_amount + NVL(B.vat_md_amount, 0) AS vat_md_amount
+		                                /* 추가정보 */
+		                                /* 추가정보 - 거래처 정보 */
+		                                , A.merc_name
+		                                , A.merc_saup_no
+		                                , A.mcc_name
+		                                , A.mcc_code
+		                                , A.mcc_stat
+		                                /* 추가정보 - 분개관련 정보 */
+		                                , NVL(A.gongje_no_chk, 'N') AS gongje_no_chk
+		                                /* 추가정보 - 연동 정보 */
+		                                , NVL(A.if_m_id, '0') AS if_m_id
+		                                , NVL(A.if_d_id, '0') AS if_d_id
+		                                /* 추가정보 - 입력 정보 */
+		                                , NVL(A.emp_seq, '0') AS emp_seq
+		                                , NVL(A.summary_seq, '0') AS summary_seq
+		                                , NVL(A.auth_seq, '0') AS auth_seq
+		                                , NVL(A.project_seq, '0') AS project_seq
+		                                , NVL(A.budget_seq, '0') AS budget_seq
+		                                , NVL(A.detail, ' ') AS note
+		                                , NVL(A.vat_stat, ' ') AS vat_stat
+		                                , A.georae_stat
+		                        FROM    (
+		                                    /* 승인건 */
+		                                    SELECT  *
+		                                    FROM    $DB_NEOS$t_ex_card_aq_tmp
+		                                            /* 검색기간 */
+		                                    WHERE   auth_date BETWEEN '$searchFromDate$' AND '$searchToDate$'
+		                                            /* 미상신 건 */
+		                                    AND     ( NVL(send_yn, 'N') != 'Y' AND NVL(user_send_yn, 'N') != 'Y' AND NVL(del_yn, 'N') != 'Y' )
+		                                            /* 결재승인 건 */
+		                                    AND     (CASE WHEN NVL(georae_stat, '1') = 'N' OR NVL(georae_stat, '1') = '1' THEN '1' ELSE '0' END )  = '1'
+		                                    /* AND		sync_id NOT IN ('$notInSyncId$') */
+		                                ) A LEFT OUTER JOIN (
+		                                    /* 승인취소건 */
+		                                    SELECT   
+		                                    		  REPLACE(card_num,' ','') AS card_num
+		                                            , auth_num
+		                                            , auth_date
+		                                            , CASE WHEN SUM(request_amount) > 0 THEN SUM(request_amount) * -1 ELSE SUM(request_amount) END AS request_amount
+		                                            , CASE WHEN SUM(ser_amount) > 0 THEN SUM(ser_amount) * -1 ELSE SUM(ser_amount) END AS ser_amount
+		                                            , CASE WHEN SUM(amt_amount) > 0 THEN SUM(amt_amount) * -1 ELSE SUM(amt_amount) END AS amt_amount
+		                                            , CASE WHEN SUM(vat_amount) > 0 THEN SUM(vat_amount) * -1 ELSE SUM(vat_amount) END AS vat_amount
+		                                            , CASE WHEN SUM(amt_md_amount) > 0 THEN SUM(amt_md_amount) * -1 ELSE SUM(amt_md_amount) END AS amt_md_amount
+		                                            , CASE WHEN SUM(vat_md_amount) > 0 THEN SUM(vat_md_amount) * -1 ELSE SUM(vat_md_amount) END AS vat_md_amount
+		                                    FROM    $DB_NEOS$t_ex_card_aq_tmp
+		                                            /* 검색기간 */
+		                                    WHERE   auth_date BETWEEN '$searchFromDate$' AND '$searchToDate$'
+		                                            /* 미상신 건 */
+		                                    AND     NVL(send_yn, 'N') != 'Y'
+		                                            /* 결재승인 건 */
+		                                    AND      (CASE WHEN NVL(georae_stat, '1') = 'N' OR NVL(georae_stat, '1') = '1' THEN '1' ELSE '0' END ) != '1'
+		                                    AND		sync_id NOT IN ('$notInSyncId$')
+		                                    GROUP   BY REPLACE(card_num,' ',''), auth_num, auth_date
+		                                ) B ON A.card_num = B.card_num AND A.auth_num = B.auth_num AND A.auth_date = B.auth_date
+		                    ) A INNER JOIN (
+		                        /* 카드 권한 조회 */
+		                        SELECT  C.comp_seq
+                                        , REPLACE(C.card_num,' ','') AS card_num
+                                        , MAX(C.card_name) KEEP (DENSE_RANK FIRST ORDER BY C.comp_seq, REPLACE(C.card_num,' ','')  DESC) AS card_name
+		                        FROM    $DB_NEOS$t_ex_card C
+		                                INNER JOIN $DB_NEOS$t_ex_card_public A ON C.comp_seq = A.comp_seq AND REPLACE(REPLACE(C.card_num,'-',''),' ','') = REPLACE(REPLACE(A.card_num,'-',''),' ','')
+		                                INNER JOIN (
+		                                    SELECT  B.gbn_org AS org_div
+		                                            , B.dept_seq AS org_id
+		                                    FROM    (
+		                                                SELECT  path
+		                                                FROM    $DB_NEOS$v_org_chart_child
+		                                                WHERE   dept_seq = '$deptSeq$'
+		                                            ) A INNER JOIN (
+		                                                SELECT  gbn_org
+		                                                        , dept_seq
+		                                                        , path
+		                                                FROM    $DB_NEOS$v_org_chart_child
+		                                            ) B ON A.path LIKE '%' || B.path || '%'
+		
+		                                    UNION
+		
+		                                    SELECT  'u' AS org_div,
+		                                            '$empSeq$' AS org_id
+		                                      FROM  dual
+		                                ) B ON A.org_div = B.org_div AND A.org_id = B.org_id
+		                                /* 회사 */
+		                        WHERE   A.comp_seq = '$compSeq$'
+		                        GROUP   BY C.comp_seq, REPLACE(C.card_num,' ','')
+		                    ) B ON A.card_num  = REPLACE(B.card_num, '-', '')
+		            WHERE   A.request_amount > 0
+		        ) A LEFT OUTER JOIN $DB_NEOS$t_ex_expend_emp B ON A.emp_seq = B.seq
+		        LEFT OUTER JOIN $DB_NEOS$t_ex_expend_summary C ON A.summary_seq = C.seq
+		        LEFT OUTER JOIN $DB_NEOS$t_ex_expend_auth D ON A.auth_seq = D.seq
+		        LEFT OUTER JOIN $DB_NEOS$t_ex_expend_project E ON A.project_seq = E.seq
+		        LEFT OUTER JOIN $DB_NEOS$t_ex_expend_budget F ON A.budget_seq = F.seq
+		        WHERE	(
+           			/* 검색조건 : 카드 번호 */
+           			REPLACE(card_num, '-', '') LIKE REPLACE(('%' || '$searchStr$' || '%'),'-','')
+           			OR
+           			/* 검색조건 : 카드 명칭 */
+           			NVL(card_name, '') LIKE '%' || '$searchStr$' || '%'
+           			OR
+           			/* 검색조건 : 거래처 명 */
+					NVL(merc_name, '') LIKE '%' || #searchStr# || '%'
+           		)
+	        	/* 정렬순서 추가 : 20170605 김상겸 */
+	        	/* 정렬순서는 오래된 데이터가 먼저 표현될 수 있도록 처리 ( 먼저 등록된 내역을 먼저 상신해야 하기에 정렬순서 정의 ) */
+	        	/* 정렬순서 변경 : 20170710 신재호 */
+	        	/* 정렬순서 변경 기존 DESC -> ASC */
+	        	<isEqual property="sorting" compareValue="ASC" >
+	        		ORDER   BY A.auth_date ASC, A.auth_time ASC, A.sync_id ASC
+	        	</isEqual>
+        		<isNotEqual property="sorting" compareValue="ASC" >
+	        		ORDER   BY A.auth_date DESC, A.auth_time ASC, A.sync_id ASC
+	        	</isNotEqual>
+    </select>    
+
+	<!-- 지출결의 - 카드 상신 목록 조회 ( 관리자 ) -->
+	<select id="ExExpendAdminCardListInfoSelect" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* [BizboxAlpha][oracle] ExExpendAdminCardListInfoSelect */
+		SELECT  A.sync_id
+		        , A.auth_date
+		        , A.auth_time
+		        , A.georae_cand
+		        , A.merc_name
+		        , A.merc_saup_no
+		        , A.gongje_no_chk
+		        , A.mcc_stat
+		        , A.abroad
+		        , A.request_amount
+		        , A.vat_md_amount
+		        , A.amt_md_amount
+		        , A.emp_seq
+		        , NVL(B.dept_seq, '') AS dept_seq
+		        , NVL(B.erp_dept_seq, '') AS erp_dept_seq
+		        , NVL(B.emp_name, '') AS emp_name
+		        , NVL(B.erp_emp_name, '') AS erp_emp_name
+		        , A.summary_seq
+		        , NVL(C.summary_name, '') AS summary_name
+		        , NVL(C.dr_acct_code, '') AS dr_acct_code
+		        , NVL(C.dr_acct_name, '') AS dr_acct_name
+		        , A.note
+		        , A.auth_seq
+		        , NVL(D.auth_name, '') AS auth_name
+		        , A.project_seq
+		        , NVL(E.project_name, '') AS project_name
+		        , A.budget_seq
+		        , NVL(F.budget_name, '') AS budget_name
+		        , NVL(F.bizplan_name, '') AS bizplan_name
+		        , NVL(F.bgacct_name, '') AS bgacct_name
+		        , A.if_m_id
+		        , A.if_d_id
+		FROM    (
+		            SELECT  A.*
+		            FROM    (
+		                        SELECT  /* 기준정보 */
+		                                sync_id
+		                                , A.auth_num
+		                                , A.auth_date
+		                                , A.auth_time
+		                                , A.georae_cand
+		                                , A.card_num
+		                                , NVL(A.abroad, 'A') AS abroad
+		                                /* 금액정보 */
+		                                , A.request_amount + NVL(B.request_amount, 0) AS request_amount
+		                                , A.ser_amount + NVL(B.ser_amount, 0) AS ser_amount
+		                                , A.amt_amount + NVL(B.amt_amount, 0) AS amt_amount
+		                                , A.vat_amount + NVL(B.vat_amount, 0) AS vat_amount
+		                                , A.amt_md_amount + NVL(B.amt_md_amount, 0) AS amt_md_amount
+		                                , A.vat_md_amount + NVL(B.vat_md_amount, 0) AS vat_md_amount
+		                                /* 추가정보 */
+		                                /* 추가정보 - 거래처 정보 */
+		                                , A.merc_name
+		                                , A.merc_saup_no
+		                                , A.mcc_name
+		                                , A.mcc_code
+		                                , A.mcc_stat
+		                                /* 추가정보 - 분개관련 정보 */
+		                                , NVL(A.gongje_no_chk, 'N') AS gongje_no_chk
+		                                /* 추가정보 - 연동 정보 */
+		                                , NVL(A.if_m_id, '0') AS if_m_id
+		                                , NVL(A.if_d_id, '0') AS if_d_id
+		                                /* 추가정보 - 입력 정보 */
+		                                , NVL(A.emp_seq, '0') AS emp_seq
+		                                , NVL(A.summary_seq, '0') AS summary_seq
+		                                , NVL(A.auth_seq, '0') AS auth_seq
+		                                , NVL(A.project_seq, '0') AS project_seq
+		                                , NVL(A.budget_seq, '0') AS budget_seq
+		                                , NVL(A.detail, '') AS note
+		                        FROM    (
+		                                    /* 승인건 */
+		                                    SELECT  *
+		                                    FROM    $DB_NEOS$t_ex_card_aq_tmp
+		                                            /* 검색기간 */
+		                                    WHERE   auth_date BETWEEN '$search_from_date$' AND '$search_to_date$'
+		                                            /* 미상신 건 */
+		                                    AND     ( NVL(send_yn, 'N') != 'Y' AND NVL(user_send_yn, 'N') != 'Y' AND NVL(del_yn, 'N') != 'Y' )
+		                                            /* 결재승인 건 */
+		                                    AND     NVL(georae_stat, '1') = '1'
+		                                ) A LEFT OUTER JOIN (
+		                                    /* 승인취소건 */
+		                                    SELECT   REPLACE(card_num,' ','') AS card_num
+		                                            , auth_num
+		                                            , auth_date
+		                                            , CASE WHEN SUM(request_amount) > 0 THEN SUM(request_amount) * -1 ELSE SUM(request_amount) END AS request_amount
+		                                            , CASE WHEN SUM(ser_amount) > 0 THEN SUM(ser_amount) * -1 ELSE SUM(ser_amount) END AS ser_amount
+		                                            , CASE WHEN SUM(amt_amount) > 0 THEN SUM(amt_amount) * -1 ELSE SUM(amt_amount) END AS amt_amount
+		                                            , CASE WHEN SUM(vat_amount) > 0 THEN SUM(vat_amount) * -1 ELSE SUM(vat_amount) END AS vat_amount
+		                                            , CASE WHEN SUM(amt_md_amount) > 0 THEN SUM(amt_md_amount) * -1 ELSE SUM(amt_md_amount) END AS amt_md_amount
+		                                            , CASE WHEN SUM(vat_md_amount) > 0 THEN SUM(vat_md_amount) * -1 ELSE SUM(vat_md_amount) END AS vat_md_amount
+		                                    FROM    $DB_NEOS$t_ex_card_aq_tmp
+		                                            /* 검색기간 */
+		                                    WHERE   auth_date BETWEEN '$search_from_date$' AND '$search_to_date$'
+		                                            /* 미상신 건 */
+		                                    AND     NVL(send_yn, 'N') != 'Y'
+		                                            /* 결재승인 건 */
+		                                    AND     (CASE WHEN NVL(georae_stat, '1') = 'N' THEN '1' ELSE '0' END ) != '1'
+		                                    GROUP   BY card_num, auth_num, auth_date
+		                                ) B ON A.card_num = B.card_num AND A.auth_num = B.auth_num AND A.auth_date = B.auth_date
+		                    ) A INNER JOIN (
+		                        /* 카드 권한 조회 */
+		                        SELECT  comp_seq
+		                                , card_num
+		                        FROM    $DB_NEOS$t_ex_card A
+		                                /* 회사 */
+		                        WHERE   A.comp_seq = '6'
+		                                /* 카드번호 */
+		                        AND     REPLACE(A.card_num, '-', '') LIKE CONCAT('%', '', '%')
+		                        GROUP   BY comp_seq, card_num
+		                    ) B ON A.card_num  = REPLACE(B.card_num, '-', '')
+		            WHERE   A.request_amount > 0
+		        ) A LEFT OUTER JOIN $DB_NEOS$t_ex_expend_emp B ON A.emp_seq = B.seq
+		        LEFT OUTER JOIN $DB_NEOS$t_ex_expend_summary C ON A.summary_seq = C.seq
+		        LEFT OUTER JOIN $DB_NEOS$t_ex_expend_auth D ON A.auth_seq = D.seq
+		        LEFT OUTER JOIN $DB_NEOS$t_ex_expend_project E ON A.project_seq = E.seq
+		        LEFT OUTER JOIN $DB_NEOS$t_ex_expend_budget F ON A.budget_seq = F.seq
+    ]]></select>
+
+	<!-- 지출결의 - 카드 사용내역 상세 -->
+	<select id="ExReportCardDetailInfoSelect" parameterClass="HashMap" resultClass="common.vo.ex.ExCodeCardVO"><![CDATA[
+		/* [BizboxAlpha][oracle] ExReportCardDetailInfoSelect */
+        SELECT  A.sync_id AS "syncId"/* 카드 사용내역 키 */
+                , A.card_name AS "cardName"
+                , A.card_num AS "cardNum"
+                , A.auth_date AS "authDate" /* 증빙일자 ( yyyyMMdd ) */
+                , A.auth_time AS "authTime" /* 증빙시간 ( hhmmss ) */
+                , A.georae_cand AS "georaeCand" /* 취소일자 ( hhmmss ) */
+                , A.merc_name AS "mercName" /* 거래처 명칭 */
+                , A.merc_saup_no AS "mercSaupNo" /* 거래처 사업자 등록 번호 */
+                , A.gongje_no_chk AS "gongjeNoChk" /* 매입 불공처리 여부 */
+                , A.mcc_stat AS "mccStat" /* 사업자 등록 구분 */
+                , A.abroad AS "abroad" /* 사용 구분 ( 국내(A), 해외(B) ) */
+                , A.request_amount AS "requestAmount" /* 공급대가 */
+                , A.vat_md_amount AS "vatMdAmount" /* 부가세액 */
+                , A.amt_md_amount AS "amtMdAmount" /* 공급가액 */
+                , A.ser_amount AS "serAmount" /* 서비스액 */
+                , A.emp_seq AS "empSeq" /* 사용자 정보 시퀀스 */           
+                , NVL(B.dept_seq, ' ') AS "deptSeq" /* 사용자 정보 부서 시퀀스 */
+                , NVL(B.erp_dept_seq, ' ') AS "erpDeptSeq" /* 사용자 정보 ERP 부서 시퀀스 */
+                , NVL(B.emp_name, ' ') AS "empName" /* 사용자 정보 사원 명 */
+                , NVL(B.erp_emp_name, ' ') AS "erpEmpName" /* 사용자 정보 ERP 사원 명 */
+                , NVL(B.erp_comp_seq, ' ') AS "erpCompSeq" /* 사용자 정보 ERP 회사 시퀀스 */
+                , NVL(B.erp_comp_name, ' ') AS "erpCompName" /* 사용자 정보 ERP 회사 명 */
+                , A.summary_seq AS "summarySeq" /* 표준적요 정보 시퀀스 */
+                , NVL(C.summary_name, ' ') AS "summaryName" /* 표준적요 정보 표준적요 명칭 */
+                , NVL(C.dr_acct_code, ' ') AS "drAcctCode" /* 표준적요 정보 차변 계정과목 코드 */
+                , NVL(C.dr_acct_name, ' ') AS "drAcctName" /* 표준적요 정보 차변 계정과목 명칭 */
+                , A.auth_seq AS "authSeq" /* 증빙유형 정보 시퀀스 */
+                , NVL(D.auth_name, ' ') AS "authName" /* 증빙유형 정보 증빙유형 명칭 */
+                , A.project_seq AS "projectSeq" /* 프로젝트 정보 시퀀스 */
+                , NVL(E.project_name, ' ') AS "projectName" /* 프로젝트 정보 프로젝트 명칭 */
+                , A.budget_seq AS "budgetSeq" /* 예산정보 시퀀스 */
+                , NVL(F.budget_name, ' ') AS "budgetName" /* 예산정보 예산단위 명칭 */
+                , NVL(F.bizplan_name, ' ') AS "bizplanName" /* 예산정보 사업계획 명칭 */
+                , NVL(F.bgacct_name, ' ') AS "bgacctName" /* 예산정보 예산계정 명칭 */
+                , A.if_m_id AS "ifMId" /* 외부 연동 키 */
+                , A.if_d_id AS "ifDId" /* 외부 연동 키 */
+                , A.note AS "note"
+        FROM    (
+                    SELECT  A.*
+                            , B.card_name
+                    FROM    (
+                                SELECT  /* 기준정보 */
+                                        sync_id
+                                        , A.auth_num
+                                        , A.auth_date
+                                        , A.auth_time
+                                        , A.georae_cand
+                                        , A.card_num
+                                        , NVL(A.abroad, 'A') AS abroad
+                                        /* 금액정보 */
+                                        , A.request_amount + NVL(B.request_amount, 0) AS request_amount
+                                        , A.ser_amount + NVL(B.ser_amount, 0) AS ser_amount
+                                        , A.amt_amount + NVL(B.amt_amount, 0) AS amt_amount
+                                        , A.vat_amount + NVL(B.vat_amount, 0) AS vat_amount
+                                        , A.amt_md_amount + NVL(B.amt_md_amount, 0) AS amt_md_amount
+                                        , A.vat_md_amount + NVL(B.vat_md_amount, 0) AS vat_md_amount
+                                        /* 추가정보 */
+                                        /* 추가정보 - 거래처 정보 */
+                                        , A.merc_name
+                                        , A.merc_saup_no
+                                        , A.mcc_name
+                                        , A.mcc_code
+                                        , A.mcc_stat
+                                        /* 추가정보 - 분개관련 정보 */
+                                        , NVL(A.gongje_no_chk, 'N') AS gongje_no_chk
+                                        /* 추가정보 - 연동 정보 */
+                                        , NVL(A.if_m_id, '0') AS if_m_id
+                                        , NVL(A.if_d_id, '0') AS if_d_id
+                                        /* 추가정보 - 입력 정보 */
+                                        , NVL(A.emp_seq, '0') AS emp_seq
+                                        , NVL(A.summary_seq, '0') AS summary_seq
+                                        , NVL(A.auth_seq, '0') AS auth_seq
+                                        , NVL(A.project_seq, '0') AS project_seq
+                                        , NVL(A.budget_seq, '0') AS budget_seq
+                                        , NVL(A.detail, ' ') AS note
+                                FROM    (
+                                            /* 승인건 */
+                                            SELECT  *
+                                            FROM    $DB_NEOS$t_ex_card_aq_tmp
+                                            WHERE   sync_id = '$syncId$'
+                                                    /* 결재승인 건 */
+                                            AND     (
+													    CASE 
+															WHEN NVL(georae_stat, '1') = 'N' THEN '1' 
+															WHEN NVL(georae_stat, '1') = '1' THEN '1' 
+															ELSE '0' 
+														END
+													) = '1'
+                                        ) A LEFT OUTER JOIN (
+                                            /* 승인취소건 */
+                                            SELECT  card_num
+                                                    , auth_num
+                                                    , auth_date
+                                                    , CASE WHEN SUM(request_amount) > 0 THEN SUM(request_amount) * -1 ELSE SUM(request_amount) END AS request_amount
+                                                    , CASE WHEN SUM(ser_amount) > 0 THEN SUM(ser_amount) * -1 ELSE SUM(ser_amount) END AS ser_amount
+                                                    , CASE WHEN SUM(amt_amount) > 0 THEN SUM(amt_amount) * -1 ELSE SUM(amt_amount) END AS amt_amount
+                                                    , CASE WHEN SUM(vat_amount) > 0 THEN SUM(vat_amount) * -1 ELSE SUM(vat_amount) END AS vat_amount
+                                                    , CASE WHEN SUM(amt_md_amount) > 0 THEN SUM(amt_md_amount) * -1 ELSE SUM(amt_md_amount) END AS amt_md_amount
+                                                    , CASE WHEN SUM(vat_md_amount) > 0 THEN SUM(vat_md_amount) * -1 ELSE SUM(vat_md_amount) END AS vat_md_amount
+                                            FROM    $DB_NEOS$t_ex_card_aq_tmp
+                                                   /* 결재취소 건 */
+                                            WHERE  (
+														CASE 
+															WHEN NVL(georae_stat, '1') = 'N' THEN '1' 
+															WHEN NVL(georae_stat, '1') = '1' THEN '1' 
+															ELSE '0' 
+														END 
+													) != '1'
+                                            GROUP   BY card_num, auth_num, auth_date
+                                        ) B ON A.card_num = B.card_num AND A.auth_num = B.auth_num AND A.auth_date = B.auth_date
+                            ) A INNER JOIN (
+                                /* 카드 권한 조회 */
+                                SELECT  C.comp_seq
+                                        , C.card_num
+                                        , MAX(C.card_name) KEEP (DENSE_RANK FIRST ORDER BY C.comp_seq, C.card_num  DESC) AS card_name
+                                FROM    $DB_NEOS$t_ex_card C
+                                where	use_yn = 'Y'
+                                AND		comp_seq = '$compSeq$'
+                                GROUP   BY comp_seq, card_num
+                            ) B ON A.card_num  = REPLACE(B.card_num, '-', '')
+                    WHERE   A.request_amount > 0
+                ) A LEFT OUTER JOIN $DB_NEOS$t_ex_expend_emp B ON A.emp_seq = B.seq
+                LEFT OUTER JOIN $DB_NEOS$t_ex_expend_summary C ON A.summary_seq = C.seq
+                LEFT OUTER JOIN $DB_NEOS$t_ex_expend_auth D ON A.auth_seq = D.seq
+                LEFT OUTER JOIN $DB_NEOS$t_ex_expend_project E ON A.project_seq = E.seq
+                LEFT OUTER JOIN $DB_NEOS$t_ex_expend_budget F ON A.budget_seq = F.seq
+    ]]></select>
+    
+    <select id="ExExpendCardDetailInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+    	/* [BizboxAlpha][oracle] ExExpendCardDetailInfoSelect */
+    SELECT	aqtmp.merc_saup_no AS "mercSaupNo"
+			, aqtmp.merc_name AS "mercName"
+			, aqtmp.merc_tel AS "mercTel"
+			, aqtmp.merc_addr AS "mercAddr"
+			, aqtmp.auth_date AS "authDate"
+			, aqtmp.auth_time AS "authTime"
+			, aqtmp.amt_amount AS "amtAmount" /* 공급가액 */
+			, aqtmp.vat_amount AS "vatAmount" /* 부가세 */
+			, aqtmp.amt_md_amount AS "amtMdAmount" /* 공급가액 (재가공) */
+			, aqtmp.vat_md_amount AS "vatMdAmount" /* 부가세 (재가공) */
+			, aqtmp.ser_amount AS "serAmount" /* 서비스금액 */
+			, aqtmp.request_amount AS "requestAmount" /* 금액 */
+			, aqtmp.card_num AS "cardNum" 
+			, aqtmp.auth_num AS "authNum"
+			, aqtmp.sync_id AS "syncId"
+			, aqtmp.detail AS "detail" /* 적요 */
+			, aqtmp.send_yn AS "sendYN"
+			, auth.auth_code AS "authCode"
+			, auth.auth_name AS "authName"
+			, summary.summary_code AS "summaryCode"
+			, summary.summary_name AS "summaryName"
+			, project.project_code AS "projectCode"
+			, project.project_name AS "projectName"
+			, budget.budget_code AS "budgetCode" /* 예산단위(iU) */
+			, budget.budget_name AS "budgetName"
+			, budget.bizplan_code AS "bizplanCode" /* 사업계획(iU) */
+			, budget.bizplan_name AS "bizplanName"
+			, budget.bgacct_code AS "bgacctCode" /* 예산계정(공통) */
+			, budget.bgacct_name AS "bgacctName"
+	FROM 	$DB_NEOS$t_ex_card_aq_tmp aqtmp
+	LEFT OUTER JOIN $DB_NEOS$t_ex_expend_auth auth ON aqtmp.auth_seq = auth.seq
+	LEFT OUTER JOIN $DB_NEOS$t_ex_expend_summary summary ON aqtmp.summary_seq = summary.seq
+	LEFT OUTER JOIN $DB_NEOS$t_ex_expend_project project ON aqtmp.project_seq = project.seq
+	LEFT OUTER JOIN $DB_NEOS$t_ex_expend_budget budget ON aqtmp.budget_seq = budget.seq 
+	WHERE 	sync_id = '$syncId$'
+    </select>
+
+	<!-- 전자결재 연동 -->
+	<!-- 전자결재 연동 - 카드 사용내역 동기화 진행 목록 조회 -->
+	<select id="ExUserCardA.ExUserCardStateSyncListInfoSelect" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* [BizboxAlpha][oracle] ExUserCardA.ExUserCardStateSyncListInfoSelect */
+		SELECT  expend_seq AS "expendSeq"
+		        , list_seq AS "listSeq"
+		        , interface_type AS "interfaceType"
+		        , interface_m_id AS "interfaceMId"
+		        , interface_d_id AS "interfaceDId"
+		FROM    $DB_NEOS$t_ex_expend_slip
+		WHERE   expend_seq = '$expendSeq$'
+		AND     interface_type = 'card'
+		
+		UNION
+		
+		SELECT  expend_seq
+		        , list_seq
+		        , interface_type
+		        , interface_m_id
+		        , interface_d_id
+		FROM    $DB_NEOS$t_ex_expend_list
+		WHERE   expend_seq = '$expendSeq$'
+		AND     interface_type = 'card'
+	]]></select>
+
+	<!-- 전자결재 연동 - 카드 사용내역 동기화 -->
+	<update id="ExUserCardA.ExUserCardStateInfoUpdate" parameterClass="HashMap"><![CDATA[
+		/* [BizboxAlpha][oracle] ExUserCardA.ExUserCardStateInfoUpdate */
+		UPDATE  $DB_NEOS$t_ex_card_aq_tmp
+		   SET  send_yn = '$sendYN$'
+		      , if_m_id = '$expendSeq$'
+		      , if_d_id = '$listSeq$'
+		 WHERE  sync_id = '$interfaceMId$'
+	]]></update>
+	
+	<!-- 그룹웨어 카드 정보 조회 -->
+	<select id="ExUserCardListInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		/* [BizboxAlpha][oracle] ExUserCardListInfoSelect */
+		SELECT	comp_seq AS compSeq
+				,card_code AS cardCode
+				,card_num AS cardNum
+				,card_name AS cardName
+				,NVL(partner_code,'') AS partnerCode
+				,NVL(partner_name,'') AS partnerName
+		FROM	$DB_NEOS$t_ex_card
+		WHERE	comp_seq = '$compSeq$'
+		AND		card_num LIKE ('%' || '$searchCardNum$' || '%')
+		AND		use_yn = 'Y'
+	</select>
+	
+	<!-- 그룹웨어 카드 정보 조회 -->
+	<select id="ExExpendUseCardInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		/* [BizboxAlpha][oracle] ExExpendUseCardInfoSelect */
+		SELECT	interface_m_id AS "syncId"
+		FROM	$DB_NEOS$t_ex_expend_list
+		WHERE	expend_Seq = '$expendSeq$'
+		AND		interface_type = 'card'
+		AND		interface_m_id != 0
+	</select>
+	
+	
+	<!-- 전자결재 연동 - 카드 사용내역 동기화 -->
+	<update id="ExUserCardA.ExUserCardStateInfoReset" parameterClass="HashMap"><![CDATA[
+		/* [BizboxAlpha][oracle] ExUserCardA.ExUserCardStateInfoReset */
+		UPDATE  $DB_NEOS$t_ex_card_aq_tmp
+		SET     detail = ''
+				, if_m_id = '0'
+				, if_d_id = '0'
+				, emp_seq = '0'
+				, summary_seq = '0'
+				, auth_seq = '0'
+				, project_seq = '0'
+				, budget_seq = '0'
+				, doc_seq = '0'
+		WHERE   sync_id = '$syncId$'
+		AND		NVL(send_yn,'N') = 'N'
+	]]></update>
+	
+	<insert id="ExUserCardA.ExUserCardStateInfoResetLogInsert" parameterClass="HashMap">
+		INSERT INTO	$DB_NEOS$t_ex_expend_history (
+					expend_seq, 
+					history_info, 
+					doc_seq, 
+					create_seq, 
+					create_date
+					)
+			VALUES (
+					'card', 
+					'$historyInfo$', 
+					' ', 
+					'$empSeq$', 
+					SYSDATE)
+	</insert>
+</sqlMap>

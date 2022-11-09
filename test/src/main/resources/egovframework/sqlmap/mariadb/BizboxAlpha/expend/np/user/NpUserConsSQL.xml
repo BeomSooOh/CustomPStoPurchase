@@ -1,0 +1,1710 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="NpUserConsA">
+
+	<select id="NpUserConsA.selectFavoritesList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserResSQL.xml - NpUserConsA.selectFavoritesList */
+		/* 품의서 즐겨찾기 조회 */
+				SELECT	doc.cons_doc_seq	AS	consDocSeq
+				, IFNULL(doc.doc_no,'')	AS	docNo
+				, doc.consdoc_note	AS	consDocNote
+				, DATE_FORMAT(doc.create_date,'%Y-%m-%d')	AS	createDate
+				, IFNULL(totalAmt,0) AS totalAmt
+		FROM	$DB_NEOS$t_exnp_consdoc doc
+		LEFT JOIN (
+			SELECT	cons_doc_seq
+				, SUM(budget_amt) AS totalAmt
+			FROM	$DB_NEOS$t_exnp_consbudget
+			GROUP BY cons_doc_seq
+		) budget
+		ON	doc.cons_doc_seq = budget.cons_doc_seq
+		WHERE	doc.comp_seq = #compSeq#
+		AND	doc.create_seq = #empSeq#
+		AND	save_yn = 'Y'
+	</select>
+	
+	<select id="NpUserConsA.selectTripConsDoc" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserResSQL.xml - NpUserConsA.selectTripConsDoc */
+		/* 출장품의서 조회 */
+		SELECT	* 
+		FROM	$DB_NEOS$t_exnp_trip_cons_doc
+		WHERE	trip_cons_doc_seq = #tripConsDocSeq#
+	</select>
+	
+	<insert id="NpUserConsA.insertConsDoc" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.insertConsDoc */
+		/* 품의 문서 신규 생성 */
+		INSERT INTO $DB_NEOS$t_exnp_consdoc (
+			`consdoc_note`, 
+			`expend_date`, 
+			`erp_comp_seq`, 
+			`erp_dept_seq`, 
+			`erp_emp_seq`, 
+			`erp_gisu`, 
+			`erp_expend_year`, 
+			`comp_seq`, 
+			`comp_name`, 
+			`dept_seq`, 
+			`dept_name`, 
+			`emp_seq`, 
+			`emp_name`,
+			`create_seq`,
+			`erp_div_seq`,
+			`erp_div_name`,
+			`out_process_interface_id`,
+			`out_process_interface_m_id`,
+			`out_process_interface_d_id`
+		)
+		VALUES	(
+			#consdocNote#, 
+			NOW(), 
+			#erpCompSeq#, 
+			#erpDeptSeq#, 
+			#erpEmpSeq#, 
+			#erpGisu#, 
+			#erpExpendYear#, 
+			#compSeq#, 
+			#compName#, 
+			#deptSeq#, 
+			#deptName#, 
+			#empSeq#, 
+			#empName#,
+			#empSeq#,
+			#erpDivSeq#,
+			#erpDivName#,
+			#outProcessInterfaceId#,
+			#outProcessInterfaceMId#,
+			#outProcessInterfaceDId#
+		);	 
+	    <selectKey resultClass="int" keyProperty="doc_seq" >
+	        SELECT MAX(cons_doc_seq) FROM $DB_NEOS$t_exnp_consdoc;       
+	    </selectKey> 
+	</insert>
+	
+	<update id="NpUserConsA.updateConsDoc" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.updateConsDoc */
+		/* 품의 문서 정보 갱신 */
+		UPDATE $DB_NEOS$t_exnp_consdoc
+		SET
+			`consdoc_note` 				= IFNULL(#consdocNote#, consdoc_note) , 
+			 `expend_date` 	= IFNULL(#consDate# , expend_date) , 
+			 `erp_expend_year` = IFNULL(#erpYear#, erp_expend_year) ,
+			 `erp_gisu` 		= IFNULL(#erpGisu# , erp_gisu) ,
+			`conffer_return_yn` = IFNULL(#confferReturnYN# , conffer_return_yn) ,
+			`modify_seq` 		= IFNULL(#empSeq# , modify_seq)
+			, erp_div_seq 		= IFNULL(#erpDivSeq# , erp_div_seq)
+			, erp_div_name 		= IFNULL(#erpDivName# , erp_div_name)
+		WHERE	`cons_doc_seq` 	= #consDocSeq# 	
+	</update>
+
+	<update id="NpUserConsA.updateConsDocEaInfo" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.updateConsDocEaInfo */
+		/* 품의 문서 전자결재 정보 갱신 */
+		/* 전자결재 파라미터 예외 > docNum */
+		UPDATE $DB_NEOS$t_exnp_consdoc
+		SET
+			`doc_seq` 			= IFNULL(#docSeq# , doc_seq ) ,
+			`doc_no` 			= IFNULL(#docNum# , doc_no ) , 
+			`doc_status` 		= IFNULL(#docStatus# , doc_status ) ,
+			`expend_date` 		= IFNULL(#expendDate# , expend_date) ,
+			`modify_seq` 		= IFNULL(#empSeq# , modify_seq ) 
+		WHERE	`cons_doc_seq` 	= #consDocSeq# 			
+	</update>
+	
+	<delete id="NpUserConsA.deleteConsDoc" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.deleteConsDoc */
+		/* 품의 문서 정보 삭제 */
+		DELETE FROM $DB_NEOS$t_exnp_consdoc 
+		WHERE	`cons_doc_seq` 	= #consDocSeq# 	
+	</delete>
+	
+	<select id="NpUserConsA.selectConsDoc" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.selectConsDoc */
+		/* 품의문서 정보 조회 */
+		SELECT 	
+			IFNULL(`cons_doc_seq`,'')			AS	`consDocSeq`
+			, IFNULL(`doc_seq`,'')				AS	`docSeq`
+			, IFNULL(`doc_no`,'')				AS	`docNo`
+			, IFNULL(`doc_status`,'')			AS	`docStatus`
+			, IFNULL(`consdoc_note`,'')				AS	`consdocNote`
+			, IFNULL(`expend_date`,'')			AS	`expendDate`
+			, IFNULL(`erp_comp_seq`,'')		AS	`erpCompSeq`
+			, IFNULL(`erp_dept_seq`,'')		AS	`erpDeptSeq`
+			, IFNULL(`erp_emp_seq`,'')			AS	`erpEmpSeq`
+			, IFNULL(`erp_gisu`,'')			AS	`erpGisu`
+			, IFNULL(`erp_expend_year`,'')		AS	`erpExpendYear`
+			, IFNULL(`comp_seq`,'')			AS	`compSeq`
+			, IFNULL(`comp_name`,'')			AS	`compName`
+			, IFNULL(`dept_seq`,'')			AS	`deptSeq`
+			, IFNULL(`dept_name`,'')			AS	`deptName`
+			, IFNULL(`emp_seq`,'')				AS	`empSeq`
+			, IFNULL(`emp_name`,'')			AS	`empName`
+			, IFNULL(`conffer_return_yn`,'')	AS	`confferReturnYN`
+			, IFNULL(`erp_div_seq`,'')	AS	`erpDivSeq`
+			, IFNULL(`erp_div_name`,'')	AS	`erpDivName`
+		FROM	$DB_NEOS$t_exnp_consdoc	 	
+		WHERE	`cons_doc_seq` 	= #consDocSeq# 	
+	</select>
+	
+	<insert id="NpUserConsA.insertConsHead" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.insertConsHead */
+		/* 각개 품의서 정보 생성 */
+		INSERT INTO $DB_NEOS$t_exnp_conshead	(
+			`cons_doc_seq`,
+			`cons_date`, 
+			`mgt_seq`, 
+			`mgt_name`, 
+			`pjtFromDt`,
+			`pjtToDt`,  
+			`docu_fg_code`,
+			`docu_fg_name`, 
+			`cons_note`,  
+			`erp_comp_seq`, 
+			`erp_comp_name`, 
+			`erp_pc_seq`, 
+			`erp_pc_name`,
+			`erp_emp_seq`, 
+			`erp_emp_name`, 
+			`erp_div_seq`, 
+			`erp_div_name`, 
+			`erp_dept_seq`, 
+			`erp_dept_name`, 
+			`erp_gisu`, 
+			`erp_gisu_from_date`, 
+			`erp_gisu_to_date`, 
+			`erp_year`, 
+			`btr_seq`, 
+			`bottom_seq`, 
+			`btr_nb`, 
+			`btr_name`, 
+			`bottom_name`, 
+			`create_seq`
+		)
+		VALUES	(
+			#consDocSeq#, 
+			#consDate#,
+			#erpMgtSeq#, 
+			#erpMgtName#, 
+			#pjtFromDate#,
+			#pjtToDate#,
+			#docuFgCode#,
+			#docuFgName#, 
+			#consNote#, 
+			#erpCompSeq#, 
+			#erpCompName#, 
+			#erpPcSeq#, 
+			#erpPcName#,
+			#erpEmpSeq#, 
+			#erpEmpName#, 
+			#erpDivSeq#, 
+			#erpDivName#, 
+			#erpDeptSeq#, 
+			#erpDeptName#, 
+			#erpGisu#, 
+			#erpGisuFromDate#, 
+			#erpGisuToDate#, 
+			#erpYear#, 
+			#btrSeq#, 
+			#bottomSeq#, 
+			#btrNb#, 
+			#btrName#, 
+			#bottomName#, 
+			#empSeq#
+		);
+	    <selectKey resultClass="int" keyProperty="cons_seq" >
+	        SELECT MAX(cons_seq) FROM $DB_NEOS$t_exnp_conshead;       
+	    </selectKey> 
+	</insert>
+	
+	<update id="NpUserConsA.updateConsHead" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.updateConsHead */
+		/* 각개 품의서 정보 갱신 */
+		UPDATE $DB_NEOS$t_exnp_conshead 
+		SET
+			`cons_doc_seq` 	= IFNULL(#consDocSeq# , cons_doc_seq ) ,
+			`cons_date` 	= IFNULL(#consDate# , cons_date ) ,
+			`cons_seq` 		= IFNULL(#consSeq# , cons_seq ) ,
+			`mgt_seq` 		= IFNULL(#erpMgtSeq# , mgt_seq ) ,
+			`mgt_name` 		= IFNULL(#erpMgtName# , mgt_name ) ,
+			`pjtFromDt` 	= IFNULL( pjtFromDt , '' ) ,
+			`pjtToDt` 		= IFNULL( pjtToDt , '' ) ,
+			`docu_fg_code` 	= IFNULL(#docuFgCode# , docu_fg_code ) ,
+			`docu_fg_name` 	= IFNULL(#docuFgName# , docu_fg_name ) ,
+			`cons_note` 	= IFNULL(#consNote# , cons_note ) ,
+			`erp_comp_seq` 	= IFNULL(#erpCompSeq# , erp_comp_seq ) ,
+			`erp_comp_name`	= IFNULL(#erpCompName# , erp_comp_name ) ,
+			`erp_pc_seq` 	= IFNULL(#erpPcSeq# , erp_pc_Seq ) ,	/* ERPiU회계단위 */
+			`erp_pc_name` 	= IFNULL(#erpPcName# , erp_pc_name ) ,	/* ERPiU회계단위 */
+			`erp_div_seq` 	= IFNULL(#erpDivSeq# , erp_div_seq ) ,	/* G20회계단위 */
+			`erp_div_name` 	= IFNULL(#erpDivName# , erp_div_name ) ,/* G20회계단위 */
+			`erp_emp_seq` 	= IFNULL(#erpEmpSeq# , erp_emp_seq ) ,
+			`erp_emp_name` 	= IFNULL(#erpEmpName# , erp_emp_name ) ,
+			`erp_dept_seq` 	= IFNULL(#erpDeptSeq# , erp_dept_seq ) ,
+			`erp_dept_name` 	= IFNULL(#erpDeptName# , erp_dept_name ) ,
+			`erp_gisu` 		= IFNULL(#erpGisu# , erp_gisu ) ,
+			`erp_gisu_from_date`= IFNULL(#erpGisuFromDate# , erp_gisu_from_date ) ,
+			`erp_gisu_to_date`	= IFNULL(#erpGisuToDate# , erp_gisu_to_date ) ,
+			`erp_year` 		= IFNULL(#erpYear# , erp_year ) ,
+			`btr_seq` 		= IFNULL(#btrSeq# , btr_seq ) ,
+			`bottom_seq` 	= IFNULL(#bottomSeq# , bottom_seq ) ,
+			`btr_nb` 		= IFNULL(#btrNb# , btr_nb ) ,
+			`btr_name` 		= IFNULL(#btrName# , btr_name ) ,
+			`bottom_name` 	= IFNULL(#bottomName# , bottom_name ) ,
+			`modify_seq` 	= IFNULL(#empSeq# , modify_seq ) 
+		WHERE 	cons_doc_seq = #consDocSeq#
+		 AND	cons_seq = #consSeq#
+	</update>
+	
+	<delete id="NpUserConsA.deleteConsHead" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.deleteConsHead */
+		/* 각개 품의서 정보 삭제 */
+		DELETE FROM $DB_NEOS$t_exnp_conshead 
+		WHERE 	cons_doc_seq = #consDocSeq#
+		 AND	cons_seq = #consSeq#
+	</delete>
+	
+	<delete id="NpUserConsA.deleteConsHeadForDoc" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.deleteConsHeadForDoc */
+		/* 모든 각개 품의서 정보 삭제 */
+		DELETE FROM $DB_NEOS$t_exnp_conshead 
+		WHERE 	cons_doc_seq = #consDocSeq#
+	</delete>
+	
+	
+	<select id="NpUserConsA.selectConsHead" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.selectConsHead */
+		/* 각개 품의서 정보 조회 */
+		SELECT 	
+			IFNULL(A.cons_doc_seq,'')	AS	`consDocSeq`
+			, IFNULL(A.cons_date,'')		AS	`consDate`
+			, IFNULL(A.cons_seq,'')		AS	`consSeq`
+			, IFNULL(A.mgt_seq,'')		AS	`erpMgtSeq`
+			, IFNULL(A.mgt_name,'')		AS	`erpMgtName`
+			, IFNULL(A.mgt_seq,'')		AS	`projectSeq`
+			, IFNULL(A.mgt_name,'')		AS	`projectName`
+			, IFNULL(A.docu_fg_code,'')	AS	`docuFgCode`
+			, IFNULL(A.docu_fg_name,'')	AS	`docuFgName`
+			, IFNULL(A.cons_note,'')		AS	`consNote`
+			, IFNULL(A.erp_comp_seq,'')	AS	`erpCompSeq`
+			, IFNULL(A.erp_comp_name,'')	AS	`erpCompName`
+			, IFNULL(A.erp_pc_seq,'')	AS	`erpPcSeq`
+			, IFNULL(A.erp_pc_name,'')	AS	`erpPcName`
+			, IFNULL(A.erp_emp_seq,'')	AS	`erpEmpSeq`
+			, IFNULL(A.erp_emp_name,'')	AS	`erpEmpName`
+			, IFNULL(A.erp_div_seq,'')	AS	`erpDivSeq`
+			, IFNULL(A.erp_div_name,'')	AS	`erpDivName`
+			, IFNULL(A.erp_dept_seq,'')	AS	`erpDeptSeq`
+			, IFNULL(A.erp_dept_name,'')	AS	`erpDeptName`
+			, IFNULL(A.erp_gisu,'')		AS	`erpGisu`
+			, IFNULL(A.erp_gisu_from_date,'')	AS	`erpGisuFromDate`
+			, IFNULL(A.erp_gisu_to_date,'')	AS	`erpGisuToDate`	
+			, IFNULL(A.erp_year,'')		AS	`erpYear`
+			, IFNULL(A.btr_seq,'')		AS	`btrSeq`
+			, IFNULL(A.bottom_seq,'')	AS	`bottomSeq`
+			, IFNULL(A.btr_nb,'')		AS	`btrNb`
+			, IFNULL(A.btr_nb,'')		AS	`btrNumber`
+			, IFNULL(A.btr_name,'')		AS	`btnName`
+			, IFNULL(A.bottom_name,'')	AS	`bottomName`
+			, IFNULL(B.consAmt, '0') 	AS `consAmt`
+			, IFNULL(C.itemAmt, '0')	AS itemAmt 	
+		FROM	$DB_NEOS$t_exnp_conshead A
+		LEFT JOIN (
+			SELECT SUM(budget_amt) AS 'consAmt' , cons_seq, cons_doc_seq
+			FROM   $DB_NEOS$t_exnp_consbudget
+			WHERE cons_doc_seq = #consDocSeq#
+			GROUP BY cons_seq
+		) B
+		ON		A.cons_doc_seq = B.cons_doc_seq
+		AND		A.cons_seq = B.cons_seq
+		LEFT JOIN (
+			SELECT SUM(item_amt) AS 'itemAmt' , cons_seq, cons_doc_seq, cons_item_seq
+			FROM   $DB_NEOS$t_exnp_consitem
+			WHERE cons_doc_seq = #consDocSeq#
+			GROUP BY cons_seq
+		) C
+		ON		A.cons_doc_seq = C.cons_doc_seq
+		AND		A.cons_seq = C.cons_seq
+		WHERE 	A.cons_doc_seq = #consDocSeq#
+		<isNotEmpty property="consSeq">
+		 AND	A.cons_seq = #consSeq#
+		</isNotEmpty>
+	</select>
+	
+	<insert id="NpUserConsA.insertConsBudget" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.insertConsBudget */
+		/* 품의서 예산 정보 생성 */
+		INSERT INTO $DB_NEOS$t_exnp_consbudget( 
+			`cons_doc_seq`,
+			`cons_seq`,
+			`erp_bq_seq`, 
+			`erp_bk_seq`, 
+			`erp_budget_seq`,
+			`erp_budget_name`,
+			`erp_bizplan_seq`,
+			`erp_bizplan_name`,
+			`erp_bgt1_name`,
+			`erp_bgt1_seq`,  
+			`erp_bgt2_name`, 
+			`erp_bgt2_seq`, 
+			`erp_bgt3_name`, 
+			`erp_bgt3_seq`, 
+			`erp_bgt4_name`, 
+			`erp_bgt4_seq`, 
+			`erp_open_amt`,
+			`erp_apply_amt`,
+			`erp_res_amt`,
+			`erp_left_amt`,
+			`budget_std_amt`, 
+			`budget_tax_amt`, 
+			`budget_amt`, 
+			`erp_bgacct_seq`, 
+			`erp_bgacct_name`, 
+			`set_fg_code`,
+			`set_fg_name`, 
+			`vat_fg_code`, 
+			`vat_fg_name`, 
+			`tr_fg_code`,
+			`tr_fg_name`, 
+			`ctl_fg_code`,
+			`ctl_fg_name`, 
+			`budget_note`, 
+			`erp_div_seq`, 
+			`erp_div_name`, 
+			`create_seq`,
+			`erp_fiacct_seq`,
+			`erp_fiacct_name`,
+			`erp_level01_seq`, 
+			`erp_level01_name`,
+			`erp_level02_seq`, 
+			`erp_level02_name`,
+			`erp_level03_seq`, 
+			`erp_level03_name`,
+			`erp_level04_seq`, 
+			`erp_level04_name`,
+			`erp_level05_seq`, 
+			`erp_level05_name`,
+			`erp_level06_seq`, 
+			`erp_level06_name`	
+		)
+		VALUES	(
+			#consDocSeq#,
+			#consSeq#,
+			#erpBqSeq#, 
+			#erpBkSeq#, 
+			#erpBudgetSeq#,
+			#erpBudgetName#,
+			#erpBizplanSeq#,
+			#erpBizplanName#,
+			#erpBgt1Name#,
+			#erpBgt1Seq#,  
+			#erpBgt2Name#, 
+			#erpBgt2Seq#, 
+			#erpBgt3Name#, 
+			#erpBgt3Seq#, 
+			#erpBgt4Name#, 
+			#erpBgt4Seq#, 
+			#erpOpenAmt#, 
+			#erpApplyAmt#, 
+			#erpResAmt#,
+			#erpLeftAmt#, 
+			#budgetStdAmt#, 
+			#budgetTaxAmt#, 
+			#budgetAmt#, 
+			#erpBgacctSeq#, 
+			#erpBgacctName#, 
+			#setFgCode#,
+			#setFgName#, 
+			#vatFgCode#, 
+			#vatFgName#, 
+			#trFgCode#,
+			#trFgName#, 
+			#ctlFgCode#, 
+			#ctlFgName#, 
+			#budgetNote#, 
+			#erpDivSeq#, 
+			#erpDivName#, 
+			#empSeq#,
+			#erpFiacctSeq#,
+			#erpFiacctName#,
+			#erpLevel01Seq# , 
+			#erpLevel01Name#,
+			#erpLevel02Seq# , 
+			#erpLevel02Name#,
+			#erpLevel03Seq# , 
+			#erpLevel03Name#,
+			#erpLevel04Seq# , 
+			#erpLevel04Name#,
+			#erpLevel05Seq# , 
+			#erpLevel05Name#,
+			#erpLevel06Seq# , 
+			#erpLevel06Name#	
+		);		
+	    <selectKey resultClass="int" keyProperty="budget_seq" >
+	        SELECT MAX(budget_seq) FROM $DB_NEOS$t_exnp_consbudget;       
+	    </selectKey> 
+	</insert>
+	
+	<update id="NpUserConsA.updateConsBudget" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.updateConsBudget */
+		/* 품의서 예산 정보 갱신 */	
+		UPDATE $DB_NEOS$t_exnp_consbudget
+		SET
+			`budget_seq` 	= IFNULL(#budgetSeq# , budget_seq) ,
+			`erp_bq_seq` 	= IFNULL(#erpBqSeq# , erp_bq_seq) ,
+			`erp_bk_seq` 	= IFNULL(#erpBkSeq# , erp_bk_seq) ,
+			`erp_budget_seq`	= IFNULL(#erpBudgetSeq# , erp_budget_seq) ,
+			`erp_budget_name`	= IFNULL('$erpBudgetName$' , erp_budget_name) ,
+			`erp_bizplan_seq`	= IFNULL(#erpBizplanSeq# , erp_bizplan_seq) ,
+			`erp_bizplan_name`	= IFNULL(#erpBizplanName# , erp_bizplan_name) ,
+			`erp_bgt1_name` = IFNULL(#erpBgt1Name# , erp_bgt1_name) ,
+			`erp_bgt1_seq` = IFNULL(#erpBgt1Seq# , erp_bgt1_seq) ,
+			`erp_bgt2_name` = IFNULL(#erpBgt2Name# , erp_bgt2_name) ,
+			`erp_bgt2_seq` = IFNULL(#erpBgt2Seq# , erp_bgt2_seq) ,
+			`erp_bgt3_name` = IFNULL(#erpBgt3Name# , erp_bgt3_name) ,
+			`erp_bgt3_seq` = IFNULL(#erpBgt3Seq# , erp_bgt3_seq) ,
+			`erp_bgt4_name` = IFNULL(#erpBgt4Name# , erp_bgt4_name) ,
+			`erp_bgt4_seq` = IFNULL(#erpBgt4Seq# , erp_bgt4_seq) ,
+			`erp_open_amt` = IFNULL(#erpOpenAmt# , erp_open_amt) ,
+			`erp_apply_amt` = IFNULL(#erpApplyAmt# , erp_apply_amt) ,
+			`erp_left_amt` = IFNULL(#erpLeftAmt# , erp_left_amt) ,
+			`budget_std_amt`= IFNULL(#budgetStdAmt# , budget_std_amt) ,
+			`budget_tax_amt` 	= IFNULL(#budgetTaxAmt# , budget_tax_amt) ,
+			`budget_amt` 		= IFNULL(#budgetAmt# , budget_amt) ,
+			`erp_bgacct_seq`	= IFNULL(#erpBgacctSeq# , erp_bgacct_seq) ,
+			`erp_bgacct_name`	= IFNULL(#erpBgacctName# , erp_bgacct_name) ,
+			`set_fg_code` 		= IFNULL(#setFgCode# , set_fg_code) ,
+			`set_fg_name` 		= IFNULL(#setFgName# , set_fg_name) ,
+			`vat_fg_code` 		= IFNULL(#vatFgCode# , vat_fg_code) ,
+			`vat_fg_name` 		= IFNULL(#vatFgName# , vat_fg_name) ,
+			`tr_fg_code` 		= IFNULL(#trFgCode# , tr_fg_code) ,
+			`tr_fg_name` 		= IFNULL(#trFgName# , tr_fg_name) ,
+			`ctl_fg_code` 		= IFNULL(#ctlFgCode# , ctl_fg_code) ,
+			`ctl_fg_name` 		= IFNULL(#ctlFgName# , ctl_fg_name) ,
+			`budget_note` 		= IFNULL(#budgetNote# , budget_note) ,
+			`erp_div_seq` 	= IFNULL(#erpDivSeq# , erp_div_seq) ,
+			`erp_div_name` 	= IFNULL(#erpDivName# , erp_div_name) ,
+			`modify_seq` 	= IFNULL(#modifySeq# , modify_seq) ,
+			`erp_fiacct_seq`	= IFNULL(#erpFiacctSeq#, erp_fiacct_seq),
+			`erp_fiacct_name`	= IFNULL(#erpFiacctName#, erp_fiacct_name)
+		WHERE 	cons_doc_seq = #consDocSeq#
+		 AND	cons_seq = #consSeq#
+	  	 AND	budget_seq = #budgetSeq#
+	</update>
+	
+	<delete id="NpUserConsA.deleteConsBudget" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.deleteConsBudget */
+		/* 품의서 예산 정보 삭제 - 단일 예산 건*/	
+		DELETE 	FROM $DB_NEOS$t_exnp_consbudget
+		WHERE 	cons_doc_seq = #consDocSeq#
+		 AND	cons_seq = #consSeq#
+		 AND	budget_seq = #budgetSeq#
+	</delete>	
+	
+	<delete id="NpUserConsA.deleteConsBudgetForHead" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.deleteConsBudgetForHead */
+		/* 품의서 예산 정보 삭제 - 품의서 종속 */	
+		DELETE 	FROM $DB_NEOS$t_exnp_consbudget
+		WHERE 	cons_doc_seq = #consDocSeq#
+		 AND	cons_seq = #consSeq#
+	</delete>	
+	
+	<delete id="NpUserConsA.deleteConsBudgetForDoc" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.deleteConsBudgetForDoc */
+		/* 품의서 예산 정보 삭제 - 문서 종속*/	
+		DELETE 	FROM $DB_NEOS$t_exnp_consbudget
+		WHERE 	cons_doc_seq = #consDocSeq#
+	</delete>	
+	
+	<delete id="NpUserConsA.deleteConsBudgetForCons" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.deleteConsBudgetForCons */
+		/* 품의서 예산 정보 삭제 - 품의서 종속*/	
+		DELETE 	FROM $DB_NEOS$t_exnp_consbudget
+		WHERE 	cons_doc_seq = #consDocSeq#
+		 AND	cons_seq = #consSeq#
+	</delete>	
+	
+	<select id="NpUserConsA.selectConsBudget" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.selectConsBudget */
+		/* 품의서 예산 정보 조회 */
+		SELECT 	
+			IFNULL(`cons_doc_seq`,'')	AS	`consDocSeq`
+			, IFNULL(`cons_seq`,'')	AS	`consSeq`
+			, IFNULL(`budget_seq`,'')	AS	`budgetSeq`
+			, IFNULL(`erp_bq_seq`,'') 	AS	`erpBqSeq`
+			, IFNULL(`erp_bk_seq`,'')	AS	`erpBkSeq`
+			, IFNULL(`erp_budget_seq`,'')	AS	`erpBudgetSeq`
+			, IFNULL(`erp_budget_name`,'')		AS	`erpBudgetName`
+			, IFNULL(`erp_bizplan_seq`,'')	AS	`erpBizplanSeq`
+			, IFNULL(`erp_bizplan_name`	,'')	AS	`erpBizplanName`
+			, IFNULL(`erp_bgt1_name`,'')	AS	`erpBgt1Name`
+			, IFNULL(`erp_bgt1_seq`,'')	AS	`erpBgt1Seq`
+			, IFNULL(`erp_bgt2_name`,'')	AS	`erpBgt2Name`
+			, IFNULL(`erp_bgt2_seq`,'')	AS	`erpBgt2Seq`
+			, IFNULL(`erp_bgt3_name`,'')	AS	`erpBgt3Name`
+			, IFNULL(`erp_bgt3_seq`,'')	AS	`erpBgt3Seq`
+			, IFNULL(`erp_bgt4_name`,'')	AS	`erpBgt4Name`
+			, IFNULL(`erp_bgt4_seq`,'')	AS	`erpBgt4Seq`
+			, IFNULL(`budget_std_amt`,'')		AS	`budgetStdAmt`
+			, IFNULL(`budget_tax_amt`,'')		AS	`budgetTaxAmt`
+			, IFNULL(`budget_amt`	,'')		AS	`budgetAmt`
+			, IFNULL(`erp_bgacct_seq`,'')		AS	`erpBgacctSeq`
+			, IFNULL(`erp_bgacct_name`,'')		AS	`erpBgacctName`
+			, IFNULL(`set_fg_code`,'')		AS	`setFgCode`
+			, IFNULL(`set_fg_name`,'')		AS	`setFgName`
+			, IFNULL(`vat_fg_code`,'')		AS	`vatFgCode`
+			, IFNULL(`vat_fg_name`,'')		AS	`vatFgName`
+			, IFNULL(`tr_fg_code`,'')		AS	`trFgCode`
+			, IFNULL(`tr_fg_name`,'')		AS	`trFgName`
+			, IFNULL(`ctl_fg_code`,'')		AS	`ctlFgCode`
+			, IFNULL(`ctl_fg_name`,'')		AS	`ctlFgName`
+			, IFNULL(`budget_note`,'')		AS	`budgetNote`
+			, IFNULL(`erp_div_seq`,'')	AS	`erpDivSeq`
+			, IFNULL(`erp_div_name`,'') AS	`erpDivName`
+			, IFNULL(`erp_fiacct_seq`,'')	AS	`erpFiacctSeq`
+			, IFNULL(`erp_fiacct_name`,'') AS	`erpFiacctName`
+			, erp_level01_seq  AS erp_level01_seq
+			, erp_level01_name AS erp_level01_name
+			, erp_level02_seq  AS erp_level02_seq 
+			, erp_level02_name AS erp_level02_name
+			, erp_level03_seq  AS erp_level03_seq 
+			, erp_level03_name AS erp_level03_name
+			, erp_level04_seq  AS erp_level04_seq 
+			, erp_level04_name AS erp_level04_name
+			, erp_level05_seq  AS erp_level05_seq 
+			, erp_level05_name AS erp_level05_name
+			, erp_level01_seq  AS erp_level01_seq 
+			, erp_level01_name AS erp_level01_name 
+			, erp_open_amt	AS erpOpenAmt
+			, erp_apply_amt AS erpAlpplyAmt
+			, erp_left_amt AS erpLeftAmt
+		FROM	$DB_NEOS$t_exnp_consbudget
+		WHERE 	cons_doc_seq = #consDocSeq#
+		<isNotEmpty property="consSeq">
+		 AND	cons_seq = #consSeq#
+		 <isNotEmpty property="budgetSeq">
+		  AND	budget_seq = #budgetSeq#
+		 </isNotEmpty>
+		</isNotEmpty>
+	</select>
+	
+	<insert id="NpUserConsA.insertConsTrade" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.insertConsTrade */
+		/* 품의서 거래처 정보 생성 */
+		INSERT INTO $DB_NEOS$t_exnp_constrade
+		(
+			`cons_doc_seq`, 
+			`cons_seq`, 
+			`budget_seq`, 
+			`erp_isu_dt`, 
+			`erp_isu_sq`, 
+			`erp_in_sq`, 
+			`erp_bq_sq`, 
+			`item_name`, 
+			`item_cnt`, 
+			`emp_name`, 
+			`tr_seq`, 
+			`tr_name`, 
+			`ceo_name`, 
+			`trade_unit_amt`, 
+			`trade_std_amt`, 
+			`trade_vat_amt`, 
+			`jiro_seq`, 
+			`jiro_name`, 
+			`ba_nb`, 
+			`btr_seq`, 
+			`btr_name`, 
+			`depositor`, 
+			`trade_note`, 
+			`ctr_seq`, 
+			`ctr_name`, 
+			`create_seq`
+		)
+		VALUES
+		(
+			#consDocSeq#, 
+			#consSeq#, 
+			#budgetSeq#, 
+			#erpIsuDt#, 
+			#erpIsuSq#, 
+			#erpInSq#, 
+			#erpBqSq#, 
+			#itemName#, 
+			#itemCnt#, 
+			#empNm#, 
+			#trSeq#, 
+			#trName#, 
+			#ceoName#, 
+			#tradeUnitAmt#, 
+			#tradeStdAmt#, 
+			#tradeVatAmt#, 
+			#jiroSeq#, 
+			#jiroName#, 
+			#baNb#, 
+			#btrSeq#, 
+			#btrName#, 
+			#depositor#, 
+			#tradeNote#, 
+			#ctrSeq#, 
+			#ctrName#, 
+			#empSeq#
+		);
+	    <selectKey resultClass="int" keyProperty="trade_seq" >
+	        SELECT MAX(trade_seq) FROM $DB_NEOS$t_exnp_constrade;       
+	    </selectKey> 		
+	</insert>
+	
+	<update id="NpUserConsA.updateConsTrade" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.updateConsTrade */
+		/* 품의서거래처 정보 갱신 */
+		UPDATE $DB_NEOS$t_exnp_constrade
+		SET
+			`cons_doc_seq` 	= IFNULL(#consDocSeq# , cons_doc_seq ) ,
+			`cons_seq` 		= IFNULL(#consSeq# , cons_seq ) ,
+			`budget_seq` 	= IFNULL(#budgetSeq# ,budget_seq ) ,
+			`trade_seq` 	= IFNULL(#tradeSeq# , trade_seq ) ,
+			`erp_isu_dt` 	= IFNULL(#erpIsuDt# , erp_isu_dt ) ,
+			`erp_isu_sq` 	= IFNULL(#erpIsuSq# , erp_isu_sq ) ,
+			`erp_in_sq` 	= IFNULL(#erpInSq# , erp_in_sq ) ,
+			`erp_bq_sq` 	= IFNULL(#erpBqSq# , erp_bq_sq ) ,
+			`item_name` 	= IFNULL(#itemName# , item_name ) ,
+			`item_cnt` 		= IFNULL(#itemCnt# , item_cnt ) ,
+			`emp_name` 		= IFNULL(#empName# , emp_name ) ,
+			`tr_seq` 		= IFNULL(#trCd# , tr_seq ) ,
+			`tr_name` 		= IFNULL(#trName# , tr_name ) ,
+			`ceo_name` 		= IFNULL(#ceoName# , ceo_name ) ,
+			`trade_unit_amt`= IFNULL(#tradeUnitAm# , trade_unit_amt ) ,
+			`trade_std_amt`	= IFNULL(#tradeStdAm# , trade_std_amt ) ,
+			`trade_vat_amt` = IFNULL(#tradeVatAm# , trade_vat_amt ) ,
+			`jiro_seq` 		= IFNULL(#jiroSeq# , jiro_seq ) ,
+			`jiro_name` 	= IFNULL(#jiroName# , jiro_name ) ,
+			`ba_nb` 		= IFNULL(#baNb# , ba_nb ) ,
+			`btr_seq` 		= IFNULL(#btrSeq# , btr_seq ) ,
+			`btr_name` 		= IFNULL(#btrName# , btr_name ) ,
+			`depositor` 	= IFNULL(#depositor# , depositor ) ,
+			`trade_note` 	= IFNULL(#tradeNote# , trade_note ) ,
+			`ctr_seq` 		= IFNULL(#ctrSeq# , ctr_seq ) ,
+			`ctr_name` 		= IFNULL(#ctrName# , ctr_name ) ,
+			`modify_seq` 	= IFNULL(#empSeq# , modify_seq )
+		WHERE 	cons_doc_seq = #consDocSeq#
+		 AND	cons_seq = #consSeq#
+		 AND	budget_seq = #budgetSeq#
+		 AND	trade_seq = #tradeSeq#
+	</update>	
+	
+	<delete id="NpUserConsA.deleteConsTrade" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.deleteConsTrade */
+		/* 품의서 거래처 정보 삭제 - 단일 거래처 */	
+		DELETE FROM $DB_NEOS$t_exnp_constrade
+		WHERE 	cons_doc_seq = #consDocSeq#
+		 AND	cons_seq = #consSeq#
+		 AND	budget_seq = #budgetSeq#
+		 AND	trade_seq = #tradeSeq#
+	</delete>
+		
+	<delete id="NpUserConsA.deleteConsTradeForBudget" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.deleteConsTradeForBudget */
+		/* 품의서 거래처 정보 삭제 - 예산 종속 */	
+		DELETE FROM $DB_NEOS$t_exnp_constrade
+		WHERE 	cons_doc_seq = #consDocSeq#
+		 AND	cons_seq = #consSeq#
+		 AND	budget_seq = #budgetSeq#
+	</delete>	
+	
+	<delete id="NpUserConsA.deleteConsTradeForCons" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.deleteConsTradeForCons */
+		/* 품의서 거래처 정보 삭제 - 품의서 종속 */	
+		DELETE FROM $DB_NEOS$t_exnp_constrade
+		WHERE 	cons_doc_seq = #consDocSeq#
+		 AND	cons_seq = #consSeq#
+	</delete>	
+	
+	<delete id="NpUserConsA.deleteConsTradeForDoc" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.deleteConsTradeForDoc */
+		/* 품의서 거래처 정보 삭제 - 문서 종속 */	
+		DELETE FROM $DB_NEOS$t_exnp_constrade
+		WHERE 	cons_doc_seq = #consDocSeq#
+	</delete>
+		
+	<select id="NpUserConsA.selectConsTrade" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.selectConsTrade */
+		/* 품의서 거래처 정보 조회 */
+		SELECT 	
+			IFNULL(cons_doc_seq,'')	AS	`consDocSeq`
+			, IFNULL(cons_seq,'')		AS	`consSeq`
+			, IFNULL(budget_seq,'')	AS	`budgetSeq`
+			, IFNULL(trade_seq	,'')	AS	`tradeSeq`
+			, IFNULL(erp_isu_dt,'')	AS	`erpIsuDt`
+			, IFNULL(erp_isu_sq,'')	AS	`erpIsuSq`
+			, IFNULL(erp_in_sq	,'')	AS	`erpInSq`
+			, IFNULL(erp_bq_sq,'')		AS	`erpBqSq`
+			, IFNULL(item_name,'')		AS	`itemName`
+			, IFNULL(item_cnt,'')		AS	`itemCnt`
+			, IFNULL(emp_name,'')		AS	`empName`
+			, IFNULL(tr_seq	,'')		AS	`trSeq`
+			, IFNULL(tr_name	,'')		AS	`trName`
+			, IFNULL(ceo_name,'')		AS	`ceoNm`
+			, IFNULL(trade_unit_amt,'')		AS	`tradeUnitAmt`
+			, IFNULL(trade_std_amt,'')		AS	`tradeStdAmt`
+			, IFNULL(trade_vat_amt,'')		AS	`tradeVatAmt`
+			, IFNULL(jiro_seq,'')		AS	`jiroSeq`
+			, IFNULL(jiro_name,'')		AS	`jiroName`
+			, IFNULL(ba_nb	,'')		AS	`baNb`
+			, IFNULL(btr_seq,'')		AS	`btrSeq`
+			, IFNULL(btr_name,'')		AS	`btrName`
+			, IFNULL(depositor,'')		AS	`depositor`
+			, IFNULL(trade_note,'')		AS	`tradeNote`
+			, IFNULL(ctr_seq,'')		AS	`ctrSeq`
+			, IFNULL(ctr_name,'')		AS	`ctrName`
+		FROM	$DB_NEOS$t_exnp_constrade
+		WHERE 	cons_doc_seq = #consDocSeq#
+		<isNotEmpty property="consSeq">
+		 AND	cons_seq = #consSeq#
+		 <isNotEmpty property="budgetSeq">
+		  AND	budget_seq = #budgetSeq#
+		  <isNotEmpty property="budgetSeq">
+		   AND	trade_seq = #tradeSeq#
+		  </isNotEmpty> 
+		 </isNotEmpty>
+		</isNotEmpty>
+	</select>	
+	
+	
+	<update id="NpUserConsA.updateConsBudgetAmt" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.updateConsBudgetAmt */
+		/* 품의서 예산 정보 채주 정보 사용 최신화 */
+		UPDATE	$DB_NEOS$t_exnp_consbudget
+		SET	
+			budget_std_amt = (SELECT SUM(CAST(trade_std_amt AS INT))                        FROM $DB_NEOS$t_exnp_constrade WHERE cons_doc_seq = #consDocSeq# AND cons_seq = #consSeq# AND budget_seq = #budgetSeq# )
+			, budget_tax_amt = (SELECT SUM(CAST(trade_vat_amt AS INT))                      FROM $DB_NEOS$t_exnp_constrade WHERE cons_doc_seq = #consDocSeq# AND cons_seq = #consSeq# AND budget_seq = #budgetSeq# )								
+			, budget_amt = (SELECT SUM(CAST(trade_unit_amt AS INT) * CAST(item_cnt AS INT)) FROM $DB_NEOS$t_exnp_constrade WHERE cons_doc_seq = #consDocSeq# AND cons_seq = #consSeq# AND budget_seq = #budgetSeq# )
+		WHERE	cons_doc_seq = #consDocSeq#
+		 AND	cons_seq = #consSeq#
+		 AND	budget_seq = #budgetSeq#
+	</update>
+	
+	
+	<select id="NpUserConsA.selectRefferConsList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.selectRefferConsList */
+		/* 권한 참조 품의 리스트 조회 */
+				SELECT	
+			doc.cons_doc_seq				AS	'consDocSeq'
+			, doc.doc_seq					AS	'docSeq'
+			, IFNULL(doc.consdoc_note, '')	AS	'consDocNote'
+			, DATE_FORMAT(doc.expend_date, '%Y-%m-%d')	AS	'expendDate'
+			, IFNULL(doc.comp_name, '')		AS	'compName'
+			, doc.comp_seq					AS	'compSeq'
+			, IFNULL(doc.dept_name, '')		AS	'deptName'
+			, doc.dept_seq					AS	'deptSeq'
+			, IFNULL(doc.emp_name, '')		AS	'empName'
+			, doc.emp_seq					AS	'empSeq'
+			, budget.cons_amt				AS	'consAmt'
+			, budget.res_amt				AS	'resAmt'
+			, budget.balance_amt			AS	'balanceAmt'
+			, doc.conffer_return_yn			AS 	'confferReturnYN'
+			, IFNULL(rec.c_ridocfullnum,appdoc.doc_no)                    AS      'docNo'
+            , IFNULL(rec.c_riaftertitle,appdoc.doc_title)                    AS      'docTitle'	
+		FROM	(
+			/* 기준 품의서 조회 */
+			SELECT 	*
+			FROM 	$DB_NEOS$t_exnp_consdoc
+			/* TODO : 파라미터 처리 필요 */
+			WHERE 	IFNULL(doc_status, '008')	IN	('90', '008', '009')
+			 AND	doc_seq	IS NOT NULL
+			 AND	conffer_return_yn = 'N'
+			 AND	REPLACE(expend_date, '-', '' )	
+						BETWEEN	REPLACE(#frDt#, '-', '' ) 
+						AND	CONCAT(REPLACE(#toDt#, '-', '' ), ' 99:99:99')
+		)	doc
+		LEFT JOIN	$DB_NEOS$a_recordinfo rec
+		 ON 	doc.doc_seq = rec.c_dikeycode
+		LEFT JOIN	$DB_NEOS$teag_appdoc appdoc
+		 ON	doc.doc_seq = appdoc.doc_id			
+		INNER JOIN	(
+			/* 잔여 품의액 조회 */
+			SELECT	
+				cons_doc_seq
+				, SUM(cons_amt)	AS 'cons_amt'
+				, SUM(res_amt)	AS 'res_amt'
+				, SUM(balance_amt)	AS 'balance_amt'
+			FROM	(
+				SELECT	
+					c.cons_doc_seq
+					, c.budget_seq
+					, IFNULL(c.budget_amt, 0)				AS	'cons_amt'
+					, IFNULL(r.amt, 0) 						AS	'res_amt'
+					, ( CASE c.conffer_budget_return_yn 
+						WHEN 'Y' THEN 0
+						ELSE	IFNULL(c.budget_amt,0) - IFNULL(r.amt,0)
+						END
+					) AS	'balance_amt'					
+				FROM	$DB_NEOS$t_exnp_consbudget c
+				INNER JOIN	$DB_NEOS$t_exnp_consdoc	d
+				 ON		c.cons_doc_seq = d.cons_doc_seq
+				LEFT JOIN	(
+					SELECT	
+						conffer_budget_seq 
+						, SUM( 
+							(CASE IFNULL(b.ctl_fg_code, '1') 
+								WHEN '0'	THEN 	( CASE IFNULL(b.budget_std_amt, 0) WHEN '0' THEN b.budget_amt ELSE b.budget_std_amt END )
+								ELSE				IFNULL(b.budget_amt, 0)	/* emptyStr or '1' */
+								END
+							)
+						)	AS amt
+					FROM 	$DB_NEOS$t_exnp_resbudget	b
+					 INNER JOIN	$DB_NEOS$t_exnp_resdoc	d
+					 ON 	b.res_doc_seq = d.res_doc_Seq
+					  AND 	IFNULL(d.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )	
+					  AND	d.doc_seq IS NOT NULL					
+					GROUP BY conffer_budget_seq			
+				) r
+				 ON		c.budget_seq = r.conffer_budget_seq
+				WHERE	d.doc_seq IS NOT NULL
+				  AND	IFNULL(d.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+			)	TEMP
+			GROUP	BY cons_doc_seq
+		)	budget
+		ON	doc.cons_doc_seq = budget.cons_doc_seq
+        LEFT JOIN $DB_NEOS$t_exnp_trip_cons_budget tripConsDoc
+        ON	doc.cons_doc_seq = tripConsDoc.cons_doc_seq
+		WHERE	
+			(
+				(	
+					CASE	WHEN	#empSeq# in (select emp_seq from $DB_NEOS$t_exnp_cons_auth) then  doc.comp_seq = #compSeq#
+					ELSE
+						CASE	(
+							SELECT	IFNULL(MAX(set_value), 0)	optionValue
+							FROM	$DB_NEOS$t_exnp_option
+							WHERE	comp_seq 	= #compSeq#
+							 AND	option_gbn 	= '3'
+							 AND	option_code 	= '1'
+							 AND	form_seq	= #formSeq#
+						)
+						WHEN    '0' THEN    doc.dept_seq = #deptSeq#
+						WHEN	'2'	THEN 	doc.dept_seq IN (SELECT dept_seq FROM $DB_NEOS$t_co_dept WHERE PATH LIKE '%$deptSeq$|%' OR dept_seq = #deptSeq# AND comp_seq = #compSeq#)
+						ELSE			doc.emp_seq = #empSeq#
+						END
+					END
+				)
+				OR
+				doc.emp_seq	= #empSeq#
+			)
+		 AND	( 
+		 	IFNULL(rec.c_ridocfullnum, '') LIKE '%$filter$%'
+		 	OR	IFNULL(rec.c_riaftertitle, '') LIKE '%$filter$%'
+		 	OR	IFNULL(appdoc.doc_no, '') LIKE '%$filter$%'
+		 	OR	IFNULL(appdoc.doc_title, '') LIKE '%$filter$%'
+		 	OR	IFNULL(doc.emp_name, '') LIKE '%$filter$%'
+		 )
+		<isEqual property="selBalanceYN" compareValue="Y">
+		 AND budget.balance_amt != 0
+		</isEqual>  
+		<isEqual property="selBalanceYN" compareValue="N">
+		 AND budget.balance_amt = 0
+		</isEqual>  	
+		AND comp_seq = #compSeq#
+		AND tripConsDoc.trip_cons_doc_seq IS NULL	
+		ORDER BY	doc.expend_date	DESC
+		 				
+	</select>
+	
+	<select id="NpUserConsA.selectRefferConsListNotTable" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.selectRefferConsListNotTable */
+		/* 권한 참조 품의 리스트 조회 */
+				SELECT *
+		FROM (
+		SELECT	
+			doc.cons_doc_seq				AS	'consDocSeq'
+			, doc.doc_seq					AS	'docSeq'
+			, IFNULL(doc.consdoc_note, '')	AS	'consDocNote'
+			, DATE_FORMAT(doc.expend_date, '%Y-%m-%d')	AS	'expendDate'
+			, IFNULL(doc.comp_name, '')		AS	'compName'
+			, doc.comp_seq					AS	'compSeq'
+			, IFNULL(doc.dept_name, '')		AS	'deptName'
+			, doc.dept_seq					AS	'deptSeq'
+			, IFNULL(doc.emp_name, '')		AS	'empName'
+			, doc.emp_seq					AS	'empSeq'
+			, ifnull(budget.cons_amt,doc.cons_amt)                               AS      'consAmt'
+            , ifnull(budget.res_amt,0)                                AS      'resAmt'
+            , ifnull(budget.balance_amt,doc.cons_amt)                    AS      'balanceAmt'
+			, doc.conffer_return_yn			AS 	'confferReturnYN'
+			, IFNULL(rec.c_ridocfullnum,appdoc.doc_no)                    AS      'docNo'
+            , IFNULL(rec.c_riaftertitle,appdoc.doc_title)                    AS      'docTitle'	
+		FROM	(
+			/* 기준 품의서 조회 */
+			SELECT  d.*,sum(b.budget_amt) as cons_amt
+			FROM 	$DB_NEOS$t_exnp_consdoc d
+			inner join $DB_NEOS$t_exnp_consbudget b
+            on d.cons_doc_seq = b.cons_doc_seq
+			/* TODO : 파라미터 처리 필요 */
+			WHERE 	IFNULL(doc_status, '008')	IN	('90', '008', '009')
+			 AND	doc_seq	IS NOT NULL
+			 AND	conffer_return_yn = 'N'
+			 AND	REPLACE(expend_date, '-', '' )	
+						BETWEEN	REPLACE(#frDt#, '-', '' ) 
+						AND	CONCAT(REPLACE(#toDt#, '-', '' ), ' 99:99:99')
+			GROUP BY cons_doc_seq
+		)	doc
+		LEFT JOIN	$DB_NEOS$a_recordinfo rec
+		 ON 	doc.doc_seq = rec.c_dikeycode
+		LEFT JOIN	$DB_NEOS$teag_appdoc appdoc
+		 ON	doc.doc_seq = appdoc.doc_id			
+		LEFT JOIN	(
+			/* 잔여 품의액 조회 */
+			SELECT	
+				cons_doc_seq
+				, SUM(cons_amt)	AS 'cons_amt'
+				, SUM(res_amt)	AS 'res_amt'
+				, SUM(balance_amt)	AS 'balance_amt'
+			FROM	(
+				SELECT	
+					c.cons_doc_seq
+					, c.budget_seq
+					, IFNULL(c.budget_amt, 0)				AS	'cons_amt'
+					, IFNULL(r.amt, 0) 						AS	'res_amt'
+					, ( CASE c.conffer_budget_return_yn 
+						WHEN 'Y' THEN 0
+						ELSE	IFNULL(c.budget_amt,0) - IFNULL(r.amt,0)
+						END
+					) AS	'balance_amt'					
+				FROM	$DB_NEOS$t_exnp_consbudget c
+				INNER JOIN	$DB_NEOS$t_exnp_consdoc	d
+				 ON		c.cons_doc_seq = d.cons_doc_seq
+				LEFT JOIN	(
+					SELECT	
+						conffer_budget_seq 
+						, SUM( 
+							(CASE IFNULL(b.ctl_fg_code, '1') 
+								WHEN '0'	THEN 	( CASE IFNULL(b.budget_std_amt, 0) WHEN '0' THEN b.budget_amt ELSE b.budget_std_amt END )
+								ELSE				IFNULL(b.budget_amt, 0)	/* emptyStr or '1' */
+								END
+							)
+						)	AS amt
+					FROM 	$DB_NEOS$t_exnp_resbudget	b
+					 INNER JOIN	$DB_NEOS$t_exnp_resdoc	d
+					 ON 	b.res_doc_seq = d.res_doc_Seq
+					  AND 	IFNULL(d.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )	
+					  AND	d.doc_seq IS NOT NULL					
+					GROUP BY conffer_budget_seq			
+				) r
+				 ON		c.budget_seq = r.conffer_budget_seq
+				WHERE	d.doc_seq IS NOT NULL
+				  AND	IFNULL(d.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+				  AND	conffer_budget_seq IS NOT NULL
+			)	TEMP
+			GROUP	BY cons_doc_seq
+		)	budget
+		ON	doc.cons_doc_seq = budget.cons_doc_seq
+        LEFT JOIN $DB_NEOS$t_exnp_trip_cons_budget tripConsDoc
+        ON	doc.cons_doc_seq = tripConsDoc.cons_doc_seq
+		WHERE	
+			(
+				(	
+					CASE	WHEN	#empSeq# in (select emp_seq from $DB_NEOS$t_exnp_cons_auth) then  doc.comp_seq
+					ELSE
+						CASE	(
+							SELECT	IFNULL(MAX(set_value), 0)	optionValue
+							FROM	$DB_NEOS$t_exnp_option
+							WHERE	comp_seq 	= #compSeq#
+							 AND	option_gbn 	= '3'
+							 AND	option_code 	= '1'
+							 AND	form_seq	= #formSeq#
+						)	
+						WHEN	'0'	THEN 	doc.dept_seq
+						ELSE			doc.emp_seq
+						END
+					END
+				)	=	(	
+					CASE	WHEN	#empSeq# IN (SELECT emp_seq FROM $DB_NEOS$t_exnp_cons_auth) THEN  #compSeq#
+					ELSE
+						CASE	(
+							SELECT	IFNULL(MAX(set_value), 0)	optionValue
+							FROM	$DB_NEOS$t_exnp_option
+							WHERE	comp_seq 	= #compSeq#
+							 AND	option_gbn 	= '3'
+							 AND	option_code 	= '1'
+							 AND	form_seq	= #formSeq#
+						)	
+						WHEN	'0'	THEN 	#deptSeq#
+						ELSE			#empSeq#
+						END
+					END
+				)
+				OR
+				doc.emp_seq	= #empSeq#
+			)
+		 AND	( 
+		 	IFNULL(rec.c_ridocfullnum, '') LIKE '%$filter$%'
+		 	OR	IFNULL(rec.c_riaftertitle, '') LIKE '%$filter$%'
+		 	OR	IFNULL(appdoc.doc_no, '') LIKE '%$filter$%'
+		 	OR	IFNULL(appdoc.doc_title, '') LIKE '%$filter$%'
+		 	OR	IFNULL(doc.emp_name, '') LIKE '%$filter$%'
+		 )
+		AND comp_seq = #compSeq#
+		AND tripConsDoc.trip_cons_doc_seq IS NULL	
+		) a
+		
+		
+		 <isEqual property="selBalanceYN" compareValue="Y">
+		 WHERE balanceAmt != 0
+		</isEqual>  
+		<isEqual property="selBalanceYN" compareValue="N">
+		 WHERE balanceAmt = 0
+		</isEqual>
+		ORDER BY	expendDate	DESC  
+		 					
+	</select>
+	
+	<select id="NpUserConsA.selectConsDetailBudget" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.selectConsDetailBudget */
+		/* 품의서 정보 상세 조회 */	
+		SELECT	
+			d.cons_doc_seq		AS 'consDocSeq'
+			, h.cons_seq		AS 'consSeq'
+			, b.budget_seq		AS 'budgetSeq'
+			, t.trade_seq		AS 'tradeSeq'
+			, d.consdoc_note	AS 'consdocNote'
+			, d.doc_seq			AS 'docSeq'
+			, d.doc_no			AS 'docNo'
+			, d.doc_status		AS 'docStatus'
+			, d.expend_date		AS 'ExpendDate'
+			, d.erp_comp_seq	AS 'ErpCompSeq'
+			, d.erp_dept_seq	AS 'ErpDeptSeq'
+			, d.erp_emp_seq		AS 'ErpEmpSeq'
+			, d.erp_gisu		AS 'ErpGisu'
+			, d.erp_expend_year	AS 'ErpExpendYear'	
+			, d.comp_seq		AS 'compSeq'
+			, d.comp_name		AS 'compName'
+			, d.comp_seq		AS 'compSeq'
+			, d.comp_name		AS 'compName'
+			, d.comp_seq		AS 'compSeq'
+			, d.comp_name		AS 'compName'
+			, h.mgt_seq			AS 'erpMgtSeq'
+			, h.mgt_name		AS 'erpMgtName'
+			, h.cons_note		AS 'consNote'
+			, h.docu_fg_code	AS 'docuFgCode'
+			, h.btr_seq			AS 'btrSeq'
+			, h.btr_nb			AS 'btrNb'
+			, h.btr_name		AS 'btrName'
+			, h.bottom_seq		AS 'bottomSeq'
+			, h.bottom_name		AS 'bottomName'
+			, b.erp_bgt1_name	AS 'erpBgt1Name'
+			, b.erp_bgt2_name	AS 'erpBgt2Name'
+			, b.erp_bgt3_name	AS 'erpBgt3Name'
+			, b.erp_bgt4_name	AS 'erpBgt4Name' 
+			, b.budget_std_amt	AS 'budgetStdAmt'
+			, b.budget_tax_amt	AS 'budgetTaxAmt'
+			, b.budget_amt				AS 'budgetAmt'
+			, b.erp_bgacct_seq			AS 'erpBgacctSeq'
+			, b.erp_bgacct_name			AS 'erpBgacctName'
+			, b.set_fg_code			AS 'setFgCode'
+			, b.vat_fg_code			AS 'vatFgCode'
+			, b.tr_fg_code			AS 'trFgCode'
+			, b.ctl_fg_code			AS 'ctlFgCode'
+			, b.budget_note		AS 'budgetNote'
+			, b.erp_div_seq		AS 'erpBudgetDivSeq'
+			, b.erp_div_name	AS 'erpBudgetDivName'	
+			, t.item_name		AS 'itemName'
+			, t.item_cnt		AS 'itemCnt'
+			, t.emp_name		AS 'trEmpName'
+			, t.tr_seq			AS 'trSeq'
+			, t.tr_name			AS 'trName'
+			, t.ceo_name		AS 'trCeoName'
+			, t.trade_unit_amt	AS 'tradeUnitAmt'
+			, t.trade_std_amt	AS 'tradeStdAmt'
+			, t.trade_vat_amt	AS 'tradeVatAmt'
+			, t.ba_nb			AS 'trBaNb'
+			, t.btr_seq			AS 'trBtrSeq'
+			, t.btr_name		AS 'trBtrName'
+			, t.depositor		AS 'trDepositor'
+			, t.trade_note			AS 'tradeNote'
+		FROM	(
+			SELECT	* 
+			FROM	$DB_NEOS$t_exnp_consdoc
+			WHERE	cons_doc_seq = #consDocSeq#
+		)	d
+		INNER JOIN	$DB_NEOS$t_exnp_conshead h
+			ON	d.cons_doc_seq	= h.cons_doc_seq
+		INNER JOIN	$DB_NEOS$t_exnp_consbudget b
+			ON	d.cons_doc_seq	= b.cons_doc_seq
+			AND	h.cons_seq	= b.cons_seq
+		LEFT JOIN	$DB_NEOS$t_exnp_constrade t
+			ON	d.cons_doc_seq	= t.cons_doc_seq
+			AND	h.cons_seq	= t.cons_seq
+			AND	b.budget_seq	= t.budget_seq ;
+	</select>
+	
+	<update id = "NpUserConsA.updateDocConsData" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.updateDocConsData */
+		/* 품의서 문서 데이터 이관 */	
+		UPDATE	$DB_NEOS$t_exnp_consdoc c1
+		INNER JOIN $DB_NEOS$t_exnp_consdoc c2
+		ON	c2.cons_doc_seq = #beforeConsDocSeq#
+		SET	
+			c1.resdoc_note = c2.consdoc_note
+			, c1.erp_comp_seq 	= c2.erp_comp_seq
+			, c1.erp_dept_seq 	= c2.erp_dept_seq
+			, c1.erp_emp_seq 	= c2.erp_emp_seq
+			, c1.erp_gisu 		= c2.erp_gisu
+			, c1.erp_expend_year = c2.erp_expend_year
+			, c1.comp_seq 		= c2.comp_seq
+			, c1.comp_name 		= c2.comp_name
+			, c1.dept_seq 		= c2.dept_seq
+			, c1.dept_name 		= c2.dept_name
+			, c1.emp_seq 		= c2.emp_seq
+			, c1.emp_name 		= c2.emp_name
+			, c1.conffer_doc_seq = c2.cons_doc_seq
+			, c1.modify_seq 		= #empSeq#
+		WHERE 	c1.cons_doc_seq 	= #consDocSeq#
+	</update>
+	
+	<update id = "NpUserConsA.updateHeadConsData" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.updateHeadConsData */
+		/* 품의서 품의정보 데이터 이관 */
+		INSERT INTO $DB_NEOS$t_exnp_conshead (
+		 	`cons_doc_seq`,
+			`cons_date`, 
+			`mgt_seq`, 
+			`mgt_name`, 
+			`docu_fg_code`, 
+			`docu_fg_name`, 
+			`cons_note`, 
+			`erp_comp_seq`, 
+			`erp_comp_name`, 
+			`erp_pc_seq`, 
+			`erp_pc_name`, 
+			`erp_emp_seq`, 
+			`erp_emp_name`, 
+			`erp_div_seq`, 
+			`erp_div_name`, 
+			`erp_dept_seq`, 
+			`erp_dept_name`, 
+			`erp_gisu`, 
+			`erp_gisu_from_date`, 
+			`erp_gisu_to_date`, 
+			`erp_year`, 
+			`btr_seq`, 
+			`btr_nb`, 
+			`btr_name`, 
+			`bottom_seq`, 
+			`bottom_name`, 
+			`create_seq`, 
+			`create_date`, 
+			`modify_seq`, 
+			`modify_date`
+		)
+		SELECT  #consDocSeq#,
+				`cons_date`, 
+				`mgt_seq`, 
+				`mgt_name`, 
+				`docu_fg_code`, 
+				`docu_fg_name`, 
+				`cons_note`, 
+				`erp_comp_seq`, 
+				`erp_comp_name`, 
+				`erp_pc_seq`, 
+				`erp_pc_name`, 
+				`erp_emp_seq`, 
+				`erp_emp_name`, 
+				`erp_div_seq`, 
+				`erp_div_name`, 
+				`erp_dept_seq`, 
+				`erp_dept_name`, 
+				`erp_gisu`, 
+				`erp_gisu_from_date`, 
+				`erp_gisu_to_date`, 
+				`erp_year`, 
+				`btr_seq`, 
+				`btr_nb`, 
+				`btr_name`, 
+				`bottom_seq`, 
+				`bottom_name`, 
+				`create_seq`, 
+				`create_date`, 
+				`modify_seq`, 
+				#empSeq#
+		FROM    $DB_NEOS$t_exnp_conshead
+		WHERE   cons_doc_seq = #beforeConsDocSeq#
+	</update>
+	
+	<update id = "NpUserConsA.updateBudgetConsData" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.updateBudgetConsData */
+		/* 품의서 예산내역 데이터 이관 */
+		INSERT INTO $DB_NEOS$t_exnp_consbudget (
+			`cons_doc_seq`, 
+			`cons_seq`, 
+			`erp_bq_seq`, 
+			`erp_bk_seq`, 
+			`erp_budget_seq`, 
+			`erp_budget_name`, 
+			`erp_bizplan_seq`, 
+			`erp_bizplan_name`, 
+			`erp_bgt1_name`, 
+			`erp_bgt1_seq`, 
+			`erp_bgt2_name`, 
+			`erp_bgt2_seq`, 
+			`erp_bgt3_name`, 
+			`erp_bgt3_seq`, 
+			`erp_bgt4_name`, 
+			`erp_bgt4_seq`, 
+			`erp_open_amt`, 
+			`erp_apply_amt`, 
+			`erp_left_amt`, 
+			`budget_std_amt`, 
+			`budget_tax_amt`, 
+			`budget_amt`, 
+			`erp_bgacct_seq`, 
+			`erp_bgacct_name`, 
+			`set_fg_code`, 
+			`set_fg_name`, 
+			`vat_fg_code`, 
+			`vat_fg_name`, 
+			`tr_fg_code`, 
+			`tr_fg_name`, 
+			`ctl_fg_code`, 
+			`ctl_fg_name`, 
+			`budget_note`, 
+			`erp_div_seq`, 
+			`erp_div_name`, 
+			`create_seq`, 
+			`create_date`, 
+			`modify_seq`, 
+			`modify_date`, 
+			`erp_fiacct_seq`, 
+			`erp_fiacct_name`
+		)
+		SELECT   #consDocSeq#, 
+			`cons_seq`, 
+			`erp_bq_seq`, 
+			`erp_bk_seq`, 
+			`erp_budget_seq`, 
+			`erp_budget_name`, 
+			`erp_bizplan_seq`, 
+			`erp_bizplan_name`, 
+			`erp_bgt1_name`, 
+			`erp_bgt1_seq`, 
+			`erp_bgt2_name`, 
+			`erp_bgt2_seq`, 
+			`erp_bgt3_name`, 
+			`erp_bgt3_seq`, 
+			`erp_bgt4_name`, 
+			`erp_bgt4_seq`, 
+			`erp_open_amt`, 
+			`erp_apply_amt`, 
+			`erp_left_amt`, 
+			`budget_std_amt`, 
+			`budget_tax_amt`, 
+			`budget_amt`, 
+			`erp_bgacct_seq`, 
+			`erp_bgacct_name`, 
+			`set_fg_code`, 
+			`set_fg_name`, 
+			`vat_fg_code`, 
+			`vat_fg_name`, 
+			`tr_fg_code`, 
+			`tr_fg_name`, 
+			`ctl_fg_code`, 
+			`ctl_fg_name`, 
+			`budget_note`, 
+			`erp_div_seq`, 
+			`erp_div_name`, 
+			`create_seq`, 
+			`create_date`, 
+			`modify_seq`, 
+			`modify_date`, 
+			`erp_fiacct_seq`, 
+			`erp_fiacct_name`
+		FROM    $DB_NEOS$t_exnp_consbudget 
+		WHERE   cons_doc_seq = #beforeConsDocSeq#
+		 AND	conffer_budget_return_yn = 'N'		 
+		
+	</update>
+	
+	<update id = "NpUserConsA.updateTradeConsData" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.updateTradeConsData */
+		/* 품의서 거래처내역 데이터 이관 */
+		INSERT INTO $DB_NEOS$t_exnp_constrade(
+			`cons_doc_seq`, 
+			`cons_seq`, 
+			`budget_seq`, 
+			`erp_isu_dt`, 
+			`erp_isu_sq`, 
+			`erp_in_sq`, 
+			`erp_bq_sq`, 
+			`item_name`, 
+			`item_cnt`, 
+			`emp_name`, 
+			`tr_seq`, 
+			`tr_name`, 
+			`ceo_name`, 
+			`trade_unit_amt`, 
+			`trade_std_amt`, 
+			`trade_vat_amt`, 
+			`jiro_seq`, 
+			`jiro_name`, 
+			`ba_nb`, 
+			`btr_seq`, 
+			`btr_name`, 
+			`depositor`, 
+			`trade_note`, 
+			`ctr_seq`, 
+			`ctr_name`, 
+			`create_seq`, 
+			`create_date`, 
+			`modify_seq`, 
+			`modify_date`
+		)
+		SELECT  #consDocSeq#, 
+			`cons_seq`, 
+			`budget_seq`, 
+			`erp_isu_dt`, 
+			`erp_isu_sq`, 
+			`erp_in_sq`, 
+			`erp_bq_sq`, 
+			`item_name`, 
+			`item_cnt`, 
+			`emp_name`, 
+			`tr_seq`, 
+			`tr_name`, 
+			`ceo_name`, 
+			`trade_unit_amt`, 
+			`trade_std_amt`, 
+			`trade_vat_amt`, 
+			`jiro_seq`, 
+			`jiro_name`, 
+			`ba_nb`, 
+			`btr_seq`, 
+			`btr_name`, 
+			`depositor`, 
+			`trade_note`, 
+			`ctr_seq`, 
+			`ctr_name`, 
+			`create_seq`, 
+			`create_date`, 
+			`modify_seq`, 
+			`modify_date` 	 
+		FROM    $DB_NEOS$t_exnp_constrade
+		WHERE   cons_doc_seq = #beforeConsDocSeq#
+	</update>
+	
+	<select id="NpUserConsA.selectConfferConsBudgetInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.selectConfferConsBudgetInfo */
+		/* 결의서 키를 이용한 품의서 예산정보 조회 */
+		SELECT	
+			IFNULL(erp_budget_seq, '')	AS 'erpBudgetSeq'
+			, IFNULL(erp_bizplan_seq, '')	AS 'erpBizplanSeq'
+			, IFNULL(erp_fiacct_seq, '')	AS 'erpFiacctSeq'
+			, IFNULL(erp_bgacct_seq, '')	AS 'erpBgacctSeq'
+		FROM	$DB_NEOS$t_exnp_consbudget c
+		INNER JOIN	(
+			SELECT	conffer_seq 
+			FROM	$DB_NEOS$ t_exnp_reshead 
+			WHERE	res_seq = #resSeq#
+		) r
+		ON	c.cons_seq = r.conffer_seq	
+	</select>
+	
+	
+	<select id="NpUserConsA.selectConsAuthTable" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.selectConsAuthTable */
+		/* 품의참조 권한 테이블 조회 */
+		SELECT  COUNT(*)		AS 'ifExists'
+		FROM	$DB_NEOS$Information_schema.tables 
+		WHERE	table_schema 	= 'neos' 
+		 AND	table_name 	= 't_exnp_cons_auth'
+	</select>
+	
+	<update id="NpUserConsA.updateDocFavoriteInfo" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserResSQL.xml - NpUserConsA.updateDocFavoriteInfo */
+		/* 즐겨찾기 데이터 이관 - DOC */
+		UPDATE $DB_NEOS$t_exnp_consdoc d1
+		INNER JOIN $DB_NEOS$t_exnp_consdoc d2
+		ON 1=1
+		AND d1.cons_doc_seq = #consDocSeq#
+		AND d2.cons_doc_seq = #favoriteConsDocSeq#
+		SET d1.consdoc_note 		= d2.consdoc_note
+		    , d1.expend_date	= NOW()
+		    , d1.erp_comp_seq 	= d2.erp_comp_seq
+		    , d1.erp_dept_seq 	= d2.erp_dept_seq
+		    , d1.erp_emp_seq 	= d2.erp_emp_seq
+		    , d1.erp_gisu 		= d2.erp_gisu
+		    , d1.erp_expend_year = d2.erp_expend_year
+		    , d1.erp_div_seq	= d2.erp_div_seq
+		    , d1.erp_div_name	= d2.erp_div_name
+		    , d1.modify_seq 	= #empSeq#
+	</update>
+	
+	<insert id="NpUserConsA.updateHeadFavoriteInfo" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserResSQL.xml - NpUserConsA.updateHeadFavoriteInfo */
+		/* 즐겨찾기 데이터 이관 HEAD  */
+		INSERT IGNORE INTO $DB_NEOS$t_exnp_conshead (
+		    cons_doc_seq
+		    , docu_fg_code
+		    , docu_fg_name
+		    , mgt_seq
+		    , mgt_name
+		    , cons_note
+		    , cons_date
+		    , erp_comp_seq
+		    , erp_comp_name
+		    , erp_pc_seq
+		    , erp_pc_name
+		    , erp_emp_seq
+		    , erp_emp_name
+		    , erp_div_seq
+		    , erp_div_name
+		    , erp_dept_seq
+		    , erp_dept_name
+		    , erp_gisu
+		    , erp_gisu_from_date
+		    , erp_gisu_to_date
+		    , erp_year
+		    , btr_seq
+		    , btr_name
+		    , btr_nb
+		    , bottom_seq
+		    , bottom_name
+		    )
+		VALUES(
+			#consDocSeq#
+			, #docuFgCode#
+			, #docuFgName#
+			, #erpMgtSeq#
+			, #erpMgtName#
+			, #consNote#
+			, REPLACE(LEFT(NOW(),'10'),'-','')
+			, #erpCompSeq#
+			, #erpCompName#
+			, #erpPcSeq#
+			, #erpPcName#
+			, #erpEmpSeq#
+			, #erpEmpName#
+			, #erpDivSeq#
+			, #erpDivName#
+			, #erpDeptSeq#
+			, #erpDeptName#
+			, #erpGisu#
+			, #erpGisuFromDate#
+			, #erpGisuToDate#
+			, #erpYear#
+			, #btrSeq#
+			, #btrName#
+			, #btrNb#
+			, #bottomSeq#
+			, #bottomName#
+		);
+		
+		<selectKey resultClass="int" keyProperty="res_seq" >
+	        SELECT MAX(cons_seq) FROM $DB_NEOS$t_exnp_conshead;       
+	    </selectKey> 	
+	</insert>
+	
+	
+	<insert id="NpUserConsA.updateBudgetFavoriteInfo" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserResSQL.xml - NpUserConsA.updateBudgetFavoriteInfo */
+		/* 즐겨찾기 데이터 이관 BUDGET  */
+ 		INSERT IGNORE INTO $DB_NEOS$t_exnp_consbudget (
+			cons_doc_seq 
+			, cons_seq
+			, erp_bq_seq
+			, erp_bk_seq
+			, erp_budget_name
+			, erp_budget_seq
+			, erp_bizplan_name
+			, erp_bizplan_seq
+			, erp_bgt1_seq
+			, erp_bgt1_name
+			, erp_bgt2_seq
+			, erp_bgt2_name
+			, erp_bgt3_seq
+			, erp_bgt3_name
+			, erp_bgt4_seq
+			, erp_bgt4_name
+			, erp_level01_seq 
+			, erp_level01_name
+			, erp_level02_seq 
+			, erp_level02_name
+			, erp_level03_seq 
+			, erp_level03_name
+			, erp_level04_seq 
+			, erp_level04_name
+			, erp_level05_seq 
+			, erp_level05_name
+			, erp_level06_seq 
+			, erp_level06_name
+			, set_fg_code
+			, set_fg_name
+			, vat_fg_code
+			, vat_fg_name
+			, tr_fg_code
+			, tr_fg_name 
+			, erp_open_amt
+			, erp_apply_amt
+			, erp_left_amt
+			, budget_std_amt
+			, budget_tax_amt
+			, budget_amt
+			, ctl_fg_code
+			, ctl_fg_name
+			, erp_bgacct_seq
+			, erp_bgacct_name
+			, budget_note
+			, erp_div_seq
+			, erp_div_name
+			, erp_fiacct_seq
+			, erp_fiacct_name
+		)
+		VALUES(
+			#consDocSeq#
+			, #consSeq#
+			, #erpBqSeq#
+			, #erpBkSeq#
+			, #erpBudgetName#
+			, #erpBudgetSeq#
+			, #erpBizplanName#
+			, #erpBizplanSeq#
+			, #erpBgt1Seq#
+			, #erpBgt1Name#
+			, #erpBgt2Seq#
+			, #erpBgt2Name#
+			, #erpBgt3Seq#
+			, #erpBgt3Name#
+			, #erpBgt4Seq#
+			, #erpBgt4Name#
+			, #erp_level01_seq#
+			, #erp_level01_name#
+			, #erp_level02_seq#
+			, #erp_level02_name#
+			, #erp_level03_seq#
+			, #erp_level03_name#
+			, #erp_level04_seq#
+			, #erp_level04_name#
+			, #erp_level05_seq#
+			, #erp_level05_name#
+			, #erp_level06_seq#
+			, #erp_level06_name#
+			, #setFgCode#
+			, #setFgName#
+			, #vatFgCode#
+			, #vatFgName#
+			, #trFgCode#
+			, #trFgName#
+			, 0
+			, 0
+			, 0
+			, 0
+			, 0
+			, 0
+			, #ctlFgCode#
+			, #ctlFgName#
+			, #erpBgacctSeq#
+			, #erpBgacctName#
+			, #budgetNote#
+			, #erpDivSeq#
+			, #erpDivName#
+			, #erpFiacctSeq#
+			, #erpFiacctName#	 
+		);			
+		<selectKey resultClass="int" keyProperty="budget_seq" >
+	        SELECT MAX(budget_seq) FROM $DB_NEOS$t_exnp_consbudget;       
+	    </selectKey> 		
+	</insert>
+	
+	<insert id="NpUserConsA.insertConsItemSpec" parameterClass="java.util.HashMap" >
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.insertConsDoc */
+		/* 물품 품의 신규 생성 */
+		INSERT INTO $DB_NEOS$t_exnp_consitem (
+			 cons_doc_seq
+			, cons_seq
+			, budget_seq
+			, item_name
+			, item_size
+			, item_unit
+			, item_cnt
+			, unit_amt
+			, item_amt
+			, item_note
+		)
+		VALUES	(
+			#consDocSeq#
+			, #consSeq#
+			, #budgetSeq#
+			, #itemName#
+			, #itemSize#
+			, #itemUnit#
+			, #itemCnt#
+			, #unitAmt#
+			, #itemAmt#
+			, #itemNote#
+		);	 
+	    <selectKey resultClass="int" keyProperty="cons_item_seq" >
+	        SELECT MAX(cons_item_seq) FROM $DB_NEOS$t_exnp_consitem;       
+	    </selectKey> 
+	</insert>
+	
+	<select id="NpUserConsA.selectConsItemSpec" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.selectConsItemSpec */
+		/* 물품명세 품의 문서 정보 조회 */
+		SELECT 	
+			cons_doc_seq	AS consDocSeq
+			, cons_seq		AS consSeq
+			, item_name		AS itemName
+			, item_size		AS itemSize
+			, item_unit		AS itemUnit
+			, item_cnt		AS itemCnt
+			, unit_amt		AS unitAmt
+			, item_amt		AS itemAmt
+			, item_note		AS itemNote
+		FROM	$DB_NEOS$t_exnp_consitem	 	
+		WHERE	`cons_seq` 	= #consSeq#
+		AND		budget_seq	like '%$budgetSeq$%' 	
+	</select>
+	
+	<delete id="NpUserConsA.deleteConsItemSpec" parameterClass="java.util.HashMap">
+		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.deleteConsItemSpec */
+		/* 물품명세 품의 문서 정보 삭제 */
+		DELETE FROM $DB_NEOS$t_exnp_consitem 
+		WHERE	`cons_seq` 	= #consSeq#
+		AND		budget_seq	like '%$budgetSeq$%'	 	
+	</delete>
+	
+	<select id="NpUserConsA.selectGroupBudgetInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/np/user/NpUserResSQL.xml - NpUserConsA.selectGroupBudgetInfo */
+		/* 품의서 내 중복예산들 전체 사용량 조회 */
+		SELECT	
+			MAX(budget.cons_doc_seq)	AS 'consDocSeq'
+			, MAX(budget.cons_seq)	AS 'consSeq'
+			, SUM(budget_amt)	AS 'budgetAmt'			
+			, SUM(budget_std_amt)	AS 'budgetStdAmt'
+			, SUM(budget_tax_amt)	AS 'budgetTaxAmt'
+		FROM	(
+			SELECT	b.*
+			FROM	$DB_NEOS$t_exnp_consbudget b
+			INNER JOIN $DB_NEOS$t_exnp_conshead h
+			ON b.cons_doc_seq = h.cons_doc_seq
+			AND b.cons_seq = h.cons_seq 
+			WHERE	b.cons_doc_seq = #consDocSeq#
+			 AND	( 
+			 	<isNotEqual property="erpBudgetSeq" compareValue="-1">
+				erp_budget_seq = '$erpBudgetSeq$'
+				</isNotEqual>
+				<isNotEqual property="erpBgacctSeq" compareValue="-1">
+				AND
+				erp_bgacct_seq = '$erpBgacctSeq$'
+				</isNotEqual>
+				<isNotEqual property="erpBizplanSeq" compareValue="-1">
+				AND
+				IFNULL(erp_bizplan_seq, '') = IFNULL('$erpBizplanSeq$', '')
+				</isNotEqual>
+			)
+			AND mgt_seq = #erpMgtSeq#
+			AND budget_seq != #budgetSeq#
+			AND ifnull(bottom_seq,'') = #bottomSeq#
+		)	budget
+		INNER JOIN	$DB_NEOS$t_exnp_consdoc doc
+		 ON	budget.cons_doc_seq = doc.cons_doc_seq
+		GROUP BY budget.cons_doc_seq
+	</select>
+</sqlMap>
+			

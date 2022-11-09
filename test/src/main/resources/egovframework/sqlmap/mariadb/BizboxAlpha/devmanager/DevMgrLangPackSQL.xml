@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="LangPackInfoDAO">
+
+	<select id="LangPackInfoDAO.SelectLanguageList_TOTALCOUNT" parameterClass="hashMap" resultClass="String">
+		/* mariadb/devmanager/LangPack_SQL - LangPackInfoDAO.SelectLanguageList */
+		/* 전체 다국어 코드 조회 */
+		SELECT	COUNT(lang_code)
+		FROM	$DB_NEOS$t_dev_langpack
+		WHERE 		lang_kr	LIKE	'%$keyword$%'
+			OR	lang_en	LIKE	'%$keyword$%'
+			OR	lang_jp	LIKE	'%$keyword$%'
+			OR	lang_cn	LIKE	'%$keyword$%'	
+			OR	lang_code	LIKE	'%$keyword$%'	
+	</select>
+	
+	<select id="LangPackInfoDAO.SelectLanguageList" parameterClass="hashMap" resultClass="hashMap">
+		/* mariadb/devmanager/LangPack_SQL - LangPackInfoDAO.SelectLanguageList */
+		/* 전체 다국어 코드 조회 */
+		SELECT	
+			lang_code	
+			, lang_kr	
+			, lang_en	
+			, lang_jp	
+			, lang_cn	
+			, lang_note	
+			, DATE_FORMAT(create_date,'%Y-%m-%d') AS create_date
+			, DATE_FORMAT(modify_date,'%Y-%m-%d') AS modify_date	
+		FROM	$DB_NEOS$t_dev_langpack
+		WHERE 		lang_kr	LIKE	'%$keyword$%'
+			OR	lang_en	LIKE	'%$keyword$%'
+			OR	lang_jp	LIKE	'%$keyword$%'
+			OR	lang_cn	LIKE	'%$keyword$%'
+			OR	lang_code	LIKE	'%$keyword$%'	
+		ORDER BY 	lang_code DESC
+		LIMIT $startNum$, $endNum$			
+	</select>	
+	
+	<select id="LangPackInfoDAO.SelectLanguageEmptyList_TOTALCOUNT" parameterClass="hashMap" resultClass="String">
+		/* mariadb/devmanager/LangPack_SQL - LangPackInfoDAO.SelectLanguageEmptyList */
+		/* 수정이 필요한 다국어 코드 조회 */
+		SELECT	
+			COUNT(lang_code)
+		FROM	$DB_NEOS$t_dev_langpack
+		WHERE 	IFNULL($code$,'') = ''	
+	</select>
+	
+	<select id="LangPackInfoDAO.SelectLanguageEmptyList" parameterClass="hashMap" resultClass="hashMap">
+		/* mariadb/devmanager/LangPack_SQL - LangPackInfoDAO.SelectLanguageEmptyList */
+		/* 수정이 필요한 다국어 코드 조회 */
+		SELECT	
+			lang_code	
+			, lang_kr	
+			, lang_en	
+			, lang_jp	
+			, lang_cn	
+			, lang_note	
+			, DATE_FORMAT(create_date,'%Y-%m-%d') AS created_dt
+			, DATE_FORMAT(modify_date,'%Y-%m-%d') AS modify_date
+		FROM	$DB_NEOS$t_dev_langpack
+		WHERE 	IFNULL($code$,'') = ''	
+		ORDER BY 	lang_code DESC
+		LIMIT $startNum$, $endNum$
+	</select>
+	
+	<insert id="LangPackInfoDAO.InsertLanguageData" parameterClass="java.util.HashMap" >
+		/* mariadb/devmanager/LangPack_SQL - LangPackInfoDAO.InsertLanguageData */
+		/* 신규 다국어 코드 입력 */
+		INSERT INTO $DB_NEOS$t_dev_langpack
+		SELECT	
+			CONCAT('TX', LPAD((CONVERT(SUBSTRING(MAX(lang_code), 3, 9), INT) + 1) , 9, 0))	AS	'lang_code'
+			, #langKr#	AS	'lang_kr' 
+			, #langEn#	AS	'lang_en' 
+			, #langJp#	AS	'lang_jp' 
+			, #langCn#	AS	'lang_cn'
+			, #langNote#	AS	'lang_note'
+			, NOW()	AS	'create_date'
+			, NOW()	AS	'modify_date' 
+		FROM	$DB_NEOS$t_dev_langpack	
+	</insert>
+	
+	<update id="LangPackInfoDAO.UpdateLanguageData" parameterClass="java.util.HashMap" >
+		/* mariadb/devmanager/LangPack_SQL - LangPackInfoDAO.UpdateLanguageData */
+		/* 다국어 코드 업데이트 */	
+		UPDATE 	$DB_NEOS$t_dev_langpack
+		SET	
+			lang_kr = #langKr#		
+			, lang_en = #langEn#	
+			, lang_jp = #langJp#	
+			, lang_cn = #langCn#	
+			, lang_note = #langNote#
+			, modify_date	= NOW()
+		WHERE 	lang_code	= #langCode#
+	</update>
+</sqlMap>

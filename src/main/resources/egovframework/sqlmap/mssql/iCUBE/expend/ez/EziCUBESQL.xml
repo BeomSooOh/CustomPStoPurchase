@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="EziCUBESQL">
+
+<!-- 이지바로 회계단위 사용자 정보 가져오기 SQL 시작  -->
+    <select id="EziCUBESQL.GetEzBaroAcUnitInfo" parameterType="java.util.Map" resultType="java.util.Map">
+          	SELECT	TOP 1 CO_CD
+          			,DIV_CD
+          			,DIV_NM
+		    FROM	dbo.ZA_DIV_DAIKIN
+		    WHERE 	CO_CD = '${CO_CD}'
+    </select>	
+        
+    <select id="EziCUBESQL.GetEzBaroDeptUserInfo" parameterType="java.util.Map" resultType="java.util.Map">
+     		SELECT	  TOP 1
+     				  C.DEPT_CD AS DEPT_CD
+	                , C.DEPT_NM AS DEPT_NM
+	                , D.EMP_CD  AS EMP_CD
+	                , D.KOR_NM  AS EMP_NM
+            FROM	(
+		               SELECT	CO_CD
+		                 , CO_NM
+		               FROM	dbo. ZA_COMPANY_DAIKIN
+		               WHERE	CO_CD = '${CO_CD}'
+	              	) A INNER JOIN (
+		               SELECT	CO_CD
+		                 , DIV_CD
+		                 , DIV_NM
+		               FROM	dbo.ZA_DIV_DAIKIN
+		               WHERE	CO_CD = '${CO_CD}'
+	                ) B ON A.CO_CD = B.CO_CD INNER JOIN (
+		               SELECT	CO_CD
+		                 , DIV_CD
+		                 , DEPT_CD
+		                 , DEPT_NM
+		               FROM	dbo. ZA_DEPT_DAIKIN
+		               WHERE	CO_CD = '${CO_CD}'
+	             	) C ON B.CO_CD = C.CO_CD AND B.DIV_CD = C.DIV_CD INNER JOIN (
+		               SELECT	CO_CD
+		                 , DEPT_CD
+		                 , EMP_CD
+		                 , KOR_NM
+		               FROM	dbo.ZA_EMP_DAIKIN
+		               WHERE	CO_CD = '${CO_CD}'
+              		) D ON C.CO_CD = D.CO_CD AND C.DEPT_CD = D.DEPT_CD
+            WHERE	 EMP_CD LIKE '%' + ISNULL ( '${EMP_CD}', '' ) + '%'
+    </select>	
+<!-- 이지바로 회계단위 사용자 정보 가져오기 SQL 끝  -->
+
+<!-- 이지바로 정보 넣기 및 업데이트 시작 -->
+	<update
+		id="EziCUBESQL.USP_ANZR100_INSERT_H"
+		statementType="CALLABLE"
+		parameterType="HashMap">
+        {
+            call USP_ANZR100_INSERT_H
+            (
+				#{LANGKIND,mode=IN,jdbcType=NVARCHAR}
+				, #{CO_CD,mode=IN,jdbcType=NVARCHAR}
+				, #{TASK_DT,mode=IN,jdbcType=NVARCHAR}
+				, #{TASK_SQ,mode=OUT,jdbcType=NUMERIC,javaType=java.lang.Double}
+				, #{OFCODE,mode=IN,jdbcType=NVARCHAR}
+				, #{PRJNO,mode=IN,jdbcType=VARCHAR}
+				, #{EXECDATE,mode=IN,jdbcType=VARCHAR}
+				, #{REGNO,mode=IN,jdbcType=VARCHAR}
+				, #{DIV_CD,mode=IN,jdbcType=NVARCHAR}
+				, #{DEPT_CD,mode=IN,jdbcType=NVARCHAR}
+				, #{EMP_CD,mode=IN,jdbcType=NVARCHAR}
+				, #{EXECTIME,mode=IN,jdbcType=VARCHAR}
+				, #{EXECSEQ,mode=IN,jdbcType=VARCHAR}
+				, #{BIZGRP,mode=IN,jdbcType=VARCHAR}
+				, #{BMCODE,mode=IN,jdbcType=VARCHAR}
+				, #{EXECREQDIV,mode=IN,jdbcType=CHAR}
+				, #{EXECDIV,mode=IN,jdbcType=VARCHAR}
+				, #{EXECMTD,mode=IN,jdbcType=VARCHAR}
+				, #{RESOLNO,mode=IN,jdbcType=VARCHAR}
+				, #{RESOLDATE,mode=IN,jdbcType=VARCHAR}
+				, #{CONT,mode=IN,jdbcType=VARCHAR}
+				, #{BELONG,mode=IN,jdbcType=VARCHAR}
+				, #{NM,mode=IN,jdbcType=VARCHAR}
+				, #{RESPERSONNO,mode=IN,jdbcType=VARCHAR}
+				, #{POSI,mode=IN,jdbcType=VARCHAR}
+				, #{PAYYYMM,mode=IN,jdbcType=VARCHAR}
+				, #{PARTRATE,mode=IN,jdbcType=NUMERIC}
+				, #{PAYBASEAMT,mode=IN,jdbcType=NUMERIC}
+				, #{RESOLAMT,mode=IN,jdbcType=NUMERIC}
+				, #{EXTTAX,mode=IN,jdbcType=NUMERIC}
+				, #{ACCREGAMT,mode=IN,jdbcType=NUMERIC}
+				, #{COURTAMT,mode=IN,jdbcType=NUMERIC}
+				, #{CHARGE,mode=IN,jdbcType=NUMERIC}
+				, #{EXECBANK,mode=IN,jdbcType=VARCHAR}
+				, #{EXECREQACCNO,mode=IN,jdbcType=VARCHAR}
+				, #{ACCOWNER,mode=IN,jdbcType=VARCHAR}
+				, #{EXECRECIP,mode=IN,jdbcType=VARCHAR}
+				, #{EXECREQFLAG,mode=IN,jdbcType=VARCHAR}
+				, #{TAXAPPRNO,mode=IN,jdbcType=VARCHAR}
+				, #{SUPPERSON,mode=IN,jdbcType=VARCHAR}
+				, #{SUPBIZNO,mode=IN,jdbcType=VARCHAR}
+				, #{MEETSDT,mode=IN,jdbcType=VARCHAR}
+				, #{MEETEDT,mode=IN,jdbcType=VARCHAR}
+				, #{MEETPLACE,mode=IN,jdbcType=VARCHAR}
+				, #{CONSIORG,mode=IN,jdbcType=VARCHAR}
+				, #{BIZNO,mode=IN,jdbcType=VARCHAR}
+				, #{SENDYN,mode=IN,jdbcType=VARCHAR}
+				, #{SENDOPT,mode=IN,jdbcType=VARCHAR}
+				, #{SENDDATE,mode=IN,jdbcType=VARCHAR}
+				, #{SENDTIME,mode=IN,jdbcType=VARCHAR}
+				, #{STATECODE,mode=IN,jdbcType=VARCHAR}
+				, #{STATETEXT,mode=IN,jdbcType=VARCHAR}
+				, #{RCVDATE,mode=IN,jdbcType=VARCHAR}
+				, #{RCVTIME,mode=IN,jdbcType=VARCHAR}
+				, #{RESOLCHKNO,mode=IN,jdbcType=VARCHAR}
+				, #{RESOLCHKTXT,mode=IN,jdbcType=VARCHAR}
+				, #{ORIGRESOLNO,mode=IN,jdbcType=VARCHAR}
+				, #{CHECKDATE,mode=IN,jdbcType=VARCHAR}
+				, #{CHECKUSER,mode=IN,jdbcType=VARCHAR}
+				, #{TRNSDATE,mode=IN,jdbcType=VARCHAR}
+				, #{TRNSTIME,mode=IN,jdbcType=VARCHAR}
+				, #{TRNSBANK,mode=IN,jdbcType=VARCHAR}
+				, #{TRNSACCNO,mode=IN,jdbcType=VARCHAR}
+				, #{TRNSACCOWNER,mode=IN,jdbcType=VARCHAR}
+				, #{RECIP,mode=IN,jdbcType=VARCHAR}
+				, #{TRNSAMT,mode=IN,jdbcType=NUMERIC}
+				, #{CARDNO,mode=IN,jdbcType=VARCHAR}
+				, #{TRSEQ,mode=IN,jdbcType=VARCHAR}
+				, #{TRDATE,mode=IN,jdbcType=VARCHAR}
+				, #{APPRNO,mode=IN,jdbcType=VARCHAR}
+				, #{GISU_DT,mode=IN,jdbcType=VARCHAR}
+				, #{GISU_SQ,mode=IN,jdbcType=NUMERIC}
+				, #{PJT_CD,mode=IN,jdbcType=VARCHAR}
+				, #{ABGT_CD,mode=IN,jdbcType=VARCHAR}
+				, #{TR_FG,mode=IN,jdbcType=VARCHAR}
+				, #{TR_CD,mode=IN,jdbcType=VARCHAR}
+				, #{CTR_CD,mode=IN,jdbcType=VARCHAR}
+				, #{CTR_NM,mode=IN,jdbcType=VARCHAR}
+				, #{ETCRVRS_YM,mode=IN,jdbcType=VARCHAR}
+				, #{ETCDIV_CD,mode=IN,jdbcType=VARCHAR}
+				, #{ETCDUMMY1,mode=IN,jdbcType=VARCHAR}
+				, #{NDEP_AM,mode=IN,jdbcType=NUMERIC}
+				, #{INAD_AM,mode=IN,jdbcType=NUMERIC}
+				, #{INTX_AM,mode=IN,jdbcType=NUMERIC}
+				, #{RSTX_AM,mode=IN,jdbcType=NUMERIC}
+				, #{WD_AM,mode=IN,jdbcType=NUMERIC}
+				, #{BG_SQ,mode=IN,jdbcType=NUMERIC}
+				, #{ETCPAY_DT,mode=IN,jdbcType=NVARCHAR}
+				, #{ET_YN,mode=IN,jdbcType=NVARCHAR}
+				, #{ETCDATA_CD,mode=IN,jdbcType=NVARCHAR}
+				, #{ETCTAX_RT,mode=IN,jdbcType=NUMERIC}
+				, #{HIFE_AM,mode=IN,jdbcType=NUMERIC}
+				, #{NAPE_AM,mode=IN,jdbcType=NUMERIC}
+				, #{DDCT_AM,mode=IN,jdbcType=NUMERIC}
+				, #{NOIN_AM,mode=IN,jdbcType=NUMERIC}
+				, #{WD_AM2,mode=IN,jdbcType=NUMERIC}
+				, #{ETCRATE,mode=IN,jdbcType=NUMERIC}
+				, #{HINCOME_SQ,mode=IN,jdbcType=NUMERIC}
+				, #{PYTP_FG,mode=IN,jdbcType=NVARCHAR}
+				, #{GW_STATE,mode=IN,jdbcType=NVARCHAR}
+				, #{GW_ID,mode=IN,jdbcType=NVARCHAR}
+				, #{BTR_CD,mode=IN,jdbcType=NVARCHAR}
+				, #{RMK_DC,mode=IN,jdbcType=NVARCHAR}
+				<!--   , #{TAX_TY,mode=IN,jdbcType=NVARCHAR} -->
+				, #{TR_NM,mode=IN,jdbcType=NVARCHAR}
+				, #{ETCDUMMY2,mode=IN,jdbcType=NVARCHAR}
+				, #{TAX_YN,mode=IN,jdbcType=NVARCHAR}
+				
+			)
+		}
+	</update>
+
+	<!-- AN_NRNDEXECREQ - UPDATE >> USP_ANZR100_UPDATE_H -->
+	<update
+		id="EziCUBESQL.USP_ANZR100_UPDATE_H"
+		statementType="CALLABLE"
+		parameterType="hashMap">
+		{
+            call USP_ANZR100_UPDATE_H (
+				#{LANGKIND,mode=IN,jdbcType=VARCHAR}
+				, #{CO_CD,mode=IN,jdbcType=VARCHAR}
+				, #{TASK_DT,mode=IN,jdbcType=VARCHAR}
+				, #{TASK_SQ,mode=IN,jdbcType=NUMERIC}
+				, #{OFCODE,mode=IN,jdbcType=VARCHAR}
+				, #{PRJNO,mode=IN,jdbcType=VARCHAR}
+				, #{EXECDATE,mode=IN,jdbcType=VARCHAR}
+				, #{REGNO,mode=IN,jdbcType=VARCHAR}
+				, #{DIV_CD,mode=IN,jdbcType=VARCHAR}
+				, #{DEPT_CD,mode=IN,jdbcType=VARCHAR}
+				, #{EMP_CD,mode=IN,jdbcType=VARCHAR}
+				, #{EXECTIME,mode=IN,jdbcType=VARCHAR}
+				, #{EXECSEQ,mode=IN,jdbcType=VARCHAR}
+				, #{BIZGRP,mode=IN,jdbcType=VARCHAR}
+				, #{BMCODE,mode=IN,jdbcType=VARCHAR}
+				, #{EXECREQDIV,mode=IN,jdbcType=VARCHAR}
+				, #{EXECDIV,mode=IN,jdbcType=VARCHAR}
+				, #{EXECMTD,mode=IN,jdbcType=VARCHAR}
+				, #{RESOLNO,mode=IN,jdbcType=VARCHAR}
+				, #{RESOLDATE,mode=IN,jdbcType=VARCHAR}
+				, #{CONT,mode=IN,jdbcType=VARCHAR}
+				, #{BELONG,mode=IN,jdbcType=VARCHAR}
+				, #{NM,mode=IN,jdbcType=VARCHAR}
+				, #{RESPERSONNO,mode=IN,jdbcType=VARCHAR}
+				, #{POSI,mode=IN,jdbcType=VARCHAR}
+				, #{PAYYYMM,mode=IN,jdbcType=VARCHAR}
+				, #{PARTRATE,mode=IN,jdbcType=NUMERIC}
+				, #{PAYBASEAMT,mode=IN,jdbcType=NUMERIC}
+				, #{RESOLAMT,mode=IN,jdbcType=NUMERIC}
+				, #{EXTTAX,mode=IN,jdbcType=NUMERIC}
+				, #{ACCREGAMT,mode=IN,jdbcType=NUMERIC}
+				, #{COURTAMT,mode=IN,jdbcType=NUMERIC}
+				, #{CHARGE,mode=IN,jdbcType=NUMERIC}
+				, #{EXECBANK,mode=IN,jdbcType=VARCHAR}
+				, #{EXECREQACCNO,mode=IN,jdbcType=VARCHAR}
+				, #{ACCOWNER,mode=IN,jdbcType=VARCHAR}
+				, #{EXECRECIP,mode=IN,jdbcType=VARCHAR}
+				, #{EXECREQFLAG,mode=IN,jdbcType=VARCHAR}
+				, #{TAXAPPRNO,mode=IN,jdbcType=VARCHAR}
+				, #{SUPPERSON,mode=IN,jdbcType=VARCHAR}
+				, #{SUPBIZNO,mode=IN,jdbcType=VARCHAR}
+				, #{MEETSDT,mode=IN,jdbcType=VARCHAR}
+				, #{MEETEDT,mode=IN,jdbcType=VARCHAR}
+				, #{MEETPLACE,mode=IN,jdbcType=VARCHAR}
+				, #{CONSIORG,mode=IN,jdbcType=VARCHAR}
+				, #{BIZNO,mode=IN,jdbcType=VARCHAR}
+				, #{SENDYN,mode=IN,jdbcType=VARCHAR}
+				, #{SENDOPT,mode=IN,jdbcType=VARCHAR}
+				, #{SENDDATE,mode=IN,jdbcType=VARCHAR}
+				, #{SENDTIME,mode=IN,jdbcType=VARCHAR}
+				, #{STATECODE,mode=IN,jdbcType=VARCHAR}
+				, #{STATETEXT,mode=IN,jdbcType=VARCHAR}
+				, #{RCVDATE,mode=IN,jdbcType=VARCHAR}
+				, #{RCVTIME,mode=IN,jdbcType=VARCHAR}
+				, #{RESOLCHKNO,mode=IN,jdbcType=VARCHAR}
+				, #{RESOLCHKTXT,mode=IN,jdbcType=VARCHAR}
+				, #{ORIGRESOLNO,mode=IN,jdbcType=VARCHAR}
+				, #{CHECKDATE,mode=IN,jdbcType=VARCHAR}
+				, #{CHECKUSER,mode=IN,jdbcType=VARCHAR}
+				, #{TRNSDATE,mode=IN,jdbcType=VARCHAR}
+				, #{TRNSTIME,mode=IN,jdbcType=VARCHAR}
+				, #{TRNSBANK,mode=IN,jdbcType=VARCHAR}
+				, #{TRNSACCNO,mode=IN,jdbcType=VARCHAR}
+				, #{TRNSACCOWNER,mode=IN,jdbcType=VARCHAR}
+				, #{RECIP,mode=IN,jdbcType=VARCHAR}
+				, #{TRNSAMT,mode=IN,jdbcType=NUMERIC}
+				, #{CARDNO,mode=IN,jdbcType=VARCHAR}
+				, #{TRSEQ,mode=IN,jdbcType=VARCHAR}
+				, #{TRDATE,mode=IN,jdbcType=VARCHAR}
+				, #{APPRNO,mode=IN,jdbcType=VARCHAR}
+				, #{GISU_DT,mode=IN,jdbcType=VARCHAR}
+				, #{GISU_SQ,mode=IN,jdbcType=NUMERIC}
+				, #{PJT_CD,mode=IN,jdbcType=VARCHAR}
+				, #{ABGT_CD,mode=IN,jdbcType=VARCHAR}
+				, #{TR_FG,mode=IN,jdbcType=VARCHAR}
+				, #{TR_CD,mode=IN,jdbcType=VARCHAR}
+				, #{CTR_CD,mode=IN,jdbcType=VARCHAR}
+				, #{CTR_NM,mode=IN,jdbcType=VARCHAR}
+				, #{ETCRVRS_YM,mode=IN,jdbcType=VARCHAR}
+				, #{ETCDIV_CD,mode=IN,jdbcType=VARCHAR}
+				, #{ETCDUMMY1,mode=IN,jdbcType=VARCHAR}
+				, #{NDEP_AM,mode=IN,jdbcType=NUMERIC}
+				, #{INAD_AM,mode=IN,jdbcType=NUMERIC}
+				, #{INTX_AM,mode=IN,jdbcType=NUMERIC}
+				, #{RSTX_AM,mode=IN,jdbcType=NUMERIC}
+				, #{WD_AM,mode=IN,jdbcType=NUMERIC}
+				, #{BG_SQ,mode=IN,jdbcType=NUMERIC}
+				, #{ETCPAY_DT,mode=IN,jdbcType=VARCHAR}
+				, #{ET_YN,mode=IN,jdbcType=VARCHAR}
+				, #{ETCDATA_CD,mode=IN,jdbcType=VARCHAR}
+				, #{ETCTAX_RT,mode=IN,jdbcType=NUMERIC}
+				, #{HIFE_AM,mode=IN,jdbcType=NUMERIC}
+				, #{NAPE_AM,mode=IN,jdbcType=NUMERIC}
+				, #{DDCT_AM,mode=IN,jdbcType=NUMERIC}
+				, #{NOIN_AM,mode=IN,jdbcType=NUMERIC}
+				, #{WD_AM2,mode=IN,jdbcType=NUMERIC}
+				, #{ETCRATE,mode=IN,jdbcType=NUMERIC}
+				, #{HINCOME_SQ,mode=IN,jdbcType=NUMERIC}
+				, #{PYTP_FG,mode=IN,jdbcType=VARCHAR}
+				, #{GW_STATE,mode=IN,jdbcType=VARCHAR}
+				, #{GW_ID,mode=IN,jdbcType=VARCHAR}
+			)
+		}
+	</update>
+    
+    <!-- AN_NRNDEXECREQ - UPDATE >> 종결 -->
+	<update
+        id="EziCUBESQL.EzbaroStatusInfoUpdate"
+        parameterType="java.util.Map"><![CDATA[
+        /* EzbaroAppDocDAO.EzbaroiCUBEStatusInfoUpdate - iCUBE - MSSQL */
+		UPDATE  AN_NRNDEXECREQ
+		SET     GW_STATE = '1' 
+		WHERE   CO_CD = '${CO_CD}'
+		AND     TASK_DT = '${TASK_DT}'
+		AND     TASK_SQ = '${TASK_SQ}'
+		AND     GW_ID IS NOT NULL
+    ]]></update>
+
+	<!-- AN_NRNDEXECREQ - SELECT >> USP_ANZR100_SELECT_H -->
+	<select
+		id="EziCUBESQL.USP_ANZR100_SELECT_H"
+		statementType="CALLABLE"
+		parameterType="java.util.Map"
+		resultType="java.util.Map">
+		{
+            call USP_ANZR100_SELECT_H (
+				#{LANGKIND,mode=IN,jdbcType=VARCHAR}
+				, #{CO_CD,mode=IN,jdbcType=VARCHAR}
+				, #{DIV_CD,mode=IN,jdbcType=VARCHAR}
+				, #{DEPT_CD,mode=IN,jdbcType=VARCHAR}
+				, #{EMP_CD,mode=IN,jdbcType=VARCHAR}
+				, #{TASK_DT_FR,mode=IN,jdbcType=VARCHAR}
+				, #{TASK_DT_TO,mode=IN,jdbcType=VARCHAR}
+				, #{GW_STATE,mode=IN,jdbcType=VARCHAR}
+            )
+        }
+	</select>
+
+
+	<update
+		id="EziCUBESQL.USP_ANZR100_INSERT_D"
+		statementType="CALLABLE"
+        parameterType="java.util.Map">
+		{
+            call USP_ANZR100_INSERT_D (
+				#{LANGKIND,mode=IN,jdbcType=VARCHAR}
+				, #{CO_CD,mode=IN,jdbcType=VARCHAR}
+				, #{TASK_DT,mode=IN,jdbcType=VARCHAR}
+				, #{TASK_SQ,mode=IN,jdbcType=NUMERIC}
+				, #{OFCODE,mode=IN,jdbcType=VARCHAR}
+				, #{PRJNO,mode=IN,jdbcType=VARCHAR}
+				, #{REGSEQ,mode=OUT,jdbcType=NUMERIC,javaType=java.lang.Double}
+				, #{ARTIDIV,mode=IN,jdbcType=VARCHAR}
+				, #{ITEMNAME,mode=IN,jdbcType=VARCHAR}
+				, #{STANDARD,mode=IN,jdbcType=VARCHAR}
+				, #{AMOUNT,mode=IN,jdbcType=NUMERIC}
+				, #{UNITCOST,mode=IN,jdbcType=NUMERIC}
+				, #{SUPCOST,mode=IN,jdbcType=NUMERIC}
+				, #{EXTTAX,mode=IN,jdbcType=NUMERIC}
+				, #{TOTPURCHAMT,mode=IN,jdbcType=NUMERIC}
+				, #{NTISREGNO,mode=IN,jdbcType=VARCHAR}
+				, #{NTISREGDATE,mode=IN,jdbcType=VARCHAR}
+				, #{CHECKDATE,mode=IN,jdbcType=VARCHAR}
+				, #{CHECKUSER,mode=IN,jdbcType=VARCHAR}
+				, #{GISU_DT,mode=IN,jdbcType=VARCHAR}
+				, #{GISU_SQ,mode=IN,jdbcType=NUMERIC}
+            )
+        }
+	</update>
+
+	<update
+		id="EziCUBESQL.USP_ANZR100_INSERT_C"
+		statementType="CALLABLE"
+        parameterType="HashMap">
+		{
+            call USP_ANZR100_INSERT_C (
+				#{LANGKIND,mode=IN,jdbcType=VARCHAR}
+				, #{CO_CD,mode=IN,jdbcType=VARCHAR}
+				, #{TASK_DT,mode=IN,jdbcType=VARCHAR}
+				, #{TASK_SQ,mode=IN,jdbcType=NUMERIC}
+				, #{OFCODE,mode=IN,jdbcType=VARCHAR}
+				, #{PRJNO,mode=IN,jdbcType=VARCHAR}
+				, #{REGSEQ,mode=OUT,jdbcType=NUMERIC,javaType=java.lang.Double}
+				, #{BELONGDIV,mode=IN,jdbcType=VARCHAR}
+				, #{AREADIV,mode=IN,jdbcType=VARCHAR}
+				, #{PROFUSEDIV,mode=IN,jdbcType=VARCHAR}
+				, #{RESPERSONNO,mode=IN,jdbcType=VARCHAR}
+				, #{BELONG,mode=IN,jdbcType=VARCHAR}
+				, #{NM,mode=IN,jdbcType=VARCHAR}
+				, #{TERMF,mode=IN,jdbcType=VARCHAR}
+				, #{TERMT,mode=IN,jdbcType=VARCHAR}
+				, #{ST,mode=IN,jdbcType=VARCHAR}
+				, #{ET,mode=IN,jdbcType=VARCHAR}
+				, #{STARTPLACE,mode=IN,jdbcType=VARCHAR}
+				, #{DEST,mode=IN,jdbcType=VARCHAR}
+				, #{EDUORGNM,mode=IN,jdbcType=VARCHAR}
+				, #{PAYAMT,mode=IN,jdbcType=NUMERIC}
+				, #{GISU_DT,mode=IN,jdbcType=VARCHAR}
+				, #{GISU_SQ,mode=IN,jdbcType=NUMERIC}
+            )
+        }
+	</update>
+
+<!-- 이지바로 정보 넣기 및 업데이트 끝 -->
+
+
+
+<!-- 이지바로 코드팝업 시작 -->
+<select
+		id="EziCUBESQL.USP_ANZR020_PRJNO_SELECT"
+		parameterType="java.util.HashMap"
+		resultType="java.util.HashMap"><![CDATA[
+        /* EzbaroCommonCode.USP_ANZR020_PRJNO_SELECT - iCUBE - mssql */
+        exec USP_ANZR020_PRJNO_SELECT @LANGKIND=N'${LANGKIND}', @CO_CD=N'${CO_CD}', @PRJNO=NULL
+    ]]></select>
+
+	<!-- iCUBE 공통코드 - 세목 -->
+	<select
+		id="EziCUBESQL.USP_ANZR100_BMCODE_SELECT"
+		parameterType="java.util.HashMap"
+		resultType="java.util.HashMap"><![CDATA[
+        /* EzbaroCommonCode.USP_ANZR100_BMCODE_SELECT - iCUBE - mssql */
+        exec USP_ANZR100_BMCODE_SELECT @LANGKIND=N'${LANGKIND}', @CO_CD=N'${CO_CD}', @OFCODE=N'${OFCODE}', @BIZGRP=N'${BIZGRP}'
+    ]]></select>
+
+	<!-- iCUBE 공통코드 - 사용용도 -->
+	<select
+		id="EziCUBESQL.USP_ANZR100_NRNDCODE_A01_SELECT"
+		parameterType="java.util.HashMap"
+		resultType="java.util.HashMap"><![CDATA[
+        /* EzbaroCommonCode.USP_ANZR100_NRNDCODE_A01_SELECT - iCUBE - mssql */
+        exec USP_ANZR100_NRNDCODE_A01_SELECT @LANGKIND=N'${LANGKIND}', @CO_CD=N'${CO_CD}', @CDDIV=N'${CDDIV}', @OFCODE=N'${OFCODE}', @BIZGRP=N'${BIZGRP}', @BMCODE=N'${BMCODE}'
+    ]]></select>
+
+	<!-- iCUBE 공통코드 - 집행방법 / 집행요청구분 / 지급은행 / 물품구분 / 소속구분 / 시내외구분 / 활용방법 -->
+	<select
+		id="EziCUBESQL.USP_ANZR020_NRNDCODE_SELECT"
+		parameterType="java.util.HashMap"
+		resultType="java.util.HashMap"><![CDATA[
+        /* EzbaroCommonCode.USP_ANZR020_NRNDCODE_SELECT - iCUBE - mssql */
+        exec USP_ANZR020_NRNDCODE_SELECT @LANGKIND=N'${LANGKIND}', @CO_CD=N'${CO_CD}', @CDDIV=N'${CDDIV}', @OFCODE=N'${OFCODE}'
+    ]]></select>
+
+	<!-- iCUBE 공통코드 - G20거래처,G20입출금계좌 -->
+	<select
+		id="EziCUBESQL.USP_GET_HELPCODE"
+		parameterType="java.util.HashMap"
+		resultType="java.util.HashMap"><![CDATA[
+        /* EzbaroCommonCode.USP_GET_HELPCODE - iCUBE - mssql */
+        exec USP_GET_HELPCODE @LANGKIND=N'${LANGKIND}', @P_HELP_TY=N'${P_HELP_TY}', @P_CO_CD=N'${CO_CD}', @P_CODE=NULL, @P_CODE2=NULL, @P_CODE3=NULL, @P_USE_YN=N'${P_USE_YN}', @P_NAME=NULL, @P_STD_DT=N'${P_STD_DT}', @P_WHERE=N'${P_WHERE}'
+    ]]></select>
+
+	<!-- iCUBE 공통코드 - 연구원 -->
+	<select
+		id="EziCUBESQL.USP_ANZR020_RESPERSONNO_SELECT"
+		parameterType="java.util.HashMap"
+		resultType="java.util.HashMap"><![CDATA[
+        /* EzbaroCommonCode.USP_ANZR020_RESPERSONNO_SELECT - iCUBE - mssql */
+        exec USP_ANZR020_RESPERSONNO_SELECT @LANGKIND=N'${LANGKIND}', @CO_CD=N'${CO_CD}', @RESPERSONNO=NULL
+    ]]></select>
+
+	<!-- iCUBE 공통코드 - 카드번호 -->
+	<select
+		id="EziCUBESQL.USP_ANZR100_CARDNO_SELECT"
+		parameterType="java.util.HashMap"
+		resultType="java.util.HashMap"><![CDATA[
+        /* EzbaroCommonCode.USP_ANZR100_CARDNO_SELECT - iCUBE - mssql */
+        exec USP_ANZR100_CARDNO_SELECT @LANGKIND=N'${LANGKIND}', @CO_CD=N'${CO_CD}', @OFCODE=N'${OFCODE}', @PRJNO=N'${PRJNO}'
+    ]]></select>
+    
+    <select
+		id="EziCUBESQL.USP_ANZR100_SELECT_HH"
+		parameterType="java.util.HashMap"
+		resultType="java.util.HashMap"><![CDATA[
+        /* EzbaroCommonCode.USP_ANZR100_CARDNO_SELECT - iCUBE - mssql */
+        exec USP_ANZR100_SELECT_HH @LANGKIND=N'${LANGKIND}', @CO_CD=N'${CO_CD}', @OFCODE=N'${OFCODE}', @PRJNO=N'${PRJNO}', @GW_STATE = N'${GW_STATE}', @TASK_SQ = N'${TASK_SQ}', @TASK_DT = N'${TASK_DT}'
+    ]]></select>
+    
+    <!--  전자세금계산서 -->
+    <select
+		id="EziCUBESQL.USP_ANZR100_ETAX_SELECT_HH"
+		parameterType="java.util.HashMap"
+		resultType="java.util.HashMap"><![CDATA[
+        /* EzbaroCommonCode.USP_ANZR100_ETAX_SELECT_HH - iCUBE - mssql */
+        exec USP_ANZR100_ETAX_SELECT_HH @LANGKIND=N'${LANGKIND}', @CO_CD=N'${CO_CD}', @DT_FG=N'${DT_FG}', @FR_DT=N'${FR_DT}', @TO_DT = N'${TO_DT}', @TAX_TY = N'${TAX_TY}', @ETAX_TY = N'${ETAX_TY}',@TR_CD = N'${TR_CD}'
+    ]]></select>
+    
+     <!--  전자세금계산서 품목상세 불러오기 -->
+     <select id="EziCUBESQL.GetEzBaroDetailETAX" parameterType="java.util.Map" resultType="java.util.Map">
+	     SELECT  ROW_NUMBER() OVER(ORDER BY LN_SQ ASC) AS REGSEQ 
+	             ,LN_SQ
+	             ,ITEM_NM AS ITEMNAME
+	             ,ITEM_DC AS STANDARD
+	             ,ISNULL(ITEM_QT, 0) AS AMOUNT
+	             ,ISNULL(ITEM_UM, 0) AS UNITCOST
+	             ,ISNULL(SUP_AM, 0) AS SUPCOST
+	             ,ISNULL(VAT_AM, 0) AS EXTTAX
+	             ,ISNULL(SUP_AM, 0) + ISNULL(VAT_AM, 0) AS TOTPURCHAMT
+         FROM 	ETAXUP_ITEM
+	     WHERE 	CO_CD = '${CO_CD}'
+	            AND ISS_NO = '${ISS_NO}'
+	            AND TAX_TY = '${TAX_TY}'
+	     ORDER BY LN_SQ
+    </select>	
+    
+    
+     <!--  공통코드 불러오기 -->
+    <select
+		id="EziCUBESQL.USP_ANZR100_NRNDCODE_SELECT"
+		parameterType="java.util.HashMap"
+		resultType="java.util.HashMap"><![CDATA[
+        /* EzbaroCommonCode.USP_ANZR100_ETAX_SELECT_HH - iCUBE - mssql */
+        exec USP_ANZR100_NRNDCODE_SELECT @LANGKIND=N'${LANGKIND}', @CO_CD=N'${CO_CD}', @CDDIV=N'${CDDIV}', @OFCODE=N''
+    ]]></select>
+    
+    <!--  이지바로 공통코드 설정 업데이트 -->
+    <update id="EziCUBESQL.USP_ANZR100_NRNDCODE_DML" statementType="CALLABLE" parameterType="HashMap">
+		<![CDATA[
+			exec USP_ANZR100_NRNDCODE_DML @LANGKIND=N'${LANGKIND}',@CO_CD=N'${CO_CD}',@CDDIV=N'${CDDIV}',@CODE=N'${CODE}',@OFCODE=N'${OFCODE}',@USE_FG=N'${USE_FG}',@SORT_NB=${SORT_NB},@DML_FG=N'',@INSERT_ID=N'${INSERT_ID}',@INSERT_IP=N''
+		 ]]>
+	</update>
+	
+     <!--  이지바로 기타소득 가져오기  -->
+     <select id="EziCUBESQL.USP_ANA0006_BY_HPMETIC_SELECT" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		<![CDATA[
+			exec USP_ANA0006_BY_HPMETIC_SELECT @LANGKIND=N'${LANGKIND}',@CO_CD=N'${CO_CD}', @BASE_DT=N'${P_STD_DT}'
+		 ]]>
+	</select>
+	
+	<!-- 이지바로 단일 지급은행 정보 가져오기 -->
+	<select id="EziCUBESQL.USP_ANZR100_BANK_CD_SELECT_HH" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		<![CDATA[
+	        /* EziCUBESQL.USP_ANZR100_BANK_CD_SELECT_HH - iCUBE - mssql */
+	        exec USP_ANZR100_BANK_CD_SELECT_HH  @LANGKIND=N'${LANGKIND}', @CO_CD=N'${CO_CD}', @TR_CD=N'${TR_CD}'
+	    ]]>
+    </select>
+    
+    <!-- 이지바로 단일 사용자정보 지급은행 정보 가져오기 -->
+	<select id="EziCUBESQL.USP_ANA0006_BY_SEMP_SELECT" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		<![CDATA[
+	        /* EziCUBESQL.SP_ANA0006_BY_SEMP_SELECT - iCUBE - mssql */
+	        exec USP_ANA0006_BY_SEMP_SELECT  @LANGKIND=N'${LANGKIND}', @CO_CD=N'${CO_CD}', @EMP_CD=N'${EMP_CD}'
+	    ]]>
+    </select>
+    
+    <!-- 이지바로 사용자정보 계좌 정보 가져오기 -->
+	<select id="EziCUBESQL.USP_ANZR100_ACCBANK_SELECT_HH" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		<![CDATA[
+	        /* EziCUBESQL.USP_ANZR100_ACCBANK_SELECT_HH - iCUBE - mssql */
+	        exec USP_ANZR100_ACCBANK_SELECT_HH  @LANGKIND=N'${LANGKIND}', @CO_CD=N'${CO_CD}', @PRJNO=N'${PRJNO}',@RESPERSONNO=N'${RESPERSONNO}'
+	    ]]>
+    </select>
+    
+    
+    <!-- 이지바로 참여율 정보 가져오기 -->
+	<select id="EziCUBESQL.USP_ANZR020_SELECT_D" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		<![CDATA[
+	        /* EziCUBESQL.USP_ANZR020_SELECT_D - iCUBE - mssql */
+	        exec USP_ANZR020_SELECT_D  @LANGKIND=N'${LANGKIND}', @CO_CD=N'${CO_CD}', @PRJNO=N'${PRJNO}',@OFCODE=N'${OFCODE}', @RESPERSONNO=N'${RESPERSONNO}',@SENDYN=N'',@MAPPING_FG=N'',@SENDOPT=N''
+	    ]]>
+    </select>
+    
+    <!-- 이지바로 원천징수액 정보 가져오기 -->
+	<select id="EziCUBESQL.USP_GET_HELPCODE_AMT" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		<![CDATA[
+	        /* EziCUBESQL.USP_GET_HELPCODE - iCUBE - mssql */
+	        exec USP_GET_HELPCODE  @LANGKIND=N'${LANGKIND}', @P_HELP_TY=N'SCTRL_D_CODE', @P_CO_CD=N'${CO_CD}', @P_CODE=NULL,@P_CODE2=NULL,@P_CODE3=NULL,@P_USE_YN=N'1',@P_NAME=NULL,@P_STD_DT=NULL,@P_WHERE=N'CTRL_CD =''G'' AND MODULE_CD =''H'' AND CTD_CD IN (''60'', ''62'',''63'',''68'',''69'',''71'',''72'',''73'',''74'',''75'',''76'')'
+	    ]]>
+    </select>
+    
+
+<!-- 이지바로 코드팝업 끝 -->
+
+</mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- iCUBE mssql -->
+<mapper namespace="AdminiCUBEConfig">
+	<select id="ExCommonCodeCardSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/admin/ExConfig_SQL.xml */
+		/* 법인카드 내역 ERP에서 가져오기 / ExCommonCodeAcctSelect  */
+		/* ExCodeCardListInfoSelect - iCUBE - mssql */
+		SELECT strade.*,
+			   strade_paytr.TR_NM AS payTrName
+		FROM (
+		SELECT co_cd              AS compSeq,
+		       tr_cd              AS cardCode, 
+		       Isnull(ba_nb, '')  AS cardNum, 
+		       Isnull(tr_nm, '')  AS cardName, 
+		       Isnull(tr_cd, '')  AS partnerCode, 
+		       Isnull(tr_nm, '')  AS partnerName, 
+		       Isnull(reg_nb, '') AS partnerNo, 
+		       Isnull(ppl_nb, '') AS pplNo, 
+		       Isnull(tr_fg, '')  AS pratnerFg, 
+		       'Y'                AS useYN, 
+			   paytr_cd			  AS payTrSeq,
+		       '0'                AS createSeq, 
+		       ''                 AS createDate, 
+		       '0'                AS modifySeq, 
+		       ''                 AS modifyDate 
+		FROM   STRADE 
+		WHERE  co_cd = '${erpCompSeq}' 
+		       AND tr_fg = '9' 
+		       AND Datalength(Isnull(ba_nb, '')) != 0
+		       AND USE_YN = '1' 
+		) strade
+		LEFT JOIN (
+				select	*
+				from	STRADE 
+				where	co_cd = '${erpCompSeq}'
+				AND USE_YN = '1'
+		) strade_paytr
+		ON strade.payTrSeq = strade_paytr.TR_CD
+	]]></select>
+</mapper>

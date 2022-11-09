@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<settings>
+		<setting name="logImpl" value="LOG4J" />
+	</settings>
+
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="UNPOOLED">
+				<property name="driver" value="${driver}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" />
+			</dataSource>
+
+		</environment>
+	</environments>
+
+	<mappers>
+		<!-- 지출결의(user-code) -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExCode_SQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExCodeBudget.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExMngSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExETaxSQL.xml" />
+		<!-- 지출결의(master-config) -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/master/ExConfigSQL.xml" />
+		<!-- 지출결의(admin-config) -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/admin/ExConfigSQL.xml" />
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/admin/ExReportSQL.xml" />
+		<!-- 예실대비현황(admin-config) -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/admin/ExYesilSQL.xml" />
+		<!-- 예실대비현황(user-config) -->
+		<mapper resource="egovframework/sqlmap/${databaseType}/${erpTypeCode}/expend/ex/user/ExYesilSQL.xml" />
+	</mappers>
+</configuration>

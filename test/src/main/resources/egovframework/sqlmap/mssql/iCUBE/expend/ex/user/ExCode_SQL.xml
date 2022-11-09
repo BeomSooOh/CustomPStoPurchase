@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 사용자 코드 -->
+<mapper namespace="ExUserCode">
+
+	<select id="ExCommonCodeAcctSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExCode_SQL.xml */
+		/* 공통 코드 조회(계정과목) / ExCommonCodeAcctSelect  */
+		SELECT 	CO_CD AS compSeq 
+			, ACCT_CD AS acctCode 
+			, ACCT_NM AS acctName 
+			, CASE WHEN ( ACCT_TY = N'01' OR ACCT_TY = N'02' ) THEN N'Y' ELSE N'N' END AS vatYN 
+			, 'Y' AS useYN 
+			, '' AS createSeq 
+			, '' AS modifySeq
+		FROM 	ZA_ACCT_DAIKIN
+		WHERE 	CO_CD = '${erpCompSeq}'
+		 AND 	( 
+				( ACCT_CD LIKE '%' + #{searchStr} + '%' ) 
+				OR ( ACCT_NM LIKE '%' + #{searchStr} + '%' )  
+			)
+		 AND	ACCT_TY != N'01' /* 매출 부가세 기능 제외 처리 */
+		<choose>
+		<!--<when test="acctType != null and acctType.equals('DR')">
+				AND ACCT_TY != N'01'
+				AND ACCT_TY != N'02'
+			</when> 
+			<when test="acctType != null and acctType.equals('CR')">
+				AND ACCT_TY != N'01'
+				AND ACCT_TY != N'02'
+			</when> -->
+			<when test="acctType != null and acctType.equals('VAT')">
+				AND ACCT_TY = N'02'
+			</when>
+		</choose>
+	</select>
+	
+	<select id="ExCommonCodeCardSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExCode_SQL.xml */
+		/* 공통 코드 조회(법인카드) / ExCommonCodeAcctSelect  */
+		/* ExCodeCardListInfoSelect - iCUBE - mssql */
+		SELECT 	TOP 100
+				CO_CD AS compSeq
+				, TR_CD AS cardCode
+				, ISNULL(BA_NB, '-') AS cardNum
+				, ISNULL(TR_NM, '') AS cardName
+				, ISNULL(TR_CD, '') AS partnerCode
+				, ISNULL(TR_NM, '') AS partnerName
+				, ISNULL(REG_NB, '') AS partnerNo
+				, ISNULL(PPL_NB, '') AS pplNo
+				, ISNULL(TR_FG, '') AS pratnerFg
+				, 'Y' AS useYN
+				, '0' AS createSeq
+				, '' AS createDate
+				, '0' AS modifySeq
+				, '' AS modifyDate
+		FROM 	ZA_TRADE_DAIKIN
+		WHERE 	CO_CD = '${erpCompSeq}'
+		AND		( BA_NB LIKE '%' + #{searchStr} + '%' OR TR_NM LIKE '%' + #{searchStr} + '%' OR TR_CD LIKE '%' + #{searchStr} + '%')
+		AND 	TR_FG = '9'		
+		AND		DATALENGTH(ISNULL(BA_NB, '')) != 0
+	]]></select>
+	
+	<select id="ExCommonCodeEmpSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		<![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExCode_SQL.xml */
+		/*
+			ERP iCUBE 재직정보
+			J01 - 재직
+			J02 - 파견
+			J03 - 휴직
+			J04 - 대기
+			J05 - 퇴직
+		*/
+		/* 공통 코드 조회(사원) / ExCommonCodeAcctSelect  */
+        SELECT  B.CO_CD AS erpCompSeq
+                , B.CO_NM AS erpCompName
+                , D.DIV_CD AS erpBizSeq
+                , D.DIV_NM AS erpBizName
+                , C.DEPT_CD AS erpDeptSeq
+                , C.DEPT_NM AS erpDeptName
+                , A.EMP_CD AS erpEmpSeq
+                , A.KOR_NM AS erpEmpName
+        FROM    (
+                    SELECT  CO_CD
+                            , DEPT_CD
+                            , EMP_CD
+                            , KOR_NM
+                    FROM    ZA_EMP_DAIKIN
+                    WHERE   CO_CD = '${erpCompSeq}'
+                    AND     ENRL_FG != 'J05'
+                    AND     ( EMP_CD LIKE '%' + #{searchStr} + '%' OR KOR_NM LIKE '%' + #{searchStr} + '%' )
+                ) A INNER JOIN (
+                    SELECT  CO_CD
+                            , CO_NM
+                    FROM    ZA_COMPANY_DAIKIN
+                    WHERE   CO_CD = '${erpCompSeq}'
+                ) B ON A.CO_CD = B.CO_CD INNER JOIN (
+                    SELECT  CO_CD
+                            , DIV_CD
+                            , DEPT_CD
+                            , DEPT_NM
+                    FROM    ZA_DEPT_DAIKIN
+                    WHERE   CO_CD = '${erpCompSeq}'
+		]]>      
+			<if test='erpDeptSeq != null and erpDeptSeq != ""'>
+					AND		ISNULL(DEPT_CD, '') LIKE '%' + ISNULL(#{erpDeptSeq}, '') + '%'
+			</if>
+		<![CDATA[
+                ) C ON A.CO_CD = C.CO_CD AND A.DEPT_CD = C.DEPT_CD INNER JOIN (
+                    SELECT  CO_CD
+                            , DIV_CD
+                            , DIV_NM
+                    FROM    ZA_DIV_DAIKIN
+                    WHERE   CO_CD = '${erpCompSeq}'
+                ) D ON C.CO_CD = D.CO_CD AND C.DIV_CD = D.DIV_CD
+                ORDER   BY      (
+					CASE
+						WHEN EMP_CD = #{searchStr} THEN 1
+						ELSE 9
+					END
+                ) ASC
+	]]>
+	</select>
+
+	<select id="ExCommonCodeDeptSelect" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExCode_SQL.xml */
+
+		SELECT	DEPT_CD AS erpDeptSeq
+				, DEPT_NM AS erpDeptName
+		FROM	DBO.ZA_DEPT_DAIKIN
+		WHERE	CO_CD = #{erpCompSeq}
+		AND		(
+					CASE
+						WHEN TO_DT IS NULL OR TO_DT = '' THEN CONVERT(NVARCHAR(8), GETDATE(), 112)
+						ELSE TO_DT
+					END ) >= CONVERT(NVARCHAR(8), GETDATE(), 112)
+		AND		( DEPT_CD LIKE '%' + ISNULL(#{searchStr}, '') + '%' OR DEPT_NM LIKE '%' + ISNULL(#{searchStr}, '') + '%' )
+	]]>
+	</select>
+	
+	<select id="ExCommonCodeErpAuthSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExCode_SQL.xml */
+		/* 공통 코드 조회(증빙유형) / ExCommonCodeAcctSelect  */
+		SELECT	CTD_CD		AS 'ctdCode'
+				, CTD_NM	AS 'ctdName'
+		FROM	VA_AUTOCTD
+		WHERE	CO_CD = '${erpCompSeq}'
+		AND		CTRL_CD = '11'
+		/* 검색어 */
+		AND		(
+			CTD_CD LIKE '%' + #{searchStr} + '%'
+			OR CTD_NM LIKE '%' + #{searchStr} + '%'
+		)
+	]]></select>
+	
+	<select id="ExCommonCodePartnerSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExCode_SQL.xml */
+		/* 공통 코드 조회(거래처) / ExCommonCodeAcctSelect  */
+		SELECT  TOP 100
+		        TR_CD AS partnerCode /* 거래처 코드 */
+		        , ISNULL(TR_NM,'') AS partnerName /* 거래처 명 */
+		        , ISNULL(TR_FG, '') pratnerFg /* 1.일반 / 2.수출 / 3.주민 / 4.기타 / 5.금융기관 / 6.정기예금 / 7.정기적금 / 8.카드사 / 9.신용카드 */
+		        , ISNULL ( CEO_NM, '' ) AS ceoName /* 대표자명 */
+		        , REG_NB AS partnerNo /* 사업자 등록번호 */
+		        , ISNULL ( PPL_NB, '' ) AS pplNo
+		        , ISNULL ( BUSINESS, '' ) AS jobGbn /* 업태 */
+		        , ISNULL ( JONGMOK, '' ) AS clsJobGbn /* 종목 */
+		        , ISNULL ( BA_NB, '' ) AS depositNo /* 계좌번호 */
+		        , ISNULL ( JIRO_CD, '' ) AS bankCode /* 은행코드 */
+		        , '' AS partner_empCode /* 거래처 담당자 */
+		        , '' AS partnerHpEmpNo /* 거래처 핸드폰번호 */
+		        , ISNULL ( DEPOSITOR, '' ) AS depositName /* 예금주 */
+		        , '' AS depositConvert
+		FROM    ZA_TRADE_DAIKIN
+		WHERE   CO_CD = '${erpCompSeq}'
+		AND     TR_FG LIKE '%' + '${searchType}' + '%'
+		AND     (
+		            TR_CD LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%'
+		            OR TR_NM LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%'
+		            OR REG_NB LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%'
+		            OR PPL_NB LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%'
+		            OR CEO_NM LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%'
+		        )
+	]]>
+	</select>
+	
+	<select id="ExCommonCodeProjectSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExCode_SQL.xml */
+		/* 공통 코드 조회(프로젝트) / ExCommonCodeAcctSelect  */
+		SELECT 	TOP 100 PJT_CD AS projectCode 
+		, 		PJT_NM AS projectName
+		FROM ZA_PJT_DAIKIN
+		WHERE CO_CD = '${erpCompSeq}'
+		AND ( PJT_CD LIKE '%' + #{searchStr} + '%' OR PJT_NM LIKE '%' + #{searchStr} + '%' )
+		<choose>
+			<when test="selProjectStatus == 'USE'">
+				AND PROG_FG IN ('0', '1')
+			</when>
+			<when test="selProjectStatus == 'ING'">
+				AND PROG_FG = '1'
+			</when>
+			<when test="selProjectStatus == 'DONE'">
+				AND PROG_FG = '0'
+			</when>
+		</choose>
+	</select>
+	<select id="ExCommonCodeVaSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExCode_SQL.xml */
+		/* 공통 코드 조회(사유구분) / ExCommonCodeAcctSelect  */
+		    SELECT 	 CO_CD AS compSeq
+		    		,CTD_CD AS vaTypeCode
+		    	  	,CTD_NM AS vaTypeName 
+			FROM 	DZICUBE.dbo.VA_CTD 
+			WHERE  CTRL_CD='12' 
+			AND 	CO_CD = '${erpCompSeq}'
+			AND 	USE_YN='1' 
+			AND		(
+						( #{vatType} = '' AND CTD_CD = CTD_CD )
+						OR ( #{vatType} = '23' AND CTD_CD LIKE '3%' )
+						OR ( #{vatType} = '24' AND CTD_CD LIKE '4%' )
+						OR ( #{vatType} = '26' AND CTD_CD LIKE '6%' )
+					)
+		     AND 	( CTD_CD LIKE '%' + #{searchStr} + '%' OR CTD_NM LIKE '%' + #{searchStr} + '%' ) 
+		     ORDER BY CTD_CD 
+	]]>
+	</select>
+	<select id="ExCommonCodeVatTypeSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExCode_SQL.xml */
+		/* 공통 코드 조회(부가세 구분) / ExCommonCodeAcctSelect  */
+		SELECT	CO_CD AS compSeq 
+				, CTD_CD AS vatTypeCode 
+				, CTD_NM AS vatTypeName 
+				, N'Y' AS useYN 
+				, '0' AS createSeq 
+				, '' AS createDate 
+				, '0' AS modifySeq 
+				, '' AS modifyDate
+		FROM 	ZA_CTRL_DAIKIN
+		WHERE 	CTD_FG = 'K1' /* 고정 */
+		AND		REMARK_DC = '1' /* 매입만 조회 */
+		AND 	CO_CD = '${erpCompSeq}'
+		AND 	CTD_CD >= '20'
+		AND     ( CTD_CD LIKE '%' + #{searchStr} + '%' OR CTD_NM LIKE '%' + #{searchStr} + '%' )
+	]]>
+	</select>
+	
+	<select id="ExCommonCodeRegNoPartnerSelect" parameterType="java.util.Map" resultType="java.util.Map"><![CDATA[
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExCode_SQL.xml */
+		/* 공통 코드 조회(거래처) / ExCommonCodeRegNoPartnerSelect  */
+		SELECT  TOP 100
+				TR_CD AS partnerCode /* 거래처 코드 */
+				, ISNULL(TR_NM,'') AS partnerName /* 거래처 명 */
+				, ISNULL ( TR_FG, '') AS pratnerFg /* 1.일반 / 2.수출 / 3.주민 / 4.기타 / 5.금융기관 / 6.정기예금 / 7.정기적금 / 8.카드사 / 9.신용카드 */
+				, ISNULL ( CEO_NM, '' ) AS ceoName /* 대표자명 */
+				, ISNULL ( REG_NB, '') AS partnerNo /* 사업자 등록번호 */
+				, ISNULL (PPL_NB, '') AS pplNo /* 개인번호 */
+				, ISNULL ( BUSINESS, '' ) AS jobGbn /* 업태 */
+				, ISNULL ( JONGMOK, '' ) AS clsJobGbn /* 종목 */
+				, ISNULL ( BA_NB, '' ) AS depositNo /* 계좌번호 */
+				, ISNULL ( JIRO_CD, '' ) AS bankCode /* 은행코드 */
+				, '' AS partner_empCode /* 거래처 담당자 */
+				, '' AS partnerHpEmpNo /* 거래처 핸드폰번호 */
+				, ISNULL ( DEPOSITOR, '' ) AS depositName /* 예금주 */
+				, '' AS depositConvert
+		FROM    ZA_TRADE_DAIKIN
+		WHERE   CO_CD = '${erpCompSeq}'
+		AND		REPLACE(ISNULL(REG_NB, ''),'-','') != ''
+		AND     TR_FG LIKE '%' + '${searchType}' + '%'
+		AND     (
+					TR_CD LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%'
+					OR TR_NM LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%'
+					OR REG_NB LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%'
+					OR PPL_NB LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%'
+				)
+	]]>
+	</select>
+	
+	<select id="ExCommonCodeExchangeUnitSelect" parameterType="java.util.Map" resultType="java.util.Map">
+		/* sqlmap/mssql/iCUBE/expend/ex/user/ExCode_SQL.xml */
+		/* 공통 코드 조회(환종정보) / ExCommonCodeExchangeUnitSelect  */
+		
+		SELECT  TOP 100 CTD_CD AS exchangeUnitCode
+		        , CTD_NM AS exchangeUnitName
+		FROM    DBO.VA_AUTOCTD
+		WHERE   CTRL_CD = 'K2'
+		AND     CO_CD = '${erpCompSeq}'
+		AND     USE_YN != '0'
+		AND     ( ( CTD_CD LIKE '%' + #{searchStr} + '%' ) OR ( CTD_NM LIKE '%' + #{searchStr} + '%' ) )
+	</select>
+	
+	
+	<!-- 공통코드 - 관리항목 전체 목록 조회 -->
+	<select id="ExExpendMngListInfoSelect" parameterType="common.vo.ex.ExCodeMngVO" resultType="common.vo.ex.ExCodeMngVO"><![CDATA[
+		SELECT  A.CO_CD AS erpCompSeq
+		        , A.CTRL_CD AS mngCode
+		        , A.CTRL_NM AS mngName
+		        , SUBSTRING(A.CTRL_CD, 1, 1) AS mngType
+		        , CASE ISNULL(B.CNT, 0) WHEN 0 THEN 'N' ELSE 'Y' END AS mngChildYN
+		FROM    (
+		            SELECT  CO_CD
+		                    , CTRL_CD
+		                    , CTRL_NM
+		                    , EDIT_YN
+		                    , DEL_FG
+		            FROM    DZICUBE.DBO.SCTRL
+		            WHERE   CO_CD = '${erpCompSeq}'
+		            AND     ISNUMERIC(SUBSTRING(CTRL_CD, 1, 1)) != '1'
+		            AND     ( CTRL_CD LIKE '%' + #{searchStr} + '%' OR CTRL_NM LIKE '%' + #{searchStr} + '%' )
+		        ) A LEFT OUTER JOIN (
+		            SELECT  CTRL_CD
+		                    , COUNT(*) AS CNT
+		            FROM    VA_AUTOCTD
+		            WHERE   CO_CD = '${erpCompSeq}'
+		            GROUP   BY CTRL_CD
+		        ) B ON A.CTRL_CD = B.CTRL_CD
+    ]]></select>
+    
+    <!-- 공통코드 - 거래처 조회 -->
+	<select id="ExCodePartnerInfoSelect" parameterType="common.vo.ex.ExCodePartnerVO" resultType="common.vo.ex.ExCodePartnerVO"><![CDATA[
+		/* ExCodePartnerInfoSelect - iCUBE Mssql */
+		SELECT  TOP 1
+		        TR_CD AS partnerCode /* 거래처 코드 */
+		        , ISNULL(TR_NM,'') AS partnerName /* 거래처 명 */
+		        , ISNULL ( TR_FG, '') AS pratnerFg /* 1.일반 / 2.수출 / 3.주민 / 4.기타 / 5.금융기관 / 6.정기예금 / 7.정기적금 / 8.카드사 / 9.신용카드 */
+		        , ISNULL ( CEO_NM, '' ) AS ceoName /* 대표자명 */
+		        , REG_NB AS partnerNo /* 사업자 등록번호 */
+		        , ISNULL ( PPL_NB, '' ) AS pplNo
+		        , ISNULL ( BUSINESS, '' ) AS jobGbn /* 업태 */
+		        , ISNULL ( JONGMOK, '' ) AS clsjobGbn /* 종목 */
+		        , ISNULL ( BA_NB, '' ) AS depositNo /* 계좌번호 */
+		        , ISNULL ( JIRO_CD, '' ) AS bankCode /* 은행코드 */
+		        , '' AS partner_empCode /* 거래처 담당자 */
+		        , '' AS partnerHpEmpNo /* 거래처 핸드폰번호 */
+		        , ISNULL ( DEPOSITOR, '' ) AS depositName /* 예금주 */
+		        , '' AS depositConvert
+		FROM    ZA_TRADE_DAIKIN
+		WHERE   CO_CD = #{erpCompSeq}
+		AND     TR_FG LIKE '%' + #{searchType} + '%'
+		AND     (
+		            TR_CD LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%'
+		            OR TR_NM LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%'
+		            OR REG_NB LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%'
+		            OR PPL_NB LIKE '%' + ISNULL ( #{searchStr}, '' ) + '%'
+		        )
+	]]></select>
+    
+    
+    <!-- 카드 조회 -->
+	<select id="ExCodeCardInfoSelect" parameterType="common.vo.ex.ExCodeCardVO" resultType="common.vo.ex.ExCodeCardVO">
+		/* ExCodeCardInfoSelect - iCUBE - mssql */
+		SELECT 	TOP 1
+				CO_CD AS empCompSeq 
+				, ISNULL(TR_CD, '') AS cardCode 
+				, ISNULL(BA_NB, '') AS cardNum 
+				, ISNULL(TR_NM, '') AS cardName 
+				, ISNULL(TR_CD, '') AS partnerCode 
+				, ISNULL(TR_NM, '') AS partnerName 
+				, ISNULL(REG_NB, '') AS partnerNo
+				, ISNULL(PPL_NB, '') AS pplNo
+				, ISNULL(TR_FG, '') AS pratnerFg
+				, 'Y' AS useYN 
+				, '0' AS createSeq 
+				, '' AS createDate 
+				, '0' AS modifySeq 
+				, '' AS modifyDate
+		FROM 	ZA_TRADE_DAIKIN
+		WHERE CO_CD = '${erpCompSeq}'
+		<if test="searchCardNum != ''">
+		    AND REPLACE(REPLACE(BA_NB,'-',''), ' ', '') =  REPLACE('${searchCardNum}','-','')
+		</if>
+		AND TR_FG = '9'
+	</select>
+	
+	
+	<!-- iCUBE 공통코드 - 미등록 거래처 등록 진행 -->
+	<select id="ExCodeUnRegisteredPartnerInfoInsert" parameterType="java.util.HashMap" resultType="java.util.HashMap"><![CDATA[
+        /* EzbaroCommonCode.USP_ANZR100_CARDNO_SELECT - iCUBE - mssql */
+        exec DBO.USP_C0MMON_GET_TR_CD_FOR_NOT_EXIST_INSERT 
+        	@LANGKIND = 'KOR'
+        	, @CO_CD = '${erpCompSeq}'
+        	, @TR_FG = '1'
+        	, @TR_NM = #{partnerName}
+        	, @REG_NB = '${partnerNo}'
+        	, @CEO_NM = '${ceoName}'
+			, @BUSINESS = ''
+			, @JONGMOK = ''
+			, @TEL = ''
+			, @ZIP = ''
+			, @DIV_ADDR1 = ''
+			, @ADDR2 = ''
+    ]]></select>
+    
+</mapper>

@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="TripAdminOptionA">
+<!-- 비영리 회계 - 옵션 셋 조회 -->
+<!-- 비영리 회계 - 옵션 셋 조회 -->
+
+
+	<select id="TripAdminOptionA.TripPositionGroupItemOptionSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"><![CDATA[
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripPositionGroupItemOptionSelect */
+		/* 직책그룹 사원  조회 */
+		SELECT	
+			base.group_seq	AS groupSeq
+			, base.comp_seq	AS compSeq
+			, dp_seq		AS dutyCode
+			, dp_name		AS dutyName
+			, ( CASE IFNULL (di.duty_item_seq, -1) WHEN -1 THEN 'N' ELSE 'Y' END )  AS mappingYN
+			, ( CASE #dutyGroupSeq# WHEN di.duty_group_seq THEN 'Y' ELSE 'N' END ) AS thisGroupYN
+			, di.duty_group_seq AS dutyGroupSeq
+			, duty_group_name	AS dutyGroupName
+		FROM	(
+			SELECT	
+				group_seq	AS group_seq
+				, comp_seq	AS comp_seq
+				, dp_seq		AS dp_seq
+				, dp_name	AS dp_name
+			FROM	$DB_NEOS$t_co_comp_duty_position_multi
+			WHERE	dp_type		='DUTY' 
+			 AND	lang_code	='kr'
+			 AND	use_yn		= 'Y'
+			 AND	(comp_seq 	= #compSeq# OR comp_seq = '0') 
+			 /* 회사 설정 직책 필터링 필요한 경우 */
+		)	base
+		LEFT OUTER JOIN	(
+			SELECT	
+				di.*
+				, ( CASE #langCode#
+								WHEN 'kr' THEN duty_group_name_kr
+								WHEN 'en' THEN duty_group_name_en
+								WHEN 'jp' THEN duty_group_name_jp
+								WHEN 'cn' THEN duty_group_name_cn
+				END )		AS duty_group_name 
+			FROM	$DB_NEOS$t_exnp_trip_set_dutyitem di
+			INNER JOIN	$DB_NEOS$t_exnp_trip_set_dutygroup dg
+			ON	dg.duty_group_seq = di.duty_group_seq
+			AND dg.comp_seq = #compSeq#
+			WHERE	dg.domestic_code = #domesticCode#
+			/* 듀티 그룹- 듀티 아이템 필터가 필요한 경우. */
+		)	di
+		ON	di.duty_code = base.dp_seq	
+	
+	]]></select>
+
+
+	<select id="TripAdminOptionA.TripLocationOptionSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripLocationOptionSelect */
+		/* 출장복명 출장지 조회 */
+			SELECT	@rownum:=@rownum+1 AS NO
+			, locationSeq
+			, compSeq
+			, compNm
+			, domesticCode
+			, locationname
+			, location_name_kr AS locationNmKr
+			, location_name_en AS locationNmEn
+			, location_name_jp AS locationNmJp
+			, location_name_cn AS locationNmCn
+			, location_edit_yn
+			, orderNum
+			, use_yn
+			, note
+		FROM	
+		(
+		SELECT	location_seq	AS	locationSeq
+				, comp_seq	AS	compSeq
+				, comp_name	AS	compNm
+				, domestic_code	AS	domesticCode
+				, CASE #langCode#
+					WHEN 'kr' THEN location_name_kr
+					WHEN 'en' THEN location_name_en
+					WHEN 'jp' THEN location_name_jp
+					WHEN 'cn' THEN location_name_cn
+				END AS locationname
+				, location_name_kr 
+				, location_name_en
+				, location_name_jp
+				, location_name_cn
+				, location_edit_yn
+				, order_num as orderNum
+				, use_yn
+				, note
+		FROM	$DB_NEOS$t_exnp_trip_set_location
+		WHERE	use_yn like '%$useYn$%'
+		AND	comp_seq = #compSeq#
+		AND	domestic_code = #domesticDiv#
+		AND	location_edit_yn like '%$locationEditYn$%'
+		AND	(@rownum:=0)=0
+		ORDER BY CASE order_num WHEN '' THEN '9999999' ELSE order_num END
+		) location
+		WHERE	locationname LIKE '%$searchCode$%'
+		;
+		]]>
+	</select>
+	
+	<select id="TripAdminOptionA.TripAmtOptionSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripAmtOptionSelect */
+		/* 단가 조회 */
+		SELECT	@rownum:=@rownum+1 	AS NO
+		, domesticName		AS domesticName
+		, locationName		AS locationName
+		, dutyGroupName		AS dutyGroupName
+		, transPortName		AS transPortName
+		, STR_TO_DATE(applyDate,'%Y%m%d')		AS applyDate
+		, applyAmt		AS applyAmt
+		, amtHoldCode		AS amtHoldCode
+		, note			AS note
+		, amtClassCode		AS amtClassCode
+		, domesticDiv		AS domesticDiv
+		, amt_seq			AS amtSeq
+		, locationSeq
+		, transportSeq
+		, dutyGroupSeq
+		, (CASE	accept_yn WHEN 'N' THEN 'N' ELSE 'Y' END)	AS acceptYN
+		FROM(		
+				SELECT		
+							amt_seq
+							, CASE amt.domestic_code 
+							   WHEN '0' THEN '국내'
+							   WHEN '1' THEN '해외'
+							  END 			AS domesticName
+							, ifnull(CASE #langCode#
+								WHEN 'kr' THEN location_name_kr
+								WHEN 'en' THEN location_name_en
+								WHEN 'jp' THEN location_name_jp
+								WHEN 'cn' THEN location_name_cn
+							END,'') 			AS locationName
+							, CASE #langCode#
+								WHEN 'kr' THEN duty_group_name_kr
+								WHEN 'en' THEN duty_group_name_en
+								WHEN 'jp' THEN duty_group_name_jp
+								WHEN 'cn' THEN duty_group_name_cn
+							END 			AS dutyGroupName 
+							, ifnull(CASE #langCode#
+								WHEN 'kr' THEN transport_name_kr
+								WHEN 'en' THEN transport_name_en
+								WHEN 'jp' THEN transport_name_jp
+								WHEN 'cn' THEN transport_name_cn
+							END,'') 			AS transPortName 
+							, amt.apply_date		AS applyDate	
+							, amt.amt			AS applyAmt	
+							, IFNULL(amt.amt_hold_code, '0')		AS amtHoldCode
+							, amt.note			AS note
+							, amt.amt_class_code	AS amtClassCode
+							, amt.domestic_code AS domesticDiv
+							, amt.duty_group_seq	AS dutyGroupSeq
+							, amt.location_seq		AS locationSeq
+							, amt.transport_seq		AS transportSeq
+							, IFNULL(accept_yn, 'N') 	AS accept_yn
+				FROM		$DB_NEOS$t_exnp_trip_set_amt amt
+				INNER JOIN	$DB_NEOS$t_exnp_trip_set_dutygroup dutygroup
+				ON		amt.duty_group_Seq = dutygroup.duty_group_seq
+				left JOIN	$DB_NEOS$t_exnp_trip_set_location location
+				ON		amt.location_seq = location.location_seq
+				LEFT JOIN	$DB_NEOS$t_exnp_trip_set_transport transport
+				ON		transport.transport_seq = amt.transport_seq
+				LEFT JOIN	(
+					SELECT	amt1.amt_seq	AS accept_yn
+					FROM	$DB_NEOS$t_exnp_trip_set_amt amt1
+					INNER JOIN	(
+						SELECT	MAX(apply_date) AS apply_date, duty_group_seq, location_seq, transport_seq, domestic_code, amt_class_code
+						FROM	$DB_NEOS$t_exnp_trip_set_amt 
+						WHERE	apply_date	&lt;= DATE_FORMAT(NOW(),'%Y%m%d')
+						 GROUP BY duty_group_seq, IFNULL(location_seq, 0), IFNULL(transport_seq, 0), domestic_code, amt_class_code
+					)	amt2
+					ON	amt1.apply_date = amt2.apply_date
+					 AND	amt1.duty_group_seq = amt2.duty_group_seq
+					 AND	amt1.location_seq = amt2.location_seq
+					 AND	amt1.transport_seq = amt2.transport_seq
+					 AND	amt1.domestic_code = amt2.domestic_code
+					 AND	amt1.amt_class_code = amt2.amt_class_code
+				)	filter 
+				ON	amt.amt_seq = filter.accept_yn				
+				WHERE		amt.comp_seq = #compSeq#
+				AND		amt.amt_class_code = #amtClassCode#
+				AND		(@rownum:=0)=0
+		) amt
+		WHERE	locationName LIKE '%$locationName$%'
+		AND	dutyGroupName LIKE '%$dutyGroupName$%'
+		AND ifnull(transPortName,'') LIKE '%$transPortName$%'
+		AND	domesticDiv LIKE '%$domesticDiv$%'
+		
+		<isEqual property="allSearchYN" compareValue="N">
+		AND	(CASE	accept_yn WHEN 'N' THEN 'N' ELSE 'Y' END) = 'Y'
+		</isEqual>
+		ORDER BY 
+		<isNotEmpty property="sortField">
+		$sortField$ $sortType$,
+		</isNotEmpty>
+		domesticDiv ASC, locationSeq ASC, dutyGroupSeq ASC, applyDate DESC
+	</select>
+	
+	<select id="TripAdminOptionA.TripPositionGroupOptionSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripPositionGroupOptionSelect */
+		/* 직책그룹 조회 */
+		SELECT	@rownum:=@rownum+1 AS NO
+			, dutyGroupSeq
+			, compSeq
+			, compNm
+			, dutyGroupName
+			, dutyGroupNameKr
+			, dutyGroupNameEn
+			, dutyGroupNameJp
+			, dutyGroupNameCn
+			, note
+			, orderNum
+			, domesticCode
+		FROM
+		(
+			SELECT	duty_group_seq	AS	dutyGroupSeq
+				, comp_seq	AS	compSeq
+				, comp_name	AS	compNm
+				, CASE #langCode#
+					WHEN 'kr' THEN duty_group_name_kr
+					WHEN 'en' THEN duty_group_name_en
+					WHEN 'jp' THEN duty_group_name_jp
+					WHEN 'cn' THEN duty_group_name_cn
+				END AS dutyGroupName
+				, duty_group_name_kr AS	dutyGroupNameKr
+				, duty_group_name_en AS	dutyGroupNameEn
+				, duty_group_name_jp AS	dutyGroupNameJp
+				, duty_group_name_cn AS	dutyGroupNameCn
+				, domestic_code AS	domesticCode
+				, use_yn	AS	useYn
+				, note		AS	note
+				, order_num	AS	orderNum
+			FROM	$DB_NEOS$t_exnp_trip_set_dutygroup
+			WHERE	use_yn = 'Y'
+			AND	comp_seq = #compSeq#
+			AND	(@rownum:=0)=0
+			ORDER BY CASE IFNULL(order_num, '') WHEN '' THEN '9999999' ELSE order_num END
+		) dutygroup
+		WHERE	dutyGroupName LIKE '%$searchCode$%'
+		AND		domesticCode = #domesticCode#
+
+	</select>
+	
+	
+	
+	<select id="TripAdminOptionA.TripTransPortOptionSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripTransPortOptionSelect */
+		/* 교통수단 조회 */
+			SELECT @rownum:=@rownum+1 AS NO
+				, transSeq
+				, compSeq
+				, compNm
+				, transname
+				, trNmKr
+				, trNmEn
+				, trNmJp
+				, trNmCn
+				, use_yn
+				, note
+				, order_num
+			FROM	(	
+				SELECT	
+					transport_seq	AS	transSeq
+					, comp_seq	AS	compSeq
+					, comp_name	AS	compNm
+					, CASE #langCode#
+						WHEN 'kr' THEN transport_name_kr
+						WHEN 'en' THEN transport_name_en
+						WHEN 'jp' THEN transport_name_jp
+						WHEN 'cn' THEN transport_name_cn
+					END AS transname
+					, transport_name_kr AS trNmKr
+					, transport_name_en AS trNmEn
+					, transport_name_jp AS trNmJp
+					, transport_name_cn AS trNmCn
+					, use_yn
+					, note
+					, order_num
+				FROM	$DB_NEOS$t_exnp_trip_set_transport
+				WHERE	comp_seq = #compSeq#
+				AND	use_yn LIKE (CASE #useYn#
+						     WHEN ''	THEN '%%'
+						     ELSE #useYn#
+						     END)
+				AND (@rownum:=0)=0
+				ORDER BY CASE order_num WHEN '' THEN '9999999' ELSE order_num END
+				) transport
+			WHERE	transname LIKE '%$searchCode$%'
+			;
+	</select>
+	
+	<insert id="TripAdminOptionA.TripTransPortOptionInsert" parameterClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripTransPortOptionInsert */
+		/* 교통수단 추가 */
+		INSERT INTO $DB_NEOS$t_exnp_trip_set_transport(comp_seq,comp_name,transport_name_kr,transport_name_en,transport_name_jp,transport_name_cn,use_yn,order_num,note)
+		VALUES (#compSeq#,#compName#,#trNmKr#,#trNmEn#,#trNmJp#,#trNmCn#,#useYn#,#orderNum#,#note#);
+	</insert>
+	
+	<update id="TripAdminOptionA.TripTransPortOptionUpdate" parameterClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripTransPortOptionUpdate */
+		/* 교통수단 업데이트 */
+		UPDATE	$DB_NEOS$t_exnp_trip_set_transport 
+		SET		comp_seq = #compSeq#
+				, comp_name = #compName#
+				,transport_name_kr = #trNmKr#
+				,transport_name_en = #trNmEn#
+				,transport_name_jp = #trNmJp#
+				,transport_name_cn = #trNmCn#
+				,use_yn = #useYn#
+				,order_num = #orderNum# 
+				,note = #note#
+		WHERE	transport_seq = #transSeq#
+	</update>
+	
+	<delete id="TripAdminOptionA.TripTransPortOptionDelete" parameterClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripTransPortOptionDelete */
+		/* 교통수단 삭제 */
+		DELETE FROM	$DB_NEOS$t_exnp_trip_set_transport 
+		WHERE	transport_seq = #transSeq#
+	</delete>
+	
+	<insert id="TripAdminOptionA.TripLocationOptionInsert" parameterClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripLocationOptionInsert */
+		/* 출장지 추가 */
+		INSERT INTO $DB_NEOS$t_exnp_trip_set_location(comp_seq,comp_name,domestic_code,location_name_kr,location_name_en,location_name_jp,location_name_cn,location_edit_yn,use_yn,order_num,note)
+		VALUES(#compSeq#,#compName#,#domesticDiv#,#locationNmKr#,#locationNmEn#,#locationNmJp#,#locationNmCn#,#locationEditYn#,#useYn#,#orderNum#,#note#);
+	</insert>
+	
+	<update id="TripAdminOptionA.TripLocationOptionUpdate" parameterClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripLocationOptionUpdate */
+		/* 출장지 업데이트 */
+		UPDATE	$DB_NEOS$t_exnp_trip_set_location
+		SET		comp_seq = #compSeq#
+				, comp_name = #compName#
+				,location_name_kr = #locationNmKr#
+				,location_name_en = #locationNmEn#
+				,location_name_jp = #locationNmJp#
+				,location_name_cn = #locationNmCn#
+				,use_yn = #useYn#
+				,order_num = #orderNum# 
+				,note = #note#
+				,location_edit_yn = #locationEditYn#
+		WHERE	location_seq = #locationSeq#
+	</update>
+	
+	<delete id="TripAdminOptionA.TripLocationOptionDelete" parameterClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripLocationOptionDelete */
+		/* 출장지 삭제 */
+		DELETE FROM	$DB_NEOS$t_exnp_trip_set_location
+		WHERE	location_seq = #locationSeq#
+	</delete>
+	
+	<insert id="TripAdminOptionA.TripAmtOptionInsert" parameterClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripAmtOptionInsert */
+		/* 출장비 단가 추가 */
+		INSERT INTO $DB_NEOS$t_exnp_trip_set_amt(comp_seq,comp_name,duty_group_seq,location_seq,transport_seq,domestic_code,apply_date,amt,amt_hold_code,note,amt_class_code,amt_class_name)
+		VALUES(#compSeq#,#compName#,#dutyGroupSeq#,#locationSeq#,#transportSeq#,#domesticCode#,#applyDate#,#applyAmt#,#amtHoldCode#,#note#,#amtClassCode#,#amtClassName#);
+	</insert>
+	
+	<update id="TripAdminOptionA.TripAmtOptionUpdate" parameterClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripAmtOptionUpdate */
+		/* 출장비 단가 업데이트 */
+		UPDATE	$DB_NEOS$t_exnp_trip_set_amt
+		SET		duty_group_seq 	= #dutyGroupSeq#
+				, location_seq	= #locationSeq#
+				, transport_seq = #transportSeq#
+				, domestic_code = #domesticCode#
+				, apply_date 	= #applyDate#
+				, amt 			= #applyAmt#
+				, amt_hold_code = #amtHoldCode#
+				, note 			= #note#
+		WHERE	amt_seq = #amtSeq#
+	</update>
+	
+	<delete id="TripAdminOptionA.TripAmtOptionDelete" parameterClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripAmtOptionDelete */
+		/* 출장비 단가 삭제 */
+		DELETE FROM	$DB_NEOS$t_exnp_trip_set_amt
+		WHERE	amt_seq = #amtSeq#
+	</delete>
+	
+	
+	<select id="TripAdminOptionA.TripConsReportSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripConsReportSelect */
+		/* 출장현황 품의서 조회 */
+			SELECT *
+			FROM $DB_NEOS$t_exnp_trip_cons_doc
+	</select>
+	
+	
+	<insert id="TripAdminOptionA.TripPositionGroupOptionInsert" parameterClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripPositionGroupOptionInsert */
+		/* 직책 그룹 추가 */
+		INSERT IGNORE INTO $DB_NEOS$t_exnp_trip_set_dutygroup(domestic_code,comp_seq,comp_name,duty_group_name_kr,duty_group_name_en,duty_group_name_jp,duty_group_name_cn,note,order_num)
+		VALUES(#domesticCode#,#compSeq#,#compName#,#dutyGroupNameKr#,#dutyGroupNameEn#,#dutyGroupNameJp#,#dutyGroupNameCn#,#note#,#orderNum#);
+		
+	 	<selectKey resultClass="int" keyProperty="duty_group_seq" >
+			SELECT max(duty_group_seq) as dutyGroupSeq from $DB_NEOS$t_exnp_trip_set_dutygroup;	    
+		</selectKey> 
+		
+	</insert>
+	
+	<update id="TripAdminOptionA.TripPositionGroupOptionUpdate" parameterClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripPositionGroupOptionUpdate */
+		/* 직책 그룹 업데이트 */
+		UPDATE	$DB_NEOS$t_exnp_trip_set_dutygroup
+		SET		domestic_code = #domesticCode#
+				,duty_group_name_kr = #dutyGroupNameKr#
+				,duty_group_name_en = #dutyGroupNameEn#
+				,duty_group_name_jp = #dutyGroupNameJp#
+				,duty_group_name_cn = #dutyGroupNameCn#
+				,note = #note#
+				,order_num = #orderNum#
+		WHERE	comp_seq = #compSeq#
+		AND		duty_group_seq = #dutyGroupSeq#
+	</update>
+	
+	<delete id="TripAdminOptionA.TripPositionGroupItemOptionDelete" parameterClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripPositionGroupOptionDelete */
+		/* 직책 그룹 직책 선택 삭제 */
+		DELETE FROM	$DB_NEOS$t_exnp_trip_set_dutygroup 
+		WHERE	duty_group_seq = #dutyGroupSeq#
+	</delete>
+	
+	<update id="TripAdminOptionA.TripPositionGroupItemOptionInsert" parameterClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripPositionGroupOptionInsert */
+		/* 직책 그룹 직책 선택 추가 */
+		INSERT IGNORE INTO $DB_NEOS$t_exnp_trip_set_dutyitem(duty_group_seq,duty_code,duty_name,comp_seq,comp_name)
+		SELECT	#dutyGroupSeq#,dp_seq,dp_name,comp_seq,#compName# 
+		FROM	$DB_NEOS$t_co_comp_duty_position_multi 
+		WHERE	dp_type = 'DUTY' 
+		AND		dp_seq in ($newInsertDutyCode$)
+		AND		lang_code = #langCode#
+	</update>
+	
+	
+	<delete id="TripAdminOptionA.TripPositionGroupOptionDelete" parameterClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripPositionGroupOptionDelete */
+		/* 직책 그룹 직책 선택 삭제 */
+		DELETE FROM	$DB_NEOS$t_exnp_trip_set_dutyitem 
+		WHERE	duty_group_seq = #dutyGroupSeq#
+		<isNotEmpty property="dutyCode">
+		AND		duty_code NOT IN ($dutyCode$)
+		</isNotEmpty>
+		
+	</delete>
+	
+	<select id="TripAdminOptionA.TripExistCheckPositionGroupSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripExistCheckPositionGroupSelect */
+		/* 직책 그룹 삭제시 단가설정 조회 */
+			SELECT IFNULL(count(*),0) as existCount
+			FROM $DB_NEOS$t_exnp_trip_set_amt
+			WHERE duty_group_seq = #dutyGroupSeq#
+	</select>
+	
+	<select id="TripAdminOptionA.TripExistCheckLocationSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripExistCheckLocationSelect */
+		/* 출장지 정보 삭제시 단가설정 조회 */
+		SELECT ifnull(count(*),0) as existCount
+		FROM	$DB_NEOS$t_exnp_trip_set_amt
+		WHERE	location_seq = #locationSeq#
+	</select>
+
+	<select id="TripAdminOptionA.TripExistChecktransportSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripExistChecktransportSelect */
+		/* 교통수단 정보 삭제시 단가설정 조회 */
+		SELECT ifnull(count(*),0) as existCount
+		FROM	$DB_NEOS$t_exnp_trip_set_amt
+		WHERE	transport_seq = #transSeq#
+	</select>
+	
+	<select id="TripAdminOptionA.TripExistCheckAmtSelect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* expend/trip/admin/TripAdminOptionSQL.xml - TripAdminOptionA.TripExistCheckAmtSelect */
+		/* 단가 목록 정보 중복 데이터 조회 */
+		SELECT ifnull(count(*),0) as existCount
+		FROM	$DB_NEOS$t_exnp_trip_set_amt
+		WHERE	domestic_code = #domesticCode#
+		 AND	location_seq = #locationSeq#
+		 AND	duty_group_seq = #dutyGroupSeq#
+		 AND	apply_date = #applyDate#
+		 AND	amt_class_code = #amtClassCode#
+		 AND	amt_seq != #amtSeq#
+	</select>
+</sqlMap>

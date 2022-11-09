@@ -1,0 +1,1046 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- Bizbox Alpha mariadb -->
+<sqlMap namespace="ExUserReportA">
+	<!-- 나의 지출결의 현황 - 목록 조회 -->
+	<select id="ExUserReportA.ExUserExpendReportListInfoSelect"
+		parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* ExUserReportA.ExUserExpendReportListInfoSelect - Bizbox Alpha - mariadb */
+		SELECT  A.comp_seq AS compSeq
+		        , A.expend_seq AS expendSeq
+		        , B.doc_id AS docSeq
+		        , C.form_id AS formSeq
+		        , C.form_mode AS formName
+		        , B.doc_no AS docNo
+		        , B.doc_title AS docTitle
+		        , B.rep_dt AS repDate
+		        , A.expend_date AS expendDate
+		        , A.expend_req_date AS expendReqDate
+		        , B.doc_sts AS docSts
+		        , A.erp_send_yn AS erpSendYN
+		        , '' AS reqYN
+		FROM    (
+		                SELECT  comp_seq
+		                        , expend_seq
+		                        , doc_seq
+		                        , form_seq
+		                        , expend_stat_code
+		                        , expend_date
+		                        , expend_req_date
+		                        , erp_send_yn
+		                        , erp_send_date
+		                        , row_id
+		                        , in_dt
+		                        , in_sq
+		                FROM    $DB_NEOS$t_ex_expend
+		                WHERE   expend_date BETWEEN '$fromDate$' AND '$toDate$'
+		                AND     expend_req_date = ( CASE WHEN '$reqDate$' = '' THEN expend_req_date ELSE '$reqDate$' END )
+		                AND     comp_seq = '$compSeq$'
+		                AND     ( expend_stat_code != '' AND expend_stat_code != '999' )
+		        ) A INNER JOIN $DB_NEOS$teag_appdoc B ON a.doc_seq = B.doc_id AND A.form_seq = B.form_id
+		        INNER JOIN $DB_NEOS$teag_form C ON B.form_id = C.form_id
+		WHERE   B.doc_no LIKE '%$docNo$%'
+		AND     B.doc_title LIKE '%$docTitle$%'
+	]]></select>
+
+	<!-- 나의 카드 사용 현황 - 목록 조회 -->
+	<sql id="refExUserCardReportListInfoSelect">
+		/* ExUserReportA.ExUserCardReportListInfoSelect - Bizbox Alpha - mariadb */
+		/* mariadb/BizboxAlpha/expend/ex/admin/ExAdminReport.xml - ExAdminReportA.ExAdminCardUseReportListInfoSelect */
+		/* 법인카드 사용현황 조회 */
+		/* 2017-12-06 김상겸 속도 이슈로 쿼리 튜닝 진행 */
+		    SELECT  A.SYNC_ID AS syncId
+		            , B.CARD_CODE AS cardCode
+		            , B.CARD_NAME AS cardName
+		            , B.CARD_NUM AS cardNum
+		            , A.AUTH_DATE AS authDate
+		            , A.AUTH_TIME AS authTime
+		            , CONCAT(SUBSTRING(A.AUTH_DATE,1,4), '-', SUBSTRING(A.AUTH_DATE,5,2), '-', SUBSTRING(A.AUTH_DATE,7,2)) AS excelAuthDate
+		            , CONCAT(SUBSTRING(A.AUTH_TIME,1,2), ':', SUBSTRING(A.AUTH_TIME,3,2), ':', SUBSTRING(A.AUTH_TIME,5,2)) AS excelAuthTime
+		            , A.MERC_NAME AS mercName
+		            , A.MERC_SAUP_NO AS mercSaupNo
+		            , A.VAT_STAT AS vatStat
+		            , IFNULL(A.AUTH_CD, '') AS authCd
+		            , IFNULL(A.AUTH_NM, '') AS authNm
+		            , IFNULL(A.SEND_YN, 'N') AS authYn
+		            , IFNULL(A.REQUEST_AMOUNT,'0') AS requestAmount
+		            , IFNULL(A.SER_AMOUNT,'0') AS serAmount
+		            , IFNULL(A.AMT_MD_AMOUNT,'0') AS amtMdAmount
+		            , IFNULL(A.VAT_MD_AMOUNT,'0') AS vatMdAmount
+					, CASE WHEN (A.GEORAE_STAT = '0' OR A.GEORAE_STAT = 'Y') AND A.REQUEST_AMOUNT > 0 THEN A.REQUEST_AMOUNT * (-1) ELSE A.REQUEST_AMOUNT END AS excelRequestAmount
+					, CASE WHEN (A.GEORAE_STAT = '0' OR A.GEORAE_STAT = 'Y') AND A.SER_AMOUNT > 0 THEN A.SER_AMOUNT * (-1) ELSE A.SER_AMOUNT END AS excelSerAmount
+					, CASE WHEN (A.GEORAE_STAT = '0' OR A.GEORAE_STAT = 'Y') AND A.AMT_MD_AMOUNT > 0 THEN A.AMT_MD_AMOUNT * (-1) ELSE A.AMT_MD_AMOUNT END AS excelAmtMdAmount
+					, CASE WHEN (A.GEORAE_STAT = '0' OR A.GEORAE_STAT = 'Y') AND A.VAT_MD_AMOUNT > 0 THEN A.VAT_MD_AMOUNT * (-1) ELSE A.VAT_MD_AMOUNT END AS excelVatMdAmount
+					, A.GEORAE_STAT AS georaeStat
+		            , CASE WHEN A.GEORAE_STAT = '1' || A.GEORAE_STAT = 'N' THEN '승인' ELSE '취소' END AS georaeStatName        
+		            , IFNULL(C.EXPEND_SEQ, '') AS expendSeq
+		            , IFNULL(A.AUTH_NUM, '') AS authNum
+		            , IFNULL(C.ROW_ID, '') AS expendRowId
+		            , IFNULL(C.IN_DT, '') AS inDt
+		            , IFNULL(C.IN_SQ, '') AS inSq
+		            , IFNULL(C.DOC_SEQ, '') AS docId
+		            , IFNULL(C.DOC_NO, '') AS docNo
+		            , IFNULL(C.USER_NM, '') AS docUserNm
+		            , IFNULL(C.CO_ID, '') AS docCompSeq
+		            , IFNULL(C.DOC_STS, '') AS docDocSts
+		            , IFNULL(IFNULL((SELECT detail_name FROM $DB_NEOS$t_co_code_detail_multi WHERE `code` = 'ea0015' AND lang_code = #langCode# AND detail_code = C.DOC_STS), (SELECT detail_name FROM $DB_NEOS$t_co_code_detail_multi WHERE `code` = 'ea0015' AND lang_code = 'kr' AND detail_code = C.DOC_STS)), '') AS docStsName
+		            , IFNULL(C.DEPT_ID, '') AS docDeptSeq
+		            , IFNULL(C.USER_ID, '') AS docEmpSeq
+		            , IFNULL(C.FORM_SEQ, '') AS formFormSeq
+		            , IFNULL(C.FORM_NM, '') AS formFormName
+		            , IFNULL(C.FORM_MODE, '') AS formFormMode
+		            , IFNULL(C.ERP_SEND_SEQ, '') AS erpSendSeq
+		            , CASE WHEN IFNULL(C.ERP_SEND_YN, 'N') = 'N'
+					     THEN '' 
+					  ELSE ( CASE WHEN IFNULL(C.ROW_ID, '') != '' THEN C.ROW_ID
+					         WHEN IFNULL(C.IN_DT, '') != ''       THEN CONCAT(C.IN_DT, C.IN_SQ)
+					         ELSE '' END 
+					       ) END AS expendDocNm
+		    FROM    $DB_NEOS$T_EX_CARD_AQ_TMP A
+		            INNER JOIN (
+		                    SELECT  A.CARD_CODE
+		                            , A.CARD_NUM
+		                            , A.CARD_NAME
+		                            , REPLACE(REPLACE(A.CARD_NUM, '-', ''), ' ', '') AS CARD_NUM_CONV
+		                    FROM    $DB_NEOS$T_EX_CARD A
+		                            INNER JOIN (
+		                                    SELECT  REPLACE(CARD_NUM, '-', '') AS CARD_NUM
+		                                    FROM    (
+		                                                    SELECT  CARD_NUM
+		                                                            , ORG_DIV
+		                                                            , ORG_ID
+		                                                    FROM    $DB_NEOS$T_EX_CARD_PUBLIC
+		                                                    WHERE   COMP_SEQ = #compSeq#
+		                                                    AND     ORG_DIV IN ( 'c', 'd' )
+		                                            ) A INNER JOIN (
+		                                                    SELECT  CONCAT('|', A.COMP_SEQ, '|', A.BIZ_SEQ, '|', A.PATH, '|') AS PATH
+		                                                    FROM    $DB_NEOS$T_CO_DEPT A
+		                                                    WHERE   COMP_SEQ = #compSeq#
+		                                                    AND     DEPT_SEQ IN (
+		                                                                    SELECT  DEPT_SEQ
+		                                                                    FROM    $DB_NEOS$T_CO_EMP_DEPT
+		                                                                    WHERE   COMP_SEQ = #compSeq#
+		                                                                    AND     EMP_SEQ = #empSeq#
+		                                                            )
+		                                            ) B ON B.PATH LIKE CONCAT('%|', A.ORG_ID, '|%')
+		                                    UNION
+		                                    SELECT  REPLACE(CARD_NUM, '-', '') AS CARD_NUM
+		                                    FROM    $DB_NEOS$T_EX_CARD_PUBLIC
+		                                    WHERE   ORG_DIV = 'u'
+		                                    AND     ORG_ID = #empSeq#
+		                                    AND     COMP_SEQ = #compSeq#
+		                            ) B ON REPLACE(A.CARD_NUM, '-', '') = REPLACE(B.CARD_NUM, '-', '')
+		                    WHERE   A.COMP_SEQ = #compSeq#
+		                    AND     REPLACE(IFNULL(A.CARD_NUM, ''), '-', '') LIKE CONCAT('%', '$cardNum$', '%')
+		                    <isNotEmpty property="cardName">
+		                    AND     REPLACE(IFNULL(A.CARD_NAME, ''), '-', '') LIKE CONCAT('%', '$cardName$', '%')
+		                    </isNotEmpty>
+		            ) B ON A.CARD_NUM = B.CARD_NUM_CONV
+		            LEFT OUTER JOIN (
+		                    SELECT  EXPEND_SEQ
+		                            , DOC_SEQ
+		                            , FORM_SEQ
+		                            , ROW_ID
+		                            , IN_DT
+		                            , IN_SQ
+		                            , ERP_SEND_SEQ
+		                            , ERP_SEND_YN
+		                            , FORM_NM
+		                            , FORM_SHORT_NM
+		                            , FORM_MODE
+		                            , DOC_ID
+		                            , DOC_NO
+		                            , DOC_TITLE
+		                            , DOC_STS
+		                            , USER_NM
+		                            , CO_ID
+		                            , DEPT_ID
+		                            , USER_ID
+		                    FROM    $DB_NEOS$T_EX_EXPEND A
+		                            INNER JOIN (
+		                                    SELECT  FORM_ID
+		                                            , CASE
+		                                                    WHEN #langCode# = 'kr' THEN IFNULL(FORM_NM, '')
+		                                                    WHEN #langCode# = 'en' THEN CASE WHEN IFNULL(FORM_NM_EN, '') = '' THEN IFNULL(FORM_NM, '') END
+		                                                    WHEN #langCode# = 'jp' THEN CASE WHEN IFNULL(FORM_NM_JP, '') = '' THEN IFNULL(FORM_NM, '') END
+		                                                    WHEN #langCode# = 'cn' THEN CASE WHEN IFNULL(FORM_NM_CN, '') = '' THEN IFNULL(FORM_NM, '') END
+		                                                    ELSE IFNULL(FORM_NM, '')
+		                                            END AS FORM_NM
+		                                            , IFNULL(FORM_SHORT_NM, '') AS FORM_SHORT_NM
+		                                            , FORM_MODE
+		                                    FROM    $DB_NEOS$TEAG_FORM
+		                            ) B ON A.FORM_SEQ = B.FORM_ID INNER JOIN (
+		                                    SELECT  DOC_ID
+		                                            , DOC_TITLE
+		                                            , DOC_NO
+		                                            , DOC_STS
+		                                            , CASE
+		                                                    WHEN #langCode# = 'kr' THEN IFNULL(USER_NM, '')
+		                                                    WHEN #langCode# = 'en' THEN CASE WHEN IFNULL(USER_NM_EN, '') = '' THEN IFNULL(USER_NM, '') END
+		                                                    WHEN #langCode# = 'jp' THEN CASE WHEN IFNULL(USER_NM_JP, '') = '' THEN IFNULL(USER_NM, '') END
+		                                                    WHEN #langCode# = 'cn' THEN CASE WHEN IFNULL(USER_NM_CN, '') = '' THEN IFNULL(USER_NM, '') END
+		                                                    ELSE IFNULL(USER_NM, '')
+		                                            END AS USER_NM
+		                                            , CO_ID
+		                                            , DEPT_ID
+		                                            , USER_ID
+		                                    FROM    $DB_NEOS$TEAG_APPDOC
+		                                    WHERE   USE_YN = '1'
+		                            ) C ON A.DOC_SEQ = C.DOC_ID
+		                    WHERE   IFNULL(COMP_SEQ, '') = #compSeq#
+		            ) C ON A.IF_M_ID = C.EXPEND_SEQ
+		    WHERE   IFNULL(A.AUTH_DATE, '') BETWEEN #fromDate# AND #toDate#
+		    AND     IFNULL(A.MERC_NAME, '') LIKE CONCAT('%', REPLACE('$mercName$', '-', ''), '%')
+		    AND     (
+		                    ( '$docSts$' = '' AND IFNULL(C.DOC_STS, '') = IFNULL(C.DOC_STS, '') )
+		                    OR ( '$docSts$' = '0' AND IFNULL(C.DOC_STS, '') = '' )
+		                    OR ( '$docSts$' = '1' AND IFNULL(C.DOC_STS, '') != '' )
+		            )
+            AND		IFNULL(A.if_m_id,'') != 'D'
+            AND		IFNULL(A.del_yn, 'N') != 'Y'
+		    ORDER   BY A.AUTH_DATE ASC, A.AUTH_TIME ASC
+	</sql>
+	
+	<select id="ExUserReportA.ExUserCardReportListInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		SELECT X.*
+		  FROM (
+		        <include refid="refExUserCardReportListInfoSelect"/>
+		       ) X
+		 <isEmpty property="sortField">
+		 ORDER BY X.authDate ASC, X.authTime ASC
+		 </isEmpty>      
+		 <isNotEmpty property="sortField">
+		 ORDER BY $sortField$ $sortType$
+		 </isNotEmpty>
+		 
+		 <isNotEmpty property="startNum">
+		   <isNotEmpty property="endNum">
+		   LIMIT $startNum$, $endNum$
+		   </isNotEmpty>
+		 </isNotEmpty>
+	</select>
+	
+	<select id="ExUserReportA.ExUserCardReportListInfoSelect_TOTALCOUNT" parameterClass="HashMap" resultClass="String">
+		SELECT COUNT(*)
+		  FROM (
+		        <include refid="refExUserCardReportListInfoSelect"/>
+		       ) X
+	</select>
+	
+	<!-- 지출결의 - 지출결의 현황 사용자 목록 조회 -->
+	<resultMap class="HashMap" id="resultReportListInfo">
+			<result property="expendSeq" column="expendSeq"/>
+			<result property="docSeq" column="docSeq"/>
+			<result property="formSeq" column="formSeq"/>
+			<result property="appDocNo" column="appDocNo"/>
+			<result property="docSts" column="docSts"/>
+			<result property="appRepDate" column="appRepDate"/>
+			<result property="appDocTitle" column="appDocTitle"/>
+			<result property="expendDate" column="expendDate"/>
+			<result property="expendReqDate" column="expendReqDate"/>
+			<result property="appUserName" column="appUserName"/>
+			<result property="expendEmpSeq" column="expendEmpSeq"/>
+			<result property="expendUseDeptName" column="expendUseDeptName"/>
+			<result property="expendUseEmpName" column="expendUseEmpName"/>
+			<result property="expendAmt" column="expendAmt" javaType="java.math.BigDecimal"/>
+			<result property="expendErpSendYN" column="expendErpSendYN"/>
+			<result property="expendErpSendSeq" column="expendErpSendSeq"/>
+			<result property="expendErpSendName" column="expendErpSendName"/>
+			<result property="expendErpiuAdocuId" column="expendErpiuAdocuId"/>
+			<result property="expendIcubeAdocuId" column="expendIcubeAdocuId"/>
+			<result property="expendIcubeAdocuSeq" column="expendIcubeAdocuSeq"/>
+			<result property="erpAdocuNumber" column="erpAdocuNumber"/>
+		</resultMap>
+		
+	<select id="ExReportExpendUserListInfoSelect" parameterClass="HashMap" resultMap="resultReportListInfo">
+		/* ExReportExpendEmpListInfoSelect - BizboxA - mariaDB */
+		/* query id : ExUserReportA.ExReportExpendUserListInfoSelect */
+		/* 사용자 / 나의 지출결의 현황 조회 */
+		SELECT A.expend_seq AS 'expendSeq'
+			, A.doc_seq 		AS 'docSeq'
+			, IFNULL(B.doc_no, '')	AS 'appDocNo'
+			, B.doc_sts			AS 'docSts'
+			, IFNULL(B.detail_name,'') AS 'docStsName'
+			, B.form_id 		AS 'formSeq'
+			, DATE_FORMAT(B.rep_dt,'%Y-%m-%d') 	AS 'appRepDate'
+			, B.doc_title 		AS 'appDocTitle'
+			, DATE_FORMAT(A.expend_date,'%Y-%m-%d') AS 'expendDate'
+			, DATE_FORMAT(A.expend_req_date,'%Y-%m-%d') AS 'expendReqDate'
+			, B.user_nm 		AS 'appUserName'
+			, A.emp_seq 		AS 'expendEmpSeq'
+			, C.use_dept_name 	AS 'expendUseDeptName'
+			, C.use_emp_name 	AS 'expendUseEmpName'
+			, A.amt 				AS 'expendAmt'
+			, A.erp_send_yn 	AS 'expendErpSendYn'
+			, A.erp_send_seq 	AS 'expendErpSendSeq'
+			, A.send_emp_name 	AS 'expendErpSendName'
+			, A.row_id 			AS 'expendErpiuAdocuId'
+			, A.in_dt 			AS 'expendIcubeAdocuId'
+			, A.in_sq 			AS 'expendIcubeAdocuSeq'
+			, IFNULL(A.erpSendSeq, '') AS 'erpAdocuNumber'
+			FROM (
+			SELECT expend.comp_seq
+				,expend.expend_seq
+				,expend.doc_seq
+				,expend.expend_date
+				,expend.expend_req_date
+				,IFNULL(expend.erp_send_yn, 'N') AS erp_send_yn
+				,IFNULL(expend.erp_send_seq, '') AS erp_send_seq
+				,IFNULL(expend.row_id,'') AS row_id
+				,IFNULL(expend.in_dt,'') AS in_dt
+				,IFNULL(expend.in_sq,'') AS in_sq
+				, CASE 
+					WHEN IFNULL(expend.emp_seq,'') !=0 THEN IFNULL(expend.emp_seq,'')
+					WHEN IFNULL(expend.emp_seq,'') = 0 THEN IFNULL(list.emp_seq,'')
+					WHEN IFNULL(list.emp_seq,'') = 0 THEN IFNULL(slip.emp_seq,'')
+					ELSE 0
+				  END AS emp_seq 
+				, CAST( SUM(IFNULL(slip.amt,'0')) AS INT)AS amt 
+				, (
+					CASE 
+						WHEN IFNULL( expend.erp_send_yn  , '' ) = 'Y' THEN IFNULL(empm.emp_name,'')
+						WHEN IFNULL(expend.erp_send_yn, '') = '' OR expend.erp_send_yn = 'N' THEN ''
+				  	END
+				   ) AS send_emp_name
+				, CASE
+				      WHEN IFNULL(expend.row_id,'') ='' THEN CASE WHEN CONCAT(IFNULL(expend.in_dt,''),IFNULL(expend.in_sq,'')) = '0' THEN '' ELSE CONCAT(IFNULL(expend.in_dt,''),IFNULL(expend.in_sq,'')) END
+				      ELSE IFNULL(expend.row_id,'')
+				  END AS  erpSendSeq
+			FROM $DB_NEOS$t_ex_expend expend
+			INNER JOIN $DB_NEOS$t_ex_expend_list LIST ON expend.expend_seq = list.expend_seq
+			INNER JOIN $DB_NEOS$t_ex_expend_slip slip ON list.expend_seq = slip.expend_seq AND list.list_seq = slip.list_seq
+			LEFT OUTER JOIN $DB_NEOS$t_ex_expend_emp emp ON emp.seq = expend.emp_seq AND emp.comp_seq = expend.comp_seq
+			LEFT OUTER JOIN $DB_NEOS$t_co_emp_multi empm ON empm.emp_seq = expend.erp_send_seq AND empm.lang_code = '$langCode$'
+			WHERE expend.comp_seq = '$compSeq$'
+			  AND IFNULL(DATE_FORMAT(expend.expend_date, '%Y%m%d'),'19000101') BETWEEN '$searchFromDate$' AND '$searchToDate$'
+			  AND IFNULL(DATE_FORMAT(expend.expend_req_date, '%Y%m%d'),'19000101') BETWEEN '$searchReqFromDate$' AND '$searchReqToDate$'
+			  AND CONCAT(IFNULL(expend.row_id, ''), IFNULL(expend.in_dt, ''), IFNULL(expend.in_sq, '')) LIKE CONCAT('%', '$expendErpAdocuNumber$', '%')
+			  AND drcr_gbn = 'cr'
+			group by expend.expend_seq   
+		) A INNER JOIN ( 
+			SELECT appDoc.doc_id
+				,appDoc.doc_no
+				,appDoc.doc_sts
+				,appDoc.rep_dt
+				,appDoc.doc_title
+				,appDoc.user_nm
+				,form.form_id
+				,form.form_nm
+				,dmulti.detail_name
+			FROM $DB_NEOS$teag_appdoc appDoc
+			INNER JOIN $DB_NEOS$teag_form form ON appDoc.form_id = form.form_id
+			LEFT OUTER JOIN $DB_NEOS$t_co_code_detail_multi dmulti ON dmulti.detail_code = appdoc.doc_sts AND dmulti.code = 'ea0015'  AND dmulti.lang_code = '$langCode$'
+			LEFT OUTER JOIN $DB_NEOS$t_co_dept dept ON appdoc.dept_id = dept.dept_seq
+			LEFT OUTER JOIN $DB_NEOS$t_co_biz biz ON dept.biz_seq = biz.biz_seq
+			LEFT OUTER JOIN $DB_NEOS$t_co_biz_multi bizm ON dept.biz_seq = bizm.biz_seq AND bizm.lang_code = '$langCode$'
+			WHERE IFNULL(appDoc.co_id,'0') = '$compSeq$'       
+			  AND IFNULL(appDoc.use_yn,'0') = '1'
+			  AND IFNULL(DATE_FORMAT(appDoc.rep_dt, '%Y%m%d'),'00000000') BETWEEN '$searchDocFromDate$' AND '$searchDocToDate$'
+			  AND IFNULL(appDoc.doc_sts,'') LIKE '%$searchDocStatus$%'
+			  AND IFNULL(appDoc.doc_no,'') LIKE '%$appDocNo$%'
+			  AND IFNULL(appDoc.user_nm,'') LIKE '%$appUserName$%'
+			  AND IFNULL(appDoc.doc_title,'') LIKE '%$appDocTitle$%'
+			  AND IFNULL(appdoc.user_id,'0') = '$empSeq$'
+			 <isNotEmpty property="bizCd">
+			  AND IFNULL(biz.biz_seq, '') = '$bizCd$'	
+			 </isNotEmpty>	  
+			  AND IFNULL(form.form_nm, '') LIKE CONCAT('%', '$formName$','%')
+		) B ON A.doc_seq = B.doc_id LEFT OUTER JOIN (
+			SELECT  seq
+				, CASE WHEN IFNULL(emp_name,'') != '' THEN emp_name WHEN IFNULL(erp_emp_name,'') != '' THEN erp_emp_name ELSE '' END AS use_emp_name
+				, CASE WHEN IFNULL(dept_name,'') != '' THEN dept_name WHEN IFNULL(erp_dept_name,'') != '' THEN erp_dept_name ELSE '' END AS use_dept_name
+			FROM    $DB_NEOS$t_ex_expend_emp
+		) C ON A.emp_seq = C.seq
+		WHERE   IFNULL(C.use_dept_name,'') LIKE '%$expendUseDeptName$%'
+		  AND   IFNULL(C.use_emp_name,'') LIKE '%$expendUseEmpName$%'
+		ORDER BY $sortField$ $sortType$
+		LIMIT $startPosition$ , $pageSize$
+
+	</select>
+	
+	<select id="ExReportExpendUserListInfoSelect_TotalCount" parameterClass="HashMap" resultClass="HashMap">
+		/* ExReportExpendUserListInfoTotalCountSelect - BizboxA - mariaDB */
+		/* query id : ExUserReportA.ExReportExpendUserListInfoTotalCountSelect */
+		/* 사용자 / 나의 지출결의 현황 데이터 count 조회 */
+		SELECT	
+				count(*) AS 'totalCount'
+		FROM    (
+		            SELECT expend.comp_seq
+						,expend.expend_seq
+						,expend.doc_seq
+						,expend.expend_date
+						,expend.expend_req_date
+						,IFNULL(expend.erp_send_yn, 'N') AS erp_send_yn
+						,IFNULL(expend.erp_send_seq, '') AS erp_send_seq
+						,IFNULL(expend.row_id,'') AS row_id
+						,IFNULL(expend.in_dt,'') AS in_dt
+						,IFNULL(expend.in_sq,'') AS in_sq
+						, CASE 
+							WHEN IFNULL(expend.emp_seq,'') !=0 THEN IFNULL(expend.emp_seq,'')
+							WHEN IFNULL(expend.emp_seq,'') = 0 THEN IFNULL(list.emp_seq,'')
+							WHEN IFNULL(list.emp_seq,'') = 0 THEN IFNULL(slip.emp_seq,'')
+							ELSE 0
+						  END AS emp_seq 
+						, CAST( SUM(IFNULL(slip.amt,'0')) AS INT)AS amt 
+						, (
+							CASE 
+								WHEN IFNULL( expend.erp_send_yn  , '' ) = 'Y' THEN IFNULL(empm.emp_name,'')
+								WHEN IFNULL(expend.erp_send_yn, '') = '' OR expend.erp_send_yn = 'N' THEN ''
+						  	END
+						   ) AS send_emp_name
+						, CASE
+						      WHEN IFNULL(expend.row_id,'') ='' THEN CASE WHEN CONCAT(IFNULL(expend.in_dt,''),IFNULL(expend.in_sq,'')) = '0' THEN '' ELSE CONCAT(IFNULL(expend.in_dt,''),IFNULL(expend.in_sq,'')) END
+						      ELSE IFNULL(expend.row_id,'')
+						  END AS  erpSendSeq
+					FROM $DB_NEOS$t_ex_expend expend
+					INNER JOIN $DB_NEOS$t_ex_expend_list LIST ON expend.expend_seq = list.expend_seq
+					INNER JOIN $DB_NEOS$t_ex_expend_slip slip ON list.expend_seq = slip.expend_seq AND list.list_seq = slip.list_seq
+					LEFT OUTER JOIN $DB_NEOS$t_ex_expend_emp emp ON emp.seq = expend.emp_seq AND emp.comp_seq = expend.comp_seq
+					LEFT OUTER JOIN $DB_NEOS$t_co_emp_multi empm ON empm.emp_seq = expend.erp_send_seq AND empm.lang_code = '$langCode$'
+					WHERE expend.comp_seq = '$compSeq$'
+					  AND IFNULL(DATE_FORMAT(expend.expend_date, '%Y%m%d'),'19000101') BETWEEN '$searchFromDate$' AND '$searchToDate$'
+					  AND IFNULL(DATE_FORMAT(expend.expend_req_date, '%Y%m%d'),'19000101') BETWEEN '$searchReqFromDate$' AND '$searchReqToDate$'
+					  AND CONCAT(IFNULL(expend.row_id, ''), IFNULL(expend.in_dt, ''), IFNULL(expend.in_sq, '')) LIKE CONCAT('%', '$expendErpAdocuNumber$', '%')
+					  AND drcr_gbn = 'cr'
+					group by expend.expend_seq   
+				) A INNER JOIN ( 
+					SELECT appDoc.doc_id
+						,appDoc.doc_no
+						,appDoc.doc_sts
+						,appDoc.rep_dt
+						,appDoc.doc_title
+						,appDoc.user_nm
+						,form.form_id
+						,form.form_nm
+						,dmulti.detail_name
+					FROM $DB_NEOS$teag_appdoc appDoc
+					INNER JOIN $DB_NEOS$teag_form form ON appDoc.form_id = form.form_id
+					LEFT OUTER JOIN $DB_NEOS$t_co_code_detail_multi dmulti ON dmulti.detail_code = appdoc.doc_sts AND dmulti.code = 'ea0015'  AND dmulti.lang_code = '$langCode$'
+					LEFT OUTER JOIN $DB_NEOS$t_co_dept dept ON appdoc.dept_id = dept.dept_seq
+					LEFT OUTER JOIN $DB_NEOS$t_co_biz biz ON dept.biz_seq = biz.biz_seq
+					LEFT OUTER JOIN $DB_NEOS$t_co_biz_multi bizm ON dept.biz_seq = bizm.biz_seq AND bizm.lang_code = '$langCode$'
+					WHERE IFNULL(appDoc.co_id,'0') = '$compSeq$'       
+					  AND IFNULL(appDoc.use_yn,'0') = '1'
+					  AND IFNULL(DATE_FORMAT(appDoc.rep_dt, '%Y%m%d'),'00000000') BETWEEN '$searchDocFromDate$' AND '$searchDocToDate$'
+					  AND IFNULL(appDoc.doc_sts,'') LIKE '%$searchDocStatus$%'
+					  AND IFNULL(appDoc.doc_no,'') LIKE '%$appDocNo$%'
+					  AND IFNULL(appDoc.user_nm,'') LIKE '%$appUserName$%'
+					  AND IFNULL(appDoc.doc_title,'') LIKE '%$appDocTitle$%'
+					  AND IFNULL(appdoc.user_id,'0') = '$empSeq$'
+					 <isNotEmpty property="bizCd">
+					  AND IFNULL(biz.biz_seq, '') = '$bizCd$'	
+					 </isNotEmpty>	  
+					  AND IFNULL(form.form_nm, '') LIKE CONCAT('%', '$formName$','%')
+				) B ON A.doc_seq = B.doc_id LEFT OUTER JOIN (
+					SELECT  seq
+						, CASE WHEN IFNULL(emp_name,'') != '' THEN emp_name WHEN IFNULL(erp_emp_name,'') != '' THEN erp_emp_name ELSE '' END AS use_emp_name
+						, CASE WHEN IFNULL(dept_name,'') != '' THEN dept_name WHEN IFNULL(erp_dept_name,'') != '' THEN erp_dept_name ELSE '' END AS use_dept_name
+					FROM    $DB_NEOS$t_ex_expend_emp
+				) C ON A.emp_seq = C.seq
+		        /* 검색조건 : 사용부서 */
+		WHERE   IFNULL(C.use_dept_name,'') LIKE '%$expendUseDeptName$%'
+		        /* 검색조건 : 사용자 */
+		AND     IFNULL(C.use_emp_name,'') LIKE '%$expendUseEmpName$%'
+	</select>
+	
+	<select id="ExReportHeaderInterLockInfoSelect" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* ExReportHeaderInterLockInfoSelect - BizboxA - mariaDB */
+		/* Header */
+		SELECT  ex.comp_seq		AS compSeq
+			, ex.expend_seq		AS expendSeq
+			, ex.doc_seq			AS docSeq
+			, ex.form_seq			AS formSeq	
+			, ex.expend_stat_code	AS expendStatCode
+			, ex.expend_date		AS expendDate
+			, ex.expend_req_date	AS expendReqDate
+			, ex.erp_send_yn		AS erpSendYN
+			, ex.write_seq			AS writeSeq
+			, ex.emp_seq			AS empSeq
+			, ex.budget_seq		AS budgetSeq
+			, ex.project_seq		AS projectSeq
+			, ex.partner_seq		AS partnerSeq
+			, ex.card_seq			AS cardSeq
+			, ex.json_str			AS jsonStr	
+			, ex.erp_send_seq		AS erpSendSeq
+			, ex.erp_send_date		AS erpSendDate
+			, ex.row_id			AS rowId
+			, ex.in_dt				AS inDt
+			, ex.in_sq				AS inSq
+			, emp.erp_comp_seq			AS expendEmpErpCompCode
+			, emp.erp_comp_name			AS expendEmpErpCompName
+			, emp.erp_biz_seq			AS expendEmpErpBizCode
+			, emp.erp_biz_name			AS expendEmpErpBizName
+			, emp.erp_dept_seq			AS expendEmpErpDeptCode
+			, emp.erp_dept_name			AS expendEmpErpDeptName
+			, emp.erp_emp_seq			AS expendEmpErpEmpCode
+			, emp.erp_emp_name			AS expendEmpErpEmpName
+			, emp.erp_cc_seq			AS expendEmpErpCcCode
+			, emp.erp_cc_name			AS expendEmpErpCcName
+			, emp.erp_pc_seq			AS expendEmpErpPcCode
+			, emp.erp_pc_name			AS expendEmpErpPcName
+			, pjt.project_code			AS expendProjectCode
+			, pjt.project_name			AS expendProjectName
+			, ptr.partner_code			AS expendPartnerCode
+			, ptr.partner_name			AS expendPartnerName
+			, ptr.partner_no			AS expendPartnerNo
+			, ptr.ceo_name				AS expendPartnerCeoName
+			, card.card_num				AS expendCardNum
+			, card.card_name			AS expendCardName
+		FROM    $DB_NEOS$t_ex_expend	ex
+		LEFT OUTER JOIN $DB_NEOS$t_ex_expend_emp emp ON ex.emp_seq = emp.seq
+		LEFT OUTER JOIN $DB_NEOS$t_ex_expend_project pjt ON ex.project_seq = pjt.seq
+		LEFT OUTER JOIN $DB_NEOS$t_ex_expend_partner ptr ON ex.partner_seq = ptr.seq
+		LEFT OUTER JOIN $DB_NEOS$t_ex_expend_card card ON ex.card_seq = card.seq
+		WHERE   expend_seq = '$expendSeq$';
+	]]></select>
+	
+	<select id="ExReportContentsInterLockInfoSelect" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* ExReportContentsInterLockInfoSelect - BizboxA - mariaDB */		
+		/* Content */
+		SELECT  expend_seq, list_seq, slip_seq, summary_seq, auth_seq, write_seq, emp_seq, budget_seq, project_seq, partner_seq, card_seq, auth_date, note, list_std_amt, list_tax_amt, list_amt, list_sub_std_amt, list_sub_tax_amt, slip_amt, slip_sub_std_amt, slip_sub_tax_amt, interface_type, interface_m_id, interface_d_id, drcr_gbn, acct_code, acct_name, row_id, row_no, A.extend_str1, A.extend_str2
+		        /* 증빙유형 */
+		        , auth_div, auth_code, auth_name, cash_type, B.cr_acct_code AS auth_cr_acct_code, B.cr_acct_name AS auth_cr_acct_name, B.vat_acct_code AS auth_vat_acct_code, B.vat_acct_name AS auth_vat_acct_name, vat_type_code, vat_type_name, erp_auth_code, erp_auth_name, auth_required_yn, partner_required_yn, card_required_yn, project_required_yn, note_required_yn, no_tax_code, no_tax_name, va_type_code, va_type_name
+		        /* 예산 */
+		        , budget_type, bud_ym, budget_ym, budget_gbn, budget_code, budget_name, bizplan_code, bizplan_name, bgacct_code, bgacct_name, budget_jsum, budget_actsum, budget_control_yn, dracct_amt
+		        /* 카드 */
+		        , card_code, card_num, card_name
+		        /* 작성자 */
+		        , write_comp_seq, write_comp_name, write_erp_comp_seq, write_erp_comp_name, write_biz_seq, write_biz_name, write_erp_biz_seq, write_erp_biz_name, write_dept_seq, write_dept_name, write_erp_dept_seq, write_erp_dept_name, write_emp_seq, write_erp_emp_seq, write_emp_name, write_erp_emp_name, write_erp_pc_seq, write_erp_pc_name, write_erp_cc_seq, write_erp_cc_name
+		        /* 사용자 */
+		        , emp_comp_seq, emp_comp_name, emp_erp_comp_seq, emp_erp_comp_name, emp_biz_seq, emp_biz_name, emp_erp_biz_seq, emp_erp_biz_name, emp_dept_seq, emp_dept_name, emp_erp_dept_seq, emp_erp_dept_name, emp_emp_seq, emp_erp_emp_seq, emp_emp_name, emp_erp_emp_name, emp_erp_pc_seq, emp_erp_pc_name, emp_erp_cc_seq, emp_erp_cc_name
+		        /* 거래처 */
+		        , partner_code, partner_name, partner_no, partner_fg, ceo_name, job_gbn, cls_job_gbn, deposit_no, bank_code, partner_emp_code, partner_hp_emp_no, deposit_name, deposit_convert, ppl_no
+		        /* 프로젝트 */
+		        , project_code, project_name
+		        /* 표준적요 */
+		        , summary_div, summary_code, summary_name, dr_acct_code, dr_acct_name, I.cr_acct_code, I.cr_acct_name, I.vat_acct_code, I.vat_acct_name, bank_partner_code, bank_partner_name
+		        , order_seq
+		FROM    (
+		                SELECT  B.expend_seq
+		                        , B.list_seq
+		                        , B.slip_seq
+		                        , CASE WHEN B.summary_seq != '' AND B.summary_seq != '0' THEN B.summary_seq ELSE A.summary_seq END AS summary_seq
+		                        , CASE WHEN B.auth_seq != '' AND B.auth_seq != '0' THEN B.auth_seq ELSE A.auth_seq END AS auth_seq
+		                        , CASE WHEN B.write_seq != '' AND B.write_seq != '0' THEN B.write_seq ELSE A.write_seq END AS write_seq
+		                        , CASE WHEN B.emp_seq != '' AND B.emp_seq != '0' THEN B.emp_seq ELSE A.emp_seq END AS emp_seq
+		                        , CASE WHEN B.budget_seq != '' AND B.budget_seq != '0' THEN B.budget_seq ELSE A.budget_seq END AS budget_seq
+		                        , CASE WHEN B.project_seq != '' AND B.project_seq != '0' THEN B.project_seq ELSE A.project_seq END AS project_seq
+		                        , CASE WHEN B.partner_seq != '' AND B.partner_seq != '0' THEN B.partner_seq ELSE A.partner_seq END AS partner_seq
+		                        , CASE WHEN B.card_seq != '' AND B.card_seq != '0' THEN B.card_seq ELSE A.card_seq END AS card_seq
+		                        , CASE WHEN B.auth_date != '' THEN B.auth_date ELSE A.auth_date END AS auth_date
+		                        , CASE WHEN B.note != '' THEN B.note ELSE A.note END AS note
+		                        , A.std_amt AS list_std_amt
+		                        , A.tax_amt AS list_tax_amt
+		                        , A.amt AS list_amt
+		                        , A.sub_std_amt AS list_sub_std_amt
+		                        , A.sub_tax_amt AS list_sub_tax_amt
+		                        , B.amt AS slip_amt
+		                        , B.sub_std_amt AS slip_sub_std_amt
+		                        , B.sub_tax_amt AS slip_sub_tax_amt
+		                        , CASE WHEN B.interface_type != '' THEN B.interface_type ELSE A.interface_type END AS interface_type
+		                        , CASE WHEN B.interface_m_id != '' THEN B.interface_m_id ELSE A.interface_m_id END AS interface_m_id
+		                        , CASE WHEN B.interface_d_id != '' THEN B.interface_d_id ELSE A.interface_d_id END AS interface_d_id
+		                        , drcr_gbn
+		                        , acct_code
+		                        , acct_name
+		                        , row_id
+		                        , row_no
+		                        , order_seq
+		                        , A.extend_str1
+		                        , A.extend_str2
+		                FROM    (
+		                                SELECT  expend_seq, list_seq, summary_seq, auth_seq, write_seq, emp_seq, budget_seq, project_seq, partner_seq, card_seq, auth_date, note, std_amt, tax_amt, amt, sub_std_amt, sub_tax_amt, interface_type, interface_m_id, interface_d_id, extend_str1, extend_str2
+		                                		, order_seq
+		                                FROM    $DB_NEOS$t_ex_expend_list
+		                                WHERE   expend_seq = '$expendSeq$'
+		                        ) A INNER JOIN $DB_NEOS$t_ex_expend_slip B ON A.expend_seq = B.expend_seq AND A.list_seq = B.list_seq
+		        ) A LEFT OUTER JOIN (
+		                SELECT  seq, auth_div, auth_code, auth_name, cash_type, cr_acct_code, cr_acct_name, vat_acct_code, vat_acct_name, vat_type_code, vat_type_name, erp_auth_code, erp_auth_name, auth_required_yn, partner_required_yn, card_required_yn, project_required_yn, note_required_yn, no_tax_code, no_tax_name, va_type_code, va_type_name
+		                FROM    $DB_NEOS$t_ex_expend_auth
+		        ) B ON A.auth_seq = B.seq
+		        LEFT OUTER JOIN (
+		                SELECT  seq, budget_type, bud_ym, budget_ym, budget_gbn, budget_code, budget_name, bizplan_code, bizplan_name, bgacct_code, bgacct_name, budget_jsum, budget_actsum, budget_control_yn, dracct_amt
+		                FROM    $DB_NEOS$t_ex_expend_budget
+		        ) C ON A.budget_seq = C.seq
+		        LEFT OUTER JOIN (
+		                SELECT  seq, card_code, card_num, card_name
+		                FROM    $DB_NEOS$t_ex_expend_card
+		        ) D ON A.card_seq = D.seq
+		        LEFT OUTER JOIN (
+		                SELECT  seq, comp_seq AS write_comp_seq, comp_name AS write_comp_name, erp_comp_seq AS write_erp_comp_seq, erp_comp_name AS write_erp_comp_name, biz_seq AS write_biz_seq, biz_name AS write_biz_name, erp_biz_seq AS write_erp_biz_seq, erp_biz_name AS write_erp_biz_name, dept_seq AS write_dept_seq, dept_name AS write_dept_name, erp_dept_seq AS write_erp_dept_seq, erp_dept_name AS write_erp_dept_name, emp_seq AS write_emp_seq, erp_emp_seq AS write_erp_emp_seq, emp_name AS write_emp_name, erp_emp_name AS write_erp_emp_name, erp_pc_seq AS write_erp_pc_seq, erp_pc_name AS write_erp_pc_name, erp_cc_seq AS write_erp_cc_seq, erp_cc_name AS write_erp_cc_name
+		                FROM    $DB_NEOS$t_ex_expend_emp
+		        ) E ON A.write_seq = E.seq
+		        LEFT OUTER JOIN (
+		                SELECT  seq, comp_seq AS emp_comp_seq, comp_name AS emp_comp_name, erp_comp_seq AS emp_erp_comp_seq, erp_comp_name AS emp_erp_comp_name, biz_seq AS emp_biz_seq, biz_name AS emp_biz_name, erp_biz_seq AS emp_erp_biz_seq, erp_biz_name AS emp_erp_biz_name, dept_seq AS emp_dept_seq, dept_name AS emp_dept_name, erp_dept_seq AS emp_erp_dept_seq, erp_dept_name AS emp_erp_dept_name, emp_seq AS emp_emp_seq, erp_emp_seq AS emp_erp_emp_seq, emp_name AS emp_emp_name, erp_emp_name AS emp_erp_emp_name, erp_pc_seq AS emp_erp_pc_seq, erp_pc_name AS emp_erp_pc_name, erp_cc_seq AS emp_erp_cc_seq, erp_cc_name AS emp_erp_cc_name
+		                FROM    $DB_NEOS$t_ex_expend_emp
+		        ) F ON A.emp_seq = F.seq
+		        LEFT OUTER JOIN (
+		                SELECT  seq, partner_code, partner_name, partner_no, partner_fg, ceo_name, job_gbn, cls_job_gbn, deposit_no, bank_code, partner_emp_code, partner_hp_emp_no, deposit_name, deposit_convert, ppl_no
+		                FROM    $DB_NEOS$t_ex_expend_partner
+		        ) G ON A.partner_seq = G.seq
+		        LEFT OUTER JOIN (
+		                SELECT  seq, project_code, project_name
+		                FROM    $DB_NEOS$t_ex_expend_project
+		        ) H ON A.project_seq = H.seq
+		        LEFT OUTER JOIN (
+		                SELECT  seq, summary_div, summary_code, summary_name, dr_acct_code, dr_acct_name, cr_acct_code, cr_acct_name, vat_acct_code, vat_acct_name, bank_partner_code, bank_partner_name
+		                FROM    $DB_NEOS$t_ex_expend_summary
+		        ) I ON A.summary_seq = I.seq
+		ORDER	BY IFNULL(order_seq, 999) ASC
+	]]></select>
+	
+	<select id="ExReportFooterInterLockInfoSelect" parameterClass="HashMap" resultClass="HashMap"><![CDATA[
+		/* ExReportFooterInterLockInfoSelect - BizboxA - mariaDB */
+		/* Footer */
+		SELECT	*
+		FROM	(
+			SELECT  SUM(CASE WHEN drcr_gbn = 'dr' THEN amt ELSE 0 END) AS drAmt
+				, SUM(CASE WHEN drcr_gbn = 'vat' THEN amt ELSE 0 END) AS vatAmt
+				, SUM(CASE WHEN drcr_gbn = 'cr' THEN amt ELSE 0 END) AS crAmt
+				, SUM(CASE WHEN drcr_gbn = 'dr' OR drcr_gbn = 'vat' THEN amt ELSE 0 END) AS amt
+				, SUM(CASE WHEN drcr_gbn = 'cr' THEN amt ELSE 0 END) AS reqAmt
+				, SUM(sub_std_amt)	AS subStdAmt
+				, SUM(sub_tax_amt)	AS subTaxAmt
+			FROM    $DB_NEOS$t_ex_expend_slip
+			WHERE   expend_seq = '$expendSeq$'
+			GROUP   BY expend_seq
+		)	A
+		INNER JOIN	(
+			SELECT	
+				SUM(std_amt)		AS 'listStdAmt' 
+				, SUM(tax_amt)		AS 'listTaxAmt' 
+				, SUM(amt)		AS 'listAmt' 
+				, SUM(sub_std_amt)	AS 'listSubStdAmt' 
+				, SUM(sub_tax_amt)	AS 'listSubTaxAmt' 
+			FROM	$DB_NEOS$t_ex_expend_list
+			WHERE	expend_seq = '$expendSeq$'
+			GROUP   BY expend_seq
+		)	B
+		ON	1=1
+	]]></select>
+	
+	<select id="ExReportSubtotalInterLockInfoSelect" parameterClass="HashMap" resultClass="HashMap">
+		/* ExReportSubtotalInterLockInfoSelect - BizboxA - mariaDB */
+		SELECT x.subtotalListNum
+		     , x.subtotalDrAcctCode
+		     , x.subtotalDrAcctName
+		     , x.subtotalListStdAmt
+		     , x.subtotalListTaxAmt
+		     , x.subtotalListAmt
+		  FROM (
+				SELECT @rownum := @rownum + 1 AS subtotalListNum
+				     , IFNULL(summary.dr_acct_code,'') AS subtotalDrAcctCode
+				     , IFNULL(summary.dr_acct_name,'') AS subtotalDrAcctName
+				     , SUM(list.std_amt) AS subtotalListStdAmt
+				     , SUM(list.tax_amt) AS subtotalListTaxAmt
+				     , SUM(list.amt)	AS subtotalListAmt
+				  FROM (SELECT @rownum := 0) r, $DB_NEOS$t_ex_expend_list LIST
+				  LEFT OUTER JOIN $DB_NEOS$t_ex_expend_summary summary ON list.summary_seq = summary.seq
+				 WHERE list.expend_seq = '$expendSeq$'
+				 GROUP BY summary.dr_acct_code, summary.dr_acct_name
+			   ) x
+		 ORDER BY x.subtotalListNum
+	</select>
+	
+	<insert id="ExUserETaxTransfer" parameterClass="HashMap">
+		/* ExUserReportSQL.xml - ExUserETaxTransfer - 세금계산서 이관 처리 */
+		INSERT INTO $DB_NEOS$t_ex_etax_transfer (comp_seq,iss_no,iss_dt,partner_no,partner_name,amt,transfer_seq,transfer_name,receive_seq,receive_name,supper_key,create_date)
+		VALUES(#compSeq#,#issNo#,#issDt#,#partnerNo#,#partnerName#,#amt#,#transferSeq#,#transferName#,#receiveSeq#,#receiveName#,#supperKey#,NOW())
+	</insert>
+	
+	<delete id="ExUserETaxTransferCancel" parameterClass="HashMap">
+		/* ExUserReportSQL.xml - ExUserETaxTransferCancel - 사용자 - 세금계산서 이관 취소 */
+		DELETE
+		FROM	$DB_NEOS$t_ex_etax_transfer
+		WHERE	seq = #eTaxTransSeq#
+	</delete>
+	
+	<delete id="ExUserETaxTransferCancel2" parameterClass="HashMap">
+		/* ExUserReportSQL.xml - ExUserETaxTransferCancel - 사용자 - 세금계산서 이관 취소 */
+		DELETE
+		FROM	$DB_NEOS$t_ex_etax_transfer
+		WHERE	iss_no = #issNo#
+	</delete>
+	
+	<select id="ExUserInterfaceSelect" parameterClass="HashMap" resultClass="HashMap">
+		/* ExUserReportSQL.xml - ExUserInterfaceSelect - 세금계산서 테이블 데이터 유무확인 */
+		SELECT	*
+		FROM	$DB_NEOS$t_ex_etax_aq_tmp
+		WHERE	iss_no = #issNo#
+		AND		comp_seq = #compSeq#
+	</select>
+	
+	<insert id="ExUserETaxInsert" parameterClass="HashMap">
+		<![CDATA[
+			/* ExUserReportSQL.xml - ExUserETaxInsert - 세금계산서 테이블 데이터 insert*/
+			INSERT INTO $DB_NEOS$t_ex_etax_aq_tmp (
+				iss_no, hometax_iss_no, iss_dt, partner_no, comp_seq
+				, send_yn, note, emp_seq, summary_seq, auth_seq 
+				, project_seq, card_seq, budget_seq, if_m_id, if_d_id
+				, create_seq, create_date, modify_seq, modify_date
+			) VALUES (
+				#issNo#, #hometaxIssNo#, #issDt#, #trregNb#, #compSeq#
+				, 'N', '', '0', 0, 0
+				, 0, 0, 0, '', ''
+				, 'SYSTEM', NOW(), 'SYSTEM', NOW()
+			)
+		]]>
+	</insert>
+	
+	<insert id="ExUserInterfaceLogInsert" parameterClass="HashMap">
+		/* ExUserReportSQL.xml - ExUserInterfaceLogInsert - 이관 log insert*/
+		INSERT INTO $DB_NEOS$t_ex_transfer_log (comp_seq,interface_type,interface_key,transfer_cancel_yn,transfer_seq,receive_seq,create_seq,create_date)
+		VALUES (#compSeq#,#interfaceType#,#interfaceKey#,#transferCancelYN#,#transferSeq#,#receiveSeq#,#empSeq#,NOW())
+	</insert>
+	
+	<select id="ExUserETaxTransferHistory" parameterClass="HashMap" resultClass="HashMap">
+		/* ExUserReportSQL.xml - ExUserInterfaceTransferHistory - (영리 회계 비영리 결재) 이관 내역 조회 */
+		/* 타회사 동일한 세금계산서 번호를 가진 내역 조회됨에 따른 수정 */
+		SELECT	DATE_FORMAT(a.create_date,'%Y-%m-%d') AS transferDate
+				, a.iss_no AS issNo
+				, CASE
+					WHEN a.transfer_seq = #empSeq# THEN a.receive_name
+					ELSE a.transfer_name
+				END AS targerName
+				, CASE
+					WHEN a.transfer_seq = #empSeq# THEN 'T'
+					ELSE 'R'
+				END AS transferType
+				, DATE_FORMAT(a.iss_dt,'%Y-%m-%d') AS issDt
+				, a.transfer_seq AS transferSeq
+				, a.transfer_name AS transferName
+				, a.receive_seq AS receiveSeq
+				, a.receive_name AS receiveName
+				, a.partner_name AS partnerName
+				, a.partner_no AS partnerNo
+				, a.iss_no AS issNo
+				, a.amt AS amt
+				, b.send_yn AS sendYN
+				, IFNULL(b.if_m_id,'') AS ifMId
+				, IFNULL(b.if_d_id,'') AS ifDId
+				, IFNULL(c.expend_stat_code, '') AS expendStatCode
+				, IFNULL(c.doc_seq,'') AS docSeq
+				, IFNULL(c.doc_title,'') AS docTitle
+				, IFNULL(c.doc_no,'') AS docNo
+				, IFNULL(c.user_nm, '') AS userName
+		FROM	$DB_NEOS$t_ex_etax_transfer a
+		INNER JOIN $DB_NEOS$t_ex_etax_aq_tmp b 
+		ON 		a.iss_no = b.iss_no and a.comp_seq = b.comp_seq
+		LEFT OUTER JOIN (
+			SELECT	a.expend_seq
+					, a.expend_stat_code
+					, a.doc_seq
+					, b.doc_title
+					, b.doc_no
+					, b.user_nm
+			FROM	$DB_NEOS$t_ex_expend a 
+			INNER JOIN $DB_NEOS$teag_appdoc b ON a.doc_seq = b.doc_id
+			WHERE	a.expend_stat_code != '999'
+			AND		b.use_yn != '0'
+			AND		b.doc_sts NOT IN ('','100')
+			GROUP BY expend_seq
+		) c ON b.if_m_id = c.expend_seq
+		WHERE	a.comp_seq = #compSeq#
+		AND		(
+			a.transfer_seq = #empSeq#
+			OR
+			a.receive_seq = #empSeq#
+		)
+		<!-- 0 : 이관일자, 1 : 사용일자 -->
+		<isEqual property="dateSearchType" compareValue="0">
+		AND		DATE_FORMAT(a.create_date,'%Y%m%d') BETWEEN #searchFromDate# AND #searchToDate#
+		</isEqual>
+		<isEqual property="dateSearchType" compareValue="1">
+		AND		a.iss_dt BETWEEN #searchFromDate# AND #searchToDate#
+		</isEqual>
+		
+		<!-- 0 : 전체, 1 : 대상자, 2 : 공급자, 3 : 등록번호, 4 : 승인번호 -->
+		<isEqual property="txtSearchType" compareValue="0">
+		AND		(
+			a.transfer_name LIKE CONCAT('%',#searchStr#,'%')
+			OR a.receive_name LIKE CONCAT('%',#searchStr#,'%')
+			OR a.partner_name LIKE CONCAT('%',#searchStr#,'%')
+			OR a.iss_no LIKE CONCAT('%',#searchStr#,'%')
+		)
+		</isEqual>
+		<isEqual property="txtSearchType" compareValue="1">
+		AND		(
+			a.transfer_name LIKE CONCAT('%',#searchStr#,'%')
+			OR a.receive_name LIKE CONCAT('%',#searchStr#,'%')
+		)
+		</isEqual>
+		<isEqual property="txtSearchType" compareValue="2">
+		AND		a.partner_name LIKE CONCAT('%',#searchStr#,'%')
+		</isEqual>
+		<isEqual property="txtSearchType" compareValue="3">
+		AND		a.partner_no LIKE CONCAT('%',#searchStr#,'%')
+		</isEqual>
+		<isEqual property="txtSearchType" compareValue="4">
+		AND		a.iss_no LIKE CONCAT('%',#searchStr#,'%')
+		</isEqual>
+		<!-- '' : 전체 , 'Y' : 결의, 'N' : 미결의 -->
+		AND		IFNULL(b.send_yn,'N') LIKE CONCAT('%',#searchSendYN#,'%')
+	</select>
+	
+	<select id="NpUserEaETaxTransferHistory" parameterClass="HashMap" resultClass="HashMap">
+		/* ExUserReportSQL.xml - NpUserEaETaxTransferHistory - (비영리 회계 비영리 결재) 이관 내역 조회 */
+		SELECT	DATE_FORMAT(a.create_date,'%Y-%m-%d') AS transferDate
+				, a.iss_no AS issNo
+				, CASE
+					WHEN a.transfer_seq = #empSeq# THEN a.receive_name
+					ELSE a.transfer_name
+				END AS targerName
+				, CASE
+					WHEN a.transfer_seq = #empSeq# THEN 'T'
+					ELSE 'R'
+				END AS transferType
+				, DATE_FORMAT(a.iss_dt,'%Y-%m-%d') AS issDt
+				, a.transfer_seq AS transferSeq
+				, a.transfer_name AS transferName
+				, a.receive_seq AS receiveSeq
+				, a.receive_name AS receiveName
+				, a.partner_name AS partnerName
+				, a.partner_no AS partnerNo
+				, a.iss_no AS issNo
+				, a.amt AS amt
+				, b.send_yn AS sendYN
+				, IFNULL(b.if_m_id,'') AS ifMId
+				, IFNULL(b.if_d_id,'') AS ifDId
+				, IFNULL(c.doc_status, '') AS docStatus
+				, IFNULL(c.doc_seq,'') AS docSeq
+				, IFNULL(c.doc_title,'') AS docTitle
+				, IFNULL(c.doc_no,'') AS docNo
+				, IFNULL(c.user_nm, '') AS userName
+		FROM	$DB_NEOS$t_ex_etax_transfer a
+		INNER JOIN $DB_NEOS$t_ex_etax_aq_tmp b ON a.iss_no = b.iss_no
+		LEFT OUTER JOIN (
+			SELECT	A.res_doc_seq
+					, A.doc_status
+					, A.doc_seq
+					, B.doc_title
+					, B.doc_no
+					, B.user_nm
+			FROM	(
+				SELECT	doc.doc_seq
+						, doc.res_doc_seq
+						, doc.doc_status
+						, interface_seq
+				FROM	$DB_NEOS$t_exnp_resdoc doc
+				INNER JOIN $DB_NEOS$t_exnp_restrade trade ON trade.interface_type = 'etax' AND doc.res_doc_seq = trade.res_doc_seq
+				WHERE	IFNULL(doc.doc_status,'') IN ('001', '002', '003', '008', '009')  
+			) A INNER JOIN (
+				SELECT	doc.c_dikeycode AS doc_id
+						, doc.c_tikeycode AS form_id
+						, doc.c_dititle AS doc_title
+						, rec.c_ridocfullnum AS doc_no
+						, drf.c_diuserkey AS user_id
+						, drf.c_dijunkyulname AS user_nm
+				FROM	$DB_NEOS$a_docinfo doc
+				INNER JOIN $DB_NEOS$a_draftinfo drf ON doc.c_dikeycode = drf.c_dikeycode
+				INNER JOIN $DB_NEOS$a_recordinfo rec ON doc.c_dikeycode = rec.c_dikeycode
+			) B ON A.doc_seq = B.doc_id
+		) c ON b.if_m_id = c.res_doc_seq
+		WHERE	a.comp_seq = #compSeq#
+		AND		(
+			a.transfer_seq = #empSeq#
+			OR
+			a.receive_seq = #empSeq#
+		)
+		<!-- 0 : 이관일자, 1 : 사용일자 -->
+		<isEqual property="dateSearchType" compareValue="0">
+		AND		DATE_FORMAT(a.create_date,'%Y%m%d') BETWEEN #searchFromDate# AND #searchToDate#
+		</isEqual>
+		<isEqual property="dateSearchType" compareValue="1">
+		AND		a.iss_dt BETWEEN #searchFromDate# AND #searchToDate#
+		</isEqual>
+		
+		<!-- 0 : 전체, 1 : 대상자, 2 : 공급자, 3 : 등록번호, 4 : 승인번호 -->
+		<isEqual property="txtSearchType" compareValue="0">
+		AND		(
+			a.transfer_name LIKE CONCAT('%',#searchStr#,'%')
+			OR a.receive_name LIKE CONCAT('%',#searchStr#,'%')
+			OR a.partner_name LIKE CONCAT('%',#searchStr#,'%')
+			OR a.iss_no LIKE CONCAT('%',#searchStr#,'%')
+		)
+		</isEqual>
+		<isEqual property="txtSearchType" compareValue="1">
+		AND		(
+			a.transfer_name LIKE CONCAT('%',#searchStr#,'%')
+			OR a.receive_name LIKE CONCAT('%',#searchStr#,'%')
+		)
+		</isEqual>
+		<isEqual property="txtSearchType" compareValue="2">
+		AND		a.partner_name LIKE CONCAT('%',#searchStr#,'%')
+		</isEqual>
+		<isEqual property="txtSearchType" compareValue="3">
+		AND		a.iss_no LIKE CONCAT('%',#searchStr#,'%')
+		</isEqual>
+		<!-- '' : 전체 , 'Y' : 결의, 'N' : 미결의 -->
+		AND		b.send_yn LIKE CONCAT('%',#searchSendYN#,'%')
+	</select>
+	
+	<select id="NpUserEapETaxTransferHistory" parameterClass="HashMap" resultClass="HashMap">
+		/* ExUserReportSQL.xml - NpUserEapETaxTransferHistory - (비영리 회계 영리 결재) 이관 내역 조회 */
+		SELECT	DATE_FORMAT(a.create_date,'%Y-%m-%d') AS transferDate
+				, a.iss_no AS issNo
+				, CASE
+					WHEN a.transfer_seq = #empSeq# THEN a.receive_name
+					ELSE a.transfer_name
+				END AS targerName
+				, CASE
+					WHEN a.transfer_seq = #empSeq# THEN 'T'
+					ELSE 'R'
+				END AS transferType
+				, DATE_FORMAT(a.iss_dt,'%Y-%m-%d') AS issDt
+				, a.transfer_seq AS transferSeq
+				, a.transfer_name AS transferName
+				, a.receive_seq AS receiveSeq
+				, a.receive_name AS receiveName
+				, a.partner_name AS partnerName
+				, a.partner_no AS partnerNo
+				, a.iss_no AS issNo
+				, a.amt AS amt
+				, b.send_yn AS sendYN
+				, IFNULL(b.if_m_id,'') AS ifMId
+				, IFNULL(b.if_d_id,'') AS ifDId
+				, IFNULL(c.doc_status, '') AS docStatus
+				, IFNULL(c.doc_seq,'') AS docSeq
+				, IFNULL(c.doc_title,'') AS docTitle
+				, IFNULL(c.doc_no,'') AS docNo
+				, IFNULL(c.user_nm, '') AS userName
+		FROM	$DB_NEOS$t_ex_etax_transfer a
+		INNER JOIN $DB_NEOS$t_ex_etax_aq_tmp b ON a.iss_no = b.iss_no
+		LEFT OUTER JOIN (
+			SELECT	res.res_doc_seq
+					, res.doc_status
+					, res.doc_seq
+					, doc.doc_title
+					, doc.doc_no
+					, doc.user_nm
+			FROM	$DB_NEOS$t_exnp_resdoc res
+			INNER JOIN $DB_NEOS$t_exnp_restrade trade ON trade.interface_type = 'etax' AND res.res_doc_seq = trade.res_doc_seq
+			INNER JOIN $DB_NEOS$teag_appdoc doc ON res.doc_seq = doc.doc_id
+			WHERE	IFNULL(res.doc_status,'') IN ('10','20','90')
+		) c ON b.if_m_id = c.res_doc_seq
+		WHERE	a.comp_seq = #compSeq#
+		AND		(
+			a.transfer_seq = #empSeq#
+			OR
+			a.receive_seq = #empSeq#
+		)
+		<!-- 0 : 이관일자, 1 : 사용일자 -->
+		<isEqual property="dateSearchType" compareValue="0">
+		AND		DATE_FORMAT(a.create_date,'%Y%m%d') BETWEEN #searchFromDate# AND #searchToDate#
+		</isEqual>
+		<isEqual property="dateSearchType" compareValue="1">
+		AND		a.iss_dt BETWEEN #searchFromDate# AND #searchToDate#
+		</isEqual>
+		
+		<!-- 0 : 전체, 1 : 대상자, 2 : 공급자, 3 : 등록번호, 4 : 승인번호 -->
+		<isEqual property="txtSearchType" compareValue="0">
+		AND		(
+			a.transfer_name LIKE CONCAT('%',#searchStr#,'%')
+			OR a.receive_name LIKE CONCAT('%',#searchStr#,'%')
+			OR a.partner_name LIKE CONCAT('%',#searchStr#,'%')
+			OR a.iss_no LIKE CONCAT('%',#searchStr#,'%')
+		)
+		</isEqual>
+		<isEqual property="txtSearchType" compareValue="1">
+		AND		(
+			a.transfer_name LIKE CONCAT('%',#searchStr#,'%')
+			OR a.receive_name LIKE CONCAT('%',#searchStr#,'%')
+		)
+		</isEqual>
+		<isEqual property="txtSearchType" compareValue="2">
+		AND		a.partner_name LIKE CONCAT('%',#searchStr#,'%')
+		</isEqual>
+		<isEqual property="txtSearchType" compareValue="3">
+		AND		a.iss_no LIKE CONCAT('%',#searchStr#,'%')
+		</isEqual>
+		<!-- '' : 전체 , 'Y' : 결의, 'N' : 미결의 -->
+		AND		b.send_yn LIKE CONCAT('%',#searchSendYN#,'%')
+	</select>
+	
+	<select id="ExUserETaxTransferChkPossibility" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	a.*
+		FROM	$DB_NEOS$t_ex_etax a
+		INNER JOIN $DB_NEOS$t_ex_etax_public b ON a.etax_seq = b.etax_seq
+		WHERE	b.comp_seq = #compSeq#
+		AND		b.code = #empSeq#
+		AND		(
+			(
+				a.auth_type = 'P' AND REPLACE(a.code,'-','') = #trregNb#
+			)
+			OR
+			(
+				a.auth_type = 'E' AND a.code = #trchargeEmail#
+			)
+		)
+		GROUP BY a.etax_seq
+	</select>
+	
+	<select id="ExUserCardTransferChkPossibility" parameterClass="HashMap" resultClass="HashMap">
+		/* ExUserReportSQL.xml - ExUserCardTransferChkPossibility - (비영리) 카드 중복 공개범위 조회 */
+		SELECT 	C.comp_seq
+				, REPLACE(C.card_num,' ','') AS card_num
+				, C.card_name
+				, C.partner_code
+				, C.partner_name
+				, B.org_div
+				, B.org_id
+				, CASE 
+				    WHEN B.org_div = 'c' THEN 'Y'
+				    WHEN B.org_div = 'd' AND B.org_id = #deptSeq# THEN 'Y'
+				    WHEN B.org_div = 'u' AND B.org_id = #empSeq# THEN 'Y'
+				    ELSE 'N' 
+				    END AS duplication
+		FROM    	$DB_NEOS$t_ex_card C
+		INNER JOIN $DB_NEOS$t_ex_card_public A ON C.comp_seq = A.comp_seq AND REPLACE(REPLACE(C.card_num,'-',''),' ','') = REPLACE(REPLACE(A.card_num,'-',''),' ','')
+		INNER JOIN (
+			SELECT 	B.gbn_org AS org_div
+					, B.dept_seq AS org_id
+			FROM    (
+				SELECT 	path
+				FROM	$DB_NEOS$v_org_chart_child
+				WHERE	dept_seq = #deptSeq#
+			) A INNER JOIN (
+				SELECT 	gbn_org
+						, dept_seq
+						, path
+				FROM   	$DB_NEOS$v_org_chart_child
+			) B ON A.path LIKE CONCAT('%', B.path, '%')
+			UNION
+			SELECT 	'u' AS org_div
+					, #empSeq# AS org_id
+		) B ON A.org_div = B.org_div AND A.org_id = B.org_id
+			/* 회사 */
+		WHERE   A.comp_seq = #compSeq#
+		GROUP   BY comp_seq, card_num
+	</select>
+	
+	<insert id="ExUserCardTransfer" >
+		/* ExUserReportSQL.xml - ExUserCardTransfer - 카드 이관 처리 */
+		INSERT INTO $DB_NEOS$t_ex_card_transfer (comp_seq,card_num,auth_num,auth_date,auth_time,partner_no,partner_name,amt,transfer_seq,transfer_name,receive_seq,receive_name,supper_key,create_date)
+		VALUES(#compSeq#,#cardNum#,#authNum#,#authDate#,#authTime#,#partnerNo#,#partnerName#,#amt#,#transferSeq#,#transferName#,#receiveSeq#,#receiveName#,#supperKey#,NOW())
+	</insert>
+	
+	<delete id="ExUserCardTransferCancel" parameterClass="HashMap">
+		/* ExUserReportSQL.xml - ExUserCardTransferCancel - 사용자 - 카드내역 이관 삭제 */
+		DELETE
+		FROM	$DB_NEOS$t_ex_card_transfer
+		WHERE	comp_seq = #compSeq#
+		AND		sync_id = #syncId#
+	</delete>
+	
+	<update id="ExUserCardTransferCancelUpdate" parameterClass="HashMap">
+		/* ExUserReportSQL.xml - ExUserCardTransferCancelUpdate - 사용자 - 카드내역 이관 복구 */
+		UPDATE	$DB_NEOS$t_ex_card_transfer
+		SET	transfer_seq = ''
+			, transfer_name = ''
+			, receive_seq = ''
+			, receive_name = ''
+		WHERE	comp_seq = #compSeq#
+		and	sync_id = #syncId#
+	</update>
+</sqlMap>

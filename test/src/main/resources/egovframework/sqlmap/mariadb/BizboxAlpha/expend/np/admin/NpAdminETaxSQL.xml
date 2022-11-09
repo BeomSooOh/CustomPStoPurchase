@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- BizboxA mariaDB -->
+<sqlMap namespace="NpAdminETaxA">
+
+	<select id="NpAdminETaxA.GetETaxSendList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"><![CDATA[
+		/* NpAdminETaxSQL.xml - NpAdminETaxA.GetETaxSendList */
+		/* 매입전자세금계산서 상신 목록 조회 */
+		
+		SELECT  B.sync_id AS syncId
+		        , B.iss_no AS issNo
+		        , B.iss_dt AS issDt
+		        , B.partner_no AS partnerNo
+		        , B.comp_seq AS compSeq
+		        , B.if_m_id AS ifMId
+		        , B.if_d_id AS ifDId
+		        , B.send_yn AS sendYn
+		        , B.use_yn AS useYn
+		        , A.doc_seq AS docSeq
+		        , B.res_doc_seq AS resDocSeq
+		        , B.res_seq AS resSeq
+		        , B.budget_seq AS budgetSeq
+		        , B.trade_seq AS tradeSeq
+		        , ( SELECT emp_name FROM $DB_NEOS$t_co_emp_multi WHERE emp_seq = A.create_seq AND lang_code = 'kr' ) AS createEmpName
+		FROM    (
+		                SELECT  res_doc_seq
+		                        , doc_seq
+		                        , doc_no
+		                        , create_seq
+		                FROM    $DB_NEOS$t_exnp_resdoc
+		                WHERE   IFNULL(doc_seq, '') != ''
+		        ) A INNER JOIN (
+		                SELECT  A.sync_id
+		                        , A.iss_no
+		                        , A.iss_dt
+		                        , A.partner_no
+		                        , A.comp_seq
+		                        , A.if_m_id
+		                        , A.if_d_id
+		                        , A.send_yn
+		                        , A.use_yn
+		                        , B.res_doc_seq
+		                        , B.res_seq
+		                        , B.budget_seq
+		                        , B.trade_seq
+		                FROM    (
+		                                SELECT  sync_id
+		                                        , iss_no
+		                                        , iss_dt
+		                                        , partner_no
+		                                        , comp_seq
+		                                        , if_m_id
+		                                        , if_d_id
+		                                        , send_yn
+		                                        , use_yn
+		                                FROM    $DB_NEOS$t_ex_etax_aq_tmp
+		                                WHERE   iss_dt BETWEEN #issDateFrom# AND #issDateTo#
+		                                AND     comp_seq = #compSeq#
+		                                AND     send_yn = 'Y'
+		                                AND     use_yn = 'Y'
+		                        ) A INNER JOIN (
+		                                SELECT  res_doc_seq
+		                                        , res_seq
+		                                        , budget_seq
+		                                        , trade_seq
+		                                FROM    $DB_NEOS$t_exnp_restrade
+		                        ) B ON A.if_m_id = B.res_doc_seq AND A.if_d_id = B.trade_seq
+		        ) B ON a.res_doc_seq = b.res_doc_seq
+	]]></select>
+	
+	<select id="NpAdminETaxA.GetETaxNotUseList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"><![CDATA[
+		/* NpAdminETaxSQL.xml - NpAdminETaxA.GetETaxNotUseList */
+		/* 매입전자세금계산서 미사용 목록 조회 */
+	
+		SELECT  sync_id
+		        , iss_no
+		        , iss_dt
+		        , partner_no
+		        , comp_seq
+		        , if_m_id
+		        , if_d_id
+		        , send_yn
+		        , use_yn
+		        , IFNULL(( SELECT emp_name FROM $DB_NEOS$t_co_emp_multi WHERE emp_seq = A.use_yn_emp_seq AND lang_code = 'kr' LIMIT 1 ), '') AS notUseEmpName
+		FROM    $DB_NEOS$t_ex_etax_aq_tmp A
+		WHERE   iss_dt BETWEEN #issDateFrom# AND #issDateTo#
+		AND     comp_seq = #compSeq#
+		AND     use_yn = 'N'
+	]]></select>
+
+	<update id="NpAdminETaxA.GetETaxFilterListGroupConcatSet" parameterClass="java.util.HashMap">
+		/* NpAdminETaxSQL.xml - NpAdminETaxA.GetETaxFilterListGroupConcatSet */
+		/* 매입세금계산서 히스토리 사이즈 조정 */
+	<![CDATA[ SET @@group_concat_max_len = 1000000; ]]>
+	</update> 
+
+	<select id="NpAdminETaxA.GetETaxFilterList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"><![CDATA[
+		/* NpAdminETaxSQL.xml - NpAdminETaxA.GetETaxFilterList */
+		/* 매입전자세금계산서 필터 리스트 조회 */	
+		SELECT	*
+		FROM	(
+			SELECT	
+				'send'	AS useCode
+				, '0'		AS orderNum
+				, IFNULL( GROUP_CONCAT( CONCAT(iss_dt, 'Σ', iss_no, 'Σ', $DB_NEOS$FN_GetMultiName('kr', 'EMP', d.emp_seq), 'Σ', IFNULL(iss_no2, ''),'■') ), '' )	AS superKeys
+			FROM 	$DB_NEOS$t_ex_etax_aq_tmp	e
+			INNER JOIN	(
+				SELECT	
+					t.interface_seq
+					, d.emp_seq
+				FROM	$DB_NEOS$t_exnp_resdoc	d
+				INNER JOIN $DB_NEOS$t_exnp_restrade t
+				ON	d.res_doc_seq = t.res_doc_seq
+				WHERE	d.doc_seq IS NOT NULL
+				 AND	IFNULL(t.interface_type, '') = 'etax'
+				 AND	IFNULL(d.doc_status, '008') IN ( '001', '002', '003', '004', '008', '009','20', '30', '90' )
+			)	d
+			ON	e.sync_id = d.interface_seq
+			WHERE	e.iss_dt	BETWEEN #issDateFrom# AND #issDateTo#
+			AND     e.comp_seq	= #compSeq#
+			AND     e.send_yn = 'Y'
+			AND     e.use_yn = 'Y'
+			UNION ALL
+			SELECT	
+				'notUse'	AS useCode
+				, '1'		AS orderNum
+				, IFNULL( GROUP_CONCAT( CONCAT(iss_dt, 'Σ', iss_no, 'Σ',  $DB_NEOS$FN_GetMultiName('kr', 'EMP', modify_seq), 'Σ', IFNULL(iss_no2, ''), '■') ), '' )	AS superKeys
+			FROM 	$DB_NEOS$t_ex_etax_aq_tmp
+			WHERE	iss_dt	BETWEEN #issDateFrom# AND #issDateTo#
+			AND     comp_seq	= #compSeq#
+			AND     use_yn		= 'N'
+			
+			UNION ALL
+			SELECT	
+			'receive'	AS useCode
+				, '2'		AS orderNum
+				, IFNULL( GROUP_CONCAT( CONCAT(iss_dt, 'Σ', iss_no, 'Σ', receive_name, 'Σ', IFNULL(iss_no2, ''), '■' ) ), '')	AS superKeys
+			FROM 	$DB_NEOS$t_ex_etax_transfer
+			WHERE	iss_dt	BETWEEN #issDateFrom# AND #issDateTo#
+			AND     comp_seq	= #compSeq#			
+		)	etaxCode
+		ORDER BY orderNum
+	]]></select>
+
+</sqlMap>
