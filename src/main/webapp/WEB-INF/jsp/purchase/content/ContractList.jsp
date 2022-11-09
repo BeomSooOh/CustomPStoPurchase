@@ -427,7 +427,7 @@ $(document).ready(function() {
 	function fnCallBtn(callId){
 		
 		if(callId == "newContract"){
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do",  "ContractCreatePop", 1000, 800, 1, 1) ;
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do",  "ContractCreatePop", 1200, 800, 1, 1) ;
 		}
 		
 	}

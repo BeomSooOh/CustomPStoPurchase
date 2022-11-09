@@ -76,6 +76,8 @@ public class PurchasePopController {
             List<Map<String, Object>> contractForm2 = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> contractForm3 = new ArrayList<Map<String, Object>>();
             
+            List<Map<String, Object>> sectorGroup = new ArrayList<Map<String, Object>>();
+            
             if(codeList != null && codeList.size() > 0) {
             	
         		for (Map<String, Object> codeinfo : codeList) {
@@ -102,7 +104,10 @@ public class PurchasePopController {
         				contractForm2.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("contractForm3")) {
         				contractForm3.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("sectorGroup")) {
+        				sectorGroup.add(codeinfo);
         			}
+        			
         		}            	
             }
             
@@ -117,6 +122,7 @@ public class PurchasePopController {
             mv.addObject("contractForm1Code", contractForm1);
             mv.addObject("contractForm2Code", contractForm2);
             mv.addObject("contractForm3Code", contractForm3);
+            mv.addObject("sectorGroupCode", sectorGroup);
             
             mv.setViewName("/purchase/pop/ContractCreatePop");
 

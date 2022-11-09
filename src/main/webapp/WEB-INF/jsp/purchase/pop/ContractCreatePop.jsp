@@ -1,10 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="validator" uri="http://www.springmodules.org/tags/commons-validator"%>
+<jsp:useBean id="currentTime" class="java.util.Date" />
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
@@ -151,6 +153,46 @@
 			
 		}		
 		
+		function fnChangeEtc(e){
+			
+			if($(e).attr('type') == "radio" || $(e).attr('type') == "select"){
+				
+				$('[name^="' + $(e).attr('name') + '_"]').hide();
+				
+			}
+			
+			if($(e).attr('type') == "select"){
+				
+				$('[name="' + $(e).attr('name') + "_" + $(e).val() + '"]').show();
+				
+			}else{
+				
+				if(e.checked){
+					$('[name="' + $(e).attr('name') + "_" + $(e).val() + '"]').show();	
+				}else{
+					$('[name="' + $(e).attr('name') + "_" + $(e).val() + '"]').hide();
+				}
+				
+			}
+		}		
+		
+		
+		function fnSectorAdd(tableName, baseName){
+			
+			var cloneData = $('[name="'+baseName+'"]').clone();
+			$(cloneData).show().removeAttr("name");
+			$('[name="'+tableName+'"]').append(cloneData);
+			
+		}
+		
+		function fnSectorDel(e){
+			
+			$(e).closest("tr").remove();
+			
+		}		
+		
+		
+		
 		
 		
 	</script>
@@ -179,7 +221,7 @@
 				<dd><input type="text" pudd-style="width:200px;" class="puddSetup" value="" placeholder="작성부서" /></dd>
 				<dd><input type="text" pudd-style="width:100px;" class="puddSetup" value="" placeholder="작성자" /></dd>
 				<dt>작성일자</dt>
-				<dd><input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/></dd>
+				<dd><input type="text" value="<fmt:formatDate value="${currentTime}" type="date" pattern="yyyy-MM-dd"/>" class="puddSetup" pudd-type="datepicker"/></dd>
 				<dd><input type="button" id="searchButton" value="검색" /></dd>		
 			</dl>
 		</div>
@@ -234,32 +276,28 @@
 				</colgroup>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 공고명</th>
-					<td colspan="3"><input type="text" pudd-style="width:100%;" class="puddSetup" value="" /></td>
+					<td><input type="text" pudd-style="width:100%;" class="puddSetup" value="" /></td>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약기간</th>
+					<td>계약체결일 ~ <input type="text" value="" class="puddSetup" pudd-type="datepicker"/></td>
 				</tr>
 				<tr>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약기간</th>
-					<td>
-						계약체결일 ~ <input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/>
-					</td>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 기초금액</th>
 					<td>
 						<input id="amt" onchange="console.log(this.value)" type="text" pudd-style="width:110px;" class="puddSetup ar" value="0" maxlength="15" /> 원 
 						<span id="amt_han"></span>
 					</td>
-				</tr>
-				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 추정가격</th>
 					<td>
 						<input id="stdAmt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="0" /> 원 
 						<span id="stdAmt_han"></span>
-					</td>
+					</td>					
+				</tr>
+				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 부가가치세</th>
 					<td>
 						<input id="taxAmt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="0" /> 원 
 						<span id="taxAmt_han"></span>
 					</td>
-				</tr>
-				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 근거법령</th>
 					<td>
 						<select id="baseLaw" class="puddSetup" pudd-style="width:100%;">
@@ -267,15 +305,24 @@
 								<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>							
 						</select>
-					</td>
-					<th>결제방법</th>
-					<td>
-						<select id="payType" class="puddSetup" pudd-style="width:150px;">
-							<c:forEach var="items" items="${payTypeCode}">
-								<option value="${items.CODE}">${items.NAME}</option>
-							</c:forEach>						
-						</select>
-					</td>
+					</td>					
+				</tr>
+				<tr>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 결제방법</th>
+					<td colspan="3">
+						<c:forEach var="items" items="${payTypeCode}">
+							<c:choose>
+								<c:when test="${items.CODE == 'etc'}">
+									<input type="checkbox" onclick="fnChangeEtc(this)" name="payTypeCode"  value="${items.CODE}" class="puddSetup" pudd-label="${items.NAME}" />
+									<input type="text" style="display:none;" name="payTypeCode_${items.CODE}" pudd-style="width:300px;" class="puddSetup" value="" />
+								</c:when>
+								<c:otherwise>
+									<input type="checkbox" name="payTypeCode"  value="${items.CODE}" class="puddSetup" pudd-label="${items.NAME}" />
+								</c:otherwise>
+							</c:choose>						
+						</c:forEach>						
+											
+					</td>					
 				</tr>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 과업내용</th>
@@ -305,12 +352,12 @@
 					<td><input id="emergencyYn" type="checkbox"  value="3" class="puddSetup" pudd-label="긴급입찰" /></td>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 업종제한</th>
 					<td>
-						<input type="radio" name="restrictSectorYn" class="puddSetup" pudd-label="제안함" value="Y" />
-						<input type="radio" name="restrictSectorYn" class="puddSetup" pudd-label="제안안함" value="N" checked />
+						<input type="radio" onclick="fnChangeEtc(this)" name="restrictSectorYn" class="puddSetup" pudd-label="제한함" value="Y" />
+						<input type="radio" onclick="fnChangeEtc(this)" name="restrictSectorYn" class="puddSetup" pudd-label="제한안함" value="N" checked />
 					</td>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 경쟁방식</th>
 					<td>
-						<select id="competeType" onchange="alert(1111)" class="puddSetup" pudd-style="width:150px;">
+						<select type="select" name="competeType" onchange="fnChangeEtc(this)" class="puddSetup" pudd-style="width:150px;">
 							
 							<c:forEach var="items" items="${competeTypeCode}">
 								<option value="${items.CODE}">${items.NAME}</option>
@@ -319,13 +366,13 @@
 						</select>
 					</td>
 				</tr>
-				<tr>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 제한항목</th>
+				<tr name="restrictSectorYn_Y" style="display:none;">
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 제한업종</th>
 					<td colspan="5">		
 						<a href="#n" onclick="window.open('https://www.g2b.go.kr:8070/um/co/industrialSrchPopup.do?whereAreYouFrom=portal','mgjCode','width=720, height=670, scrollbars=yes');" class="fr pt5 pb5 text_blue"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="16px" height="16px" /> 업종조회(나라장터)</a>				
 						<!-- 테이블 -->
 						<div class="com_ta4">
-							<table>
+							<table name="restrictSectorList">
 								<colgroup>
 									<col width="34"/>
 									<col width=""/>
@@ -334,52 +381,67 @@
 								</colgroup>
 								<tr>
 									<th class="ac">
-										<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+										<input type="button" onclick="fnSectorAdd('restrictSectorList', 'setorAddBase')" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 									</th>
 									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 그룹</th>
 									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 업종명</th>
 									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 업종코드</th>
 								</tr>
-								<tr>
+								<tr name="setorAddBase" style="display:none;">
 									<td>
-										<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+										<input type="button" onclick="fnSectorDel(this)" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 									</td>
 									<td>
-										<select class="puddSetup" pudd-style="width:calc( 100% - 20px);">
-											<option value="">A그룹</option>
+										<select style="width: 90%;">
+											<c:forEach var="items" items="${sectorGroupCode}">
+												<option value="${items.CODE}">${items.NAME}</option>
+											</c:forEach>											
 										</select>
 									</td>
 									<td><input type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
 									<td><input type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
 								</tr>
+								<tr>
+									<td>
+										<input type="button" onclick="fnSectorDel(this)" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+									</td>
+									<td>
+										<select style="width: 90%;">
+											<c:forEach var="items" items="${sectorGroupCode}">
+												<option value="${items.CODE}">${items.NAME}</option>
+											</c:forEach>											
+										</select>
+									</td>
+									<td><input type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
+									<td><input type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
+								</tr>								
 							</table>
 						</div>
 						
 					</td>
 				</tr>
-				<tr>
+				<tr name="competeType_01">
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 제한항목</th>
 					<td colspan="5">
-					
-					
 						<c:forEach var="items" items="${restrictAreaCode}">
-							<input type="checkbox"  value="${items.CODE}" class="puddSetup" pudd-label="${items.NAME}" />
-						</c:forEach>						
-					
-						
-						
-						<input type="text" pudd-style="width:300px;" class="puddSetup" value="" />
-						
-						
-						
+							<c:choose>
+								<c:when test="${items.CODE == 'etc'}">
+									<input type="checkbox" onclick="fnChangeEtc(this)" name="restrictArea" value="${items.CODE}" class="puddSetup" pudd-label="${items.NAME}" />
+									<input type="text" name="restrictArea_${items.CODE}" pudd-style="width:300px;" class="puddSetup" value="" style="display:none;" />
+								</c:when>
+								<c:otherwise>
+									<input type="checkbox" name="restrictArea" value="${items.CODE}" class="puddSetup" pudd-label="${items.NAME}" />
+								</c:otherwise>
+							</c:choose>						
+						</c:forEach>							
 					</td>
 				</tr>
-				<tr>
+				<tr name="competeType_02">
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 지명업체</th>
 					<td colspan="5">						
 						<!-- 테이블 -->
 						<div class="com_ta4">
-							<table>
+							<table name="nomineeList">
 								<colgroup>
 									<col width="34"/>
 									<col width=""/>
@@ -387,18 +449,25 @@
 								</colgroup>
 								<tr>
 									<th class="ac">
-										<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+										<input type="button" onclick="fnSectorAdd('nomineeList', 'nomineeAddBase')" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 									</th>
 									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 거래처명</th>
 									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 사업자번호</th>
 								</tr>
-								<tr>
+								<tr name="nomineeAddBase" style="display:none;">
 									<td>
-										<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+										<input type="button" onclick="fnSectorDel(this)" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 									</td>
 									<td><input type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
 									<td><input type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
 								</tr>
+								<tr>
+									<td>
+										<input type="button" onclick="fnSectorDel(this)" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+									</td>
+									<td><input type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
+									<td><input type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
+								</tr>								
 							</table>
 						</div>
 					</td>
@@ -411,17 +480,17 @@
 							
 							<c:choose>
 								<c:when test="${items.CODE == '03'}">
-									<input type="radio" name="decisionType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}" />		
-									<span class="pr10">
-										<input type="text" id="decisionType_03" pudd-style="width:40px;" class="puddSetup ar" value="" /> %
+									<input type="radio" onclick="fnChangeEtc(this)" name="decisionType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}" />		
+									<span class="pr10" name="decisionType_${items.CODE}" style="display:none;">
+										<input type="text" name="decisionType_${items.CODE}" pudd-style="width:40px;" class="puddSetup ar" value="" /> %
 									</span>									
 								</c:when>
 								<c:when test="${items.CODE == 'etc'}">
-									<input type="radio" name="decisionType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}" />	
-									<input type="text" id="decisionType_etc" pudd-style="width:300px;" class="puddSetup" value="" />								
+									<input type="radio" onclick="fnChangeEtc(this)" name="decisionType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}" />	
+									<input type="text" name="decisionType_${items.CODE}" id="decisionType_etc" pudd-style="width:300px;" class="puddSetup" value="" style="display:none;" />								
 								</c:when>								
 								<c:otherwise>
-									<input type="radio" name="decisionType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}" <c:if test="${status.index == 0}">checked</c:if> />
+									<input type="radio" onclick="fnChangeEtc(this)" name="decisionType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}" <c:if test="${status.index == 0}">checked</c:if> />
 								</c:otherwise>
 							</c:choose>
 						

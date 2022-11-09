@@ -10,6 +10,6 @@
 		<isNotEmpty property="group">
 		where `group`='$group$'
 		</isNotEmpty>
-		
+		order by `GROUP`, ORDER_NUM
 	</select>
 </sqlMap>
