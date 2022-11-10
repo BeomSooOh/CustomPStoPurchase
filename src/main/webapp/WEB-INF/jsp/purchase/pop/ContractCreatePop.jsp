@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
+.<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
@@ -26,10 +26,12 @@
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/jquery-1.9.1.min.js' />"></script>
 	<script type="text/javascript" src="<c:url value='/customStyle/Scripts/jqueryui/jquery.min.js' />"></script>
 	<script type="text/javascript" src="<c:url value='/customStyle/Scripts/jqueryui/jquery-ui.min.js' />"></script>
-    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/common.js' />"></script>  
+    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/common.js' />"></script>
+    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script>  
     <script type="text/javascript" src="<c:url value='/js/jquery.maskMoney.js' />"></script>  
 	
 	<script type="text/javascript">
+	
 		$(document).ready(function() {
 			
 			$('#amt, #stdAmt, #taxAmt').maskMoney({
@@ -50,39 +52,6 @@
 			});			
 			
 		});
-		
-		function viewKorean(num) { 
-		    var hanA = new Array("","일","이","삼","사","오","육","칠","팔","구","십"); 
-		    var danA = new Array("","십","백","천","","십","백","천","","십","백","천","","십","백","천"); 
-		    var result = ""; 
-		    for(i=0; i<num.length; i++) { 
-		        str = ""; 
-		        han = hanA[num.charAt(num.length-(i+1))]; 
-		        if(han != "") str += han+danA[i]; 
-		        if(i == 4) str += "만"; 
-		        if(i == 8) str += "억"; 
-		        if(i == 12) str += "조"; 
-		        result = str + result; 
-		    } 
-		    
-		    if(num.length > 1){
-		    	result = (result.charAt(0) == "일" ? "일" : "") + result.replaceAll("일","") + (result.charAt(result.length-1) == "일" ? "일" : "");
-		    }
-		    
-		    if(result != ""){
-		    	result = "(금" + result + "원)";
-		    }
-		    
-		    return result ; 
-		}
-		
-		function fnCallBtn(callId){
-			
-			if(callId == "attach"){
-				attachLayerPop();
-			}
-			
-		}
 		
 		
 		function attachLayerPop(){
@@ -114,16 +83,8 @@
 			 
 					iframe : true
 				,	url : "${pageContext.request.contextPath}/purchase/layer/AttachLayer.do"
-			 
-					// dialog body 부분(PUDD-UI-Con)의 attributes 설정
-				//,	attributes : { style : "padding:20px;" }
-			 
-					// dialog content 문자열로 설정하는 경우
-				//,	content : contentStr
-				//,	contentCallback : function( contentDiv ) {
-						// content 내용에 입력 컨트롤 등을 추가하여 제어가 필요한 경우 이 부분에서 처리
-				//}
-				}
+
+			}
 			 
 				// dialog 하단을 사용할 경우 설정할 부분
 			,	footer : {
@@ -191,9 +152,72 @@
 			
 		}		
 		
+		function fnSave(type){
+			
+			if(type == 0){
+				//validation check
+				
+				//confirm
+				confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSave(1)', '취소', '');	
+				
+			}else if(type == 1){
+				msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");
+			}
+		}
 		
+		function fnClose(){
+			
+			self.close();
+			
+		}			
 		
+		function fnCallBtn(callId){
+			
+			if(callId == "attach"){
+				attachLayerPop();
+			}else if(callId == "save"){
+				fnSave(0);
+			}else if(callId == "appr"){
+				fnAppr(0);
+			}
+			
+		}	
 		
+		function selectOrgchart(){
+			
+			 $("#selectedItems").val($("#createSuperKey").val());	 
+			 
+			 var pop = window.open("", "cmmOrgPop", "width=799,height=769,scrollbars=no");
+				$("#callback").val("callbackSel");
+				frmPop.target = "cmmOrgPop";
+				frmPop.method = "post";
+				frmPop.action = "/gw/systemx/orgChart.do";
+				frmPop.submit();
+				pop.focus();
+		 }	
+		
+		function callbackSel(data){	 
+
+			if(data.returnObj.length > 0){
+				
+				$("#createDeptName").val(data.returnObj[0].deptName);
+				$("#createEmpName").val(data.returnObj[0].empName);
+				$("#createDeptSeq").val(data.returnObj[0].deptSeq);
+				$("#createEmpSeq").val(data.returnObj[0].empSeq);
+				$("#createSuperKey").val(data.returnObj[0].superKey);
+				
+			}else{
+				
+				$("#createDeptName").val("");
+				$("#createEmpName").val("");
+				$("#createDeptSeq").val("");
+				$("#createEmpSeq").val("");
+				$("#createSuperKey").val("");
+				
+			}
+
+		 }		
+
 		
 	</script>
 </head>
@@ -218,11 +242,15 @@
 		<div class="top_box">
 			<dl>
 				<dt>작성부서/작성자</dt>
-				<dd><input type="text" pudd-style="width:200px;" class="puddSetup" value="" placeholder="작성부서" /></dd>
-				<dd><input type="text" pudd-style="width:100px;" class="puddSetup" value="" placeholder="작성자" /></dd>
+				<dd><input id="createDeptName" type="text" disabled pudd-style="width:200px;" class="puddSetup" value="${loginVo.orgnztNm}" placeholder="작성부서" /></dd>
+				<dd><input id="createEmpName" type="text" disabled pudd-style="width:100px;" class="puddSetup" value="${loginVo.name}" placeholder="작성자" /></dd>
+				<input id="createDeptSeq" type="hidden" value="${loginVo.orgnztId}" />
+				<input id="createEmpSeq" type="hidden" value="${loginVo.uniqId}" />
+				<input id="createSuperKey" type="hidden" value="${loginVo.groupSeq}|${loginVo.organId}|${loginVo.orgnztId}|${loginVo.uniqId}|u" />
+				<dd><input onclick="selectOrgchart()" type="button" value="선택" /></dd>
 				<dt>작성일자</dt>
 				<dd><input type="text" value="<fmt:formatDate value="${currentTime}" type="date" pattern="yyyy-MM-dd"/>" class="puddSetup" pudd-type="datepicker"/></dd>
-				<dd><input type="button" id="searchButton" value="검색" /></dd>		
+					
 			</dl>
 		</div>
 
@@ -283,19 +311,19 @@
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 기초금액</th>
 					<td>
-						<input id="amt" onchange="console.log(this.value)" type="text" pudd-style="width:110px;" class="puddSetup ar" value="0" maxlength="15" /> 원 
+						<input id="amt" onchange="console.log(this.value)" type="text" pudd-style="width:110px;" class="puddSetup ar" value="" maxlength="15" /> 원 
 						<span id="amt_han"></span>
 					</td>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 추정가격</th>
 					<td>
-						<input id="stdAmt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="0" /> 원 
+						<input id="stdAmt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="" maxlength="15" /> 원 
 						<span id="stdAmt_han"></span>
 					</td>					
 				</tr>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 부가가치세</th>
 					<td>
-						<input id="taxAmt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="0" /> 원 
+						<input id="taxAmt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="" maxlength="15" /> 원 
 						<span id="taxAmt_han"></span>
 					</td>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 근거법령</th>
@@ -539,14 +567,19 @@
 			</table>
 		</div>
 	</div><!-- //pop_con -->
-
-	<div class="pop_foot">
-		<div class="btn_cen pt12">
-			<input type="button" value="저장" />
-			<input type="button" class="gray_btn" value="취소" />
-		</div>
-	</div><!-- //pop_foot -->
-
 </div><!-- //pop_wrap -->
+
+<form id="frmPop" name="frmPop"> 
+		<input type="hidden" name="selectedItems" id="selectedItems" value="" />
+		<input type="hidden" name="popUrlStr" id="txt_popup_url" value="/gw/systemx/orgChart.do" />
+		<input type="hidden" name="selectMode" id="selectMode" value="u" />
+		<input type="hidden" name="selectItem" value="s" />
+		<input type="hidden" name="callback" id="callback" value="" />
+		<input type="hidden" name="compSeq" value="" />
+		<input type="hidden" name="callbackUrl" value="/gw/html/common/callback/cmmOrgPopCallback.jsp"/>
+		<input type="hidden" name="empUniqYn" value="N" />
+		<input type="hidden" name="empUniqGroup" value="" />
+</form>
+
 </body>
 </html>

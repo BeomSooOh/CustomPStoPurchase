@@ -124,6 +124,8 @@ public class PurchasePopController {
             mv.addObject("contractForm3Code", contractForm3);
             mv.addObject("sectorGroupCode", sectorGroup);
             
+            mv.addObject("loginVo", loginVo);
+            
             mv.setViewName("/purchase/pop/ContractCreatePop");
 
         } catch (Exception e) {
