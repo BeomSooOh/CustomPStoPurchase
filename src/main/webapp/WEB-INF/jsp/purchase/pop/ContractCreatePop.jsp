@@ -32,6 +32,32 @@
 	
 	<script type="text/javascript">
 	
+	
+		var attachFormList = [];
+		
+		var tempArray = [];
+		var tempObj = {};
+		var tempStr = "";
+		
+		<c:forEach var="items" items="${attachForm_01}">
+		
+		tempObj = {};
+		tempArray =  "${items.LINK}".split('▦');
+		tempObj.code = "${items.CODE}";
+		tempObj.formNm = "${items.NAME}";
+		
+		tempObj.mustYn = tempArray[0];
+		tempObj.formFileNm = tempArray[1];
+		tempObj.formFileId = tempArray[2];
+		
+		tempObj.fileId = "";
+		tempObj.fileName = "";
+		tempObj.fileExt = "";
+		tempObj.newYn = "";
+		
+		attachFormList.push(tempObj);
+		</c:forEach>				
+	
 		$(document).ready(function() {
 			
 			$('#amt, #stdAmt, #taxAmt').maskMoney({
@@ -56,9 +82,11 @@
 		
 		function attachLayerPop(){
 			
-			var attchListCnt = 8;
+			if(attachFormList.length == 0){
+				msgAlert("error", "첨부파일 양식코드가 존재하지 않습니다.", "");
+			}
 			
-			var layerHeight = 86+(30*attchListCnt);
+			var layerHeight = 86+(30*attachFormList.length);
 			
 			// puddDialog 함수
 			Pudd.puddDialog({

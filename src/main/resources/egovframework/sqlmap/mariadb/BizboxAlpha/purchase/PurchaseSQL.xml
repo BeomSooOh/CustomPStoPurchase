@@ -6,9 +6,9 @@
 		
 		select
 		`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK
-		from cust_sto.t_purchase_code_detail
+		from cust_sto.t_purchase_code_detail where USE_YN = 'Y'
 		<isNotEmpty property="group">
-		where `group`='$group$'
+		and `group`='$group$'
 		</isNotEmpty>
 		order by `GROUP`, ORDER_NUM
 	</select>

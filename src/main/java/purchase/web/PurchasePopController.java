@@ -75,8 +75,10 @@ public class PurchasePopController {
             List<Map<String, Object>> contractForm1 = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> contractForm2 = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> contractForm3 = new ArrayList<Map<String, Object>>();
-            
             List<Map<String, Object>> sectorGroup = new ArrayList<Map<String, Object>>();
+            
+            List<Map<String, Object>> attachForm_01 = new ArrayList<Map<String, Object>>();
+            
             
             if(codeList != null && codeList.size() > 0) {
             	
@@ -106,6 +108,8 @@ public class PurchasePopController {
         				contractForm3.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("sectorGroup")) {
         				sectorGroup.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("attachForm_01")) {
+        				attachForm_01.add(codeinfo);
         			}
         			
         		}            	
@@ -123,6 +127,7 @@ public class PurchasePopController {
             mv.addObject("contractForm2Code", contractForm2);
             mv.addObject("contractForm3Code", contractForm3);
             mv.addObject("sectorGroupCode", sectorGroup);
+            mv.addObject("attachForm_01", attachForm_01);
             
             mv.addObject("loginVo", loginVo);
             
