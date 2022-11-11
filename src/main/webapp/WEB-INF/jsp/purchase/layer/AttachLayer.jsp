@@ -88,51 +88,150 @@
 		        evt.stopPropagation();
 		        evt.preventDefault();
 		        
-		        var files = evt.target.files;
+		        var f = evt.target.files[0];
 
-		        for (var i = 0, f; f = files[i]; i++) {
-	        		
+                var fileEx = "";
+                var lastDot = f.name.lastIndexOf('.');
+                
+                if(lastDot > 0){
+                	
+    	            
+                	
+                	targetElement = $(targetElement).closest("tr");
+                	f.attachformcode = $(targetElement).attr("attachformcode");
+                	f.uid = getUUID();
+                	f.fileName = f.name.substr(0, lastDot);
+                	f.fileExt = f.name.substr(lastDot);
+                	
+                	
+                	
 
-	                var fileEx = "";
-	                var lastDot = f.name.lastIndexOf('.');
-	                
-	                if(lastDot > 0){
-	                	
-	                	targetElement = $(targetElement).closest("tr");
-	                	
-	                	f.attachformcode = $(targetElement).attr("attachformcode");
-	                	f.uid = getUUID();
-	                	f.fileName = f.name.substr(0, lastDot);
-	                	f.fileExt = f.name.substr(lastDot);
-	                	
-		                $(targetElement).find('[name="uploadFile"]').show();
-		                $(targetElement).find('[name="uploadFileName"]').attr("fileid", f.uid);
-		                $(targetElement).find('[name="uploadFileName"]').text(f.fileName);
-		                $(targetElement).find('[name="uploadFileExt"]').text(f.fileExt);		                	
-	                	
-		                removeByKey(attachFileNew, f.attachformcode);
-		                attachFileNew.push(f);
-		                
-		                
-		                
-	                
-		                
-		                
-		                /*
-		                var model_file = $("#editorBoxModel [name=editorFile]").clone();
-		                $(model_file).attr("file_type", "new");
-		                $(model_file).attr("original_file_name", ConvertSystemSourcetoHtml(f.name));
-		                $(model_file).attr("file_size", f.size);
-		                $(model_file).find("[name=icon]").attr("src", getIconFile(fileEx));
-		                $(model_file).find(".fileTxt").html(ConvertSystemSourcetoHtml(f.name) + "<span> (" + byteConvertor(f.size) + ")</span>");
-		                $(selectedEditorBox).find("[name=fileGroup]").append(model_file);
-		                $(selectedEditorBox).find("[name=fileGroup]").show();
-		                */	                	
-	                	
-	                }
-	                
+    	            var path = '<c:url value="/ajaxFileUploadProc.do" />';
+    	            var abort = false;
+    	            var formData = new FormData();
+    	           	var nfcFileNames = ;
+    	            
+   	                formData.append("file0", f);
+    	            
+    	            formData.append("nfcFileNames", nfcFileNames);
+    	            formData.append("tempFolder", tempFolder);
+    	            formData.append("pathSeq", fileKey != "" ? "0" : pathSeq);
+    	            formData.append("groupSeq", groupSeq);     
+    	            formData.append("targetPathSeq", pathSeq);
+    				formData.append("uploadMode", uploadMode);
+    	    	    
+    	            fnSetProgress();
 
-		        }
+    	            var AJAX = $.ajax({
+    	                url: path,
+    	                type: 'POST',
+    		        	timeout:600000,
+    	                xhr: function () {
+    	                    myXhr = $.ajaxSettings.xhr();
+
+    	                    if (myXhr.upload) {
+    	                        myXhr.upload.addEventListener('progress', progressHandlingFunction, false);
+    	                        myXhr.abort;
+    	                    }
+    	                    return myXhr;
+    	                },
+    	                success: completeHandler = function (data) {
+    	                	
+    	                    fnRemoveProgress();
+    						UPLOAD_COMPLITE = true;
+    												
+    						//2021-06-30 업로드 되지않은 파일을 Bindinglist에서 제거
+    						Bindinglist = Bindinglist.filter( function(element, index){
+    							if(Bindinglist[index].fileId.indexOf("addFile") > -1){
+    								if(data.attachFileNm.indexOf(Bindinglist[index].filePath) > -1){
+    									return element;
+    								}
+    							}else{
+    								return element;
+    							}
+    						})
+    						
+    						//콜백함수 호출
+    				        if (UploadCallback != "") {
+    				        	parent.eval(UploadCallback);
+    				        }
+    						
+    	                },
+    	                error: errorHandler = function () {
+
+    	                    if (abort) {
+    	                        alert('<%=BizboxAMessage.getMessage("TX000002483","업로드를 취소하였습니다.")%>');
+    	                    } else {
+    	                        alert('<%=BizboxAMessage.getMessage("TX000002180","첨부파일 처리중 장애가 발생되었습니다. 다시 시도하여 주십시오")%>');
+    	                    }
+
+    	                    UPLOAD_COMPLITE = false;
+    	                    fnRemoveProgress();
+    	                },
+    	                data: formData,
+    	                cache: false,
+    	                contentType: false,
+    	                processData: false
+    	            });
+
+    	            parent.document.getElementById("UploadAbort").onclick = function () {
+    	                fnRemoveProgress();
+    	                abort = true;
+    	                AJAX.abort();
+    	            };
+    	            
+    	            
+    	            
+    	            
+    	            
+    	            
+
+                	
+                	//첨부파일 서버전송
+                	
+                	
+                	
+                	
+                	
+                	
+                	
+                	
+                	
+                	
+                	
+                	
+                	
+                	
+                	
+                	
+
+                	
+	                $(targetElement).find('[name="uploadFile"]').show();
+	                $(targetElement).find('[name="uploadFileName"]').attr("fileid", f.uid);
+	                $(targetElement).find('[name="uploadFileName"]').text(f.fileName);
+	                $(targetElement).find('[name="uploadFileExt"]').text(f.fileExt);		                	
+                	
+	                removeByKey(attachFileNew, f.attachformcode);
+	                attachFileNew.push(f);
+	                
+	                
+	                
+                
+	                
+	                
+	                /*
+	                var model_file = $("#editorBoxModel [name=editorFile]").clone();
+	                $(model_file).attr("file_type", "new");
+	                $(model_file).attr("original_file_name", ConvertSystemSourcetoHtml(f.name));
+	                $(model_file).attr("file_size", f.size);
+	                $(model_file).find("[name=icon]").attr("src", getIconFile(fileEx));
+	                $(model_file).find(".fileTxt").html(ConvertSystemSourcetoHtml(f.name) + "<span> (" + byteConvertor(f.size) + ")</span>");
+	                $(selectedEditorBox).find("[name=fileGroup]").append(model_file);
+	                $(selectedEditorBox).find("[name=fileGroup]").show();
+	                */	                	
+                	
+                }
+	                
 		        
 		      	$('#uploadFile').val("");
 		        
@@ -151,7 +250,9 @@
 			
 			function fnDownload(){
 				
-			}			
+			}	
+			
+
 			
 			
 	</script>
