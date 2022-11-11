@@ -2,6 +2,15 @@
 <!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 
 <sqlMap namespace="PurchaseSQL">
+
+	<select	id="PurchaseSQL.getGroupInfo" parameterClass="HashMap" resultClass="HashMap">
+		select * from $DB_NEOS$t_co_group
+	</select>
+	
+	<select	id="PurchaseSQL.getGroupPathInfo" parameterClass="HashMap" resultClass="HashMap">
+		select * from $DB_NEOS$t_co_group_path where os_type = #osType# and path_seq = #pathSeq#
+	</select>	
+	
 	<select	id="PurchaseSQL.SelectPurchaseDetailCodeList" parameterClass="HashMap" resultClass="HashMap">
 		
 		select

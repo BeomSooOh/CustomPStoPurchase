@@ -34,6 +34,8 @@
 	
 	
 		var attachFormList = [];
+		var attachFileNew = [];
+		var attachFileDel = [];		
 		
 		var tempArray = [];
 		var tempObj = {};
@@ -79,7 +81,6 @@
 			
 		});
 		
-		
 		function attachLayerPop(){
 			
 			if(attachFormList.length == 0){
@@ -123,8 +124,12 @@
 						,	controlAttributes : { id : "btnConfirm", class : "submit" }// control 자체 객체 속성 설정
 						,	value : "확인"
 						,	clickCallback : function( puddDlg ) {
+							
+							temptemp = puddDlg;
+								fnUpdateAttachInfo();
 								puddDlg.showDialog( false );
 								// 추가적인 작업 내용이 있는 경우 이곳에서 처리
+								
 							}
 						}
 					,	{
@@ -133,7 +138,8 @@
 						,	value : "취소"
 						,	clickCallback : function( puddDlg ) {
 								puddDlg.showDialog( false );
-								// 추가적인 작업 내용이 있는 경우 이곳에서 처리
+								attachFileNew = [];
+								attachFileDel = [];	
 							}
 						}
 					]
@@ -141,6 +147,31 @@
 			});			
 			
 		}		
+		
+		function fnUpdateAttachInfo(){
+			$.each(attachFileDel, function( key1, attchDelInfo ) {
+				$.each(attachFormList, function( key2, attchFormInfo ) {
+					if(attchDelInfo == attchFormInfo.fileId){
+						attchFormInfo.fileId = "";
+						attchFormInfo.fileName = "";
+						attchFormInfo.fileExt = "";
+					}
+				});	
+			});				
+			
+			$.each(attachFileNew, function( key1, attchNewInfo ) {
+				$.each(attachFormList, function( key2, attchFormInfo ) {
+					if(attchNewInfo.attachformcode == attchFormInfo.code){
+						attchFormInfo.fileId = attchNewInfo.uid;
+						attchFormInfo.fileName = attchNewInfo.fileName;
+						attchFormInfo.fileExt = attchNewInfo.fileExt;
+					}
+				});	
+			});				
+			
+			attachFileNew = [];
+			attachFileDel = [];	
+		}
 		
 		function fnChangeEtc(e){
 			

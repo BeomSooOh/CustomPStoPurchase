@@ -880,4 +880,130 @@ public class CommonUtil {
 		detector.reset( );
 		return encoding;
 	}
+	
+	public static String getContentType(File file){
+		String fileName = file.getName();		
+		int idx = fileName.lastIndexOf(".");
+		
+		String fileExtsn = fileName.substring(idx + 1);		
+		String contentType = "application/octet-stream";
+		
+		if(fileExtsn.toLowerCase().equals("aac")){
+			contentType = "audio/aac";
+		}else if(fileExtsn.toLowerCase().equals("abw")){
+			contentType = "application/x-abiword";
+		}else if(fileExtsn.toLowerCase().equals("arc")){
+			contentType = "application/octet-stream";
+		} else if(fileExtsn.toLowerCase().equals("avi")){
+			contentType = "video/x-msvideo";
+		} else if(fileExtsn.toLowerCase().equals("azw")){
+			contentType = "application/vnd.amazon.ebook";
+		} else if(fileExtsn.toLowerCase().equals("bin")){
+			contentType = "application/octet-stream";
+		} else if(fileExtsn.toLowerCase().equals("bz")){
+			contentType = "application/x-bzip";
+		} else if(fileExtsn.toLowerCase().equals("bz2")){
+			contentType = "application/x-bzip2";
+		} else if(fileExtsn.toLowerCase().equals("csh")){
+			contentType = "application/x-csh";
+		} else if(fileExtsn.toLowerCase().equals("css")){
+			contentType = "text/css";
+		} else if(fileExtsn.toLowerCase().equals("csv")){
+			contentType = "text/csv";
+		} else if(fileExtsn.toLowerCase().equals("doc")){
+			contentType = "application/msword";
+		} else if(fileExtsn.toLowerCase().equals("epub")){
+			contentType = "application/epub+zip";
+		} else if(fileExtsn.toLowerCase().equals("gif")){
+			contentType = "image/gif";
+		} else if(fileExtsn.toLowerCase().equals("htm")){
+			contentType = "text/html";
+		} else if(fileExtsn.toLowerCase().equals("html")){
+			contentType = "text/html";
+		} else if(fileExtsn.toLowerCase().equals("ico")){
+			contentType = "image/x-icon";
+		} else if(fileExtsn.toLowerCase().equals("ics")){
+			contentType = "text/calendar";
+		} else if(fileExtsn.toLowerCase().equals("jar")){
+			contentType = "application/java-archive";
+		} else if(fileExtsn.toLowerCase().equals("jpeg")){
+			contentType = "image/jpeg";
+		} else if(fileExtsn.toLowerCase().equals("jpg")){
+			contentType = "image/jpeg";
+		} else if(fileExtsn.toLowerCase().equals("js")){
+			contentType = "application/js";
+		} else if(fileExtsn.toLowerCase().equals("json")){
+			contentType = "application/json";
+		} else if(fileExtsn.toLowerCase().equals("mid")){
+			contentType = "audio/midi";
+		} else if(fileExtsn.toLowerCase().equals("midi")){
+			contentType = "audio/midi";
+		} else if(fileExtsn.toLowerCase().equals("mpeg")){
+			contentType = "video/mpeg";
+		} else if(fileExtsn.toLowerCase().equals("mpkg")){
+			contentType = "application/vnd.apple.installer+xml";
+		} else if(fileExtsn.toLowerCase().equals("odp")){
+			contentType = "application/vnd.oasis.opendocument.presentation";
+		} else if(fileExtsn.toLowerCase().equals("ods")){
+			contentType = "application/vnd.oasis.opendocument.spreadsheet";
+		} else if(fileExtsn.toLowerCase().equals("odt")){
+			contentType = "application/vnd.oasis.opendocument.text";
+		} else if(fileExtsn.toLowerCase().equals("oga")){
+			contentType = "audio/ogg";
+		} else if(fileExtsn.toLowerCase().equals("ogv")){
+			contentType = "video/ogg";
+		} else if(fileExtsn.toLowerCase().equals("ogx")){
+			contentType = "application/ogg";
+		} else if(fileExtsn.toLowerCase().equals("pdf")){
+			contentType = "application/pdf";
+		} else if(fileExtsn.toLowerCase().equals("ppt")){
+			contentType = "application/vnd.ms-powerpoint";
+		} else if(fileExtsn.toLowerCase().equals("rar")){
+			contentType = "application/x-rar-compressed";
+		} else if(fileExtsn.toLowerCase().equals("rtf")){
+			contentType = "application/rtf";
+		} else if(fileExtsn.toLowerCase().equals("sh")){
+			contentType = "application/x-sh";
+		} else if(fileExtsn.toLowerCase().equals("svg")){
+			contentType = "image/svg+xml";
+		} else if(fileExtsn.toLowerCase().equals("swf")){
+			contentType = "application/x-shockwave-flash";
+		} else if(fileExtsn.toLowerCase().equals("tar")){
+			contentType = "application/x-tar";
+		} else if(fileExtsn.toLowerCase().equals("tif")){
+			contentType = "image/tiff";
+		} else if(fileExtsn.toLowerCase().equals("tiff")){
+			contentType = "image/tiff";
+		} else if(fileExtsn.toLowerCase().equals("ttf")){
+			contentType = "application/x-font-ttf";
+		} else if(fileExtsn.toLowerCase().equals("vsd")){
+			contentType = "application/vnd.visio";
+		} else if(fileExtsn.toLowerCase().equals("wav")){
+			contentType = "audio/x-wav";
+		} else if(fileExtsn.toLowerCase().equals("weba")){
+			contentType = "audio/webm";
+		} else if(fileExtsn.toLowerCase().equals("webm")){
+			contentType = "video/webm";
+		} else if(fileExtsn.toLowerCase().equals("webp")){
+			contentType = "image/webp";
+		} else if(fileExtsn.toLowerCase().equals("woff")){
+			contentType = "application/x-font-woff";
+		} else if(fileExtsn.toLowerCase().equals("xhtml")){
+			contentType = "application/xhtml+xml";
+		} else if(fileExtsn.toLowerCase().equals("xls") || fileExtsn.toLowerCase().equals("xlsx")){
+			contentType = "application/vnd.ms-excel";
+		} else if(fileExtsn.toLowerCase().equals("xml")){
+			contentType = "application/xml";
+		} else if(fileExtsn.toLowerCase().equals("xul")){
+			contentType = "application/vnd.mozilla.xul+xml";
+		} else if(fileExtsn.toLowerCase().equals("zip")){
+			contentType = "application/zip";
+		} else if(fileExtsn.toLowerCase().equals("7z")){
+			contentType = "application/x-7z-compressed";
+		} else if(fileExtsn.toLowerCase().equals("mp4")){
+			contentType = "video/mp4";
+		}
+		
+		return contentType;
+	}	
 }

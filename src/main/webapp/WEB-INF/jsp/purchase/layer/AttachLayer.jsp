@@ -1,10 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="validator" uri="http://www.springmodules.org/tags/commons-validator"%>
+<jsp:useBean id="currentTime" class="java.util.Date" />
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
@@ -29,11 +31,15 @@
     
 	<script type="text/javascript">
 	
-			var attachFileNew = [];
+			var UploadCallback = "";
 			var targetElement;
+			var uploadPer = 0;
 	
 			/*팝업 위치설정*/
 			$(document).ready(function() {
+				
+				parent.attachFileNew = [];
+				parent.attachFileDel = [];				
 				
 				document.getElementById('file_upload').addEventListener('change', handleFileSelect, false);
 				
@@ -77,9 +83,9 @@
 				  });
 			}
 			
-			function removeByKey(array, attachformcode){
+			function removeByKey(array, key, value){
 			    array.some(function(item, index) {
-			    	(array[index]["attachformcode"] == attachformcode) ? !!(array.splice(index, 1)) : false;
+			    	(array[index][key] == value) ? !!(array.splice(index, 1)) : false;
 			    });
 			}			
 			
@@ -94,36 +100,23 @@
                 var lastDot = f.name.lastIndexOf('.');
                 
                 if(lastDot > 0){
-                	
-    	            
-                	
-                	targetElement = $(targetElement).closest("tr");
                 	f.attachformcode = $(targetElement).attr("attachformcode");
-                	f.uid = getUUID();
+                	f.uid = '<fmt:formatDate value="${currentTime}" type="date" pattern="yyyyMMdd"/>' + getUUID();
                 	f.fileName = f.name.substr(0, lastDot);
                 	f.fileExt = f.name.substr(lastDot);
                 	
-                	
-                	
-
-    	            var path = '<c:url value="/ajaxFileUploadProc.do" />';
     	            var abort = false;
     	            var formData = new FormData();
-    	           	var nfcFileNames = ;
+    	           	var nfcFileNames = btoa(unescape(encodeURIComponent(f.name)));
     	            
    	                formData.append("file0", f);
-    	            
+   	             	formData.append("fileId", f.uid);
     	            formData.append("nfcFileNames", nfcFileNames);
-    	            formData.append("tempFolder", tempFolder);
-    	            formData.append("pathSeq", fileKey != "" ? "0" : pathSeq);
-    	            formData.append("groupSeq", groupSeq);     
-    	            formData.append("targetPathSeq", pathSeq);
-    				formData.append("uploadMode", uploadMode);
     	    	    
     	            fnSetProgress();
 
     	            var AJAX = $.ajax({
-    	                url: path,
+    	                url: '<c:url value="/ajaxFileUploadProc.do" />',
     	                type: 'POST',
     		        	timeout:600000,
     	                xhr: function () {
@@ -138,34 +131,25 @@
     	                success: completeHandler = function (data) {
     	                	
     	                    fnRemoveProgress();
-    						UPLOAD_COMPLITE = true;
-    												
-    						//2021-06-30 업로드 되지않은 파일을 Bindinglist에서 제거
-    						Bindinglist = Bindinglist.filter( function(element, index){
-    							if(Bindinglist[index].fileId.indexOf("addFile") > -1){
-    								if(data.attachFileNm.indexOf(Bindinglist[index].filePath) > -1){
-    									return element;
-    								}
-    							}else{
-    								return element;
-    							}
-    						})
-    						
-    						//콜백함수 호출
-    				        if (UploadCallback != "") {
-    				        	parent.eval(UploadCallback);
-    				        }
+    	                	
+    		                $(targetElement).find('[name="uploadFile"]').show();
+    		                $(targetElement).find('[name="uploadFileName"]').attr("fileid", f.uid);
+    		                $(targetElement).find('[name="uploadFileName"]').text(f.fileName);
+    		                $(targetElement).find('[name="uploadFileExt"]').text(f.fileExt);		                	
+    	                	
+    		                removeByKey(parent.attachFileNew, "attachformcode", f.attachformcode);
+    		                parent.attachFileNew.push(f);
     						
     	                },
     	                error: errorHandler = function () {
 
     	                    if (abort) {
-    	                        alert('<%=BizboxAMessage.getMessage("TX000002483","업로드를 취소하였습니다.")%>');
+    	                        alert('업로드를 취소하였습니다.');
     	                    } else {
-    	                        alert('<%=BizboxAMessage.getMessage("TX000002180","첨부파일 처리중 장애가 발생되었습니다. 다시 시도하여 주십시오")%>');
+    	                        alert('첨부파일 처리중 장애가 발생되었습니다. 다시 시도하여 주십시오');
     	                    }
 
-    	                    UPLOAD_COMPLITE = false;
+    	                    //UPLOAD_COMPLITE = false;
     	                    fnRemoveProgress();
     	                },
     	                data: formData,
@@ -174,11 +158,14 @@
     	                processData: false
     	            });
 
+    	            
+    	            /*
     	            parent.document.getElementById("UploadAbort").onclick = function () {
     	                fnRemoveProgress();
     	                abort = true;
     	                AJAX.abort();
     	            };
+    	            */
     	            
     	            
     	            
@@ -204,16 +191,6 @@
                 	
                 	
                 	
-
-                	
-	                $(targetElement).find('[name="uploadFile"]').show();
-	                $(targetElement).find('[name="uploadFileName"]').attr("fileid", f.uid);
-	                $(targetElement).find('[name="uploadFileName"]').text(f.fileName);
-	                $(targetElement).find('[name="uploadFileExt"]').text(f.fileExt);		                	
-                	
-	                removeByKey(attachFileNew, f.attachformcode);
-	                attachFileNew.push(f);
-	                
 	                
 	                
                 
@@ -236,24 +213,66 @@
 		      	$('#uploadFile').val("");
 		        
 		    }
-			
 		    
+		    function progressHandlingFunction(e) {
+		        if (e.lengthComputable) {
+		        	
+		        	uploadPer = parseInt((e.loaded / e.total) * 100);
+		        	//byte = parseInt((e.loaded/1000)) + "/" + parseInt((e.total/1000));
+		        }
+		    }			    
+			
+		    		    
+		    
+		    function fnSetProgress() {
+		    	
+		    	uploadPer = 0;
+
+		    	Pudd( "#exArea" ).puddProgressBar({
+		    		 
+		    		progressType : "circular"
+		    	,	attributes : { style:"width:70px; height:70px;" }
+		    	 
+		    	,	strokeColor : "#00bcd4"	// progress 색상
+		    	,	strokeWidth : "3px"	// progress 두께
+		    	 
+		    	,	textAttributes : { style : "" }		// text 객체 속성 설정
+		    	 
+		    	,	percentText : ""
+		    	,	percentTextColor : "#444"
+		    	,	percentTextSize : "24px"
+		    	,	backgroundLayerAttributes : { style : "background-color:#000;filter:alpha(opacity=20);opacity:0.2;width:100%;height:100%;position:fixed;top:0px; left:0px;" }
+		    	,	modal : true// 기본값 false - progressType : linear, circular 인 경우만 해당
+		    	 
+		    		// 200 millisecond 마다 callback 호출됨
+		    	,	progressCallback : function( progressBarObj ) {
+		    			return uploadPer;
+		    		}
+		    	});		    	
+		    	
+		    }		    
+		    
+		    function fnRemoveProgress() {
+		    	uploadPer = 100;
+		    }			    
 		    
 			function fnSearchFile(e){
-				targetElement = e;
+				targetElement = $(e).closest("tr");
 				$("#file_upload").click();
 			}
 			
-			function fnDelFile(){
+			function fnDelFile(e){
+				targetElement = $(e).closest("tr");
 				
+				$(targetElement).find('[name="uploadFile"]').hide();
+				var fileid = $(targetElement).find('[name="uploadFileName"]').attr("fileid");
+				parent.attachFileDel.push(fileid);
+                removeByKey(parent.attachFileNew, "uid", fileid);
 			}
 			
-			function fnDownload(){
-				
+			function fnDownload(e){
+				this.location.href = "${pageContext.request.contextPath}/fileDownloadProc.do?fileId=" + $(e).attr("fileid");
 			}	
-			
-
-			
 			
 	</script>
 </head>
@@ -289,7 +308,7 @@
 		<div class="mt10">※ <img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" />는 반드시 업로드 하셔야 합니다.</div>
 		
         <input style="display:none;" id="file_upload" type="file" />
-  
+  		<div id="exArea"></div>
     </div><!-- //pop_wrap -->
 <!--// 팝업----------------------------------------------------- -->
 </body>
