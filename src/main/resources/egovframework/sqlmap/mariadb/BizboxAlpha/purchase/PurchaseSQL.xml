@@ -24,6 +24,10 @@
 	
 	<insert	id="PurchaseSQL.InsertContract" parameterClass="HashMap" >
 		
+		<selectKey keyProperty="manage_no" resultClass="java.lang.String">
+		select concat('$budget_type$', '-', YEAR(now()), '-', LPAD( ifnull( (select max(substr(manage_no, 9)) from cust_sto.t_purchase_contract where manage_no like concat('$budget_type$-',YEAR(now()),'-%')) , '0') + 1 , 4, '0')) as manage_no from dual		
+	    </selectKey>		
+		
 		INSERT INTO cust_sto.t_purchase_contract
 		(
 		manage_no, 
