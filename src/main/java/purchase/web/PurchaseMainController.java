@@ -20,7 +20,9 @@ import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
@@ -36,6 +38,7 @@ import egovframework.com.utl.fcc.service.EgovFileUploadUtil;
 import egovframework.com.utl.fcc.service.EgovStringUtil;
 import neos.cmm.util.BizboxAProperties;
 import neos.cmm.util.NeosConstants;
+import purchase.service.PurchaseService;
 import purchase.service.PurchaseServiceDAO;
 import common.vo.common.CommonMapper;
 
@@ -53,6 +56,9 @@ public class PurchaseMainController {
     
     @Resource(name = "CommonInfo")
     private CommonInfo cmInfo; /* 공통 사용 정보 관리 */
+    
+    @Resource(name = "PurchaseService")
+    private PurchaseService purchaseService;       
     
     @Resource(name = "PurchaseServiceDAO")
     private PurchaseServiceDAO purchaseServiceDAO;    	        
@@ -233,6 +239,27 @@ public class PurchaseMainController {
             logger.error(e);
         }
         return mv;
-    }    
+    }
+    
+	@SuppressWarnings("unchecked")
+	@RequestMapping("/purchase/ContractSaveProc.do")
+	public ModelAndView ContractSaveProc(@RequestParam Map<String, Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+
+		Map<String, Object> resultData = new HashMap<String, Object>();
+		resultData.put("seq", "1");
+		
+		params.put("manage_no", "11");
+		params.put("contract_no", "22");
+		purchaseService.InsertContract(params);
+		
+		mv.addObject("resultData", params);
+		mv.addObject("resultCode", "success");	
+		mv.setViewName("jsonView");
+		return mv;
+	}
+    
+    
 
 }

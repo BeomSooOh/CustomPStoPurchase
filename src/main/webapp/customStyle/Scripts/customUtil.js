@@ -18,7 +18,7 @@ function viewKorean(num) {
     }
     
     if(result != ""){
-    	result = "(금" + result + "원)";
+    	result = "(" + result + "원)";
     }
     
     return result ; 
@@ -96,5 +96,158 @@ function msgAlert(type, content, callback){
 			puddDlg.showDialog( false );	
 		}
 	});			
+}
+
+function msgSnackbar(type, msg, callback){
+	Pudd.puddSnackBar({
+		 
+		type	: type		// success, error, warning, info
+	,	message : msg
+	,	duration : 3000			// 1초 = 1000
+		// snackbar show 완료 후 callback
+	,	showDoneCallback : function() {
+			if(callback != ""){
+				eval(callback);
+			}
+		}
+	});			
+}
+
+
+function checkVal(type, elementFor, objName, func, subValueFor){
+	
+	var returnVal = "";
+	
+	if(type == "text" || type == "select"){
+		returnVal = $(elementFor).val();
+		
+		if(subValueFor == "parseToInt"){
+			returnVal = returnVal.replace(/,/g, "")
+		}
+		
+	}else if(type == "radio"){
+		returnVal = $("[name='"+elementFor+"']:checked").val();
+		
+		if(subValueFor.indexOf(returnVal) > -1){
+			
+			var subValueForValue = $("[name='"+elementFor+ "_" + returnVal +"']").val();
+			
+			if(subValueForValue == ""){
+				
+				console.log("필수값 누락 objName > " + objName + " > " + returnVal);
+				
+				msgSnackbar("error", "필수항목 ("+objName+") 을 입력해 주세요.")
+				
+				$("[name='"+elementFor+ "_" + returnVal +"']").focus();
+				
+				return "$failAlert$";
+				
+			}else{
+				returnVal += "▦" + subValueForValue;	
+			}					
+			
+		}				
+		
+	}else if(type == "date"){
+		returnVal = $("[name='"+elementFor+"']").val();
+	}else if(type == "checkbox"){
+		
+		if(func == "checkYn"){
+			returnVal = $(elementFor).attr("checked") == "checked" ? "Y" : "N";
+		}else{
+			
+			var statusVal = false;
+			
+			$.each($("[name='"+elementFor+"']:checked"), function( key, objInfo ) {
+				
+				returnVal += (returnVal == "" ? "" : "▦▦") + $(objInfo).val();
+				
+				if(subValueFor.indexOf($(objInfo).val()) > -1){
+					
+					var subValueForValue = $("[name='"+elementFor+ "_" + $(objInfo).val() +"']").val();
+					
+					if(subValueForValue == ""){
+						
+						console.log("필수값 누락 objName > " + objName + " > " + $(objInfo).val());
+						
+						msgSnackbar("error", "필수항목 ("+objName+") 을 입력해 주세요.")
+						
+						$("[name='"+elementFor+ "_" + $(objInfo).val() +"']").focus();
+						
+						statusVal = true;
+						return false;
+						
+					}else{
+						returnVal += "▦" + subValueForValue;	
+					}
+					
+				}
+				
+			});
+			
+			if(statusVal){
+				return "$failAlert$";
+			}
+			
+		}
+		
+	}else if(type == "table"){
+		
+		$.each($("[name='"+elementFor+"'] [name='addData']"), function( key, objInfo ) {
+			
+			var values = "";
+			
+			$.each($(objInfo).find("[name=tableVal]"), function( key, tableVal ) {
+				
+				if($(tableVal).val() != ""){
+					values += (values == "" ? "" : "▦") + $(tableVal).val();
+				}else{
+					values = "";
+					return false;							
+				}
+				
+			});
+			
+			if(values != ""){
+				returnVal += (returnVal == "" ? "" : "▦▦") + values;	
+			}
+			
+		});	
+		
+	}
+	
+	if(returnVal == ""){
+		
+		if(func != "mustAlert" && !eval(func)){
+			func = "";
+		}				
+		
+		if(func != ""){
+			
+			if(func != "mustAlert" && !eval(func)){
+				func = "";
+			}
+			
+			console.log("필수값 누락 objName > " + objName);
+			returnVal = "$failAlert$";
+			msgSnackbar("error", "필수항목 ("+objName+") 을 입력해 주세요.")
+			
+			if(type == "text"){
+				$(elementFor).focus();
+			}else if(type == "table"){
+				
+				$("[name='"+elementFor+"'] [name='addData'] [name='tableVal']input:first").focus();
+				
+			}			
+		}				
+	}
+	
+	return returnVal;
+}		
+
+
+function selectDate(e){
+	
+	return true;
 }
 

@@ -30,5 +30,9 @@ public class PurchaseServiceImpl implements PurchaseService {
 	public List<Map<String, Object>> SelectPurchaseDetailCodeList ( Map<String, Object> params ){
 		return purchaseServiceDAO.SelectPurchaseDetailCodeList(params);
 	}
+	
+	public Map<String, Object> InsertContract ( Map<String, Object> params ){
+		return purchaseServiceDAO.InsertContract(params);
+	}
 }
 

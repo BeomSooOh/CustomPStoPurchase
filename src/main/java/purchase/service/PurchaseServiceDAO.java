@@ -16,6 +16,13 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
 		result = (List<Map<String, Object>>) list( "PurchaseSQL.SelectPurchaseDetailCodeList", params );
 		return result;
-	}	
+	}
+	
+	public Map<String, Object> InsertContract ( Map<String, Object> params ) {
+		
+		insert( "PurchaseSQL.InsertContract", params );
+		
+		return params;
+	}		
 	
 }
