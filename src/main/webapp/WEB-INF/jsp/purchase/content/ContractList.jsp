@@ -25,55 +25,55 @@
 
 <script>
 $(document).ready(function() {
-			
-	// #grid1 table
-	var exData = [
-			{ "gridCheckBox": "", 
-			"data1": "1000", 
-			"data2": "B120220019", 
-			"data3": "", 
-			"data4": "물품(구매)", 
-			"data5": "계약 및 물품구매 전자관리시스템 구축", 
-			"data6": "1,200,000,000원", 
-			"data7": "",
-			"data8": "2022/09/01",
-			"data9": "",
-			"data10": "",
-			"data11": "",
-			"data12": "",
-			"data13": "",
-			"data14": "",
-			"data15": "",
-			"data16": "",
-			"data17": "",
-			"data18": "",
-			"data19": "",
-			"data20": "",
-			"data21": "",
-			"data22": "",
-			"data23": "",
-			"data24": "",
-			"data25": "",
-			"data26": "",
-			"data27": "",
-			"data28": "",
-			"data29": "",
-			"data30": "",
-			"data31": "",
-			"data32": "",
-			"data33": "",
-			"data34": "",
-			"data35": "",
-			"data36": "",
-			"data37": "",
-		}
-	];
+	
+	fnGetListBind();
+	
+	function gridHeightChange( minusVal ) {
+		var puddGrid = Pudd( "#grid1" ).getPuddObject();
+		var cHeight = document.body.clientHeight;
 
-	var dataSource = new Pudd.Data.DataSource({
-			data : exData	// 직접 data를 배열로 설정하는 옵션 작업할 것
+		var newGridHeight = cHeight - minusVal;
+		if( newGridHeight > 100 ) {// 최소높이
+			puddGrid.gridHeight( newGridHeight );
+		}
+	}
+
+	gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
+
+	$(window).resize(function () {
+		gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
+
+	});
+	});//---documentready
+	
+	
+	function fnGetListBind(){
+
+		var reqParam = {};
+		
+		$.ajax({
+			type : 'post',
+			url : '<c:url value="/purchase/admin/SelectContractList.do" />',
+			datatype : 'json',
+			data : reqParam,
+			//async : false,
+			success : function(result) {
+				gridRender(result.resultList);
+			},
+			error : function(result) {
+				msgSnackbar("error", "데이터 요청에 실패했습니다.");
+			}
+		});
+		
+	}	
+	
+	function gridRender(listData){
+		
+		var dataSource = new Pudd.Data.DataSource({
+			data : listData	// 직접 data를 배열로 설정하는 옵션 작업할 것
 		,	pageSize : 1000	// grid와 연동되는 경우 grid > pageable > pageList 배열값 중의 하나이여야 함
 		,	serverPaging : false
-	});
+		});
 
 	Pudd("#grid1").puddGrid({
 			dataSource : dataSource
@@ -100,7 +100,7 @@ $(document).ready(function() {
 				title : "기본정보"
 			,	columns : [
 				{
-						field : "data1"
+						field : "seq"
 					,	title : "연변"
 					,	width : 70
 					,	content : {
@@ -108,12 +108,12 @@ $(document).ready(function() {
 					}
 				}					
 			,	{
-						field : "data2"
+						field : "manage_no"
 					,	title : "관리번호"
 					,	width : 130
 				}
 			,	{
-						field : "data3"
+						field : "contract_no"
 					,	title : "계약번호"
 					,	width : 120
 					,	content : {		
@@ -124,12 +124,12 @@ $(document).ready(function() {
 					}
 				}
 			,	{
-						field : "data4"
+						field : "target_type"
 					,	title : "계약목적물"
 					,	width : 120
 				}					
 			,	{
-						field : "data5"
+						field : "title"
 					,	title : "계약명"
 					,	width : 250
 					,	content : {
@@ -141,7 +141,7 @@ $(document).ready(function() {
 					}
 				}				
 			,	{
-						field : "data6"
+						field : "amt"
 					,	title : "계약금액"
 					,	width : 130
 					,	content : {
@@ -149,7 +149,7 @@ $(document).ready(function() {
 					}
 				}
 			,	{
-						field : "data7"
+						field : "contract_start_dt"
 					,	title : "계약시작일"
 					,	width : 150	
 					,	content : {		
@@ -160,12 +160,12 @@ $(document).ready(function() {
 					}					
 				}
 			,	{
-						field : "data8"
+						field : "contract_end_dt"
 					,	title : "계약종료일"
 					,	width : 100							
 				}
 			,	{
-						field : "data9"
+						field : "base_law"
 					,	title : "근거법령"
 					,	width : 150
 				}						
@@ -381,7 +381,7 @@ $(document).ready(function() {
 					,	content : {
 						attributes : { class : "le" },
 						template : function() {
-							var html = '<div><span class="text_ho"><em class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="../../../Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> STOB221014STOB221014STOB221014-008</em>.zip</span> <input type="button" class="puddSetup ml5" value="추가" /></div>';
+							var html = '<div><span class="text_ho"><em class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> STOB221014STOB221014STOB221014-008</em>.zip</span> <input type="button" class="puddSetup ml5" value="추가" /></div>';
 							return html;
 						}
 					}
@@ -394,7 +394,7 @@ $(document).ready(function() {
 					,	content : {
 						attributes : { class : "le" },
 						template : function() {
-							var html = '<div><span class="text_ho"><em class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="../../../Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> STOB221014STOB221014STOB221014-008</em>.zip</span> <input type="button" class="puddSetup ml5" value="추가" /></div>';
+							var html = '<div><span class="text_ho"><em class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> STOB221014STOB221014STOB221014-008</em>.zip</span> <input type="button" class="puddSetup ml5" value="추가" /></div>';
 							return html;
 						}
 					}
@@ -402,26 +402,9 @@ $(document).ready(function() {
 				]
 			}
 		]
-	});
-
-	function gridHeightChange( minusVal ) {
-		var puddGrid = Pudd( "#grid1" ).getPuddObject();
-		var cHeight = document.body.clientHeight;
-
-		var newGridHeight = cHeight - minusVal;
-		if( newGridHeight > 100 ) {// 최소높이
-			puddGrid.gridHeight( newGridHeight );
-		}
-	}
-
-	gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
-
-	$(window).resize(function () {
-		gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
-
-	});
-	});//---documentready
-	
+	});		
+		
+	}	
 	
 	
 	function fnCallBtn(callId){
@@ -452,7 +435,7 @@ $(document).ready(function() {
 		<dd><input type="text" pudd-style="width:120px;" class="puddSetup" placeHolder="부서명 입력" value="" /></dd>
 		<dt class="ar" style="width:40px;">사원명</dt>
 		<dd><input type="text" pudd-style="width:90px;" class="puddSetup" placeHolder="사원명 입력" value="" /></dd>
-		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" /></dd>
+		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="fnGetListBind()" /></dd>
 	</dl>
 </div>
 

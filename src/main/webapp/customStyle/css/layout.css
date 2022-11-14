@@ -576,7 +576,7 @@
 .set_btn a.btn1 {background:url("../Images/btn/btn_setting01.png")no-repeat;}*/
 
 /* 윈도우팝업-레이아웃*/
-.pop_wrap {/*position:absolute;*/z-index:3; border:1px solid #1385db;overflow:hidden;}
+.pop_wrap {/*position:absolute;*/z-index:3; /*border:1px solid #1385db;*/overflow:hidden;}
 .pop_head {height:32px; position:relative;background:#1385db;}
 .pop_head h1 {font-size:12px; color:#fff; line-height:32px;padding-left:16px;}
 .pop_head .clo {position:absolute;top:7px; right:13px; display:none;}

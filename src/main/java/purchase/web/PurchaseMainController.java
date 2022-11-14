@@ -5,10 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -20,24 +19,17 @@ import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
-
 import bizbox.orgchart.service.vo.LoginVO;
 import cmm.util.CommonUtil;
 import common.helper.convert.CommonConvert;
 import common.helper.exception.NotFoundLoginSessionException;
 import common.helper.info.CommonInfo;
 import common.helper.logger.ExpInfo;
-import egovframework.com.cmm.util.EgovUserDetailsHelper;
 import egovframework.com.utl.fcc.service.EgovFileUploadUtil;
-import egovframework.com.utl.fcc.service.EgovStringUtil;
-import neos.cmm.util.BizboxAProperties;
-import neos.cmm.util.NeosConstants;
 import purchase.service.PurchaseService;
 import purchase.service.PurchaseServiceDAO;
 import common.vo.common.CommonMapper;
@@ -223,11 +215,15 @@ public class PurchaseMainController {
     public ModelAndView ContractList(@PathVariable String authLevel, @RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
     	
         ModelAndView mv = new ModelAndView();
+        mv.addObject("authLevel", authLevel);
+        
         try {
             /* 변수 설정 */
             LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+            params.put("groupSeq", loginVo.getGroupSeq());
             
-            mv.addObject("authLevel", authLevel);
+            List<Map<String, Object>> list = purchaseService.SelectContractList(params);
+            mv.addObject("resultList", list);
             
             mv.setViewName("/purchase/content/ContractList");
 
@@ -241,17 +237,38 @@ public class PurchaseMainController {
         return mv;
     }
     
-	@SuppressWarnings("unchecked")
+    @RequestMapping("/purchase/{authLevel}/SelectContractList.do")
+    public ModelAndView SelectContractList(@PathVariable String authLevel, @RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        mv.addObject("authLevel", authLevel);
+        params.put("authLevel", authLevel);
+        
+        /* 변수 설정 */
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+        params.put("groupSeq", loginVo.getGroupSeq());
+        
+        List<Map<String, Object>> list = purchaseService.SelectContractList(params);
+        mv.addObject("resultList", list);
+        mv.setViewName("jsonView");
+
+        return mv;
+    }    
+    
 	@RequestMapping("/purchase/ContractSaveProc.do")
 	public ModelAndView ContractSaveProc(@RequestParam Map<String, Object> params, HttpServletRequest request)
 			throws Exception {
 		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
 
 		Map<String, Object> resultData = new HashMap<String, Object>();
 		resultData.put("seq", "1");
 		
-		params.put("manage_no", "11");
-		params.put("contract_no", "22");
+		params.put("manage_no", "");
+		params.put("contract_no", "");
+		params.put("created_by", loginVo.getUniqId());
+		
 		purchaseService.InsertContract(params);
 		
 		mv.addObject("resultData", params);

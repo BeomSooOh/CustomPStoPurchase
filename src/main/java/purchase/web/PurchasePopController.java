@@ -61,6 +61,7 @@ public class PurchasePopController {
             //구매계약 전용코드 조회
             Map<String, Object> queryParam = new HashMap<String, Object>();
             queryParam.put("groupSeq", loginVo.getGroupSeq());
+            queryParam.put("useYn", "Y");
             //전체코드 한번에 조회
             List<Map<String, Object>> codeList = purchaseServiceDAO.SelectPurchaseDetailCodeList(queryParam);
             

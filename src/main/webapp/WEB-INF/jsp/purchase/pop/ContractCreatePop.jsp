@@ -13,6 +13,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>계약입찰 발주계획 등록</title>
 
     <!--css-->
     <link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/pudd.css' />">
@@ -282,6 +283,11 @@
 				data : insertDataObject,
 				async : false,
 				success : function(result) {
+					
+					if(opener != null && typeof opener.fnGetListBind != "undefined"){
+						opener.fnGetListBind();
+					}					
+					
 					msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");
 				},
 				error : function(result) {
