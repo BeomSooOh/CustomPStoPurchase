@@ -262,8 +262,7 @@ public class PurchaseMainController {
 		
 		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
 
-		Map<String, Object> resultData = new HashMap<String, Object>();
-		resultData.put("seq", "1");
+		//Map<String, Object> resultData = new HashMap<String, Object>();
 		
 		params.put("manage_no", "");
 		params.put("contract_no", "");
@@ -276,6 +275,22 @@ public class PurchaseMainController {
 		mv.setViewName("jsonView");
 		return mv;
 	}
+	
+	@RequestMapping("/purchase/ContractInfo.do")
+	public ModelAndView ContractInfo(@RequestParam Map<String, Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		
+		Map<String, Object> resultData = purchaseServiceDAO.SelectContractDetail(params);
+		
+		mv.addObject("resultData", resultData);
+		mv.addObject("resultCode", "success");	
+		mv.setViewName("jsonView");
+		return mv;
+	}	
     
     
 

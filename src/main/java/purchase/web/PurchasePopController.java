@@ -1,17 +1,21 @@
 package purchase.web;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import bizbox.orgchart.service.vo.LoginVO;
 import common.helper.convert.CommonConvert;
@@ -20,6 +24,7 @@ import common.helper.exception.NotFoundLoginSessionException;
 import common.helper.info.CommonInfo;
 import common.helper.logger.ExpInfo;
 import common.vo.common.CommonInterface.commonCode;
+import egovframework.com.cmm.util.EgovUserDetailsHelper;
 import purchase.service.PurchaseService;
 import purchase.service.PurchaseServiceDAO;
 import common.vo.common.CommonMapper;
@@ -161,5 +166,79 @@ public class PurchasePopController {
         }
         return mv;
     }     
+    
+    
+	@RequestMapping("/purchase/ApprCreate.do")
+	public ModelAndView ApprCreate(@RequestParam Map<String,Object> params, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) throws Exception {
+		
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("compSeq", loginVo.getOrganId());
+		params.put("deptSeq", loginVo.getOrgnztId());
+		params.put("empSeq", loginVo.getUniqId());
+		
+		/*
+		Map<String, Object> contractDetail = purchaseServiceDAO.SelectContractDetail(params);
+		
+		if(contractDetail != null) {
+			params.put("mod", "W");
+			params.put("approKey", "A01");
+			params.put("formId", "204");
+			
+			params.put("subjectStr", contractDetail.get("title"));
+			params.put("contentsStr", contractDetail.get("work_info"));
+			params.put("detailUrl", "/gw/bizbox.do");
+			params.put("detailName", contractDetail.get("title"));			
+		}else {
+			return mv;
+		}
+		*/
+
+		params.put("mod", "W");
+		params.put("approKey", "A01");
+		params.put("formId", "204");
+		
+		params.put("subjectStr", "깨");
+		params.put("contentsStr", "지지");
+		params.put("detailUrl", "/gw/bizbox.do");
+		params.put("detailName", "마요");				
+		
+		params.put("fileKey", "마요");				
+		
+		String queryString = "";
+		
+		if(params != null) {
+			
+			//전자결재본문내용 전달
+			if(params.get("contentsStr") != null){
+				redirectAttributes.addFlashAttribute("contentsStr",URLEncoder.encode(params.get("contentsStr").toString(),"UTF-8"));
+				params.remove("contentsStr");
+			}else{
+				redirectAttributes.addFlashAttribute("contentsStr","");
+			}
+			
+			//전자결재제목 전달
+			if(params.get("subjectStr") != null){
+				redirectAttributes.addFlashAttribute("subjectStr",URLEncoder.encode(params.get("subjectStr").toString(),"UTF-8"));
+				params.remove("subjectStr");
+			}else{
+				redirectAttributes.addFlashAttribute("subjectStr","");
+			}			
+			
+			//Query String 생성 
+			for (String mapKey : params.keySet()) {
+				queryString += (queryString.equals("") ? "?" : "&") + mapKey + "=" + URLEncoder.encode(params.get(mapKey).toString(),"UTF-8");
+			}			
+		}
+
+		String url = request.getScheme() + "://"+request.getServerName()+ ":" +request.getServerPort()+ "/" + loginVo.getEaType() + "/ea/docpop/bizboxOutProcess.do" + queryString;
+		mv.setViewName("redirect:"+url);
+		
+		return mv;
+	}    
+    
 
 }

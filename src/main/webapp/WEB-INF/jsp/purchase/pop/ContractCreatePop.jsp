@@ -284,17 +284,31 @@
 				async : false,
 				success : function(result) {
 					
-					if(opener != null && typeof opener.fnGetListBind != "undefined"){
-						opener.fnGetListBind();
-					}					
+					if(result.resultCode == "success"){
+						
+						if(type == 1){
+							openerRefreshList();				
+							msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");							
+						}else{
+							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?seq=" + result.resultData.seq,  "ApprCreatePop", 1000, 729, 1, 1) ;
+						}
+						
+					}else{
+						msgSnackbar("error", "등록에 실패했습니다.");	
+					}
 					
-					msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");
 				},
 				error : function(result) {
 					msgSnackbar("error", "등록에 실패했습니다.");
 				}
 			});
 			
+		}
+		
+		function openerRefreshList(){
+			if(opener != null && typeof opener.fnGetListBind != "undefined"){
+				opener.fnGetListBind();
+			}	
 		}
 		
 		function fnClose(){

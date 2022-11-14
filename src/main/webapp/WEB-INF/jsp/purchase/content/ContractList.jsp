@@ -24,26 +24,26 @@
 
 
 <script>
-$(document).ready(function() {
+	$(document).ready(function() {
+		
+		fnGetListBind();
+		
+		function gridHeightChange( minusVal ) {
+			var puddGrid = Pudd( "#grid1" ).getPuddObject();
+			var cHeight = document.body.clientHeight;
 	
-	fnGetListBind();
-	
-	function gridHeightChange( minusVal ) {
-		var puddGrid = Pudd( "#grid1" ).getPuddObject();
-		var cHeight = document.body.clientHeight;
-
-		var newGridHeight = cHeight - minusVal;
-		if( newGridHeight > 100 ) {// 최소높이
-			puddGrid.gridHeight( newGridHeight );
+			var newGridHeight = cHeight - minusVal;
+			if( newGridHeight > 100 ) {// 최소높이
+				puddGrid.gridHeight( newGridHeight );
+			}
 		}
-	}
-
-	gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
-
-	$(window).resize(function () {
+	
 		gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
-
-	});
+	
+		$(window).resize(function () {
+			gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
+	
+		});
 	});//---documentready
 	
 	
@@ -56,7 +56,7 @@ $(document).ready(function() {
 			url : '<c:url value="/purchase/admin/SelectContractList.do" />',
 			datatype : 'json',
 			data : reqParam,
-			//async : false,
+			async : false,
 			success : function(result) {
 				gridRender(result.resultList);
 			},

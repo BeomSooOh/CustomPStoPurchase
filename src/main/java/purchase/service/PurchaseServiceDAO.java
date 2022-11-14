@@ -19,6 +19,11 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 	}
 	
 	@SuppressWarnings ( "unchecked" )
+	public Map<String, Object> SelectContractDetail ( Map<String, Object> params ) {
+		return (Map<String, Object>) select( "PurchaseSQL.SelectContractDetail", params );
+	}
+	
+	@SuppressWarnings ( "unchecked" )
 	public List<Map<String, Object>> SelectPurchaseDetailCodeList ( Map<String, Object> params ) {
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
 		result = (List<Map<String, Object>>) list( "PurchaseSQL.SelectPurchaseDetailCodeList", params );
