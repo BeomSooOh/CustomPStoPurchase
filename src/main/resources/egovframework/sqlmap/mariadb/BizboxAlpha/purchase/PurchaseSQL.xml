@@ -111,7 +111,14 @@
 		
 	</select>	
 	
-	
+	<select	id="PurchaseSQL.SelectContractSeqFromManageNo" parameterClass="HashMap" resultClass="int">
+		
+		SELECT 
+		seq
+		FROM cust_sto.t_purchase_contract
+		where manage_no = '$manage_no$'
+		
+	</select>	
 	
 	<insert	id="PurchaseSQL.InsertContract" parameterClass="HashMap" >
 		
@@ -193,10 +200,7 @@
 		null, 
 		null
 		);
-		
-	   <selectKey keyProperty="seq" resultClass="int">
-	        SELECT LAST_INSERT_ID()
-	   </selectKey>		
 
 	</insert>	
+	
 </sqlMap>

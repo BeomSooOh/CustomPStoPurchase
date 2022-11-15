@@ -263,7 +263,6 @@ public class PurchaseMainController {
 		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
 
 		//Map<String, Object> resultData = new HashMap<String, Object>();
-		params.put("seq", 0);
 		params.put("manage_no", "");
 		params.put("contract_no", "");
 		params.put("created_by", loginVo.getUniqId());

@@ -180,7 +180,6 @@ public class PurchasePopController {
 		params.put("deptSeq", loginVo.getOrgnztId());
 		params.put("empSeq", loginVo.getUniqId());
 		
-		/*
 		Map<String, Object> contractDetail = purchaseServiceDAO.SelectContractDetail(params);
 		
 		if(contractDetail != null) {
@@ -191,22 +190,14 @@ public class PurchasePopController {
 			params.put("subjectStr", contractDetail.get("title"));
 			params.put("contentsStr", contractDetail.get("work_info"));
 			params.put("detailUrl", "/gw/bizbox.do");
-			params.put("detailName", contractDetail.get("title"));			
+			params.put("detailName", contractDetail.get("title"));
+			
+			//fileKey 생성 및 대상파일 복사
+			params.put("fileKey", "Y7777");	
+			
 		}else {
 			return mv;
 		}
-		*/
-
-		params.put("mod", "W");
-		params.put("approKey", "A01");
-		params.put("formId", "204");
-		
-		params.put("subjectStr", "깨");
-		params.put("contentsStr", "지지");
-		params.put("detailUrl", "/gw/bizbox.do");
-		params.put("detailName", "마요");				
-		
-		params.put("fileKey", "마요");				
 		
 		String queryString = "";
 		

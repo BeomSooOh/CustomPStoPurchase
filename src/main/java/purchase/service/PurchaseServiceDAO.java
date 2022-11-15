@@ -24,6 +24,11 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 	}
 	
 	@SuppressWarnings ( "unchecked" )
+	public int SelectContractSeqFromManageNo ( Map<String, Object> params ) {
+		return (int) select( "PurchaseSQL.SelectContractSeqFromManageNo", params );
+	}	
+	
+	@SuppressWarnings ( "unchecked" )
 	public List<Map<String, Object>> SelectPurchaseDetailCodeList ( Map<String, Object> params ) {
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
 		result = (List<Map<String, Object>>) list( "PurchaseSQL.SelectPurchaseDetailCodeList", params );
@@ -32,11 +37,11 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 	
 	public Map<String, Object> InsertContract ( Map<String, Object> params ) {
 		
-		int result = 0;
+		int seq = 0;
 		super.insert( "PurchaseSQL.InsertContract", params );
-		result = Integer.parseInt(params.get("seq").toString());
+		seq = (int) select( "PurchaseSQL.SelectContractSeqFromManageNo", params );
 				
-		params.put("newSeq", result);
+		params.put("seq", seq);
 		
 		return params;
 	}		
