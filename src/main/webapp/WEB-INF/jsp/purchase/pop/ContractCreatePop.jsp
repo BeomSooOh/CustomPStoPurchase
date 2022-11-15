@@ -275,7 +275,7 @@
 		}
 		
 		function fnSaveProc(type){
-
+			
 			$.ajax({
 				type : 'post',
 				url : '<c:url value="/purchase/ContractSaveProc.do" />',

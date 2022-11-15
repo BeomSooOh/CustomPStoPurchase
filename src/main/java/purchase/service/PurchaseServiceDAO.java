@@ -32,7 +32,11 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 	
 	public Map<String, Object> InsertContract ( Map<String, Object> params ) {
 		
-		insert( "PurchaseSQL.InsertContract", params );
+		int result = 0;
+		super.insert( "PurchaseSQL.InsertContract", params );
+		result = Integer.parseInt(params.get("seq").toString());
+				
+		params.put("newSeq", result);
 		
 		return params;
 	}		

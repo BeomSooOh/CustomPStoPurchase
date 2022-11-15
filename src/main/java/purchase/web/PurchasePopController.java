@@ -214,7 +214,7 @@ public class PurchasePopController {
 			
 			//전자결재본문내용 전달
 			if(params.get("contentsStr") != null){
-				redirectAttributes.addFlashAttribute("contentsStr",URLEncoder.encode(params.get("contentsStr").toString(),"UTF-8"));
+				redirectAttributes.addFlashAttribute("contentsStr",params.get("contentsStr"));
 				params.remove("contentsStr");
 			}else{
 				redirectAttributes.addFlashAttribute("contentsStr","");
@@ -222,7 +222,7 @@ public class PurchasePopController {
 			
 			//전자결재제목 전달
 			if(params.get("subjectStr") != null){
-				redirectAttributes.addFlashAttribute("subjectStr",URLEncoder.encode(params.get("subjectStr").toString(),"UTF-8"));
+				redirectAttributes.addFlashAttribute("subjectStr",params.get("subjectStr"));
 				params.remove("subjectStr");
 			}else{
 				redirectAttributes.addFlashAttribute("subjectStr","");
