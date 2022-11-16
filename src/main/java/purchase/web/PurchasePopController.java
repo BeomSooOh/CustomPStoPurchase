@@ -1,5 +1,6 @@
 package purchase.web;
 
+import java.io.File;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import bizbox.orgchart.service.vo.LoginVO;
+import cmm.util.CommonUtil;
 import common.helper.convert.CommonConvert;
 import common.helper.exception.CheckAuthorityException;
 import common.helper.exception.NotFoundLoginSessionException;
@@ -25,6 +28,8 @@ import common.helper.info.CommonInfo;
 import common.helper.logger.ExpInfo;
 import common.vo.common.CommonInterface.commonCode;
 import egovframework.com.cmm.util.EgovUserDetailsHelper;
+import egovframework.com.utl.fcc.service.EgovFileUploadUtil;
+import egovframework.com.utl.sim.service.EgovFileTool;
 import purchase.service.PurchaseService;
 import purchase.service.PurchaseServiceDAO;
 import common.vo.common.CommonMapper;
@@ -83,7 +88,7 @@ public class PurchasePopController {
             List<Map<String, Object>> contractForm3 = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> sectorGroup = new ArrayList<Map<String, Object>>();
             
-            List<Map<String, Object>> attachForm_01 = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> attachForm_Contract01 = new ArrayList<Map<String, Object>>();
             
             
             if(codeList != null && codeList.size() > 0) {
@@ -114,8 +119,8 @@ public class PurchasePopController {
         				contractForm3.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("sectorGroup")) {
         				sectorGroup.add(codeinfo);
-        			}else if(codeinfo.get("GROUP").equals("attachForm_01")) {
-        				attachForm_01.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("attachForm_Contract_A01")) {
+        				attachForm_Contract01.add(codeinfo);
         			}
         			
         		}            	
@@ -133,7 +138,7 @@ public class PurchasePopController {
             mv.addObject("contractForm2Code", contractForm2);
             mv.addObject("contractForm3Code", contractForm3);
             mv.addObject("sectorGroupCode", sectorGroup);
-            mv.addObject("attachForm_01", attachForm_01);
+            mv.addObject("attachForm_Contract01", attachForm_Contract01);
             
             mv.addObject("loginVo", loginVo);
             
@@ -180,28 +185,69 @@ public class PurchasePopController {
 		params.put("deptSeq", loginVo.getOrgnztId());
 		params.put("empSeq", loginVo.getUniqId());
 		
-		Map<String, Object> contractDetail = purchaseServiceDAO.SelectContractDetail(params);
+		Map<String, Object> detailInfo = new HashMap<String, Object>();
 		
-		if(contractDetail != null) {
-			params.put("mod", "W");
-			params.put("approKey", "A01");
-			params.put("formId", "204");
+		params.put("mod", "W");
+		
+		if(params.get("outProcessCode").equals("Contract01")) {
 			
-			params.put("subjectStr", contractDetail.get("title"));
-			params.put("contentsStr", contractDetail.get("work_info"));
-			params.put("detailUrl", "/gw/bizbox.do");
-			params.put("detailName", contractDetail.get("title"));
+			detailInfo = purchaseServiceDAO.SelectContractDetail(params);
+			params.put("approKey", "Contract01_" + params.get("seq").toString());
+			params.put("detailUrl", request.getContextPath() + "/purchase/pop/ContractCreatePop.do?seq=" + params.get("seq").toString());
+			params.put("detailName", "정보수정");
+			params.put("subjectStr", detailInfo.get("title"));
+			params.put("contentsStr", detailInfo.get("work_info"));
 			
-			//fileKey 생성 및 대상파일 복사
-			params.put("fileKey", "Y7777");	
+			//첨부파일정보 조회
+			List<Map<String, Object>> attachList = purchaseServiceDAO.SelectAttachList(params);
 			
-		}else {
-			return mv;
+			if(attachList != null && attachList.size() > 0) {
+
+				//자동첨부 임시폴더로 복사
+				String fileKey = "N" + java.util.UUID.randomUUID().toString().replaceAll("-", "");
+				
+				params.put("osType", CommonUtil.osType());
+				params.put("pathSeq", "0");
+				Map<String, Object> pathMp = (Map<String, Object>) purchaseServiceDAO.select("PurchaseSQL.getGroupPathInfo", params);
+				
+				String targetForder = pathMp.get("absol_path").toString() + File.separator + "uploadTemp" + File.separator + fileKey;
+				
+				for (Map<String, Object> attachinfo : attachList) {
+					
+					String file_id = attachinfo.get("file_id").toString();
+					
+					String oriPath = pathMp.get("absol_path").toString() + File.separator + "purchase" + File.separator + file_id.substring(0, 4)+ File.separator + file_id.substring(4, 8) + File.separator + file_id;
+					
+					File trgDir = new File(oriPath);
+					File srcDir = new File(targetForder);
+
+					FileUtils.copyDirectory(srcDir, trgDir);					
+					
+					/*
+					File[] files = new File(oriPath).listFiles();
+					
+			        for(File file : files) {
+			        	file.
+			        }					
+					
+					FileUtils.copyDirectory(null, null)
+					oriPath
+					
+					EgovFileTool.copyFile("",targetForder);
+					*/
+				}
+				
+				params.put("fileKey", fileKey);
+				
+			}
+			
+			
+						
 		}
 		
 		String queryString = "";
 		
-		if(params != null) {
+		if(detailInfo != null) {
 			
 			//전자결재본문내용 전달
 			if(params.get("contentsStr") != null){

@@ -203,4 +203,29 @@
 
 	</insert>	
 	
+	<delete	id="PurchaseSQL.DeleteAttachInfo" parameterClass="HashMap" >
+		
+		delete from cust_sto.t_purchase_attach_info where seq = '$seq$' and outProcessCode = '$outProcessCode$';
+
+	</delete>	
+	
+	<insert	id="PurchaseSQL.InsertAttachInfo" parameterClass="HashMap" >
+
+		INSERT INTO cust_sto.t_purchase_attach_info
+		(file_id, file_name, file_ext, seq, outProcessCode, form_code, use_yn, created_dt, created_by)
+		VALUES('$fileId$', '$fileName$', '$fileExt$', '$seq$', '$outProcessCode$', '$code$', 'Y', now(), '$created_by$');		
+
+	</insert>		
+	
+	
+	<select	id="PurchaseSQL.SelectAttachList" parameterClass="HashMap" resultClass="HashMap">
+		
+		select * 
+		from cust_sto.t_purchase_attach_info where seq = '$seq$' and outProcessCode = '$outProcessCode$'
+		
+	</select>		
+	
+	
+	
+	
 </sqlMap>

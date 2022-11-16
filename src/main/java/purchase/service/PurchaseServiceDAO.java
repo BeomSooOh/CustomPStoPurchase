@@ -38,12 +38,31 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 	public Map<String, Object> InsertContract ( Map<String, Object> params ) {
 		
 		int seq = 0;
-		super.insert( "PurchaseSQL.InsertContract", params );
+		insert( "PurchaseSQL.InsertContract", params );
 		seq = (int) select( "PurchaseSQL.SelectContractSeqFromManageNo", params );
 				
 		params.put("seq", seq);
 		
 		return params;
+	}		
+	
+	public void DeleteAttachInfo ( Map<String, Object> params ) {
+		
+		delete( "PurchaseSQL.DeleteAttachInfo", params );
+		
+	}
+	
+	public void InsertAttachInfo ( Map<String, Object> params ) {
+		
+		insert( "PurchaseSQL.InsertAttachInfo", params );
+		
+	}	
+	
+	@SuppressWarnings ( "unchecked" )
+	public List<Map<String, Object>> SelectAttachList ( Map<String, Object> params ) {
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
+		result = (List<Map<String, Object>>) list( "PurchaseSQL.SelectAttachList", params );
+		return result;
 	}		
 	
 }

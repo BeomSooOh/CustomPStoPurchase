@@ -1,4 +1,4 @@
-.<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
+<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
@@ -42,7 +42,7 @@
 		var tempObj = {};
 		var tempStr = "";
 		
-		<c:forEach var="items" items="${attachForm_01}">
+		<c:forEach var="items" items="${attachForm_Contract01}">
 		
 		tempObj = {};
 		tempArray =  "${items.LINK}".split('▦');
@@ -216,7 +216,6 @@
 		
 		function fnValidationCheck(){
 			insertDataObject = {};
-			insertDataObject.attch_file_info = attachFormList;
 			
 			var validationCheck = true;
 			
@@ -247,6 +246,8 @@
 		function fnSave(type){
 			
 			if(fnValidationCheck() == true){
+
+				insertDataObject.attch_file_info = JSON.stringify(attachFormList);
 				
 				if(type == 0){
 					confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc(1)', '취소', '');	
@@ -275,12 +276,15 @@
 		}
 		
 		function fnSaveProc(type){
+
+			insertDataObject.reqType = type;
+			insertDataObject.outProcessCode = "Contract01";
 			
 			$.ajax({
 				type : 'post',
 				url : '<c:url value="/purchase/ContractSaveProc.do" />',
-				datatype : 'json',
-				data : insertDataObject,
+	    		datatype:"json",
+	            data: insertDataObject ,
 				async : false,
 				success : function(result) {
 					
@@ -290,7 +294,8 @@
 							openerRefreshList();				
 							msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");							
 						}else{
-							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?seq=" + result.resultData.seq,  "ApprCreatePop", 1000, 729, 1, 1) ;
+							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode=Contract01&seq=" + result.resultData.seq,  "ApprCreatePop", 1000, 729, 1, 1) ;
+							//self.close();
 						}
 						
 					}else{
