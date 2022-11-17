@@ -65,14 +65,12 @@ public class PurchasePopController {
             /* 변수 설정 */
             LoginVO loginVo = CommonConvert.CommonGetEmpVO();
             
-            //mv.addObject("loginVo", loginVo.toString());
-            //mv.addObject("authLevel", "");
-            
-            //구매계약 전용코드 조회
+            mv.addObject("viewType", "I");
             Map<String, Object> queryParam = new HashMap<String, Object>();
             queryParam.put("groupSeq", loginVo.getGroupSeq());
+            
+            //구매계약 전용코드 조회 (전체코드 한번에 조회)
             queryParam.put("useYn", "Y");
-            //전체코드 한번에 조회
             List<Map<String, Object>> codeList = purchaseServiceDAO.SelectPurchaseDetailCodeList(queryParam);
             
             List<Map<String, Object>> notiType = new ArrayList<Map<String, Object>>();
@@ -119,11 +117,32 @@ public class PurchasePopController {
         				contractForm3.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("sectorGroup")) {
         				sectorGroup.add(codeinfo);
-        			}else if(codeinfo.get("GROUP").equals("attachForm_Contract_A01")) {
+        			}else if(codeinfo.get("GROUP").equals("attachForm_Contract01")) {
         				attachForm_Contract01.add(codeinfo);
         			}
         			
         		}            	
+            }
+            
+            //기존 작성정보 조회
+            if(params.get("seq") != null && !params.get("seq").equals("")) {
+            	Map<String, Object> detailInfo = purchaseServiceDAO.SelectContractDetail(params);
+            	
+            	if(detailInfo != null) {
+            		mv.addObject("viewType", "U");
+            		mv.addObject("seq", params.get("seq"));
+            		mv.addObject("contractDetailInfo", detailInfo);
+            		
+            		params.put("outProcessCode", "Contract01");
+            		List<Map<String, Object>> formAttachList = purchaseServiceDAO.SelectFormAttachList(params);
+            		
+            		mv.addObject("formAttachList", formAttachList);
+            		
+            	}else {
+            		return mv;
+            	}
+            }else {
+            	mv.addObject("formAttachList", attachForm_Contract01);
             }
             
             mv.addObject("notiTypeCode", notiType);
@@ -138,7 +157,7 @@ public class PurchasePopController {
             mv.addObject("contractForm2Code", contractForm2);
             mv.addObject("contractForm3Code", contractForm3);
             mv.addObject("sectorGroupCode", sectorGroup);
-            mv.addObject("attachForm_Contract01", attachForm_Contract01);
+            
             
             mv.addObject("loginVo", loginVo);
             
@@ -218,8 +237,13 @@ public class PurchasePopController {
 					
 					String oriPath = pathMp.get("absol_path").toString() + File.separator + "purchase" + File.separator + file_id.substring(0, 4)+ File.separator + file_id.substring(4, 8) + File.separator + file_id;
 					
-					File trgDir = new File(oriPath);
-					File srcDir = new File(targetForder);
+					File srcDir = new File(oriPath);
+					File trgDir = new File(targetForder);
+					
+			    	// 디렉토리 생성
+			    	if (! trgDir.getParentFile().exists()) {
+			    		trgDir.getParentFile().mkdirs();
+			    	}
 
 					FileUtils.copyDirectory(srcDir, trgDir);					
 					

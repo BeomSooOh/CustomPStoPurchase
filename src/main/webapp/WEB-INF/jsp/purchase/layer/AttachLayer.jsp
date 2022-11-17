@@ -105,112 +105,78 @@
                 	f.fileName = f.name.substr(0, lastDot);
                 	f.fileExt = f.name.substr(lastDot);
                 	
-    	            var abort = false;
-    	            var formData = new FormData();
-    	           	var nfcFileNames = btoa(unescape(encodeURIComponent(f.name)));
-    	            
-   	                formData.append("file0", f);
-   	             	formData.append("fileId", f.uid);
-    	            formData.append("nfcFileNames", nfcFileNames);
-    	    	    
-    	            fnSetProgress();
+                	//동일파일명 체크
+                	var sameExists = false; 
+                	
+					$.each($("[name=uploadFile]"), function( key, uploadFileInfo ) {
+						
+						if(f.fileName == $(uploadFileInfo).find('[name="uploadFileName"]').text() &&
+								f.fileExt == $(uploadFileInfo).find('[name="uploadFileExt"]').text()){
+							sameExists = true;
+						}
+		                
+					});	   
+					
+					if(sameExists){
+						parent.msgSnackbar("error", "동일한 이름의 첨부파일이 존재합니다.");
+					}else{
+	    	            var abort = false;
+	    	            var formData = new FormData();
+	    	           	var nfcFileNames = btoa(unescape(encodeURIComponent(f.name)));
+	    	            
+	   	                formData.append("file0", f);
+	   	             	formData.append("fileId", f.uid);
+	    	            formData.append("nfcFileNames", nfcFileNames);
+	    	    	    
+	    	            fnSetProgress();
 
-    	            var AJAX = $.ajax({
-    	                url: '<c:url value="/ajaxFileUploadProc.do" />',
-    	                type: 'POST',
-    		        	timeout:600000,
-    	                xhr: function () {
-    	                    myXhr = $.ajaxSettings.xhr();
+	    	            var AJAX = $.ajax({
+	    	                url: '<c:url value="/ajaxFileUploadProc.do" />',
+	    	                type: 'POST',
+	    		        	timeout:600000,
+	    	                xhr: function () {
+	    	                    myXhr = $.ajaxSettings.xhr();
 
-    	                    if (myXhr.upload) {
-    	                        myXhr.upload.addEventListener('progress', progressHandlingFunction, false);
-    	                        myXhr.abort;
-    	                    }
-    	                    return myXhr;
-    	                },
-    	                success: completeHandler = function (data) {
-    	                	
-    	                    fnRemoveProgress();
-    	                	
-    		                $(targetElement).find('[name="uploadFile"]').show();
-    		                $(targetElement).find('[name="uploadFileName"]').attr("fileid", f.uid);
-    		                $(targetElement).find('[name="uploadFileName"]').text(f.fileName);
-    		                $(targetElement).find('[name="uploadFileExt"]').text(f.fileExt);		                	
-    	                	
-    		                removeByKey(parent.attachFileNew, "attachformcode", f.attachformcode);
-    		                parent.attachFileNew.push(f);
-    						
-    	                },
-    	                error: errorHandler = function () {
+	    	                    if (myXhr.upload) {
+	    	                        myXhr.upload.addEventListener('progress', progressHandlingFunction, false);
+	    	                        myXhr.abort;
+	    	                    }
+	    	                    return myXhr;
+	    	                },
+	    	                success: completeHandler = function (data) {
+	    	                	
+	    	                    fnRemoveProgress();
+	    	                	
+	    		                $(targetElement).find('[name="uploadFile"]').show();
+	    		                $(targetElement).find('[name="uploadFileName"]').attr("fileid", f.uid);
+	    		                $(targetElement).find('[name="uploadFileName"]').text(f.fileName);
+	    		                $(targetElement).find('[name="uploadFileExt"]').text(f.fileExt);		                	
+	    	                	
+	    		                removeByKey(parent.attachFileNew, "attachformcode", f.attachformcode);
+	    		                parent.attachFileNew.push(f);
+	    						
+	    	                },
+	    	                error: errorHandler = function () {
 
-    	                    if (abort) {
-    	                        alert('업로드를 취소하였습니다.');
-    	                    } else {
-    	                        alert('첨부파일 처리중 장애가 발생되었습니다. 다시 시도하여 주십시오');
-    	                    }
+	    	                    if (abort) {
+	    	                        alert('업로드를 취소하였습니다.');
+	    	                    } else {
+	    	                        alert('첨부파일 처리중 장애가 발생되었습니다. 다시 시도하여 주십시오');
+	    	                    }
 
-    	                    //UPLOAD_COMPLITE = false;
-    	                    fnRemoveProgress();
-    	                },
-    	                data: formData,
-    	                cache: false,
-    	                contentType: false,
-    	                processData: false
-    	            });
-
-    	            
-    	            /*
-    	            parent.document.getElementById("UploadAbort").onclick = function () {
-    	                fnRemoveProgress();
-    	                abort = true;
-    	                AJAX.abort();
-    	            };
-    	            */
-    	            
-    	            
-    	            
-    	            
-    	            
-    	            
-
-                	
-                	//첨부파일 서버전송
-                	
-                	
-                	
-                	
-                	
-                	
-                	
-                	
-                	
-                	
-                	
-                	
-                	
-                	
-                	
-                	
-	                
-	                
-                
-	                
-	                
-	                /*
-	                var model_file = $("#editorBoxModel [name=editorFile]").clone();
-	                $(model_file).attr("file_type", "new");
-	                $(model_file).attr("original_file_name", ConvertSystemSourcetoHtml(f.name));
-	                $(model_file).attr("file_size", f.size);
-	                $(model_file).find("[name=icon]").attr("src", getIconFile(fileEx));
-	                $(model_file).find(".fileTxt").html(ConvertSystemSourcetoHtml(f.name) + "<span> (" + byteConvertor(f.size) + ")</span>");
-	                $(selectedEditorBox).find("[name=fileGroup]").append(model_file);
-	                $(selectedEditorBox).find("[name=fileGroup]").show();
-	                */	                	
+	    	                    //UPLOAD_COMPLITE = false;
+	    	                    fnRemoveProgress();
+	    	                },
+	    	                data: formData,
+	    	                cache: false,
+	    	                contentType: false,
+	    	                processData: false
+	    	            });						
+					}
                 	
                 }
-	                
 		        
-		      	$('#uploadFile').val("");
+		      	$('#file_upload').val("");
 		        
 		    }
 		    
@@ -218,7 +184,6 @@
 		        if (e.lengthComputable) {
 		        	
 		        	uploadPer = parseInt((e.loaded / e.total) * 100);
-		        	//byte = parseInt((e.loaded/1000)) + "/" + parseInt((e.total/1000));
 		        }
 		    }			    
 			
@@ -268,6 +233,8 @@
 				var fileid = $(targetElement).find('[name="uploadFileName"]').attr("fileid");
 				parent.attachFileDel.push(fileid);
                 removeByKey(parent.attachFileNew, "uid", fileid);
+                $(targetElement).find('[name="uploadFileName"]').text("");
+                $(targetElement).find('[name="uploadFileExt"]').text("");
 			}
 			
 			function fnDownload(e){
@@ -294,8 +261,8 @@
 						<ul name="uploadFile" style="display:none;" class="file_list_box fl">
 							<li>
 								<img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" class="fl" alt="">
-								<a name="uploadFileName" onClick="fnDownload(this)" href="javascript:;" class="fl ellipsis pl5" style="max-width:235px;" >업체요구사항업체요구사항 정의서업체요구사항업체요구사항정의서업체요구사항업체요구사항 정의서</a>
-								<span name="uploadFileExt">.jpg</span>
+								<a name="uploadFileName" onClick="fnDownload(this)" href="javascript:;" class="fl ellipsis pl5" style="max-width:235px;" ></a>
+								<span name="uploadFileExt"></span>
 								<a href="javascript:;" onclick="fnDelFile(this)" title="파일삭제"><img src="${pageContext.request.contextPath}/customStyle/Images/btn/close_btn01.png" alt=""></a>
 							</li>
 						</ul>

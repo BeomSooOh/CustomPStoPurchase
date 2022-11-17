@@ -63,6 +63,14 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
 		result = (List<Map<String, Object>>) list( "PurchaseSQL.SelectAttachList", params );
 		return result;
-	}		
+	}	
+	
+	@SuppressWarnings ( "unchecked" )
+	public List<Map<String, Object>> SelectFormAttachList ( Map<String, Object> params ) {
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
+		result = (List<Map<String, Object>>) list( "PurchaseSQL.SelectFormAttachList", params );
+		return result;
+	}	
+	
 	
 }
