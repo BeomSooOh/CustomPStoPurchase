@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -80,6 +79,15 @@
 				$('#taxAmt_han').text(viewKorean($('#taxAmt').val().replace(/,/g, '')));
 				
 			});			
+			
+			//기존설정항목 세팅
+			<c:if test="${viewType == 'U'}">
+			setDynamicPuddInfo("pay_type_info", "checkbox", "${contractDetailInfo.pay_type_info}");
+			setDynamicPuddInfo("restrict_area_info", "checkbox", "${contractDetailInfo.restrict_area_info}");
+			setDynamicPuddInfo("decision_type_info", "radio", "${contractDetailInfo.decision_type_info}");
+			setDynamicPuddInfoTable("restrictSectorList", "setorAddBase", "${contractDetailInfo.restrict_sector_info}");
+			setDynamicPuddInfoTable("nomineeList", "nomineeAddBase", "${contractDetailInfo.nominee_info}");
+			</c:if>
 			
 		});
 		
@@ -368,6 +376,72 @@
 			}
 
 		 }		
+		
+		function setDynamicPuddInfo(objKey, type, value){
+			
+			if(value != ""){
+				
+				var valueObj = {};
+				
+				$.each(value.split("▦▦"), function( key, val ) {
+					
+					var valInfo =  val.split("▦");
+					
+					if(valInfo.length > 1){
+						valueObj[valInfo[0]] = valInfo[1];
+					}else{
+						valueObj[valInfo[0]] = "";
+					}
+					
+				});			
+				
+				$.each($("[objkey="+objKey+"] input[type="+type+"]"), function( key, selectedObj ) {
+					
+					var vvalue = $(selectedObj).attr("value");
+					
+					if(valueObj[vvalue] != null){
+						
+						Pudd( selectedObj ).getPuddObject().setChecked( true );
+						
+						if(valueObj[vvalue] != ""){
+							
+							$("[objkey="+objKey+"] [name="+$(selectedObj).attr("name")+"_"+vvalue+"]").val(valueObj[vvalue]).show();
+							
+						}
+					}
+					
+				});					
+				
+			}
+			
+		}
+		
+		function setDynamicPuddInfoTable(tableName, baseName, value){
+			
+			if(value != ""){
+				
+				$("[name="+tableName+"] [name=addData]").remove();
+				
+				$.each(value.split("▦▦"), function( key, val ) {
+					
+					var valInfo =  val.split("▦");
+					
+					var cloneData = $('[name="'+baseName+'"]').clone();
+					
+					$.each($(cloneData).find("[name=tableVal]"), function( key, tableVal ) {
+						
+						$(tableVal).val(valInfo[key]);
+						
+					});				
+					
+					$(cloneData).show().attr("name", "addData");
+					$('[name="'+tableName+'"]').append(cloneData);				
+					
+				});	
+				
+			}
+		}		
+		
 
 		
 	</script>
@@ -393,40 +467,15 @@
 		<div class="top_box">
 			<dl>
 				<dt>작성부서/작성자</dt>
-			
-				<c:choose>
-				<c:when test="${viewType == 'I'}">
-				
-				
-				<dd><input id="createDeptName" type="text" disabled pudd-style="width:200px;" class="puddSetup" value="${loginVo.orgnztNm}" placeholder="작성부서" /></dd>
-				<dd><input id="createEmpName" type="text" disabled pudd-style="width:100px;" class="puddSetup" value="${loginVo.name}" placeholder="작성자" /></dd>
-				<input objKey="write_comp_seq" objCheckFor="checkVal('text', this, '작성부서', '', '')" type="hidden" value="${loginVo.organId}" />
-				<input objKey="write_dept_seq" objCheckFor="checkVal('text', this, '작성부서', '', '')" type="hidden" value="${loginVo.orgnztId}" />
-				<input objKey="write_emp_seq" objCheckFor="checkVal('text', this, '작성자', 'selectOrgchart()', '')" type="hidden" value="${loginVo.uniqId}" />
-				<input id="createSuperKey" type="hidden" value="${loginVo.groupSeq}|${loginVo.organId}|${loginVo.orgnztId}|${loginVo.uniqId}|u" />
+				<dd><input id="createDeptName" type="text" disabled pudd-style="width:200px;" class="puddSetup" value="${createDeptName}" placeholder="작성부서" /></dd>
+				<dd><input id="createEmpName" type="text" disabled pudd-style="width:100px;" class="puddSetup" value="${createEmpName}" placeholder="작성자" /></dd>
+				<input objKey="write_comp_seq" objCheckFor="checkVal('text', this, '작성부서', '', '')" type="hidden" value="${write_comp_seq}" />
+				<input objKey="write_dept_seq" objCheckFor="checkVal('text', this, '작성부서', '', '')" type="hidden" value="${write_dept_seq}" />
+				<input objKey="write_emp_seq" objCheckFor="checkVal('text', this, '작성자', 'selectOrgchart()', '')" type="hidden" value="${write_emp_seq}" />
+				<input id="createSuperKey" type="hidden" value="${createSuperKey}" />
 				<dd><input onclick="selectOrgchart()" type="button" value="선택" /></dd>
 				<dt>작성일자</dt>
-				<dd objKey="write_dt" objCheckFor="checkVal('date', 'writeDt', '작성일자', 'selectDate(this)', '')" ><input name="writeDt" type="text" value="<fmt:formatDate value="${currentTime}" type="date" pattern="yyyy-MM-dd"/>" class="puddSetup" pudd-type="datepicker"/></dd>
-				
-				
-				</c:when>
-				<c:otherwise>
-				
-				
-				<dd><input id="createDeptName" type="text" disabled pudd-style="width:200px;" class="puddSetup" value="${contractDetailInfo.write_dept_name}" placeholder="작성부서" /></dd>
-				<dd><input id="createEmpName" type="text" disabled pudd-style="width:100px;" class="puddSetup" value="${contractDetailInfo.write_emp_name}" placeholder="작성자" /></dd>
-				<input objKey="write_comp_seq" objCheckFor="checkVal('text', this, '작성부서', '', '')" type="hidden" value="${contractDetailInfo.write_comp_seq}" />
-				<input objKey="write_dept_seq" objCheckFor="checkVal('text', this, '작성부서', '', '')" type="hidden" value="${contractDetailInfo.write_dept_seq}" />
-				<input objKey="write_emp_seq" objCheckFor="checkVal('text', this, '작성자', 'selectOrgchart()', '')" type="hidden" value="${contractDetailInfo.write_emp_seq}" />
-				<input id="createSuperKey" type="hidden" value="${loginVo.groupSeq}|${contractDetailInfo.write_comp_seq}|${contractDetailInfo.write_dept_seq}|${contractDetailInfo.write_emp_seq}|u" />
-				<dd><input onclick="selectOrgchart()" type="button" value="선택" /></dd>
-				<dt>작성일자</dt>
-				<dd objKey="write_dt" objCheckFor="checkVal('date', 'writeDt', '작성일자', 'selectDate(this)', '')" ><input name="writeDt" type="text" value="${contractDetailInfo.write_dt}" class="puddSetup" pudd-type="datepicker"/></dd>
-				
-								
-				</c:otherwise>
-				</c:choose>		
-				
+				<dd objKey="write_dt" objCheckFor="checkVal('date', 'writeDt', '작성일자', 'selectDate(this)', '')" ><input name="writeDt" type="text" value="${write_dt}" class="puddSetup" pudd-type="datepicker"/></dd>
 			</dl>
 		</div>
 

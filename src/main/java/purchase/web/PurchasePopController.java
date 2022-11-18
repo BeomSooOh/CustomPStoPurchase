@@ -2,6 +2,7 @@ package purchase.web;
 
 import java.io.File;
 import java.net.URLEncoder;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -133,6 +134,14 @@ public class PurchasePopController {
             		mv.addObject("seq", params.get("seq"));
             		mv.addObject("contractDetailInfo", detailInfo);
             		
+                	mv.addObject("createDeptName", detailInfo.get("write_dept_name"));
+                	mv.addObject("createEmpName", detailInfo.get("write_emp_name"));
+                	mv.addObject("write_comp_seq", detailInfo.get("write_comp_seq"));
+                	mv.addObject("write_dept_seq", detailInfo.get("write_dept_seq"));
+                	mv.addObject("write_emp_seq", detailInfo.get("write_emp_seq"));
+                	mv.addObject("createSuperKey", loginVo.getGroupSeq() + "|" + detailInfo.get("write_comp_seq") + "|" + detailInfo.get("write_dept_seq") + "|" + detailInfo.get("write_emp_seq") + "|u");
+                	mv.addObject("write_dt", detailInfo.get("write_dt"));
+            		
             		params.put("outProcessCode", "Contract01");
             		List<Map<String, Object>> formAttachList = purchaseServiceDAO.SelectFormAttachList(params);
             		
@@ -143,6 +152,14 @@ public class PurchasePopController {
             	}
             }else {
             	mv.addObject("formAttachList", attachForm_Contract01);
+            	
+            	mv.addObject("createDeptName", loginVo.getOrgnztNm());
+            	mv.addObject("createEmpName", loginVo.getName());
+            	mv.addObject("write_comp_seq", loginVo.getOrganId());
+            	mv.addObject("write_dept_seq", loginVo.getOrgnztId());
+            	mv.addObject("write_emp_seq", loginVo.getUniqId());
+            	mv.addObject("createSuperKey", loginVo.getGroupSeq() + "|" + loginVo.getOrganId() + "|" + loginVo.getOrgnztId() + "|" + loginVo.getUniqId() + "|u");
+            	mv.addObject("write_dt", CommonUtil.date(new Date(), "yyyy-MM-dd"));
             }
             
             mv.addObject("notiTypeCode", notiType);
