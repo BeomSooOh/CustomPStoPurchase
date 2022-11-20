@@ -19,6 +19,19 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 	@SuppressWarnings ( "unchecked" )
 	public Map<String, Object> GetCompInfo ( Map<String, Object> params ) {
 		return (Map<String, Object>) select( "PurchaseSQL.getCompInfo", params );
+	}
+	
+	public String GetCodeText ( Map<String, Object> params ) {
+		
+		String resultStr = "";
+		
+		Map<String, Object> result = (Map<String, Object>) select( "PurchaseSQL.SelectCodeValueText", params );
+		
+		if(result != null) {
+			resultStr = result.get("value_name").toString();
+		}
+		
+		return resultStr;
 	}	
 	
 	@SuppressWarnings("unchecked")

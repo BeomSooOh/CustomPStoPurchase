@@ -312,5 +312,25 @@
 	
 	</select>
 	
+	
+	<select	id="PurchaseSQL.SelectCodeValueText" parameterClass="HashMap" resultClass="HashMap">	
+		select 
+		GROUP_CONCAT(value SEPARATOR ' / ') AS value_name
+		from
+		(
+		select 
+		concat(name,case when sub_value = '' or INSTR(sub_value,'▦') = 1 then '' else concat('(',sub_value, case when `GROUP` = 'decisionType' and code = '03' then '%)' else ')' end ) end) as value
+		from
+		(
+		select
+		`GROUP`,
+		code,
+		name,
+		substring(substring(concat('▦▦', '$value$','▦▦'), INSTR(concat('▦▦', '$value$','▦▦'), concat('▦▦',CODE, '▦'))+3 + length(code)), 1, INSTR(substring(concat('▦▦', '$value$','▦▦'), INSTR(concat('▦▦', '$value$','▦▦'), concat('▦▦',CODE, '▦'))+3 + length(code)), '▦▦')-1) as sub_value
+		from cust_sto.t_purchase_code_detail where `GROUP` = '$group$' and 
+		concat('▦▦', '$value$','▦▦') like concat('%▦▦',CODE, '▦%')
+		) tableResult1
+		) tableResult2	
+	</select>
 		
 </sqlMap>

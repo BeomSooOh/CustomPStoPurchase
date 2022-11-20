@@ -61,9 +61,18 @@
 		tempObj.newYn = "${items.new_yn}";
 		
 		attachFormList.push(tempObj);
-		</c:forEach>				
+		</c:forEach>	
+		
 	
 		$(document).ready(function() {
+			
+			$('#amtSpent').maskMoney({
+				precision : 0,
+				allowNegative: false
+			});			
+			
+			$("#amt").text("₩ ${contractDetailInfo.amt} " + viewKorean("${contractDetailInfo.amt}".replace(/,/g, '')) + " / 부가세 포함");
+			
 			/*
 			$('#amt, #stdAmt, #taxAmt').maskMoney({
 				precision : 0,
@@ -438,17 +447,168 @@
 				</tr>
 				<tr>
 					<th>기초금액</th>
-					<td colspan="3">${contractDetailInfo.amt}</td>
+					<td id="amt" colspan="3"></td>
 				</tr>
 				<tr>
 					<th>경쟁방식</th>
-					<td>${contractDetailInfo.compete_type}</td>
+					<td>${contractDetailInfo.compete_type_text}</td>
 					<th>낙찰자 결정방법</th>
-					<td>${contractDetailInfo.decision_type_info}</td>
+					<td>${contractDetailInfo.decision_type_info_text}</td>
 				</tr>
 			</table>
 		</div>
+		
+		<!-- 가회의 개요 -->
+		<div class="btn_div mt25">
+			<div class="left_div">	
+				<p class="tit_p mt5 mb0">평가회의 개요</p>
+			</div>
+		</div>
+		<div class="com_ta mt10">
+			<table>
+				<colgroup>
+					<col width="160"/>
+					<col width=""/>
+					<col width="160"/>
+					<col width=""/>
+				</colgroup>
+				<tr>
+					<th> 평가회의 일시</th>
+					<td colspan="3">
+						<input type="text" value="" class="puddSetup" pudd-type="datepicker"/>
+						<select class="selectmenu" style="width:60px">
+							<option value="" selected="selected">09</option>
+							<option value="">00</option>
+						</select>
+						<select class="selectmenu" style="width:60px">
+							<option value="" selected="selected">00</option>
+							<option value="">10</option>
+						</select>
+						~
+						<select class="selectmenu" style="width:60px">
+							<option value="" selected="selected">09</option>
+							<option value="">00</option>
+						</select>
+						<select class="selectmenu" style="width:60px">
+							<option value="" selected="selected">00</option>
+							<option value="">10</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 평가회의 장소</th>
+					<td colspan="3"><input type="text" pudd-style="width:100%;" class="puddSetup" value="" /></td>
+				</tr>
+				<tr>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 평가방법</th>
+					<td>
+						업체별 PT <input type="text" pudd-style="width:40px;" class="puddSetup ar" value="15" /> <span class="pl5">분</span>.
+						질의응답 <input type="text" pudd-style="width:40px;" class="puddSetup ar ml5 mr5" value="10" /> <span class="pl5">분</span>.
+					</td>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 지출금액</th>
+					<td><input id="amtSpent" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup ar" value="" maxlength="15" /> 원</td>
+				</tr>
+			</table>
+		</div>			
+		
+		<!-- 예산정보 -->
+		<div class="btn_div mt25">
+			<div class="left_div">	
+				<p class="tit_p mt5 mb0">예산정보</p>
+			</div>
+		</div>
+		
+		<div class="com_ta4">
+			<table>
+				<colgroup>
+					<col width="50"/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+				</colgroup>
+				<tr>
+					<th class="ac">
+						<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('../../../Images/btn/btn_plus01.png') no-repeat center" value="" />
+					</th>
+					<th class="ac">예산회계단위</th>
+					<th class="ac">프로젝트</th>
+					<th class="ac">하위사업</th>
+					<th class="ac">예산과목</th>
+				</tr>
+				<tr>
+					<td>
+						<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('../../../Images/btn/btn_minus01.png') no-repeat center" value="" />
+					</td>
+					<td>
+						<div class="posi_re">
+							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
+							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
+							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
+							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
+							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<!-- 테이블 -->
+		<div class="com_ta6 mt10">
+			<table>
+				<colgroup>
+					<col width="100"/>
+					<col width="150"/>
+					<col width="100"/>
+					<col width="150"/>
+					<col width="100"/>
+					<col width="150"/>
+					<col width="100"/>
+					<col width="150"/>
+				</colgroup>
+				<tr>
+					<th>관</th>
+					<td>운영비(210)</td>
+					<th>항</th>
+					<td>일반수용비(01)</td>
+					<th>목</th>
+					<td></td>
+					<th>세</th>
+					<td></td>
+				</tr>				
+				<tr>
+					<th>예산액</th>
+					<td class="ri pr10">1,000,000</td>
+					<th>집행액</th>
+					<td class="ri pr10">1,000,000</td>
+					<th>품의액</th>
+					<td class="ri pr10">1,000,000</td>
+					<th>예산잔액</th>
+					<td class="ri pr10">1,000,000</td>
+				</tr>
+			</table>
+		</div>		
+		
+		
+		
 	</div>
+
+
 
 
 </div><!-- //pop_wrap -->

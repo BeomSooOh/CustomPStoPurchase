@@ -220,7 +220,9 @@ public class PurchasePopController {
             mv.addObject("btnSaveYn", "Y");
             mv.addObject("btnApprYn", "Y");
             
+            Map<String, Object> queryParam = new HashMap<String, Object>();
             params.put("groupSeq", loginVo.getGroupSeq());
+            queryParam.put("groupSeq", loginVo.getGroupSeq());
             
             //기존 작성정보 조회
         	Map<String, Object> detailInfo = purchaseServiceDAO.SelectContractDetail(params);
@@ -238,6 +240,25 @@ public class PurchasePopController {
         				mv.addObject("disabled", "disabled");
         			}
         		}
+        		
+        		//경쟁방식 text 조회 
+        		if(!detailInfo.get("compete_type").equals("")) {
+        			queryParam.put("group", "competeType");
+        			queryParam.put("value", detailInfo.get("compete_type"));
+        			detailInfo.put("compete_type_text", purchaseServiceDAO.GetCodeText(queryParam));
+        		}else {
+        			detailInfo.put("compete_type_text", "");
+        		}
+        		
+        		//낙찰자 결정방법 text 조회 
+        		if(!detailInfo.get("decision_type_info").equals("")) {
+        			queryParam.put("group", "decisionType");
+        			queryParam.put("value", detailInfo.get("decision_type_info"));
+        			detailInfo.put("decision_type_info_text", purchaseServiceDAO.GetCodeText(queryParam));
+        		}else {
+        			detailInfo.put("decision_type_info_text", "");
+        		} 
+        		
         		
         		mv.addObject("viewType", "U");
         		mv.addObject("seq", params.get("seq"));
