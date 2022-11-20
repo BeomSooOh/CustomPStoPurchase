@@ -130,7 +130,7 @@ function checkVal(type, elementFor, objName, func, subValueFor){
 		
 		if(subValueFor.indexOf(returnVal) > -1){
 			
-			var subValueForValue = $("[name='"+elementFor+ "_" + returnVal +"']").val();
+			var subValueForValue = $("input[name='"+elementFor+ "_" + returnVal +"']").val();
 			
 			if(subValueForValue == ""){
 				

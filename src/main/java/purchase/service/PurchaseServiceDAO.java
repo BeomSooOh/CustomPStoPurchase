@@ -12,6 +12,16 @@ import egovframework.com.cmm.service.impl.EgovComAbstractDAO;
 public class PurchaseServiceDAO extends EgovComAbstractDAO {
  
 	@SuppressWarnings ( "unchecked" )
+	public Map<String, Object> GetGroupInfo ( Map<String, Object> params ) {
+		return (Map<String, Object>) select( "PurchaseSQL.getGroupInfo", params );
+	}
+	
+	@SuppressWarnings ( "unchecked" )
+	public Map<String, Object> GetCompInfo ( Map<String, Object> params ) {
+		return (Map<String, Object>) select( "PurchaseSQL.getCompInfo", params );
+	}	
+	
+	@SuppressWarnings("unchecked")
 	public List<Map<String, Object>> SelectContractList ( Map<String, Object> params ) {
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
 		result = (List<Map<String, Object>>) list( "PurchaseSQL.SelectContractList", params );
@@ -23,7 +33,6 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 		return (Map<String, Object>) select( "PurchaseSQL.SelectContractDetail", params );
 	}
 	
-	@SuppressWarnings ( "unchecked" )
 	public int SelectContractSeqFromManageNo ( Map<String, Object> params ) {
 		return (int) select( "PurchaseSQL.SelectContractSeqFromManageNo", params );
 	}	
@@ -44,7 +53,20 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 		params.put("seq", seq);
 		
 		return params;
-	}		
+	}	
+	
+	public void UpdateContract ( Map<String, Object> params ) {
+		
+		update( "PurchaseSQL.UpdateContract", params );
+		
+	}	
+	
+	public void UpdateAppr ( Map<String, Object> params ) {
+		
+		update( "PurchaseSQL.UpdateAppr", params );
+		
+	}	
+	
 	
 	public void DeleteAttachInfo ( Map<String, Object> params ) {
 		

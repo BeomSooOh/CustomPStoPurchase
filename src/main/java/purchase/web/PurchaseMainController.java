@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,6 +37,7 @@ import egovframework.com.utl.fcc.service.EgovFileUploadUtil;
 import purchase.service.PurchaseService;
 import purchase.service.PurchaseServiceDAO;
 import common.vo.common.CommonMapper;
+import common.vo.interlock.InterlockExpendVO;
 
 @Controller
 public class PurchaseMainController {
@@ -267,7 +269,7 @@ public class PurchaseMainController {
 		
 		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
 
-		//Map<String, Object> resultData = new HashMap<String, Object>();
+		params.put("groupSeq", loginVo.getGroupSeq());
 		params.put("manage_no", "");
 		params.put("contract_no", "");
 		params.put("created_by", loginVo.getUniqId());
@@ -279,7 +281,26 @@ public class PurchaseMainController {
 		mv.setViewName("jsonView");
 		return mv;
 	}
-	
+    
+    @RequestMapping(value="/purchase/attachSaveProc.do", method={RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public ModelAndView attachSaveProc(@RequestParam Map<String,Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+
+		params.put("created_by", loginVo.getUniqId());
+		
+		purchaseService.UpdateAttachInfo(params);
+		
+		mv.addObject("resultData", params);
+		mv.addObject("resultCode", "success");	
+		mv.setViewName("jsonView");
+		return mv;
+	}    
+    
+    
 	@RequestMapping("/purchase/ContractInfo.do")
 	public ModelAndView ContractInfo(@RequestParam Map<String, Object> params, HttpServletRequest request)
 			throws Exception {
@@ -295,7 +316,22 @@ public class PurchaseMainController {
 		mv.setViewName("jsonView");
 		return mv;
 	}	
-    
-    
+	
+    @RequestMapping(value = "/purchase/ApprovalProcess.do", method = {RequestMethod.GET, RequestMethod.POST})
+    @ResponseBody
+    public InterlockExpendVO ApprovalProcess(HttpServletRequest servletRequest, @RequestBody Map<String, Object> request, @RequestParam Map<String, Object> params) throws Exception {
+    	InterlockExpendVO result = new InterlockExpendVO();
+    	
+    	try {
+    		purchaseService.UpdateAppr(request);	
+    		result.setResultCode("SUCCESS");
+    	}catch(Exception ex) {
+    		result.setResultCode("FAIL");
+    		result.setResultMessage(ex.getMessage());
+    	}
+    	
+    	return result;
+    }
+
 
 }

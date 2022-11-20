@@ -263,17 +263,21 @@
 								<img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" class="fl" alt="">
 								<a name="uploadFileName" onClick="fnDownload(this)" href="javascript:;" class="fl ellipsis pl5" style="max-width:235px;" ></a>
 								<span name="uploadFileExt"></span>
+								<c:if test="${params.disabledYn == 'N'}">		
 								<a href="javascript:;" onclick="fnDelFile(this)" title="파일삭제"><img src="${pageContext.request.contextPath}/customStyle/Images/btn/close_btn01.png" alt=""></a>
+								</c:if>
 							</li>
 						</ul>
+						<c:if test="${params.disabledYn == 'N'}">
 						<span class="fr"><input onclick="fnSearchFile(this)" type="button" class="puddSetup" value="파일찾기" /></span>
+						</c:if>
 					</td>
 				</tr>
 			</table>
 		</div>
-
+		<c:if test="${params.disabledYn == 'N'}">
 		<div class="mt10">※ <img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" />는 반드시 업로드 하셔야 합니다.</div>
-		
+		</c:if>
         <input style="display:none;" id="file_upload" type="file" />
   		<div id="exArea"></div>
     </div><!-- //pop_wrap -->
