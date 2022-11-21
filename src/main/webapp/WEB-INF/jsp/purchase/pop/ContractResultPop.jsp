@@ -65,67 +65,26 @@
 		attachFormList.push(tempObj);
 		</c:forEach>	
 		
-		
-		function setScoreTableInit(value){
+	
+		$(document).ready(function() {
+			
+			$("#amt").text("₩ ${contractDetailInfo.amt} " + viewKorean("${contractDetailInfo.amt}".replace(/,/g, '')) + " / 부가세 포함");
+			
+			setDynamicPuddInfoTable("resultScoreList", "scoreInfoAddBase", "10▦제안서평가위원▦20▦▦20▦발주부서▦60▦▦30▦발주부서▦20");
 			
 			<c:forEach var="items" items="${contractDetailInfo.nominee_info.split('▦▦') }" varStatus="status">
-			
 			$("[itemTarget=target_${status.index+1}]").attr("biz_no","${items.split('▦')[1]}");
 			$("[itemTarget=target_${status.index+1}]").text("${items.split('▦')[0]}");
 			$("[itemTarget=target_${status.index+1}]").attr("use_yn","Y");
 			$("[itemTarget=target_${status.index+1}]").attr("targetKey","${status.index+1}");
-			
 			</c:forEach>			
-			
-			
-			/*
-			$.each(value.split("▦▦"), function( key, val ) {
-				
-				if(key < 5){
-					
-					var targetInfo = val.split("▦");
-					
-					var seq = key+1;
-					$("[itemTarget=target_"+seq+"]").attr("biz_no",targetInfo[0]);
-					$("[itemTarget=target_"+seq+"]").text(targetInfo[1]);
-					$("[itemTarget=target_"+seq+"]").attr("use_yn","Y");
-					
-				}
-				
-			});
-			*/
 			
 			$.each($("[name=compTr] th[use_yn=N]"), function( key, val ) {
 				
 				var itemNo = $(val).attr("itemNo");
 				$("[itemNo="+itemNo+"]").remove();
 				
-			});			
-			
-		}
-		
-		
-	
-		$(document).ready(function() {
-			
-			$("#amt").text("₩ ${contractDetailInfo.amt} " + viewKorean("${contractDetailInfo.amt}".replace(/,/g, '')) + " / 부가세 포함");
-			
-			setDynamicPuddInfoTable("resultScoreList", "scoreInfoAddBase", "10▦제안서평가위원▦20▦▦20▦발주부서▦60▦▦30▦발주부▦20");
-			
-			setScoreTableInit("111111▦지란지교소프트▦▦222222222222▦삼성SDI");
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-						
+			});				
 			
 			
 			
