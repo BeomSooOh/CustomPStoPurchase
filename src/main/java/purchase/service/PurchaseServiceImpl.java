@@ -94,15 +94,25 @@ public class PurchaseServiceImpl implements PurchaseService {
 		if(params.get("processId").equals("Contract01")) {
 			params.put("approkeyPlan", params.get("approKey"));
 			params.put("seq", params.get("approKey").toString().split("_")[1]);
+		}else if(params.get("processId").equals("Contract02")) {
+			params.put("approkeyMeet", params.get("approKey"));
+			params.put("seq", params.get("approKey").toString().split("_")[1]);
+		}else if(params.get("processId").equals("Contract03")) {
+			params.put("approkeyResult", params.get("approKey"));
+			params.put("seq", params.get("approKey").toString().split("_")[1]);
 		}
 		
 		purchaseServiceDAO.UpdateAppr(params);
+		
+		/*
 		try {
 			SendMailAlert(params.get("groupSeq").toString(), params.get("compSeq").toString(), "제목입니다.", "내용입니다.", "");
 		} catch (EmailException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		*/
+		
 	}
 	
 	@SuppressWarnings("deprecation")

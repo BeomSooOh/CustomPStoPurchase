@@ -12,7 +12,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>제안서 평가회의 등록</title>
+    <title>제안서 평가결과 등록</title>
 
     <!--css-->
     <link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/pudd.css' />">
@@ -32,7 +32,7 @@
 	
 	<script type="text/javascript">
 	
-		var outProcessCode = "Contract02";
+		var outProcessCode = "Contract03";
 		var disabledYn = "${disabledYn}";
 		
 		var insertDataObject = {};
@@ -66,11 +66,6 @@
 	
 		$(document).ready(function() {
 			
-			$('#meetAmtSpent').maskMoney({
-				precision : 0,
-				allowNegative: false
-			});			
-			
 			$("#amt").text("₩ ${contractDetailInfo.amt} " + viewKorean("${contractDetailInfo.amt}".replace(/,/g, '')) + " / 부가세 포함");
 			
 			/*
@@ -89,7 +84,7 @@
 				$('#stdAmt_han').text(viewKorean($('#stdAmt').val().replace(/,/g, '')));
 				$('#taxAmt_han').text(viewKorean($('#taxAmt').val().replace(/,/g, '')));
 				
-			});			
+			});
 			
 			//기존설정항목 세팅
 			<c:if test="${viewType == 'U'}">
@@ -221,6 +216,21 @@
 			
 		}
 		
+		function fnSectorAdd(tableName, baseName){
+			
+			var cloneData = $('[name="'+baseName+'"]').clone();
+			$(cloneData).show().attr("name", "addData");
+			
+			$('[name="'+tableName+'"]').append(cloneData);
+			
+		}
+		
+		function fnSectorDel(e){
+			
+			$(e).closest("tr").remove();
+			
+		}			
+		
 		function fnValidationCheck(){
 			insertDataObject = {};
 			
@@ -281,11 +291,10 @@
 			insertDataObject.outProcessCode = outProcessCode;
 			insertDataObject.viewType = "${viewType}"
 			insertDataObject.seq = "${seq}"
-			insertDataObject.meet_dt = $("[name=meetDt]").parent().find("input")[1].value + " " + insertDataObject.meet_start_hh +  ":" + insertDataObject.meet_start_mm + "~" + insertDataObject.meet_end_hh + ":" + insertDataObject.meet_end_mm;
 			
 			$.ajax({
 				type : 'post',
-				url : '<c:url value="/purchase/MeetSaveProc.do" />',
+				url : '<c:url value="/purchase/ResultSaveProc.do" />',
 	    		datatype:"json",
 	            data: insertDataObject ,
 				async : false,
@@ -410,7 +419,7 @@
 <body>
 <div class="pop_wrap" style="min-width:998px;"> <!-- 팝업창사이즈 가로 : 1000px -->
 	<div class="pop_sign_head posi_re">
-		<h1>제안서 평가회의 등록</h1>
+		<h1>제안서 평가결과 등록</h1>
 		<div class="psh_btnbox">
 			<div class="psh_right">
 				<div class="btn_cen mt8">
@@ -458,8 +467,8 @@
 				</tr>
 			</table>
 		</div>
-		
-		<!-- 가회의 개요 -->
+			
+		<!-- 평가회의 개요 -->
 		<div class="btn_div mt25">
 			<div class="left_div">	
 				<p class="tit_p mt5 mb0">평가회의 개요</p>
@@ -468,146 +477,145 @@
 		<div class="com_ta mt10">
 			<table>
 				<colgroup>
-					<col width="160"/>
-					<col width=""/>
-					<col width="160"/>
-					<col width=""/>
+					<col width="130"/>
+					<col width="369"/>
+					<col width="130"/>
+					<col width="369"/>
 				</colgroup>
 				<tr>
-					<th> 평가회의 일시 </th>
-					<td colspan="3" objKey="meet_dt" objCheckFor="checkVal('date', 'meetDt', '평가회의 일시', 'selectDate(this)', '')" >
-						<input ${disabled} name="meetDt" type="text" value="${contractDetailInfo.meet_dt}" class="puddSetup" pudd-type="datepicker"/>
-						<select ${disabled} objKey="meet_start_hh" objCheckFor="checkVal('select', this, '', '', '')" class="selectmenu" style="width:60px">
-							<c:forEach var="items" items="${timeCodeList}">
-							<option ${disabled} value="${items}" <c:if test="${ items == contractDetailInfo.meet_start_hh }">selected</c:if> >${items}</option>
-							</c:forEach>							
-						</select>
-						<select ${disabled} objKey="meet_start_mm" objCheckFor="checkVal('select', this, '', '', '')" class="selectmenu" style="width:60px">
-							<c:forEach var="items" items="${minCodeList}">
-							<option value="${items}" <c:if test="${ items == contractDetailInfo.meet_start_mm }">selected</c:if> >${items}</option>
-							</c:forEach>
-						</select>
-						~
-						<select ${disabled} objKey="meet_end_hh" objCheckFor="checkVal('select', this, '', '', '')" class="selectmenu" style="width:60px">
-							<c:forEach var="items" items="${timeCodeList}">
-							<option value="${items}" <c:if test="${ items == contractDetailInfo.meet_end_hh }">selected</c:if> >${items}</option>
-							</c:forEach>
-						</select>
-						<select ${disabled} objKey="meet_end_mm" objCheckFor="checkVal('select', this, '', '', '')" class="selectmenu" style="width:60px">
-							<c:forEach var="items" items="${minCodeList}">
-							<option value="${items}" <c:if test="${ items == contractDetailInfo.meet_end_mm }">selected</c:if> >${items}</option>
-							</c:forEach>
-						</select>
+					<th>평가회의 일시</th>
+					<td>${contractDetailInfo.meet_dt}</td>
+					<th>평가회의 장소</th>
+					<td>${contractDetailInfo.meet_place}</td>
+				</tr>
+				<tr>
+					<th>평가방법</th>
+					<td colspan="3">업체별 PT ${contractDetailInfo.meet_method_pt}분, 질의응답 ${contractDetailInfo.meet_method_qa}분.</td>
+				</tr>				
+				<tr>
+					<th>평가위원</th>
+					<td colspan="3">
+						<!-- 그리드 -->
+						<div class="com_ta4">
+							<table name="resultJudgesList" objKey="result_judges_info" objCheckFor="checkVal('table', 'resultJudgesList', '평가위원', 'true')">
+								<colgroup>
+									<col width="50"/>
+									<col width="180"/>
+									<col width="120"/>
+									<col width="130"/>
+									<col width=""/>
+								</colgroup>
+								<tr>
+									<th class="ac">
+										<input type="button" onclick="fnSectorAdd('resultJudgesList', 'resultJudgesAddBase')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+									</th>
+									<th class="ac">소속</th>
+									<th class="ac">성명</th>
+									<th class="ac">직위</th>
+									<th class="ac">비고</th>
+								</tr>
+								<tr name="resultJudgesAddBase" style="display:none;">
+									<td>
+										<input type="button" onclick="fnSectorDel(this)" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+									</td>
+									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input name="tableVal" requiredNot="false" must type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+								</tr>								
+								<tr name="addData">
+									<td>
+										<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+									</td>
+									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input name="tableVal" requiredNot="true" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+								</tr>
+							</table>
+						</div>
 					</td>
 				</tr>
 				<tr>
-					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 평가회의 장소</th>
-					<td colspan="3"><input ${disabled} objKey="meet_place" objCheckFor="checkVal('text', this, '평가회의 장소', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.meet_place}" /></td>
+					<th>제안서 평가결과</th>
+					<td colspan="3">
+						<!-- 그리드 -->
+						<div class="com_ta4">
+							<table>
+								<colgroup>
+									<col width="50"/>
+									<col width=""/>
+									<col width=""/>
+									<col width=""/>
+									<col width=""/>
+									<col width=""/>
+									<col width=""/>
+								</colgroup>
+								<tr>
+									<th class="ac" rowspan="2">
+										<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+									</th>
+									<th class="ac" rowspan="2" colspan="2">구분</th>
+									<th class="ac" rowspan="2">배점</th>
+									<th class="ac" colspan="5">업체명</th>
+								</tr>
+								<tr>
+									<th class="ac"><input type="button" onclick="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" /></th>
+								</tr>
+
+								<!-- 추가 -->
+								<tr>
+									<td>
+										<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+									</td>
+									<td><input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td name=""></td>
+								</tr>
+
+								<tr>
+									<td colspan="3">합계</td>
+									<td class="ri">0</td>
+									
+									<td class="ri"></td>
+
+								</tr>
+								<tr>
+									<td colspan="3">우선협상순위</td>
+									<td class="ri"></td>
+									
+									<td class="ri"></td>
+
+								</tr>
+							</table>
+						</div>
+					</td>
 				</tr>
 				<tr>
-					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 평가방법</th>
-					<td>
-						업체별 PT <input ${disabled} objKey="meet_method_pt" objCheckFor="checkVal('text', this, '평가방법', 'mustAlert', '')" type="text" pudd-style="width:40px;" class="puddSetup ar" value="${contractDetailInfo.meet_method_pt}" /> <span class="pl5">분</span>.
-						질의응답 <input ${disabled} objKey="meet_method_qa" objCheckFor="checkVal('text', this, '평가방법', 'mustAlert', '')" type="text" pudd-style="width:40px;" class="puddSetup ar ml5 mr5" value="${contractDetailInfo.meet_method_qa}" /> <span class="pl5">분</span>.
+					<th>평가대상</th>
+					<td colspan="3">
+						<div class="multi_sel" style="width:calc( 100% - 58px);">
+							<ul class="multibox" style="width:100%;">							
+								<li>지란지교소프트<a href="#n" class="close_btn"><img src="${pageContext.request.contextPath}/customStyle/Images/ico/sc_multibox_close.png" /></a></li>	
+								<li>삼성SDS<a href="#n" class="close_btn"><img src="${pageContext.request.contextPath}/customStyle/Images/ico/sc_multibox_close.png" /></a></li>	
+							</ul>								
+						</div>
+						<div class="controll_btn p0 pt4">	
+							<button id="" onclick="">추가</button>
+						</div>
 					</td>
-					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 지출금액</th>
-					<td><input ${disabled} objKey="meet_amt_spent" objCheckFor="checkVal('text', this, '지출금액', 'mustAlert', 'parseToInt')" id="meetAmtSpent" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup ar" value="${contractDetailInfo.meet_amt_spent}" maxlength="15" /> 원</td>
+				</tr>
+				<tr>
+					<th>낙찰가격</th>
+					<td colspan="3">
+						<input type="text" pudd-style="width:150px;" class="puddSetup ar" value="135,300,000" /> 원 
+						<span>(금일억삼천오백삼십만원)</span>
+					</td>
 				</tr>
 			</table>
 		</div>			
-		
-		<!-- 예산정보 -->
-		<div class="btn_div mt25">
-			<div class="left_div">	
-				<p class="tit_p mt5 mb0">예산정보</p>
-			</div>
-		</div>
-		
-		<div class="com_ta4">
-			<table>
-				<colgroup>
-					<col width="50"/>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-				</colgroup>
-				<tr>
-					<th class="ac">
-						<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
-					</th>
-					<th class="ac">예산회계단위</th>
-					<th class="ac">프로젝트</th>
-					<th class="ac">하위사업</th>
-					<th class="ac">예산과목</th>
-				</tr>
-				<tr>
-					<td>
-						<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
-					</td>
-					<td>
-						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
-						</div>
-					</td>
-				</tr>
-			</table>
-		</div>
-
-		<!-- 테이블 -->
-		<div class="com_ta6 mt10">
-			<table>
-				<colgroup>
-					<col width="100"/>
-					<col width="150"/>
-					<col width="100"/>
-					<col width="150"/>
-					<col width="100"/>
-					<col width="150"/>
-					<col width="100"/>
-					<col width="150"/>
-				</colgroup>
-				<tr>
-					<th>관</th>
-					<td>운영비(210)</td>
-					<th>항</th>
-					<td>일반수용비(01)</td>
-					<th>목</th>
-					<td></td>
-					<th>세</th>
-					<td></td>
-				</tr>				
-				<tr>
-					<th>예산액</th>
-					<td class="ri pr10">1,000,000</td>
-					<th>집행액</th>
-					<td class="ri pr10">1,000,000</td>
-					<th>품의액</th>
-					<td class="ri pr10">1,000,000</td>
-					<th>예산잔액</th>
-					<td class="ri pr10">1,000,000</td>
-				</tr>
-			</table>
-		</div>		
+			
 		
 		
 		

@@ -118,7 +118,13 @@
 		ifnull(a.doc_sts,'') as doc_sts, 
 		ifnull(a.approkey_plan,'') as approkey_plan, 
 		ifnull(a.approkey_meet,'') as approkey_meet, 
-		ifnull(a.approkey_result,'') as approkey_result
+		ifnull(a.approkey_result,'') as approkey_result,
+		
+		ifnull(a.meet_dt,'') as meet_dt, 
+		ifnull(a.meet_place,'') as meet_place,
+		ifnull(a.meet_method_pt,'') as meet_method_pt,
+		ifnull(a.meet_method_qa,'') as meet_method_qa,
+		FORMAT(a.meet_amt_spent, 0) as meet_amt_spent
 		
 		FROM cust_sto.t_purchase_contract a
 		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
@@ -256,6 +262,33 @@
 		
 		WHERE seq='$seq$'; 
 	</update>
+	
+	<update	id="PurchaseSQL.UpdateMeet" parameterClass="HashMap" >
+		UPDATE cust_sto.t_purchase_contract
+		SET
+		meet_dt='$meet_dt$', 
+		meet_place='$meet_place$', 
+		meet_method_pt='$meet_method_pt$', 
+		meet_method_qa='$meet_method_qa$', 
+		meet_amt_spent='$meet_amt_spent$', 
+		modify_dt=now(), 
+		modify_by='$created_by$'
+		
+		WHERE seq='$seq$'; 
+	</update>
+	
+	<update	id="PurchaseSQL.UpdateResult" parameterClass="HashMap" >
+		UPDATE cust_sto.t_purchase_contract
+		SET
+		result_judges_info='$result_judges_info$', 
+		result_score_info='$result_score_info$', 
+		result_target_info='$result_target_info$', 
+		result_amt='$result_amt$', 
+		modify_dt=now(), 
+		modify_by='$created_by$'
+
+		WHERE seq='$seq$'; 
+	</update>		
 	
 	<update	id="PurchaseSQL.UpdateAppr" parameterClass="HashMap" >
 		UPDATE cust_sto.t_purchase_contract

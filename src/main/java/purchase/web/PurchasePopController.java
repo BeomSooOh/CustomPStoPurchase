@@ -227,6 +227,19 @@ public class PurchasePopController {
             //기존 작성정보 조회
         	Map<String, Object> detailInfo = purchaseServiceDAO.SelectContractDetail(params);
         	
+            List<String> timeCodeList = new ArrayList<String>();
+            List<String> minCodeList = new ArrayList<String>();
+            
+			for(int i=0;i<24;i++){
+				timeCodeList.add((i < 10 ? "0" : "") + i);
+			}            
+			mv.addObject("timeCodeList", timeCodeList);
+			
+			for(int i=0;i<60;i = i+5){
+				minCodeList.add((i < 10 ? "0" : "") + i);
+			}
+			mv.addObject("minCodeList", minCodeList);
+        	
         	if(detailInfo != null) {
         		
         		if(!detailInfo.get("approkey_meet").equals("")) {
@@ -257,8 +270,17 @@ public class PurchasePopController {
         			detailInfo.put("decision_type_info_text", purchaseServiceDAO.GetCodeText(queryParam));
         		}else {
         			detailInfo.put("decision_type_info_text", "");
-        		} 
+        		}
         		
+        		//평가회의 일시정보 설정
+        		if(!detailInfo.get("meet_dt").equals("")) {
+        			String meet_dt = detailInfo.get("meet_dt").toString();
+        			detailInfo.put("meet_dt", meet_dt.substring(0,10));
+        			detailInfo.put("meet_start_hh", meet_dt.substring(14,16));
+        			detailInfo.put("meet_start_mm", meet_dt.substring(17,19));
+        			detailInfo.put("meet_end_hh", meet_dt.substring(20,22));
+        			detailInfo.put("meet_end_mm", meet_dt.substring(23,25));     
+        		}
         		
         		mv.addObject("viewType", "U");
         		mv.addObject("seq", params.get("seq"));
@@ -286,6 +308,85 @@ public class PurchasePopController {
         }
         return mv;
     }       
+    
+    @RequestMapping("/purchase/pop/ContractResultPop.do")
+    public ModelAndView ContractResultPop(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        try {
+            /* 변수 설정 */
+            LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+            
+            mv.addObject("viewType", "U");
+            mv.addObject("disabledYn", "N");
+            mv.addObject("btnSaveYn", "Y");
+            mv.addObject("btnApprYn", "Y");
+            
+            Map<String, Object> queryParam = new HashMap<String, Object>();
+            params.put("groupSeq", loginVo.getGroupSeq());
+            queryParam.put("groupSeq", loginVo.getGroupSeq());
+            
+            //기존 작성정보 조회
+        	Map<String, Object> detailInfo = purchaseServiceDAO.SelectContractDetail(params);
+        	
+        	if(detailInfo != null) {
+        		
+        		if(!detailInfo.get("approkey_result").equals("")) {
+        			
+        			//임시저장 버튼 표시
+        			mv.addObject("btnSaveYn", "N");
+        			
+        			if(!detailInfo.get("doc_sts").equals("10")) {
+        				mv.addObject("btnApprYn", "N");
+        				mv.addObject("disabledYn", "Y");
+        				mv.addObject("disabled", "disabled");
+        			}
+        		}
+        		
+        		//경쟁방식 text 조회 
+        		if(!detailInfo.get("compete_type").equals("")) {
+        			queryParam.put("group", "competeType");
+        			queryParam.put("value", detailInfo.get("compete_type"));
+        			detailInfo.put("compete_type_text", purchaseServiceDAO.GetCodeText(queryParam));
+        		}else {
+        			detailInfo.put("compete_type_text", "");
+        		}
+        		
+        		//낙찰자 결정방법 text 조회 
+        		if(!detailInfo.get("decision_type_info").equals("")) {
+        			queryParam.put("group", "decisionType");
+        			queryParam.put("value", detailInfo.get("decision_type_info"));
+        			detailInfo.put("decision_type_info_text", purchaseServiceDAO.GetCodeText(queryParam));
+        		}else {
+        			detailInfo.put("decision_type_info_text", "");
+        		}        		
+        		
+        		mv.addObject("viewType", "U");
+        		mv.addObject("seq", params.get("seq"));
+        		mv.addObject("contractDetailInfo", detailInfo);
+        		
+        		params.put("outProcessCode", "Contract03");
+        		List<Map<String, Object>> formAttachList = purchaseServiceDAO.SelectFormAttachList(params);
+        		
+        		mv.addObject("formAttachList", formAttachList);
+        		
+        	}else {
+        		return mv;
+        	}
+            
+            mv.addObject("loginVo", loginVo);
+            
+            mv.setViewName("/purchase/pop/ContractResultPop");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExpInfo.ProcessLog(e.getLocalizedMessage());
+            mv.addObject("errMsg", e.getMessage());
+            mv.setViewName(CommonMapper.GetExError());
+            logger.error(e);
+        }
+        return mv;
+    }      
     
     @RequestMapping("/purchase/layer/{layerName}.do")
     public ModelAndView CommonLayerView(@PathVariable String layerName, @RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
@@ -322,14 +423,24 @@ public class PurchasePopController {
 		
 		params.put("mod", "W");
 		
-		if(params.get("outProcessCode").equals("Contract01")) {
+		if(params.get("outProcessCode").equals("Contract01") || params.get("outProcessCode").equals("Contract02")) {
 			
 			detailInfo = purchaseServiceDAO.SelectContractDetail(params);
-			params.put("approKey", "Contract01_" + params.get("seq").toString());
-			params.put("detailUrl", request.getContextPath() + "/purchase/pop/ContractCreatePop.do?seq=" + params.get("seq").toString());
+			params.put("approKey", params.get("outProcessCode").toString() + "_" + params.get("seq").toString());
+			
+			if(params.get("outProcessCode").equals("Contract01")) {
+				
+				params.put("detailUrl", request.getContextPath() + "/purchase/pop/ContractCreatePop.do?seq=" + params.get("seq").toString());
+				params.put("subjectStr", detailInfo.get("title"));
+				params.put("contentsStr", detailInfo.get("work_info"));
+				
+			}else if(params.get("outProcessCode").equals("Contract02")) {
+				params.put("detailUrl", request.getContextPath() + "/purchase/pop/ContractCreatePop.do?seq=" + params.get("seq").toString());
+				params.put("subjectStr", detailInfo.get("title").toString() + " 제안서 평가회의 개최");
+				params.put("contentsStr", detailInfo.get("work_info"));
+			}
+			
 			params.put("detailName", "정보수정");
-			params.put("subjectStr", detailInfo.get("title"));
-			params.put("contentsStr", detailInfo.get("work_info"));
 			
 			//첨부파일정보 조회
 			List<Map<String, Object>> attachList = purchaseServiceDAO.SelectAttachList(params);

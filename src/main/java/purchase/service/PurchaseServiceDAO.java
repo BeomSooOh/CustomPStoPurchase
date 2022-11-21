@@ -72,7 +72,19 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 		
 		update( "PurchaseSQL.UpdateContract", params );
 		
+	}
+	
+	public void UpdateMeet ( Map<String, Object> params ) {
+		
+		update( "PurchaseSQL.UpdateMeet", params );
+		
 	}	
+	
+	public void UpdateResult ( Map<String, Object> params ) {
+		
+		update( "PurchaseSQL.UpdateResult", params );
+		
+	}		
 	
 	public void UpdateAppr ( Map<String, Object> params ) {
 		

@@ -282,6 +282,44 @@ public class PurchaseMainController {
 		return mv;
 	}
     
+    @RequestMapping(value="/purchase/MeetSaveProc.do", method={RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public ModelAndView MeetSaveProc(@RequestParam Map<String,Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("created_by", loginVo.getUniqId());
+		
+		purchaseServiceDAO.UpdateMeet(params);
+		
+		mv.addObject("resultData", params);
+		mv.addObject("resultCode", "success");	
+		mv.setViewName("jsonView");
+		return mv;
+	}    
+    
+    @RequestMapping(value="/purchase/ResultSaveProc.do", method={RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public ModelAndView ResultSaveProc(@RequestParam Map<String,Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("created_by", loginVo.getUniqId());
+		
+		purchaseServiceDAO.UpdateResult(params);
+		
+		mv.addObject("resultData", params);
+		mv.addObject("resultCode", "success");	
+		mv.setViewName("jsonView");
+		return mv;
+	}     
+    
     @RequestMapping(value="/purchase/attachSaveProc.do", method={RequestMethod.GET, RequestMethod.POST})
 	@ResponseBody
 	public ModelAndView attachSaveProc(@RequestParam Map<String,Object> params, HttpServletRequest request)

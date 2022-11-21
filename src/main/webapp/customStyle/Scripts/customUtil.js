@@ -199,6 +199,12 @@ function checkVal(type, elementFor, objName, func, subValueFor){
 			
 			$.each($(objInfo).find("[name=tableVal]"), function( key, tableVal ) {
 				
+				console.log($(tableVal).attr("requiredNot"));
+				
+				if($(tableVal).attr("requiredNot") == "true"){
+					$(tableVal).val(" ");
+				}
+				
 				if($(tableVal).val() != ""){
 					values += (values == "" ? "" : "▦") + $(tableVal).val();
 				}else{
