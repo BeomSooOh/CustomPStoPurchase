@@ -44,6 +44,8 @@
 		var tempObj = {};
 		var tempStr = "";
 		
+		
+		
 		<c:forEach var="items" items="${formAttachList}">
 		
 		tempObj = {};
@@ -63,10 +65,69 @@
 		attachFormList.push(tempObj);
 		</c:forEach>	
 		
+		
+		function setScoreTableInit(value){
+			
+			<c:forEach var="items" items="${contractDetailInfo.nominee_info.split('▦▦') }" varStatus="status">
+			
+			$("[itemTarget=target_${status.index+1}]").attr("biz_no","${items.split('▦')[1]}");
+			$("[itemTarget=target_${status.index+1}]").text("${items.split('▦')[0]}");
+			$("[itemTarget=target_${status.index+1}]").attr("use_yn","Y");
+			$("[itemTarget=target_${status.index+1}]").attr("targetKey","${status.index+1}");
+			
+			</c:forEach>			
+			
+			
+			/*
+			$.each(value.split("▦▦"), function( key, val ) {
+				
+				if(key < 5){
+					
+					var targetInfo = val.split("▦");
+					
+					var seq = key+1;
+					$("[itemTarget=target_"+seq+"]").attr("biz_no",targetInfo[0]);
+					$("[itemTarget=target_"+seq+"]").text(targetInfo[1]);
+					$("[itemTarget=target_"+seq+"]").attr("use_yn","Y");
+					
+				}
+				
+			});
+			*/
+			
+			$.each($("[name=compTr] th[use_yn=N]"), function( key, val ) {
+				
+				var itemNo = $(val).attr("itemNo");
+				$("[itemNo="+itemNo+"]").remove();
+				
+			});			
+			
+		}
+		
+		
 	
 		$(document).ready(function() {
 			
 			$("#amt").text("₩ ${contractDetailInfo.amt} " + viewKorean("${contractDetailInfo.amt}".replace(/,/g, '')) + " / 부가세 포함");
+			
+			setDynamicPuddInfoTable("resultScoreList", "scoreInfoAddBase", "10▦제안서평가위원▦20▦▦20▦발주부서▦60▦▦30▦발주부▦20");
+			
+			setScoreTableInit("111111▦지란지교소프트▦▦222222222222▦삼성SDI");
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+						
+			
+			
 			
 			/*
 			$('#amt, #stdAmt, #taxAmt').maskMoney({
@@ -221,7 +282,11 @@
 			var cloneData = $('[name="'+baseName+'"]').clone();
 			$(cloneData).show().attr("name", "addData");
 			
-			$('[name="'+tableName+'"]').append(cloneData);
+			if(tableName == ""){
+				$('[name="'+baseName+'"]').before(cloneData);
+			}else{
+				$('[name="'+tableName+'"]').append(cloneData);	
+			}
 			
 		}
 		
@@ -404,14 +469,65 @@
 					});				
 					
 					$(cloneData).show().attr("name", "addData");
-					$('[name="'+tableName+'"]').append(cloneData);				
+					$('[name="'+baseName+'"]').before(cloneData);
 					
 				});	
 				
 			}
 		}		
 		
-
+		function fnChangeTarget(e){
+			
+			if(e.checked){
+				$("[itemNo="+$(e).attr("targetkey")+"]").show();
+			}else{
+				$("[itemNo="+$(e).attr("targetkey")+"]").hide();
+			}
+			
+		}
+		
+		
+		/*
+		var resultTargetList = [];
+		
+		var resultTarget = {};
+		resultTarget.seq = "1";
+		resultTarget.name = "지란지교소프트";
+		resultTarget.business_no = "11111111111";
+		resultTargetList.push(resultTarget);
+		
+		resultTarget = {};
+		resultTarget.seq = "2";
+		resultTarget.name = "삼성 SDS";
+		resultTarget.business_no = "22222222222";
+		resultTargetList.push(resultTarget);
+		
+		resultTarget = {};
+		resultTarget.seq = "3";
+		resultTarget.name = "LG CNS";
+		resultTarget.business_no = "11111111111";
+		resultTargetList.push(resultTarget);
+		
+		var resultTypeList = [];
+		
+		var resultType = {};
+		resultType.itemCode = "10";
+		resultType.judge = "제안서 평가위원";
+		resultType.scoreRate = "20";
+		resultTypeList.push(resultType);
+		
+		resultType = {};
+		resultType.itemCode = "20";
+		resultType.judge = "발주부서";
+		resultType.scoreRate = "60";
+		resultTypeList.push(resultType);
+		
+		resultType = {};
+		resultType.itemCode = "10";
+		resultType.judge = "발주부서";
+		resultType.scoreRate = "20";
+		resultTypeList.push(resultType);		
+		*/
 		
 	</script>
 </head>
@@ -536,73 +652,93 @@
 						</div>
 					</td>
 				</tr>
+				
+				<tr>
+					<th>평가대상</th>
+					<td colspan="3">
+					
+					<c:forEach var="items" items="${contractDetailInfo.nominee_info.split('▦▦') }" varStatus="status">
+					<input type="checkbox" targetKey="${status.index+1}" onclick="fnChangeTarget(this)" value="${items.split('▦')[1]}" class="puddSetup" pudd-label="${items.split('▦')[0]}" checked />
+					</c:forEach>
+					
+					</td>
+				</tr>				
+				
 				<tr>
 					<th>제안서 평가결과</th>
 					<td colspan="3">
 						<!-- 그리드 -->
 						<div class="com_ta4">
-							<table>
+							<table name="resultScoreList" objKey="result_score_info" objCheckFor="checkVal('table', 'resultScoreList', '제안서 평가결과', 'true')">
 								<colgroup>
 									<col width="50"/>
 									<col width=""/>
 									<col width=""/>
 									<col width=""/>
-									<col width=""/>
-									<col width=""/>
-									<col width=""/>
+									<col itemNo="1" width=""/>
+									<col itemNo="2" width=""/>
+									<col itemNo="3" width=""/>
+									<col itemNo="4" width=""/>
+									<col itemNo="5" width=""/>
 								</colgroup>
 								<tr>
 									<th class="ac" rowspan="2">
-										<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+										<input type="button" onclick="fnSectorAdd('', 'scoreInfoAddBase')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 									</th>
 									<th class="ac" rowspan="2" colspan="2">구분</th>
 									<th class="ac" rowspan="2">배점</th>
 									<th class="ac" colspan="5">업체명</th>
 								</tr>
-								<tr>
-									<th class="ac"><input type="button" onclick="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" /></th>
+								<tr name="compTr">
+									<th itemNo="1" itemTarget="target_1" use_yn = "N" class="ac">-</th>
+									<th itemNo="2" itemTarget="target_2" use_yn = "N" class="ac">-</th>
+									<th itemNo="3" itemTarget="target_3" use_yn = "N" class="ac">-</th>
+									<th itemNo="4" itemTarget="target_4" use_yn = "N" class="ac">-</th>
+									<th itemNo="5" itemTarget="target_5" use_yn = "N" class="ac">-</th>
 								</tr>
 
-								<!-- 추가 -->
-								<tr>
+								<tr name="scoreInfoAddBase" style="display:none;">
 									<td>
-										<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+										<input type="button" onclick="fnSectorDel(this)" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 									</td>
-									<td><input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
-									<td><input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
-									<td><input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
-									<td name=""></td>
+									<td>
+										<select name="tableVal" style="width: auto;">
+												<option value="10">정량적평가(20)</option>
+												<option value="20">정성적평가(60)</option>
+												<option value="30">가격평가(20)</option>
+										</select>									
+									</td>
+									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									
+									<td itemNo="1"><input itemScore="1" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td itemNo="2"><input itemScore="2" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td itemNo="3"><input itemScore="3" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td itemNo="4"><input itemScore="4" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td itemNo="5"><input itemScore="5" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
 								</tr>
-
-								<tr>
+								
+								<tr name="totalTr">
 									<td colspan="3">합계</td>
 									<td class="ri">0</td>
 									
-									<td class="ri"></td>
-
+									<td itemNo="1" itemTotal="1" class="ri"></td>
+									<td itemNo="2" itemTotal="2" class="ri"></td>
+									<td itemNo="3" itemTotal="3" class="ri"></td>
+									<td itemNo="4" itemTotal="4" class="ri"></td>
+									<td itemNo="5" itemTotal="5" class="ri"></td>
 								</tr>
-								<tr>
+								<tr name="rankTr">
 									<td colspan="3">우선협상순위</td>
 									<td class="ri"></td>
 									
-									<td class="ri"></td>
-
+									<td itemNo="1" itemRank="1" class="ri"></td>
+									<td itemNo="2" itemRank="2" class="ri"></td>
+									<td itemNo="3" itemRank="3" class="ri"></td>
+									<td itemNo="4" itemRank="4" class="ri"></td>
+									<td itemNo="5" itemRank="5" class="ri"></td>
 								</tr>
 							</table>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<th>평가대상</th>
-					<td colspan="3">
-						<div class="multi_sel" style="width:calc( 100% - 58px);">
-							<ul class="multibox" style="width:100%;">							
-								<li>지란지교소프트<a href="#n" class="close_btn"><img src="${pageContext.request.contextPath}/customStyle/Images/ico/sc_multibox_close.png" /></a></li>	
-								<li>삼성SDS<a href="#n" class="close_btn"><img src="${pageContext.request.contextPath}/customStyle/Images/ico/sc_multibox_close.png" /></a></li>	
-							</ul>								
-						</div>
-						<div class="controll_btn p0 pt4">	
-							<button id="" onclick="">추가</button>
 						</div>
 					</td>
 				</tr>
