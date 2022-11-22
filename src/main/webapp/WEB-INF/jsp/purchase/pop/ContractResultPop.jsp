@@ -103,7 +103,7 @@
 			</c:choose>
 			
 			setDynamicPuddInfoTable("resultJudgesList", "resultJudgesAddBase", "${contractDetailInfo.result_judges_info}");
-			
+			setResultTargetInfo("${contractDetailInfo.result_target_info}");
 			
 			fnCalculateResultScore();
 			
@@ -121,7 +121,9 @@
 			$('#resultAmt').keyup(function() {
 				var amtInt = $('#resultAmt').val().replace(/,/g, '');
 				$('#resultAmt_han').text(viewKorean($('#resultAmt').val().replace(/,/g, '')));
-			});			
+			});	
+			
+			$('#resultAmt_han').text(viewKorean($('#resultAmt').val().replace(/,/g, '')));
 			
 			inputTypeSet();
 		}		
@@ -138,6 +140,27 @@
 			
 			fnCalculateResultScore();
 		}	
+		
+		function setResultTargetInfo(value){
+			
+			if(value != ""){
+				
+				$.each(value.split("▦▦"), function( key, val ) {
+					
+					var valInfo =  val.split("▦");
+					var itemNo = valInfo[0];
+					var i=0;
+					
+		            for (var x = 3; x < valInfo.length-1; x++) {
+		                $("[itemscore="+itemNo+"]")[i].value = valInfo[x];
+		                i++;
+		            }					
+					
+				});	
+				
+			}
+			
+		}
 		
 		function fnCalculateResultScore(){
 			

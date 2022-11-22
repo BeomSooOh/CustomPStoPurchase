@@ -91,6 +91,10 @@
 			setDynamicPuddInfoTable("nomineeList", "nomineeAddBase", "${contractDetailInfo.nominee_info}");
 			</c:if>
 			
+			$('#amt_han').text(viewKorean($('#amt').val().replace(/,/g, '')));
+			$('#stdAmt_han').text(viewKorean($('#stdAmt').val().replace(/,/g, '')));
+			$('#taxAmt_han').text(viewKorean($('#taxAmt').val().replace(/,/g, '')));			
+			
 		});
 		
 		function attachLayerPop(){

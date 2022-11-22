@@ -23,14 +23,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import bizbox.orgchart.service.vo.LoginVO;
 import cmm.util.CommonUtil;
 import common.helper.convert.CommonConvert;
-import common.helper.exception.CheckAuthorityException;
-import common.helper.exception.NotFoundLoginSessionException;
 import common.helper.info.CommonInfo;
 import common.helper.logger.ExpInfo;
-import common.vo.common.CommonInterface.commonCode;
-import egovframework.com.cmm.util.EgovUserDetailsHelper;
-import egovframework.com.utl.fcc.service.EgovFileUploadUtil;
-import egovframework.com.utl.sim.service.EgovFileTool;
 import purchase.service.PurchaseService;
 import purchase.service.PurchaseServiceDAO;
 import common.vo.common.CommonMapper;
@@ -526,5 +520,14 @@ public class PurchasePopController {
 		return mv;
 	}    
     
+	
+    @RequestMapping("/purchase/pop/FormEditor.do")
+    public ModelAndView FormEditor(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("/purchase/pop/FormEditor");
+
+        return mv;
+    }      
 
 }
