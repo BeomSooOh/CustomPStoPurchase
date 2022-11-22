@@ -124,7 +124,17 @@
 		ifnull(a.meet_place,'') as meet_place,
 		ifnull(a.meet_method_pt,'') as meet_method_pt,
 		ifnull(a.meet_method_qa,'') as meet_method_qa,
-		FORMAT(a.meet_amt_spent, 0) as meet_amt_spent
+		FORMAT(a.meet_amt_spent, 0) as meet_amt_spent,
+		
+		ifnull(a.meet_dt,'') as meet_dt, 
+		ifnull(a.meet_place,'') as meet_place,
+		ifnull(a.meet_method_pt,'') as meet_method_pt,
+		ifnull(a.meet_method_qa,'') as meet_method_qa,
+		
+		ifnull(a.result_judges_info,'') as result_judges_info, 
+		ifnull(a.result_score_info,'') as result_score_info, 		
+		ifnull(a.result_target_info,'') as result_target_info, 
+		FORMAT(a.result_amt, 0) as result_amt						
 		
 		FROM cust_sto.t_purchase_contract a
 		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'

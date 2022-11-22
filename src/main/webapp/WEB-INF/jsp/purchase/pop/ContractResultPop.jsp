@@ -65,12 +65,15 @@
 		attachFormList.push(tempObj);
 		</c:forEach>	
 		
-	
+
+		
+
+		
 		$(document).ready(function() {
 			
-			$("#amt").text("₩ ${contractDetailInfo.amt} " + viewKorean("${contractDetailInfo.amt}".replace(/,/g, '')) + " / 부가세 포함");
+			//기존설정항목 세팅
 			
-			setDynamicPuddInfoTable("resultScoreList", "scoreInfoAddBase", "10▦제안서평가위원▦20▦▦20▦발주부서▦60▦▦30▦발주부서▦20");
+			$("#amt").text("₩ ${contractDetailInfo.amt} " + viewKorean("${contractDetailInfo.amt}".replace(/,/g, '')) + " / 부가세 포함");
 			
 			<c:forEach var="items" items="${contractDetailInfo.nominee_info.split('▦▦') }" varStatus="status">
 			$("[itemTarget=target_${status.index+1}]").attr("biz_no","${items.split('▦')[1]}");
@@ -84,38 +87,184 @@
 				var itemNo = $(val).attr("itemNo");
 				$("[itemNo="+itemNo+"]").remove();
 				
-			});				
+			});
+			
+			<c:choose>
+			<c:when test="${contractDetailInfo.result_score_info != ''}">
+			
+			setDynamicPuddInfoTable("resultScoreList", "scoreInfoAddBase", "${contractDetailInfo.result_score_info}");
+			
+			</c:when>
+			<c:otherwise>
+			
+			setDynamicPuddInfoTable("resultScoreList", "scoreInfoAddBase", "10▦제안서평가위원▦20▦▦20▦발주부서▦60▦▦30▦발주부서▦20");
+			
+			</c:otherwise>
+			</c:choose>
+			
+			setDynamicPuddInfoTable("resultJudgesList", "resultJudgesAddBase", "${contractDetailInfo.result_judges_info}");
 			
 			
+			fnCalculateResultScore();
 			
-			/*
-			$('#amt, #stdAmt, #taxAmt').maskMoney({
+			init();
+			
+		});
+		
+		function init(){
+			
+			$('#resultAmt').maskMoney({
 				precision : 0,
 				allowNegative: false
 			});
 			
-			$('#amt').keyup(function() {
-				var amtInt = $('#amt').val().replace(/,/g, '');
+			$('#resultAmt').keyup(function() {
+				var amtInt = $('#resultAmt').val().replace(/,/g, '');
+				$('#resultAmt_han').text(viewKorean($('#resultAmt').val().replace(/,/g, '')));
+			});			
+			
+			inputTypeSet();
+		}		
+		
+		function fnChangeTarget(e){
+			
+			if(e.checked){
+				$("[itemNo="+$(e).attr("targetkey")+"]").show();
+				$("[itemTarget=target_"+$(e).attr("targetkey")+"]").attr("use_yn", "Y");
+			}else{
+				$("[itemNo="+$(e).attr("targetkey")+"]").hide();
+				$("[itemTarget=target_"+$(e).attr("targetkey")+"]").attr("use_yn", "N");
+			}
+			
+			fnCalculateResultScore();
+		}	
+		
+		function fnCalculateResultScore(){
+			
+			if($("[name=resultScoreList] tr[name=addData]").length > 0){
 				
-				$('#stdAmt').val((Math.floor(amtInt*0.9)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-				$('#taxAmt').val((Math.floor(amtInt*0.1)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+				var allPointRate = 0;
 				
-				$('#amt_han').text(viewKorean($('#amt').val().replace(/,/g, '')));
-				$('#stdAmt_han').text(viewKorean($('#stdAmt').val().replace(/,/g, '')));
-				$('#taxAmt_han').text(viewKorean($('#taxAmt').val().replace(/,/g, '')));
+				$.each($("[name=resultScoreList] tr[name=addData]"), function( idx, obj ) {
+					
+					var rate = $(obj).find("[itemType=rate]").val();
+					
+					rate = rate == "" ? 0 : parseFloat(rate);
+					
+					allPointRate += rate;
+					
+				});
 				
+				$("[itemType = sumrate]").text(allPointRate);
+				
+				$.each($("[name=compTr] th[use_yn=Y]"), function( key, val ) {
+					
+					var itemNo = $(val).attr("itemNo");
+					var totalScore = parseFloat("0.00");
+					
+					$.each($("[itemscore="+itemNo+"]"), function( idx, thisScore ) {
+						
+						var thisValue = parseFloat($(thisScore).val() == "" ? 0 : $(thisScore).val());
+						
+						totalScore = totalScore + thisValue;
+						
+					});	
+					
+					$("[itemTotal="+itemNo+"]").text(totalScore);
+					
+				});	
+				
+				$.each($("[name=compTr] th[use_yn=Y]"), function( key, val ) {
+					
+					var itemNo = $(val).attr("itemNo");
+					var thisTotal = parseFloat($("[itemtotal="+itemNo+"]").text() == "" ? "0" : $("[itemtotal="+itemNo+"]").text());
+					var rankNum = 1;
+					
+					$.each($("[name=compTr] th[use_yn=Y]"), function( idx, thisScore ) {
+						
+						var itemNo2 = $(thisScore).attr("itemNo");
+						
+						if(itemNo != itemNo2){
+							if(thisTotal < parseFloat($("[itemtotal="+itemNo2+"]").text() == "" ? "0" : $("[itemtotal="+itemNo2+"]").text())){
+								rankNum++;
+							}
+						}
+						
+					});
+					
+					$("[itemrank="+itemNo+"]").text(rankNum);
+					
+				});					
+				
+			}
+			
+		}
+		
+		
+		function getResultTargetInfo(){
+			
+			var returnStr = "";
+			
+			$.each($("[name=compTr] th[use_yn=Y]"), function( key, val ) {
+				
+				var itemNo = $(val).attr("itemNo");
+				
+				var targetInfo = itemNo + "▦" + $("[itemrank="+itemNo+"]").text() + "▦" + $("[itemtotal="+itemNo+"]").text();
+				
+				$.each($("[itemscore="+itemNo+"]"), function( idx, thisScore ) {
+					
+					targetInfo += "▦" + ($(thisScore).val() == "" ? "0" : $(thisScore).val());
+					
+				});				
+				
+				returnStr += (returnStr == "" ? "" : "▦▦") + targetInfo;
+				
+			});		
+			
+			return returnStr;
+		}
+		
+		
+		function inputTypeSet(){
+			
+			$("[inputDecimal=Y]").off('blur').on('blur',function(e){
+
+			    var value = $(this).val();
+			    var regExp = /^\.|\.$/;
+			    if(regExp.test(this.value)){
+			        $(this).val(value.replace('.',''));
+			    }
+
+			});
+
+			// 소수점 둘째자리까지의 실수만 입력 허용
+			$("[inputDecimal=Y]").off('input').on('input',function(e){
+
+			    var value = $(this).val();
+			    var regExp = /^\d*.?\d{0,2}$/;
+			    if(!regExp.test(this.value)){
+			        $(this).val(value.substring(0,value.length-1));
+			    }
+
+			});
+
+			// 숫자와 .(마침표)만 입력 허용
+			$("[inputDecimal=Y]").off('keypress').on('keypress',function(e){
+
+			    e = e || window.event;
+			    var charCode = e.which || e.keyCode;
+			    // var charStr = String.fromCharCode(charCode);
+			    if (!((charCode >= 48 && charCode <= 57) || charCode === 46)){
+			        return false;
+			    }
+
+			});		
+			
+			$("[inputDecimal=Y]").on('keyup',function(e){
+			    fnCalculateResultScore();
 			});
 			
-			//기존설정항목 세팅
-			<c:if test="${viewType == 'U'}">
-			setDynamicPuddInfo("pay_type_info", "checkbox", "${contractDetailInfo.pay_type_info}");
-			setDynamicPuddInfo("restrict_area_info", "checkbox", "${contractDetailInfo.restrict_area_info}");
-			setDynamicPuddInfo("decision_type_info", "radio", "${contractDetailInfo.decision_type_info}");
-			setDynamicPuddInfoTable("restrictSectorList", "setorAddBase", "${contractDetailInfo.restrict_sector_info}");
-			setDynamicPuddInfoTable("nomineeList", "nomineeAddBase", "${contractDetailInfo.nominee_info}");
-			</c:if>
-			*/
-		});
+		}		
 		
 		function attachLayerPop(){
 			
@@ -247,11 +396,13 @@
 				$('[name="'+tableName+'"]').append(cloneData);	
 			}
 			
+			inputTypeSet();
 		}
 		
 		function fnSectorDel(e){
 			
 			$(e).closest("tr").remove();
+			fnCalculateResultScore();
 			
 		}			
 		
@@ -276,12 +427,13 @@
 			return validationCheck;
 		}
 		
-
 		function fnSave(type){
 			
 			if(fnValidationCheck() == true){
 
 				insertDataObject.attch_file_info = JSON.stringify(attachFormList);
+				insertDataObject.result_target_info = getResultTargetInfo();
+				
 				
 				if(type == 0){
 					confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc(1)', '취소', '');	
@@ -435,58 +587,8 @@
 			}
 		}		
 		
-		function fnChangeTarget(e){
-			
-			if(e.checked){
-				$("[itemNo="+$(e).attr("targetkey")+"]").show();
-			}else{
-				$("[itemNo="+$(e).attr("targetkey")+"]").hide();
-			}
-			
-		}
+
 		
-		
-		/*
-		var resultTargetList = [];
-		
-		var resultTarget = {};
-		resultTarget.seq = "1";
-		resultTarget.name = "지란지교소프트";
-		resultTarget.business_no = "11111111111";
-		resultTargetList.push(resultTarget);
-		
-		resultTarget = {};
-		resultTarget.seq = "2";
-		resultTarget.name = "삼성 SDS";
-		resultTarget.business_no = "22222222222";
-		resultTargetList.push(resultTarget);
-		
-		resultTarget = {};
-		resultTarget.seq = "3";
-		resultTarget.name = "LG CNS";
-		resultTarget.business_no = "11111111111";
-		resultTargetList.push(resultTarget);
-		
-		var resultTypeList = [];
-		
-		var resultType = {};
-		resultType.itemCode = "10";
-		resultType.judge = "제안서 평가위원";
-		resultType.scoreRate = "20";
-		resultTypeList.push(resultType);
-		
-		resultType = {};
-		resultType.itemCode = "20";
-		resultType.judge = "발주부서";
-		resultType.scoreRate = "60";
-		resultTypeList.push(resultType);
-		
-		resultType = {};
-		resultType.itemCode = "10";
-		resultType.judge = "발주부서";
-		resultType.scoreRate = "20";
-		resultTypeList.push(resultType);		
-		*/
 		
 	</script>
 </head>
@@ -667,19 +769,19 @@
 												<option value="30">가격평가(20)</option>
 										</select>									
 									</td>
-									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
-									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td><input name="tableVal" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input name="tableVal" itemType = "rate" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
 									
-									<td itemNo="1"><input itemScore="1" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
-									<td itemNo="2"><input itemScore="2" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
-									<td itemNo="3"><input itemScore="3" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
-									<td itemNo="4"><input itemScore="4" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
-									<td itemNo="5"><input itemScore="5" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td itemNo="1"><input itemScore="1" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td itemNo="2"><input itemScore="2" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td itemNo="3"><input itemScore="3" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td itemNo="4"><input itemScore="4" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td itemNo="5"><input itemScore="5" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
 								</tr>
 								
 								<tr name="totalTr">
 									<td colspan="3">합계</td>
-									<td class="ri">0</td>
+									<td itemType = "sumrate" class="ri">0</td>
 									
 									<td itemNo="1" itemTotal="1" class="ri"></td>
 									<td itemNo="2" itemTotal="2" class="ri"></td>
@@ -704,8 +806,8 @@
 				<tr>
 					<th>낙찰가격</th>
 					<td colspan="3">
-						<input type="text" pudd-style="width:150px;" class="puddSetup ar" value="135,300,000" /> 원 
-						<span>(금일억삼천오백삼십만원)</span>
+						<input objKey="result_amt" objCheckFor="checkVal('text', this, '낙찰가격', 'mustAlert', 'parseToInt')" id="resultAmt" type="text" pudd-style="width:150px;" class="puddSetup ar" value="${contractDetailInfo.result_amt}" maxlength="15"/> 원 
+						<span id="resultAmt_han"></span>		
 					</td>
 				</tr>
 			</table>
