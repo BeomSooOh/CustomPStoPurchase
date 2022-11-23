@@ -117,6 +117,7 @@ function msgSnackbar(type, msg, callback){
 function checkVal(type, elementFor, objName, func, subValueFor){
 	
 	var returnVal = "";
+	var focusTarget;
 	
 	if(type == "text" || type == "select"){
 		returnVal = $(elementFor).val();
@@ -193,6 +194,8 @@ function checkVal(type, elementFor, objName, func, subValueFor){
 		
 	}else if(type == "table"){
 		
+		var breakYn = false;
+		
 		$.each($("[name='"+elementFor+"'] [name='addData']"), function( key, objInfo ) {
 			
 			var values = "";
@@ -208,11 +211,23 @@ function checkVal(type, elementFor, objName, func, subValueFor){
 				if($(tableVal).val() != ""){
 					values += (values == "" ? "" : "▦") + $(tableVal).val();
 				}else{
+					
+					focusTarget = tableVal;
+					
+					if(subValueFor == "notnull"){
+						returnVal = "";	
+						breakYn = true;					
+					}
+					
 					values = "";
-					return false;							
+					return false;
 				}
 				
 			});
+			
+			if(breakYn){
+				return false;
+			}
 			
 			if(values != ""){
 				returnVal += (returnVal == "" ? "" : "▦▦") + values;	
@@ -242,7 +257,7 @@ function checkVal(type, elementFor, objName, func, subValueFor){
 				$(elementFor).focus();
 			}else if(type == "table"){
 				
-				$("[name='"+elementFor+"'] [name='addData'] [name='tableVal']input:first").focus();
+				$(focusTarget).focus();
 				
 			}			
 		}				

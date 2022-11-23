@@ -143,6 +143,8 @@
 				
 				$.each(value.split("▦▦"), function( key, val ) {
 					
+					console.log(val);
+					
 					var valInfo =  val.split("▦");
 					var itemNo = valInfo[0];
 					var i=0;
@@ -424,7 +426,7 @@
 				
 				$("[itemNo="+aaDataCnt+"]").show();
 				$("[itemTarget=target_"+aaDataCnt+"]").attr("use_yn", "Y");				
-				
+				fnCalculateResultScore();
 			}
 			
 		}
@@ -439,15 +441,22 @@
 			
 			if(tableName == "nomineeList"){
 				
+				var itemNo = 0;
+				
 				$.each($('[name="'+tableName+'"] [name=addData]'), function( idx, obj ) {
 					
-					var itemNo = idx+1;
+					itemNo = idx+1;
 					
 					$(obj).attr("rowcnt",itemNo);
 					
 					$("[itemTarget=target_"+itemNo+"]").text($(obj).find("[name=tableVal]").val())
 					
 				});
+				
+	            for (var x = 5; x > itemNo; x--) {
+					$("[itemNo="+x+"]").hide();
+					$("[itemTarget=target_"+x+"]").attr("use_yn", "N");
+	            }				
 				
 			}
 			
@@ -753,7 +762,7 @@
 									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
 									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
 									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
-									<td><input name="tableVal" requiredNot="false" must type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input name="tableVal" requiredNot="true" must type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
 								</tr>								
 								<tr name="addData">
 									<td>
@@ -788,7 +797,7 @@
 					<td colspan="5">						
 						<!-- 테이블 -->
 						<div class="com_ta4">
-							<table name="nomineeList" objKey=nominee_info objCheckFor="checkVal('table', 'nomineeList', '평가대상', 'true')" >
+							<table name="nomineeList" objKey=nominee_info objCheckFor="checkVal('table', 'nomineeList', '평가대상', 'true', 'notnull')" >
 								<colgroup>
 									<col width="34"/>
 									<col width=""/>
@@ -832,7 +841,7 @@
 					<td colspan="3">
 						<!-- 그리드 -->
 						<div class="com_ta4">
-							<table name="resultScoreList" objKey="result_score_info" objCheckFor="checkVal('table', 'resultScoreList', '제안서 평가결과', 'true')">
+							<table name="resultScoreList" objKey="result_score_info" objCheckFor="checkVal('table', 'resultScoreList', '제안서 평가결과', 'true', 'notnull')">
 								<colgroup>
 									<col width="50"/>
 									<col width="150"/>

@@ -48,6 +48,7 @@
 			async : false,
 			success : function(result) {
 				gridRender(result.resultList);
+				fnGridClickEventSet();
 			},
 			error : function(result) {
 				msgSnackbar("error", "데이터 요청에 실패했습니다.");
@@ -57,7 +58,56 @@
 		
 		gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
 		
+		$("#btnMeet, #btnResult").hide();
+		
 	}	
+
+	function fnGridClickEventSet(){
+		Pudd( "#grid1" ).on( "gridRowClick", function( e ) {
+			 
+			// e.detail 항목으로 customEvent param 전달됨
+			var evntVal = e.detail;
+		 
+			if( ! evntVal ) return;
+			if( ! evntVal.trObj ) return;
+		 
+			// dataSource에서 전달된 row data
+			var rowData = evntVal.trObj.rowData;
+			fnSetBtn(rowData);
+		 
+			// grid 이벤트 관련된 처리부분
+		});		
+	}
+	
+	function fnSetBtn(rowData){
+		console.log("doc_sts > " + rowData.doc_sts);
+		console.log("approkey_plan > " + rowData.approkey_plan);
+		console.log("approkey_meet > " + rowData.approkey_meet);
+		console.log("approkey_result > " + rowData.approkey_result);
+		
+		$("#btnMeet, #btnResult").hide();
+		
+		if(rowData.approkey_result != ""){
+			
+			$("#btnMeet, #btnResult").show();
+			
+		}else if(rowData.approkey_meet != ""){
+			
+			if(rowData.doc_sts == "90"){
+				$("#btnResult").show();
+			}
+			
+			$("#btnMeet").show();
+			
+		}else if(rowData.approkey_plan != ""){
+			
+			if(rowData.doc_sts == "90"){
+				$("#btnMeet").show();
+			}			
+			
+		}
+		
+	}
 	
 	function gridHeightChange( minusVal ) {
 		var puddGrid = Pudd( "#grid1" ).getPuddObject();
@@ -113,6 +163,14 @@
 						field : "manage_no"
 					,	title : "관리번호"
 					,	width : 130
+					
+					,	content : {
+						// param : row에 해당되는 Data, td Node 객체, tr Node 객체, grid 객체
+						clickCallback : function( rowData, tdNode, trNode, gridObj ) {
+							fnCallBtn("contractView", rowData.seq);
+						}
+					}
+					
 				}
 			,	{
 						field : "contract_no"
@@ -126,7 +184,7 @@
 					}
 				}
 			,	{
-						field : "target_type"
+						field : "target_type_name"
 					,	title : "계약목적물"
 					,	width : 120
 				}					
@@ -167,7 +225,7 @@
 					,	width : 100							
 				}
 			,	{
-						field : "base_law"
+						field : "base_law_name"
 					,	title : "근거법령"
 					,	width : 150
 				}						
@@ -409,13 +467,18 @@
 	}	
 	
 	
-	function fnCallBtn(callId){
+	function fnCallBtn(callId, seq){
 		
 		if(callId == "newContract"){
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do",  "ContractCreatePop", 1200, 800, 1, 1) ;
+		}else if(callId == "contractView"){
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do?seq=" + seq,  "ContractViewPop", 1200, 800, 1, 1) ;
 		}else {
 			msgSnackbar("warning", "개발중입니다.");
 		}
+		
+		
+		
 		
 	}
 	
@@ -448,14 +511,14 @@
 	<div class="btn_div">
 		<div class="right_div">
 			<div id="" class="controll_btn p0">
-				<input type="button" onclick="fnCallBtn('newContract');" class="puddSetup" value="계약입찰발주계획" />
-				<input type="button" onclick="fnCallBtn('newMeet');" class="puddSetup" value="제안서 평가회의" />
-				<input type="button" onclick="fnCallBtn('newResult');" class="puddSetup" value="제안서 평가결과" />
-				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="저장" />
-				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="계약체결" />
-				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="변경계약" />
-				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="대금지급" />
-				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="엑셀다운로드" />
+				<input type="button" onclick="fnCallBtn('newContract');" class="puddSetup" style="background:#03a9f4;color:#fff" value="계약입찰발주계획" />
+				<input type="button" id="btnMeet" onclick="fnCallBtn('newMeet');" class="puddSetup" style="display:none;" value="제안서 평가회의" />
+				<input type="button" id="btnResult" onclick="fnCallBtn('newResult');" class="puddSetup" style="display:none;" value="제안서 평가결과" />
+				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" style="display:none;" value="저장" />
+				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" style="display:none;" value="계약체결" />
+				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" style="display:none;" value="변경계약" />
+				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" style="display:none;" value="대금지급" />
+				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" style="display:none;" value="엑셀다운로드" />
 			</div>
 		</div>
 	</div>

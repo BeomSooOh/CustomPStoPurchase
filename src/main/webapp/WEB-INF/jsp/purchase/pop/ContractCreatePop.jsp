@@ -245,7 +245,14 @@
 			}
 		}		
 		
-		function fnSectorAdd(tableName, baseName){
+		function fnSectorAdd(tableName, baseName, maxCnt){
+			
+			var aaDataCnt = $('[name="'+tableName+'"] [name=addData]').length + 1;
+			
+			if(maxCnt != null && aaDataCnt > maxCnt){
+				msgSnackbar("warning", "등록 가능한 개수를 초과했습니다.");
+				return;
+			}			
 			
 			var cloneData = $('[name="'+baseName+'"]').clone();
 			$(cloneData).show().attr("name", "addData");
@@ -752,7 +759,7 @@
 								<tr>
 									<th class="ac">
 										<c:if test="${disabledYn == 'N'}">
-										<input type="button" onclick="fnSectorAdd('nomineeList', 'nomineeAddBase')" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+										<input type="button" onclick="fnSectorAdd('nomineeList', 'nomineeAddBase', 5)" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 										</c:if>
 									</th>
 									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 거래처명</th>
