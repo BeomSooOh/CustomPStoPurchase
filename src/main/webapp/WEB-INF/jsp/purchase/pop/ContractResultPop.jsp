@@ -79,29 +79,25 @@
 			$("[itemTarget=target_${status.index+1}]").attr("biz_no","${items.split('▦')[1]}");
 			$("[itemTarget=target_${status.index+1}]").text("${items.split('▦')[0]}");
 			$("[itemTarget=target_${status.index+1}]").attr("use_yn","Y");
-			$("[itemTarget=target_${status.index+1}]").attr("targetKey","${status.index+1}");
 			</c:forEach>			
 			
 			$.each($("[name=compTr] th[use_yn=N]"), function( key, val ) {
 				
 				var itemNo = $(val).attr("itemNo");
-				$("[itemNo="+itemNo+"]").remove();
+				$("[itemNo="+itemNo+"]").hide();
 				
 			});
 			
 			<c:choose>
 			<c:when test="${contractDetailInfo.result_score_info != ''}">
-			
 			setDynamicPuddInfoTable("resultScoreList", "scoreInfoAddBase", "${contractDetailInfo.result_score_info}");
-			
 			</c:when>
 			<c:otherwise>
-			
 			setDynamicPuddInfoTable("resultScoreList", "scoreInfoAddBase", "10▦제안서평가위원▦20▦▦20▦발주부서▦60▦▦30▦발주부서▦20");
-			
 			</c:otherwise>
 			</c:choose>
 			
+			setDynamicPuddInfoTable("nomineeList", "nomineeAddBase", "${contractDetailInfo.nominee_info}");
 			setDynamicPuddInfoTable("resultJudgesList", "resultJudgesAddBase", "${contractDetailInfo.result_judges_info}");
 			setResultTargetInfo("${contractDetailInfo.result_target_info}");
 			
@@ -408,23 +404,53 @@
 			
 		}
 		
-		function fnSectorAdd(tableName, baseName){
+		function fnSectorAdd(tableName, baseName, maxCnt){
 			
-			var cloneData = $('[name="'+baseName+'"]').clone();
-			$(cloneData).show().attr("name", "addData");
+			var aaDataCnt = $('[name="'+tableName+'"] [name=addData]').length + 1;
 			
-			if(tableName == ""){
-				$('[name="'+baseName+'"]').before(cloneData);
-			}else{
-				$('[name="'+tableName+'"]').append(cloneData);	
+			if(maxCnt != null && aaDataCnt > maxCnt){
+				msgSnackbar("warning", "등록 가능한 개수를 초과했습니다.");
+				return;
 			}
 			
-			inputTypeSet();
+			var cloneData = $('[name="'+baseName+'"]').clone();
+			$(cloneData).show().attr("name", "addData").attr("rowcnt", aaDataCnt);
+			
+			$('[name="'+baseName+'"]').before(cloneData);
+			
+			if(tableName == "resultScoreList"){
+				inputTypeSet();	
+			}else if(tableName == "nomineeList"){
+				
+				$("[itemNo="+aaDataCnt+"]").show();
+				$("[itemTarget=target_"+aaDataCnt+"]").attr("use_yn", "Y");				
+				
+			}
+			
 		}
 		
-		function fnSectorDel(e){
+		function fnSectorDel(e, tableName){
+			
+			if(tableName != null && $('[name="'+tableName+'"] [name=addData]').length == 1){
+				return;
+			}
 			
 			$(e).closest("tr").remove();
+			
+			if(tableName == "nomineeList"){
+				
+				$.each($('[name="'+tableName+'"] [name=addData]'), function( idx, obj ) {
+					
+					var itemNo = idx+1;
+					
+					$(obj).attr("rowcnt",itemNo);
+					
+					$("[itemTarget=target_"+itemNo+"]").text($(obj).find("[name=tableVal]").val())
+					
+				});
+				
+			}
+			
 			fnCalculateResultScore();
 			
 		}			
@@ -602,7 +628,7 @@
 						
 					});				
 					
-					$(cloneData).show().attr("name", "addData");
+					$(cloneData).show().attr("name", "addData").attr("rowcnt", key+1);
 					$('[name="'+baseName+'"]').before(cloneData);
 					
 				});	
@@ -610,7 +636,13 @@
 			}
 		}		
 		
-
+		function fnNomineeNameSync(e){
+			
+			var itemNo = $(e).closest("tr").attr("rowcnt");
+			
+			$("[itemTarget=target_"+itemNo+"]").text(e.value);
+			
+		}
 		
 		
 	</script>
@@ -693,7 +725,7 @@
 					<td colspan="3">업체별 PT ${contractDetailInfo.meet_method_pt}분, 질의응답 ${contractDetailInfo.meet_method_qa}분.</td>
 				</tr>				
 				<tr>
-					<th>평가위원</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 평가위원</th>
 					<td colspan="3">
 						<!-- 그리드 -->
 						<div class="com_ta4">
@@ -737,8 +769,9 @@
 					</td>
 				</tr>
 				
+				<c:if test="${contractDetailInfo.compete_type == '02'}">
 				<tr>
-					<th>평가대상</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 평가대상(지명경쟁)</th>
 					<td colspan="3">
 					
 					<c:forEach var="items" items="${contractDetailInfo.nominee_info.split('▦▦') }" varStatus="status">
@@ -746,17 +779,63 @@
 					</c:forEach>
 					
 					</td>
-				</tr>				
+				</tr>
+				</c:if>
+				
+				<c:if test="${contractDetailInfo.compete_type != '02'}">
+				<tr>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 평가대상(제한경쟁)</th>
+					<td colspan="5">						
+						<!-- 테이블 -->
+						<div class="com_ta4">
+							<table name="nomineeList" objKey=nominee_info objCheckFor="checkVal('table', 'nomineeList', '평가대상', 'true')" >
+								<colgroup>
+									<col width="34"/>
+									<col width=""/>
+									<col width="150"/>
+								</colgroup>
+								<tr>
+									<th class="ac">
+										<c:if test="${disabledYn == 'N'}">
+										<input type="button" onclick="fnSectorAdd('nomineeList', 'nomineeAddBase', 5)" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+										</c:if>
+									</th>
+									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 거래처명</th>
+									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 사업자번호</th>
+								</tr>
+								<tr name="nomineeAddBase" style="display:none;">
+									<td>
+										<c:if test="${disabledYn == 'N'}">
+										<input type="button" onclick="fnSectorDel(this, 'nomineeList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+										</c:if>
+									</td>
+									<td><input ${disabled} onkeyup="fnNomineeNameSync(this);" name="tableVal" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
+									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
+								</tr>
+								<tr name="addData">
+									<td>
+										<c:if test="${disabledYn == 'N'}">
+										<input type="button" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+										</c:if>
+									</td>
+									<td><input ${disabled} onkeyup="fnNomineeNameSync(this);" name="tableVal" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
+									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
+								</tr>								
+							</table>
+						</div>
+					</td>
+				</tr>
+				</c:if>
 				
 				<tr>
-					<th>제안서 평가결과</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 제안서 평가결과</th>
 					<td colspan="3">
 						<!-- 그리드 -->
 						<div class="com_ta4">
 							<table name="resultScoreList" objKey="result_score_info" objCheckFor="checkVal('table', 'resultScoreList', '제안서 평가결과', 'true')">
 								<colgroup>
 									<col width="50"/>
-									<col width=""/>
+									<col width="150"/>
 									<col width=""/>
 									<col width=""/>
 									<col itemNo="1" width=""/>
@@ -767,7 +846,7 @@
 								</colgroup>
 								<tr>
 									<th class="ac" rowspan="2">
-										<input type="button" onclick="fnSectorAdd('', 'scoreInfoAddBase')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+										<input type="button" onclick="fnSectorAdd('resultScoreList', 'scoreInfoAddBase')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 									</th>
 									<th class="ac" rowspan="2" colspan="2">구분</th>
 									<th class="ac" rowspan="2">배점</th>
@@ -786,10 +865,10 @@
 										<input type="button" onclick="fnSectorDel(this)" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 									</td>
 									<td>
-										<select name="tableVal" style="width: auto;">
-												<option value="10">정량적평가(20)</option>
-												<option value="20">정성적평가(60)</option>
-												<option value="30">가격평가(20)</option>
+										<select name="tableVal" style="width: 90;">
+											<c:forEach var="items" items="${scoreTypeCode}">
+											<option value="${items.CODE}">${items.NAME}</option>
+											</c:forEach>
 										</select>									
 									</td>
 									<td><input name="tableVal" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
@@ -827,7 +906,7 @@
 					</td>
 				</tr>
 				<tr>
-					<th>낙찰가격</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 낙찰가격</th>
 					<td colspan="3">
 						<input objKey="result_amt" objCheckFor="checkVal('text', this, '낙찰가격', 'mustAlert', 'parseToInt')" id="resultAmt" type="text" pudd-style="width:150px;" class="puddSetup ar" value="${contractDetailInfo.result_amt}" maxlength="15"/> 원 
 						<span id="resultAmt_han"></span>		
@@ -835,15 +914,7 @@
 				</tr>
 			</table>
 		</div>			
-			
-		
-		
-		
 	</div>
-
-
-
-
 </div><!-- //pop_wrap -->
 
 </body>

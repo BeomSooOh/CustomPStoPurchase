@@ -290,6 +290,11 @@
 	<update	id="PurchaseSQL.UpdateResult" parameterClass="HashMap" >
 		UPDATE cust_sto.t_purchase_contract
 		SET
+		
+		<isNotEmpty property="nominee_info">
+		nominee_info='$nominee_info$', 
+		</isNotEmpty>			
+		
 		result_judges_info='$result_judges_info$', 
 		result_score_info='$result_score_info$', 
 		result_target_info='$result_target_info$', 

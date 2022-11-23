@@ -337,6 +337,12 @@ public class PurchasePopController {
         			}
         		}
         		
+                //구매계약 전용코드 조회
+                queryParam.put("useYn", "Y");
+                queryParam.put("group", "scoreType");
+                List<Map<String, Object>> scoreTypeCode = purchaseServiceDAO.SelectPurchaseDetailCodeList(queryParam);
+                mv.addObject("scoreTypeCode", scoreTypeCode);
+        		
         		//경쟁방식 text 조회 
         		if(!detailInfo.get("compete_type").equals("")) {
         			queryParam.put("group", "competeType");

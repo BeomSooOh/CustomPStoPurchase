@@ -21,24 +21,13 @@
 	<script type="text/javascript" src="<c:url value='/customStyle/Scripts/jqueryui/jquery.min.js' />"></script>
 	<script type="text/javascript" src="<c:url value='/customStyle/Scripts/jqueryui/jquery-ui.min.js' />"></script>
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/common.js' />"></script>
+    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script> 
 
 
 <script>
 	$(document).ready(function() {
 		
 		fnGetListBind();
-		
-		function gridHeightChange( minusVal ) {
-			var puddGrid = Pudd( "#grid1" ).getPuddObject();
-			var cHeight = document.body.clientHeight;
-	
-			var newGridHeight = cHeight - minusVal;
-			if( newGridHeight > 100 ) {// 최소높이
-				puddGrid.gridHeight( newGridHeight );
-			}
-		}
-	
-		gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
 	
 		$(window).resize(function () {
 			gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
@@ -65,6 +54,19 @@
 			}
 		});
 		
+		
+		gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
+		
+	}	
+	
+	function gridHeightChange( minusVal ) {
+		var puddGrid = Pudd( "#grid1" ).getPuddObject();
+		var cHeight = document.body.clientHeight;
+
+		var newGridHeight = cHeight - minusVal;
+		if( newGridHeight > 100 ) {// 최소높이
+			puddGrid.gridHeight( newGridHeight );
+		}
 	}	
 	
 	function gridRender(listData){
@@ -411,6 +413,8 @@
 		
 		if(callId == "newContract"){
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do",  "ContractCreatePop", 1200, 800, 1, 1) ;
+		}else {
+			msgSnackbar("warning", "개발중입니다.");
 		}
 		
 	}
@@ -445,13 +449,13 @@
 		<div class="right_div">
 			<div id="" class="controll_btn p0">
 				<input type="button" onclick="fnCallBtn('newContract');" class="puddSetup" value="계약입찰발주계획" />
-				<input type="button" class="puddSetup" value="제안서 평가회의" />
-				<input type="button" class="puddSetup" value="제안서 평가결과" />
-				<input type="button" class="puddSetup" value="저장" />
-				<input type="button" class="puddSetup" value="계약체결" />
-				<input type="button" class="puddSetup" value="변경계약" />
-				<input type="button" class="puddSetup" value="대금지급" />
-				<input type="button" class="puddSetup" value="엑셀다운로드" />
+				<input type="button" onclick="fnCallBtn('newMeet');" class="puddSetup" value="제안서 평가회의" />
+				<input type="button" onclick="fnCallBtn('newResult');" class="puddSetup" value="제안서 평가결과" />
+				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="저장" />
+				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="계약체결" />
+				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="변경계약" />
+				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="대금지급" />
+				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="엑셀다운로드" />
 			</div>
 		</div>
 	</div>
