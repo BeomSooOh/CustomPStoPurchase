@@ -49,13 +49,8 @@ public class PurchaseTest {
 		email.send();
 		*/
 		
-		String temp = "2022-11-29(화) 09:25~10:30";
-		
-		System.out.println(temp.substring(0,10));
-		System.out.println(temp.substring(14,16));
-		System.out.println(temp.substring(17,19));
-		System.out.println(temp.substring(20,22));
-		System.out.println(temp.substring(23,25));
+		String temp = "{1}, {1}, {1}";
+		System.out.println(temp.replace("{1}", "{22}"));
 		
 	}
 	

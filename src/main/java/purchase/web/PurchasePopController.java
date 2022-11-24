@@ -420,24 +420,120 @@ public class PurchasePopController {
 		params.put("empSeq", loginVo.getUniqId());
 		
 		Map<String, Object> detailInfo = new HashMap<String, Object>();
+		Map<String, Object> formInfo = new HashMap<String, Object>();
 		
 		params.put("mod", "W");
 		
 		if(params.get("outProcessCode").equals("Contract01") || params.get("outProcessCode").equals("Contract02")) {
 			
 			detailInfo = purchaseServiceDAO.SelectContractDetail(params);
+			
+			params.put("group", "contentsForm");
+			params.put("code", params.get("outProcessCode"));
+			formInfo = purchaseServiceDAO.SelectPurchaseDetailCodeInfo(params);
 			params.put("approKey", params.get("outProcessCode").toString() + "_" + params.get("seq").toString());
 			
 			if(params.get("outProcessCode").equals("Contract01")) {
 				
+				//양식코드 추가
+				
+        		//경쟁방식 text 조회 
+        		if(!detailInfo.get("compete_type").equals("")) {
+        			params.put("group", "competeType");
+        			params.put("value", detailInfo.get("compete_type"));
+        			detailInfo.put("compete_type_text", purchaseServiceDAO.GetCodeText(params));
+        		}else {
+        			detailInfo.put("compete_type_text", "");
+        		}
+        		
+        		//낙찰자 결정방법 text 조회 
+        		if(!detailInfo.get("decision_type_info").equals("")) {
+        			params.put("group", "decisionType");
+        			params.put("value", detailInfo.get("decision_type_info"));
+        			detailInfo.put("decision_type_info_text", purchaseServiceDAO.GetCodeText(params));
+        		}else {
+        			detailInfo.put("decision_type_info_text", "");
+        		}
+        		
+        		//결제방법 text 조회 
+        		if(!detailInfo.get("pay_type_info").equals("")) {
+        			params.put("group", "payType");
+        			params.put("value", detailInfo.get("pay_type_info"));
+        			detailInfo.put("pay_type_info_text", purchaseServiceDAO.GetCodeText(params));
+        		}else {
+        			detailInfo.put("pay_type_info_text", "");
+        		}        		
+        		
+        		//계약법령 text 조회 
+        		if(!detailInfo.get("base_law").equals("")) {
+        			params.put("group", "baseLaw");
+        			params.put("value", detailInfo.get("base_law"));
+        			detailInfo.put("base_law_text", purchaseServiceDAO.GetCodeText(params));
+        		}else {
+        			detailInfo.put("base_law_text", "");
+        		}         		
+				
 				params.put("detailUrl", request.getContextPath() + "/purchase/pop/ContractCreatePop.do?seq=" + params.get("seq").toString());
 				params.put("subjectStr", detailInfo.get("title"));
-				params.put("contentsStr", detailInfo.get("work_info"));
 				
 			}else if(params.get("outProcessCode").equals("Contract02")) {
-				params.put("detailUrl", request.getContextPath() + "/purchase/pop/ContractCreatePop.do?seq=" + params.get("seq").toString());
+				
+	       		//경쟁방식 text 조회 
+        		if(!detailInfo.get("compete_type").equals("")) {
+        			params.put("group", "competeType");
+        			params.put("value", detailInfo.get("compete_type"));
+        			detailInfo.put("compete_type_text", purchaseServiceDAO.GetCodeText(params));
+        		}else {
+        			detailInfo.put("compete_type_text", "");
+        		}
+        		
+        		//낙찰자 결정방법 text 조회 
+        		if(!detailInfo.get("decision_type_info").equals("")) {
+        			params.put("group", "decisionType");
+        			params.put("value", detailInfo.get("decision_type_info"));
+        			detailInfo.put("decision_type_info_text", purchaseServiceDAO.GetCodeText(params));
+        		}else {
+        			detailInfo.put("decision_type_info_text", "");
+        		}
+        		
+        		//결제방법 text 조회 
+        		if(!detailInfo.get("pay_type_info").equals("")) {
+        			params.put("group", "payType");
+        			params.put("value", detailInfo.get("pay_type_info"));
+        			detailInfo.put("pay_type_info_text", purchaseServiceDAO.GetCodeText(params));
+        		}else {
+        			detailInfo.put("pay_type_info_text", "");
+        		}        		
+        		
+        		//계약법령 text 조회 
+        		if(!detailInfo.get("base_law").equals("")) {
+        			params.put("group", "baseLaw");
+        			params.put("value", detailInfo.get("base_law"));
+        			detailInfo.put("base_law_text", purchaseServiceDAO.GetCodeText(params));
+        		}else {
+        			detailInfo.put("base_law_text", "");
+        		} 				
+				
+				
+				params.put("detailUrl", request.getContextPath() + "/purchase/pop/ContractMeetPop.do?seq=" + params.get("seq").toString());
 				params.put("subjectStr", detailInfo.get("title").toString() + " 제안서 평가회의 개최");
-				params.put("contentsStr", detailInfo.get("work_info"));
+				
+			}else if(params.get("outProcessCode").equals("Contract03")) {
+				params.put("detailUrl", request.getContextPath() + "/purchase/pop/ContractResultPop.do?seq=" + params.get("seq").toString());
+				params.put("subjectStr", detailInfo.get("title").toString() + " 우선협상대상자 선정결과 보고");
+			}
+			
+			if(formInfo != null) {
+				
+				String FORM_HTML = formInfo.get("FORM_HTML").toString();
+				
+				for( String strKey : detailInfo.keySet() ){
+					String strValue = detailInfo.get(strKey) != null ? detailInfo.get(strKey).toString() : "";
+					FORM_HTML = FORM_HTML.replace("$" + strKey + "$", strValue);
+				}
+				
+				params.put("contentsStr", FORM_HTML);
+				
 			}
 			
 			params.put("detailName", "정보수정");

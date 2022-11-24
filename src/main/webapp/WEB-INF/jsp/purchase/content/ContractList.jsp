@@ -25,6 +25,10 @@
 
 
 <script>
+
+	var targetSeq;
+
+
 	$(document).ready(function() {
 		
 		fnGetListBind();
@@ -80,6 +84,10 @@
 	}
 	
 	function fnSetBtn(rowData){
+		
+		targetSeq = rowData.seq;
+		
+		console.log("seq > " + rowData.seq);
 		console.log("doc_sts > " + rowData.doc_sts);
 		console.log("approkey_plan > " + rowData.approkey_plan);
 		console.log("approkey_meet > " + rowData.approkey_meet);
@@ -473,12 +481,13 @@
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do",  "ContractCreatePop", 1200, 800, 1, 1) ;
 		}else if(callId == "contractView"){
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do?seq=" + seq,  "ContractViewPop", 1200, 800, 1, 1) ;
+		}else if(callId == "newMeet"){
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractMeetPop.do?seq=" + targetSeq,  "ContractViewPop", 1200, 800, 1, 1) ;
+		}else if(callId == "newResult"){
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractResultPop.do?seq=" + targetSeq,  "ContractViewPop", 1200, 800, 1, 1) ;
 		}else {
 			msgSnackbar("warning", "개발중입니다.");
 		}
-		
-		
-		
 		
 	}
 	

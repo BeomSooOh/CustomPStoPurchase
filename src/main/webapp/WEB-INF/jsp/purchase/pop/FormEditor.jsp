@@ -36,13 +36,85 @@
 			
 		});
 		
+		function fnChangeForm(e){
+			
+			if($("#formCode").val() == ""){
+				$("#editorView")[0].contentWindow.fnEditorHtmlLoad("");
+				return;
+			}
+			
+			var reqParam = {};
+			reqParam.group = "contentsForm";
+			reqParam.code = $("#formCode").val();
+			
+			$.ajax({
+				type : 'post',
+				url : '<c:url value="/purchase/SelectFormInfo.do" />',
+				datatype : 'json',
+				data : reqParam,
+				async : false,
+				success : function(result) {
+
+					$("#editorView")[0].contentWindow.fnEditorHtmlLoad(result.resultData.FORM_HTML);					
+					
+				},
+				error : function(result) {
+					msgSnackbar("error", "데이터 요청에 실패했습니다.");
+				}
+			});			
+			
+			
+			
+			
+		}
+		
+		function fnCallBtn(){
+			
+			if($("#formCode").val() == ""){
+				return;
+			}
+			
+			var reqParam = {};
+			reqParam.GROUP = "contentsForm";
+			reqParam.CODE = $("#formCode").val();
+			reqParam.FORM_HTML = $("#editorView")[0].contentWindow.fnEditorContents();
+			
+			$.ajax({
+				type : 'post',
+				url : '<c:url value="/purchase/SaveFormInfo.do" />',
+				datatype : 'json',
+				data : reqParam,
+				async : false,
+				success : function(result) {
+
+					msgSnackbar("success", "저장완료");
+					
+				},
+				error : function(result) {
+					msgSnackbar("error", "데이터 요청에 실패했습니다.");
+				}
+			});				
+			
+		}		
+		
 	</script>
 </head>
 
 <body>
 <div class="pop_wrap" style="min-width:650px;">
 	<div class="pop_sign_head posi_re">
-		<h1>계약입찰 발주계획 등록</h1>
+
+
+			<select id = "formCode" onchange="fnChangeForm(this)">
+				<option value="">--</option>
+				<option value="Contract01">구매계약모듈(계약입찰발주계획)</option>
+				<option value="Contract02">구매계약모듈(평가회의등록)</option>
+				<option value="Contract03">구매계약모듈(평가결과등록)</option>
+				<option value="ManualPop01">비품/소모품안내문구관리</option>
+			</select>
+
+
+
 		<div class="psh_btnbox">
 			<div class="psh_right">
 				<div class="btn_cen mt8">

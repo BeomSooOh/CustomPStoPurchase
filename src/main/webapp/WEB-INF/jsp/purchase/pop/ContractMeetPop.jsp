@@ -474,7 +474,7 @@
 					<col width=""/>
 				</colgroup>
 				<tr>
-					<th> 평가회의 일시 </th>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 평가회의 일시 </th>
 					<td colspan="3" objKey="meet_dt" objCheckFor="checkVal('date', 'meetDt', '평가회의 일시', 'selectDate(this)', '')" >
 						<input ${disabled} name="meetDt" type="text" value="${contractDetailInfo.meet_dt}" class="puddSetup" pudd-type="datepicker"/>
 						<select ${disabled} objKey="meet_start_hh" objCheckFor="checkVal('select', this, '', '', '')" class="selectmenu" style="width:60px">

@@ -32,6 +32,24 @@
 		order by `GROUP`, ORDER_NUM
 	</select>
 	
+	<select	id="PurchaseSQL.SelectPurchaseDetailCodeInfo" parameterClass="HashMap" resultClass="HashMap">
+		
+		select
+		`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML
+		from cust_sto.t_purchase_code_detail 
+		where 1=1
+		<isNotEmpty property="useYn">
+		and USE_YN = '$useYn$'
+		</isNotEmpty>		
+		<isNotEmpty property="group">
+		and `group`='$group$'
+		</isNotEmpty>
+		<isNotEmpty property="group">
+		and `code`='$code$'
+		</isNotEmpty>	
+		limit 1;	
+	</select>
+	
 	<select	id="PurchaseSQL.SelectContractList" parameterClass="HashMap" resultClass="HashMap">
 		
 		SELECT 
@@ -79,6 +97,7 @@
 		FROM cust_sto.t_purchase_contract a
 		join cust_sto.t_purchase_code_detail cd_target_type on cd_target_type.`GROUP` ='targetType' and a.target_type =cd_target_type.code
 		join cust_sto.t_purchase_code_detail cd_base_law on cd_base_law.`GROUP` ='baseLaw' and a.base_law  =cd_base_law.code
+		order by a.seq desc
 		
 	</select>	
 	
@@ -294,6 +313,14 @@
 		
 		WHERE seq='$seq$'; 
 	</update>
+	
+	<update	id="PurchaseSQL.SaveFormInfo" parameterClass="HashMap" >
+	
+		UPDATE cust_sto.t_purchase_code_detail
+		SET FORM_HTML=#FORM_HTML#
+		WHERE `GROUP`='$GROUP$' AND CODE='$CODE$';
+	
+	</update>	
 	
 	<update	id="PurchaseSQL.UpdateResult" parameterClass="HashMap" >
 		UPDATE cust_sto.t_purchase_contract

@@ -353,7 +353,41 @@ public class PurchaseMainController {
 		mv.addObject("resultCode", "success");	
 		mv.setViewName("jsonView");
 		return mv;
+	}
+	
+	@RequestMapping("/purchase/SelectFormInfo.do")
+	public ModelAndView SelectFormInfo(@RequestParam Map<String, Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		
+		Map<String, Object> resultData = purchaseServiceDAO.SelectPurchaseDetailCodeInfo(params);
+		
+		mv.addObject("resultData", resultData);
+		mv.addObject("resultCode", "success");	
+		mv.setViewName("jsonView");
+		return mv;
 	}	
+	
+	@RequestMapping("/purchase/SaveFormInfo.do")
+	public ModelAndView SaveFormInfo(@RequestParam Map<String, Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		
+		purchaseServiceDAO.SaveFormInfo(params);
+		
+		//mv.addObject("resultData", resultData);
+		mv.addObject("resultCode", "success");	
+		mv.setViewName("jsonView");
+		return mv;
+	}		
+	
+	
 	
     @RequestMapping(value = "/purchase/ApprovalProcess.do", method = {RequestMethod.GET, RequestMethod.POST})
     @ResponseBody

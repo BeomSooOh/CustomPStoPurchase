@@ -16,6 +16,8 @@ public interface PurchaseService {
 	public Map<String, Object> InsertContract ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
 	
 	public Map<String, Object> UpdateAttachInfo ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
+
+	public void SaveFormInfo ( Map<String, Object> params );
 	
 	public void UpdateAppr ( Map<String, Object> params );
 	

@@ -115,6 +115,14 @@ public class PurchaseServiceImpl implements PurchaseService {
 		
 	}
 	
+	public void SaveFormInfo ( Map<String, Object> params ) {
+		
+		purchaseServiceDAO.SaveFormInfo(params);
+		
+	}	
+	
+	
+	
 	@SuppressWarnings("deprecation")
 	public boolean SendMailAlert ( String groupSeq, String compSeq, String subject, String contents, String mailTo ) throws EmailException {
 		
