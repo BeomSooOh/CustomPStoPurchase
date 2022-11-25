@@ -12,7 +12,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>계약입찰 발주계획 등록</title>
+    <title>양식관리</title>
 
     <!--css-->
     <link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/pudd.css' />">
@@ -33,10 +33,14 @@
 	<script type="text/javascript">
 
 		$(document).ready(function() {
-			
+			//fnChangeForm();
 		});
 		
-		function fnChangeForm(e){
+		function fnEditorLoadCallback(){
+			fnChangeForm();
+		}
+		
+		function fnChangeForm(){
 			
 			if($("#formCode").val() == ""){
 				$("#editorView")[0].contentWindow.fnEditorHtmlLoad("");
@@ -68,32 +72,38 @@
 			
 		}
 		
-		function fnCallBtn(){
+		function fnSave(type){
 			
 			if($("#formCode").val() == ""){
 				return;
 			}
 			
-			var reqParam = {};
-			reqParam.GROUP = "contentsForm";
-			reqParam.CODE = $("#formCode").val();
-			reqParam.FORM_HTML = $("#editorView")[0].contentWindow.fnEditorContents();
-			
-			$.ajax({
-				type : 'post',
-				url : '<c:url value="/purchase/SaveFormInfo.do" />',
-				datatype : 'json',
-				data : reqParam,
-				async : false,
-				success : function(result) {
+			if(type == 0){
+				confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSave(1)', '취소', '');	
+			}else if(type == 1){
+				
+				var reqParam = {};
+				reqParam.GROUP = "contentsForm";
+				reqParam.CODE = $("#formCode").val();
+				reqParam.FORM_HTML = $("#editorView")[0].contentWindow.fnEditorContents();
+				
+				$.ajax({
+					type : 'post',
+					url : '<c:url value="/purchase/SaveFormInfo.do" />',
+					datatype : 'json',
+					data : reqParam,
+					async : false,
+					success : function(result) {
 
-					msgSnackbar("success", "저장완료");
+						msgSnackbar("success", "저장완료");
+						
+					},
+					error : function(result) {
+						msgSnackbar("error", "데이터 요청에 실패했습니다.");
+					}
+				});	
 					
-				},
-				error : function(result) {
-					msgSnackbar("error", "데이터 요청에 실패했습니다.");
-				}
-			});				
+			}			
 			
 		}		
 		
@@ -103,22 +113,18 @@
 <body>
 <div class="pop_wrap" style="min-width:650px;">
 	<div class="pop_sign_head posi_re">
-
-
-			<select id = "formCode" onchange="fnChangeForm(this)">
-				<option value="">--</option>
-				<option value="Contract01">구매계약모듈(계약입찰발주계획)</option>
-				<option value="Contract02">구매계약모듈(평가회의등록)</option>
-				<option value="Contract03">구매계약모듈(평가결과등록)</option>
-				<option value="ManualPop01">비품/소모품안내문구관리</option>
-			</select>
-
-
-
+	<h1>연동/안내양식관리</h1>
 		<div class="psh_btnbox">
 			<div class="psh_right">
 				<div class="btn_cen mt8">
-					<input type="button" class="psh_btn" onclick="fnCallBtn('save')" value="저장" />
+					<select id = "formCode" onchange="fnChangeForm(this)" style="    float: left;    margin-right: 10px;    margin-top: 4px;">
+						<option value="ManualPop01">비품안내문구</option>
+						<option value="ManualPop02">소모품안내문구</option>
+						<option value="Contract01">구매계약모듈(계약입찰발주계획)</option>
+						<option value="Contract02">구매계약모듈(평가회의등록)</option>
+						<option value="Contract03">구매계약모듈(평가결과등록)</option>
+					</select>
+					<input type="button" class="psh_btn" onclick="fnSave(0)" value="저장" />
 				</div>
 			</div>
 		</div>

@@ -23,10 +23,9 @@
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/common.js' />"></script>
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script> 
 
-
 <script>
 
-	var targetSeq;
+	var targetSeq = "";
 
 
 	$(document).ready(function() {
@@ -62,8 +61,6 @@
 		
 		gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
 		
-		$("#btnMeet, #btnResult").hide();
-		
 	}	
 
 	function fnGridClickEventSet(){
@@ -92,28 +89,6 @@
 		console.log("approkey_plan > " + rowData.approkey_plan);
 		console.log("approkey_meet > " + rowData.approkey_meet);
 		console.log("approkey_result > " + rowData.approkey_result);
-		
-		$("#btnMeet, #btnResult").hide();
-		
-		if(rowData.approkey_result != ""){
-			
-			$("#btnMeet, #btnResult").show();
-			
-		}else if(rowData.approkey_meet != ""){
-			
-			if(rowData.doc_sts == "90"){
-				$("#btnResult").show();
-			}
-			
-			$("#btnMeet").show();
-			
-		}else if(rowData.approkey_plan != ""){
-			
-			if(rowData.doc_sts == "90"){
-				$("#btnMeet").show();
-			}			
-			
-		}
 		
 	}
 	
@@ -481,15 +456,76 @@
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do",  "ContractCreatePop", 1200, 800, 1, 1) ;
 		}else if(callId == "contractView"){
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do?seq=" + seq,  "ContractViewPop", 1200, 800, 1, 1) ;
-		}else if(callId == "newMeet"){
+		}else if(callId == "btnMeet"){
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractMeetPop.do?seq=" + targetSeq,  "ContractViewPop", 1200, 800, 1, 1) ;
-		}else if(callId == "newResult"){
+		}else if(callId == "btnResult"){
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractResultPop.do?seq=" + targetSeq,  "ContractViewPop", 1200, 800, 1, 1) ;
 		}else {
 			msgSnackbar("warning", "개발중입니다.");
 		}
 		
 	}
+	
+	function fnContractStatePop(btnType){
+		
+		if(targetSeq == ""){
+			msgSnackbar("warning", "등록하실 계약건을 선택해 주세요.");
+			return;
+		}
+		
+		var reqParam = {};
+		reqParam.seq = targetSeq;
+		var resultState = false;
+		$.ajax({
+			type : 'post',
+			url : '<c:url value="/purchase/ContractInfo.do" />',
+			datatype : 'json',
+			data : reqParam,
+			async : false,
+			success : function(result) {
+				
+				console.log("seq > " + result.resultData.seq);
+				console.log("doc_sts > " + result.resultData.doc_sts);
+				console.log("approkey_plan > " + result.resultData.approkey_plan);
+				console.log("approkey_meet > " + result.resultData.approkey_meet);
+				console.log("approkey_result > " + result.resultData.approkey_result);
+				
+				if(result.resultData.approkey_result != ""){
+					
+					if(btnType == "btnMeet" || btnType == "btnResult"){
+						resultState = true;
+					}
+					
+				}else if(result.resultData.approkey_meet != ""){
+					
+					if(btnType == "btnMeet" || (btnType == "btnResult" && result.resultData.doc_sts == "90")){
+						resultState = true;
+					}
+					
+				}else if(result.resultData.approkey_plan != ""){
+					
+					if(btnType == "btnMeet" && result.resultData.doc_sts == "90"){
+						resultState = true;
+					}
+					
+				}
+				
+				if(resultState){
+					fnCallBtn(btnType);
+				}else{
+					msgSnackbar("warning", "이전 단계의 기안 신청이 완료되지 않았습니다.");
+				}
+				
+			},
+			error : function(result) {
+				msgSnackbar("error", "데이터 요청에 실패했습니다.");
+			}
+		});		
+		
+
+		
+	}
+	
 	
 	
 </script>
@@ -521,13 +557,13 @@
 		<div class="right_div">
 			<div id="" class="controll_btn p0">
 				<input type="button" onclick="fnCallBtn('newContract');" class="puddSetup" style="background:#03a9f4;color:#fff" value="계약입찰발주계획" />
-				<input type="button" id="btnMeet" onclick="fnCallBtn('newMeet');" class="puddSetup" style="display:none;" value="제안서 평가회의" />
-				<input type="button" id="btnResult" onclick="fnCallBtn('newResult');" class="puddSetup" style="display:none;" value="제안서 평가결과" />
-				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" style="display:none;" value="저장" />
-				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" style="display:none;" value="계약체결" />
-				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" style="display:none;" value="변경계약" />
-				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" style="display:none;" value="대금지급" />
-				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" style="display:none;" value="엑셀다운로드" />
+				<input type="button" id="btnMeet" onclick="fnContractStatePop('btnMeet');" class="puddSetup" value="제안서 평가회의" />
+				<input type="button" id="btnResult" onclick="fnContractStatePop('btnResult');" class="puddSetup" value="제안서 평가결과" />
+				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="저장" />
+				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="계약체결" />
+				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="변경계약" />
+				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="대금지급" />
+				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="엑셀다운로드" />
 			</div>
 		</div>
 	</div>
