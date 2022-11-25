@@ -124,7 +124,7 @@
 		</div>
 	</div>
 
-	<div class="pop_con" style="overflow: auto; min-height: 460px;">
+	<div class="pop_con" style="overflow: auto; min-height:f 460px;">
 		<iframe id="editorView" src="/gw/editorView.do" style="min-width:100%;height: 500px;"></iframe>
 	</div><!-- //pop_con -->
 </div><!-- //pop_wrap -->
