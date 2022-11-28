@@ -1,27 +1,51 @@
 
-function viewKorean(num) { 
-    var hanA = new Array("","일","이","삼","사","오","육","칠","팔","구","십"); 
-    var danA = new Array("","십","백","천","","십","백","천","","십","백","천","","십","백","천"); 
-    var result = ""; 
-    for(i=0; i<num.length; i++) { 
-        str = ""; 
-        han = hanA[num.charAt(num.length-(i+1))]; 
-        if(han != "") str += han+danA[i]; 
-        if(i == 4) str += "만"; 
-        if(i == 8) str += "억"; 
-        if(i == 12) str += "조"; 
-        result = str + result; 
-    } 
-    
-    if(num.length > 1){
-    	result = (result.charAt(0) == "일" ? "일" : "") + result.replaceAll("일","") + (result.charAt(result.length-1) == "일" ? "일" : "");
+function viewKorean(num_value) { 
+	
+	var arrNumberWord = new Array("","일","이","삼","사","오","육","칠","팔","구");
+	var arrDigitWord = new  Array("","십","백","천");
+	var arrManWord = new  Array("","만","억", "조");	
+	
+	var num_length = num_value.length;
+	
+	if(isNaN(num_value) == true)
+	      return "";
+	
+	var han_value = "";
+	var man_count = 0;      // 만단위 0이 아닌 금액 카운트.
+	
+	
+	for(i=0; i < num_value.length; i++)
+	{
+	      // 1단위의 문자로 표시.. (0은 제외)
+	      var strTextWord = arrNumberWord[num_value.charAt(i)];
+	
+	
+	      // 0이 아닌경우만, 십/백/천 표시
+	      if(strTextWord != "")
+	      {
+	            man_count++;
+	            strTextWord += arrDigitWord[(num_length - (i+1)) % 4];
+	      }
+	
+	
+	      // 만단위마다 표시 (0인경우에도 만단위는 표시한다)
+	      if(man_count != 0 && (num_length - (i+1)) % 4 == 0)
+	      {
+	            man_count = 0;
+	            strTextWord = strTextWord + arrManWord[(num_length - (i+1)) / 4];
+	      }
+	
+	
+	      han_value += strTextWord;
+	}
+	
+    if(num_value.length > 1){
+    	han_value = (han_value.charAt(0) == "일" ? "일" : "") + han_value.replaceAll("일","") + (han_value.charAt(han_value.length-1) == "일" ? "일" : "");
+    	han_value = "(금" + han_value + "원)";
     }
-    
-    if(result != ""){
-    	result = "(" + result + "원)";
-    }
-    
-    return result ; 
+	      	
+	return han_value;
+	
 }
 
 

@@ -201,6 +201,146 @@ public class PurchasePopController {
         return mv;
     }   
     
+    
+    @RequestMapping("/purchase/pop/ConclusionCreatePop.do")
+    public ModelAndView ConclusionCreatePop(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        try {
+            /* 변수 설정 */
+            LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+            
+            mv.addObject("viewType", "I");
+            mv.addObject("disabledYn", "N");
+            mv.addObject("btnSaveYn", "Y");
+            mv.addObject("btnApprYn", "Y");
+            
+            Map<String, Object> queryParam = new HashMap<String, Object>();
+            queryParam.put("groupSeq", loginVo.getGroupSeq());
+            
+            //구매계약 전용코드 조회 (전체코드 한번에 조회)
+            queryParam.put("useYn", "Y");
+            List<Map<String, Object>> codeList = purchaseServiceDAO.SelectPurchaseDetailCodeList(queryParam);
+            
+            List<Map<String, Object>> budgetType = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> targetType = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> contractTerm = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> contractYear = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> contractType = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> baseLaw = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> privateReason = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> hopeCompany = new ArrayList<Map<String, Object>>();
+            
+            List<Map<String, Object>> attachForm_Conclusion01 = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> attachForm_Conclusion02 = new ArrayList<Map<String, Object>>();
+            
+            if(codeList != null && codeList.size() > 0) {
+            	
+        		for (Map<String, Object> codeinfo : codeList) {
+        			
+        			if(codeinfo.get("GROUP").equals("budgetType")) {
+        				budgetType.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("targetType")) {
+        				targetType.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("contractTerm")) {
+        				contractTerm.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("contractYear")) {
+        				contractYear.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("contractType")) {
+        				contractType.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("baseLaw")) {
+        				baseLaw.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("privateReason")) {
+        				privateReason.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("hopeCompany")) {
+        				hopeCompany.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("attachForm_Conclusion01")) {
+        				attachForm_Conclusion01.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("attachForm_Conclusion02")) {
+        				attachForm_Conclusion02.add(codeinfo);
+        			}
+        			
+        		}            	
+            }
+            
+            //기존 작성정보 조회
+            if(params.get("seq") != null && !params.get("seq").equals("")) {
+            	/*
+            	Map<String, Object> detailInfo = purchaseServiceDAO.SelectContractDetail(params);
+            	
+            	if(detailInfo != null) {
+            		
+            		if(!detailInfo.get("doc_sts").equals("")) {
+            			
+            			//임시저장 버튼 표시
+            			mv.addObject("btnSaveYn", "N");
+            			
+            			if(!detailInfo.get("approkey_meet").equals("") || !detailInfo.get("doc_sts").equals("10")) {
+            				mv.addObject("btnApprYn", "N");
+            				mv.addObject("disabledYn", "Y");
+            				mv.addObject("disabled", "disabled");
+            			}
+            		}
+            		
+            		mv.addObject("viewType", "U");
+            		mv.addObject("seq", params.get("seq"));
+            		mv.addObject("contractDetailInfo", detailInfo);
+            		
+                	mv.addObject("createDeptName", detailInfo.get("write_dept_name"));
+                	mv.addObject("createEmpName", detailInfo.get("write_emp_name"));
+                	mv.addObject("write_comp_seq", detailInfo.get("write_comp_seq"));
+                	mv.addObject("write_dept_seq", detailInfo.get("write_dept_seq"));
+                	mv.addObject("write_emp_seq", detailInfo.get("write_emp_seq"));
+                	mv.addObject("createSuperKey", loginVo.getGroupSeq() + "|" + detailInfo.get("write_comp_seq") + "|" + detailInfo.get("write_dept_seq") + "|" + detailInfo.get("write_emp_seq") + "|u");
+                	mv.addObject("write_dt", detailInfo.get("write_dt"));
+            		
+            		params.put("outProcessCode", "Contract01");
+            		List<Map<String, Object>> formAttachList = purchaseServiceDAO.SelectFormAttachList(params);
+            		
+            		mv.addObject("formAttachList", formAttachList);
+            		
+            	}else {
+            		return mv;
+            	}
+            	*/
+            	
+            }else {
+            	mv.addObject("attachForm_Conclusion01", attachForm_Conclusion01);
+            	mv.addObject("attachForm_Conclusion02", attachForm_Conclusion02);
+            	
+            	mv.addObject("createDeptName", loginVo.getOrgnztNm());
+            	mv.addObject("createEmpName", loginVo.getName());
+            	mv.addObject("write_comp_seq", loginVo.getOrganId());
+            	mv.addObject("write_dept_seq", loginVo.getOrgnztId());
+            	mv.addObject("write_emp_seq", loginVo.getUniqId());
+            	mv.addObject("createSuperKey", loginVo.getGroupSeq() + "|" + loginVo.getOrganId() + "|" + loginVo.getOrgnztId() + "|" + loginVo.getUniqId() + "|u");
+            	mv.addObject("write_dt", CommonUtil.date(new Date(), "yyyy-MM-dd"));
+            }
+            
+            mv.addObject("budgetTypeCode", budgetType);
+            mv.addObject("targetTypeCode", targetType);
+            mv.addObject("contractTermCode", contractTerm);
+            mv.addObject("contractYearCode", contractYear);
+            mv.addObject("contractTypeCode", contractType);
+            mv.addObject("baseLawCode", baseLaw);
+            mv.addObject("privateReasonCode", privateReason);
+            mv.addObject("hopeCompanyCode", hopeCompany);
+            
+            mv.addObject("loginVo", loginVo);
+            
+            mv.setViewName("/purchase/pop/ConclusionCreatePop");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExpInfo.ProcessLog(e.getLocalizedMessage());
+            mv.addObject("errMsg", e.getMessage());
+            mv.setViewName(CommonMapper.GetExError());
+            logger.error(e);
+        }
+        return mv;
+    }     
+    
+    
     @RequestMapping("/purchase/pop/ContractMeetPop.do")
     public ModelAndView ContractMeetPop(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
     	
