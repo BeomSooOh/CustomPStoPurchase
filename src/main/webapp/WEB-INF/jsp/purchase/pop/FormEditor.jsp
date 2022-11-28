@@ -12,7 +12,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>양식관리</title>
+    <title>양식관리....</title>
 
     <!--css-->
     <link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/pudd.css' />">
