@@ -67,6 +67,7 @@
 		a.contract_start_dt, 
 		a.contract_end_dt, 
 		FORMAT(a.amt, 0) as amt,
+		a.amt_kor,
 		FORMAT(a.std_amt, 0) as std_amt,
 		FORMAT(a.tax_amt, 0) as tax_amt,		
 		a.base_law, cd_base_law.NAME as base_law_name,
@@ -120,6 +121,7 @@
 		a.contract_start_dt, 
 		a.contract_end_dt, 
 		FORMAT(a.amt, 0) as amt,
+		a.amt_kor,
 		FORMAT(a.std_amt, 0) as std_amt,
 		FORMAT(a.tax_amt, 0) as tax_amt,
 		a.base_law, 
@@ -153,15 +155,73 @@
 		ifnull(a.meet_method_qa,'') as meet_method_qa,
 		FORMAT(a.meet_amt_spent, 0) as meet_amt_spent,
 		
-		ifnull(a.meet_dt,'') as meet_dt, 
-		ifnull(a.meet_place,'') as meet_place,
-		ifnull(a.meet_method_pt,'') as meet_method_pt,
-		ifnull(a.meet_method_qa,'') as meet_method_qa,
-		
 		ifnull(a.result_judges_info,'') as result_judges_info, 
 		ifnull(a.result_score_info,'') as result_score_info, 		
 		ifnull(a.result_target_info,'') as result_target_info, 
 		FORMAT(a.result_amt, 0) as result_amt						
+		
+		FROM cust_sto.t_purchase_contract a
+		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
+		left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'
+		where seq = $seq$
+		
+	</select>	
+	
+	
+	<select	id="PurchaseSQL.SelectApprFormData" parameterClass="HashMap" resultClass="HashMap">
+		
+		SELECT 
+		a.seq,
+		a.title as title,  
+		a.manage_no as manageNo, 
+		a.contract_no as contractNo,
+		dm.dept_name as writeDeptName,
+		em.emp_name as writeEmpName,
+		a.write_dt as writeDt, 
+		cust_sto.fn_get_purchase_code_text('notiType',a.noti_type) as notiType, 
+		cust_sto.fn_get_purchase_code_text('budgetType',a.budget_type) as budgetType, 
+		cust_sto.fn_get_purchase_code_text('targetType',a.target_type) as targetType, 
+		a.contract_start_dt as contractStartDt, 
+		a.contract_end_dt as contractEndDt, 
+		FORMAT(a.amt, 0) as amt,
+		a.amt_kor as amtKor,
+		FORMAT(a.std_amt, 0) as std_amt,
+		FORMAT(a.tax_amt, 0) as tax_amt,
+		cust_sto.fn_get_purchase_code_text('baseLaw',a.base_law) as baseLaw, 
+		cust_sto.fn_get_purchase_code_text('payType',a.pay_type_info) as payType, 
+		a.work_info as workInfo, 
+		a.emergency_yn, 
+		a.restrict_sector_yn, 
+		cust_sto.fn_get_purchase_code_text('competeType',a.compete_type) as competeType, 
+		cust_sto.fn_get_purchase_code_text('restrictSector',a.restrict_sector_info) as restrictSector, 
+		cust_sto.fn_get_purchase_code_text('restrictArea',a.restrict_area_info) as restrictArea, 
+		a.nominee_info, 
+		cust_sto.fn_get_purchase_code_text('decisionType',a.decision_type_info) as decisionType, 
+		a.contract_form1, 
+		a.contract_form2, 
+		a.contract_form3, 
+		a.rebid_yn, 
+		a.eorder_use_yn, 
+		a.created_dt, 
+		a.created_by, 
+		a.modify_dt, 
+		a.modify_by,
+		
+		ifnull(a.doc_sts,'') as doc_sts, 
+		ifnull(a.approkey_plan,'') as approkey_plan, 
+		ifnull(a.approkey_meet,'') as approkey_meet, 
+		ifnull(a.approkey_result,'') as approkey_result,
+		
+		ifnull(a.meet_dt,'') as meet_dt, 
+		ifnull(a.meet_place,'') as meet_place,
+		ifnull(a.meet_method_pt,'') as meet_method_pt,
+		ifnull(a.meet_method_qa,'') as meet_method_qa,
+		FORMAT(a.meet_amt_spent, 0) as meet_amt_spent,
+		
+		ifnull(a.result_judges_info,'') as result_judges_info, 
+		ifnull(a.result_score_info,'') as result_score_info, 		
+		ifnull(a.result_target_info,'') as result_target_info, 
+		FORMAT(a.result_amt, 0) as result_amt					
 		
 		FROM cust_sto.t_purchase_contract a
 		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
@@ -200,6 +260,7 @@
 		contract_start_dt, 
 		contract_end_dt, 
 		amt, 
+		amt_kor,
 		std_amt, 
 		tax_amt, 
 		base_law, 
@@ -236,7 +297,8 @@
 		'$title$', 
 		'$contract_start_dt$', 
 		'$contract_end_dt$', 
-		'$amt$', 
+		'$amt$',
+		'$amt_kor$', 
 		'$std_amt$', 
 		'$tax_amt$', 
 		'$base_law$', 
@@ -277,6 +339,7 @@
 		contract_start_dt='$contract_start_dt$', 
 		contract_end_dt='$contract_end_dt$', 
 		amt='$amt$', 
+		amt_kor='$amt_kor$', 
 		std_amt='$std_amt$', 
 		tax_amt='$tax_amt$', 
 		base_law='$base_law$', 
@@ -396,24 +459,11 @@
 	</select>
 	
 	
-	<select	id="PurchaseSQL.SelectCodeValueText" parameterClass="HashMap" resultClass="HashMap">	
-		select 
-		GROUP_CONCAT(value SEPARATOR ' / ') AS value_name
-		from
-		(
-		select 
-		concat(name,case when sub_value = '' or INSTR(sub_value,'▦') = 1 then '' else concat('(',sub_value, case when `GROUP` = 'decisionType' and code = '03' then '%)' else ')' end ) end) as value
-		from
-		(
-		select
-		`GROUP`,
-		code,
-		name,
-		substring(substring(concat('▦▦', '$value$','▦▦'), INSTR(concat('▦▦', '$value$','▦▦'), concat('▦▦',CODE, '▦'))+3 + length(code)), 1, INSTR(substring(concat('▦▦', '$value$','▦▦'), INSTR(concat('▦▦', '$value$','▦▦'), concat('▦▦',CODE, '▦'))+3 + length(code)), '▦▦')-1) as sub_value
-		from cust_sto.t_purchase_code_detail where `GROUP` = '$group$' and 
-		concat('▦▦', '$value$','▦▦') like concat('%▦▦',CODE, '▦%')
-		) tableResult1
-		) tableResult2	
+	<select	id="PurchaseSQL.SelectCodeValueText" parameterClass="HashMap" resultClass="HashMap">
+	
+		select  cust_sto.fn_get_purchase_code_text('$group$','$value$') AS value_name
+		from dual;
+		
 	</select>
 		
 </sqlMap>

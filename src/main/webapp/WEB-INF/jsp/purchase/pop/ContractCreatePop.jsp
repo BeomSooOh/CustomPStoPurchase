@@ -587,7 +587,7 @@
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 기초금액</th>
 					<td>
 						<input ${disabled} objKey="amt" objCheckFor="checkVal('text', this, '기초금액', 'mustAlert', 'parseToInt')" id="amt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.amt}</c:if>" maxlength="15" /> 원 
-						<span id="amt_han"></span>
+						<span objKey="amt_kor" objCheckFor="checkVal('innerText', this, '기초금액', '', '')" id="amt_han"></span>
 					</td>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 추정가격</th>
 					<td>

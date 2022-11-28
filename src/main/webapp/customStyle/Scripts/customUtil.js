@@ -1,53 +1,36 @@
+function viewKorean(val){
+    var numKor = new Array("", "일", "이", "삼", "사","오","육","칠","팔","구","십");                                  // 숫자 문자
+    var danKor = new Array("", "십", "백", "천", "", "십", "백", "천", "", "십", "백", "천", "", "십", "백", "천");    // 만위 문자열
+    var result = "";
+    
+    if(val && !isNaN(val)){
+        // CASE: 금액이 공란/NULL/문자가 포함된 경우가 아닌 경우에만 처리
+        
+        for(var i = 0; i < val.length; i++) {
+            var str = "";
+            var num = numKor[val.charAt(val.length - (i+1))];
+            if(num != "")   str += num + danKor[i];    // 숫자가 0인 경우 텍스트를 표현하지 않음
+            switch(i){
+                case 4:str += "만";break;     // 4자리인 경우 '만'을 붙여줌 ex) 10000 -> 일만
+                case 8:str += "억";break;     // 8자리인 경우 '억'을 붙여줌 ex) 100000000 -> 일억
+                case 12:str += "조";break;    // 12자리인 경우 '조'를 붙여줌 ex) 1000000000000 -> 일조
+            }
 
-function viewKorean(num_value) { 
-	
-	var arrNumberWord = new Array("","일","이","삼","사","오","육","칠","팔","구");
-	var arrDigitWord = new  Array("","십","백","천");
-	var arrManWord = new  Array("","만","억", "조");	
-	
-	var num_length = num_value.length;
-	
-	if(isNaN(num_value) == true)
-	      return "";
-	
-	var han_value = "";
-	var man_count = 0;      // 만단위 0이 아닌 금액 카운트.
-	
-	
-	for(i=0; i < num_value.length; i++)
-	{
-	      // 1단위의 문자로 표시.. (0은 제외)
-	      var strTextWord = arrNumberWord[num_value.charAt(i)];
-	
-	
-	      // 0이 아닌경우만, 십/백/천 표시
-	      if(strTextWord != "")
-	      {
-	            man_count++;
-	            strTextWord += arrDigitWord[(num_length - (i+1)) % 4];
-	      }
-	
-	
-	      // 만단위마다 표시 (0인경우에도 만단위는 표시한다)
-	      if(man_count != 0 && (num_length - (i+1)) % 4 == 0)
-	      {
-	            man_count = 0;
-	            strTextWord = strTextWord + arrManWord[(num_length - (i+1)) / 4];
-	      }
-	
-	
-	      han_value += strTextWord;
-	}
-	
-    if(num_value.length > 1){
-    	han_value = (han_value.charAt(0) == "일" ? "일" : "") + han_value.replaceAll("일","") + (han_value.charAt(han_value.length-1) == "일" ? "일" : "");
-    	han_value = "(금" + han_value + "원)";
+            result = str + result;
+        }
+        
+        // Step. 불필요 단위 제거
+        if(result.indexOf("억만") > 0)    result = result.replace("억만", "억");
+        if(result.indexOf("조만") > 0)    result = result.replace("조만", "조");
+        if(result.indexOf("조억") > 0)    result = result.replace("조억", "조");
+        
+        if(result != ""){
+			result = "(금" + result + "원)";
+		}
     }
-	      	
-	return han_value;
-	
+    
+    return result ;
 }
-
 
 function confirmAlert(width, height, type, content, confirmBtnName, confirmBtnCallback, cancelBtnName, cancelBtnCallback){
 	
@@ -259,6 +242,8 @@ function checkVal(type, elementFor, objName, func, subValueFor){
 			
 		});	
 		
+	}else if(type == "innerText"){
+		returnVal = $(elementFor).text();
 	}
 	
 	if(returnVal == ""){
