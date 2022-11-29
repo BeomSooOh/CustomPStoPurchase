@@ -31,22 +31,133 @@
     
 	<script type="text/javascript">
 	
+		var exData = [];
+		var tempObj = {};
+		var rowData;
+		
+		<c:forEach var="items" items="${codeList}">
+		tempObj = {};
+		tempObj.code = "${items.CODE}";
+		tempObj.name = "${items.NAME}";
+		tempObj.note = "${items.NOTE}";
+		tempObj.link = "${items.LINK}";
+		exData.push(tempObj);
+		</c:forEach>			
+		
+		function fnDlgFrameFunc(){
+			
+			<c:if test="${params.multiYn == 'Y'}">
+			parent.commonCodeTargetInfo = Pudd( "#grid" ).getPuddObject().getGridCheckedRowData( "gridCheckBox" );
+			</c:if>
+			<c:if test="${params.multiYn == 'N'}">
+			parent.commonCodeTargetInfo = [];
+			if(rowData != null){
+				parent.commonCodeTargetInfo.push(rowData);
+			}
+			</c:if>			
+			
+		}
+		
+		$(document).ready(function() {
+			
+			var dataSource = new Pudd.Data.DataSource({
+				 
+				data : exData			// 직접 data를 배열로 설정하는 옵션 작업할 것
+			 
+			//,	pageSize : 20			// grid와 연동되는 경우 grid > pageable > pageList 배열값 중의 하나이여야 함
+			,	serverPaging : false
+			});
+			 
+			Pudd( "#grid" ).puddGrid({
+			 
+				dataSource : dataSource
+			 
+			//,	scrollable : true
+			,	height : 300
+			/* 
+			,	pageable : {
+					buttonCount : 10
+				,	pageList : [ 10, 20, 30, 40, 50 ]
+				}
+			*/ 
+			,	resizable : false
+			 
+			,	columns : [
+				
+					<c:if test="${params.multiYn == 'Y'}">
+					{
+						field : "gridCheckBox"		// grid 내포 checkbox 사용할 경우 고유값 전달
+					,	width : 34
+					
+					,	editControl : {
+							type : "checkbox"
+						,	dataValueField : "code"		// value값을 datasource와 매핑하는 경우 설정
+						,	basicUse : true
+			 
+						,	header : {
+			 
+								initControl : function( controlObj ) {
+									controlObj.attr( "name", "exCheckBoxHeader" );
+								}
+							}
+						,	content : {
+								initControl : function( controlObj, rowData ) {
+			 
+									// dataSource에서 전달하는 rowData의 필드에 seq 등을 사용하여 name 고유값 할당하거나 그리드 호출영역에서 임의 변수 사용하여 할당
+									var nameStr = "exCheckBoxContent" + rowData.code;
+									controlObj.attr( "name", nameStr );
+								}
+							}
+						}
+					},
+					</c:if>	
+					
+					
+					{
+						field : "code"
+					,	title : "코드"
+					,	width : 100
+					}
+				,	{
+						field : "name"
+					,	title : "코드명"
+					,	width : 100
+					}
+				]
+			});		
+			
+			<c:if test="${params.multiYn == 'N'}">
+			Pudd( "#grid" ).on( "gridRowClick", function( e ) {
+				 
+				// e.detail 항목으로 customEvent param 전달됨
+				var evntVal = e.detail;
+			 
+				if( ! evntVal ) return;
+				if( ! evntVal.trObj ) return;
+			 
+				// dataSource에서 전달된 row data
+				rowData = evntVal.trObj.rowData;
+			 
+				// grid 이벤트 관련된 처리부분
+			});	
+			</c:if>
+			
+			
+		});
+		
+		 
+	
+		
+	
 			
 	</script>
 </head>
 <body>
 <!-- 팝업------------------------------------------------------->
-	<div class="pop_wrap_dir" style="width:770px;">
+	<div class="pop_wrap_dir" style="width:370px;">
         <div class="com_ta">
-	
-			'${params.multiYn}'
-			'${codeList}'
-	
-	
+        	<div id="grid"></div>
 		</div>
-
-        
-  		
     </div><!-- //pop_wrap -->
 <!--// 팝업----------------------------------------------------- -->
 </body>

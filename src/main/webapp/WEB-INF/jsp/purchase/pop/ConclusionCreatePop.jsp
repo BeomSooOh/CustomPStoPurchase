@@ -21,7 +21,9 @@
     <link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/common.css' />">
 	<link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/re_pudd.css' />">
 	<link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/animate.css' />">
-	    
+	
+	<jsp:include page="/WEB-INF/jsp/common/cmmJunctionCodePop.jsp" flush="false" />	
+	
     <!--js-->
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/pudd/pudd-1.1.200.min.js' />"></script>
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/jquery-1.9.1.min.js' />"></script>
@@ -30,7 +32,7 @@
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/common.js' />"></script>
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script>  
     <script type="text/javascript" src="<c:url value='/js/jquery.maskMoney.js' />"></script>  
-	
+
 	<script type="text/javascript">
 	
 		var outProcessCode = "Conclusion01";
@@ -217,14 +219,57 @@
 			
 		}	
 		
-		var commonCodeTarget;
-		var commonCodeInfo;
+		var commonCodeTargetInfo = [];
 		
-		function commonCodeCallback(){
-			console.log("commonCodeCallback");
+		function commonCodeCallback(type, targetName){
+			
+			if(type == "ul"){
+				
+				$('[name="'+targetName+'"] [name=addData]').remove();
+				
+				$.each(commonCodeTargetInfo, function( idx, addData ) {
+					
+					var cloneData = $('[name="'+targetName+'"] [name=dataBase]').clone();
+					$(cloneData).show().attr("name", "addData");
+					
+					$(cloneData).attr("addCode", addData.code);
+					$(cloneData).find("[name=addName]").text(addData.name);
+					
+					$('[name="'+targetName+'"]').append(cloneData);				
+					
+				});									
+				
+			}
+			
 		}
+		
+		/*
+		function commonCodeTargetSet(type, targetName){
+			
+			if(type == "ul"){
+				
+				$.each($(targetName).find("addData"), function( idx, addData ) {
+					
+					var addDataInfo = {};
+					
+					addDataInfo.code = $(addData).attr("addCode");
+					addDataInfo.name = $(addData).find("[name=addName]").text();
+					
+				});					
+				
+			}
+		}
+		*/
 
-		function commonCodeSelectLayer(group, title, target){
+		function commonCodeSelectLayer(group, title, type, targetName, multiYn){
+			
+			commonCodeTargetInfo = [];
+			
+			/*
+			if(appendYn == "Y"){
+				commonCodeTargetSet(type, targetName);	
+			}
+			*/
 			
 			// puddDialog 함수
 			Pudd.puddDialog({
@@ -248,7 +293,10 @@
 			,	body : {
 			 
 					iframe : true
-				,	url : "${pageContext.request.contextPath}/purchase/layer/CodeSelectLayer.do?multiYn=N&group=" + group
+				,	url : "${pageContext.request.contextPath}/purchase/layer/CodeSelectLayer.do?multiYn=" + multiYn + "&group=" + group
+				,	iframeAttribute : {
+					id : "dlgFrame"
+				}						
 
 			}
 			 
@@ -257,21 +305,19 @@
 			
 					buttons : [
 						
-						<c:if test="${disabledYn == 'N'}">
 						{
 							attributes : {}// control 부모 객체 속성 설정
 						,	controlAttributes : { id : "btnConfirm", class : "submit" }// control 자체 객체 속성 설정
 						,	value : <c:if test="${viewType == 'I'}">"확인"</c:if><c:if test="${viewType != 'I'}">"저장"</c:if>
 						,	clickCallback : function( puddDlg ) {
 							
-							temptemp = puddDlg;
-								fnUpdateAttachInfo();
-								puddDlg.showDialog( false );
-								// 추가적인 작업 내용이 있는 경우 이곳에서 처리
+							var iframeTag = document.getElementById( "dlgFrame" );
+							iframeTag.contentWindow.fnDlgFrameFunc();							
+							commonCodeCallback(type, targetName);
+							puddDlg.showDialog( false );
 								
 							}
 						},
-						</c:if>
 						
 						{
 							attributes : { style : "margin-left:5px;" }// control 부모 객체 속성 설정
@@ -778,6 +824,66 @@
 			targetElement = $(e).closest("li").remove();
 		}		
 		
+		
+		/* ## 공통코드 - 팝업호출 ## */
+		function fnCommonCodePop(code, obj, callback, data) {
+			/* [ parameter ] */
+			/*   - obj : 전송할 파라미터 */
+			obj = (obj || {});
+			/*   - callback : 코백 호출할 함수 명 */
+			callback = (callback || '');
+			/*   - data : 더미 */
+			data = (data || {});
+
+			/* 팝업 호출 */
+			obj.widthSize = 780;
+			obj.heightSize = 582;
+
+			fnCallCommonCodePop({
+				code : code,
+				popupType : 2,
+				param : JSON.stringify(obj),
+				callbackFunction : callback,
+				dummy : JSON.stringify(data)
+			});
+		}		
+		
+
+		function fnCommonCode_trName_callback(param) {
+			/* iCUBE example - tr : {"erpCompSeq":"7070","tel":"02 _518_0012","trFg":"1","trName":"전문건설공제조합2","ceoName":"이건영","addr":"충남 공주시 신관동 ","bankName":"국민","trRegNumber":"6028505389","bankNumber":"32165431321","useYN":"1","atTrName":"전문건설공제조합2","trSeq":"000003","trFgName":"일반","depositor":"ㅇ러날","giroSeq":"040","code":"tr","dummy":"{}"} */
+			
+			if(param != null){
+				$("[objKey=partner_code]").val( param.trSeq || "" );
+				$("[objKey=partner_name]").val( param.trName || "" );
+				$("[objKey=partner_bizno]").text( param.trRegNumber || "" );
+				$("[objKey=partner_owner]").text( param.ceoName || "" );
+				$("[objKey=partner_addr]").text( param.addr || "" );
+			}
+			
+		}
+		
+		/* ## 공통코드 - 거래처 ## */
+		function fnCommonCode_trName(code, param) {
+			/* [ parameter ] */
+			/*   - code : 공통코드 구분 코드 ( column 사용 권장 ) */
+			code = (code || '');
+			/*   - param : 현재 작성중인 내역의 모든 정보 */
+			param = (param || {});
+
+			//param.trOpt = optionSet.gw[3][16].setValue
+			//param.trOpt2 = (optionSet.gw[3][22]||{'setValue':'1'}).setValue ;
+
+			param.callback = 'fnCommonCode_trName_callback';
+			/* 검색어 예외처리 ( 이유 : ERPiU 기준에 따라 처리 ) */
+			param.searchStr = "";
+
+			fnCommonCodePop(code, param, param.callback);
+
+			/* [ return ] */
+			return;
+		}		
+		
+		
 	</script>
 </head>
 
@@ -974,13 +1080,15 @@
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 희망기업여부</th>
 					<td>
 						<div class="multi_sel" style="width:calc( 100% - 58px);">
-							<ul class="multibox" style="width:100%;">							
-								<li>지란지교소프트<a href="#n" class="close_btn"><img src="${pageContext.request.contextPath}/customStyle/Images/ico/sc_multibox_close.png" /></a></li>	
-								<li>삼성SDS<a href="#n" class="close_btn"><img src="${pageContext.request.contextPath}/customStyle/Images/ico/sc_multibox_close.png" /></a></li>	
+							<ul name="hopeCompanyList" objKey="hope_company_info" objCheckFor="checkVal('ul', 'hopeCompanyList', '희망기업여부', 'mustAlert', '')" class="multibox" style="width:100%;">							
+								<li name="dataBase" addCode="" style="display:none;">
+									<span name="addName"></span>
+									<a href="#n" onclick="$(this).closest('li').remove();" class="close_btn"><img src="${pageContext.request.contextPath}/customStyle/Images/ico/sc_multibox_close.png" /></a>
+								</li>
 							</ul>								
 						</div>
 						<div class="controll_btn p0 pt4">	
-							<button id="" onclick="commonCodeSelectLayer('', '', '')">추가</button>
+							<button id="" onclick="commonCodeSelectLayer('hopeCompany', '희망기업여부', 'ul', 'hopeCompanyList', 'Y')">선택</button>
 						</div>
 					</td>
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 희망확인서</th>
@@ -1032,13 +1140,14 @@
 				<tr>
 					<td>
 						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% );" class="puddSetup pr30" value="지란지교소프트" readonly />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
+							<input objKey="partner_code" objCheckFor="checkVal('text', this, '계약대상', 'mustAlert', '')" type="hidden" />
+							<input objKey="partner_name" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="text" pudd-style="width:calc( 100% );" class="puddSetup pr30" value="" readonly />
+							<a href="#n" onclick="fnCommonCode_trName('tr')" class="btn_search" style="margin-left: -25px;"></a>
 						</div>
 					</td>
-					<td class="cen">766-40-00071</td>
-					<td class="cen">홍길동</td>
-					<td>경기도 수원시 영통구 삼성로 129(매탄동)</td>
+					<td objKey="partner_bizno" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"></td>
+					<td objKey="partner_owner" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"></td>
+					<td objKey="partner_addr" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" ></td>
 					<td><input type="text" pudd-style="width:100%;" class="puddSetup ac" value="" /></td>
 					<td><input type="text" pudd-style="width:100%;" class="puddSetup" value="" /></td>
 					<td><input type="text" pudd-style="width:100%;" class="puddSetup" value="" /></td>

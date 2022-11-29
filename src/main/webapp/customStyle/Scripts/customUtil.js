@@ -260,6 +260,16 @@ function checkVal(type, elementFor, objName, func, subValueFor){
 			
 		});	
 		
+	}else if(type == "ul"){
+		
+		$.each($("[name='"+elementFor+"'] [name='addData']"), function( key, objInfo ) {
+			
+			var values = $(objInfo).attr("addcode") + "▦" + $(objInfo).find('[name="addName"]').text();
+			
+			returnVal += (returnVal == "" ? "" : "▦▦") + values;	
+			
+		});	
+		
 	}else if(type == "innerText"){
 		returnVal = $(elementFor).text();
 	}
