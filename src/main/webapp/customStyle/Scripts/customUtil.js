@@ -1,3 +1,10 @@
+function getUUID() {
+	  return 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+	    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 3 | 8);
+	    return v.toString(16);
+	  });
+}
+
 function viewKorean(val){
     var numKor = new Array("", "일", "이", "삼", "사","오","육","칠","팔","구","십");                                  // 숫자 문자
     var danKor = new Array("", "십", "백", "천", "", "십", "백", "천", "", "십", "백", "천", "", "십", "백", "천");    // 만위 문자열
@@ -239,6 +246,17 @@ function checkVal(type, elementFor, objName, func, subValueFor){
 			if(values != ""){
 				returnVal += (returnVal == "" ? "" : "▦▦") + values;	
 			}
+			
+		});	
+		
+	}else if(type == "file"){
+		
+		$.each($("[name='"+elementFor+"'] [name='addFile']"), function( key, objInfo ) {
+			
+			var values = $(objInfo).find('[name="attachFileName"]').attr("fileid") +
+			"▦" + $(objInfo).find('[name="attachFileName"]').text() + "▦" + $(objInfo).find('[name="attachExtName"]').text();
+			
+			returnVal += (returnVal == "" ? "" : "▦▦") + values;	
 			
 		});	
 		

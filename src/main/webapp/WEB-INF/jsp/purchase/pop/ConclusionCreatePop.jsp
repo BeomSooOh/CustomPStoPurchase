@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -214,7 +215,80 @@
 				}
 			});			
 			
-		}		
+		}	
+		
+		var commonCodeTarget;
+		var commonCodeInfo;
+		
+		function commonCodeCallback(){
+			console.log("commonCodeCallback");
+		}
+
+		function commonCodeSelectLayer(group, title, target){
+			
+			// puddDialog 함수
+			Pudd.puddDialog({
+			 
+				width : 400
+			,	height : 500
+			 
+			,	modal : true			// 기본값 true
+			,	draggable : false		// 기본값 true
+			,	resize : false			// 기본값 false
+			 
+			,	header : {
+		 		title : title
+			,	closeButton : true	// 기본값 true
+			,	closeCallback : function( puddDlg ) {
+					// close 버튼은 내부에서 showDialog( false ) 실행함 - 즉, 닫기 처리는 내부에서 진행됨
+					// 추가적인 작업 내용이 있는 경우 이곳에서 처리
+				}
+			}
+			 
+			,	body : {
+			 
+					iframe : true
+				,	url : "${pageContext.request.contextPath}/purchase/layer/CodeSelectLayer.do?multiYn=N&group=" + group
+
+			}
+			 
+				// dialog 하단을 사용할 경우 설정할 부분
+			,	footer : {
+			
+					buttons : [
+						
+						<c:if test="${disabledYn == 'N'}">
+						{
+							attributes : {}// control 부모 객체 속성 설정
+						,	controlAttributes : { id : "btnConfirm", class : "submit" }// control 자체 객체 속성 설정
+						,	value : <c:if test="${viewType == 'I'}">"확인"</c:if><c:if test="${viewType != 'I'}">"저장"</c:if>
+						,	clickCallback : function( puddDlg ) {
+							
+							temptemp = puddDlg;
+								fnUpdateAttachInfo();
+								puddDlg.showDialog( false );
+								// 추가적인 작업 내용이 있는 경우 이곳에서 처리
+								
+							}
+						},
+						</c:if>
+						
+						{
+							attributes : { style : "margin-left:5px;" }// control 부모 객체 속성 설정
+						,	controlAttributes : { id : "btnCancel" }// control 자체 객체 속성 설정
+						,	value : <c:if test="${disabledYn == 'Y'}">"닫기"</c:if><c:if test="${disabledYn == 'N'}">"취소"</c:if>
+						,	clickCallback : function( puddDlg ) {
+								puddDlg.showDialog( false );
+								attachFileNew = [];
+								attachFileDel = [];	
+							}
+						}
+					]
+				}
+			});			
+			
+		}			
+		
 		
 		function fnUpdateAttachInfo(){
 			$.each(attachFileDel, function( key1, attchDelInfo ) {
@@ -558,8 +632,151 @@
 				
 			}
 		}		
-		
 
+		var targetElement;
+
+		function fnSearchFile(e){
+			targetElement = $("[name=hopeAttachList]");
+			document.getElementById('file_upload').addEventListener('change', handleFileSelect, false);
+			$("#file_upload").click();
+		}
+		
+	    function handleFileSelect(evt) {
+	    	
+	        evt.stopPropagation();
+	        evt.preventDefault();
+	        
+	        var f = evt.target.files[0];
+
+            var fileEx = "";
+            var lastDot = f.name.lastIndexOf('.');
+            
+            if(lastDot > 0){
+            	f.uid = '<fmt:formatDate value="${currentTime}" type="date" pattern="yyyyMMdd"/>' + getUUID();
+            	f.fileName = f.name.substr(0, lastDot);
+            	f.fileExt = f.name.substr(lastDot);
+            	
+            	//동일파일명 체크
+            	var sameExists = false; 
+            	
+				$.each($(targetElement).find("[name=addFile]"), function( key, uploadFileInfo ) {
+					
+					if(f.fileName == $(uploadFileInfo).find('[name="attachFileName"]').text() &&
+							f.fileExt == $(uploadFileInfo).find('[name="attachExtName"]').text()){
+						sameExists = true;
+					}
+	                
+				});	   
+				
+				if(sameExists){
+					parent.msgSnackbar("error", "동일한 이름의 첨부파일이 존재합니다.");
+				}else{
+    	            var abort = false;
+    	            var formData = new FormData();
+    	           	var nfcFileNames = btoa(unescape(encodeURIComponent(f.name)));
+    	            
+   	                formData.append("file0", f);
+   	             	formData.append("fileId", f.uid);
+    	            formData.append("nfcFileNames", nfcFileNames);
+    	    	    
+    	            fnSetProgress();
+
+    	            var AJAX = $.ajax({
+    	                url: '<c:url value="/ajaxFileUploadProc.do" />',
+    	                type: 'POST',
+    		        	timeout:600000,
+    	                xhr: function () {
+    	                    myXhr = $.ajaxSettings.xhr();
+
+    	                    if (myXhr.upload) {
+    	                        myXhr.upload.addEventListener('progress', progressHandlingFunction, false);
+    	                        myXhr.abort;
+    	                    }
+    	                    return myXhr;
+    	                },
+    	                success: completeHandler = function (data) {
+    	                	
+    	                    fnRemoveProgress();
+    	                    
+    	        			var cloneData = $(targetElement).find('[name="attachBase"]').clone();
+    	        			$(cloneData).show().attr("name", "addFile");
+    	        			$(cloneData).find('[name="attachFileName"]').attr("fileid", f.uid);
+    	        			$(cloneData).find('[name="attachFileName"]').text(f.fileName);
+    	        			$(cloneData).find('[name="attachExtName"]').text(f.fileExt);	
+    	        			
+    	        			$(targetElement).append(cloneData);
+    						
+    	                },
+    	                error: errorHandler = function () {
+
+    	                    if (abort) {
+    	                        alert('업로드를 취소하였습니다.');
+    	                    } else {
+    	                        alert('첨부파일 처리중 장애가 발생되었습니다. 다시 시도하여 주십시오');
+    	                    }
+
+    	                    //UPLOAD_COMPLITE = false;
+    	                    fnRemoveProgress();
+    	                },
+    	                data: formData,
+    	                cache: false,
+    	                contentType: false,
+    	                processData: false
+    	            });						
+				}
+            	
+            }
+	        
+	      	$('#file_upload').val("");
+	        
+	    }
+	    
+	    function progressHandlingFunction(e) {
+	        if (e.lengthComputable) {
+	        	
+	        	uploadPer = parseInt((e.loaded / e.total) * 100);
+	        }
+	    }			    
+		
+	    function fnSetProgress() {
+	    	
+	    	uploadPer = 0;
+
+	    	Pudd( "#exArea" ).puddProgressBar({
+	    		 
+	    		progressType : "circular"
+	    	,	attributes : { style:"width:70px; height:70px;" }
+	    	 
+	    	,	strokeColor : "#00bcd4"	// progress 색상
+	    	,	strokeWidth : "3px"	// progress 두께
+	    	 
+	    	,	textAttributes : { style : "" }		// text 객체 속성 설정
+	    	 
+	    	,	percentText : ""
+	    	,	percentTextColor : "#444"
+	    	,	percentTextSize : "24px"
+	    	,	backgroundLayerAttributes : { style : "background-color:#000;filter:alpha(opacity=20);opacity:0.2;width:100%;height:100%;position:fixed;top:0px; left:0px;" }
+	    	,	modal : true// 기본값 false - progressType : linear, circular 인 경우만 해당
+	    	 
+	    		// 200 millisecond 마다 callback 호출됨
+	    	,	progressCallback : function( progressBarObj ) {
+	    			return uploadPer;
+	    		}
+	    	});		    	
+	    	
+	    }		    
+	    
+	    function fnRemoveProgress() {
+	    	uploadPer = 100;
+	    }		
+		
+		function fnDownload(e){
+			this.location.href = "${pageContext.request.contextPath}/fileDownloadProc.do?fileId=" + $(e).attr("fileid");
+		}	
+		
+		function fnDelFile(e){
+			targetElement = $(e).closest("li").remove();
+		}		
 		
 	</script>
 </head>
@@ -644,7 +861,7 @@
 				</colgroup>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약명</th>
-					<td colspan="3"><input ${disabled} objKey="title" objCheckFor="checkVal('text', this, '공고명', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.title}</c:if>" /></td>
+					<td colspan="3"><input ${disabled} objKey="title" objCheckFor="checkVal('text', this, '계약명', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.title}</c:if>" /></td>
 				</tr>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약기간(1)</th>
@@ -763,20 +980,20 @@
 							</ul>								
 						</div>
 						<div class="controll_btn p0 pt4">	
-							<button id="" onclick="">추가</button>
+							<button id="" onclick="commonCodeSelectLayer('', '', '')">추가</button>
 						</div>
 					</td>
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 희망확인서</th>
 					<td class="file_add">	
-						<ul class="file_list_box fl">
-							<li>
-								<img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" class="fl" id="" alt="">
-								<a href="javascript:;" class="fl ellipsis pl5" style="max-width:160px;" id="">업체요구사항업체요구사항 정의서업체요구사항업체요구사항정의서업체요구사항업체요구사항 정의서</a>
-								<span>.jpg</span>
-								<a href="javascript:;" id="" title="파일삭제"><img src="${pageContext.request.contextPath}/customStyle/Images/btn/close_btn01.png" id="" alt=""></a>
+						<ul objKey="hope_attach_info" objCheckFor="checkVal('file', 'hopeAttachList', '희망확인서', 'mustAlert', '')" class="file_list_box fl" name="hopeAttachList">
+							<li name="attachBase" style="display:none;">
+								<img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" class="fl" alt="">
+								<a href="javascript:;" name="attachFileName" onClick="fnDownload(this)" class="fl ellipsis pl5" style="max-width: 250px;"></a>
+								<span name="attachExtName"></span>
+								<a href="javascript:;" onclick="fnDelFile(this)" title="파일삭제"><img src="${pageContext.request.contextPath}/customStyle/Images/btn/close_btn01.png" alt=""></a>
 							</li>
 						</ul>
-						<span class="fr mt2"><input type="button" class="puddSetup" value="파일찾기" /></span>
+						<span class="fr mt2"><input onclick="fnSearchFile(this)" type="button" class="puddSetup" value="파일찾기" /></span>
 					</td>
 				</tr>
 
@@ -927,6 +1144,7 @@
 	</div><!-- //pop_con -->
 </div><!-- //pop_wrap -->
 
+<div id="exArea"></div>
 <form id="frmPop" name="frmPop"> 
 		<input type="hidden" name="selectedItems" id="selectedItems" value="" />
 		<input type="hidden" name="popUrlStr" id="txt_popup_url" value="/gw/systemx/orgChart.do" />
@@ -938,6 +1156,6 @@
 		<input type="hidden" name="empUniqYn" value="N" />
 		<input type="hidden" name="empUniqGroup" value="" />
 </form>
-
+<input style="display:none;" id="file_upload" type="file" />
 </body>
 </html>

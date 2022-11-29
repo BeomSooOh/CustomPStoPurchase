@@ -535,6 +535,15 @@ public class PurchasePopController {
         try {
         	mv.addObject("params", params);
             mv.setViewName("/purchase/layer/" + layerName);
+            
+            //코드도움 데이터 조회
+            if(layerName.equals("CodeSelectLayer")) {
+                LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+                params.put("groupSeq", loginVo.getGroupSeq());
+                params.put("useYn", "Y");
+                List<Map<String, Object>> codeList = purchaseServiceDAO.SelectPurchaseDetailCodeList(params);            	
+                mv.addObject("codeList", codeList);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
