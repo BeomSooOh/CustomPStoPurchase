@@ -210,6 +210,7 @@ public class PurchasePopController {
             /* 변수 설정 */
             LoginVO loginVo = CommonConvert.CommonGetEmpVO();
             
+            mv.addObject("contractType", "02"); //수의계약 기본
             mv.addObject("viewType", "I");
             mv.addObject("disabledYn", "N");
             mv.addObject("btnSaveYn", "Y");
@@ -231,8 +232,8 @@ public class PurchasePopController {
             List<Map<String, Object>> privateReason = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> hopeCompany = new ArrayList<Map<String, Object>>();
             
-            List<Map<String, Object>> attachForm_Conclusion01 = new ArrayList<Map<String, Object>>();
-            List<Map<String, Object>> attachForm_Conclusion02 = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> attachForm_Conclusion01_1 = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> attachForm_Conclusion01_2 = new ArrayList<Map<String, Object>>();
             
             if(codeList != null && codeList.size() > 0) {
             	
@@ -254,10 +255,10 @@ public class PurchasePopController {
         				privateReason.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("hopeCompany")) {
         				hopeCompany.add(codeinfo);
-        			}else if(codeinfo.get("GROUP").equals("attachForm_Conclusion01")) {
-        				attachForm_Conclusion01.add(codeinfo);
-        			}else if(codeinfo.get("GROUP").equals("attachForm_Conclusion02")) {
-        				attachForm_Conclusion02.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("attachForm_Conclusion01-1")) {
+        				attachForm_Conclusion01_1.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("attachForm_Conclusion01-2")) {
+        				attachForm_Conclusion01_2.add(codeinfo);
         			}
         			
         		}            	
@@ -265,36 +266,42 @@ public class PurchasePopController {
             
             //기존 작성정보 조회
             if(params.get("seq") != null && !params.get("seq").equals("")) {
-            	/*
+            	
             	Map<String, Object> detailInfo = purchaseServiceDAO.SelectContractDetail(params);
             	
             	if(detailInfo != null) {
             		
-            		if(!detailInfo.get("doc_sts").equals("")) {
+            		if(!detailInfo.get("approkey_conclusion").equals("")) {
             			
             			//임시저장 버튼 표시
             			mv.addObject("btnSaveYn", "N");
             			
-            			if(!detailInfo.get("approkey_meet").equals("") || !detailInfo.get("doc_sts").equals("10")) {
+            			if(!detailInfo.get("doc_sts").equals("10")) {
             				mv.addObject("btnApprYn", "N");
             				mv.addObject("disabledYn", "Y");
             				mv.addObject("disabled", "disabled");
             			}
-            		}
+            		}            		
             		
             		mv.addObject("viewType", "U");
             		mv.addObject("seq", params.get("seq"));
             		mv.addObject("contractDetailInfo", detailInfo);
             		
-                	mv.addObject("createDeptName", detailInfo.get("write_dept_name"));
-                	mv.addObject("createEmpName", detailInfo.get("write_emp_name"));
-                	mv.addObject("write_comp_seq", detailInfo.get("write_comp_seq"));
-                	mv.addObject("write_dept_seq", detailInfo.get("write_dept_seq"));
-                	mv.addObject("write_emp_seq", detailInfo.get("write_emp_seq"));
-                	mv.addObject("createSuperKey", loginVo.getGroupSeq() + "|" + detailInfo.get("write_comp_seq") + "|" + detailInfo.get("write_dept_seq") + "|" + detailInfo.get("write_emp_seq") + "|u");
-                	mv.addObject("write_dt", detailInfo.get("write_dt"));
+                	mv.addObject("createDeptName", detailInfo.get("c_write_dept_name"));
+                	mv.addObject("createEmpName", detailInfo.get("c_write_emp_name"));
+                	mv.addObject("c_write_comp_seq", detailInfo.get("c_write_comp_seq"));
+                	mv.addObject("c_write_dept_seq", detailInfo.get("c_write_dept_seq"));
+                	mv.addObject("c_write_emp_seq", detailInfo.get("c_write_emp_seq"));
+                	mv.addObject("createSuperKey", loginVo.getGroupSeq() + "|" + detailInfo.get("c_write_comp_seq") + "|" + detailInfo.get("c_write_dept_seq") + "|" + detailInfo.get("c_write_emp_seq") + "|u");
+                	mv.addObject("c_write_dt", detailInfo.get("c_write_dt"));
             		
-            		params.put("outProcessCode", "Contract01");
+                	if(detailInfo.get("contract_type").equals("01")) {
+                		params.put("outProcessCode", "Conclusion01-1");	
+                	}else {
+                		params.put("outProcessCode", "Conclusion01-2");
+                	}
+                	
+            		params.put("outProcessCode", "Conclusion01");
             		List<Map<String, Object>> formAttachList = purchaseServiceDAO.SelectFormAttachList(params);
             		
             		mv.addObject("formAttachList", formAttachList);
@@ -302,19 +309,18 @@ public class PurchasePopController {
             	}else {
             		return mv;
             	}
-            	*/
+
             	
             }else {
-            	mv.addObject("attachForm_Conclusion01", attachForm_Conclusion01);
-            	mv.addObject("attachForm_Conclusion02", attachForm_Conclusion02);
+            	mv.addObject("attachForm_Conclusion01", attachForm_Conclusion01_2);
             	
             	mv.addObject("createDeptName", loginVo.getOrgnztNm());
             	mv.addObject("createEmpName", loginVo.getName());
-            	mv.addObject("write_comp_seq", loginVo.getOrganId());
-            	mv.addObject("write_dept_seq", loginVo.getOrgnztId());
-            	mv.addObject("write_emp_seq", loginVo.getUniqId());
+            	mv.addObject("c_write_comp_seq", loginVo.getOrganId());
+            	mv.addObject("c_write_dept_seq", loginVo.getOrgnztId());
+            	mv.addObject("c_write_emp_seq", loginVo.getUniqId());
             	mv.addObject("createSuperKey", loginVo.getGroupSeq() + "|" + loginVo.getOrganId() + "|" + loginVo.getOrgnztId() + "|" + loginVo.getUniqId() + "|u");
-            	mv.addObject("write_dt", CommonUtil.date(new Date(), "yyyy-MM-dd"));
+            	mv.addObject("c_write_dt", CommonUtil.date(new Date(), "yyyy-MM-dd"));
             }
             
             mv.addObject("budgetTypeCode", budgetType);

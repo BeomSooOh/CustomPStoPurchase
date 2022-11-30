@@ -56,10 +56,15 @@
 		a.seq, 
 		a.manage_no, 
 		a.contract_no,
+		a.contract_type,
 		a.write_comp_seq, 
 		a.write_dept_seq, 
 		a.write_emp_seq, 
 		a.write_dt, 
+		a.c_write_comp_seq, 
+		a.c_write_dept_seq, 
+		a.c_write_emp_seq, 
+		a.c_write_dt, 		
 		a.noti_type, 
 		a.budget_type, 
 		a.target_type, cd_target_type.NAME as cd_target_type_name,
@@ -93,7 +98,8 @@
 		ifnull(a.doc_sts,'') as doc_sts, 
 		ifnull(a.approkey_plan,'') as approkey_plan, 
 		ifnull(a.approkey_meet,'') as approkey_meet, 
-		ifnull(a.approkey_result,'') as approkey_result		
+		ifnull(a.approkey_result,'') as approkey_result,
+		ifnull(a.approkey_conclusion,'') as approkey_conclusion		
 		
 		FROM cust_sto.t_purchase_contract a
 		join cust_sto.t_purchase_code_detail cd_target_type on cd_target_type.`GROUP` ='targetType' and a.target_type =cd_target_type.code
@@ -108,12 +114,19 @@
 		a.seq, 
 		a.manage_no, 
 		a.contract_no,
+		a.contract_type,
 		a.write_comp_seq, 
 		a.write_dept_seq, 
 		dm.dept_name as write_dept_name,
 		a.write_emp_seq, 
 		em.emp_name as write_emp_name,
-		a.write_dt, 
+		a.write_dt,
+		a.c_write_comp_seq, 
+		a.c_write_dept_seq, 
+		cdm.dept_name as c_write_dept_name,
+		a.c_write_emp_seq, 
+		cem.emp_name as c_write_emp_name,
+		a.c_write_dt,		
 		a.noti_type, 
 		a.budget_type, 
 		a.target_type, 
@@ -148,6 +161,7 @@
 		ifnull(a.approkey_plan,'') as approkey_plan, 
 		ifnull(a.approkey_meet,'') as approkey_meet, 
 		ifnull(a.approkey_result,'') as approkey_result,
+		ifnull(a.approkey_conclusion,'') as approkey_conclusion,
 		
 		ifnull(a.meet_dt,'') as meet_dt, 
 		ifnull(a.meet_place,'') as meet_place,
@@ -163,6 +177,8 @@
 		FROM cust_sto.t_purchase_contract a
 		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
 		left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'
+		left join $DB_NEOS$t_co_dept_multi cdm on a.c_write_dept_seq = cdm.dept_seq and cdm.lang_code = 'kr'
+		left join $DB_NEOS$t_co_emp_multi cem on a.c_write_emp_seq = cem.emp_seq and cem.lang_code = 'kr'		
 		where seq = $seq$
 		
 	</select>	
@@ -177,7 +193,7 @@
 		a.contract_no as contractNo,
 		dm.dept_name as writeDeptName,
 		em.emp_name as writeEmpName,
-		a.write_dt as writeDt, 
+		a.write_dt as writeDt,
 		cust_sto.fn_get_purchase_code_text('notiType',a.noti_type) as notiType, 
 		cust_sto.fn_get_purchase_code_text('budgetType',a.budget_type) as budgetType, 
 		cust_sto.fn_get_purchase_code_text('targetType',a.target_type) as targetType, 
@@ -211,6 +227,7 @@
 		ifnull(a.approkey_plan,'') as approkey_plan, 
 		ifnull(a.approkey_meet,'') as approkey_meet, 
 		ifnull(a.approkey_result,'') as approkey_result,
+		ifnull(a.approkey_conclusion,'') as approkey_conclusion,
 		
 		ifnull(a.meet_dt,'') as meet_dt, 
 		ifnull(a.meet_place,'') as meet_place,
@@ -249,10 +266,15 @@
 		(
 		manage_no, 
 		contract_no,
+		contract_type,
 		write_comp_seq, 
 		write_dept_seq, 
 		write_emp_seq, 
-		write_dt, 
+		write_dt,
+		c_write_comp_seq, 
+		c_write_dept_seq, 
+		c_write_emp_seq, 
+		c_write_dt,		 
 		noti_type, 
 		budget_type, 
 		target_type, 
@@ -287,10 +309,15 @@
 		VALUES(
 		'$manage_no$', 
 		'$contract_no$',
+		'$contract_type$',
 		'$write_comp_seq$', 
 		'$write_dept_seq$', 
 		'$write_emp_seq$', 
-		'$write_dt$', 
+		'$write_dt$',
+		'$c_write_comp_seq$', 
+		'$c_write_dept_seq$', 
+		'$c_write_emp_seq$', 
+		'$c_write_dt$',		 
 		'$noti_type$', 
 		'$budget_type$', 
 		'$target_type$', 
@@ -363,6 +390,20 @@
 		WHERE seq='$seq$'; 
 	</update>
 	
+	<update	id="PurchaseSQL.UpdateConclusion" parameterClass="HashMap" >
+		UPDATE cust_sto.t_purchase_contract
+		SET
+		c_write_comp_seq='$c_write_comp_seq$', 
+		c_write_dept_seq='$c_write_dept_seq$', 
+		c_write_emp_seq='$c_write_emp_seq$', 
+		c_write_dt='$c_write_dt$', 
+
+		modify_dt=now(), 
+		modify_by='$created_by$'
+		
+		WHERE seq='$seq$'; 
+	</update>	
+	
 	<update	id="PurchaseSQL.UpdateMeet" parameterClass="HashMap" >
 		UPDATE cust_sto.t_purchase_contract
 		SET
@@ -415,7 +456,11 @@
 		</isNotEmpty>
 		<isNotEmpty property="approkeyResult">
 		approkey_result='$approkeyResult$'
-		</isNotEmpty>							
+		</isNotEmpty>
+		<isNotEmpty property="approkeyConclusion">
+		approkey_conclusion='$approkeyConclusion$'
+		</isNotEmpty>		
+		
 		WHERE seq='$seq$';
 	</update>
 	

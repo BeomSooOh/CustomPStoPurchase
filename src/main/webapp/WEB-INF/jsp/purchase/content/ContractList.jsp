@@ -463,6 +463,8 @@
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do?seq=" + seq,  "ContractViewPop", 1200, 800, 1, 1) ;
 		}else if(callId == "newConclusion"){
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionCreatePop.do",  "ContractViewPop", 1200, 800, 1, 1) ;
+		}else if(callId == "btnConclusion"){
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionCreatePop.do?seq=" + targetSeq,  "ConclusionViewPop", 1200, 800, 1, 1) ;
 		}else if(callId == "btnMeet"){
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractMeetPop.do?seq=" + targetSeq,  "ContractViewPop", 1200, 800, 1, 1) ;
 		}else if(callId == "btnResult"){
@@ -475,8 +477,17 @@
 	
 	function fnContractStatePop(btnType){
 		
+		
+		
+		
 		if(targetSeq == ""){
-			msgSnackbar("warning", "등록하실 계약건을 선택해 주세요.");
+			
+			if(btnType == "btnConclusion"){
+				fnCallBtn("newConclusion");	
+			}else{
+				msgSnackbar("warning", "등록하실 계약건을 선택해 주세요.");
+			}
+			
 			return;
 		}
 		
@@ -496,8 +507,15 @@
 				console.log("approkey_plan > " + result.resultData.approkey_plan);
 				console.log("approkey_meet > " + result.resultData.approkey_meet);
 				console.log("approkey_result > " + result.resultData.approkey_result);
+				console.log("approkey_conclusion > " + result.resultData.approkey_conclusion);
 				
-				if(result.resultData.approkey_result != ""){
+				if(btnType == "btnConclusion"){
+					
+					if(result.resultData.approkey_conclusion != "" || (result.resultData.approkey_result != "" && result.resultData.doc_sts == "90")){
+						resultState = true;
+					}
+					
+				}else if(result.resultData.approkey_result != ""){
 					
 					if(btnType == "btnMeet" || btnType == "btnResult"){
 						resultState = true;
@@ -567,7 +585,7 @@
 				<input type="button" id="btnMeet" onclick="fnContractStatePop('btnMeet');" class="puddSetup" value="제안서 평가회의" />
 				<input type="button" id="btnResult" onclick="fnContractStatePop('btnResult');" class="puddSetup" value="제안서 평가결과" />
 				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="저장" />
-				<input type="button" onclick="fnCallBtn('newConclusion');" style="background:#03a9f4;color:#fff" class="puddSetup" value="계약체결" />
+				<input type="button" onclick="fnContractStatePop('btnConclusion');" style="background:#03a9f4;color:#fff" class="puddSetup" value="계약체결" />
 				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="변경계약" />
 				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="대금지급" />
 				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="엑셀다운로드" />

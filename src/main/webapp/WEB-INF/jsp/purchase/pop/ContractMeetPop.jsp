@@ -106,6 +106,7 @@
 			
 			if(attachFormList.length == 0){
 				msgAlert("error", "첨부파일 양식코드가 존재하지 않습니다.", "");
+				return;
 			}
 			
 			var layerHeight = 86+(30*attachFormList.length);
