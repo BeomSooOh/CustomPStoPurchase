@@ -274,26 +274,43 @@ public class PurchasePopController {
             		if(!detailInfo.get("approkey_conclusion").equals("")) {
             			
             			//임시저장 버튼 표시
-            			mv.addObject("btnSaveYn", "N");
-            			
             			if(!detailInfo.get("doc_sts").equals("10")) {
+            				mv.addObject("btnSaveYn", "N");
             				mv.addObject("btnApprYn", "N");
             				mv.addObject("disabledYn", "Y");
             				mv.addObject("disabled", "disabled");
             			}
-            		}            		
+            		}       
             		
-            		mv.addObject("viewType", "U");
+            		if(detailInfo.get("c_title") != null && !detailInfo.get("c_title").equals("")) {
+            			mv.addObject("viewType", "U");
+            			
+                    	mv.addObject("createDeptName", detailInfo.get("c_write_dept_name"));
+                    	mv.addObject("createEmpName", detailInfo.get("c_write_emp_name"));
+                    	mv.addObject("c_write_comp_seq", detailInfo.get("c_write_comp_seq"));
+                    	mv.addObject("c_write_dept_seq", detailInfo.get("c_write_dept_seq"));
+                    	mv.addObject("c_write_emp_seq", detailInfo.get("c_write_emp_seq"));
+                    	mv.addObject("createSuperKey", loginVo.getGroupSeq() + "|" + detailInfo.get("c_write_comp_seq") + "|" + detailInfo.get("c_write_dept_seq") + "|" + detailInfo.get("c_write_emp_seq") + "|u");
+                    	mv.addObject("c_write_dt", detailInfo.get("c_write_dt"));
+                    	
+            		}else {
+            			detailInfo.put("c_title", detailInfo.get("title"));
+            			detailInfo.put("c_contract_end_dt", detailInfo.get("contract_end_dt"));
+            			detailInfo.put("c_work_info", detailInfo.get("work_info"));
+            			
+                    	mv.addObject("createDeptName", loginVo.getOrgnztNm());
+                    	mv.addObject("createEmpName", loginVo.getName());
+                    	mv.addObject("c_write_comp_seq", loginVo.getOrganId());
+                    	mv.addObject("c_write_dept_seq", loginVo.getOrgnztId());
+                    	mv.addObject("c_write_emp_seq", loginVo.getUniqId());
+                    	mv.addObject("createSuperKey", loginVo.getGroupSeq() + "|" + loginVo.getOrganId() + "|" + loginVo.getOrgnztId() + "|" + loginVo.getUniqId() + "|u");
+                    	mv.addObject("c_write_dt", CommonUtil.date(new Date(), "yyyy-MM-dd"));        
+                    	
+            		}
+            		
             		mv.addObject("seq", params.get("seq"));
             		mv.addObject("contractDetailInfo", detailInfo);
-            		
-                	mv.addObject("createDeptName", detailInfo.get("c_write_dept_name"));
-                	mv.addObject("createEmpName", detailInfo.get("c_write_emp_name"));
-                	mv.addObject("c_write_comp_seq", detailInfo.get("c_write_comp_seq"));
-                	mv.addObject("c_write_dept_seq", detailInfo.get("c_write_dept_seq"));
-                	mv.addObject("c_write_emp_seq", detailInfo.get("c_write_emp_seq"));
-                	mv.addObject("createSuperKey", loginVo.getGroupSeq() + "|" + detailInfo.get("c_write_comp_seq") + "|" + detailInfo.get("c_write_dept_seq") + "|" + detailInfo.get("c_write_emp_seq") + "|u");
-                	mv.addObject("c_write_dt", detailInfo.get("c_write_dt"));
+            		mv.addObject("contractType", detailInfo.get("contract_type"));
             		
                 	if(detailInfo.get("contract_type").equals("01")) {
                 		params.put("outProcessCode", "Conclusion01-1");	

@@ -260,7 +260,6 @@ public class PurchaseMainController {
         return mv;
     }    
     
-    
     @RequestMapping(value="/purchase/ContractSaveProc.do", method={RequestMethod.GET, RequestMethod.POST})
 	@ResponseBody
 	public ModelAndView ContractSaveProc(@RequestParam Map<String,Object> params, HttpServletRequest request)
@@ -281,6 +280,31 @@ public class PurchaseMainController {
 		mv.setViewName("jsonView");
 		return mv;
 	}
+    
+    @RequestMapping(value="/purchase/ConclusionSaveProc.do", method={RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public ModelAndView ConclusionSaveProc(@RequestParam Map<String,Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("manage_no", "");
+		params.put("contract_no", "");
+		params.put("created_by", loginVo.getUniqId());
+		
+		if(params.get("seq") != null && !params.get("seq").equals("")) {
+			purchaseServiceDAO.UpdateConclusion(params);	
+		}else {
+			purchaseServiceDAO.InsertConclusion(params);	
+		}
+		
+		mv.addObject("resultData", params);
+		mv.addObject("resultCode", "success");	
+		mv.setViewName("jsonView");
+		return mv;
+	}    
     
     @RequestMapping(value="/purchase/MeetSaveProc.do", method={RequestMethod.GET, RequestMethod.POST})
 	@ResponseBody

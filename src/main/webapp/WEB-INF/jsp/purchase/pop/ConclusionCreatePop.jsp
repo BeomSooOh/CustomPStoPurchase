@@ -967,14 +967,14 @@
 				</colgroup>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약명</th>
-					<td colspan="3"><input ${disabled} objKey="c_title" objCheckFor="checkVal('text', this, '계약명', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.c_title}</c:if>" /></td>
+					<td colspan="3"><input ${disabled} objKey="c_title" objCheckFor="checkVal('text', this, '계약명', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.c_title}" /></td>
 				</tr>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약기간(1)</th>
-					<td objKey="c_contract_end_dt" objCheckFor="checkVal('date', 'contractEndDt', '계약기간(1)', 'selectDate(this)', '')" >계약체결일 ~ <input ${disabled} name="contractEndDt" type="text" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.c_contract_end_dt}</c:if>" class="puddSetup" pudd-type="datepicker"/></td>
+					<td objKey="c_contract_end_dt" objCheckFor="checkVal('date', 'contractEndDt', '계약기간(1)', 'selectDate(this)', '')" >계약체결일 ~ <input ${disabled} name="contractEndDt" type="text" value="${contractDetailInfo.c_contract_end_dt}" class="puddSetup" pudd-type="datepicker"/></td>
 					
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약기간(2)</th>
-					<td objKey="contract_term" objCheckFor="checkVal('radio', 'targetType', '계약기간(2)', '', '')" >
+					<td objKey="contract_term" objCheckFor="checkVal('radio', 'contractTerm', '계약기간(2)', '', '')" >
 						<c:forEach var="items" items="${contractTermCode}" varStatus="status">
 						<input ${disabled} type="radio" onclick="fnChangeEtc(this, 'amtInfoList')" name="contractTerm" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}"  <c:if test="${ (viewType == 'I' && status.index == 0) || (viewType == 'U' && items.CODE == contractDetailInfo.contract_term)   }">checked</c:if> />
 						</c:forEach>						
@@ -982,14 +982,14 @@
 				</tr>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약내용</th>
-					<td colspan="3"><input ${disabled} objKey="c_work_info" objCheckFor="checkVal('text', this, '계약내용', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.c_work_info}</c:if>" /></td>
+					<td colspan="3"><input ${disabled} objKey="c_work_info" objCheckFor="checkVal('text', this, '계약내용', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.c_work_info}" /></td>
 				</tr>				
 				<tr>
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 계약금액</th>
 					<td colspan="3">
 						<!-- 그리드 -->
 						<div class="com_ta4">
-							<table name="amtInfoList" objKey="amt_info" objCheckFor="checkVal('table', 'amtInfoList', '계약금액', 'true', 'notnull')">
+							<table name="amtInfoList" objKey="contract_amt_info" objCheckFor="checkVal('table', 'amtInfoList', '계약금액', 'true', 'notnull')">
 								<colgroup>
 									<col name="contractTerm_02" style="display:none;" width="50"/>
 									<col name="contractTerm_02" style="display:none;" width="130"/>
@@ -1044,9 +1044,9 @@
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 계약법령</th>
 					<td colspan="3">
 					
-						<select ${disabled} objKey="base_law" objCheckFor="checkVal('select', this, '계약법령', 'mustAlert', '')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
+						<select ${disabled} objKey="c_base_law" objCheckFor="checkVal('select', this, '계약법령', 'mustAlert', '')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
 							<c:forEach var="items" items="${baseLawCode}">
-								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && items.CODE == contractDetailInfo.base_law }">selected</c:if> >${items.NAME}</option>
+								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && items.CODE == contractDetailInfo.c_base_law }">selected</c:if> >${items.NAME}</option>
 							</c:forEach>							
 						</select>					
 					
@@ -1128,17 +1128,17 @@
 				<tr>
 					<td>
 						<div class="posi_re">
-							<input objKey="partner_code" objCheckFor="checkVal('text', this, '계약대상', 'mustAlert', '')" type="hidden" />
-							<input objKey="partner_name" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="text" pudd-style="width:calc( 100% );" class="puddSetup pr30" value="" readonly />
+							<input objKey="partner_code" objCheckFor="checkVal('text', this, '계약대상', 'mustAlert', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.partner_code}</c:if>" />
+							<input objKey="partner_name" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="text" pudd-style="width:calc( 100% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.partner_name}</c:if>" readonly />
 							<a href="#n" onclick="fnCommonCode_trName('tr')" class="btn_search" style="margin-left: -25px;"></a>
 						</div>
 					</td>
-					<td objKey="partner_bizno" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"></td>
-					<td objKey="partner_owner" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"></td>
-					<td objKey="partner_addr" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" ></td>
-					<td><input objKey="pm_name" objCheckFor="checkVal('text', this, '담당자(PM)성명', '', '')" type="text" pudd-style="width:100%;" class="puddSetup ac" value="" /></td>
-					<td><input objKey="pm_hp" objCheckFor="checkVal('text', this, '담당자(PM)연락처', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="" /></td>
-					<td><input objKey="pm_email" objCheckFor="checkVal('text', this, '담당자(PM)전자우편', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="" /></td>
+					<td objKey="partner_bizno" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"><c:if test="${ viewType == 'U'}">${contractDetailInfo.partner_bizno}</c:if></td>
+					<td objKey="partner_owner" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"><c:if test="${ viewType == 'U'}">${contractDetailInfo.partner_owner}</c:if></td>
+					<td objKey="partner_addr" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" ><c:if test="${ viewType == 'U'}">${contractDetailInfo.partner_addr}</c:if></td>
+					<td><input objKey="pm_name" objCheckFor="checkVal('text', this, '담당자(PM)성명', '', '')" type="text" pudd-style="width:100%;" class="puddSetup ac" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pm_name}</c:if>" /></td>
+					<td><input objKey="pm_hp" objCheckFor="checkVal('text', this, '담당자(PM)연락처', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pm_hp}</c:if>" /></td>
+					<td><input objKey="pm_email" objCheckFor="checkVal('text', this, '담당자(PM)전자우편', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pm_email}</c:if>" /></td>
 				</tr>
 			</table>
 		</div>

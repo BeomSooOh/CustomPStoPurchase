@@ -78,11 +78,28 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 		return params;
 	}	
 	
+	public Map<String, Object> InsertConclusion ( Map<String, Object> params ) {
+		
+		int seq = 0;
+		insert( "PurchaseSQL.InsertConclusion", params );
+		seq = (int) select( "PurchaseSQL.SelectContractSeqFromManageNo", params );
+				
+		params.put("seq", seq);
+		
+		return params;
+	}		
+	
 	public void UpdateContract ( Map<String, Object> params ) {
 		
 		update( "PurchaseSQL.UpdateContract", params );
 		
 	}
+	
+	public void UpdateConclusion ( Map<String, Object> params ) {
+		
+		update( "PurchaseSQL.UpdateConclusion", params );
+		
+	}	
 	
 	public void UpdateMeet ( Map<String, Object> params ) {
 		
