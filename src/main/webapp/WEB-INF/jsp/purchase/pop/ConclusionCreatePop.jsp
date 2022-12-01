@@ -43,6 +43,8 @@
 		var attachFormList = [];
 		var attachFileNew = [];
 		var attachFileDel = [];		
+		var commonCodeTargetInfo = [];
+		var targetElement;
 		
 		var tempArray = [];
 		var tempObj = {};
@@ -70,6 +72,14 @@
 		$(document).ready(function() {
 			
 			amountInputSet();
+			
+			//기존설정항목 세팅
+			setDynamicPuddInfoTable("amtInfoList", "amtInfoAddBase", "${contractDetailInfo.contract_amt_info}");
+			
+			amountKoreanSet();
+			
+			setDynamicSetInfoUl("hopeCompanyList", "${contractDetailInfo.hope_company_info}");
+			setDynamicSetInfoFile("hopeAttachList", "${contractDetailInfo.hope_attach_info}");
 			
 			/*
 			$('#amt, #stdAmt, #taxAmt').maskMoney({
@@ -106,6 +116,58 @@
 			
 		});
 		
+		
+	
+		function setDynamicSetInfoFile(targetName, value){
+			
+			if(value != ""){
+				
+				targetElement =  $("[name="+targetName+"]");
+				
+				$.each(value.split("▦▦"), function( key, val ) {
+					
+					var valInfo =  val.split("▦");
+					
+					var cloneData = $(targetElement).find('[name="attachBase"]').clone();
+					$(cloneData).show().attr("name", "addFile");
+					$(cloneData).find('[name="attachFileName"]').attr("fileid", valInfo[0]);
+					$(cloneData).find('[name="attachFileName"]').text(valInfo[1]);
+					$(cloneData).find('[name="attachExtName"]').text(valInfo[2]);	
+					
+					$(targetElement).append(cloneData);						
+					
+				});	
+				
+			}				
+		}
+		
+		
+		
+		function setDynamicSetInfoUl(targetName, value){
+			
+			if(value != ""){
+				
+				$.each(value.split("▦▦"), function( key, val ) {
+					
+					var valInfo =  val.split("▦");
+					
+					var objInfo = {};
+					
+					objInfo.code = valInfo[0];
+					objInfo.name = valInfo[1];
+					
+					commonCodeTargetInfo.push(objInfo);
+					
+				});	
+				
+				commonCodeCallback("ul", targetName);
+				
+			}			
+			
+		}
+		
+		
+		
 		function amountInputSet(){
 			
 			$('[amountInput=Y]').maskMoney({
@@ -125,7 +187,19 @@
 			});						
 			
 			
-		}		
+		}	
+		
+		function amountKoreanSet(){
+			
+			$.each($('[amountType=amt]'), function( idx, addData ) {
+				
+				var amtInt = $(addData).val().replace(/,/g, '');
+				var targetTr = $(addData).closest("tr[name=addData]");
+				$(targetTr).find("[name=viewKorean]").text(viewKorean(amtInt));				
+				
+			});	
+			
+		}			
 		
 		function attachLayerPop(){
 			
@@ -198,8 +272,6 @@
 			});			
 			
 		}	
-		
-		var commonCodeTargetInfo = [];
 		
 		function commonCodeCallback(type, targetName){
 			
@@ -663,9 +735,9 @@
 				});	
 				
 			}
-		}		
-
-		var targetElement;
+		}	
+		
+		
 
 		function fnSearchFile(e){
 			targetElement = $("[name=hopeAttachList]");

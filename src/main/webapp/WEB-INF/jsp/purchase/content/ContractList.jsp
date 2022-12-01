@@ -223,17 +223,17 @@
 				title : "계약대상자 정보"
 			,	columns : [
 				{
-						field : "data10"
+						field : "partner_name"
 					,	title : "계약대상자"
 					,	width : 100
 				}					
 			,	{
-						field : "data11"
+						field : "partner_bizno"
 					,	title : "사업자등록번호"
 					,	width : 100
 				}
 			,	{
-						field : "data12"
+						field : "partner_owner"
 					,	title : "대표자명"
 					,	width : 100							
 				}
@@ -248,7 +248,7 @@
 				title : "발주정보"
 			,	columns : [
 				{
-						field : "data14"
+						field : "contract_type_name"
 					,	title : "입찰/수의"
 					,	width : 100
 				}					
