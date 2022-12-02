@@ -121,6 +121,7 @@
 			,	pageList : [ 10, 20, 30, 40, 50 ]
 			}
 		,	columns : [
+			/*
 			{
 				field : "gridCheckBox"
 			,	title : "체크박스"
@@ -131,7 +132,7 @@
 				,	basicUse : true
 				}
 			}
-			,	{
+			,*/	{
 				title : "기본정보"
 			,	columns : [
 				{
@@ -139,7 +140,7 @@
 					,	title : "연변"
 					,	width : 70
 					,	content : {
-							attributes : { class : "ri" }
+							attributes : { class : "ci" }
 					}
 				}					
 			,	{
@@ -150,7 +151,7 @@
 					,	content : {
 						// param : row에 해당되는 Data, td Node 객체, tr Node 객체, grid 객체
 						clickCallback : function( rowData, tdNode, trNode, gridObj ) {
-							fnCallBtn("contractView", rowData.seq);
+							fnContractStatePop("contractView", rowData.seq);
 						}
 					}
 					
@@ -160,8 +161,8 @@
 					,	title : "계약번호"
 					,	width : 120
 					,	content : {		
-						template : function() {
-							var html = '<input type="text" pudd-style="width:100%;" class="puddSetup ac" value="" />';
+						template : function(rowData) {
+							var html = '<input type="text" pudd-style="width:100%;" class="puddSetup ac" value="' + rowData.seq + '" />';
 							return html;
 						}
 					}
@@ -464,23 +465,62 @@
 		}else if(callId == "newConclusion"){
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionCreatePop.do",  "ContractViewPop", 1200, 800, 1, 1) ;
 		}else if(callId == "btnConclusion"){
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionCreatePop.do?seq=" + targetSeq,  "ConclusionViewPop", 1200, 800, 1, 1) ;
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionCreatePop.do?seq=" + (seq != null ? seq : targetSeq),  "ConclusionViewPop", 1200, 800, 1, 1) ;
 		}else if(callId == "btnMeet"){
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractMeetPop.do?seq=" + targetSeq,  "ContractViewPop", 1200, 800, 1, 1) ;
 		}else if(callId == "btnResult"){
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractResultPop.do?seq=" + targetSeq,  "ContractViewPop", 1200, 800, 1, 1) ;
+		}else if(callId == "btnSelect"){
+			
+			
+			//alert("선택!");
+			
+			Pudd.puddActionBar({
+				 
+				height	: 50
+			,	message : {
+		 
+						type : "text"		// text, html
+					,	content : "결재문서를 상신하시겠습니까?"
+					//	type : "html"		// text, html
+					//,	content : '<span style="display: inline-block;padding: 10px 0 0 20px;font-size: 14px;color: #ffffff;">결재문서를 상신하시겠습니까?</span>'
+				}
+			,	buttons : [
+						{
+								attributes : { style : "margin-top:4px;width:80px;" }// control 부모 객체 속성 설정
+							,	controlAttributes : { id : "btnConfirm", class : "submit" }// control 자체 객체 속성 설정
+							,	value : "확인"
+							,	clickCallback : function( puddActionBar ) {
+		 
+									// 확인 버튼 클릭
+									puddActionBar.showActionBar( false );
+								}
+						}
+					,	{
+								attributes : { style : "margin-top:4px;margin-left:10px;width:80px;" }// control 부모 객체 속성 설정
+							,	controlAttributes : { id : "btnCancel" }// control 자체 객체 속성 설정
+							,	value : "취소"
+							,	clickCallback : function( puddActionBar ) {
+		 
+									// 취소 버튼 클릭
+									puddActionBar.showActionBar( false );
+								}
+						}
+				]
+		});			
+			
+			
+			
+			
 		}else {
 			msgSnackbar("warning", "개발중입니다.");
 		}
 		
 	}
 	
-	function fnContractStatePop(btnType){
+	function fnContractStatePop(btnType, seq){
 		
-		
-		
-		
-		if(targetSeq == ""){
+		if(seq == null && targetSeq == ""){
 			
 			if(btnType == "btnConclusion"){
 				fnCallBtn("newConclusion");	
@@ -492,8 +532,15 @@
 		}
 		
 		var reqParam = {};
-		reqParam.seq = targetSeq;
+		
+		if(seq){
+			reqParam.seq = seq;
+		}else{
+			reqParam.seq = targetSeq;	
+		}
+		
 		var resultState = false;
+		
 		$.ajax({
 			type : 'post',
 			url : '<c:url value="/purchase/ContractInfo.do" />',
@@ -503,13 +550,24 @@
 			success : function(result) {
 				
 				console.log("seq > " + result.resultData.seq);
+				console.log("contract_type > " + result.resultData.contract_type);
 				console.log("doc_sts > " + result.resultData.doc_sts);
 				console.log("approkey_plan > " + result.resultData.approkey_plan);
 				console.log("approkey_meet > " + result.resultData.approkey_meet);
 				console.log("approkey_result > " + result.resultData.approkey_result);
 				console.log("approkey_conclusion > " + result.resultData.approkey_conclusion);
 				
-				if(btnType == "btnConclusion"){
+				if(btnType == "contractView"){
+					
+					resultState = true;
+					
+					if(result.resultData.contract_type == "02"){
+						btnType = "btnConclusion";
+					}else if(result.resultData.c_title != null){
+						btnType = "btnSelect";
+					}
+					
+				}else if(btnType == "btnConclusion"){
 					
 					if(result.resultData.approkey_conclusion != "" || (result.resultData.approkey_result != "" && result.resultData.doc_sts == "90")){
 						resultState = true;
@@ -536,7 +594,9 @@
 				}
 				
 				if(resultState){
-					fnCallBtn(btnType);
+					
+					fnCallBtn(btnType, seq);
+					
 				}else{
 					msgSnackbar("warning", "이전 단계의 기안 신청이 완료되지 않았습니다.");
 				}
