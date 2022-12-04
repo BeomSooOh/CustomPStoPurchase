@@ -35,7 +35,7 @@
 
 	<script type="text/javascript">
 	
-		var outProcessCode = "Conclusion01";
+		var outProcessCode = "Conclu01";
 		var disabledYn = "${disabledYn}";
 		
 		var insertDataObject = {};
@@ -80,39 +80,6 @@
 			
 			setDynamicSetInfoUl("hopeCompanyList", "${contractDetailInfo.hope_company_info}");
 			setDynamicSetInfoFile("hopeAttachList", "${contractDetailInfo.hope_attach_info}");
-			
-			/*
-			$('#amt, #stdAmt, #taxAmt').maskMoney({
-				precision : 0,
-				allowNegative: false
-			});
-			
-			$('#amt').keyup(function() {
-				var amtInt = $('#amt').val().replace(/,/g, '');
-				
-				$('#stdAmt').val((Math.floor(amtInt*0.9)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-				$('#taxAmt').val((Math.floor(amtInt*0.1)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-				
-				$('#amt_han').text(viewKorean($('#amt').val().replace(/,/g, '')));
-				$('#stdAmt_han').text(viewKorean($('#stdAmt').val().replace(/,/g, '')));
-				$('#taxAmt_han').text(viewKorean($('#taxAmt').val().replace(/,/g, '')));
-				
-			});			
-			
-			//기존설정항목 세팅
-			<c:if test="${viewType == 'U'}">
-			setDynamicPuddInfo("pay_type_info", "checkbox", "${contractDetailInfo.pay_type_info}");
-			setDynamicPuddInfo("restrict_area_info", "checkbox", "${contractDetailInfo.restrict_area_info}");
-			setDynamicPuddInfo("decision_type_info", "radio", "${contractDetailInfo.decision_type_info}");
-			setDynamicPuddInfoTable("restrictSectorList", "setorAddBase", "${contractDetailInfo.restrict_sector_info}");
-			setDynamicPuddInfoTable("nomineeList", "nomineeAddBase", "${contractDetailInfo.nominee_info}");
-			</c:if>
-			
-			$('#amt_han').text(viewKorean($('#amt').val().replace(/,/g, '')));
-			$('#stdAmt_han').text(viewKorean($('#stdAmt').val().replace(/,/g, '')));
-			$('#taxAmt_han').text(viewKorean($('#taxAmt').val().replace(/,/g, '')));	
-			
-			*/
 			
 		});
 		
@@ -426,7 +393,7 @@
 			
 			$.ajax({
 				type : 'post',
-				url : '<c:url value="/purchase/attachSaveProc.do" />',
+				url : '<c:url value="/attachSaveProc.do" />',
 	    		datatype:"json",
 	            data: insertDataObject ,
 				async : false,
@@ -582,7 +549,14 @@
 		function fnSaveProc(type){
 
 			insertDataObject.reqType = type;
-			insertDataObject.outProcessCode = outProcessCode;
+			
+			<c:if test="${contractType == '01'}">
+			insertDataObject.outProcessCode = "Conclusion01-1";
+			</c:if>
+			<c:if test="${contractType == '02'}">
+			insertDataObject.outProcessCode = "Conclusion01-2";
+			</c:if>			
+			
 			insertDataObject.viewType = "${viewType}";
 			insertDataObject.seq = "${seq}";
 			

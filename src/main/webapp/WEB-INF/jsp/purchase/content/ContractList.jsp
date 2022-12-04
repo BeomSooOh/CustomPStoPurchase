@@ -455,61 +455,83 @@
 		
 	}	
 	
+	var puddActionBar_;
 	
-	function fnCallBtn(callId, seq){
+	function fnCallBtn(callId, seq, sub_seq){
 		
 		if(callId == "newContract"){
+			//입찰발주계획 신규
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do",  "ContractCreatePop", 1200, 800, 1, 1) ;
+			
 		}else if(callId == "contractView"){
+			//입찰발주계획 조회
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do?seq=" + seq,  "ContractViewPop", 1200, 800, 1, 1) ;
+			
 		}else if(callId == "newConclusion"){
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionCreatePop.do",  "ContractViewPop", 1200, 800, 1, 1) ;
+			
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionCreatePop.do",  "ConclusionCreatePop", 1200, 800, 1, 1) ;
+			
 		}else if(callId == "btnConclusion"){
+			
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionCreatePop.do?seq=" + (seq != null ? seq : targetSeq),  "ConclusionViewPop", 1200, 800, 1, 1) ;
+			
+		}else if(callId == "newConclusionChange"){
+			
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionChangePop.do?seq=" + (seq != null ? seq : targetSeq),  "ConclusionChangeCreatePop", 1200, 800, 1, 1) ;
+			
+		}else if(callId == "btnConclusionChange"){
+			
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionChangePop.do?seq=" + (seq != null ? seq : targetSeq) + "&change_seq=" + sub_seq,  "ConclusionChangeViewPop", 1200, 800, 1, 1) ;
+			
 		}else if(callId == "btnMeet"){
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractMeetPop.do?seq=" + targetSeq,  "ContractViewPop", 1200, 800, 1, 1) ;
+			
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractMeetPop.do?seq=" + targetSeq,  "ContractMeetViewPop", 1200, 800, 1, 1) ;
+			
 		}else if(callId == "btnResult"){
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractResultPop.do?seq=" + targetSeq,  "ContractViewPop", 1200, 800, 1, 1) ;
+			
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractResultPop.do?seq=" + targetSeq,  "ContractResultViewPop", 1200, 800, 1, 1) ;
+			
 		}else if(callId == "btnSelect"){
 			
-			
-			//alert("선택!");
-			
-			Pudd.puddActionBar({
+			puddActionBar_ = Pudd.puddActionBar({
 				 
-				height	: 50
+				height	: 100
 			,	message : {
 		 
 						type : "text"		// text, html
-					,	content : "결재문서를 상신하시겠습니까?"
+					,	content : "상세조회 항목을 선택해 주세요"
 					//	type : "html"		// text, html
 					//,	content : '<span style="display: inline-block;padding: 10px 0 0 20px;font-size: 14px;color: #ffffff;">결재문서를 상신하시겠습니까?</span>'
 				}
 			,	buttons : [
 						{
-								attributes : { style : "margin-top:4px;width:80px;" }// control 부모 객체 속성 설정
-							,	controlAttributes : { id : "btnConfirm", class : "submit" }// control 자체 객체 속성 설정
-							,	value : "확인"
+								attributes : { style : "margin-top:4px;width:auto;" }// control 부모 객체 속성 설정
+							,	controlAttributes : { id : "", class : "submit" }// control 자체 객체 속성 설정
+							,	value : "계약입찰발주계획 상세"
 							,	clickCallback : function( puddActionBar ) {
-		 
-									// 확인 버튼 클릭
+									fnCallBtn("contractView", seq);
+									
+									$('.iframe_wrap').attr('onclick','').unbind('click');
 									puddActionBar.showActionBar( false );
 								}
 						}
 					,	{
-								attributes : { style : "margin-top:4px;margin-left:10px;width:80px;" }// control 부모 객체 속성 설정
-							,	controlAttributes : { id : "btnCancel" }// control 자체 객체 속성 설정
-							,	value : "취소"
+								attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
+							,	controlAttributes : { id : "", class : "submit" }// control 자체 객체 속성 설정
+							,	value : "계약체결 상세"
 							,	clickCallback : function( puddActionBar ) {
-		 
-									// 취소 버튼 클릭
+									fnCallBtn("btnConclusion", seq);
+									
+									$('.iframe_wrap').attr('onclick','').unbind('click');
 									puddActionBar.showActionBar( false );
 								}
 						}
 				]
 		});			
 			
-			
+			setTimeout(function() {
+				$(".iframe_wrap").on("click", function(e){puddActionBar_.showActionBar( false );$('.iframe_wrap').attr('onclick','').unbind('click');});
+			}, 200);				
 			
 			
 		}else {
@@ -556,8 +578,17 @@
 				console.log("approkey_meet > " + result.resultData.approkey_meet);
 				console.log("approkey_result > " + result.resultData.approkey_result);
 				console.log("approkey_conclusion > " + result.resultData.approkey_conclusion);
+				console.log("approkey_change > " + result.resultData.approkey_change);
+				console.log("change_seq > " + result.resultData.change_seq);
 				
-				if(btnType == "contractView"){
+				if(btnType == "btnConclusionChange"){
+					
+					if(result.resultData.approkey_conclusion != "" && result.resultData.doc_sts == "90"){
+						fnCallBtn("btnConclusionChange", result.resultData.seq, result.resultData.change_seq);
+						return;
+					}
+					
+				}else if(btnType == "contractView"){
 					
 					resultState = true;
 					
@@ -646,7 +677,7 @@
 				<input type="button" id="btnResult" onclick="fnContractStatePop('btnResult');" class="puddSetup" value="제안서 평가결과" />
 				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="저장" />
 				<input type="button" onclick="fnContractStatePop('btnConclusion');" style="background:#03a9f4;color:#fff" class="puddSetup" value="계약체결" />
-				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="변경계약" />
+				<input type="button" onclick="fnContractStatePop('btnConclusionChange');" class="puddSetup" value="변경계약" />
 				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="대금지급" />
 				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="엑셀다운로드" />
 			</div>

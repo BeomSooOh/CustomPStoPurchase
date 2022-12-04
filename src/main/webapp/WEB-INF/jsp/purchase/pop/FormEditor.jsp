@@ -53,7 +53,7 @@
 			
 			$.ajax({
 				type : 'post',
-				url : '<c:url value="/purchase/SelectFormInfo.do" />',
+				url : '<c:url value="/SelectFormInfo.do" />',
 				datatype : 'json',
 				data : reqParam,
 				async : false,
@@ -89,7 +89,7 @@
 				
 				$.ajax({
 					type : 'post',
-					url : '<c:url value="/purchase/SaveFormInfo.do" />',
+					url : '<c:url value="/SaveFormInfo.do" />',
 					datatype : 'json',
 					data : reqParam,
 					async : false,

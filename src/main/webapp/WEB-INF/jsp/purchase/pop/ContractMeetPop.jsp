@@ -204,7 +204,7 @@
 			
 			$.ajax({
 				type : 'post',
-				url : '<c:url value="/purchase/attachSaveProc.do" />',
+				url : '<c:url value="/attachSaveProc.do" />',
 	    		datatype:"json",
 	            data: insertDataObject ,
 				async : false,
