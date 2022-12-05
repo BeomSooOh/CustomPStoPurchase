@@ -17,6 +17,11 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 	}
 	
 	@SuppressWarnings ( "unchecked" )
+	public Map<String, Object> GetGroupPathInfo ( Map<String, Object> params ) {
+		return (Map<String, Object>) select( "PurchaseSQL.getGroupPathInfo", params );
+	}	
+	
+	@SuppressWarnings ( "unchecked" )
 	public Map<String, Object> GetCompInfo ( Map<String, Object> params ) {
 		return (Map<String, Object>) select( "PurchaseSQL.getCompInfo", params );
 	}

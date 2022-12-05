@@ -118,11 +118,9 @@
 			<div class="psh_right">
 				<div class="btn_cen mt8">
 					<select id = "formCode" onchange="fnChangeForm(this)" style="    float: left;    margin-right: 10px;    margin-top: 4px;">
-						<option value="ManualPop01">비품안내문구</option>
-						<option value="ManualPop02">소모품안내문구</option>
-						<option value="Contract01">구매계약모듈(계약입찰발주계획)</option>
-						<option value="Contract02">구매계약모듈(평가회의등록)</option>
-						<option value="Contract03">구매계약모듈(평가결과등록)</option>
+						<c:forEach var="items" items="${formList}">
+							<option value="${items.CODE}">${items.NAME}</option>
+						</c:forEach>							
 					</select>
 					<input type="button" class="psh_btn" onclick="fnSave(0)" value="저장" />
 				</div>

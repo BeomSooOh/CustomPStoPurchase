@@ -879,17 +879,41 @@
 				dummy : JSON.stringify(data)
 			});
 		}		
-		
+
+		var callbackResult;
 
 		function fnCommonCode_trName_callback(param) {
 			/* iCUBE example - tr : {"erpCompSeq":"7070","tel":"02 _518_0012","trFg":"1","trName":"전문건설공제조합2","ceoName":"이건영","addr":"충남 공주시 신관동 ","bankName":"국민","trRegNumber":"6028505389","bankNumber":"32165431321","useYN":"1","atTrName":"전문건설공제조합2","trSeq":"000003","trFgName":"일반","depositor":"ㅇ러날","giroSeq":"040","code":"tr","dummy":"{}"} */
 			
+			callbackResult = param;
+			
 			if(param != null){
-				$("[objKey=partner_code]").val( param.trSeq || "" );
-				$("[objKey=partner_name]").val( param.trName || "" );
-				$("[objKey=partner_bizno]").text( param.trRegNumber || "" );
-				$("[objKey=partner_owner]").text( param.ceoName || "" );
-				$("[objKey=partner_addr]").text( param.addr || "" );
+				
+				//거래처 
+				if(param.code == "tr"){
+					$("[objKey=partner_code]").val( param.trSeq || "" );
+					$("[objKey=partner_name]").val( param.trName || "" );
+					$("[objKey=partner_bizno]").text( param.trRegNumber || "" );
+					$("[objKey=partner_owner]").text( param.ceoName || "" );
+					$("[objKey=partner_addr]").text( param.addr || "" );
+				
+				//회계단위	
+				}else if(param.code == "div"){
+					$("[objKey=div_seq]").val( param.divSeq || "" );
+					$("[objKey=div_name]").val( param.divName || "" );
+				
+				//프로젝트	
+				}else if(param.code == "project"){
+					$("[objKey=pjt_seq]").val( param.pjtSeq || "" );
+					$("[objKey=pjt_name]").val( param.pjtName || "" );
+					
+				//하위사업	
+				}else if(param.code == "bottom"){
+					$("[objKey=bottom_seq]").val( param.bottomSeq || "" );
+					$("[objKey=bottom_name]").val( param.bottomName || "" );
+				}		
+				
+				
 			}
 			
 		}
@@ -904,10 +928,61 @@
 
 			//param.trOpt = optionSet.gw[3][16].setValue
 			//param.trOpt2 = (optionSet.gw[3][22]||{'setValue':'1'}).setValue ;
-
+			param.erpMgtSeq = $("[objkey=pjt_seq]").val();
 			param.callback = 'fnCommonCode_trName_callback';
 			/* 검색어 예외처리 ( 이유 : ERPiU 기준에 따라 처리 ) */
 			param.searchStr = "";
+
+			fnCommonCodePop(code, param, param.callback);
+
+			/* [ return ] */
+			return;
+		}		
+		
+		
+		/* ## 공통코드 - 예산단위 ## */
+		function fnCommonCode_erpBudgetName(code, param) {
+			/* [ parameter ] */
+			/*   - code : 공통코드 구분 코드 ( column 사용 권장 ) */
+			code = (code || '');
+			/*   - param : 현재 작성중인 내역의 모든 정보 */
+			param = (param || {});
+			param.callback = 'fnCommonCode_erpBudgetName_callback';
+
+			/* 파라미터 가공 */
+			param.widthSize = "628";
+			param.heightSize = "546";
+
+			/* 팝업 호출 */
+			code = 'budgetlist';
+			param.erpGisu = optionSet.erpGisu.gisu; /* ERP 기수 */
+			param.erpGisuFromDate = optionSet.erpGisu.fromDate; /* 기수 시작일 */
+			param.erpGisuToDate = optionSet.erpGisu.toDate; /* 기수 종료일 */
+			param.gisu = optionSet.erpGisu.gisu; /* ERP 기수 */
+			param.frDate = optionSet.erpGisu.fromDate; /* 기수 시작일 */
+			param.toDate = optionSet.erpGisu.toDate; /* 기수 종료일 */
+
+			param.erpDivSeq = $("[objkey=div_seq]").val() + "|"; /* 회계통제단위 구분값 '|' */
+			param.erpMgtSeq = $("[objkey=pjt_seq]").val() + "|"; /* 예산통제단위 구분값 '|' */
+			
+			param.opt01 =  optionSet.gw[1][8].setValue; //'2'; /* 1: 모든 예산과목, 2: 당기편성, 3: 프로젝트 기간 예산 */
+			param.opt02 = '1'; /* 1: 모두표시, 2: 사용기한결과분 숨김 */
+			param.opt03 = '2'; /* 1: 예산그룹 전체, 2: 예산그룹 숨김 */
+
+			if (Option.Common.iCUBE()) {
+				/* 수입, 지출 예산과목 조회 분기 */
+				var resData = $('#resTbl').dzt('getValue');
+				var incomeCode = [ '5', '7' ]; /* 수입 구분 코드 */
+				var expenseCode = [ '1', '2', '3', '4', '6', '8', '9' ]; /* 지출 구분 코드 */
+
+				if (expenseCode.indexOf(resData.docuFgCode) > -1) {
+					param.grFg = '2'; /* 1 : 수입, 2 : 지출 */
+				} else if (incomeCode.indexOf(resData.docuFgCode) > -1) {
+					param.grFg = '1'; /* 1 : 수입, 2 : 지출 */
+				} else {
+					param.grFg = ''; /* 1 : 수입, 2 : 지출 */
+				}
+			}
 
 			fnCommonCodePop(code, param, param.callback);
 
@@ -1221,26 +1296,33 @@
 					</td>
 					<td>
 						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
+							<input objKey="div_seq" objCheckFor="checkVal('text', this, '예산회계단위', 'mustAlert', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.div_seq}</c:if>" />
+							<input objKey="div_name" objCheckFor="checkVal('text', this, '예산회계단위', '', '')" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.div_name}</c:if>" readonly />							
+							
+							<a href="#n" onclick="fnCommonCode_trName('div')" class="btn_search" style="margin-left: -25px;"></a>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input objKey="pjt_seq" objCheckFor="checkVal('text', this, '프로젝트', 'mustAlert', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pjt_seq}</c:if>" />
+							<input objKey="pjt_name" objCheckFor="checkVal('text', this, '프로젝트', '', '')" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pjt_name}</c:if>" readonly />							
+
+							<a href="#n" onclick="fnCommonCode_trName('project')" class="btn_search" style="margin-left: -25px;"></a>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input objKey="bottom_seq" objCheckFor="checkVal('text', this, '하위사업', 'mustAlert', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.bottom_seq}</c:if>" />
+							<input objKey="bottom_name" objCheckFor="checkVal('text', this, '하위사업', '', '')" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.bottom_name}</c:if>" readonly />							
+							
+							<a href="#n" onclick="fnCommonCode_trName('bottom')" class="btn_search" style="margin-left: -25px;"></a>
 						</div>
 					</td>
 					<td>
 						<div class="posi_re">
 							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
+							
+							<a href="#n" onclick="fnCommonCode_erpBudgetName('budgetlist')" class="btn_search" style="margin-left: -25px;"></a>
 						</div>
 					</td>
 				</tr>

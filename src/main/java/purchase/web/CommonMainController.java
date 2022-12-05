@@ -89,7 +89,7 @@ public class CommonMainController {
 		//보안취약성 관련 수정(서버경로 재검색)
 		paramMap.put("osType", CommonUtil.osType());
 		paramMap.put("pathSeq", "0");
-		Map<String, Object> pathMp = (Map<String, Object>) commonServiceDAO.select("PurchaseSQL.getGroupPathInfo", paramMap);
+		Map<String, Object> pathMp = commonServiceDAO.GetGroupPathInfo(paramMap);
 		
 		targetForder = pathMp.get("absol_path").toString() + File.separator + "purchase" + File.separator + targetForder.substring(0, 4)+ File.separator + targetForder.substring(4, 8) + File.separator + targetForder;
 
@@ -148,7 +148,7 @@ public class CommonMainController {
 		
 		paramMap.put("osType", CommonUtil.osType());
 		paramMap.put("pathSeq", "0");
-		Map<String, Object> pathMp = (Map<String, Object>) commonServiceDAO.select("PurchaseSQL.getGroupPathInfo", paramMap);
+		Map<String, Object> pathMp = commonServiceDAO.GetGroupPathInfo(paramMap);
 		
 		File rw = new File(pathMp.get("absol_path").toString() + File.separator + "purchase" + File.separator + fileId.substring(0, 4)+ File.separator + fileId.substring(4, 8) + File.separator + fileId);
 		

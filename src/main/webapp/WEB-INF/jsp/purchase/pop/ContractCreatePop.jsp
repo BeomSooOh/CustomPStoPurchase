@@ -286,13 +286,6 @@
 				
 			});
 			
-			//원단위입력제한체크
-			if(validationCheck && $("#amt").val().slice(-1) != "0"){
-				msgSnackbar("error", "기초금액은 일원단위 입력이 불가합니다.");
-				$("#amt").focus();
-				validationCheck = false;
-			}
-			
 			return validationCheck;
 		}
 		
@@ -588,8 +581,7 @@
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 기초금액</th>
 					<td>
-						<input ${disabled} objKey="amt" objCheckFor="checkVal('text', this, '기초금액', 'mustAlert', 'parseToInt')" id="amt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.amt}</c:if>" maxlength="15" /> 원 
-						<span objKey="amt_kor" objCheckFor="checkVal('innerText', this, '기초금액', '', '')" id="amt_han"></span>
+						<input ${disabled} objKey="amt" objCheckFor="checkVal('text', this, '기초금액', 'mustAlert', 'parseToInt', 'notWon')" id="amt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.amt}</c:if>" maxlength="15" /> 원	<span objKey="amt_kor" objCheckFor="checkVal('innerText', this, '기초금액', '', '')" id="amt_han"></span>
 					</td>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 추정가격</th>
 					<td>

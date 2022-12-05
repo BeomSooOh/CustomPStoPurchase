@@ -128,7 +128,7 @@ function msgSnackbar(type, msg, callback){
 }
 
 
-function checkVal(type, elementFor, objName, func, subValueFor){
+function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 	
 	var returnVal = "";
 	var focusTarget;
@@ -297,7 +297,20 @@ function checkVal(type, elementFor, objName, func, subValueFor){
 				$(focusTarget).focus();
 				
 			}			
-		}				
+		}
+						
+	}else if(valOption != null){
+		
+		//(일)원단위 입력제한체크
+		if(valOption == "notWon" && returnVal.slice(-1) != "0"){
+			
+			console.log("(일)원단위 입력불가 objName > " + objName);
+			returnVal = "$failAlert$";
+			msgSnackbar("error", "(일)원단위 입력이 불가합니다.");
+			$(elementFor).focus();
+			
+		}
+		
 	}
 	
 	return returnVal;

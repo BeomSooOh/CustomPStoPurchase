@@ -176,7 +176,7 @@ public class CommonPopController {
 				
 				params.put("osType", CommonUtil.osType());
 				params.put("pathSeq", "0");
-				Map<String, Object> pathMp = (Map<String, Object>) commonServiceDAO.select("PurchaseSQL.getGroupPathInfo", params);
+				Map<String, Object> pathMp = commonServiceDAO.GetGroupPathInfo(params);
 				
 				String targetForder = pathMp.get("absol_path").toString() + File.separator + "uploadTemp" + File.separator + fileKey;
 				
@@ -243,6 +243,15 @@ public class CommonPopController {
     public ModelAndView FormEditor(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
     	
         ModelAndView mv = new ModelAndView();
+        
+        //코드도움 데이터 조회
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+        params.put("groupSeq", loginVo.getGroupSeq());
+        params.put("group", "contentsForm");
+        params.put("useYn", "Y");
+        List<Map<String, Object>> formList = commonServiceDAO.SelectPurchaseDetailCodeList(params);            	
+        mv.addObject("formList", formList);
+        
         mv.setViewName("/purchase/pop/FormEditor");
 
         return mv;
