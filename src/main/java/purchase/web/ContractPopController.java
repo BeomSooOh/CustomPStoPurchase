@@ -2,10 +2,14 @@ package purchase.web;
 
 import java.io.File;
 import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +34,8 @@ import purchase.service.ContractServiceDAO;
 import purchase.service.CommonService;
 import purchase.service.CommonServiceDAO;
 import common.vo.common.CommonMapper;
+import common.vo.common.ConnectionVO;
+import common.procedure.npG20.BCommonProcService;
 
 
 
@@ -58,7 +64,10 @@ public class ContractPopController {
     private ContractService contractService;    
     
     @Resource(name = "ContractServiceDAO")
-    private ContractServiceDAO contractServiceDAO;    	       
+    private ContractServiceDAO contractServiceDAO;    
+    
+	@Resource ( name = "BCommonProcService" )
+	private BCommonProcService procService;    
     
     @RequestMapping("/purchase/pop/ContractCreatePop.do")
     public ModelAndView ContractCreatePop(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
@@ -271,6 +280,16 @@ public class ContractPopController {
         			
         		}            	
             }
+            
+			HashMap<String, Object> procParams = new HashMap<>( );
+			DateFormat dateFormat = new SimpleDateFormat( "yyyyMMdd", Locale.getDefault() );
+			Calendar cal = Calendar.getInstance( );
+			procParams.put( "procType", "commonGisuInfo" );
+			procParams.put( "erpCompSeq", loginVo.getErpCoCd( ) );
+			procParams.put( "baseDate", dateFormat.format( cal.getTime( ) ) );
+			procParams.put( "erpType", "iCUBE");
+			mv.addObject( "erpGisu", CommonConvert.CommonGetListMapToJson( procService.getProcResult( procParams ).getAaData( ) ) );            
+            
             
             //기존 작성정보 조회
             if(params.get("seq") != null && !params.get("seq").equals("")) {

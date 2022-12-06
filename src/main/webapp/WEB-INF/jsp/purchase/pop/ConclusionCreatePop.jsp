@@ -35,6 +35,13 @@
 
 	<script type="text/javascript">
 	
+		var commonParam;
+		
+		var optionSet = {};
+		
+		var ERP_GISU = ${erpGisu}
+		optionSet.erpGisu = ERP_GISU[0];	
+	
 		var outProcessCode = "Conclu01";
 		var disabledYn = "${disabledYn}";
 		
@@ -882,8 +889,7 @@
 
 		var callbackResult;
 
-		function fnCommonCode_trName_callback(param) {
-			/* iCUBE example - tr : {"erpCompSeq":"7070","tel":"02 _518_0012","trFg":"1","trName":"전문건설공제조합2","ceoName":"이건영","addr":"충남 공주시 신관동 ","bankName":"국민","trRegNumber":"6028505389","bankNumber":"32165431321","useYN":"1","atTrName":"전문건설공제조합2","trSeq":"000003","trFgName":"일반","depositor":"ㅇ러날","giroSeq":"040","code":"tr","dummy":"{}"} */
+		function fnCommonCode_callback(param) {
 			
 			callbackResult = param;
 			
@@ -911,12 +917,111 @@
 				}else if(param.code == "bottom"){
 					$("[objKey=bottom_seq]").val( param.bottomSeq || "" );
 					$("[objKey=bottom_name]").val( param.bottomName || "" );
-				}		
 				
+				//예산과목
+				}else if(param.code == "budgetlist"){
+					$("[objKey=bgt_seq]").val( param.erpBudgetSeq || "" );
+					$("[objKey=bgt_name]").val( param.erpBudgetName || "" );
+					
+					if(param.erpBgt1Seq != ""){
+						$("[objKey=bgt1_name]").text( param.erpBgt1Name + " (" + param.erpBgt1Seq + ")");	
+					}else{
+						$("[objKey=bgt1_name]").text("");
+					}
+					
+					if(param.erpBgt2Seq != ""){
+						$("[objKey=bgt2_name]").text( param.erpBgt2Name + " (" + param.erpBgt2Seq + ")");	
+					}else{
+						$("[objKey=bgt2_name]").text("");
+					}
+					
+					if(param.erpBgt3Seq != ""){
+						$("[objKey=bgt3_name]").text( param.erpBgt3Name + " (" + param.erpBgt3Seq + ")");	
+					}else{
+						$("[objKey=bgt3_name]").text("");
+					}
+					
+					if(param.erpBgt4Seq != ""){
+						$("[objKey=bgt4_name]").text( param.erpBgt4Name + " (" + param.erpBgt4Seq + ")");	
+					}else{
+						$("[objKey=bgt4_name]").text("");
+					}					
+					
+					fnSetBudgetAmtInfo();
+					
+				}			
 				
 			}
 			
 		}
+		
+		
+		/*	[예산조회] 예산잔액 가조회
+		------------------------------------------- */
+		function fnSetBudgetAmtInfo(){
+			
+			if($("[objkey=bgt_seq]").val() == ""){
+				$('#txtOpenAmt').text("");
+				$('#txtConsBalanceAmt').text("");
+				$('#txtApplyAmt').text("");
+				$('#txtBalanceAmt').text("");	
+			}else{
+				
+				commonParam.erpBudgetSeq = $("[objkey=bgt_seq]").val(); /* 회계통제단위 구분값 '|' */
+				commonParam.erpGisuDate = !!commonParam.resDate?commonParam.resDate.replaceAll('-',''):
+					commonParam.consDate?
+							commonParam.consDate.replaceAll('-',''):
+								commonParam.frDate.replaceAll('-','');
+				commonParam.erpBudgetDivSeq = commonParam.erpDivSeq.replace('|', '');
+				commonParam.erpMgtSeq = commonParam.erpMgtSeq.replaceAll('|', '');
+				commonParam.resDocSeq =  commonParam.resDocSeq || "-1";
+				commonParam.consDocSeq =  commonParam.consDocSeq || "-1";
+				commonParam.confferDocSeq =  commonParam.confferDocSeq || "-1";
+				commonParam.confferSeq =  commonParam.confferSeq || "-1";
+				commonParam.confferBudgetSeq = commonParam.confferBudgetSeq || "-1";
+				commonParam.consSeq = commonParam.consSeq || "-1";
+				commonParam.resSeq = commonParam.resSeq || "-1";
+				commonParam.selectedBudgetSeqs = "";
+				
+				$.ajax({
+					type : 'post',
+					url : '<c:url value="/ex/np/user/res/resBudgetInfoSelect.do" />',
+					datatype : 'json',
+					async : false,
+					data : commonParam,
+					success : function(result) {
+
+						var data = result.result.aData;
+						$('#txtOpenAmt').text(fnGetCurrencyCode(data.openAmt));
+						$('#txtConsBalanceAmt').text(fnGetCurrencyCode(data.consBalanceAmt));
+						$('#txtApplyAmt').text(fnGetCurrencyCode(data.resApplyAmt));
+						$('#txtBalanceAmt').text(fnGetCurrencyCode(data.balanceAmt));
+
+					},
+					/*   - error :  */
+					error : function(result) {
+						
+						/*
+						$('#txtBudgetInfo').text('예산정보 조회 중 오류 발생');
+						$ ( '#txtSearchStr' ).focus ( );
+						*/
+						
+					}
+				});				
+				
+			}
+		}
+		
+		/*	[공용] 숫자에 콤마 찍어서 가져오기
+		---------------------------------------- */
+		function fnGetCurrencyCode(value){
+		    value = '' + value || '';
+		    value = '' + value.split('.')[0];
+		    value = value.replace(/[^0-9\-]/g, '') || '0';
+		    var returnVal = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+		    return returnVal;
+		}		
+		
 		
 		/* ## 공통코드 - 거래처 ## */
 		function fnCommonCode_trName(code, param) {
@@ -929,7 +1034,7 @@
 			//param.trOpt = optionSet.gw[3][16].setValue
 			//param.trOpt2 = (optionSet.gw[3][22]||{'setValue':'1'}).setValue ;
 			param.erpMgtSeq = $("[objkey=pjt_seq]").val();
-			param.callback = 'fnCommonCode_trName_callback';
+			param.callback = 'fnCommonCode_callback';
 			/* 검색어 예외처리 ( 이유 : ERPiU 기준에 따라 처리 ) */
 			param.searchStr = "";
 
@@ -939,52 +1044,42 @@
 			return;
 		}		
 		
+	
 		
 		/* ## 공통코드 - 예산단위 ## */
-		function fnCommonCode_erpBudgetName(code, param) {
+		function fnCommonCode_erpBudgetName(code) {
 			/* [ parameter ] */
 			/*   - code : 공통코드 구분 코드 ( column 사용 권장 ) */
 			code = (code || '');
 			/*   - param : 현재 작성중인 내역의 모든 정보 */
-			param = (param || {});
-			param.callback = 'fnCommonCode_erpBudgetName_callback';
+			commonParam = (commonParam || {});
+			commonParam.callback = 'fnCommonCode_callback';
 
 			/* 파라미터 가공 */
-			param.widthSize = "628";
-			param.heightSize = "546";
+			commonParam.widthSize = "628";
+			commonParam.heightSize = "546";
 
 			/* 팝업 호출 */
 			code = 'budgetlist';
-			param.erpGisu = optionSet.erpGisu.gisu; /* ERP 기수 */
-			param.erpGisuFromDate = optionSet.erpGisu.fromDate; /* 기수 시작일 */
-			param.erpGisuToDate = optionSet.erpGisu.toDate; /* 기수 종료일 */
-			param.gisu = optionSet.erpGisu.gisu; /* ERP 기수 */
-			param.frDate = optionSet.erpGisu.fromDate; /* 기수 시작일 */
-			param.toDate = optionSet.erpGisu.toDate; /* 기수 종료일 */
+			commonParam.erpGisu = optionSet.erpGisu.gisu; /* ERP 기수 */
+			commonParam.erpGisuFromDate = optionSet.erpGisu.fromDate; /* 기수 시작일 */
+			commonParam.erpGisuToDate = optionSet.erpGisu.toDate; /* 기수 종료일 */
+			commonParam.gisu = optionSet.erpGisu.gisu; /* ERP 기수 */
+			commonParam.frDate = optionSet.erpGisu.fromDate; /* 기수 시작일 */
+			commonParam.toDate = optionSet.erpGisu.toDate; /* 기수 종료일 */
 
-			param.erpDivSeq = $("[objkey=div_seq]").val() + "|"; /* 회계통제단위 구분값 '|' */
-			param.erpMgtSeq = $("[objkey=pjt_seq]").val() + "|"; /* 예산통제단위 구분값 '|' */
+			commonParam.erpDivSeq = $("[objkey=div_seq]").val() + "|"; /* 회계통제단위 구분값 '|' */
+			commonParam.erpMgtSeq = $("[objkey=pjt_seq]").val() + "|"; /* 예산통제단위 구분값 '|' */
+			commonParam.bottomSeq = $("[objkey=bottom_seq]").val() + "|"; /* 하위사업 구분값 '|' */
 			
-			param.opt01 =  optionSet.gw[1][8].setValue; //'2'; /* 1: 모든 예산과목, 2: 당기편성, 3: 프로젝트 기간 예산 */
-			param.opt02 = '1'; /* 1: 모두표시, 2: 사용기한결과분 숨김 */
-			param.opt03 = '2'; /* 1: 예산그룹 전체, 2: 예산그룹 숨김 */
-
-			if (Option.Common.iCUBE()) {
-				/* 수입, 지출 예산과목 조회 분기 */
-				var resData = $('#resTbl').dzt('getValue');
-				var incomeCode = [ '5', '7' ]; /* 수입 구분 코드 */
-				var expenseCode = [ '1', '2', '3', '4', '6', '8', '9' ]; /* 지출 구분 코드 */
-
-				if (expenseCode.indexOf(resData.docuFgCode) > -1) {
-					param.grFg = '2'; /* 1 : 수입, 2 : 지출 */
-				} else if (incomeCode.indexOf(resData.docuFgCode) > -1) {
-					param.grFg = '1'; /* 1 : 수입, 2 : 지출 */
-				} else {
-					param.grFg = ''; /* 1 : 수입, 2 : 지출 */
-				}
-			}
-
-			fnCommonCodePop(code, param, param.callback);
+			
+			commonParam.opt01 =  '2'; /* 1: 모든 예산과목, 2: 당기편성, 3: 프로젝트 기간 예산 */
+			commonParam.opt02 = '1'; /* 1: 모두표시, 2: 사용기한결과분 숨김 */
+			commonParam.opt03 = '2'; /* 1: 예산그룹 전체, 2: 예산그룹 숨김 */
+			
+			commonParam.grFg = '2'; /* 1 : 수입, 2 : 지출 */
+			
+			fnCommonCodePop(code, commonParam, commonParam.callback);
 
 			/* [ return ] */
 			return;
@@ -1312,7 +1407,7 @@
 					</td>
 					<td>
 						<div class="posi_re">
-							<input objKey="bottom_seq" objCheckFor="checkVal('text', this, '하위사업', 'mustAlert', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.bottom_seq}</c:if>" />
+							<input objKey="bottom_seq" objCheckFor="checkVal('text', this, '하위사업', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.bottom_seq}</c:if>" />
 							<input objKey="bottom_name" objCheckFor="checkVal('text', this, '하위사업', '', '')" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.bottom_name}</c:if>" readonly />							
 							
 							<a href="#n" onclick="fnCommonCode_trName('bottom')" class="btn_search" style="margin-left: -25px;"></a>
@@ -1320,8 +1415,9 @@
 					</td>
 					<td>
 						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							
+							<input objKey="bgt_seq" objCheckFor="checkVal('text', this, '예산과목', 'mustAlert', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.bottom_seq}</c:if>" />
+							<input objKey="bgt_name" objCheckFor="checkVal('text', this, '예산과목', '', '')" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.bottom_name}</c:if>" readonly />							
+
 							<a href="#n" onclick="fnCommonCode_erpBudgetName('budgetlist')" class="btn_search" style="margin-left: -25px;"></a>
 						</div>
 					</td>
@@ -1333,34 +1429,34 @@
 		<div class="com_ta6 mt10">
 			<table>
 				<colgroup>
-					<col width="100"/>
-					<col width="150"/>
-					<col width="100"/>
-					<col width="150"/>
-					<col width="100"/>
-					<col width="150"/>
-					<col width="100"/>
-					<col width="150"/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
 				</colgroup>
 				<tr>
 					<th>관</th>
-					<td>운영비(210)</td>
+					<td objKey="bgt1_name" objCheckFor="checkVal('text()', this, '관', '', '')"></td>
 					<th>항</th>
-					<td>일반수용비(01)</td>
+					<td objKey="bgt2_name" objCheckFor="checkVal('text()', this, '항', '', '')"></td>
 					<th>목</th>
-					<td></td>
+					<td objKey="bgt3_name" objCheckFor="checkVal('text()', this, '목', '', '')"></td>
 					<th>세</th>
-					<td></td>
+					<td objKey="bgt4_name" objCheckFor="checkVal('text()', this, '세', '', '')"></td>
 				</tr>				
 				<tr>
 					<th>예산액</th>
-					<td class="ri pr10">1,000,000</td>
+					<td class="ri pr10" id="txtOpenAmt"></td>
 					<th>집행액</th>
-					<td class="ri pr10">1,000,000</td>
+					<td class="ri pr10" id="txtConsBalanceAmt"></td>
 					<th>품의액</th>
-					<td class="ri pr10">1,000,000</td>
+					<td class="ri pr10" id="txtApplyAmt"></td>
 					<th>예산잔액</th>
-					<td class="ri pr10">1,000,000</td>
+					<td class="ri pr10" id="txtBalanceAmt"></td>
 				</tr>
 			</table>
 		</div>			
