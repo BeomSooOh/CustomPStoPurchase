@@ -249,6 +249,38 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 			
 		});	
 		
+	}else if(type == "obj"){
+		
+		returnVal = [];
+		var breakYn = false;
+		
+		$.each($("[name='"+elementFor+"'] [name='addData']"), function( key, objInfo ) {
+			
+			var obj = {};
+			
+			$.each($(objInfo).find("[tbval=Y]"), function( key, tableVal ) {
+				
+				if($(tableVal).attr("requiredNot") != "true" && $(tableVal).val() == ""){
+					
+					focusTarget = tableVal;
+					obj = {};
+					breakYn = true;
+					return false;
+				}
+				
+				obj[$(tableVal).attr("name")] = $(tableVal).val();
+				
+			});
+			
+			if(breakYn){
+				returnVal = [];
+				return false;
+			}
+			
+			returnVal.push(obj);
+			
+		});	
+		
 	}else if(type == "file"){
 		
 		$.each($("[name='"+elementFor+"'] [name='addFile']"), function( key, objInfo ) {

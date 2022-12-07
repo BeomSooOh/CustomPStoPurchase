@@ -824,7 +824,7 @@
 				});	   
 				
 				if(sameExists){
-					parent.msgSnackbar("error", "동일한 이름의 첨부파일이 존재합니다.");
+					msgSnackbar("error", "동일한 이름의 첨부파일이 존재합니다.");
 				}else{
     	            var abort = false;
     	            var formData = new FormData();

@@ -35,12 +35,38 @@
 
 	<script type="text/javascript">
 	
-		var commonParam;
+		var commonParam = {};
+		var commonElement;
 		
 		var optionSet = {};
 		
 		var ERP_GISU = ${erpGisu}
 		optionSet.erpGisu = ERP_GISU[0];	
+		commonParam.callback = 'fnCommonCode_callback';
+		commonParam.widthSize = "628";
+		commonParam.heightSize = "546";
+		commonParam.erpGisu = optionSet.erpGisu.gisu; /* ERP 기수 */
+		commonParam.erpGisuFromDate = optionSet.erpGisu.fromDate; /* 기수 시작일 */
+		commonParam.erpGisuToDate = optionSet.erpGisu.toDate; /* 기수 종료일 */
+		commonParam.gisu = optionSet.erpGisu.gisu; /* ERP 기수 */
+		commonParam.frDate = optionSet.erpGisu.fromDate; /* 기수 시작일 */
+		commonParam.toDate = optionSet.erpGisu.toDate; /* 기수 종료일 */
+		
+		commonParam.erpGisuDate = commonParam.frDate.replaceAll('-','');
+		
+		commonParam.opt01 =  '2'; /* 1: 모든 예산과목, 2: 당기편성, 3: 프로젝트 기간 예산 */
+		commonParam.opt02 = '1'; /* 1: 모두표시, 2: 사용기한결과분 숨김 */
+		commonParam.opt03 = '2'; /* 1: 예산그룹 전체, 2: 예산그룹 숨김 */
+		commonParam.grFg = '2'; /* 1 : 수입, 2 : 지출 */		
+		
+		commonParam.resDocSeq =  "-1";
+		commonParam.consDocSeq =  "-1";
+		commonParam.confferDocSeq =  "-1";
+		commonParam.confferSeq =  "-1";
+		commonParam.confferBudgetSeq = "-1";
+		commonParam.consSeq = "-1";
+		commonParam.resSeq = "-1";
+		commonParam.selectedBudgetSeqs = "";		
 	
 		var outProcessCode = "Conclu01";
 		var disabledYn = "${disabledYn}";
@@ -462,7 +488,7 @@
 			}
 		}		
 		
-		function fnSectorAdd(tableName, baseName, maxCnt){
+		function fnSectorAdd(tableName, maxCnt){
 			
 			var aaDataCnt = $('[name="'+tableName+'"] [name=addData]').length + 1;
 			
@@ -471,7 +497,7 @@
 				return;
 			}			
 			
-			var cloneData = $('[name="'+baseName+'"]').clone();
+			var cloneData = $('[name="'+tableName+'"] [name=dataBase]').clone();
 			$(cloneData).show().attr("name", "addData");
 			
 			$('[name="'+tableName+'"]').append(cloneData);
@@ -526,6 +552,7 @@
 			if(fnValidationCheck() == true){
 
 				insertDataObject.attch_file_info = JSON.stringify(attachFormList);
+				insertDataObject.budget_list_info = JSON.stringify(insertDataObject.budgetObjList);
 				
 				if(type == 0){
 					confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc(1)', '취소', '');	
@@ -754,7 +781,7 @@
 				});	   
 				
 				if(sameExists){
-					parent.msgSnackbar("error", "동일한 이름의 첨부파일이 존재합니다.");
+					msgSnackbar("error", "동일한 이름의 첨부파일이 존재합니다.");
 				}else{
     	            var abort = false;
     	            var formData = new FormData();
@@ -905,46 +932,47 @@
 				
 				//회계단위	
 				}else if(param.code == "div"){
-					$("[objKey=div_seq]").val( param.divSeq || "" );
-					$("[objKey=div_name]").val( param.divName || "" );
+					$(commonElement).find("[name=div_seq]").val( param.divSeq || "" );
+					$(commonElement).find("[name=div_name]").val( param.divName || "" );
 				
 				//프로젝트	
 				}else if(param.code == "project"){
-					$("[objKey=pjt_seq]").val( param.pjtSeq || "" );
-					$("[objKey=pjt_name]").val( param.pjtName || "" );
+					$(commonElement).find("[name=pjt_seq]").val( param.pjtSeq || "" );
+					$(commonElement).find("[name=pjt_name]").val( param.pjtName || "" );
 					
 				//하위사업	
 				}else if(param.code == "bottom"){
-					$("[objKey=bottom_seq]").val( param.bottomSeq || "" );
-					$("[objKey=bottom_name]").val( param.bottomName || "" );
+					$(commonElement).find("[name=bottom_seq]").val( param.bottomSeq || "" );
+					$(commonElement).find("[name=bottom_name]").val( param.bottomName || "" );
 				
 				//예산과목
 				}else if(param.code == "budgetlist"){
-					$("[objKey=bgt_seq]").val( param.erpBudgetSeq || "" );
-					$("[objKey=bgt_name]").val( param.erpBudgetName || "" );
+					
+					$(commonElement).find("[name=bgt_seq]").val( param.erpBudgetSeq || "" );
+					$(commonElement).find("[name=bgt_name]").val( param.erpBudgetName || "" );
 					
 					if(param.erpBgt1Seq != ""){
-						$("[objKey=bgt1_name]").text( param.erpBgt1Name + " (" + param.erpBgt1Seq + ")");	
+						$(commonElement).find("[name=bgt1_name]").val( param.erpBgt1Name + " (" + param.erpBgt1Seq + ")");	
 					}else{
-						$("[objKey=bgt1_name]").text("");
+						$(commonElement).find("[name=bgt1_name]").val("");
 					}
 					
 					if(param.erpBgt2Seq != ""){
-						$("[objKey=bgt2_name]").text( param.erpBgt2Name + " (" + param.erpBgt2Seq + ")");	
+						$(commonElement).find("[name=bgt2_name]").val( param.erpBgt2Name + " (" + param.erpBgt2Seq + ")");	
 					}else{
-						$("[objKey=bgt2_name]").text("");
+						$(commonElement).find("[name=bgt2_name]").val("");
 					}
 					
 					if(param.erpBgt3Seq != ""){
-						$("[objKey=bgt3_name]").text( param.erpBgt3Name + " (" + param.erpBgt3Seq + ")");	
+						$(commonElement).find("[name=bgt3_name]").val( param.erpBgt3Name + " (" + param.erpBgt3Seq + ")");	
 					}else{
-						$("[objKey=bgt3_name]").text("");
+						$(commonElement).find("[name=bgt3_name]").val("");
 					}
 					
 					if(param.erpBgt4Seq != ""){
-						$("[objKey=bgt4_name]").text( param.erpBgt4Name + " (" + param.erpBgt4Seq + ")");	
+						$(commonElement).find("[name=bgt4_name]").val( param.erpBgt4Name + " (" + param.erpBgt4Seq + ")");	
 					}else{
-						$("[objKey=bgt4_name]").text("");
+						$(commonElement).find("[name=bgt4_name]").val("");
 					}					
 					
 					fnSetBudgetAmtInfo();
@@ -960,28 +988,28 @@
 		------------------------------------------- */
 		function fnSetBudgetAmtInfo(){
 			
-			if($("[objkey=bgt_seq]").val() == ""){
+			if($(commonElement).find("[name=bgt_seq]").val() == ""){
+			
+				$('#bgt1Name').text("");
+				$('#bgt2Name').text("");
+				$('#bgt3Name').text("");
+				$('#bgt4Name').text("");
+				
 				$('#txtOpenAmt').text("");
 				$('#txtConsBalanceAmt').text("");
 				$('#txtApplyAmt').text("");
-				$('#txtBalanceAmt').text("");	
-			}else{
+				$('#txtBalanceAmt').text("");
 				
-				commonParam.erpBudgetSeq = $("[objkey=bgt_seq]").val(); /* 회계통제단위 구분값 '|' */
-				commonParam.erpGisuDate = !!commonParam.resDate?commonParam.resDate.replaceAll('-',''):
-					commonParam.consDate?
-							commonParam.consDate.replaceAll('-',''):
-								commonParam.frDate.replaceAll('-','');
-				commonParam.erpBudgetDivSeq = commonParam.erpDivSeq.replace('|', '');
-				commonParam.erpMgtSeq = commonParam.erpMgtSeq.replaceAll('|', '');
-				commonParam.resDocSeq =  commonParam.resDocSeq || "-1";
-				commonParam.consDocSeq =  commonParam.consDocSeq || "-1";
-				commonParam.confferDocSeq =  commonParam.confferDocSeq || "-1";
-				commonParam.confferSeq =  commonParam.confferSeq || "-1";
-				commonParam.confferBudgetSeq = commonParam.confferBudgetSeq || "-1";
-				commonParam.consSeq = commonParam.consSeq || "-1";
-				commonParam.resSeq = commonParam.resSeq || "-1";
-				commonParam.selectedBudgetSeqs = "";
+			}else{
+
+				commonParam.erpBudgetSeq = $(commonElement).find("[name=bgt_seq]").val();
+				commonParam.erpBudgetDivSeq = $(commonElement).find("[name=div_seq]").val();
+				commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val();
+				
+				$('#bgt1Name').text($(commonElement).find("[name=bgt1_name]").val());
+				$('#bgt2Name').text($(commonElement).find("[name=bgt2_name]").val());
+				$('#bgt3Name').text($(commonElement).find("[name=bgt3_name]").val());
+				$('#bgt4Name').text($(commonElement).find("[name=bgt4_name]").val());				
 				
 				$.ajax({
 					type : 'post',
@@ -1001,10 +1029,7 @@
 					/*   - error :  */
 					error : function(result) {
 						
-						/*
-						$('#txtBudgetInfo').text('예산정보 조회 중 오류 발생');
-						$ ( '#txtSearchStr' ).focus ( );
-						*/
+						msgSnackbar("error", "예산정보 조회 중 오류 발생");
 						
 					}
 				});				
@@ -1023,68 +1048,30 @@
 		}		
 		
 		
-		/* ## 공통코드 - 거래처 ## */
-		function fnCommonCode_trName(code, param) {
-			/* [ parameter ] */
-			/*   - code : 공통코드 구분 코드 ( column 사용 권장 ) */
-			code = (code || '');
-			/*   - param : 현재 작성중인 내역의 모든 정보 */
-			param = (param || {});
-
-			//param.trOpt = optionSet.gw[3][16].setValue
-			//param.trOpt2 = (optionSet.gw[3][22]||{'setValue':'1'}).setValue ;
-			param.erpMgtSeq = $("[objkey=pjt_seq]").val();
-			param.callback = 'fnCommonCode_callback';
-			/* 검색어 예외처리 ( 이유 : ERPiU 기준에 따라 처리 ) */
-			param.searchStr = "";
-
-			fnCommonCodePop(code, param, param.callback);
-
-			/* [ return ] */
-			return;
-		}		
-		
-	
-		
-		/* ## 공통코드 - 예산단위 ## */
-		function fnCommonCode_erpBudgetName(code) {
-			/* [ parameter ] */
-			/*   - code : 공통코드 구분 코드 ( column 사용 권장 ) */
-			code = (code || '');
-			/*   - param : 현재 작성중인 내역의 모든 정보 */
-			commonParam = (commonParam || {});
-			commonParam.callback = 'fnCommonCode_callback';
-
-			/* 파라미터 가공 */
-			commonParam.widthSize = "628";
-			commonParam.heightSize = "546";
-
-			/* 팝업 호출 */
-			code = 'budgetlist';
-			commonParam.erpGisu = optionSet.erpGisu.gisu; /* ERP 기수 */
-			commonParam.erpGisuFromDate = optionSet.erpGisu.fromDate; /* 기수 시작일 */
-			commonParam.erpGisuToDate = optionSet.erpGisu.toDate; /* 기수 종료일 */
-			commonParam.gisu = optionSet.erpGisu.gisu; /* ERP 기수 */
-			commonParam.frDate = optionSet.erpGisu.fromDate; /* 기수 시작일 */
-			commonParam.toDate = optionSet.erpGisu.toDate; /* 기수 종료일 */
-
-			commonParam.erpDivSeq = $("[objkey=div_seq]").val() + "|"; /* 회계통제단위 구분값 '|' */
-			commonParam.erpMgtSeq = $("[objkey=pjt_seq]").val() + "|"; /* 예산통제단위 구분값 '|' */
-			commonParam.bottomSeq = $("[objkey=bottom_seq]").val() + "|"; /* 하위사업 구분값 '|' */
+		function fnCommonCode_trName(code, e) {
 			
-			
-			commonParam.opt01 =  '2'; /* 1: 모든 예산과목, 2: 당기편성, 3: 프로젝트 기간 예산 */
-			commonParam.opt02 = '1'; /* 1: 모두표시, 2: 사용기한결과분 숨김 */
-			commonParam.opt03 = '2'; /* 1: 예산그룹 전체, 2: 예산그룹 숨김 */
-			
-			commonParam.grFg = '2'; /* 1 : 수입, 2 : 지출 */
-			
+			if(e != null){
+				commonElement = $(e).closest("tr");
+				
+				if(code == "budgetlist"){
+					commonParam.erpDivSeq = $(commonElement).find("[name=div_seq]").val() + "|"; /* 회계통제단위 구분값 '|' */
+					commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val() + "|"; /* 예산통제단위 구분값 '|' */
+					commonParam.bottomSeq = $(commonElement).find("[name=bottom_seq]").val() + "|"; /* 하위사업 구분값 '|' */
+					commonParam.erpBudgetDivSeq = commonParam.erpDivSeq.replace('|', '');					
+				}else{
+					commonParam.erpDivSeq = $(commonElement).find("[name=div_seq]").val(); /* 회계통제단위 구분값 '|' */
+					commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val(); /* 예산통제단위 구분값 '|' */
+					commonParam.bottomSeq = $(commonElement).find("[name=bottom_seq]").val(); /* 하위사업 구분값 '|' */
+					commonParam.erpBudgetDivSeq = commonParam.erpDivSeq.replace('|', '');					
+				}
+
+			}
+
 			fnCommonCodePop(code, commonParam, commonParam.callback);
 
 			/* [ return ] */
 			return;
 		}		
-		
 		
 	</script>
 </head>
@@ -1215,14 +1202,14 @@
 								</colgroup>
 								<tr>
 									<th name="contractTerm_02" style="display:none;" class="ac">
-										<input type="button" onclick="fnSectorAdd('amtInfoList', 'amtInfoAddBase')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+										<input type="button" onclick="fnSectorAdd('amtInfoList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 									</th>
 									<th name="contractTerm_02" style="display:none;" class="ac">연도</th>
 									<th class="ac">기초금액</th>
 									<th class="ac">추정가격</th>
 									<th class="ac">부가가치세</th>
 								</tr>
-								<tr name="amtInfoAddBase" style="display:none;">
+								<tr name="dataBase" style="display:none;">
 									<td name="contractTerm_02" style="display:none;">
 										<input type="button" onclick="fnSectorDel(this, 'amtInfoList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 									</td>
@@ -1368,7 +1355,7 @@
 		</div>
 		
 		<div class="com_ta4">
-			<table>
+			<table name="budgetList" objKey="budgetObjList" objCheckFor="checkVal('obj', 'budgetList', '예산정보', 'mustAlert', '')">
 				<colgroup>
 					<col width="50"/>
 					<col width=""/>
@@ -1378,50 +1365,99 @@
 				</colgroup>
 				<tr>
 					<th class="ac">
-						<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+						<input type="button" onclick="fnSectorAdd('budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 					</th>
 					<th class="ac">예산회계단위</th>
 					<th class="ac">프로젝트</th>
 					<th class="ac">하위사업</th>
 					<th class="ac">예산과목</th>
 				</tr>
-				<tr>
+				<tr name="dataBase" style="display:none;">
 					<td>
-						<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 					</td>
 					<td>
 						<div class="posi_re">
-							<input objKey="div_seq" objCheckFor="checkVal('text', this, '예산회계단위', 'mustAlert', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.div_seq}</c:if>" />
-							<input objKey="div_name" objCheckFor="checkVal('text', this, '예산회계단위', '', '')" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.div_name}</c:if>" readonly />							
+							<input tbval="Y" name="div_seq" type="hidden" value="" />
+							<input tbval="Y" name="div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
 							
-							<a href="#n" onclick="fnCommonCode_trName('div')" class="btn_search" style="margin-left: -25px;"></a>
+							<a href="#n" onclick="fnCommonCode_trName('div', this)" class="btn_search" style="margin-left: -25px;"></a>
 						</div>
 					</td>
 					<td>
 						<div class="posi_re">
-							<input objKey="pjt_seq" objCheckFor="checkVal('text', this, '프로젝트', 'mustAlert', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pjt_seq}</c:if>" />
-							<input objKey="pjt_name" objCheckFor="checkVal('text', this, '프로젝트', '', '')" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pjt_name}</c:if>" readonly />							
+							<input tbval="Y" name="pjt_seq" type="hidden" value="" />
+							<input tbval="Y" name="pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
 
-							<a href="#n" onclick="fnCommonCode_trName('project')" class="btn_search" style="margin-left: -25px;"></a>
+							<a href="#n" onclick="fnCommonCode_trName('project', this)" class="btn_search" style="margin-left: -25px;"></a>
 						</div>
 					</td>
 					<td>
 						<div class="posi_re">
-							<input objKey="bottom_seq" objCheckFor="checkVal('text', this, '하위사업', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.bottom_seq}</c:if>" />
-							<input objKey="bottom_name" objCheckFor="checkVal('text', this, '하위사업', '', '')" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.bottom_name}</c:if>" readonly />							
+							<input tbval="Y" name="bottom_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />							
 							
-							<a href="#n" onclick="fnCommonCode_trName('bottom')" class="btn_search" style="margin-left: -25px;"></a>
+							<a href="#n" onclick="fnCommonCode_trName('bottom', this)" class="btn_search" style="margin-left: -25px;"></a>
 						</div>
 					</td>
 					<td>
 						<div class="posi_re">
-							<input objKey="bgt_seq" objCheckFor="checkVal('text', this, '예산과목', 'mustAlert', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.bottom_seq}</c:if>" />
-							<input objKey="bgt_name" objCheckFor="checkVal('text', this, '예산과목', '', '')" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.bottom_name}</c:if>" readonly />							
+							<input tbval="Y" name="bgt1_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="bgt2_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="bgt3_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="bgt4_name" type="hidden" value="" requiredNot="true" />
+						
+							<input tbval="Y" name="bgt_seq" type="hidden" value="" />
+							<input tbval="Y" name="bgt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
 
-							<a href="#n" onclick="fnCommonCode_erpBudgetName('budgetlist')" class="btn_search" style="margin-left: -25px;"></a>
+							<a href="#n" onclick="fnCommonCode_trName('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
 						</div>
 					</td>
 				</tr>
+				
+				<tr name="addData">
+					<td>
+						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="div_seq" type="hidden" value="" />
+							<input tbval="Y" name="div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
+							
+							<a href="#n" onclick="fnCommonCode_trName('div', this)" class="btn_search" style="margin-left: -25px;"></a>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="pjt_seq" type="hidden" value="" />
+							<input tbval="Y" name="pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
+
+							<a href="#n" onclick="fnCommonCode_trName('project', this)" class="btn_search" style="margin-left: -25px;"></a>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="bottom_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />							
+							
+							<a href="#n" onclick="fnCommonCode_trName('bottom', this)" class="btn_search" style="margin-left: -25px;"></a>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="bgt1_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="bgt2_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="bgt3_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="bgt4_name" type="hidden" value="" requiredNot="true" />
+						
+							<input tbval="Y" name="bgt_seq" type="hidden" value="" />
+							<input tbval="Y" name="bgt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
+
+							<a href="#n" onclick="fnCommonCode_trName('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
+						</div>
+					</td>
+				</tr>				
+				
 			</table>
 		</div>
 
@@ -1440,13 +1476,13 @@
 				</colgroup>
 				<tr>
 					<th>관</th>
-					<td objKey="bgt1_name" objCheckFor="checkVal('text()', this, '관', '', '')"></td>
+					<td id="bgt1Name" objCheckFor="checkVal('text()', this, '관', '', '')"></td>
 					<th>항</th>
-					<td objKey="bgt2_name" objCheckFor="checkVal('text()', this, '항', '', '')"></td>
+					<td id="bgt2Name" objCheckFor="checkVal('text()', this, '항', '', '')"></td>
 					<th>목</th>
-					<td objKey="bgt3_name" objCheckFor="checkVal('text()', this, '목', '', '')"></td>
+					<td id="bgt3Name" objCheckFor="checkVal('text()', this, '목', '', '')"></td>
 					<th>세</th>
-					<td objKey="bgt4_name" objCheckFor="checkVal('text()', this, '세', '', '')"></td>
+					<td id="bgt4Name" objCheckFor="checkVal('text()', this, '세', '', '')"></td>
 				</tr>				
 				<tr>
 					<th>예산액</th>

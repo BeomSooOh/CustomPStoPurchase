@@ -14,29 +14,29 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 	@SuppressWarnings("unchecked")
 	public List<Map<String, Object>> SelectContractList ( Map<String, Object> params ) {
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
-		result = (List<Map<String, Object>>) list( "PurchaseSQL.SelectContractList", params );
+		result = (List<Map<String, Object>>) list( "ContractSQL.SelectContractList", params );
 		return result;
 	}
 	
 	@SuppressWarnings ( "unchecked" )
 	public Map<String, Object> SelectContractDetail ( Map<String, Object> params ) {
-		return (Map<String, Object>) select( "PurchaseSQL.SelectContractDetail", params );
+		return (Map<String, Object>) select( "ContractSQL.SelectContractDetail", params );
 	}
 	
 	@SuppressWarnings ( "unchecked" )
 	public Map<String, Object> SelectConclusionChangeDetail ( Map<String, Object> params ) {
-		return (Map<String, Object>) select( "PurchaseSQL.SelectConclusionChangeDetail", params );
+		return (Map<String, Object>) select( "ContractSQL.SelectConclusionChangeDetail", params );
 	}	
 	
 	public int SelectContractSeqFromManageNo ( Map<String, Object> params ) {
-		return (int) select( "PurchaseSQL.SelectContractSeqFromManageNo", params );
+		return (int) select( "ContractSQL.SelectContractSeqFromManageNo", params );
 	}	
 	
 	public Map<String, Object> InsertContract ( Map<String, Object> params ) {
 		
 		int seq = 0;
-		insert( "PurchaseSQL.InsertContract", params );
-		seq = (int) select( "PurchaseSQL.SelectContractSeqFromManageNo", params );
+		insert( "ContractSQL.InsertContract", params );
+		seq = (int) select( "ContractSQL.SelectContractSeqFromManageNo", params );
 				
 		params.put("seq", seq);
 		
@@ -46,8 +46,8 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 	public Map<String, Object> InsertConclusion ( Map<String, Object> params ) {
 		
 		int seq = 0;
-		insert( "PurchaseSQL.InsertConclusion", params );
-		seq = (int) select( "PurchaseSQL.SelectContractSeqFromManageNo", params );
+		insert( "ContractSQL.InsertConclusion", params );
+		seq = (int) select( "ContractSQL.SelectContractSeqFromManageNo", params );
 				
 		params.put("seq", seq);
 		
@@ -55,37 +55,37 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 	}	
 	
 	public Map<String, Object> InsertConclusionChange ( Map<String, Object> params ) {
-		insert( "PurchaseSQL.InsertConclusionChange", params );
+		insert( "ContractSQL.InsertConclusionChange", params );
 		return params;
 	}	
 	
 	public void UpdateContract ( Map<String, Object> params ) {
 		
-		update( "PurchaseSQL.UpdateContract", params );
+		update( "ContractSQL.UpdateContract", params );
 		
 	}
 	
 	public void UpdateConclusion ( Map<String, Object> params ) {
 		
-		update( "PurchaseSQL.UpdateConclusion", params );
+		update( "ContractSQL.UpdateConclusion", params );
 		
 	}	
 	
 	public void UpdateConclusionChange ( Map<String, Object> params ) {
 		
-		update( "PurchaseSQL.UpdateConclusionChange", params );
+		update( "ContractSQL.UpdateConclusionChange", params );
 		
 	}		
 	
 	public void UpdateMeet ( Map<String, Object> params ) {
 		
-		update( "PurchaseSQL.UpdateMeet", params );
+		update( "ContractSQL.UpdateMeet", params );
 		
 	}	
 	
 	public void UpdateResult ( Map<String, Object> params ) {
 		
-		update( "PurchaseSQL.UpdateResult", params );
+		update( "ContractSQL.UpdateResult", params );
 		
 	}		
 	
