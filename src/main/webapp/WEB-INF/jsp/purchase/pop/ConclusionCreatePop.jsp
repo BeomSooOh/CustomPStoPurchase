@@ -104,19 +104,51 @@
 		
 		$(document).ready(function() {
 			
-			amountInputSet();
-			
 			//기존설정항목 세팅
-			setDynamicPuddInfoTable("amtInfoList", "amtInfoAddBase", "${contractDetailInfo.contract_amt_info}");
-			
-			amountKoreanSet();
-			
+			setDynamicPuddInfoTable("amtInfoList", "${contractDetailInfo.contract_amt_info}");
 			setDynamicSetInfoUl("hopeCompanyList", "${contractDetailInfo.hope_company_info}");
 			setDynamicSetInfoFile("hopeAttachList", "${contractDetailInfo.hope_attach_info}");
+			setDynamicSetInfoBudget();
+			
+			amountInputSet();
+			amountKoreanSet();			
 			
 		});
 		
-		
+		function setDynamicSetInfoBudget(targetName, value){
+			
+			<c:if test="${budgetList.size() > 0 }">
+			$("[name=budgetList] [name=addData]").remove();
+			var cloneData;
+			
+			<c:forEach var="items" items="${budgetList}" varStatus="status">
+			
+			cloneData = $('[name="budgetList"] [name=dataBase]').clone();
+			$(cloneData).show().attr("name", "addData");
+			
+			$(cloneData).find("[name=bgt_seq]").val("${items.bgt_seq}");
+			$(cloneData).find("[name=bgt_name]").val("${items.bgt_name}");
+			$(cloneData).find("[name=div_seq]").val("${items.div_seq}");
+			$(cloneData).find("[name=div_name]").val("${items.div_name}");
+			$(cloneData).find("[name=pjt_seq]").val("${items.pjt_seq}");
+			$(cloneData).find("[name=pjt_name]").val("${items.pjt_name}");
+			$(cloneData).find("[name=bottom_seq]").val("${items.bottom_seq}");
+			$(cloneData).find("[name=bottom_name]").val("${items.bottom_name}");
+			$(cloneData).find("[name=bgt1_name]").val("${items.bgt1_name}");
+			$(cloneData).find("[name=bgt2_name]").val("${items.bgt2_name}");
+			$(cloneData).find("[name=bgt3_name]").val("${items.bgt3_name}");
+			$(cloneData).find("[name=bgt4_name]").val("${items.bgt4_name}");
+			
+			$('[name="budgetList"]').append(cloneData);
+			
+			if(${status.index} == 0){
+				fnSetBudgetAmtInfo(cloneData);	
+			}
+			
+			</c:forEach>			
+			</c:if>			
+			
+		}
 	
 		function setDynamicSetInfoFile(targetName, value){
 			
@@ -719,7 +751,7 @@
 			
 		}
 		
-		function setDynamicPuddInfoTable(tableName, baseName, value){
+		function setDynamicPuddInfoTable(tableName, value){
 			
 			if(value != ""){
 				
@@ -729,18 +761,20 @@
 					
 					var valInfo =  val.split("▦");
 					
-					var cloneData = $('[name="'+baseName+'"]').clone();
+					var cloneData = $("[name="+tableName+"] [name=dataBase]").clone();
 					
 					$.each($(cloneData).find("[name=tableVal]"), function( key, tableVal ) {
-						
 						$(tableVal).val(valInfo[key]);
-						
 					});				
 					
 					$(cloneData).show().attr("name", "addData");
 					$('[name="'+tableName+'"]').append(cloneData);				
 					
 				});	
+				
+				<c:if test="${ contractDetailInfo.contract_term == '02' }">
+				$('[name=amtInfoList] [name=contractTerm_02]').show();
+				</c:if>
 				
 			}
 		}	
@@ -948,6 +982,11 @@
 				//예산과목
 				}else if(param.code == "budgetlist"){
 					
+					if($("[name=bgt_seq][value="+param.erpBudgetSeq+"]").length > 0){
+						msgSnackbar("error", "이미 선택된 예산과목입니다.");
+						return;
+					}
+					
 					$(commonElement).find("[name=bgt_seq]").val( param.erpBudgetSeq || "" );
 					$(commonElement).find("[name=bgt_name]").val( param.erpBudgetName || "" );
 					
@@ -986,10 +1025,15 @@
 		
 		/*	[예산조회] 예산잔액 가조회
 		------------------------------------------- */
-		function fnSetBudgetAmtInfo(){
+		function fnSetBudgetAmtInfo(e){
+			
+			if(e != null){
+				commonElement = e;
+			}
 			
 			if($(commonElement).find("[name=bgt_seq]").val() == ""){
-			
+				
+				$('#bgtSeq').val("");
 				$('#bgt1Name').text("");
 				$('#bgt2Name').text("");
 				$('#bgt3Name').text("");
@@ -1003,9 +1047,14 @@
 			}else{
 
 				commonParam.erpBudgetSeq = $(commonElement).find("[name=bgt_seq]").val();
+				if($('#bgtSeq').val() == commonParam.erpBudgetSeq){
+					return;
+				}
+
 				commonParam.erpBudgetDivSeq = $(commonElement).find("[name=div_seq]").val();
 				commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val();
 				
+				$('#bgtSeq').val(commonParam.erpBudgetSeq);
 				$('#bgt1Name').text($(commonElement).find("[name=bgt1_name]").val());
 				$('#bgt2Name').text($(commonElement).find("[name=bgt2_name]").val());
 				$('#bgt3Name').text($(commonElement).find("[name=bgt3_name]").val());
@@ -1015,7 +1064,7 @@
 					type : 'post',
 					url : '<c:url value="/ex/np/user/res/resBudgetInfoSelect.do" />',
 					datatype : 'json',
-					async : false,
+					async : true,
 					data : commonParam,
 					success : function(result) {
 
@@ -1194,50 +1243,58 @@
 						<div class="com_ta4">
 							<table name="amtInfoList" objKey="contract_amt_info" objCheckFor="checkVal('table', 'amtInfoList', '계약금액', 'true', 'notnull')">
 								<colgroup>
+									<c:if test="${disabledYn == 'N'}"> 
 									<col name="contractTerm_02" style="display:none;" width="50"/>
+									</c:if>
 									<col name="contractTerm_02" style="display:none;" width="130"/>
 									<col width=""/>
 									<col width=""/>
 									<col width=""/>
 								</colgroup>
 								<tr>
+									<c:if test="${disabledYn == 'N'}"> 
 									<th name="contractTerm_02" style="display:none;" class="ac">
 										<input type="button" onclick="fnSectorAdd('amtInfoList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 									</th>
+									</c:if>
 									<th name="contractTerm_02" style="display:none;" class="ac">연도</th>
 									<th class="ac">기초금액</th>
 									<th class="ac">추정가격</th>
 									<th class="ac">부가가치세</th>
 								</tr>
 								<tr name="dataBase" style="display:none;">
+									<c:if test="${disabledYn == 'N'}"> 
 									<td name="contractTerm_02" style="display:none;">
 										<input type="button" onclick="fnSectorDel(this, 'amtInfoList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 									</td>
+									</c:if>
 									<td name="contractTerm_02" style="display:none;">
-										<select name="tableVal" ${disabled} name="tableVal" style="width: 90%;">
+										<select ${disabled} name="tableVal" ${disabled} name="tableVal" style="width: 90%;">
 											<c:forEach var="items" items="${contractYearCode}">
 												<option value="${items.CODE}">${items.NAME}</option>
 											</c:forEach>											
 										</select>
 									</td>
-									<td class="le"><input amountType="amt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원 <span name="viewKorean" ></span></td>
-									<td class="ri"><input amountType="stdAmt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원</td>
-									<td class="ri"><input amountType="taxAmt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원</td>
+									<td class="le"><input ${disabled} amountType="amt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원 <span name="viewKorean" ></span></td>
+									<td class="ri"><input ${disabled} amountType="stdAmt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원</td>
+									<td class="ri"><input ${disabled} amountType="taxAmt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원</td>
 								</tr>								
 								<tr name="addData">
+									<c:if test="${disabledYn == 'N'}"> 
 									<td name="contractTerm_02" style="display:none;">
 										<input type="button" onclick="fnSectorDel(this, 'amtInfoList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 									</td>
+									</c:if>
 									<td name="contractTerm_02" style="display:none;">
-										<select name="tableVal" ${disabled} name="tableVal" style="width: 90%;">
+										<select ${disabled} name="tableVal" ${disabled} name="tableVal" style="width: 90%;">
 											<c:forEach var="items" items="${contractYearCode}">
 												<option value="${items.CODE}">${items.NAME}</option>
 											</c:forEach>											
 										</select>
 									</td>
-									<td class="le"><input amountType="amt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원 <span name="viewKorean" ></span></td>
-									<td class="ri"><input amountType="stdAmt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원</td>
-									<td class="ri"><input amountType="taxAmt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원</td>
+									<td class="le"><input ${disabled} amountType="amt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원 <span name="viewKorean" ></span></td>
+									<td class="ri"><input ${disabled} amountType="stdAmt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원</td>
+									<td class="ri"><input ${disabled} amountType="taxAmt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원</td>
 								</tr>
 							</table>
 						</div>
@@ -1278,9 +1335,12 @@
 								</li>
 							</ul>								
 						</div>
+						
+						<c:if test="${disabledYn == 'N'}"> 
 						<div class="controll_btn p0 pt4">	
 							<button id="" onclick="commonCodeSelectLayer('hopeCompany', '희망기업여부', 'ul', 'hopeCompanyList', 'Y')">선택</button>
 						</div>
+						</c:if>
 					</td>
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 희망확인서</th>
 					<td class="file_add">	
@@ -1289,10 +1349,14 @@
 								<img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" class="fl" alt="">
 								<a href="javascript:;" name="attachFileName" onClick="fnDownload(this)" class="fl ellipsis pl5" style="max-width: 250px;"></a>
 								<span name="attachExtName"></span>
+								<c:if test="${disabledYn == 'N'}"> 
 								<a href="javascript:;" onclick="fnDelFile(this)" title="파일삭제"><img src="${pageContext.request.contextPath}/customStyle/Images/btn/close_btn01.png" alt=""></a>
+								</c:if>
 							</li>
 						</ul>
+						<c:if test="${disabledYn == 'N'}">
 						<span class="fr mt2"><input onclick="fnSearchFile(this)" type="button" class="puddSetup" value="파일찾기" /></span>
+						</c:if>
 					</td>
 				</tr>
 
@@ -1333,15 +1397,18 @@
 						<div class="posi_re">
 							<input objKey="partner_code" objCheckFor="checkVal('text', this, '계약대상', 'mustAlert', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.partner_code}</c:if>" />
 							<input objKey="partner_name" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="text" pudd-style="width:calc( 100% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.partner_name}</c:if>" readonly />
+							
+							<c:if test="${disabledYn == 'N'}"> 
 							<a href="#n" onclick="fnCommonCode_trName('tr')" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
 						</div>
 					</td>
 					<td objKey="partner_bizno" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"><c:if test="${ viewType == 'U'}">${contractDetailInfo.partner_bizno}</c:if></td>
 					<td objKey="partner_owner" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"><c:if test="${ viewType == 'U'}">${contractDetailInfo.partner_owner}</c:if></td>
 					<td objKey="partner_addr" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" ><c:if test="${ viewType == 'U'}">${contractDetailInfo.partner_addr}</c:if></td>
-					<td><input objKey="pm_name" objCheckFor="checkVal('text', this, '담당자(PM)성명', '', '')" type="text" pudd-style="width:100%;" class="puddSetup ac" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pm_name}</c:if>" /></td>
-					<td><input objKey="pm_hp" objCheckFor="checkVal('text', this, '담당자(PM)연락처', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pm_hp}</c:if>" /></td>
-					<td><input objKey="pm_email" objCheckFor="checkVal('text', this, '담당자(PM)전자우편', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pm_email}</c:if>" /></td>
+					<td><input ${readonly} objKey="pm_name" objCheckFor="checkVal('text', this, '담당자(PM)성명', '', '')" type="text" pudd-style="width:100%;" class="puddSetup ac" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pm_name}</c:if>" /></td>
+					<td><input ${readonly} objKey="pm_hp" objCheckFor="checkVal('text', this, '담당자(PM)연락처', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pm_hp}</c:if>" /></td>
+					<td><input ${readonly} objKey="pm_email" objCheckFor="checkVal('text', this, '담당자(PM)전자우편', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pm_email}</c:if>" /></td>
 				</tr>
 			</table>
 		</div>
@@ -1357,31 +1424,39 @@
 		<div class="com_ta4">
 			<table name="budgetList" objKey="budgetObjList" objCheckFor="checkVal('obj', 'budgetList', '예산정보', 'mustAlert', '')">
 				<colgroup>
+					<c:if test="${disabledYn == 'N'}"> 
 					<col width="50"/>
+					</c:if>
 					<col width=""/>
 					<col width=""/>
 					<col width=""/>
 					<col width=""/>
 				</colgroup>
 				<tr>
+					<c:if test="${disabledYn == 'N'}"> 
 					<th class="ac">
 						<input type="button" onclick="fnSectorAdd('budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 					</th>
+					</c:if>
 					<th class="ac">예산회계단위</th>
 					<th class="ac">프로젝트</th>
 					<th class="ac">하위사업</th>
 					<th class="ac">예산과목</th>
 				</tr>
-				<tr name="dataBase" style="display:none;">
+				<tr name="dataBase" onclick="fnSetBudgetAmtInfo(this);" style="display:none;">
+					<c:if test="${disabledYn == 'N'}"> 
 					<td>
 						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 					</td>
+					</c:if>
 					<td>
 						<div class="posi_re">
 							<input tbval="Y" name="div_seq" type="hidden" value="" />
 							<input tbval="Y" name="div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
 							
+							<c:if test="${disabledYn == 'N'}">
 							<a href="#n" onclick="fnCommonCode_trName('div', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
 						</div>
 					</td>
 					<td>
@@ -1389,7 +1464,9 @@
 							<input tbval="Y" name="pjt_seq" type="hidden" value="" />
 							<input tbval="Y" name="pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
 
+							<c:if test="${disabledYn == 'N'}">
 							<a href="#n" onclick="fnCommonCode_trName('project', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
 						</div>
 					</td>
 					<td>
@@ -1397,7 +1474,9 @@
 							<input tbval="Y" name="bottom_seq" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />							
 							
+							<c:if test="${disabledYn == 'N'}">
 							<a href="#n" onclick="fnCommonCode_trName('bottom', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
 						</div>
 					</td>
 					<td>
@@ -1410,29 +1489,37 @@
 							<input tbval="Y" name="bgt_seq" type="hidden" value="" />
 							<input tbval="Y" name="bgt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
 
+							<c:if test="${disabledYn == 'N'}"> 
 							<a href="#n" onclick="fnCommonCode_trName('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
 						</div>
 					</td>
 				</tr>
 				
-				<tr name="addData">
+				<tr name="addData" onclick="fnSetBudgetAmtInfo(this);">
+					<c:if test="${disabledYn == 'N'}"> 
 					<td>
 						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 					</td>
+					</c:if>
 					<td>
 						<div class="posi_re">
 							<input tbval="Y" name="div_seq" type="hidden" value="" />
 							<input tbval="Y" name="div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
 							
+							<c:if test="${disabledYn == 'N'}"> 
 							<a href="#n" onclick="fnCommonCode_trName('div', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
 						</div>
 					</td>
 					<td>
 						<div class="posi_re">
 							<input tbval="Y" name="pjt_seq" type="hidden" value="" />
 							<input tbval="Y" name="pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
-
+							
+							<c:if test="${disabledYn == 'N'}"> 
 							<a href="#n" onclick="fnCommonCode_trName('project', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
 						</div>
 					</td>
 					<td>
@@ -1440,7 +1527,9 @@
 							<input tbval="Y" name="bottom_seq" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />							
 							
+							<c:if test="${disabledYn == 'N'}"> 
 							<a href="#n" onclick="fnCommonCode_trName('bottom', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
 						</div>
 					</td>
 					<td>
@@ -1452,8 +1541,10 @@
 						
 							<input tbval="Y" name="bgt_seq" type="hidden" value="" />
 							<input tbval="Y" name="bgt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
-
-							<a href="#n" onclick="fnCommonCode_trName('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
+							
+							<c:if test="${disabledYn == 'N'}"> 
+							<a href="#n" ${disabled} onclick="fnCommonCode_trName('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
 						</div>
 					</td>
 				</tr>				
@@ -1475,6 +1566,7 @@
 					<col width=""/>
 				</colgroup>
 				<tr>
+					<input id="bgtSeq" type="hidden" value="" />
 					<th>관</th>
 					<td id="bgt1Name" objCheckFor="checkVal('text()', this, '관', '', '')"></td>
 					<th>항</th>

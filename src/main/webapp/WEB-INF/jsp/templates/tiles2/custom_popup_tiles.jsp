@@ -16,28 +16,51 @@
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/jquery-1.9.1.min.js' />"></script>
 	
 	<script type="text/javascript">
-		$ ( "#viewLoading" ).hide ( );
+	
+	$(document).ready(function() {
+		
+		// 예제로 임의로 구성함
+		var percent = 0;
+		
 		$ ( document ).bind ( "ajaxStart", function ( ) {
-			if ( $ ( "#viewLoading" ).css ( "display" ) != "block" ) {
-				$ ( "#viewLoading" ).css ( "width", "100%" );
-				$ ( "#viewLoading" ).css ( "height", "100%" );
-				$ ( "#viewLoading" ).fadeIn ( 100 );
-			}
+			
+			percent = 0;
+						
+			Pudd( "#exArea" ).puddProgressBar({
+				 
+				progressType : "loading"
+			,	attributes : { style:"width:70px; height:70px;" }
+			 
+			,	strokeColor : "#84c9ff"	// progress 색상
+			,	strokeWidth : "3px"	// progress 두께
+			 
+			,	textAttributes : { style : "" }		// text 객체 속성 설정
+			 
+			,	percentText : "loading"	// loading 표시 문자열 설정 - progressType : loading, juggling 인 경우만 해당
+			,	percentTextColor : "#84c9ff"
+			,	percentTextSize : "12px"
+			,	backgroundLayerAttributes : { style : "background-color:#000;filter:alpha(opacity=20);opacity:0.05;width:100%;height:100%;position:fixed;top:0px; left:0px;" }
+			 
+				// 200 millisecond 마다 callback 호출됨
+			,	progressCallback : function( progressBarObj ) {
+
+				return percent;
+				
+				}
+			});			
+						
+
 		} ).bind ( "ajaxStop", function ( ) {
-			$ ( "#viewLoading" ).fadeOut ( 200 );
-		} );
+			
+			percent = 100;
+						
+		} );		
+		
+		
+	});
+
 	</script>
 
-	<div id="viewLoading" style="position: absolute; top: 0px; left: 0px; z-index: 9999; text-align: center; display: none;">
-		<iframe id="ifLoading" src="about:blank" frameborder="0" width="100%" height="100%" scrolling="no"></iframe>
-		<div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; z-index: 9999; text-align: center;">
-			<table width="100%" border="0" cellpadding="0" cellspacing="0" style="height: 100%;">
-				<tr>
-					<td style="height: 100%;"><img src='${pageContext.request.contextPath}/customStyle/css/kendoui/Default/loading-image.gif' /></td>
-				</tr>
-			</table>
-		</div>
-	</div>
 	<tiles:insertAttribute name="body" />
 </body>
 </html>

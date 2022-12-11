@@ -30,7 +30,7 @@
 		a.noti_type, 
 		a.budget_type, 
 		a.target_type, cd_target_type.NAME as target_type_name,
-		a.title, 
+		ifnull(a.c_title, a.title) as title, 
 		a.contract_start_dt, 
 		a.contract_end_dt, 
 		FORMAT(a.amt, 0) as amt,
@@ -65,8 +65,8 @@
 		ifnull(a.approkey_change,'') as approkey_change				
 		
 		FROM cust_sto.t_purchase_contract a
-		join cust_sto.t_purchase_code_detail cd_target_type on cd_target_type.`GROUP` ='targetType' and a.target_type =cd_target_type.code
-		join cust_sto.t_purchase_code_detail cd_base_law on cd_base_law.`GROUP` ='baseLaw' and a.base_law  =cd_base_law.code
+		join cust_sto.t_purchase_code_detail cd_target_type on cd_target_type.`GROUP` ='targetType' and ifnull(a.c_target_type, a.target_type) =cd_target_type.code
+		join cust_sto.t_purchase_code_detail cd_base_law on cd_base_law.`GROUP` ='baseLaw' and ifnull(a.c_base_law, a.base_law) =cd_base_law.code
 		order by a.seq desc
 		
 	</select>	
@@ -76,7 +76,7 @@
 		SELECT 
 		a.seq, 
 		a.manage_no, 
-		a.contract_no,
+		ifnull(a.contract_no, '') as contract_no,
 		a.contract_type,
 		a.write_comp_seq, 
 		a.write_dept_seq, dm.dept_name as write_dept_name, 
@@ -119,7 +119,8 @@
 		a.modify_dt, 
 		a.modify_by,
 		
-		ifnull(a.doc_sts,'') as doc_sts, 
+		ifnull(a.doc_sts,'') as doc_sts,
+		ifnull(pcc.doc_sts,'') as doc_sts_change, 
 		ifnull(a.approkey_plan,'') as approkey_plan, 
 		ifnull(a.approkey_meet,'') as approkey_meet, 
 		ifnull(a.approkey_result,'') as approkey_result,
@@ -176,8 +177,6 @@
 		a.contract_end_dt_after, 
 		a.contract_amt_info_before, 
 		a.contract_amt_info_after, 
-		ifnull(a.doc_sts,'') as doc_sts, 
-		ifnull(a.approkey_change,'') as approkey_change,
 		a.change_etc,
 		a.change_reason,		
 		a.created_dt, 
@@ -282,7 +281,7 @@
 	<insert	id="ContractSQL.InsertConclusion" parameterClass="HashMap" >
 		
 		<selectKey keyProperty="manage_no" resultClass="java.lang.String">
-		select concat('$c_target_type$', '-', YEAR(now()), '-', LPAD( ifnull( (select max(substr(manage_no, 9)) from cust_sto.t_purchase_contract where manage_no like concat('$c_target_type$-',YEAR(now()),'-%')) , '0') + 1 , 4, '0')) as manage_no from dual		
+		select concat('$c_budget_type$', '-', YEAR(now()), '-', LPAD( ifnull( (select max(substr(manage_no, 9)) from cust_sto.t_purchase_contract where manage_no like concat('$c_budget_type$-',YEAR(now()),'-%')) , '0') + 1 , 4, '0')) as manage_no from dual		
 	    </selectKey>		
 		
 		INSERT INTO cust_sto.t_purchase_contract
@@ -522,6 +521,13 @@
 		modify_by='$created_by$'
 
 		WHERE seq='$seq$'; 
-	</update>		
+	</update>
+	
+	
+	<select	id="ContractSQL.SelectConclusionPaymentList" parameterClass="HashMap" resultClass="HashMap">
+		
+		
+	</select>	
+			
 		
 </sqlMap>

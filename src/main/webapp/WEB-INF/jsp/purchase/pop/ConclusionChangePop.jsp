@@ -71,8 +71,6 @@
 		
 		$(document).ready(function() {
 			
-			amountInputSet();
-			
 			<c:if test="${contractDetailInfo.contract_term == '02'}">
 			$("[name=contractTerm_02]").show();
 			</c:if>			
@@ -81,24 +79,12 @@
 			setDynamicPuddInfoTableBefore("amtInfoListBefore1", "dataBase", "${contractDetailInfo.contract_amt_info}");
 			setDynamicPuddInfoTableBefore("amtInfoListBefore2", "dataBase", "${contractDetailInfo.contract_amt_info}");
 			
-			
-			//기존설정항목 세팅
 			<c:if test="${viewType == 'U'}">
 			setDynamicPuddInfo("change_item_info", "checkbox", "${contractDetailInfo.change_item_info}");
 			setDynamicPuddInfoTable("amtInfoList", "amtInfoAddBase", "${contractDetailInfo.contract_amt_info_after}");
-			</c:if>			
+			</c:if>		
 			
-			/*
 			amountInputSet();
-			
-			//기존설정항목 세팅
-			
-			
-			amountKoreanSet();
-			
-			setDynamicSetInfoUl("hopeCompanyList", "${contractDetailInfo.hope_company_info}");
-			setDynamicSetInfoFile("hopeAttachList", "${contractDetailInfo.hope_attach_info}");
-			*/
 			
 		});
 		
@@ -1032,7 +1018,7 @@
 				</colgroup>
 				<tr>
 					<th>계약명</th>
-					<td>${contractDetailInfo.c_title} (계약번호 : ${contractDetailInfo.contract_no})</td>
+					<td>${contractDetailInfo.c_title} <c:if test="${contractDetailInfo.contract_no != ''}"> (계약번호 : ${contractDetailInfo.contract_no})</c:if></td>
 				</tr>
 				<tr>
 					<th>계약기간</th>

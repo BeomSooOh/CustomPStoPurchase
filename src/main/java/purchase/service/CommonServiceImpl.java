@@ -70,6 +70,8 @@ public class CommonServiceImpl implements CommonService {
 			params.put("approkeyChange", params.get("approKey"));
 			params.put("seq", params.get("approKey").toString().split("_")[1]);
 			params.put("change_seq", params.get("approKey").toString().split("_")[2]);
+			
+			commonServiceDAO.UpdateApprChange(params);
 		}
 		
 		commonServiceDAO.UpdateAppr(params);

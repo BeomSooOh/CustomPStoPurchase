@@ -306,6 +306,7 @@ public class ContractPopController {
             				mv.addObject("btnApprYn", "N");
             				mv.addObject("disabledYn", "Y");
             				mv.addObject("disabled", "disabled");
+            				mv.addObject("readonly", "readonly");
             			}
             		}       
             		
@@ -346,8 +347,10 @@ public class ContractPopController {
                 	}
                 	
             		List<Map<String, Object>> formAttachList = commonServiceDAO.SelectFormAttachList(params);
-            		
             		mv.addObject("attachForm_Conclusion01", formAttachList);
+            		
+            		List<Map<String, Object>> budgetList = commonServiceDAO.SelectBudgetList(params);
+            		mv.addObject("budgetList", budgetList);
             		
             	}else {
             		return mv;
@@ -437,8 +440,6 @@ public class ContractPopController {
             if(detailInfo != null) {
             	
             	detailInfo.put("change_item_info", "");
-        		
-        		
             	
             	if(params.get("change_seq") != null && !params.get("change_seq").equals("")) {
             		
@@ -459,8 +460,6 @@ public class ContractPopController {
             		}else {
             			return mv;
             		}
-            		
-       		
             		
             	}else {
             		mv.addObject("attachForm_Conclusion02", attachForm_Conclusion02);
@@ -490,6 +489,46 @@ public class ContractPopController {
         }
         return mv;
     }      
+    
+    
+    @RequestMapping("/purchase/pop/ConclusionPaymentPop.do")
+    public ModelAndView ConclusionPaymentPop(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        try {
+            /* 변수 설정 */
+            LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+            
+            mv.addObject("seq", params.get("seq"));
+            
+            Map<String, Object> queryParam = new HashMap<String, Object>();
+            queryParam.put("groupSeq", loginVo.getGroupSeq());
+            
+            //기존 작성정보 조회
+            Map<String, Object> detailInfo = contractServiceDAO.SelectContractDetail(params);
+            
+            if(detailInfo != null) {
+            	
+            	mv.addObject("contractDetailInfo", detailInfo);
+            	
+            }else {
+            	return mv;
+            }
+            
+            mv.addObject("loginVo", loginVo);
+            
+            mv.setViewName("/purchase/pop/ConclusionPaymentPop");            
+            
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExpInfo.ProcessLog(e.getLocalizedMessage());
+            mv.addObject("errMsg", e.getMessage());
+            mv.setViewName(CommonMapper.GetExError());
+            logger.error(e);
+        }
+        return mv;
+    }    
     
     
     @RequestMapping("/purchase/pop/ContractMeetPop.do")

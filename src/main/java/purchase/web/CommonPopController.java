@@ -106,15 +106,43 @@ public class CommonPopController {
 		innerParam.putAll(params);
 		
 		
+		
 		params.put("mod", "W");
 		
 		if(params.get("outProcessCode").equals("Contract01") || params.get("outProcessCode").equals("Contract02")  || params.get("outProcessCode").equals("Contract03") || params.get("outProcessCode").equals("Conclu01") || params.get("outProcessCode").equals("Conclu02")) {
 			
+			String FORM_HTML = "";
 			apprFormData = commonServiceDAO.SelectApprFormData(params);
 			
 			params.put("group", "contentsForm");
 			params.put("code", params.get("outProcessCode"));
 			formInfo = commonServiceDAO.SelectPurchaseDetailCodeInfo(params);
+			
+			if(formInfo != null) {
+				
+				FORM_HTML = formInfo.get("FORM_HTML").toString();
+				
+				//전자수의 1인수의 시 수의계약요청사유서 추가 
+				if(params.get("outProcessCode").equals("Conclu01") && apprFormData.get("contract_type").equals("02")) {
+					
+					params.put("group", "contentsForm");
+					params.put("code", "Conclu01-2");
+					formInfo = commonServiceDAO.SelectPurchaseDetailCodeInfo(params);
+					
+					if(formInfo != null) {
+						FORM_HTML += formInfo.get("FORM_HTML").toString();
+					}
+					
+				}
+				
+				for( String strKey : apprFormData.keySet() ){
+					String strValue = apprFormData.get(strKey) != null ? apprFormData.get(strKey).toString() : "";
+					FORM_HTML = FORM_HTML.replace("$" + strKey + "$", strValue);
+				}
+				
+				params.put("contentsStr", FORM_HTML);
+				
+			}			
 			
 			params.put("approKey", params.get("outProcessCode").toString() + "_" + params.get("seq").toString());
 			
@@ -133,7 +161,7 @@ public class CommonPopController {
 				params.put("detailUrl", request.getContextPath() + "/purchase/pop/ConclusionCreatePop.do?seq=" + params.get("seq").toString());
 				params.put("subjectStr", apprFormData.get("title").toString() + " 계약체결");
 				
-            	if(apprFormData.get("contractType").equals("01")) {
+            	if(apprFormData.get("contract_type").equals("01")) {
             		innerParam.put("outProcessCode", "Conclusion01-1");	
             	}else {
             		innerParam.put("outProcessCode", "Conclusion01-2");
@@ -149,19 +177,6 @@ public class CommonPopController {
 				
 				params.put("approKey", params.get("outProcessCode").toString() + "_" + params.get("seq").toString() + "_" + params.get("change_seq").toString());
             	
-			}
-			
-			if(formInfo != null) {
-				
-				String FORM_HTML = formInfo.get("FORM_HTML").toString();
-				
-				for( String strKey : apprFormData.keySet() ){
-					String strValue = apprFormData.get(strKey) != null ? apprFormData.get(strKey).toString() : "";
-					FORM_HTML = FORM_HTML.replace("$" + strKey + "$", strValue);
-				}
-				
-				params.put("contentsStr", FORM_HTML);
-				
 			}
 			
 			params.put("detailName", "정보수정");

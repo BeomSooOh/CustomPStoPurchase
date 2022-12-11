@@ -483,6 +483,10 @@
 			
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionChangePop.do?seq=" + (seq != null ? seq : targetSeq) + "&change_seq=" + sub_seq,  "ConclusionChangeViewPop", 1200, 800, 1, 1) ;
 			
+		}else if(callId == "btnConclusionPayment"){
+			
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionPaymentPop.do?seq=" + (seq != null ? seq : targetSeq),  "ConclusionPaymentViewPop", 1200, 800, 1, 1) ;
+			
 		}else if(callId == "btnMeet"){
 			
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractMeetPop.do?seq=" + targetSeq,  "ContractMeetViewPop", 1200, 800, 1, 1) ;
@@ -581,11 +585,24 @@
 				console.log("approkey_change > " + result.resultData.approkey_change);
 				console.log("change_seq > " + result.resultData.change_seq);
 				
-				if(btnType == "btnConclusionChange"){
+				if(btnType == "btnConclusionPayment"){
 					
-					if(result.resultData.approkey_conclusion != "" && result.resultData.doc_sts == "90"){
+					if(result.resultData.change_seq != ""){
+						msgSnackbar("warning", "진행중인 변경계약건이 있어 대금지급 신청이 불가합니다.");
+						return;	
+					}else if(result.resultData.approkey_conclusion != "" && result.resultData.doc_sts == "90"){
+						resultState = true;
+					}
+					
+				}else if(btnType == "btnConclusionChange"){
+					
+					if(result.resultData.change_seq != ""){
 						fnCallBtn("btnConclusionChange", result.resultData.seq, result.resultData.change_seq);
-						return;
+						return;						
+						
+					}else if(result.resultData.approkey_conclusion != "" && result.resultData.doc_sts == "90") {
+						resultState = true;
+						btnType = "newConclusionChange";
 					}
 					
 				}else if(btnType == "contractView"){
@@ -678,7 +695,7 @@
 				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="저장" />
 				<input type="button" onclick="fnContractStatePop('btnConclusion');" style="background:#03a9f4;color:#fff" class="puddSetup" value="계약체결" />
 				<input type="button" onclick="fnContractStatePop('btnConclusionChange');" class="puddSetup" value="변경계약" />
-				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="대금지급" />
+				<input type="button" onclick="fnContractStatePop('btnConclusionPayment');" class="puddSetup" value="대금지급" />
 				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="엑셀다운로드" />
 			</div>
 		</div>

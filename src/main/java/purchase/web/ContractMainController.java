@@ -218,5 +218,22 @@ public class ContractMainController {
 		mv.setViewName("jsonView");
 		return mv;
 	}
+	
+	
+    @RequestMapping("/purchase/SelectConclusionPaymentList.do")
+    public ModelAndView SelectConclusionPaymentList(@PathVariable String authLevel, @RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        
+        /* 변수 설정 */
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+        params.put("groupSeq", loginVo.getGroupSeq());
+        
+        List<Map<String, Object>> list = contractServiceDAO.SelectConclusionPaymentList(params);
+        mv.addObject("resultList", list);
+        mv.setViewName("jsonView");
+
+        return mv;
+    } 	
 
 }

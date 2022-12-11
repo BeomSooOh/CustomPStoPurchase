@@ -87,7 +87,13 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 		
 		update( "ContractSQL.UpdateResult", params );
 		
-	}		
+	}
 	
+	@SuppressWarnings("unchecked")
+	public List<Map<String, Object>> SelectConclusionPaymentList ( Map<String, Object> params ) {
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
+		result = (List<Map<String, Object>>) list( "ContractSQL.SelectConclusionPaymentList", params );
+		return result;
+	}		
 	
 }

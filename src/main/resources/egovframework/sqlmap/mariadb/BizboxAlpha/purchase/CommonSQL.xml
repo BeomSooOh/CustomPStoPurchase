@@ -52,32 +52,32 @@
 		
 		SELECT 
 		a.seq,
-		a.title as title,  
-		a.manage_no as manageNo, 
-		a.contract_no as contractNo,
-		a.contract_type as contractType,
-		dm.dept_name as writeDeptName,
-		em.emp_name as writeEmpName,
-		a.write_dt as writeDt,
-		cust_sto.fn_get_purchase_code_text('notiType',a.noti_type) as notiType, 
-		cust_sto.fn_get_purchase_code_text('budgetType',a.budget_type) as budgetType, 
-		cust_sto.fn_get_purchase_code_text('targetType',a.target_type) as targetType, 
-		a.contract_start_dt as contractStartDt, 
-		a.contract_end_dt as contractEndDt, 
+		ifnull(a.c_title, a.title) as title,  
+		ifnull(a.manage_no,'') as manage_no, 
+		ifnull(a.contract_no,'') as contract_no,
+		a.contract_type as contract_type,
+		dm.dept_name as write_dept_name,
+		em.emp_name as write_emp_name,
+		ifnull(a.c_write_dt, a.write_dt) as write_dt,
+		cust_sto.fn_get_purchase_code_text('notiType',a.noti_type) as noti_type, 
+		cust_sto.fn_get_purchase_code_text('budgetType',ifnull(a.c_budget_type, a.budget_type)) as budget_type, 
+		cust_sto.fn_get_purchase_code_text('targetType',ifnull(a.c_target_type, a.target_type)) as target_type, 
+		ifnull(a.contract_start_dt, '') as contract_start_dt, 
+		ifnull(a.c_contract_end_dt, a.contract_end_dt) as contract_end_dt, 
 		FORMAT(a.amt, 0) as amt,
-		a.amt_kor as amtKor,
+		a.amt_kor as amt_kor,
 		FORMAT(a.std_amt, 0) as std_amt,
 		FORMAT(a.tax_amt, 0) as tax_amt,
-		cust_sto.fn_get_purchase_code_text('baseLaw',a.base_law) as baseLaw, 
-		cust_sto.fn_get_purchase_code_text('payType',a.pay_type_info) as payType, 
-		a.work_info as workInfo, 
+		cust_sto.fn_get_purchase_code_text('baseLaw',ifnull(a.c_base_law, a.base_law)) as base_law, 
+		cust_sto.fn_get_purchase_code_text('payType',a.pay_type_info) as pay_type, 
+		ifnull(a.c_work_info, a.work_info) as work_info, 
 		a.emergency_yn, 
 		a.restrict_sector_yn, 
-		cust_sto.fn_get_purchase_code_text('competeType',a.compete_type) as competeType, 
-		cust_sto.fn_get_purchase_code_text('restrictSector',a.restrict_sector_info) as restrictSector, 
-		cust_sto.fn_get_purchase_code_text('restrictArea',a.restrict_area_info) as restrictArea, 
+		cust_sto.fn_get_purchase_code_text('competeType',a.compete_type) as compete_type, 
+		cust_sto.fn_get_purchase_code_text('restrictSector',a.restrict_sector_info) as restrict_sector, 
+		cust_sto.fn_get_purchase_code_text('restrictArea',a.restrict_area_info) as restrict_area, 
 		a.nominee_info, 
-		cust_sto.fn_get_purchase_code_text('decisionType',a.decision_type_info) as decisionType, 
+		cust_sto.fn_get_purchase_code_text('decisionType',a.decision_type_info) as decision_type, 
 		a.contract_form1, 
 		a.contract_form2, 
 		a.contract_form3, 
@@ -115,9 +115,9 @@
 		<isNotEmpty property="change_seq">
 		left join cust_sto.t_purchase_conclusion_change pcc on a.seq = pcc.seq and pcc.change_seq = $change_seq$
 		</isNotEmpty>		
-		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
-		left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'
-		where seq = $seq$
+		left join $DB_NEOS$t_co_dept_multi dm on ifnull(a.c_write_dept_seq, a.write_dept_seq) = dm.dept_seq and dm.lang_code = 'kr'
+		left join $DB_NEOS$t_co_emp_multi em on ifnull(a.c_write_emp_seq, a.write_emp_seq) = em.emp_seq and em.lang_code = 'kr'
+		where a.seq = $seq$
 		
 	</select>	
 	
@@ -139,27 +139,57 @@
 	</update>	
 	
 	<update	id="CommonSQL.UpdateAppr" parameterClass="HashMap" >
-		UPDATE cust_sto.t_purchase_contract
-		SET
-		doc_sts='$docSts$',
-		<isNotEmpty property="approkeyPlan">
-		approkey_plan='$approkeyPlan$'
-		</isNotEmpty>	
-		<isNotEmpty property="approkeyMeet">
-		approkey_meet='$approkeyMeet$'
-		</isNotEmpty>
-		<isNotEmpty property="approkeyResult">
-		approkey_result='$approkeyResult$'
-		</isNotEmpty>
-		<isNotEmpty property="approkeyConclusion">
-		approkey_conclusion='$approkeyConclusion$'
-		</isNotEmpty>
-		<isNotEmpty property="approkeyChange">
-		approkey_change='$approkeyChange$'
-		</isNotEmpty>
+	
+		<isNull property="approkeyChange">
+			UPDATE cust_sto.t_purchase_contract
+			SET
+			doc_sts='$docSts$',
+			<isNotEmpty property="approkeyPlan">
+			approkey_plan='$approkeyPlan$'
+			</isNotEmpty>	
+			<isNotEmpty property="approkeyMeet">
+			approkey_meet='$approkeyMeet$'
+			</isNotEmpty>
+			<isNotEmpty property="approkeyResult">
+			approkey_result='$approkeyResult$'
+			</isNotEmpty>
+			<isNotEmpty property="approkeyConclusion">
+			approkey_conclusion='$approkeyConclusion$'
+			</isNotEmpty>
+			<isNotEmpty property="approkeyChange">
+			approkey_change='$approkeyChange$'
+			</isNotEmpty>
+			
+			WHERE seq='$seq$';		  
+		</isNull>
+	
+		<isNotNull property="approkeyChange">
+			update 
+			cust_sto.t_purchase_contract a
+			join cust_sto.t_purchase_conclusion_change b on a.seq  = b.seq
+			set
+			a.approkey_change = '$approkeyChange$'
+			<isEqual property="docSts" compareValue="90">
+			,a.c_work_info = (case when ifnull(b.work_info_after,'') != '' then b.work_info_after else a.c_work_info end)
+			,a.c_contract_end_dt = (case when ifnull(b.contract_end_dt_after,'') != '' then b.contract_end_dt_after else a.c_contract_end_dt end)
+			,a.contract_amt_info = (case when ifnull(b.contract_amt_info_after,'') != '' then b.contract_amt_info_after else a.contract_amt_info end)			
+			</isEqual>			
+			
+			where a.seq = '$seq$' and b.change_seq = '$change_seq$';
+		</isNotNull>	
 		
-		WHERE seq='$seq$';
 	</update>
+	
+	
+	<update	id="CommonSQL.UpdateApprChange" parameterClass="HashMap" >
+		
+		update cust_sto.t_purchase_conclusion_change 
+		set 
+		doc_sts = '$docSts$'
+		where change_seq = '$change_seq$';
+		
+	</update>
+	
 	
 	<delete	id="CommonSQL.DeleteAttachInfo" parameterClass="HashMap" >
 		
@@ -182,7 +212,8 @@
 		from cust_sto.t_purchase_attach_info where seq = '$seq$' and outProcessCode = '$outProcessCode$'
 
 	</select>
-			
+	
+	
 	<select	id="CommonSQL.SelectFormAttachList" parameterClass="HashMap" resultClass="HashMap">
 	
 		select
@@ -221,6 +252,13 @@
 		(seq, outProcessCode, div_seq, div_name, pjt_seq, pjt_name, bottom_seq, bottom_name, bgt_seq, bgt_name, bgt1_name, bgt2_name, bgt3_name, bgt4_name, created_dt, created_by)
 		VALUES('$seq$', '$outProcessCode$', '$div_seq$', '$div_name$', '$pjt_seq$', '$pjt_name$', '$bottom_seq$', '$bottom_name$', '$bgt_seq$', '$bgt_name$', '$bgt1_name$', '$bgt2_name$', '$bgt3_name$', '$bgt4_name$', now(), '$created_by$');
 
-	</insert>	
+	</insert>
+	
+	<select	id="CommonSQL.SelectBudgetList" parameterClass="HashMap" resultClass="HashMap">
+		
+		select * 
+		from cust_sto.t_purchase_budget_info where seq = '$seq$' and outProcessCode = '$outProcessCode$'
+
+	</select>			
 		
 </sqlMap>

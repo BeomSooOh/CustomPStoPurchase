@@ -66,6 +66,12 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		
 	}	
 	
+	public void UpdateApprChange ( Map<String, Object> params ) {
+		
+		update( "CommonSQL.UpdateApprChange", params );
+		
+	}	
+	
 	public void SaveFormInfo ( Map<String, Object> params ) {
 		
 		update( "CommonSQL.SaveFormInfo", params );
@@ -108,7 +114,14 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		
 		insert( "CommonSQL.InsertBudgetInfo", params );
 		
-	}		
+	}
+	
+	@SuppressWarnings ( "unchecked" )
+	public List<Map<String, Object>> SelectBudgetList ( Map<String, Object> params ) {
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
+		result = (List<Map<String, Object>>) list( "CommonSQL.SelectBudgetList", params );
+		return result;
+	}	
 	
 	
 }
