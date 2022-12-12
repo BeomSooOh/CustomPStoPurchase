@@ -58,6 +58,8 @@
 
 		var reqParam = {};
 		
+		reqParam.stat = "";
+		
 		$.ajax({
 			type : 'post',
 			url : '<c:url value="/purchase/SelectConclusionPaymentList.do" />',
@@ -95,7 +97,7 @@
 			}
 		,	columns : [
 				{
-						field : "data1"
+						field : "doc_no"
 					,	title : "문서번호"
 					,	width : 130
 					,	content : {
@@ -103,17 +105,17 @@
 					}
 				}
 				,	{
-						field : "data2"
+						field : "pay_type"
 					,	title : "지급구분"
 					,	width : 100							
 				}
 				,	{
-						field : "data3"
+						field : "pay_num"
 					,	title : "지급차수"
 					,	width : 90							
 				}
 				,	{
-						field : "data4"
+						field : "doc_title"
 					,	title : "결의제목"
 					,	width : 300
 					,	content : {
@@ -121,12 +123,12 @@
 					}
 				}
 				,	{
-						field : "data5"
+						field : "write_dt"
 					,	title : "기안일자"
 					,	width : 100
 				}
 			,	{
-						field : "data6"
+						field : "amt"
 					,	title : "결의금액"
 					,	width : 120
 					,	content : {
@@ -134,7 +136,7 @@
 					}
 				}
 			,	{
-						field : "data7"
+						field : "remain_amt"
 					,	title : "잔여금액"
 					,	width : 120
 					,	content : {
@@ -142,7 +144,7 @@
 					}
 				}
 			,	{
-						field : "data8"
+						field : "doc_sts"
 					,	title : "결재상태"
 					,	width : 100
 				}
@@ -151,8 +153,17 @@
 		
 	}			
 	
+	function fnPaymentCreate(){
+		
+		openWindow2("${pageContext.request.contextPath}/expend/np/user/NpUserCRDocPop.do?approKey=EXNPRESCUSTOM_none${seq}&outProcessInterfaceId=paramsOuter&formId=195&template_key=195&formSeq=195&processId=EXNPRESCUSTOM&form_id=195&form_gb=0&form_tp=EXNPRESCUSTOM&initTitle=&doc_width=&eaType=ea&formTp=EXNPRESCUSTOM",  "ConclusionExpendCreatePop", 1200, 800, 1, 1) ;
+		
+	}
+	
+	function fnPaymentComplete(){
 		
 		
+		
+	}	
 		
 	</script>
 </head>
@@ -173,7 +184,7 @@
 								<input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/> ~
 								<input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/>
 							</dd>							
-							<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" /></dd>
+							<dd><input onclick="fnGetListBind();" type="button" class="puddSetup submit" id="searchButton" value="검색" /></dd>
 						</dl>
 					</div>
 					
@@ -186,8 +197,8 @@
 							</div>
 							<div class="right_div">
 								<div id="" class="controll_btn p0">
-									<input type="button" class="puddSetup" value="대금지급" />
-									<input type="button" class="puddSetup" value="대금지급완료" />
+									<input onclick="fnPaymentCreate();" type="button" class="puddSetup" value="대금지급" />
+									<input onclick="fnPaymentComplete();" type="button" class="puddSetup" value="대금지급완료" />
 								</div>
 							</div>
 						</div>

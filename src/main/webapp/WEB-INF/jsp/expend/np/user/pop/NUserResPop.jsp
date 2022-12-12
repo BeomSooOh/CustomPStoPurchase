@@ -90,7 +90,7 @@
 	// resTradeInfo : ${resTradeInfo}
 	// param : ${param}
 	var mode = 'dev';
-	var domain = '/exp';
+	var domain = '/CustomPStoPurchase';
 	var formSeq = '${param.formSeq}';
 	var approKey = '${param.approKey}';
 	var approvalBack = false;
@@ -2094,7 +2094,7 @@
 			} else {
 				param.consDocSeq = '${param.confferDocSeq}';
 			}
-
+			
 			if (formType === gntpResFormType.EXNPRESCUSTOM) {
 				fnCallbackConfferGNTP(param);
 			} else {

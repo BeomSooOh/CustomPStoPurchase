@@ -527,6 +527,27 @@
 	<select	id="ContractSQL.SelectConclusionPaymentList" parameterClass="HashMap" resultClass="HashMap">
 		
 		
+		select 
+		'경영지원팀-001' as doc_no
+		,'선금' as pay_type
+		,'1' as pay_num
+		,'계약 및 물품구매 전자관리시스템구축 선금지급 1' as doc_title
+		,'2022-12-12' as write_dt
+		,'30,000,000' as amt
+		,'20,000,000' as remain_amt
+		,'종결' as doc_sts 
+		union all
+		select 
+		'경영지원팀-002' as doc_no
+		,'선금' as pay_type
+		,'1' as pay_num
+		,'계약 및 물품구매 전자관리시스템구축 선금지급 2' as doc_title
+		,'2022-12-12' as write_dt
+		,'50,000,000' as amt
+		,'10,000,000' as remain_amt
+		,'상신' as doc_sts
+				
+		
 	</select>	
 			
 		

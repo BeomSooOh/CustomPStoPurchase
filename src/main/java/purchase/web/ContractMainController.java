@@ -221,7 +221,7 @@ public class ContractMainController {
 	
 	
     @RequestMapping("/purchase/SelectConclusionPaymentList.do")
-    public ModelAndView SelectConclusionPaymentList(@PathVariable String authLevel, @RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    public ModelAndView SelectConclusionPaymentList(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
     	
         ModelAndView mv = new ModelAndView();
         
