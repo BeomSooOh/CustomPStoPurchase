@@ -485,7 +485,7 @@
 			
 		}else if(callId == "btnConclusionPayment"){
 			
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionPaymentPop.do?seq=" + (seq != null ? seq : targetSeq),  "ConclusionPaymentViewPop", 1200, 800, 1, 1) ;
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionPaymentPop.do?formSeq=194&seq=" + (seq != null ? seq : targetSeq),  "ConclusionPaymentViewPop", 1200, 800, 1, 1) ;
 			
 		}else if(callId == "btnMeet"){
 			

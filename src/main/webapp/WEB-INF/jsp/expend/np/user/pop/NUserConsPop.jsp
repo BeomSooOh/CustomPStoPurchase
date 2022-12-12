@@ -100,7 +100,7 @@
     /* ## 변수정의 ## */
     /* ====================================================================================================================================================== */
     var mode = 'dev';
-    var domain = '/exp';
+    var domain = '/CustomPStoPurchase';
     var formSeq = '${param.formSeq}';
     var approKey = '${param.approKey}';
     var consDocSeq = 0;
