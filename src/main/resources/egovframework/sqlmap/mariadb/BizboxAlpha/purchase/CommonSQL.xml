@@ -259,6 +259,27 @@
 		select * 
 		from cust_sto.t_purchase_budget_info where seq = '$seq$' and outProcessCode = '$outProcessCode$'
 
+	</select>	
+	
+	<delete	id="CommonSQL.DeleteTradeInfo" parameterClass="HashMap" >
+		
+		delete from cust_sto.t_purchase_trade_info where seq = '$seq$' and outProcessCode = '$outProcessCode$';
+
+	</delete>	
+	
+	<insert	id="CommonSQL.InsertTradeInfo" parameterClass="HashMap" >
+	
+		INSERT INTO cust_sto.t_purchase_trade_info
+		(seq, outProcessCode, trSeq, trName, atTrName, ceoName, trRegNumber, addr, depositor, baNb, btrName, btrSeq, trFg, trFgName, pmEmail, pmHp, pmName, created_dt, created_by)
+		VALUES('$seq$', '$outProcessCode$', '$trSeq$', '$trName$', '$atTrName$', '$ceoName$', '$trRegNumber$', '$addr$', '$depositor$', '$baNb$', '$btrName$', '$btrSeq$', '$trFg$', '$trFgName$', '$pmEmail$', '$pmHp$', '$pmName$', now(), '$created_by$');
+		
+	</insert>
+	
+	<select	id="CommonSQL.SelectTradeInfo" parameterClass="HashMap" resultClass="HashMap">
+		
+		select * 
+		from cust_sto.t_purchase_trade_info where seq = '$seq$' and outProcessCode = '$outProcessCode$' limit 1;
+
 	</select>			
 		
 </sqlMap>

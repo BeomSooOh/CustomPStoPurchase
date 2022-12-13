@@ -958,11 +958,19 @@
 				
 				//거래처 
 				if(param.code == "tr"){
-					$("[objKey=partner_code]").val( param.trSeq || "" );
-					$("[objKey=partner_name]").val( param.trName || "" );
-					$("[objKey=partner_bizno]").text( param.trRegNumber || "" );
-					$("[objKey=partner_owner]").text( param.ceoName || "" );
-					$("[objKey=partner_addr]").text( param.addr || "" );
+					$("[objKey=trSeq]").val( param.trSeq || "" );
+					$("[objKey=trName]").val( param.trName || "" );
+					$("[objKey=trRegNumber]").text( param.trRegNumber || "" );
+					$("[objKey=ceoName]").text( param.ceoName || "" );
+					$("[objKey=addr]").text( param.addr || "" );
+					
+					$("[objKey=atTrName]").val( param.atTrName || "" );
+					$("[objKey=baNb]").val( param.baNb || "" );
+					$("[objKey=btrName]").val( param.btrName || "" );
+					$("[objKey=btrSeq]").val( param.btrSeq || "" );
+					$("[objKey=depositor]").val( param.depositor || "" );
+					$("[objKey=trFg]").val( param.trFg || "" );
+					$("[objKey=trFgName]").val( param.trFgName || "" );
 				
 				//회계단위	
 				}else if(param.code == "div"){
@@ -1395,20 +1403,28 @@
 				<tr>
 					<td>
 						<div class="posi_re">
-							<input objKey="partner_code" objCheckFor="checkVal('text', this, '계약대상', 'mustAlert', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.partner_code}</c:if>" />
-							<input objKey="partner_name" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="text" pudd-style="width:calc( 100% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.partner_name}</c:if>" readonly />
+							<input objKey="atTrName" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.atTrName}</c:if>" />
+							<input objKey="baNb" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.baNb}</c:if>" />
+							<input objKey="btrName" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.btrName}</c:if>" />
+							<input objKey="btrSeq" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.btrSeq}</c:if>" />
+							<input objKey="trFg" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.trFg}</c:if>" />
+							<input objKey="trFgName" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.trFgName}</c:if>" />
+							<input objKey="depositor" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.depositor}</c:if>" />
+						
+							<input objKey="trSeq" objCheckFor="checkVal('text', this, '계약대상', 'mustAlert', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.trSeq}</c:if>" />
+							<input objKey="trName" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="text" pudd-style="width:calc( 100% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${tradeInfo.trName}</c:if>" readonly />
 							
 							<c:if test="${disabledYn == 'N'}"> 
 							<a href="#n" onclick="fnCommonCode_trName('tr')" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
 						</div>
 					</td>
-					<td objKey="partner_bizno" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"><c:if test="${ viewType == 'U'}">${contractDetailInfo.partner_bizno}</c:if></td>
-					<td objKey="partner_owner" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"><c:if test="${ viewType == 'U'}">${contractDetailInfo.partner_owner}</c:if></td>
-					<td objKey="partner_addr" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" ><c:if test="${ viewType == 'U'}">${contractDetailInfo.partner_addr}</c:if></td>
-					<td><input ${readonly} objKey="pm_name" objCheckFor="checkVal('text', this, '담당자(PM)성명', '', '')" type="text" pudd-style="width:100%;" class="puddSetup ac" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pm_name}</c:if>" /></td>
-					<td><input ${readonly} objKey="pm_hp" objCheckFor="checkVal('text', this, '담당자(PM)연락처', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pm_hp}</c:if>" /></td>
-					<td><input ${readonly} objKey="pm_email" objCheckFor="checkVal('text', this, '담당자(PM)전자우편', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${contractDetailInfo.pm_email}</c:if>" /></td>
+					<td objKey="trRegNumber" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"><c:if test="${ viewType == 'U'}">${tradeInfo.trRegNumber}</c:if></td>
+					<td objKey="ceoName" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"><c:if test="${ viewType == 'U'}">${tradeInfo.ceoName}</c:if></td>
+					<td objKey="addr" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" ><c:if test="${ viewType == 'U'}">${tradeInfo.addr}</c:if></td>
+					<td><input ${readonly} objKey="pmName" objCheckFor="checkVal('text', this, '담당자(PM)성명', '', '')" type="text" pudd-style="width:100%;" class="puddSetup ac" value="<c:if test="${ viewType == 'U'}">${tradeInfo.pmName}</c:if>" /></td>
+					<td><input ${readonly} objKey="pmHp" objCheckFor="checkVal('text', this, '담당자(PM)연락처', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${tradeInfo.pmHp}</c:if>" /></td>
+					<td><input ${readonly} objKey="pmEmail" objCheckFor="checkVal('text', this, '담당자(PM)전자우편', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${tradeInfo.pmEmail}</c:if>" /></td>
 				</tr>
 			</table>
 		</div>

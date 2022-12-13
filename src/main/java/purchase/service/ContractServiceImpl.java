@@ -112,6 +112,13 @@ public class ContractServiceImpl implements ContractService {
 			commonServiceDAO.InsertBudgetInfo(map);
 		}
 		
+		//결재정보 저장
+		if(params.get("viewType").equals("U")) {
+			commonServiceDAO.DeleteTradeInfo(params);	
+		}
+		
+		commonServiceDAO.InsertTradeInfo(params);
+		
 		return params;
 		
 	}	
