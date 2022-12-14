@@ -126,18 +126,26 @@
 			cloneData = $('[name="budgetList"] [name=dataBase]').clone();
 			$(cloneData).show().attr("name", "addData");
 			
-			$(cloneData).find("[name=bgt_seq]").val("${items.bgt_seq}");
-			$(cloneData).find("[name=bgt_name]").val("${items.bgt_name}");
-			$(cloneData).find("[name=div_seq]").val("${items.div_seq}");
-			$(cloneData).find("[name=div_name]").val("${items.div_name}");
+			$(cloneData).find("[name=erp_budget_seq]").val("${items.erp_budget_seq}");
+			$(cloneData).find("[name=erp_budget_name]").val("${items.erp_budget_name}");
+			$(cloneData).find("[name=erp_budget_div_seq]").val("${items.erp_budget_div_seq}");
+			$(cloneData).find("[name=erp_budget_div_name]").val("${items.erp_budget_div_name}");
+			
+			$(cloneData).find("[name=erp_bgt1_seq]").val("${items.erp_bgt1_seq}");
+			$(cloneData).find("[name=erp_bgt2_seq]").val("${items.erp_bgt2_seq}");
+			$(cloneData).find("[name=erp_bgt3_seq]").val("${items.erp_bgt3_seq}");
+			$(cloneData).find("[name=erp_bgt4_seq]").val("${items.erp_bgt4_seq}");	
+			
+			$(cloneData).find("[name=erp_bgt1_name]").val("${items.erp_bgt1_name}");
+			$(cloneData).find("[name=erp_bgt2_name]").val("${items.erp_bgt2_name}");
+			$(cloneData).find("[name=erp_bgt3_name]").val("${items.erp_bgt3_name}");
+			$(cloneData).find("[name=erp_bgt4_name]").val("${items.erp_bgt4_name}");	
+			
 			$(cloneData).find("[name=pjt_seq]").val("${items.pjt_seq}");
 			$(cloneData).find("[name=pjt_name]").val("${items.pjt_name}");
 			$(cloneData).find("[name=bottom_seq]").val("${items.bottom_seq}");
 			$(cloneData).find("[name=bottom_name]").val("${items.bottom_name}");
-			$(cloneData).find("[name=bgt1_name]").val("${items.bgt1_name}");
-			$(cloneData).find("[name=bgt2_name]").val("${items.bgt2_name}");
-			$(cloneData).find("[name=bgt3_name]").val("${items.bgt3_name}");
-			$(cloneData).find("[name=bgt4_name]").val("${items.bgt4_name}");
+
 			
 			$('[name="budgetList"]').append(cloneData);
 			
@@ -586,6 +594,13 @@
 				insertDataObject.attch_file_info = JSON.stringify(attachFormList);
 				insertDataObject.budget_list_info = JSON.stringify(insertDataObject.budgetObjList);
 				
+				//계약총금액 조회
+				insertDataObject.contract_amt = 0;
+				
+				$.each($("[name=amtInfoList] [name=addData] [amounttype=amt]"), function( key, objInfo ) {
+					insertDataObject.contract_amt += parseInt($(objInfo).val().replace(/,/g, ''));
+				});
+				
 				if(type == 0){
 					confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc(1)', '취소', '');	
 				}else if(type == 1){
@@ -958,24 +973,24 @@
 				
 				//거래처 
 				if(param.code == "tr"){
-					$("[objKey=trSeq]").val( param.trSeq || "" );
-					$("[objKey=trName]").val( param.trName || "" );
-					$("[objKey=trRegNumber]").text( param.trRegNumber || "" );
-					$("[objKey=ceoName]").text( param.ceoName || "" );
+					$("[objKey=tr_seq]").val( param.trSeq || "" );
+					$("[objKey=tr_name]").val( param.trName || "" );
+					$("[objKey=tr_reg_number]").text( param.trRegNumber || "" );
+					$("[objKey=ceo_name]").text( param.ceoName || "" );
 					$("[objKey=addr]").text( param.addr || "" );
 					
-					$("[objKey=atTrName]").val( param.atTrName || "" );
-					$("[objKey=baNb]").val( param.baNb || "" );
-					$("[objKey=btrName]").val( param.btrName || "" );
-					$("[objKey=btrSeq]").val( param.btrSeq || "" );
+					$("[objKey=at_tr_name]").val( param.atTrName || "" );
+					$("[objKey=ba_nb]").val( param.baNb || "" );
+					$("[objKey=btr_name]").val( param.btrName || "" );
+					$("[objKey=btr_seq]").val( param.btrSeq || "" );
 					$("[objKey=depositor]").val( param.depositor || "" );
-					$("[objKey=trFg]").val( param.trFg || "" );
-					$("[objKey=trFgName]").val( param.trFgName || "" );
+					$("[objKey=tr_fg]").val( param.trFg || "" );
+					$("[objKey=tr_fg_name]").val( param.trFgName || "" );
 				
 				//회계단위	
 				}else if(param.code == "div"){
-					$(commonElement).find("[name=div_seq]").val( param.divSeq || "" );
-					$(commonElement).find("[name=div_name]").val( param.divName || "" );
+					$(commonElement).find("[name=erp_budget_div_seq]").val( param.divSeq || "" );
+					$(commonElement).find("[name=erp_budget_div_name]").val( param.divName || "" );
 				
 				//프로젝트	
 				}else if(param.code == "project"){
@@ -995,33 +1010,42 @@
 						return;
 					}
 					
-					$(commonElement).find("[name=bgt_seq]").val( param.erpBudgetSeq || "" );
-					$(commonElement).find("[name=bgt_name]").val( param.erpBudgetName || "" );
+					$(commonElement).find("[name=erp_budget_seq]").val( param.erpBudgetSeq || "" );
+					$(commonElement).find("[name=erp_budget_name]").val( param.erpBudgetName || "" );
 					
 					if(param.erpBgt1Seq != ""){
-						$(commonElement).find("[name=bgt1_name]").val( param.erpBgt1Name + " (" + param.erpBgt1Seq + ")");	
+						$(commonElement).find("[name=erp_bgt1_seq]").val( param.erpBgt1Seq );
+						$(commonElement).find("[name=erp_bgt1_name]").val( param.erpBgt1Name );	
 					}else{
-						$(commonElement).find("[name=bgt1_name]").val("");
+						$(commonElement).find("[name=erp_bgt1_seq]").val("");
+						$(commonElement).find("[name=erp_bgt1_name]").val("");
 					}
 					
 					if(param.erpBgt2Seq != ""){
-						$(commonElement).find("[name=bgt2_name]").val( param.erpBgt2Name + " (" + param.erpBgt2Seq + ")");	
+						$(commonElement).find("[name=erp_bgt2_seq]").val( param.erpBgt2Seq );
+						$(commonElement).find("[name=erp_bgt2_name]").val( param.erpBgt2Name );	
 					}else{
-						$(commonElement).find("[name=bgt2_name]").val("");
+						$(commonElement).find("[name=erp_bgt1_seq]").val("");
+						$(commonElement).find("[name=erp_bgt2_name]").val("");
 					}
 					
 					if(param.erpBgt3Seq != ""){
-						$(commonElement).find("[name=bgt3_name]").val( param.erpBgt3Name + " (" + param.erpBgt3Seq + ")");	
+						$(commonElement).find("[name=erp_bgt3_seq]").val( param.erpBgt3Seq );
+						$(commonElement).find("[name=erp_bgt3_name]").val( param.erpBgt3Name );	
 					}else{
-						$(commonElement).find("[name=bgt3_name]").val("");
+						$(commonElement).find("[name=erp_bgt3_seq]").val("");
+						$(commonElement).find("[name=erp_bgt3_name]").val("");
 					}
 					
 					if(param.erpBgt4Seq != ""){
-						$(commonElement).find("[name=bgt4_name]").val( param.erpBgt4Name + " (" + param.erpBgt4Seq + ")");	
+						$(commonElement).find("[name=erp_bgt4_seq]").val( param.erpBgt4Seq );
+						$(commonElement).find("[name=erp_bgt4_name]").val( param.erpBgt4Name );	
 					}else{
-						$(commonElement).find("[name=bgt4_name]").val("");
+						$(commonElement).find("[name=erp_bgt4_seq]").val("");
+						$(commonElement).find("[name=erp_bgt4_name]").val("");
 					}					
-					
+				
+					//예산금액 조회
 					fnSetBudgetAmtInfo();
 					
 				}			
@@ -1039,34 +1063,44 @@
 				commonElement = e;
 			}
 			
-			if($(commonElement).find("[name=bgt_seq]").val() == ""){
-				
-				$('#bgtSeq').val("");
-				$('#bgt1Name').text("");
-				$('#bgt2Name').text("");
-				$('#bgt3Name').text("");
-				$('#bgt4Name').text("");
-				
-				$('#txtOpenAmt').text("");
-				$('#txtConsBalanceAmt').text("");
-				$('#txtApplyAmt').text("");
-				$('#txtBalanceAmt').text("");
-				
-			}else{
+			$('#bgtSeq').val("");
+			$('#bgt1Name').text("");
+			$('#bgt2Name').text("");
+			$('#bgt3Name').text("");
+			$('#bgt4Name').text("");
+			
+			$('#txtOpenAmt').text("");
+			$('#txtConsBalanceAmt').text("");
+			$('#txtApplyAmt').text("");
+			$('#txtBalanceAmt').text("");			
+			
+			if($(commonElement).find("[name=erp_budget_seq]").val() != ""){
 
-				commonParam.erpBudgetSeq = $(commonElement).find("[name=bgt_seq]").val();
+				commonParam.erpBudgetSeq = $(commonElement).find("[name=erp_budget_seq]").val();
 				if($('#bgtSeq').val() == commonParam.erpBudgetSeq){
 					return;
 				}
 
-				commonParam.erpBudgetDivSeq = $(commonElement).find("[name=div_seq]").val();
+				commonParam.erpBudgetDivSeq = $(commonElement).find("[name=erp_budget_div_seq]").val();
 				commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val();
 				
 				$('#bgtSeq').val(commonParam.erpBudgetSeq);
-				$('#bgt1Name').text($(commonElement).find("[name=bgt1_name]").val());
-				$('#bgt2Name').text($(commonElement).find("[name=bgt2_name]").val());
-				$('#bgt3Name').text($(commonElement).find("[name=bgt3_name]").val());
-				$('#bgt4Name').text($(commonElement).find("[name=bgt4_name]").val());				
+				
+				if($(commonElement).find("[name=erp_bgt1_seq]").val() != ""){
+					$('#bgt1Name').text($(commonElement).find("[name=erp_bgt1_name]").val() + " (" + $(commonElement).find("[name=erp_bgt1_seq]").val() + ")");	
+				}
+				
+				if($(commonElement).find("[name=erp_bgt2_seq]").val() != ""){
+					$('#bgt2Name').text($(commonElement).find("[name=erp_bgt2_name]").val() + " (" + $(commonElement).find("[name=erp_bgt2_seq]").val() + ")");	
+				}
+				
+				if($(commonElement).find("[name=erp_bgt3_seq]").val() != ""){
+					$('#bgt3Name').text($(commonElement).find("[name=erp_bgt3_name]").val() + " (" + $(commonElement).find("[name=erp_bgt3_seq]").val() + ")");	
+				}
+				
+				if($(commonElement).find("[name=erp_bgt4_seq]").val() != ""){
+					$('#bgt4Name').text($(commonElement).find("[name=erp_bgt4_name]").val() + " (" + $(commonElement).find("[name=erp_bgt4_seq]").val() + ")");	
+				}				
 				
 				$.ajax({
 					type : 'post',
@@ -1111,12 +1145,12 @@
 				commonElement = $(e).closest("tr");
 				
 				if(code == "budgetlist"){
-					commonParam.erpDivSeq = $(commonElement).find("[name=div_seq]").val() + "|"; /* 회계통제단위 구분값 '|' */
+					commonParam.erpDivSeq = $(commonElement).find("[name=erp_budget_div_seq]").val() + "|"; /* 회계통제단위 구분값 '|' */
 					commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val() + "|"; /* 예산통제단위 구분값 '|' */
 					commonParam.bottomSeq = $(commonElement).find("[name=bottom_seq]").val() + "|"; /* 하위사업 구분값 '|' */
 					commonParam.erpBudgetDivSeq = commonParam.erpDivSeq.replace('|', '');					
 				}else{
-					commonParam.erpDivSeq = $(commonElement).find("[name=div_seq]").val(); /* 회계통제단위 구분값 '|' */
+					commonParam.erpDivSeq = $(commonElement).find("[name=erp_budget_div_seq]").val(); /* 회계통제단위 구분값 '|' */
 					commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val(); /* 예산통제단위 구분값 '|' */
 					commonParam.bottomSeq = $(commonElement).find("[name=bottom_seq]").val(); /* 하위사업 구분값 '|' */
 					commonParam.erpBudgetDivSeq = commonParam.erpDivSeq.replace('|', '');					
@@ -1403,28 +1437,28 @@
 				<tr>
 					<td>
 						<div class="posi_re">
-							<input objKey="atTrName" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.atTrName}</c:if>" />
-							<input objKey="baNb" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.baNb}</c:if>" />
-							<input objKey="btrName" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.btrName}</c:if>" />
-							<input objKey="btrSeq" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.btrSeq}</c:if>" />
-							<input objKey="trFg" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.trFg}</c:if>" />
-							<input objKey="trFgName" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.trFgName}</c:if>" />
+							<input objKey="at_tr_name" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.at_tr_name}</c:if>" />
+							<input objKey="ba_nb" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.ba_nb}</c:if>" />
+							<input objKey="btr_name" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.btr_name}</c:if>" />
+							<input objKey="btr_seq" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.btr_seq}</c:if>" />
+							<input objKey="tr_fg" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.tr_fg}</c:if>" />
+							<input objKey="tr_fg_name" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.tr_fg_name}</c:if>" />
 							<input objKey="depositor" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.depositor}</c:if>" />
 						
-							<input objKey="trSeq" objCheckFor="checkVal('text', this, '계약대상', 'mustAlert', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.trSeq}</c:if>" />
-							<input objKey="trName" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="text" pudd-style="width:calc( 100% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${tradeInfo.trName}</c:if>" readonly />
+							<input objKey="tr_seq" objCheckFor="checkVal('text', this, '계약대상', 'mustAlert', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.tr_seq}</c:if>" />
+							<input objKey="tr_name" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="text" pudd-style="width:calc( 100% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${tradeInfo.tr_name}</c:if>" readonly />
 							
 							<c:if test="${disabledYn == 'N'}"> 
 							<a href="#n" onclick="fnCommonCode_trName('tr')" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
 						</div>
 					</td>
-					<td objKey="trRegNumber" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"><c:if test="${ viewType == 'U'}">${tradeInfo.trRegNumber}</c:if></td>
-					<td objKey="ceoName" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"><c:if test="${ viewType == 'U'}">${tradeInfo.ceoName}</c:if></td>
+					<td objKey="tr_reg_number" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"><c:if test="${ viewType == 'U'}">${tradeInfo.tr_reg_number}</c:if></td>
+					<td objKey="ceo_name" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"><c:if test="${ viewType == 'U'}">${tradeInfo.ceo_name}</c:if></td>
 					<td objKey="addr" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" ><c:if test="${ viewType == 'U'}">${tradeInfo.addr}</c:if></td>
-					<td><input ${readonly} objKey="pmName" objCheckFor="checkVal('text', this, '담당자(PM)성명', '', '')" type="text" pudd-style="width:100%;" class="puddSetup ac" value="<c:if test="${ viewType == 'U'}">${tradeInfo.pmName}</c:if>" /></td>
-					<td><input ${readonly} objKey="pmHp" objCheckFor="checkVal('text', this, '담당자(PM)연락처', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${tradeInfo.pmHp}</c:if>" /></td>
-					<td><input ${readonly} objKey="pmEmail" objCheckFor="checkVal('text', this, '담당자(PM)전자우편', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${tradeInfo.pmEmail}</c:if>" /></td>
+					<td><input ${readonly} objKey="pm_name" objCheckFor="checkVal('text', this, '담당자(PM)성명', '', '')" type="text" pudd-style="width:100%;" class="puddSetup ac" value="<c:if test="${ viewType == 'U'}">${tradeInfo.pm_name}</c:if>" /></td>
+					<td><input ${readonly} objKey="pm_hp" objCheckFor="checkVal('text', this, '담당자(PM)연락처', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${tradeInfo.pm_hp}</c:if>" /></td>
+					<td><input ${readonly} objKey="pm_email" objCheckFor="checkVal('text', this, '담당자(PM)전자우편', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${tradeInfo.pm_email}</c:if>" /></td>
 				</tr>
 			</table>
 		</div>
@@ -1467,8 +1501,8 @@
 					</c:if>
 					<td>
 						<div class="posi_re">
-							<input tbval="Y" name="div_seq" type="hidden" value="" />
-							<input tbval="Y" name="div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
+							<input tbval="Y" name="erp_budget_div_seq" type="hidden" value="" />
+							<input tbval="Y" name="erp_budget_div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
 							
 							<c:if test="${disabledYn == 'N'}">
 							<a href="#n" onclick="fnCommonCode_trName('div', this)" class="btn_search" style="margin-left: -25px;"></a>
@@ -1497,13 +1531,18 @@
 					</td>
 					<td>
 						<div class="posi_re">
-							<input tbval="Y" name="bgt1_name" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="bgt2_name" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="bgt3_name" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="bgt4_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt1_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt2_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt3_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt4_seq" type="hidden" value="" requiredNot="true" />
+													
+							<input tbval="Y" name="erp_bgt1_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt2_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt3_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt4_name" type="hidden" value="" requiredNot="true" />
 						
-							<input tbval="Y" name="bgt_seq" type="hidden" value="" />
-							<input tbval="Y" name="bgt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
+							<input tbval="Y" name="erp_budget_seq" type="hidden" value="" />
+							<input tbval="Y" name="erp_budget_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
 
 							<c:if test="${disabledYn == 'N'}"> 
 							<a href="#n" onclick="fnCommonCode_trName('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
@@ -1520,8 +1559,8 @@
 					</c:if>
 					<td>
 						<div class="posi_re">
-							<input tbval="Y" name="div_seq" type="hidden" value="" />
-							<input tbval="Y" name="div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
+							<input tbval="Y" name="erp_budget_div_seq" type="hidden" value="" />
+							<input tbval="Y" name="erp_budget_div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
 							
 							<c:if test="${disabledYn == 'N'}"> 
 							<a href="#n" onclick="fnCommonCode_trName('div', this)" class="btn_search" style="margin-left: -25px;"></a>
@@ -1550,13 +1589,18 @@
 					</td>
 					<td>
 						<div class="posi_re">
-							<input tbval="Y" name="bgt1_name" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="bgt2_name" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="bgt3_name" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="bgt4_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt1_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt2_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt3_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt4_seq" type="hidden" value="" requiredNot="true" />
+													
+							<input tbval="Y" name="erp_bgt1_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt2_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt3_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt4_name" type="hidden" value="" requiredNot="true" />
 						
-							<input tbval="Y" name="bgt_seq" type="hidden" value="" />
-							<input tbval="Y" name="bgt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
+							<input tbval="Y" name="erp_budget_seq" type="hidden" value="" />
+							<input tbval="Y" name="erp_budget_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
 							
 							<c:if test="${disabledYn == 'N'}"> 
 							<a href="#n" ${disabled} onclick="fnCommonCode_trName('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>

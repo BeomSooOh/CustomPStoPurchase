@@ -33,7 +33,11 @@ import common.helper.convert.CommonConvert;
 import common.helper.exception.NotFoundLoginSessionException;
 import common.helper.info.CommonInfo;
 import common.helper.logger.ExpInfo;
+import egovframework.com.cmm.util.EgovUserDetailsHelper;
 import egovframework.com.utl.fcc.service.EgovFileUploadUtil;
+import egovframework.com.utl.fcc.service.EgovStringUtil;
+import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import neos.cmm.util.DateUtil;
 import purchase.service.ContractService;
 import purchase.service.ContractServiceDAO;
 import common.vo.common.CommonMapper;
@@ -221,11 +225,33 @@ public class ContractMainController {
 	
 	
     @RequestMapping("/purchase/SelectConclusionPaymentList.do")
-    public ModelAndView SelectConclusionPaymentList(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    @ResponseBody
+    public ModelAndView SelectConclusionPaymentList(@RequestParam Map<String, Object> paramMap, HttpServletRequest request) throws Exception {
     	
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo = getPaginationInfo(paramMap);
+		
+		LoginVO loginVO = CommonConvert.CommonGetEmpVO();
+		paramMap.put("loginvo", loginVO);
+		
+		Map<String,Object> resultMap = null;
+		try {
+			resultMap = contractServiceDAO.SelectConclusionPaymentList(paramMap, paginationInfo);
+		} catch (Exception e) {
+			resultMap = new HashMap<String,Object>();
+			e.printStackTrace();
+			logger.error(e);
+		}
+	 
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("jsonView");
+		mv.addAllObjects(resultMap);	// data.result
+		return mv;    	
+    	
+    	
+    	/*
         ModelAndView mv = new ModelAndView();
         
-        /* 변수 설정 */
         LoginVO loginVo = CommonConvert.CommonGetEmpVO();
         params.put("groupSeq", loginVo.getGroupSeq());
         
@@ -234,6 +260,44 @@ public class ContractMainController {
         mv.setViewName("jsonView");
 
         return mv;
+        */
     } 	
+    
+	private PaginationInfo getPaginationInfo(Map<String, Object> paramMap) {	
+		
+		String fromDate= (String)paramMap.get("fromDate") ;
+		String toDate= (String)paramMap.get("toDate") ;
+
+		if(EgovStringUtil.isEmpty(toDate)) {
+			toDate = DateUtil.getCurrentDate("yyyyMMdd");
+			fromDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyyMMdd", "yyyyMMdd", -1);
+			paramMap.put("fromDate", fromDate);
+			paramMap.put("toDate", toDate);
+		}else {
+			if(fromDate.length() == 10 ) {
+				fromDate = fromDate.replaceAll("-", "");
+				toDate = toDate.replaceAll("-", "");
+				paramMap.put("fromDate", fromDate);
+				paramMap.put("toDate", toDate);
+			}
+		}
+
+		PaginationInfo paginationInfo = new PaginationInfo();
+		int pageSize =  10;
+		int page = 1 ;
+		String temp = (String)paramMap.get("pageSize");
+		if (!EgovStringUtil.isEmpty(temp )  ) {
+			pageSize = Integer.parseInt(temp) ;
+		}
+		temp = (String)paramMap.get("page") ;
+		if (!EgovStringUtil.isEmpty(temp )  ) {
+			page = Integer.parseInt(temp) ;
+		}
+		
+		paginationInfo.setPageSize(pageSize);
+		paginationInfo.setCurrentPageNo(page);
+		return paginationInfo;
+	}	    
+    
 
 }

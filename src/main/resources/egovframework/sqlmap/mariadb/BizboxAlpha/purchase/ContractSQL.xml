@@ -177,6 +177,7 @@
 		a.contract_end_dt_after, 
 		a.contract_amt_info_before, 
 		a.contract_amt_info_after, 
+		a.contract_amt_after,
 		a.change_etc,
 		a.change_reason,		
 		a.created_dt, 
@@ -348,9 +349,8 @@
 		'$pm_email$',
 		'$pm_hp$',
 		'$pm_name$',
-		0,
+		'$contract_amt$',
 		'$contract_amt_info$',		
-		
 		now(), 
 		'$created_by$', 
 		null, 
@@ -372,6 +372,7 @@
 		contract_end_dt_after, 
 		contract_amt_info_before, 
 		contract_amt_info_after, 
+		contract_amt_after, 
 		change_etc, 
 		change_reason, 
 		created_dt, 
@@ -386,6 +387,7 @@
 		'$contract_end_dt_after$',  
 		'$contract_amt_info_before$',  
 		'$contract_amt_info_after$',  
+		'$contract_amt_after$',  
 		'$change_etc$',  
 		'$change_reason$',  		
 		now(),  
@@ -464,7 +466,7 @@
 		pm_email='$pm_email$',
 		pm_hp='$pm_hp$',
 		pm_name='$pm_name$',
-		contract_amt=0,
+		contract_amt='$contract_amt$',
 		contract_amt_info='$contract_amt_info$',			
 		
 		modify_dt=now(), 
@@ -482,7 +484,8 @@
 		contract_end_dt_before = '$contract_end_dt_before$',  
 		contract_end_dt_after = '$contract_end_dt_after$',
 		contract_amt_info_before = '$contract_amt_info_before$',   
-		contract_amt_info_after = '$contract_amt_info_after$',  
+		contract_amt_info_after = '$contract_amt_info_after$',
+		contract_amt_after = '$contract_amt_after$',  
 		change_etc = '$change_etc$',   
 		change_reason = '$change_reason$',   
 		modify_dt=now(), 
@@ -523,32 +526,72 @@
 		WHERE seq='$seq$'; 
 	</update>
 	
+	<select	id="ContractSQL.SelectConclusionPaymentList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
+	
+		SELECT   COUNT(*)
+        FROM $DB_NEOS$A_DRAFTINFO df
+        INNER JOIN $DB_NEOS$A_RECORDINFO ri ON df.C_DIKEYCODE  = ri.c_dikeycode 
+        INNER JOIN $DB_NEOS$A_DOCINFO di ON df.c_dikeycode  = di.c_dikeycode
+        INNER JOIN cust_sto.t_purchase_payment_doc_info pdi ON df.c_dikeycode  = pdi.res_doc_seq
+        where
+        pdi.seq = '$seq$'
+        -- and df.c_diwriteday BETWEEN '20220914' AND   '20221214'		
+		
+	</select>	
 	
 	<select	id="ContractSQL.SelectConclusionPaymentList" parameterClass="HashMap" resultClass="HashMap">
 		
-		
-		select 
-		'경영지원팀-001' as doc_no
-		,'선금' as pay_type
-		,'1' as pay_num
-		,'계약 및 물품구매 전자관리시스템구축 선금지급 1' as doc_title
-		,'2022-12-12' as write_dt
-		,'30,000,000' as amt
-		,'20,000,000' as remain_amt
-		,'종결' as doc_sts 
-		union all
-		select 
-		'경영지원팀-002' as doc_no
-		,'선금' as pay_type
-		,'1' as pay_num
-		,'계약 및 물품구매 전자관리시스템구축 선금지급 2' as doc_title
-		,'2022-12-12' as write_dt
-		,'50,000,000' as amt
-		,'10,000,000' as remain_amt
-		,'상신' as doc_sts
-				
+        SELECT    CTE.C_DIKEYCODE AS C_DIKEYCODE
+             ,    CTE.C_DIORGCODE AS C_DIORGCODE
+             ,    DATE_FORMAT(CTE.C_DIWRITEDAY,'%Y-%m-%d')  AS C_DIWRITEDAY
+             ,    CTE.C_DIWRITETIME AS C_DIWRITETIME
+             ,    IF(IFNULL(CTE.c_distatus, '008') = '009', '008', IFNULL(CTE.c_distatus, '008')) AS C_DISTATUS
+             ,    CONCAT($DB_NEOS$GET_CODE_DETAIL_INFO('0', 'COM109', IF(IFNULL(CTE.c_distatus, '008') = '009', '008', IFNULL(CTE.c_distatus, '008')) , 'kr') 
+                          , CASE WHEN IFNULL(c_dilastuserkey, '') = '' THEN '' ELSE IFNULL(CONCAT('(', $DB_NEOS$FN_GetMultiname('kr', 'emp',c_dilastuserkey), ')'),'') END ) AS DOCSTSNAME
+             ,    CTE.c_didoctype AS DOCTYPE_CODE
+             ,    CTE.c_dititle AS C_DITITLE
+             ,    CASE WHEN IF(IFNULL(CTE.c_distatus, '008') = '009', '008', IFNULL(CTE.c_distatus, '008')) = '008' THEN '000' ELSE C_DIDOCGRADE END AS C_DIDOCGRADE
+             ,    CTE.C_DIUSERKEY AS C_DIUSERKEY
+             ,    CTE.C_DIPROPERTY AS C_DIPROPERTY
+             ,    CTE.C_TIKEYCODE AS C_TIKEYCODE
+             ,    IFNULL(D_C_DIFLAG, '0') AS C_DIFLAG
+             ,    CTE.C_DIDOCFLAG AS C_DIDOCFLAG
+             ,    $DB_NEOS$GET_CODE_DETAIL_INFO('0', 'COM103', CTE.C_DIDOCFLAG , 'kr') AS C_DIDOCFLAGNAME
+             ,    $DB_NEOS$GET_CODE_DETAIL_Info('0', 'COM102', IFNULL(CTE.D_C_DIFLAG, '0') , 'kr') AS C_DIFLAGNAME
+             ,    IFNULL(CTE.c_disecretgrade,'000') AS C_DISECRETGRADE
+             ,    ((SELECT COUNT(*)  FROM $DB_NEOS$A_KYULJAELINEINFO WHERE C_DIKEYCODE = CTE.C_DIKEYCODE AND C_KLUSERTYPE  = '128') + (SELECT COUNT(*)  FROM $DB_NEOS$A_doc_audit_info WHERE C_DIKEYCODE = CTE.C_DIKEYCODE)) AS AUDITCOUNT
+             ,    IFNULL(( SELECT 'Y' FROM $DB_NEOS$A_KYULJAELINEINFO WHERE C_DIKEYCODE = CTE.C_DIKEYCODE AND C_KLUSERTYPE > '001' AND C_KLSTATUS IS NULL LIMIT 1 ), 'N') MIDDLE_APPROVALYN
+             ,    C_RIDOCFULLNUM   AS C_RIDOCFULLNUM
+             ,    C_RIDELETEOPT    AS C_RIDELETEOPT
+             ,    CASE WHEN IFNULL(C_RIDOCNUM, '') = '' THEN '-' ELSE DATE_FORMAT(C_RIREGDATE,'%Y-%m-%d') END AS C_RIREGDATE
+        FROM  ( 
+        
+              SELECT 
+                       df.*
+                   ,   ri.C_RIDOCNUM
+                   ,   di.c_tikeycode
+                   ,   di.C_DIFILETYPE
+                   ,   di.c_dititle
+                   ,   di.c_disecretgrade
+                   ,   di.c_dipublic
+                   ,   di.c_digrade
+                   ,   di.c_didocflag
+                   ,   di.c_diflag AS D_C_DIFLAG
+                   ,   C_RIDOCFULLNUM
+                   ,   C_RIDELETEOPT
+                   ,   C_RIREGDATE
+              FROM $DB_NEOS$A_DRAFTINFO df
+              INNER JOIN $DB_NEOS$A_RECORDINFO ri ON df.C_DIKEYCODE  = ri.c_dikeycode 
+              INNER JOIN $DB_NEOS$A_DOCINFO di ON df.c_dikeycode  = di.c_dikeycode
+              INNER JOIN cust_sto.t_purchase_payment_doc_info pdi ON df.c_dikeycode  = pdi.res_doc_seq
+              where
+              pdi.seq = '$seq$'
+              -- and df.c_diwriteday BETWEEN '20220914' AND   '20221214'
+
+         ) CTE
+         ORDER BY c_diwriteday DESC, c_diwritetime DESC, c_dikeycode DESC  
+		 LIMIT $startNum$ ,  $endNum$
 		
 	</select>	
-			
 		
 </sqlMap>

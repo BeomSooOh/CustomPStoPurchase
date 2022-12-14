@@ -1302,11 +1302,11 @@ function checkAll(checks, isCheck){
     function neosPopup(popType, param, popName) {
     	switch (popType) {
     		case 'POP_APPLINE' : //결재라인 보기
-    			var uri = getContextPath()+"/edoc/eapproval/workflow/listApprovalLine.do?" +param ;
+    			var uri = "/ea/edoc/eapproval/workflow/approvalLineViewPopup.do?" +param ;
 				openWindow2(uri,  "popDocApprovalLine", 824, 320, 0) ;
 				break;
     		case 'POP_DOCWRITE' : //상신문서작성
-				var uri = getContextPath()+"/edoc/eapproval/docCommonDrafWrite.do?" + param;
+				var uri = "/ea/edoc/eapproval/docCommonDrafWrite.do?" + param;
     			openWindow2(uri,  "popDocTemplate", _g_aproval_width_, _g_aproval_heigth_, 1,1) ;
 				break;
     		case 'POP_DOCVIEW' : //상신문서보기
@@ -1320,13 +1320,13 @@ function checkAll(checks, isCheck){
     			}else {
     				param= "multiViewYN=Y&"+param;
     			}
-				var uri = getContextPath()+"/edoc/eapproval/docCommonDraftView.do?"+ param;
+				var uri = "/ea/edoc/eapproval/docCommonDraftView.do?"+ param;
 				return openWindow2(uri,  popName,  _g_aproval_width_, _g_aproval_heigth_, 1,1) ;
 				break;
     		case 'POP_DOCREF' : //조문서보기
     			var firstDiKeyCode = $("#firstDiKeyCode").val();
     			param= "firstDiKeyCode="+firstDiKeyCode+"&"+param;
-    			var uri = getContextPath()+"/edoc/eapproval/docCommonDraftView.do?"+ param;
+    			var uri = "/ea/edoc/eapproval/docCommonDraftView.do?"+ param;
     			return openWindow2(uri,  popName,  _g_aproval_width_, _g_aproval_heigth_, 1,1) ;
     			break;
     		case 'POP_DOCUSER' : //문서보기
@@ -1338,7 +1338,7 @@ function checkAll(checks, isCheck){
     			}else {
     				param= "multiViewYN=Y&"+param;
     			}
-    			var uri = getContextPath()+"/edoc/eapproval/docCommonDraftUserView.do?"+ param;
+    			var uri = "/ea/edoc/eapproval/docCommonDraftUserView.do?"+ param;
     			openWindow2(uri,  popName,  _g_aproval_width_, _g_aproval_heigth_, 1,1) ;
     			break;
     		case 'POP_DOCCHARGE' : //문서보기
@@ -1350,86 +1350,86 @@ function checkAll(checks, isCheck){
     			}else {
     				param= "multiViewYN=Y&"+param;
     			}
-    			var uri = getContextPath()+"/edoc/eapproval/docCommonDraftChargeView.do?"+ param;
+    			var uri = "/ea/edoc/eapproval/docCommonDraftChargeView.do?"+ param;
     			openWindow2(uri,  popName,  _g_aproval_width_, _g_aproval_heigth_, 1,1) ;
     			break;
     		case 'POP_DOCCOPY' : //문서복사
 				//var uri = "/edoc/eapproval/workflow/docApprovalCopyPopup.do?"+ param;
-    			var uri = getContextPath()+"/edoc/eapproval/workflow/docReDraftViewPopup.do?"+ param;
+    			var uri = "/ea/edoc/eapproval/workflow/docReDraftViewPopup.do?"+ param;
 				openWindow2(uri,  "popDocApprovalCopy",  200, 130, 1,0) ;
 				break;
     		case 'POP_DOCEDITLIST' : //문서수정내역
 				//var uri = "/edoc/eapproval/workflow/docApprovalCopyPopup.do?"+ param;
-    			var uri = getContextPath()+"/edoc/eapproval/workflow/listMyOrderKuljaeLine.do?"+ param;
+    			var uri = "/ea/edoc/eapproval/workflow/listMyOrderKuljaeLine.do?"+ param;
 				openWindow2(uri,  "popDocEditList",  966, 430, 1,0) ;
 				break;
     		case 'POP_HWPVIEW' : //hwp 파일 보기
 				//var uri = "/edoc/eapproval/workflow/docApprovalCopyPopup.do?"+ param;
-    			var uri = getContextPath()+"/edoc/eapproval/workflow/docApprovalView.do?"+ param;
+    			var uri = "/ea/edoc/eapproval/workflow/docApprovalView.do?"+ param;
 				openWindow2(uri,  "popHwpView", _g_aproval_width_, _g_aproval_heigth_, 0,1) ;
 				break;
     		case 'POP_ERP_EXPENSES' : //기안문서 호출
-    			var uri =  getContextPath()+"/edoc/eapproval/workflow/docG20DraftWrite.do?"+ param;
+    			var uri =  "/ea/edoc/eapproval/workflow/docG20DraftWrite.do?"+ param;
     			openWindow2(uri,  "popHwpErpExpenses", _g_aproval_width_, _g_aproval_heigth_, 0,1) ;
     			break;
     		case 'POP_COMMON_DRAFT' : //근태 , 휴가
-    			var uri =  getContextPath()+"/edoc/eapproval/workflow/docCommonDrafWrite.do?"+ param;
+    			var uri =  "/ea/edoc/eapproval/workflow/docCommonDrafWrite.do?"+ param;
     			openWindow2(uri,  "popHwpCommon",  _g_aproval_width_, _g_aproval_heigth_, 0,1) ;
     			break;
     		case 'POP_EDIT_VACATION' : //근태정보 수정
-    			var uri =  getContextPath()+"/erp/g20/abdocu.do?"+ param;
+    			var uri =  "/ea/erp/g20/abdocu.do?"+ param;
     			openWindow2(uri,  "popEditErpExpenses",  968, 700, 0,0) ;
     			break;
     		case 'POP_EDIT_ERP_IU' : //KOFIA 예산회계정보 수정
-    			var uri =  getContextPath()+"/kofia/ac/draftLoad.do?"+ param;
+    			var uri =  "/ea/kofia/ac/draftLoad.do?"+ param;
     			openWindow2(uri,  "popEditErpExpenses",  964, 670, 0,0) ;
     			break;
     		case 'POP_DOCLIST_DOWN': //
-    			var uri =  getContextPath()+"/neos/edoc/document/record/board/common/DocListDown.do?"+ param;
+    			var uri =  "/ea/neos/edoc/document/record/board/common/DocListDown.do?"+ param;
 				openWindow2(uri,  "popDocListDown",  335, 250, 0,0) ;
     			break;
     		case 'POP_OLD_DOCVIEW': //구문서함 조회시 기안 파일뷰어 
-    			var uri = getContextPath()+"/neos/edoc/document/olddoc/board/common/OldDocFileViewPopup.do?"+ param;
+    			var uri = "/ea/neos/edoc/document/olddoc/board/common/OldDocFileViewPopup.do?"+ param;
 				openWindow2(uri,  "popHwpView", _g_aproval_width_, _g_aproval_heigth_, 0,1) ;
 				break;
     		case 'POP_OLD_DOCKAITVIEW': //구문서함 조회시 기안 파일뷰어 
-    			var uri = getContextPath()+"/neos/edoc/document/olddoc/board/common/OldDocFileViewKAITPopup.do?"+ param;
+    			var uri = "/ea/neos/edoc/document/olddoc/board/common/OldDocFileViewKAITPopup.do?"+ param;
     			openWindow2(uri,  "popHwpView", _g_aproval_width_, _g_aproval_heigth_, 0,1) ;
     			break;
     		case 'POP_OLD_HANDYDOCVIEW': //구핸디문서함 조회시 기안 파일뷰어 
-    			var uri = getContextPath()+"/neos/edoc/document/olddoc/board/common/OldHandyDocFileViewPopup.do?"+ param;
+    			var uri = "/ea/neos/edoc/document/olddoc/board/common/OldHandyDocFileViewPopup.do?"+ param;
 				openWindow2(uri,  "popHwpView", _g_aproval_width_, _g_aproval_heigth_, 0,1) ;
 				break;
     		case 'POP_OLD_APPLINE' : //결재라인 보기
-    			var uri = getContextPath()+"/neos/edoc/document/olddoc/board/common/OldDocApprovalLineEx.do?" +param ;
+    			var uri = "/ea/neos/edoc/document/olddoc/board/common/OldDocApprovalLineEx.do?" +param ;
 				openWindow2(uri,  "popOldDocApprovalLine", 887, 346, 0) ;
 				break;
     		case 'POP_MEMOSUBJECT_OPINION' : //메모의견정보
-    			var uri = getContextPath()+"/memoreport/memoReportSubjectOpinionList.do?" +param ;
+    			var uri = "/ea/memoreport/memoReportSubjectOpinionList.do?" +param ;
     			openWindow2(uri,  "popMemoSubjectOpinion", 960, 546, 0) ;
     			break;
     		case 'POP_MEMOREFER' : //메모참조대상자조회
-    			var uri = getContextPath()+"/memoreport/memoReportReferForMemoReportList.do?" +param ;
+    			var uri = "/ea/memoreport/memoReportReferForMemoReportList.do?" +param ;
     			openWindow2(uri,  "popMemoReportRefer",620, 546, 0) ;
     			break;
     		case 'POP_DEPT' : //부서정보   
-    			var uri = getContextPath()+"/cmm/system/selectOrganDeptView.do?" +param ;
+    			var uri = "/ea/cmm/system/selectOrganDeptView.do?" +param ;
     			openWindow2(uri,  "popOrganDept", 290, 520, 0) ;
     			break;
     		case 'POP_MEMBERFORDEPT' : //사용자조회   
-    			var uri = getContextPath()+"/cmm/system/selectMemberViewPopup.do?" +param+"&searchDept=Y" ;
+    			var uri = "/ea/cmm/system/selectMemberViewPopup.do?" +param+"&searchDept=Y" ;
     			openWindow2(uri,  "popOrganDept", 569, 550, 0) ;
     			break;
     		case 'POP_MEMBER' : //사용자조회   
-    			var uri = getContextPath()+"/cmm/system/selectMemberViewPopup.do?" +param ;
+    			var uri = "/ea/cmm/system/selectMemberViewPopup.do?" +param ;
     			openWindow2(uri,  "popMember", 290, 650, 0) ;
     			break;
     		case 'POP_WORKUNIT' : //단위업무조회   
-    			var uri = getContextPath()+"/cmm/system/selectWorkcodeView.do?" +param ;
+    			var uri = "/ea/cmm/system/selectWorkcodeView.do?" +param ;
     			openWindow2(uri,  "popWorkUnit", 290, 520, 0) ;
     			break;
     		case 'POP_TAKEOVERRESULT' : //인계결과   
-    			var uri = getContextPath()+"/archive/archiveTakeOverResultList.do" ;
+    			var uri = "/ea/archive/archiveTakeOverResultList.do" ;
     			openWindow2("",  "popTakeOverResult", 920, 520, 0) ;
     			frmPop.action = uri ;
     			frmPop.method = "post" ;
@@ -1439,7 +1439,7 @@ function checkAll(checks, isCheck){
     			$("idTakeOverResult").html("");
     			break;
     		case 'POP_RECORD_TAKEOVERRESULT' : //기록물인계결과   
-    			var uri = getContextPath()+"/record/recordTakeOverResultList.do" ;
+    			var uri = "/ea/record/recordTakeOverResultList.do" ;
     			openWindow2("",  "popTakeOverResult", 920, 520, 0) ;
     			frmPop.action = uri ;
     			frmPop.method = "post" ;
@@ -1453,15 +1453,15 @@ function checkAll(checks, isCheck){
     			openWindow2(uri,  "popEditErpExpenses",  968, 700, 0,0) ;
     			break;
     		case 'POP_EMAILWRITE' : //이메일WRITE POPUP 
-    			var uri = getContextPath()+"/getMailWriteLink.do?" +param ;
+    			var uri = "/ea/getMailWriteLink.do?" +param ;
     			openWindow2(uri,  "popEmailWrite",  968, 700, 0,0) ;
     			break;
     		case 'POP_RESEARCH_BUDGET' : //연구관리 예산내역 보기
-    			var uri = getContextPath()+"/koddi/cm/research/researchBudgetList.do?" +param ;
+    			var uri = "/ea/koddi/cm/research/researchBudgetList.do?" +param ;
 				openWindow2(uri,  "popResearchBudget", 887, 346, 0) ;
 				break;
     		case 'POP_RESEARCHER_JOIN' : //연구관리 공동연구원 보기
-    			var uri = getContextPath()+"/koddi/cm/research/researcherJoinList.do?" +param ;
+    			var uri = "/ea/koddi/cm/research/researcherJoinList.do?" +param ;
 				openWindow2(uri,  "popResearcherJoin", 887, 346, 0) ;
 				break;
     	}
@@ -2281,3 +2281,101 @@ NeosUtil.getMessage = function(langPackCode,defaultValue){
 	return defaultValue;
 	//return result;
 };
+
+
+function fnPuddDiaLog(type, arg, fnCallback, params, width, height, cancelFnCallback, cancelParams){
+
+	if(!width){
+		width = 400;
+	}
+	
+	if(!height){
+		height = "";
+	}
+	//  "warning",  "success",  "question", "error"
+	if(type == "question"){
+		var puddDialog = Pudd.puddDialog({
+				width : width
+			,	height : height
+			,	message : {
+					type : "question"
+				,	content : arg
+				}			 
+			,	footer : {
+			
+					// puddDialog message 에서 제공되는 버튼 사용하지 않고 별도로 진행할 경우
+					buttons : [
+						{
+							attributes : {}// control 부모 객체 속성 설정
+						,	controlAttributes : { id : "btnConfirmD", class : "submit" }// control 자체 객체 속성 설정
+						,	value : NeosUtil.getMessage("TX000000078","확인")
+						,	defaultFocus :  true// 기본값 true
+						,	clickCallback : function( puddDlg ) {			
+								puddDlg.showDialog( false );
+								//window[fnCallback]();
+				            	try {
+				            		eval(fnCallback)(params);
+			                	}catch (e) {}								
+							}
+						}
+					,	{
+							attributes : { style : "margin-left:5px;" }// control 부모 객체 속성 설정
+						,	controlAttributes : { id : "btnCancelD" }// control 자체 객체 속성 설정
+						,	value : NeosUtil.getMessage("TX000002947","취소")
+						,	clickCallback : function( puddDlg ) {
+			
+								puddDlg.showDialog( false );
+								try{
+									eval(cancelFnCallback)(cancelParams);
+								}catch(e){}
+							}
+						}
+					]
+				}
+		});
+	}else{
+		if(fnCallback){
+			var puddDialog = Pudd.puddDialog({
+					width : width
+				,	height : height
+				,	message : {
+					type : type
+				,	content : arg
+					}
+/*				,	defaultClickCallback : function( puddDlg ) {
+					puddDlg.showDialog( false );
+	            	try {
+	            		eval(fnCallback)(params);
+                	}catch (e) {}	
+				}	*/		
+				,	footer : {
+						// puddDialog message 에서 제공되는 버튼 사용하지 않고 별도로 진행할 경우
+						buttons : [
+							{
+								attributes : {}// control 부모 객체 속성 설정
+							,	controlAttributes : { id : "btnConfirmD", class : "submit" }// control 자체 객체 속성 설정
+							,	value : NeosUtil.getMessage("TX000000078","확인")
+							,	defaultFocus :  true// 기본값 true
+							,	clickCallback : function( puddDlg ) {
+									puddDlg.showDialog( false );
+					            	try {
+					            		eval(fnCallback)(params);
+				                	}catch (e) {}	
+								}
+							}
+						]
+					}
+			});											
+		}else{
+			var puddDialog = Pudd.puddDialog({
+				width : width
+				,	height : height
+				,	message : {
+						type : type
+						,	content : arg
+				}			 
+			});	
+		}
+		
+	}
+}

@@ -172,7 +172,8 @@
 			<isEqual property="docSts" compareValue="90">
 			,a.c_work_info = (case when ifnull(b.work_info_after,'') != '' then b.work_info_after else a.c_work_info end)
 			,a.c_contract_end_dt = (case when ifnull(b.contract_end_dt_after,'') != '' then b.contract_end_dt_after else a.c_contract_end_dt end)
-			,a.contract_amt_info = (case when ifnull(b.contract_amt_info_after,'') != '' then b.contract_amt_info_after else a.contract_amt_info end)			
+			,a.contract_amt_info = (case when ifnull(b.contract_amt_info_after,'') != '' then b.contract_amt_info_after else a.contract_amt_info end)
+			,a.contract_amt = (case when ifnull(b.contract_amt_info_after,'') != '' then b.contract_amt_after else a.contract_amt end)			
 			</isEqual>			
 			
 			where a.seq = '$seq$' and b.change_seq = '$change_seq$';
@@ -249,8 +250,8 @@
 	<insert	id="CommonSQL.InsertBudgetInfo" parameterClass="HashMap" >
 		
 		INSERT INTO cust_sto.t_purchase_budget_info
-		(seq, outProcessCode, div_seq, div_name, pjt_seq, pjt_name, bottom_seq, bottom_name, bgt_seq, bgt_name, bgt1_name, bgt2_name, bgt3_name, bgt4_name, created_dt, created_by)
-		VALUES('$seq$', '$outProcessCode$', '$div_seq$', '$div_name$', '$pjt_seq$', '$pjt_name$', '$bottom_seq$', '$bottom_name$', '$bgt_seq$', '$bgt_name$', '$bgt1_name$', '$bgt2_name$', '$bgt3_name$', '$bgt4_name$', now(), '$created_by$');
+		(seq, outProcessCode, erp_budget_seq, erp_budget_name, erp_budget_div_seq, erp_budget_div_name, erp_bgt1_seq, erp_bgt2_seq, erp_bgt3_seq, erp_bgt4_seq, erp_bgt1_name, erp_bgt2_name, erp_bgt3_name, erp_bgt4_name, pjt_seq, pjt_name, bottom_seq, bottom_name, created_dt, created_by)
+		VALUES('$seq$', '$outProcessCode$', '$erp_budget_seq$', '$erp_budget_name$', '$erp_budget_div_seq$', '$erp_budget_div_name$', '$erp_bgt1_seq$', '$erp_bgt2_seq$', '$erp_bgt3_seq$', '$erp_bgt4_seq$', '$erp_bgt1_name$', '$erp_bgt2_name$', '$erp_bgt3_name$', '$erp_bgt4_name$', '$pjt_seq$', '$pjt_name$', '$bottom_seq$', '$bottom_name$', now(), '$created_by$');
 
 	</insert>
 	
@@ -270,8 +271,8 @@
 	<insert	id="CommonSQL.InsertTradeInfo" parameterClass="HashMap" >
 	
 		INSERT INTO cust_sto.t_purchase_trade_info
-		(seq, outProcessCode, trSeq, trName, atTrName, ceoName, trRegNumber, addr, depositor, baNb, btrName, btrSeq, trFg, trFgName, pmEmail, pmHp, pmName, created_dt, created_by)
-		VALUES('$seq$', '$outProcessCode$', '$trSeq$', '$trName$', '$atTrName$', '$ceoName$', '$trRegNumber$', '$addr$', '$depositor$', '$baNb$', '$btrName$', '$btrSeq$', '$trFg$', '$trFgName$', '$pmEmail$', '$pmHp$', '$pmName$', now(), '$created_by$');
+		(seq, outProcessCode, tr_seq, tr_name, at_tr_name, ceo_name, tr_reg_number, addr, depositor, ba_nb, btr_name, btr_seq, tr_fg, tr_fg_name, pm_email, pm_hp, pm_name, created_dt, created_by)
+		VALUES('$seq$', '$outProcessCode$', '$tr_seq$', '$tr_name$', '$at_tr_name$', '$ceo_name$', '$tr_reg_number$', '$addr$', '$depositor$', '$ba_nb$', '$btr_name$', '$btr_seq$', '$tr_fg$', '$tr_fg_name$', '$pm_email$', '$pm_hp$', '$pm_name$', now(), '$created_by$');
 		
 	</insert>
 	

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import egovframework.com.cmm.service.impl.EgovComAbstractDAO;
+import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 
 @Repository("ContractServiceDAO")
 public class ContractServiceDAO extends EgovComAbstractDAO {
@@ -89,11 +90,10 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 		
 	}
 	
-	@SuppressWarnings("unchecked")
-	public List<Map<String, Object>> SelectConclusionPaymentList ( Map<String, Object> params ) {
-		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
-		result = (List<Map<String, Object>>) list( "ContractSQL.SelectConclusionPaymentList", params );
-		return result;
+	public Map<String, Object> SelectConclusionPaymentList (Map<String, Object> paramMap, PaginationInfo paginationInfo) {
+		
+		return super.listOfPaging2(paramMap, paginationInfo, "ContractSQL.SelectConclusionPaymentList");
+		
 	}		
 	
 }

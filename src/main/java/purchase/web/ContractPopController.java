@@ -43,6 +43,7 @@ import common.vo.common.CustomLabelVO;
 import common.vo.common.ResultVO;
 import common.vo.common.CommonInterface.commonCode;
 import expend.np.user.option.BNpUserOptionService;
+import neos.cmm.util.DateUtil;
 import net.sf.json.JSONArray;
 import common.procedure.npG20.BCommonProcService;
 
@@ -512,6 +513,11 @@ public class ContractPopController {
         ModelAndView mv = new ModelAndView();
         try {
         	
+        	String toDate = DateUtil.getCurrentDate("yyyy-MM-dd");
+        	String fromDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", -1);
+        	mv.addObject("fromDate", fromDate);
+        	mv.addObject("toDate", toDate);
+        	
 			/* [예외 검증] 로그인 세션 확인 */
 			if ( CommonConvert.CommonGetEmpInfo( ) == null ) {
 				throw new NotFoundLoginSessionException( "로그인 세션 검색 실패" );
@@ -645,18 +651,6 @@ public class ContractPopController {
 				procParams.put( "erpType", CommonConvert.CommonGetStr(conVo.getErpTypeCode( )) );
 				mv.addObject( "erpGisu", CommonConvert.CommonGetListMapToJson( procService.getProcResult( procParams ).getAaData( ) ) );
 			}        	
-        	
-        	
-        	
-        	
-        	
-        	
-        	
-        	
-        	
-        	
-        	
-        	
             
             mv.addObject("seq", params.get("seq"));
             mv.addObject("formSeq", params.get("formSeq"));

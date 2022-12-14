@@ -541,8 +541,17 @@
 				if($('[name=changeItem][value=03]:checked').length == 0){
 					insertDataObject.contract_amt_info_before = "";
 					insertDataObject.contract_amt_info_after = "";
+					insertDataObject.contract_amt_after = "0";
 				}else{
 					insertDataObject.contract_amt_info_before = "${contractDetailInfo.contract_amt_info}";
+					
+					//계약총금액 조회
+					insertDataObject.contract_amt_after = 0;
+					
+					$.each($("[name=amtInfoList] [name=addData] [amounttype=amt]"), function( key, objInfo ) {
+						insertDataObject.contract_amt_after += parseInt($(objInfo).val().replace(/,/g, ''));
+					});
+					
 				}
 				
 				//기타

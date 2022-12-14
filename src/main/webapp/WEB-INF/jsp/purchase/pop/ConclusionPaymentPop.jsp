@@ -29,6 +29,7 @@
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/common.js' />"></script>
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script>  
     <script type="text/javascript" src="<c:url value='/js/jquery.maskMoney.js' />"></script>  
+    <script type="text/javascript" src="<c:url value='/js/neos/NeosUtil.js' />"></script>
     
 	<jsp:include page="/WEB-INF/jsp/expend/np/user/include/UserOptionMap.jsp" flush="false" />	
 	<jsp:include page="/WEB-INF/jsp/expend/np/user/include/NpUserResPop.jsp" flush="false" />	
@@ -45,21 +46,262 @@
 	
 	$(document).ready(function() {
 		
-		fnGetListBind();
-		
-		$(window).resize(function () {
-			gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
-	
-		});		
+		BindGrid();
 
-	});//---documentready끝		
+	});		
+	
+	//결재선보기 
+	function openPopApprovalLinePudd(e){
+		var diKeyCode = e.C_DIKEYCODE ;
+		var param = "diKeyCode="+diKeyCode;
+
+		return '<span class="ico-blank" onClick="neosPopup(\'POP_APPLINE\', \''+param+'\');"></span>';
+	} 
+	
+	function ncCom_Empty(argStr){
+		if (!argStr) return true;
+		if (argStr.length == 0) return true;
+		if(typeof(argStr) == "undefined")  return true ;
+		if(argStr == "undefined")  return true ;	
+		if(argStr == "null") return true ;
+		
+		for (var i = 0; i<argStr.length; i++) {
+	 		if ( (" " == argStr.charAt(i)) || ("　" == argStr.charAt(i)) )  {	}
+			else return false;
+		}
+		return true;
+	}	
+	
+	function TextOverFlowApp(e){
+		
+		var C_RIDELETEOPT = "";
+		if(!ncCom_Empty(e.C_RIDELETEOPT)){
+			C_RIDELETEOPT = e.C_RIDELETEOPT;
+		}
+		
+		var c_dititle = e.C_DITITLE.replace(/</gi, "&lt;").replace(/>/gi, "&gt;"); 
+			
+		var title = "<span onClick='titleOnClickApp(\"" + e.C_DIKEYCODE +"\", \"" + e.C_MISEQNUM +"\", \"" + e.C_DISEQNUM +"\" , \"" + e.C_RIDELETEOPT +"\", \"" + e.C_TIFORMGB +"\", \"" + e.C_DISTATUS +"\")' style='cursor:pointer; ' >";
+		if(e.AUDITCOUNT > 0){
+			  title += "<img src='/ea/Images/ico/ico_gamsa.png' title='"+ NeosUtil.getMessage("TX000020865","감사문서") +"'/> ";
+		}
+		if(e.C_DISECRETGRADE == "009"){
+			  title += "<img src='"+_g_contextPath_ +"/Images/ico/ico_security.png' title='"+ NeosUtil.getMessage("TX000008484","보안문서") +"'/> ";
+		}
+		if(e.C_DIDOCGRADE == "002"){
+			  title += "<img src='"+_g_contextPath_ +"/Images/ico/ico_emergency.png' title='"+ NeosUtil.getMessage("TX000009230","긴급문서") +"'/> ";
+		}
+		
+		if(e.SUBAPPROV == "Y"){
+			  title += "<img src='"+_g_contextPath_ +"/Images/ico/ico_proxy.png' title='"+ NeosUtil.getMessage("TX000002949","대결") +"'/> ";
+		}
+		if(e.DOCCOUNT > 1){
+			  title += "<img src='"+_g_contextPath_ +"/Images/ico/ico_draft.png' title='"+ NeosUtil.getMessage("TX000021117","일괄기안") +"'/> ";
+		}
+		
+	    if(C_RIDELETEOPT == "d"){
+	    	title += "<a href=\"javascript:;\" class=\"text_red\">" + c_dititle +"</a>";
+	    }else{
+	    	title += "<a href=\"javascript:;\">" + c_dititle +"</a>";
+	    }
+		
+		title +="</span>";
+		
+		return  title ;
+	}	
+	
+	
+	function titleOnClickApp(c_dikeyCode, c_miseqnum, c_diseqnum, c_rideleteopt, c_tifogmgb, c_distatus){
+		
+		if(c_rideleteopt =='d'){
+			fnPuddDiaLog("warning", NeosUtil.getMessage("TX000009232","삭제된 문서는 열수 없습니다"));
+			return;
+		}
+		var obj = {
+				diSeqNum  : c_diseqnum,
+				miSeqNum  : c_miseqnum,
+				diKeyCode : c_dikeyCode,
+				tiFormGb  : c_tifogmgb,
+				diStatus  : c_distatus,
+				socketList : 'Y'
+			};
+		var param = NeosUtil.makeParam(obj);
+		neosPopup("POP_DOCVIEW", param);
+	}	
+	
+	
+	function gridDataRowPudd(gridObj, contentTable){
+		
+		// grid 에 dataSource 전달되지 않은 경우는 skip
+		if( ! gridObj.optObject.dataSource ) return;
+
+		var totalCount = gridObj.optObject.dataSource.totalCount;
+		if( 0 == totalCount ) {
+			puddGridNoData(gridObj);
+			return;				
+		}
+		var rowLength = contentTable.rows.length;
+		if( rowLength <= 0 ) return;
+		for( var i=0; i<rowLength; i++ ) {
+			 
+			var trObj = Pudd.getInstance( contentTable.rows[ i ] );
+			if( "d" == trObj.rowData.C_RIDELETEOPT ) {
+//				trObj.style( "text-decoration:line-through;color:red;" );
+				trObj.addClass("text_redline");
+			}
+		}
+	}	
+	
+	function BindGrid(){
+		
+		var dataSource = new Pudd.Data.DataSource({
+				serverPaging: true
+			,	pageSize: 10
+			,	request : {
+				    url : '<c:url value="/purchase/SelectConclusionPaymentList.do" />'
+				,	type : 'post'
+				,	dataType : "json"
+				,   parameterMapping : function( data ) {
+		
+					data.seq = "${seq}";
+					data.fromDate = $("#searchFromDate").val(); ;
+					data.toDate = $("#searchToDate").val();
+					
+					return data;
+				}
+			}	    
+			,   result : {
+				data : function(response){
+					return response.list;
+				},
+				totalCount : function(response){
+					return response.totalCount;	
+				},
+				error : function(response){
+					alert("error");
+				}	
+			}
+				    
+		});
+		
+		Pudd("#grid").puddGrid({
+			
+			dataSource : dataSource
+				//,	scrollable : true
+			,	pageSize : 10
+			,	pageable : {
+				    buttonCount : 10
+				,	pageList : [ 10, 20, 30, 50, 100 ]   
+		        ,   pageInfo : true
+			   	}
+			,	resizable : true
+			,	ellipsis : false // 말줄임 사용여부
+	        ,   sortable : true
+			,	columns : [
+					
+				 	    {  field : "C_DIDOCFLAGNAME",	title : "문서구분",	width : 100}
+				 	,   {  field : "C_RIDOCFULLNUM",	title : "문서번호",	width : 130}
+					,	{  field : "C_DITITLE"
+						,	title : "제목" 
+						,   width : 400
+						,	content : {	
+							   template : TextOverFlowApp
+							,  attributes : { style : "text-align:left;padding-left:5px;" }
+						    }				
+					    }
+					,   {  field : "C_DIWRITEDAY",	title : "기안일자",	width : 90}
+					,   {  field : "C_RIREGDATE",	title : "종결일자",	width : 90}				
+					,   {  field : "DOCSTSNAME",	title : "결재상태",	width : 120}
+					,	{  field : "C_DIKEYCODE"
+						,	title : "결재선보기"
+						,	width : 80
+						,	content : {	
+							   template : openPopApprovalLinePudd
+						    }				
+					    }
+				
+				]
+				
+			,	loadCallback : function( headerTable, contentTable, footerTable, gridObj) {
+				 
+				//gridDataRowPudd(gridObj, contentTable);
+			}
+			,	progressBar : {
+			   	 
+					progressType : "loading"
+				,	attributes : { style:"width:70px; height:70px;" }
+				,	strokeColor : "#84c9ff"	// progress 색상
+				,	strokeWidth : "3px"	// progress 두께
+				,	percentText : "loading"	// loading 표시 문자열 설정 - progressType loading 인 경우만
+				,	percentTextColor : "#84c9ff"
+				,	percentTextSize : "12px"
+				,	backgroundLayerAttributes : { style : "background-color:#fff;filter:alpha(opacity=0);opacity:0;width:100%;height:100%;position:fixed;top:0px; left:0px;" }
+			}		
+		});
+		$(".grid-header input[type=checkbox]").parent().parent().html("선택");
+	}   	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 		
 	
 	function fnPaymentCreate(){
 		
-		fnResDocInsert();
+		//결의 잔여금액 조회
+
+		var reqParam = {};
 		
+		reqParam.seq = "${seq}";
+		
+		$.ajax({
+			type : 'post',
+			url : '<c:url value="/purchase/ContractInfo.do" />',
+			datatype : 'json',
+			data : reqParam,
+			async : false,
+			success : function(result) {
+				
+				if(true){
+					fnResDocInsert();
+				}else{
+					//대금지급 완료 컨펌
+					msgSnackbar("error", "지급요청할 잔여금액이 없습니다.");	
+				}
+				
+			},
+			error : function(result) {
+				msgSnackbar("error", "데이터 요청에 실패했습니다.");
+			}
+		});
+			
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	function fnPaymentExpendCreatePop(){
 		
@@ -322,10 +564,6 @@
 		return;
 	}
 	
-	
-	
-	
-	
 	function fnTradeInsert() {
 
 		parameter.budgetSeq = budgetSeq; /* [*]예산 키 */
@@ -417,13 +655,6 @@
 		return;
 	}	
 	
-	
-	
-	
-	
-	
-	
-	
 	function fnTradeDataCurrection(parameter){
 		parameter.etcRequiredAmt = parameter.etcRequiredAmt || '0';
 		parameter.etcIncomeAmt = parameter.etcIncomeAmt || '0';
@@ -446,12 +677,6 @@
 		return parameter;
 	}	
 	
-	
-	
-	
-	
-	
-	
 	function fnBudgetDataCurrection(parameter){
 		parameter.budgetNote = parameter.budgetNote.replaceAll('\\','');
 		parameter.erpBqSeq = parameter.erpBqSeq || '0';
@@ -468,114 +693,6 @@
 		return parameter;
 	}	
 		
-	function gridHeightChange( minusVal ) {
-		var puddGrid = Pudd( "#grid1" ).getPuddObject();
-		var cHeight = document.body.clientHeight;
-
-		var newGridHeight = cHeight - minusVal;
-		if( newGridHeight > 100 ) {// 최소높이
-			puddGrid.gridHeight( newGridHeight );
-		}
-	}		
-	
-	function fnGetListBind(){
-
-		var reqParam = {};
-		
-		reqParam.stat = "";
-		
-		$.ajax({
-			type : 'post',
-			url : '<c:url value="/purchase/SelectConclusionPaymentList.do" />',
-			datatype : 'json',
-			data : reqParam,
-			async : false,
-			success : function(result) {
-				gridRender(result.resultList);
-			},
-			error : function(result) {
-				msgSnackbar("error", "데이터 요청에 실패했습니다.");
-			}
-		});
-		
-		gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
-		
-	}		
-	
-	function gridRender(listData){
-		
-		var dataSource = new Pudd.Data.DataSource({
-			data : listData	// 직접 data를 배열로 설정하는 옵션 작업할 것
-		,	pageSize : 1000	// grid와 연동되는 경우 grid > pageable > pageList 배열값 중의 하나이여야 함
-		,	serverPaging : false
-		});
-
-		Pudd("#grid1").puddGrid({
-			dataSource : dataSource
-		,	scrollable : true
-		, 	pageSize : 10	// grid와 연동되는 경우 grid > pageable > pageList 배열값 중의 하나이여야 함
-		,	serverPaging : true			
-		,	pageable : {
-				buttonCount : 10 
-			,	pageList : [ 10, 20, 30, 40, 50 ]
-			}
-		,	columns : [
-				{
-						field : "doc_no"
-					,	title : "문서번호"
-					,	width : 130
-					,	content : {
-							attributes : { class : "text_line text_ho" }
-					}
-				}
-				,	{
-						field : "pay_type"
-					,	title : "지급구분"
-					,	width : 100							
-				}
-				,	{
-						field : "pay_num"
-					,	title : "지급차수"
-					,	width : 90							
-				}
-				,	{
-						field : "doc_title"
-					,	title : "결의제목"
-					,	width : 300
-					,	content : {
-							attributes : { class : "le ellipsis" }
-					}
-				}
-				,	{
-						field : "write_dt"
-					,	title : "기안일자"
-					,	width : 100
-				}
-			,	{
-						field : "amt"
-					,	title : "결의금액"
-					,	width : 120
-					,	content : {
-							attributes : { class : "ri" }
-					}
-				}
-			,	{
-						field : "remain_amt"
-					,	title : "잔여금액"
-					,	width : 120
-					,	content : {
-							attributes : { class : "ri" }
-					}
-				}
-			,	{
-						field : "doc_sts"
-					,	title : "결재상태"
-					,	width : 100
-				}
-			]
-		});			
-		
-	}			
 	
 
 		
@@ -595,10 +712,10 @@
 						<dl>
 							<dt class="ar" style="width:60px;">기안일자</dt>
 							<dd>
-								<input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/> ~
-								<input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/>
+								<input id="searchFromDate" type="text" value="${fromDate}" class="puddSetup" pudd-type="datepicker"/> ~
+								<input id="searchToDate" type="text" value="${toDate}" class="puddSetup" pudd-type="datepicker"/>
 							</dd>							
-							<dd><input onclick="fnGetListBind();" type="button" class="puddSetup submit" id="searchButton" value="검색" /></dd>
+							<dd><input onclick="BindGrid();" type="button" class="puddSetup submit" id="searchButton" value="검색" /></dd>
 						</dl>
 					</div>
 					
@@ -619,7 +736,7 @@
 						
 						<div class="dal_Box">
 							<div class="dal_BoxIn posi_re">
-								<div id="grid1"></div>
+								<div id="grid"></div>
 							</div>
 						</div>
 						
