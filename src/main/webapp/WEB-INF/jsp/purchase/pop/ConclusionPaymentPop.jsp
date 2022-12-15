@@ -163,7 +163,8 @@
 				,	dataType : "json"
 				,   parameterMapping : function( data ) {
 		
-					data.seq = "${seq}";
+					//data.seq = "${seq}";
+					data.seq = "99";
 					data.fromDate = $("#searchFromDate").val(); ;
 					data.toDate = $("#searchToDate").val();
 					
@@ -198,11 +199,11 @@
 			,	ellipsis : false // 말줄임 사용여부
 	        ,   sortable : true
 			,	columns : [
-					
-				 	    {  field : "C_DIDOCFLAGNAME",	title : "문서구분",	width : 100}
-				 	,   {  field : "C_RIDOCFULLNUM",	title : "문서번호",	width : 130}
+				 	    {  field : "C_RIDOCFULLNUM",	title : "문서번호",	width : 130}
+				 	,   {  field : "P_PAYTYPE",	title : "지급구분",	width : 90}
+				 	,	{  field : "P_PAYCNT",	title : "지급차수",	width : 90}
 					,	{  field : "C_DITITLE"
-						,	title : "제목" 
+						,	title : "결의제목" 
 						,   width : 400
 						,	content : {	
 							   template : TextOverFlowApp
@@ -210,7 +211,8 @@
 						    }				
 					    }
 					,   {  field : "C_DIWRITEDAY",	title : "기안일자",	width : 90}
-					,   {  field : "C_RIREGDATE",	title : "종결일자",	width : 90}				
+					,   {  field : "P_RESAMT",	title : "결의금액",	width : 130}
+					,   {  field : "P_REMAINAMT",	title : "잔여금액",	width : 130}
 					,   {  field : "DOCSTSNAME",	title : "결재상태",	width : 120}
 					,	{  field : "C_DIKEYCODE"
 						,	title : "결재선보기"
@@ -240,17 +242,6 @@
 		});
 		$(".grid-header input[type=checkbox]").parent().parent().html("선택");
 	}   	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	
