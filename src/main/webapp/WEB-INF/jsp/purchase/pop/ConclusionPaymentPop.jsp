@@ -196,8 +196,8 @@
 		        ,   pageInfo : true
 			   	}
 			,	resizable : true
-			,	ellipsis : false // 말줄임 사용여부
-	        ,   sortable : true
+			,	ellipsis : false
+	        ,   sortable : false
 			,	columns : [
 				 	    {  field : "C_RIDOCFULLNUM",	title : "문서번호",	width : 130}
 				 	,   {  field : "P_PAYTYPE",	title : "지급구분",	width : 90}
