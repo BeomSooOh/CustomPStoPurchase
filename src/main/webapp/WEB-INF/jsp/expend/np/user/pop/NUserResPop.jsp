@@ -3230,8 +3230,6 @@
 					
 					if(result.resultCode == "SUCCESS"){
 						
-						return;
-						
 						try{
 							$('#tradeTbl').dzt('setCommit', true);
 							var _tradeData = $('#tradeTbl').dzt('getValue');
