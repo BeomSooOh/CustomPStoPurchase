@@ -282,5 +282,24 @@
 		from cust_sto.t_purchase_trade_info where seq = '$seq$' and outProcessCode = '$outProcessCode$' limit 1;
 
 	</select>			
+	
+	<select	id="CommonSQL.SelectResdocInfo" parameterClass="HashMap" resultClass="HashMap">
+		
+		select * from $DB_NEOS$t_exnp_resdoc where res_doc_seq = '$resDocSeq$';
+
+	</select>
+	
+	
+	<delete	id="CommonSQL.DeletePaymentDocInfo" parameterClass="HashMap" >
+		delete from cust_sto.t_purchase_payment_doc_info where seq = '$seq$' and outProcessCode = '$outProcessCode$' and res_doc_seq = '$resDocSeq$';
+	</delete>
+	
+	
+	<insert	id="CommonSQL.InsertPaymentDocInfo" parameterClass="HashMap" >
+		INSERT INTO cust_sto.t_purchase_payment_doc_info
+		(seq, outProcessCode, res_doc_seq, pay_type, pay_cnt, res_amt, remain_amt, created_dt, created_by)
+		VALUES('$seq$', '$outProcessCode$', '$resDocSeq$', '$payType$', '$payCnt$', '$resAmt$', '$remainAmt$', NOW(), '$created_by$');
+	</insert>		
+	
 		
 </sqlMap>

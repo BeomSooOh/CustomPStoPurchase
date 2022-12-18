@@ -545,6 +545,7 @@
              ,    CTE.C_DIORGCODE AS C_DIORGCODE
              ,    DATE_FORMAT(CTE.C_DIWRITEDAY,'%Y-%m-%d')  AS C_DIWRITEDAY
              ,    CTE.C_DIWRITETIME AS C_DIWRITETIME
+             ,    IFNULL(CTE.c_distatus, '008') AS C_DISTATUS
              ,    IF(IFNULL(CTE.c_distatus, '008') = '009', '008', IFNULL(CTE.c_distatus, '008')) AS C_DISTATUS
              ,    CONCAT($DB_NEOS$GET_CODE_DETAIL_INFO('0', 'COM109', IF(IFNULL(CTE.c_distatus, '008') = '009', '008', IFNULL(CTE.c_distatus, '008')) , 'kr') 
                           , CASE WHEN IFNULL(c_dilastuserkey, '') = '' THEN '' ELSE IFNULL(CONCAT('(', $DB_NEOS$FN_GetMultiname('kr', 'emp',c_dilastuserkey), ')'),'') END ) AS DOCSTSNAME
@@ -592,15 +593,68 @@
               FROM $DB_NEOS$A_DRAFTINFO df
               INNER JOIN $DB_NEOS$A_RECORDINFO ri ON df.C_DIKEYCODE  = ri.c_dikeycode 
               INNER JOIN $DB_NEOS$A_DOCINFO di ON df.c_dikeycode  = di.c_dikeycode
-              INNER JOIN cust_sto.t_purchase_payment_doc_info pdi ON df.c_dikeycode  = pdi.res_doc_seq
+              INNER JOIN $DB_NEOS$t_exnp_resdoc er ON df.c_dikeycode  = er.doc_seq
+              
+              INNER JOIN cust_sto.t_purchase_payment_doc_info pdi ON er.res_doc_seq  = pdi.res_doc_seq and pdi.outProcessCode = 'CONCLUSION'
+              
               where
               pdi.seq = '$seq$'
-              -- and df.c_diwriteday BETWEEN '20220914' AND   '20221214'
+              and df.c_diwriteday BETWEEN '$fromDate$' AND '$toDate$'
 
          ) CTE
          ORDER BY c_diwriteday DESC, c_diwritetime DESC, c_dikeycode DESC  
 		 LIMIT $startNum$ ,  $endNum$
 		
 	</select>	
+	
+	
+	<select	id="ContractSQL.SelectConclusionPaymentAmt" parameterClass="HashMap" resultClass="HashMap">
+
+		select 
+		ifnull(pc.contract_amt,0) as contract_amt
+		,ifnull((
+		select sum(a.res_amt)  from cust_sto.t_purchase_payment_doc_info a
+		join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq  = b.res_doc_seq and IFNULL(b.doc_seq, '') != '' and IFNULL(b.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+		where a.outProcessCode = 'CONCLUSION' and a.seq = pc.seq
+		),0) as res_amt_total
+		from cust_sto.t_purchase_contract pc
+		where pc.seq = '$seq$'
+	
+	</select>
+	
+	
+	<select	id="ContractSQL.SelectConclusionPaymentDocInfo" parameterClass="HashMap" resultClass="HashMap">
+
+		select *  from cust_sto.t_purchase_payment_doc_info where res_doc_seq = '$resDocSeq$'
+	
+	</select>	
+	
+	
+	<select	id="ContractSQL.SelectConclutionPaymentDocInfoCheck" parameterClass="HashMap" resultClass="HashMap">
+
+		select
+		(
+		select case when count(*) > 0 then 'Y' else 'N' end from cust_sto.t_purchase_payment_doc_info a
+		join cust_sto.t_purchase_payment_doc_info b 
+		on a.seq =b.seq  
+		and a.outProcessCode =b.outProcessCode 
+		and b.res_doc_seq = '$resDocSeq$' 
+		and a.res_doc_seq != b.res_doc_seq 
+		and a.pay_type = '$payType$' 
+		and a.pay_cnt = '$payCnt$'
+		join $DB_NEOS$t_exnp_resdoc c on a.res_doc_seq = c.res_doc_seq and IFNULL(c.doc_seq, '') != '' and IFNULL(c.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+		) as FAIL_DUPLICATE,
+		(
+		select
+		case when pc.contract_amt - ifnull(sum(pdi.res_amt),0) - $tryAmt$ <![CDATA[ < ]]> 0 then 'Y' else 'N' end
+		from cust_sto.t_purchase_contract pc
+		join $DB_NEOS$t_exnp_resdoc a on pc.seq = a.out_process_interface_m_id and a.out_process_interface_id = 'CONCLUSION' and a.res_doc_seq = '$resDocSeq$'
+		left join $DB_NEOS$t_exnp_resdoc b on a.out_process_interface_id = b.out_process_interface_id and a.out_process_interface_m_id =b.out_process_interface_m_id and IFNULL(b.doc_seq, '') != '' and IFNULL(b.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+		left join cust_sto.t_purchase_payment_doc_info pdi on pdi.res_doc_seq = b.res_doc_seq 		
+		) as FAIL_RES_AMT_OVER
+	
+	</select>	
+	
+	
 		
 </sqlMap>

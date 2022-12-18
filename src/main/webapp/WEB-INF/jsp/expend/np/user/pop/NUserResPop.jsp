@@ -2135,6 +2135,8 @@
 		}
 
 		Option.Common.SetResize();
+		
+		$(".pop_wrap").show();
 	});
 
     /* ## 출장복명 작성완료 버튼 기능 구현 ## */
@@ -2156,6 +2158,12 @@
 	/* ## init ## */
 	/* ====================================================================================================================================================== */
 	function fnInit() {
+		
+		//CustomPStoPurchase_code
+		<c:if test="${conclusionPaymentDocInfo != null}">
+		$("#payType").val("${conclusionPaymentDocInfo.pay_type}");
+		$("#payCnt").val("${conclusionPaymentDocInfo.pay_cnt}");
+		</c:if>		
 
 		// TODO : 백상휘 수정.
 		// if (resCustomProcess && consDocSeq === 'none') {
@@ -3169,6 +3177,21 @@
 
 		Option.Common.SetTradeTblResize();
 	}
+	
+	function msgSnackbar(type, msg, callback){
+		Pudd.puddSnackBar({
+			 
+			type	: type		// success, error, warning, info
+		,	message : msg
+		,	duration : 3000			// 1초 = 1000
+			// snackbar show 완료 후 callback
+		,	showDoneCallback : function() {
+				if(callback != ""){
+					eval(callback);
+				}
+			}
+		});			
+	}	
 
 	/* ## event init ## */
 	/* ====================================================================================================================================================== */
@@ -3182,33 +3205,59 @@
 		$('#btnTradeUp').hide(); /* 결제내역 위 */
 		$('#btnTradeDown').hide(); /* 결제내역 아래 */
 
-
 		/* 결의서 */
 		$('#btnApproval').click(function() {
-			try{
-				$('#tradeTbl').dzt('setCommit', true);
-				var _tradeData = $('#tradeTbl').dzt('getValue');
-				if ((_tradeData.insertStat || 'SUCCESS') != 'SUCCESS') {
-					return;
+			
+			var reqParam = {};
+			
+			reqParam.resDocSeq = resDocSeq;
+			reqParam.payType = $('#payType').val();
+			reqParam.payCnt = $('#payCnt').val();
+			reqParam.tryAmt = 0;
+			
+			$.each($('#resTbl').dzt('getValueAll'), function( idx, resDocInfo ) {
+				reqParam.tryAmt += parseInt(resDocInfo.amt.replaceAll(",",""));
+			});				
+			
+			//중복 지급구분/차수 체크 및 결의 금액 초과여부 체크
+			$.ajax({
+				type : 'post',
+				url : '<c:url value="/purchase/ConclutionPaymentDocInfoCheck.do" />',
+				datatype : 'json',
+				data : reqParam,
+				async : true,
+				success : function(result) {
+					
+					if(result.resultCode == "SUCCESS"){
+						
+						return;
+						
+						try{
+							$('#tradeTbl').dzt('setCommit', true);
+							var _tradeData = $('#tradeTbl').dzt('getValue');
+							if ((_tradeData.insertStat || 'SUCCESS') != 'SUCCESS') {
+								return;
+							}
+
+							fnEventApprovalPrevCheck();
+							
+						}
+						catch(e){
+							console.log(e);
+						}						
+						
+					}else if(result.resultCode == "FAIL_DUPLICATE"){
+						msgSnackbar("error", "지급구분/차수 중복건이 존재합니다.");
+					}else if(result.resultCode == "FAIL_RES_AMT_OVER"){
+						msgSnackbar("error", "신청 가능한 결의금액이 초과되었습니다.");
+					}
+					
+				},
+				error : function(result) {
+					msgSnackbar("error", "데이터 요청에 실패했습니다.");
 				}
+			});			
 
-// 				$('#budgetTbl').dzt('setCommit', true);
-// 				var _budgetData = $('#budgetTbl').dzt('getValue');
-// 				if ((_budgetData.insertStat || 'SUCCESS') != 'SUCCESS') {
-// 					return;
-// 				}
-
-// 				$('#resTbl').dzt('setCommit', true);
-// 				var _resData = $('#resTbl').dzt('getValue');
-// 				if ((_resData.insertStat || 'SUCCESS') != 'SUCCESS') {
-// 					return;
-// 				}
-
-				fnEventApprovalPrevCheck();
-			}
-			catch(e){
-				console.log(e);
-			}
 		});
 
 		/* 결의정보 버튼 이벤트 연결 */
@@ -11053,7 +11102,7 @@
 
 </script>
 
-<div class="pop_wrap">
+<div class="pop_wrap" style="display:none;">
 	<div class="pop_sign_head posi_re">
 		<h1 id="h1_resDocTitle">${CL.ex_resDocWrite}  <!--품의서 작성--></h1>
         <h1 id="h1_gisuInfo" style="display:none;">${CL.ex_accountPeriod} : 2기 2019.01.01 ~ 2019.12.31</h1>
@@ -11072,18 +11121,36 @@
 		<!-- 로그인 사용자 정보 ( ERP ) -->
 		<div class="top_box gray_box">
 			<dl>
-				<dt class="fwn">${CL.ex_accountingUnit}  <!--회계단위--> :</dt>
-				<!-- 상배수정 -->
-				<dd class="mt15 fwb" style="margin-right: 100px;">
-					<input class="fl input_search mr5" id="lbErpDivName" type="text" value="" style="width: 200px;" disabled /> <a href="#" class="fl btn_search" id="btnErpDivChoice"></a>
+			
+				<dt class="fwn">지급구분 :</dt>
+				<dd class="mt15 fwb" style="margin-right:0px;text-align:center;">			
+					<select id="payType" style="width:auto;min-width:70px;height: 23px;">
+						<option value="A">선금</option>
+						<option value="B">중도금</option>
+						<option value="C">잔금</option>
+					</select>
 				</dd>
-				<!--  <dd class="mt20 fwb" style="margin-right: 100px;" id="lbErpDivName"></dd> -->
+				
+				<dt class="fwn">지급차수 :</dt>
+				<dd class="mt15 fwb" style="margin-right: 0px;">			
+					<input class="fl input_search mr5" id="payCnt" type="number" value="1" style="width:40px;text-align:center;height:22px;" />
+				</dd>
+				<dt style="margin-left: 0px;">차</dt>								
+			
+				<dt class="fwn">${CL.ex_accountingUnit}  <!--회계단위--> :</dt>
+				<dd class="mt15 fwb" style="margin-right: 20px;">
+					<input class="fl input_search mr5" id="lbErpDivName" type="text" value="" style="width:auto;" disabled /> <a href="#" class="fl btn_search" id="btnErpDivChoice"></a>
+				</dd>
+				
 				<dt class="fwn">${CL.ex_useDepartment}  <!--사용부서--> :</dt>
-				<dd class="mt20 fwb" style="margin-right: 100px;" id="lbErpDeptName"></dd>
+				<dd class="mt20 fwb" style="margin-right: 20px;" id="lbErpDeptName"></dd>
+				
 				<dt class="fwn">${CL.ex_empSeq}  <!--사번--> :</dt>
-				<dd class="mt20 fwb" style="margin-right: 100px;" id="lbErpEmpSeq"></dd>
+				<dd class="mt20 fwb" style="margin-right: 20px;" id="lbErpEmpSeq"></dd>
+				
 				<dt class="fwn">${CL.ex_user}  <!--사용자--> :</dt>
 				<dd class="mt20 fwb" id="lbErpEmpName"></dd>
+				
 			</dl>
 		</div>
 		<!-- // 로그인 사용자 정보 ( ERP ) -->
@@ -11180,10 +11247,10 @@
 
 <!-- 기타소특상세 시작 -->
 <c:if test="${conVo.erpTypeCode == 'iCUBE'}">
-<div class="pop_wrap_dir" style="width: 420px;" id="layerHpMetic">
+<div class="pop_wrap_dir" style="width: 420px;display:none;" id="layerHpMetic">
 </c:if>
 <c:if test="${conVo.erpTypeCode == 'ERPiU'}">
-<div class="pop_wrap_dir" style="width: 530px;" id="layerHpMetic">
+<div class="pop_wrap_dir" style="width: 530px;display:none;" id="layerHpMetic">
 </c:if>
 	<div class="pop_head">
 		<h1>${CL.ex_othersIncomeDetail}  <!--기타소득상세--></h1>

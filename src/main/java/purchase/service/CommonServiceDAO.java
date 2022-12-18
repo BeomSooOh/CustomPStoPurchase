@@ -140,5 +140,22 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		return (Map<String, Object>) select( "CommonSQL.SelectTradeInfo", params );
 	}
 	
+	@SuppressWarnings ( "unchecked" )
+	public Map<String, Object> SelectResdocInfo ( Map<String, Object> params ) {
+		return (Map<String, Object>) select( "CommonSQL.SelectResdocInfo", params );
+	}	
+	
+	public void DeletePaymentDocInfo ( Map<String, Object> params ) {
+		
+		delete( "CommonSQL.DeletePaymentDocInfo", params );
+		
+	}
+	
+	public void InsertPaymentDocInfo ( Map<String, Object> params ) {
+		
+		insert( "CommonSQL.InsertPaymentDocInfo", params );
+		
+	}	
+	
 	
 }

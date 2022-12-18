@@ -1147,15 +1147,12 @@
 				if(code == "budgetlist"){
 					commonParam.erpDivSeq = $(commonElement).find("[name=erp_budget_div_seq]").val() + "|"; /* 회계통제단위 구분값 '|' */
 					commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val() + "|"; /* 예산통제단위 구분값 '|' */
-					commonParam.bottomSeq = $(commonElement).find("[name=bottom_seq]").val() + "|"; /* 하위사업 구분값 '|' */
-					commonParam.erpBudgetDivSeq = commonParam.erpDivSeq.replace('|', '');					
 				}else{
 					commonParam.erpDivSeq = $(commonElement).find("[name=erp_budget_div_seq]").val(); /* 회계통제단위 구분값 '|' */
 					commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val(); /* 예산통제단위 구분값 '|' */
-					commonParam.bottomSeq = $(commonElement).find("[name=bottom_seq]").val(); /* 하위사업 구분값 '|' */
-					commonParam.erpBudgetDivSeq = commonParam.erpDivSeq.replace('|', '');					
 				}
-
+				commonParam.bottomSeq = $(commonElement).find("[name=bottom_seq]").val(); /* 하위사업 구분값 '|' */
+				commonParam.erpBudgetDivSeq = commonParam.erpDivSeq.replace('|', '');
 			}
 
 			fnCommonCodePop(code, commonParam, commonParam.callback);

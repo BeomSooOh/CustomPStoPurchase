@@ -18,15 +18,15 @@
 	<script type="text/javascript">
 	
 	$(document).ready(function() {
-		
+
 		// 예제로 임의로 구성함
-		var percent = 0;
+		var customContentsTilesPercent = 0;
 		
 		$ ( document ).bind ( "ajaxStart", function ( ) {
 			
-			percent = 0;
+			customContentsTilesPercent = 0;
 						
-			Pudd( "#exArea" ).puddProgressBar({
+			Pudd( "#customContentsTiles" ).puddProgressBar({
 				 
 				progressType : "loading"
 			,	attributes : { style:"width:70px; height:70px;" }
@@ -44,7 +44,7 @@
 				// 200 millisecond 마다 callback 호출됨
 			,	progressCallback : function( progressBarObj ) {
 
-				return percent;
+				return customContentsTilesPercent;
 				
 				}
 			});			
@@ -52,7 +52,7 @@
 
 		} ).bind ( "ajaxStop", function ( ) {
 			
-			percent = 100;
+			customContentsTilesPercent = 100;
 						
 		} );		
 		
@@ -62,5 +62,7 @@
 	</script>
 
 	<tiles:insertAttribute name="body" />
+	<div id="customContentsTiles"></div>
+	
 </body>
 </html>

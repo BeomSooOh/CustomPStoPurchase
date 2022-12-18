@@ -38,6 +38,7 @@ import egovframework.com.utl.fcc.service.EgovFileUploadUtil;
 import egovframework.com.utl.fcc.service.EgovStringUtil;
 import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import neos.cmm.util.DateUtil;
+import purchase.service.CommonServiceDAO;
 import purchase.service.ContractService;
 import purchase.service.ContractServiceDAO;
 import common.vo.common.CommonMapper;
@@ -62,7 +63,10 @@ public class ContractMainController {
     private ContractService contractService;       
     
     @Resource(name = "ContractServiceDAO")
-    private ContractServiceDAO contractServiceDAO;    	        
+    private ContractServiceDAO contractServiceDAO;    	   
+
+    @Resource(name = "CommonServiceDAO")
+    private CommonServiceDAO commonServiceDAO;    	       
     
     @RequestMapping("/purchase/{authLevel}/ContractList.do")
     public ModelAndView ContractList(@PathVariable String authLevel, @RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
@@ -300,4 +304,75 @@ public class ContractMainController {
 	}	    
     
 
+	@RequestMapping("/purchase/ConclutionPaymentResInfo.do")
+	public ModelAndView ConclutionPaymentResInfo(@RequestParam Map<String, Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		
+		Map<String, Object> result = new HashMap<String, Object>( );
+		Map<String, Object> contractInfo = contractServiceDAO.SelectContractDetail(params);
+		
+		if(contractInfo != null) {
+			
+			result.put("contractInfo", contractInfo);
+			
+			if(contractInfo.get("contract_type").equals("01")) {
+				params.put("outProcessCode", "Conclusion01-1");
+			}else {
+				params.put("outProcessCode", "Conclusion01-2");
+			}
+			
+			result.put("conclusionbudgetList", commonServiceDAO.SelectBudgetList(params));
+			result.put("conclusionTradeInfo", commonServiceDAO.SelectTradeInfo(params));
+			result.put("conclusionPaymentAmt", contractServiceDAO.SelectConclusionPaymentAmt(params));
+			
+		}
+		
+		mv.addObject("resultData", result);
+		mv.addObject("resultCode", "success");	
+		mv.setViewName("jsonView");
+		return mv;
+	}	
+	
+	@RequestMapping("/purchase/ConclutionPaymentDocInfoCheck.do")
+	public ModelAndView ConclutionPaymentDocInfoCheck(@RequestParam Map<String, Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		
+		Map<String, Object> paymentDocInfoCheck = contractServiceDAO.SelectConclutionPaymentDocInfoCheck(params);
+		
+		if(paymentDocInfoCheck.get("FAIL_DUPLICATE").equals("Y")) {
+			mv.addObject("resultCode", "FAIL_DUPLICATE");	
+		}else if(paymentDocInfoCheck.get("FAIL_RES_AMT_OVER").equals("Y")) {
+			mv.addObject("resultCode", "FAIL_RES_AMT_OVER");	
+		}else {
+
+			Map<String, Object> resdocInfo = commonServiceDAO.SelectResdocInfo(params);
+			
+			if(resdocInfo != null) {
+				params.put("outProcessCode", resdocInfo.get("out_process_interface_id"));
+				params.put("seq", resdocInfo.get("out_process_interface_m_id"));
+				commonServiceDAO.DeletePaymentDocInfo(params);
+				 
+				params.put("resAmt", params.get("tryAmt"));
+				params.put("remainAmt", "0");
+				params.put("created_by", loginVo.getUniqId());
+				commonServiceDAO.InsertPaymentDocInfo(params);
+			}
+			
+			mv.addObject("resultCode", "SUCCESS");	
+		}
+		
+		mv.setViewName("jsonView");
+		return mv;
+	}		
+	
+	
+	
 }

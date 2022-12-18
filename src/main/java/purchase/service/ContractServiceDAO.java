@@ -94,6 +94,28 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 		
 		return super.listOfPaging2(paramMap, paginationInfo, "ContractSQL.SelectConclusionPaymentList");
 		
+	}	
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> SelectConclusionPaymentAmt ( Map<String, Object> params ) {
+		
+		return (Map<String, Object>) select( "ContractSQL.SelectConclusionPaymentAmt", params );
+		
 	}		
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> SelectConclusionPaymentDocInfo ( Map<String, Object> params ) {
+		
+		return (Map<String, Object>) select( "ContractSQL.SelectConclusionPaymentDocInfo", params );
+		
+	}		
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> SelectConclutionPaymentDocInfoCheck ( Map<String, Object> params ) {
+		
+		return (Map<String, Object>) select( "ContractSQL.SelectConclutionPaymentDocInfoCheck", params );
+		
+	}		
+	
 	
 }

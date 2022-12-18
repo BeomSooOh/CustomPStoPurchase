@@ -43,6 +43,7 @@ import expend.np.user.report.BNpUserReportService;
 import expend.np.user.res.BNpUserResService;
 import expend.np.user.reuse.BNpUserReUseServiceImpl;
 import net.sf.json.JSONArray;
+import purchase.service.ContractServiceDAO;
 
 
 @Controller
@@ -66,7 +67,8 @@ public class VNpUserPopController {
 	private BNpUserReportService reportService;
 	@Resource ( name = "BNpUserReUseService" )
 	private BNpUserReUseServiceImpl reUseService;
-
+    @Resource(name = "ContractServiceDAO")
+    private ContractServiceDAO contractServiceDAO;    	 	
 
 	private Map<String, Object> getPublicLoginVo (LoginVO loginVo){
 		Map<String, Object> returnObj = new HashMap<>( );
@@ -274,6 +276,11 @@ public class VNpUserPopController {
 				String formType = CommonConvert.CommonGetStr( approKey.split( "_" )[0] );
 				String docSeq = CommonConvert.CommonGetStr( approKey.split( "_" )[2] );
 
+				params.put("groupSeq", loginVo.getGroupSeq());
+				params.put("resDocSeq", docSeq);
+				
+				//구매_계약 결의서 작성정보 조회
+				mv.addObject( "conclusionPaymentDocInfo", contractServiceDAO.SelectConclusionPaymentDocInfo(params));
 
 				if ("paramsOuter".equals(params.get("outProcessInterfaceId"))
 						|| ("EXNPRESCONU".equals(formType) || "EXNPRESCUSTOM".equals(formType))) { // TODO : 백상휘 수정.
