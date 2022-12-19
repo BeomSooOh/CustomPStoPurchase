@@ -26,10 +26,6 @@ public class ContractServiceImpl implements ContractService {
     @Resource(name = "CommonServiceDAO")
     private CommonServiceDAO commonServiceDAO;     
 	
-	public List<Map<String, Object>> SelectContractList ( Map<String, Object> params ){
-		return contractServiceDAO.SelectContractList(params);
-	}	
-	
 	public Map<String, Object> InsertContract ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
 		
 		//입찰계약정보 등록
@@ -62,7 +58,6 @@ public class ContractServiceImpl implements ContractService {
 		return params;
 		
 	}
-	
 	
 	public Map<String, Object> InsertConclusion ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
 		

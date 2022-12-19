@@ -12,11 +12,10 @@ import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 @Repository("ContractServiceDAO")
 public class ContractServiceDAO extends EgovComAbstractDAO {
  
-	@SuppressWarnings("unchecked")
-	public List<Map<String, Object>> SelectContractList ( Map<String, Object> params ) {
-		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
-		result = (List<Map<String, Object>>) list( "ContractSQL.SelectContractList", params );
-		return result;
+	public Map<String, Object> SelectContractList (Map<String, Object> paramMap, PaginationInfo paginationInfo) {
+		
+		return super.listOfPaging2(paramMap, paginationInfo, "ContractSQL.SelectContractList");
+		
 	}
 	
 	@SuppressWarnings ( "unchecked" )
@@ -115,7 +114,15 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 		
 		return (Map<String, Object>) select( "ContractSQL.SelectConclutionPaymentDocInfoCheck", params );
 		
-	}		
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> SelectConclusionPaymentNextDocInfo ( Map<String, Object> params ) {
+		
+		return (Map<String, Object>) select( "ContractSQL.SelectConclusionPaymentNextDocInfo", params );
+		
+	}	
 	
 	
 }

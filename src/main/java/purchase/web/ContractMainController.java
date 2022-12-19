@@ -75,12 +75,23 @@ public class ContractMainController {
         mv.addObject("authLevel", authLevel);
         
         try {
+        	String toDate = DateUtil.getCurrentDate("yyyy-MM-dd");
+        	String fromDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", -1);
+        	mv.addObject("fromDate", fromDate);
+        	mv.addObject("toDate", toDate);        
+        	
             /* 변수 설정 */
             LoginVO loginVo = CommonConvert.CommonGetEmpVO();
             params.put("groupSeq", loginVo.getGroupSeq());
             
-            List<Map<String, Object>> list = contractService.SelectContractList(params);
-            mv.addObject("resultList", list);
+            params.put("useYn", "Y");
+            params.put("group", "resFormSeq");
+            params.put("code", "CONCLUSION");
+            List<Map<String, Object>> resFormSeq = commonServiceDAO.SelectPurchaseDetailCodeList(params);
+            
+            if(resFormSeq.size() > 0) {
+            	mv.addObject("resFormSeq", resFormSeq.get(0).get("LINK"));	
+            }
             
             mv.setViewName("/purchase/content/ContractList");
 
@@ -99,15 +110,18 @@ public class ContractMainController {
     public ModelAndView SelectContractList(@PathVariable String authLevel, @RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
     	
         ModelAndView mv = new ModelAndView();
-        mv.addObject("authLevel", authLevel);
         params.put("authLevel", authLevel);
         
         /* 변수 설정 */
         LoginVO loginVo = CommonConvert.CommonGetEmpVO();
         params.put("groupSeq", loginVo.getGroupSeq());
         
-        List<Map<String, Object>> list = contractService.SelectContractList(params);
-        mv.addObject("resultList", list);
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo = getPaginationInfo(params);
+		
+		Map<String,Object> resultMap = contractServiceDAO.SelectContractList(params, paginationInfo);        	
+		mv.addAllObjects(resultMap);
+        
         mv.setViewName("jsonView");
 
         return mv;

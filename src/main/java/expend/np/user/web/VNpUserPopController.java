@@ -280,7 +280,14 @@ public class VNpUserPopController {
 				params.put("resDocSeq", docSeq);
 				
 				//구매_계약 결의서 작성정보 조회
-				mv.addObject( "conclusionPaymentDocInfo", contractServiceDAO.SelectConclusionPaymentDocInfo(params));
+				Map<String, Object> conclusionPaymentDocInfo = contractServiceDAO.SelectConclusionPaymentDocInfo(params);
+				
+				if(conclusionPaymentDocInfo == null) {
+					//신규 작성할 다음차수 정보 가져오기
+					conclusionPaymentDocInfo = contractServiceDAO.SelectConclusionPaymentNextDocInfo(params);
+				}
+				
+				mv.addObject( "conclusionPaymentDocInfo", conclusionPaymentDocInfo);
 
 				if ("paramsOuter".equals(params.get("outProcessInterfaceId"))
 						|| ("EXNPRESCONU".equals(formType) || "EXNPRESCUSTOM".equals(formType))) { // TODO : 백상휘 수정.

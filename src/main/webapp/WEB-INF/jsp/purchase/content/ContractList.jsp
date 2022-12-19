@@ -30,89 +30,43 @@
 
 	$(document).ready(function() {
 		
-		fnGetListBind();
-	
-		$(window).resize(function () {
-			gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
-	
-		});
+		BindGrid();
+
 	});//---documentready
 	
-	
-	function fnGetListBind(){
-
-		var reqParam = {};
-		
-		$.ajax({
-			type : 'post',
-			url : '<c:url value="/purchase/admin/SelectContractList.do" />',
-			datatype : 'json',
-			data : reqParam,
-			async : false,
-			success : function(result) {
-				gridRender(result.resultList);
-				fnGridClickEventSet();
-			},
-			error : function(result) {
-				msgSnackbar("error", "데이터 요청에 실패했습니다.");
-			}
-		});
-		
-		
-		gridHeightChange( 380 );// 개발시 맞게 사이즈조정해주어야함
-		
-	}	
-
-	function fnGridClickEventSet(){
-		Pudd( "#grid1" ).on( "gridRowClick", function( e ) {
-			 
-			// e.detail 항목으로 customEvent param 전달됨
-			var evntVal = e.detail;
-		 
-			if( ! evntVal ) return;
-			if( ! evntVal.trObj ) return;
-		 
-			// dataSource에서 전달된 row data
-			var rowData = evntVal.trObj.rowData;
-			fnSetBtn(rowData);
-		 
-			// grid 이벤트 관련된 처리부분
-		});		
-	}
-	
-	function fnSetBtn(rowData){
-		
-		targetSeq = rowData.seq;
-		
-		console.log("seq > " + rowData.seq);
-		console.log("doc_sts > " + rowData.doc_sts);
-		console.log("approkey_plan > " + rowData.approkey_plan);
-		console.log("approkey_meet > " + rowData.approkey_meet);
-		console.log("approkey_result > " + rowData.approkey_result);
-		
-	}
-	
-	function gridHeightChange( minusVal ) {
-		var puddGrid = Pudd( "#grid1" ).getPuddObject();
-		var cHeight = document.body.clientHeight;
-
-		var newGridHeight = cHeight - minusVal;
-		if( newGridHeight > 100 ) {// 최소높이
-			puddGrid.gridHeight( newGridHeight );
-		}
-	}	
-	
-	function gridRender(listData){
+	function BindGrid(){
 		
 		var dataSource = new Pudd.Data.DataSource({
-			data : listData	// 직접 data를 배열로 설정하는 옵션 작업할 것
-		,	pageSize : 1000	// grid와 연동되는 경우 grid > pageable > pageList 배열값 중의 하나이여야 함
-		,	serverPaging : false
+				serverPaging: true
+			,	pageSize: 10
+			,	request : {
+				    url : '<c:url value="/purchase/${authLevel}/SelectContractList.do" />'
+				,	type : 'post'
+				,	dataType : "json"
+				,   parameterMapping : function( data ) {
+					
+					data.fromDate = $("#searchFromDate").val(); ;
+					data.toDate = $("#searchToDate").val();
+					
+					return data;
+				}
+			}	    
+			,   result : {
+				data : function(response){
+					return response.list;
+				},
+				totalCount : function(response){
+					return response.totalCount;	
+				},
+				error : function(response){
+					alert("error");
+				}	
+			}
+				    
 		});
-
-	Pudd("#grid1").puddGrid({
+		
+		Pudd("#grid1").puddGrid({
 			dataSource : dataSource
-		//,	height : 112
 		,	scrollable : true
 		, 	pageSize : 10	// grid와 연동되는 경우 grid > pageable > pageList 배열값 중의 하나이여야 함
 		,	serverPaging : true			
@@ -120,19 +74,40 @@
 				buttonCount : 10 
 			,	pageList : [ 10, 20, 30, 40, 50 ]
 			}
+		
+		,	noDataMessage : {
+			message : "대금지급 요청건이 존재하지 않습니다."
+		}		
+		
+		,	progressBar : {
+		   	 
+				progressType : "loading"
+			,	attributes : { style:"width:70px; height:70px;" }
+			,	strokeColor : "#84c9ff"	// progress 색상
+			,	strokeWidth : "3px"	// progress 두께
+			,	percentText : "loading"	// loading 표시 문자열 설정 - progressType loading 인 경우만
+			,	percentTextColor : "#84c9ff"
+			,	percentTextSize : "12px"
+			,	backgroundLayerAttributes : { style : "background-color:#fff;filter:alpha(opacity=0);opacity:0;width:100%;height:100%;position:fixed;top:0px; left:0px;" }
+		}	
+		
+		,	loadCallback : function( headerTable, contentTable, footerTable, gridObj) {
+			
+				gridObj.on( "gridRowClick", function( e ) {
+					 
+					var evntVal = e.detail;
+				 
+					if( ! evntVal ) return;
+					if( ! evntVal.trObj ) return;
+				 
+					var rowData = evntVal.trObj.rowData;
+					fnSetBtn(rowData);
+				 
+				});				
+		}		
+		
 		,	columns : [
-			/*
-			{
-				field : "gridCheckBox"
-			,	title : "체크박스"
-			,	width : 34
-			,	editControl : {
-					type : "checkbox"
-				,	dataValueField : "rank"	// value값을 datasource와 매핑하는 경우 설정
-				,	basicUse : true
-				}
-			}
-			,*/	{
+				{
 				title : "기본정보"
 			,	columns : [
 				{
@@ -451,9 +426,22 @@
 				]
 			}
 		]
-	});		
+	});	
 		
-	}	
+		
+	} 	
+	
+	function fnSetBtn(rowData){
+		
+		targetSeq = rowData.seq;
+		
+		console.log("seq > " + rowData.seq);
+		console.log("doc_sts > " + rowData.doc_sts);
+		console.log("approkey_plan > " + rowData.approkey_plan);
+		console.log("approkey_meet > " + rowData.approkey_meet);
+		console.log("approkey_result > " + rowData.approkey_result);
+		
+	}
 	
 	var puddActionBar_;
 	
@@ -485,7 +473,11 @@
 			
 		}else if(callId == "btnConclusionPayment"){
 			
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionPaymentPop.do?formSeq=314&seq=" + (seq != null ? seq : targetSeq),  "ConclusionPaymentViewPop", 1350, 800, 1, 1) ;
+			if('${resFormSeq}' != ''){
+				openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionPaymentPop.do?formSeq=${resFormSeq}&seq=" + (seq != null ? seq : targetSeq),  "ConclusionPaymentViewPop", 1350, 800, 1, 1) ;	
+			}else{
+				msgSnackbar("warning", "대금지급 지출결의 양식코드 미설정");
+			}
 			
 		}else if(callId == "btnMeet"){
 			
@@ -671,8 +663,8 @@
 	<dl>
 		<dt class="ar" style="width:60px;">계약기간</dt>
 		<dd>
-			<input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/> ~
-			<input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/>
+			<input type="text" id="searchFromDate" value="" class="puddSetup" pudd-type="datepicker"/> ~
+			<input type="text" id="searchToDate" value="" class="puddSetup" pudd-type="datepicker"/>
 		</dd>
 		<dt class="ar" style="width:40px;">계약명</dt>
 		<dd><input type="text" pudd-style="width:120px;" class="puddSetup" placeHolder="공고명 입력" value="" /></dd>
@@ -680,7 +672,7 @@
 		<dd><input type="text" pudd-style="width:120px;" class="puddSetup" placeHolder="부서명 입력" value="" /></dd>
 		<dt class="ar" style="width:40px;">사원명</dt>
 		<dd><input type="text" pudd-style="width:90px;" class="puddSetup" placeHolder="사원명 입력" value="" /></dd>
-		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="fnGetListBind()" /></dd>
+		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="BindGrid();" /></dd>
 	</dl>
 </div>
 

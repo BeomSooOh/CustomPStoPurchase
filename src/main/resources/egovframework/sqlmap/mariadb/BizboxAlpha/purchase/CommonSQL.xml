@@ -25,8 +25,11 @@
 		and USE_YN = '$useYn$'
 		</isNotEmpty>		
 		<isNotEmpty property="group">
-		and `group`='$group$'
+		and `GROUP`='$group$'
 		</isNotEmpty>
+		<isNotEmpty property="code">
+		and `CODE`='$code$'
+		</isNotEmpty>		
 		order by `GROUP`, ORDER_NUM
 	</select>
 	

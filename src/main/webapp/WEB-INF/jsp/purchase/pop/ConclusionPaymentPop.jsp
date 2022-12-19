@@ -209,7 +209,19 @@
 						    }				
 					    }
 					,   {  field : "C_DIWRITEDAY",	title : "기안일자",	width : 90}
-					,   {  field : "P_RESAMT",	title : "결의금액",	width : 130}
+					,   {  field : "P_RESAMT",	title : "결의금액",	width : 130
+						   , content : {
+								template : function( rowData ) {
+									
+									if(rowData.C_DISTATUS == "007"){
+										return 	'<text style="color:red;text-decoration: line-through;">' + rowData.P_RESAMT + '</text>';
+									}else{
+										return 	rowData.P_RESAMT;
+									}
+								}
+							}
+					
+						}
 					,   {  field : "P_REMAINAMT",	title : "잔여금액",	width : 130}
 					,   {  field : "DOCSTSNAME",	title : "결재상태",	width : 120}
 					,	{  field : "C_DIKEYCODE"
@@ -698,10 +710,6 @@
 	function fnPaymentExpendCreatePop(){
 		openWindow2("${pageContext.request.contextPath}/expend/np/user/NpUserCRDocPop.do?formSeq=${formSeq}&docId=&approKey=EXNPRESI_NP_" + resDocSeq,  "ConclusionExpendCreatePop", 1200, 800, 1, 1) ;
 	}	
-	
-	function fnPaymentComplete(){
-		
-	}	
 		
 	</script>
 </head>
@@ -736,7 +744,6 @@
 							<div class="right_div">
 								<div id="" class="controll_btn p0">
 									<input onclick="fnPaymentCreate();" type="button" class="puddSetup" value="대금지급" />
-									<input onclick="fnPaymentComplete();" type="button" class="puddSetup" value="대금지급완료" />
 								</div>
 							</div>
 						</div>

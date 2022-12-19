@@ -9,8 +9,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 public interface ContractService {
 
-	public List<Map<String, Object>> SelectContractList ( Map<String, Object> params );
-	
 	public Map<String, Object> InsertContract ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
 	
 	public Map<String, Object> InsertConclusion ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
