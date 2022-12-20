@@ -54,6 +54,9 @@
 		commonParam.frDate = optionSet.erpGisu.fromDate; /* 기수 시작일 */
 		commonParam.toDate = optionSet.erpGisu.toDate; /* 기수 종료일 */
 		
+		commonParam.erpDivSeq = optionSet.erpEmpInfo.erpDivSeq;
+		commonParam.erpDivName = optionSet.erpEmpInfo.erpDivName;
+		
 		commonParam.erpGisuDate = commonParam.frDate.replaceAll('-','');
 		
 		commonParam.opt01 =  '2'; /* 1: 모든 예산과목, 2: 당기편성, 3: 프로젝트 기간 예산 */
@@ -851,7 +854,11 @@
 					if (resultCode === 'SUCCESS') {
 						
 						if(conclusionbudgetList.length-2 < idx){
-							fnEventApproval();
+							
+							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=${seq}",  "ApprCreatePop", 1000, 729, 1, 1) ;
+							self.close();
+							
+							//fnEventApproval();
 						}
 						
 					} else if (resultCode === 'EXCEED') {
@@ -885,14 +892,14 @@
 			parameter.interlockNameEn = "Edit information";
 			parameter.interlockNameJp = "情報修正";
 			parameter.interlockNameCn = "信息修改";
-			parameter.docSeq = preDocSeq;
+			//parameter.docSeq = preDocSeq;
 			parameter.formSeq = optionSet.formInfo.formSeq;
 			parameter.groupSeq = optionSet.loginVo.groupSeq;
 			parameter.erpDivSeq = optionSet.erpEmpInfo.erpDivSeq;
 			parameter.header = '';
 			parameter.content = '';
 			parameter.footer = '';
-			parameter.reDraftUrl = location.protocol + '//' + location.host + "<c:url value='/ExpendReUsePop.do' />";
+			//parameter.reDraftUrl = location.protocol + '//' + location.host + "<c:url value='/ExpendReUsePop.do' />";
 			
 			parameter.oriApproKey = '${param.oriApproKey}';
 			parameter.oriDocId = '${param.oriDocId}';
@@ -901,6 +908,7 @@
 			parameter.copyAttachFile = '${param.copyAttachFile}';
 			parameter.eapCallDomain = ( origin || '' );
 			parameter.formType = "CONS";
+			
 			if(optionSet.conVo.erpTypeCode=='ERPiU'){
 				parameter.gisuFromDate = optionSet.erpGisu.gisuFromDate;
 				parameter.gisuToDate = optionSet.erpGisu.gisuToDate;
@@ -908,20 +916,19 @@
 			/* [ ajax ] */
 			$.ajax({
 				type : 'post',
-				/*   - url : /ex/np/user/cons/interlock/ExDocMake.do */
-				url : domain + '/ex/np/user/cons/interlock/ExDocMake.do',
+				url : '${pageContext.request.contextPath}/ex/np/user/cons/interlock/ExDocMake.do',
 				datatype : 'json',
 				async : false,
 				/*   - data : consNote(결의문서 적요), erpCompSeq(ERP 회사 코드), erpDivSeq(ERP 회계단위 코드), erpDivName(ERP 회계단위 명칭), erpDeptSeq(ERP 부서 코드), erpEmpSeq(ERP 사원 코드), erpGisu(ERP 기수), erpExpendYear(ERP 회계 연도), compSeq(GW 회사 코드), compName(GW 회사 명칭), deptSeq(GW 부서 코드), deptName(GW 부서 명칭), empSeq(GW 사용자 코드), empName(GW 사용자 명칭) */
 				data : parameter,
 				/*   - success :  */
 				success : function(result) {
-					fnAjaxLog(this.url, result);
 
 					var resultCode = Option.Common.GetResultCode(result);
 
 					if (resultCode === 'SUCCESS') {
-						fnDocPopOpen(result);
+						openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=${seq}",  "ApprCreatePop", 1000, 729, 1, 1) ;
+						self.close();
 					} else {
 						alert("전자결재 문서 생성 중 오류가 발생하였습니다.");
 						return;
@@ -936,107 +943,6 @@
 			return;
 		}
 
-		function fnDocPopOpen(data) {
-			var url = '/';
-			url += data.result.eaType; 
-
-			if (data.result.eaType == "eap") {
-				url += '/ea/interface/eadocpop.do';
-			} else if (data.result.eaType == "ea") {
-				if('' != '${param.oriApproKey}'){
-					url += '/ea/interface/eadocRedraftPop.do';
-				} else {
-					url += '/ea/interface/eadocpop.do';
-					// url += '/edoc/eapproval/docCommonDrafWrite.do';
-				}
-			} else {
-				alert("전자결재 문서 생성 중 오류가 발생하였습니다.");
-				return;
-			}
-
-			if (data.result.eaType == "eap") {
-				if (data.result.docSeq != '0' && data.result.eaType != '' && data.result.formSeq != '0' && data.result.approKey != '') {
-					url = url + '?form_id=' + optionSet.formInfo.formSeq;
-					url = url + '&docId=' + data.result.docSeq;
-					url = url + '&approKey=' + data.result.approKey;
-					url = url + '&processId=' + optionSet.formInfo.formDTp;
-				} else {
-					alert("전자결재 문서 생성 중 오류가 발생하였습니다.");
-					return;
-				}
-			} else if (data.result.eaType == "ea") {
-				if (data.result.docSeq != '-1' && data.result.eaType != '' && data.result.formSeq != '0' && data.result.approKey != '') {
-	 				if('' != '${param.oriApproKey}'){
-						url += '?oriApproKey=${param.oriApproKey}';
-						url += '&approKey=' + data.result.approKey;
-						url += '&oriDocId=${param.oriDocId}';
-						url += '&tiFormGb=${param.form_gb}';
-						url += '&form_gb=${param.form_gb}';
-						url += '&copyApprovalLine=${param.copyApprovalLine}';
-						url += '&copyAttachFile=${param.copyAttachFile}';
-					} else {
-						// 비영리 결재 template_key 파라미터 사용하지 않음.
-						// url += '?template_key=' + optionSet.formInfo.formSeq;
-						url += '?form_id=' + optionSet.formInfo.formSeq;
-						url += '&docId=' + data.result.docSeq;
-						url += '&approKey=' + data.result.approKey;
-						url += '&processId=' + optionSet.formInfo.formDTp;					
-					}
-				} else {
-					alert("전자결재 문서 생성 중 오류가 발생하였습니다.");
-					return;
-				}
-			}
-			
-			var thisX = parseInt(document.body.scrollWidth);
-			var thisY = parseInt(document.body.scrollHeight);
-			var maxThisX = screen.width - 50;
-			var maxThisY = screen.height - 50;
-
-			if (maxThisX > 1000) {
-				maxThisX = 1000;
-			}
-			var marginY = 0;
-			// 브라우저별 높이 조절. (표준 창 하에서 조절해 주십시오.)
-			if (navigator.userAgent.indexOf("MSIE 6") > 0)
-				marginY = 45; // IE 6.x
-			else if (navigator.userAgent.indexOf("MSIE 7") > 0)
-				marginY = 75; // IE 7.x
-			else if (navigator.userAgent.indexOf("Firefox") > 0)
-				marginY = 50; // FF
-			else if (navigator.userAgent.indexOf("Opera") > 0)
-				marginY = 30; // Opera
-			else if (navigator.userAgent.indexOf("Netscape") > 0)
-				marginY = -2; // Netscape
-
-			if (thisX > maxThisX) {
-				window.document.body.scroll = "yes";
-				thisX = maxThisX;
-			}
-			if (thisY > maxThisY - marginY) {
-				window.document.body.scroll = "yes";
-				thisX += 19;
-				thisY = maxThisY - marginY;
-			}
-
-			// 센터 정렬
-			var windowX = (screen.width - (maxThisX + 10)) / 2;
-			var windowY = (screen.height - (maxThisY)) / 2 - 20;
-			/* location.href : [기능 : 새로운 페이지로 이동된다] [형태 : 속성] [주소 히스토리 : 기록된다] [사용예 : location.href='url'] */
-			/* location.replace : [기능 : 기존페이지를 새로운 페이지로 변경시킨다] [형태 : 메서드] [주소 히스토리 : 기록되지 않는다] [사용예 : location.replace('url')] */
-			/* 지출결의 특성상 뒤로가기를 이용하여 이전페이지로 돌아오면 안되기 때문에 replace 를 사용한다. */
-			var win = window.open(url, '', "scrollbars=yes,resizable=yes,width=" + maxThisX + ",height=" + (maxThisY - 50) + ",top=" + windowY + ",left=" + windowX);
-			if (win == null || win.screenLeft == 0) {
-				alert("브라우져 팝업차단 설정을 확인해 주세요");
-			} else {
-				self.close();
-			}
-		}		
-		
-		
-		
-		
-		
 		
 		
 		
