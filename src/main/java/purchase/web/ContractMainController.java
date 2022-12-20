@@ -197,7 +197,7 @@ public class ContractMainController {
 		params.put("groupSeq", loginVo.getGroupSeq());
 		params.put("created_by", loginVo.getUniqId());
 		
-		contractServiceDAO.UpdateMeet(params);
+		contractService.UpdateMeet(params);
 		
 		mv.addObject("resultData", params);
 		mv.addObject("resultCode", "success");	

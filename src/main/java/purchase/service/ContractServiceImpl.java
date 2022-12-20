@@ -59,6 +59,7 @@ public class ContractServiceImpl implements ContractService {
 		
 	}
 	
+	
 	public Map<String, Object> InsertConclusion ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
 		
 		//입찰계약정보 등록
@@ -151,7 +152,32 @@ public class ContractServiceImpl implements ContractService {
 		
 		return params;
 		
-	}		
+	}	
+	
+	public Map<String, Object> UpdateMeet ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
+		
+		contractServiceDAO.UpdateMeet(params);
+		
+		//예산정보 저장
+		String jsonStr = (String)params.get("budget_list_info");
+		ObjectMapper mapper = new ObjectMapper();
+		
+		@SuppressWarnings("unused")
+		List<Map<String, Object>> budgetList = new ArrayList<Map<String, Object>>();
+		budgetList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
+		
+		commonServiceDAO.DeleteBudgetInfo(params);	
+		
+		for (Map<String, Object> map : budgetList) {
+			map.put("seq", params.get("seq"));
+			map.put("outProcessCode", params.get("outProcessCode"));
+			map.put("created_by", params.get("created_by"));
+			commonServiceDAO.InsertBudgetInfo(map);
+		}			
+		
+		return params;
+		
+	}	
 	
 }
 

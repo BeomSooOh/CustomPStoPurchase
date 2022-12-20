@@ -30,7 +30,328 @@
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script>  
     <script type="text/javascript" src="<c:url value='/js/jquery.maskMoney.js' />"></script>  
 	
+	<jsp:include page="/WEB-INF/jsp/common/cmmJunctionCodePop.jsp" flush="false" />		
+	<jsp:include page="/WEB-INF/jsp/expend/np/user/include/UserOptionMap.jsp" flush="false" />	
+	<jsp:include page="/WEB-INF/jsp/expend/np/user/include/NpUserResPop.jsp" flush="false" />		
+	
 	<script type="text/javascript">
+	
+		/* 예산관련 변수 시작 */
+		var consDocSeq = "";
+		var consSeq = "";
+		
+		var eaBaseInfo = ${eaBaseInfo};
+		var commonParam = {};
+		var commonElement;
+		
+		commonParam.callback = 'fnCommonCode_callback';
+		commonParam.widthSize = "628";
+		commonParam.heightSize = "546";
+		commonParam.erpGisu = optionSet.erpGisu.gisu; /* ERP 기수 */
+		commonParam.erpGisuFromDate = optionSet.erpGisu.fromDate; /* 기수 시작일 */
+		commonParam.erpGisuToDate = optionSet.erpGisu.toDate; /* 기수 종료일 */
+		commonParam.gisu = optionSet.erpGisu.gisu; /* ERP 기수 */
+		commonParam.frDate = optionSet.erpGisu.fromDate; /* 기수 시작일 */
+		commonParam.toDate = optionSet.erpGisu.toDate; /* 기수 종료일 */
+		
+		commonParam.erpGisuDate = commonParam.frDate.replaceAll('-','');
+		
+		commonParam.opt01 =  '2'; /* 1: 모든 예산과목, 2: 당기편성, 3: 프로젝트 기간 예산 */
+		commonParam.opt02 = '1'; /* 1: 모두표시, 2: 사용기한결과분 숨김 */
+		commonParam.opt03 = '2'; /* 1: 예산그룹 전체, 2: 예산그룹 숨김 */
+		commonParam.grFg = '2'; /* 1 : 수입, 2 : 지출 */		
+		
+		commonParam.resDocSeq =  "-1";
+		commonParam.consDocSeq =  "-1";
+		commonParam.confferDocSeq =  "-1";
+		commonParam.confferSeq =  "-1";
+		commonParam.confferBudgetSeq = "-1";
+		commonParam.consSeq = "-1";
+		commonParam.resSeq = "-1";
+		commonParam.selectedBudgetSeqs = "";
+		
+		function setDynamicSetInfoBudget(targetName, value){
+			
+			<c:if test="${budgetList.size() > 0 }">
+			$("[name=budgetList] [name=addData]").remove();
+			var cloneData;
+			
+			<c:forEach var="items" items="${budgetList}" varStatus="status">
+			
+			cloneData = $('[name="budgetList"] [name=dataBase]').clone();
+			$(cloneData).show().attr("name", "addData");
+			
+			$(cloneData).find("[name=erp_budget_seq]").val("${items.erp_budget_seq}");
+			$(cloneData).find("[name=erp_budget_name]").val("${items.erp_budget_name}");
+			$(cloneData).find("[name=erp_budget_div_seq]").val("${items.erp_budget_div_seq}");
+			$(cloneData).find("[name=erp_budget_div_name]").val("${items.erp_budget_div_name}");
+			
+			$(cloneData).find("[name=erp_bgt1_seq]").val("${items.erp_bgt1_seq}");
+			$(cloneData).find("[name=erp_bgt2_seq]").val("${items.erp_bgt2_seq}");
+			$(cloneData).find("[name=erp_bgt3_seq]").val("${items.erp_bgt3_seq}");
+			$(cloneData).find("[name=erp_bgt4_seq]").val("${items.erp_bgt4_seq}");	
+			
+			$(cloneData).find("[name=erp_bgt1_name]").val("${items.erp_bgt1_name}");
+			$(cloneData).find("[name=erp_bgt2_name]").val("${items.erp_bgt2_name}");
+			$(cloneData).find("[name=erp_bgt3_name]").val("${items.erp_bgt3_name}");
+			$(cloneData).find("[name=erp_bgt4_name]").val("${items.erp_bgt4_name}");	
+			
+			$(cloneData).find("[name=pjt_seq]").val("${items.pjt_seq}");
+			$(cloneData).find("[name=pjt_name]").val("${items.pjt_name}");
+			$(cloneData).find("[name=bottom_seq]").val("${items.bottom_seq}");
+			$(cloneData).find("[name=bottom_name]").val("${items.bottom_name}");
+
+			
+			$('[name="budgetList"]').append(cloneData);
+			
+			if(${status.index} == 0){
+				fnSetBudgetAmtInfo(cloneData);	
+			}
+			
+			</c:forEach>			
+			</c:if>			
+			
+		}	
+		
+		
+		var callbackResult;
+
+		function fnCommonCode_callback(param) {
+			
+			callbackResult = param;
+			
+			if(param != null){
+				
+				//거래처 
+				if(param.code == "tr"){
+					$("[objKey=tr_seq]").val( param.trSeq || "" );
+					$("[objKey=tr_name]").val( param.trName || "" );
+					$("[objKey=tr_reg_number]").text( param.trRegNumber || "" );
+					$("[objKey=ceo_name]").text( param.ceoName || "" );
+					$("[objKey=addr]").text( param.addr || "" );
+					
+					$("[objKey=at_tr_name]").val( param.atTrName || "" );
+					$("[objKey=ba_nb]").val( param.baNb || "" );
+					$("[objKey=btr_name]").val( param.btrName || "" );
+					$("[objKey=btr_seq]").val( param.btrSeq || "" );
+					$("[objKey=depositor]").val( param.depositor || "" );
+					$("[objKey=tr_fg]").val( param.trFg || "" );
+					$("[objKey=tr_fg_name]").val( param.trFgName || "" );
+				
+				//회계단위	
+				}else if(param.code == "div"){
+					$(commonElement).find("[name=erp_budget_div_seq]").val( param.divSeq || "" );
+					$(commonElement).find("[name=erp_budget_div_name]").val( param.divName || "" );
+				
+				//프로젝트	
+				}else if(param.code == "project"){
+					$(commonElement).find("[name=pjt_seq]").val( param.pjtSeq || "" );
+					$(commonElement).find("[name=pjt_name]").val( param.pjtName || "" );
+					
+				//하위사업	
+				}else if(param.code == "bottom"){
+					$(commonElement).find("[name=bottom_seq]").val( param.bottomSeq || "" );
+					$(commonElement).find("[name=bottom_name]").val( param.bottomName || "" );
+				
+				//예산과목
+				}else if(param.code == "budgetlist"){
+					
+					if($("[name=bgt_seq][value="+param.erpBudgetSeq+"]").length > 0){
+						msgSnackbar("error", "이미 선택된 예산과목입니다.");
+						return;
+					}
+					
+					$(commonElement).find("[name=erp_budget_seq]").val( param.erpBudgetSeq || "" );
+					$(commonElement).find("[name=erp_budget_name]").val( param.erpBudgetName || "" );
+					
+					if(param.erpBgt1Seq != ""){
+						$(commonElement).find("[name=erp_bgt1_seq]").val( param.erpBgt1Seq );
+						$(commonElement).find("[name=erp_bgt1_name]").val( param.erpBgt1Name );	
+					}else{
+						$(commonElement).find("[name=erp_bgt1_seq]").val("");
+						$(commonElement).find("[name=erp_bgt1_name]").val("");
+					}
+					
+					if(param.erpBgt2Seq != ""){
+						$(commonElement).find("[name=erp_bgt2_seq]").val( param.erpBgt2Seq );
+						$(commonElement).find("[name=erp_bgt2_name]").val( param.erpBgt2Name );	
+					}else{
+						$(commonElement).find("[name=erp_bgt1_seq]").val("");
+						$(commonElement).find("[name=erp_bgt2_name]").val("");
+					}
+					
+					if(param.erpBgt3Seq != ""){
+						$(commonElement).find("[name=erp_bgt3_seq]").val( param.erpBgt3Seq );
+						$(commonElement).find("[name=erp_bgt3_name]").val( param.erpBgt3Name );	
+					}else{
+						$(commonElement).find("[name=erp_bgt3_seq]").val("");
+						$(commonElement).find("[name=erp_bgt3_name]").val("");
+					}
+					
+					if(param.erpBgt4Seq != ""){
+						$(commonElement).find("[name=erp_bgt4_seq]").val( param.erpBgt4Seq );
+						$(commonElement).find("[name=erp_bgt4_name]").val( param.erpBgt4Name );	
+					}else{
+						$(commonElement).find("[name=erp_bgt4_seq]").val("");
+						$(commonElement).find("[name=erp_bgt4_name]").val("");
+					}					
+				
+					//예산금액 조회
+					fnSetBudgetAmtInfo();
+					
+				}			
+				
+			}
+			
+		}
+		
+		
+		/*	[예산조회] 예산잔액 가조회
+		------------------------------------------- */
+		function fnSetBudgetAmtInfo(e){
+			
+			if(e != null){
+				commonElement = e;
+			}
+			
+			$('#bgtSeq').val("");
+			$('#bgt1Name').text("");
+			$('#bgt2Name').text("");
+			$('#bgt3Name').text("");
+			$('#bgt4Name').text("");
+			
+			$('#txtOpenAmt').text("");
+			$('#txtConsBalanceAmt').text("");
+			$('#txtApplyAmt').text("");
+			$('#txtBalanceAmt').text("");			
+			
+			if($(commonElement).find("[name=erp_budget_seq]").val() != ""){
+
+				commonParam.erpBudgetSeq = $(commonElement).find("[name=erp_budget_seq]").val();
+				if($('#bgtSeq').val() == commonParam.erpBudgetSeq){
+					return;
+				}
+
+				commonParam.erpBudgetDivSeq = $(commonElement).find("[name=erp_budget_div_seq]").val();
+				commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val();
+				
+				$('#bgtSeq').val(commonParam.erpBudgetSeq);
+				
+				if($(commonElement).find("[name=erp_bgt1_seq]").val() != ""){
+					$('#bgt1Name').text($(commonElement).find("[name=erp_bgt1_name]").val() + " (" + $(commonElement).find("[name=erp_bgt1_seq]").val() + ")");	
+				}
+				
+				if($(commonElement).find("[name=erp_bgt2_seq]").val() != ""){
+					$('#bgt2Name').text($(commonElement).find("[name=erp_bgt2_name]").val() + " (" + $(commonElement).find("[name=erp_bgt2_seq]").val() + ")");	
+				}
+				
+				if($(commonElement).find("[name=erp_bgt3_seq]").val() != ""){
+					$('#bgt3Name').text($(commonElement).find("[name=erp_bgt3_name]").val() + " (" + $(commonElement).find("[name=erp_bgt3_seq]").val() + ")");	
+				}
+				
+				if($(commonElement).find("[name=erp_bgt4_seq]").val() != ""){
+					$('#bgt4Name').text($(commonElement).find("[name=erp_bgt4_name]").val() + " (" + $(commonElement).find("[name=erp_bgt4_seq]").val() + ")");	
+				}				
+				
+				$.ajax({
+					type : 'post',
+					url : '<c:url value="/ex/np/user/res/resBudgetInfoSelect.do" />',
+					datatype : 'json',
+					async : true,
+					data : commonParam,
+					success : function(result) {
+
+						var data = result.result.aData;
+						$('#txtOpenAmt').text(fnGetCurrencyCode(data.openAmt));
+						$('#txtConsBalanceAmt').text(fnGetCurrencyCode(data.consBalanceAmt));
+						$('#txtApplyAmt').text(fnGetCurrencyCode(data.resApplyAmt));
+						$('#txtBalanceAmt').text(fnGetCurrencyCode(data.balanceAmt));
+
+					},
+					/*   - error :  */
+					error : function(result) {
+						
+						msgSnackbar("error", "예산정보 조회 중 오류 발생");
+						
+					}
+				});				
+				
+			}
+		}
+		
+		/*	[공용] 숫자에 콤마 찍어서 가져오기
+		---------------------------------------- */
+		function fnGetCurrencyCode(value){
+		    value = '' + value || '';
+		    value = '' + value.split('.')[0];
+		    value = value.replace(/[^0-9\-]/g, '') || '0';
+		    var returnVal = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+		    return returnVal;
+		}		
+		
+		
+		function fnCommonCodeCustomPop(code, e) {
+			
+			if(e != null){
+				commonElement = $(e).closest("tr");
+				
+				if(code == "budgetlist"){
+					commonParam.erpDivSeq = $(commonElement).find("[name=erp_budget_div_seq]").val() + "|"; /* 회계통제단위 구분값 '|' */
+					commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val() + "|"; /* 예산통제단위 구분값 '|' */
+				}else{
+					commonParam.erpDivSeq = $(commonElement).find("[name=erp_budget_div_seq]").val(); /* 회계통제단위 구분값 '|' */
+					commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val(); /* 예산통제단위 구분값 '|' */
+				}
+				commonParam.bottomSeq = $(commonElement).find("[name=bottom_seq]").val(); /* 하위사업 구분값 '|' */
+				commonParam.erpBudgetDivSeq = commonParam.erpDivSeq.replace('|', '');
+			}
+
+			/* 팝업 호출 */
+			commonParam.widthSize = 780;
+			commonParam.heightSize = 582;
+
+			fnCallCommonCodePop({
+				code : code,
+				popupType : 2,
+				param : JSON.stringify(commonParam),
+				callbackFunction : commonParam.callback,
+				dummy : JSON.stringify({})
+			});			
+			
+			/* [ return ] */
+			return;
+		}
+		
+		function fnSectorAdd(tableName, maxCnt){
+			
+			var aaDataCnt = $('[name="'+tableName+'"] [name=addData]').length + 1;
+			
+			if(maxCnt != null && aaDataCnt > maxCnt){
+				msgSnackbar("warning", "등록 가능한 개수를 초과했습니다.");
+				return;
+			}			
+			
+			var cloneData = $('[name="'+tableName+'"] [name=dataBase]').clone();
+			$(cloneData).show().attr("name", "addData");
+			
+			$('[name="'+tableName+'"]').append(cloneData);
+			
+			amountInputSet();
+			
+		}		
+		
+		function fnSectorDel(e, tableName){
+			
+			if(tableName != null && $('[name="'+tableName+'"] [name=addData]').length == 1){
+				return;
+			}
+			
+			$(e).closest("tr").remove();
+			
+		}		
+		
+		
+		/* 예산관련 변수 끝 */
 	
 		var outProcessCode = "Contract02";
 		var disabledYn = "${disabledYn}";
@@ -73,33 +394,8 @@
 			
 			$("#amt").text("₩ ${contractDetailInfo.amt} " + viewKorean("${contractDetailInfo.amt}".replace(/,/g, '')) + " / 부가세 포함");
 			
-			/*
-			$('#amt, #stdAmt, #taxAmt').maskMoney({
-				precision : 0,
-				allowNegative: false
-			});
+			setDynamicSetInfoBudget();
 			
-			$('#amt').keyup(function() {
-				var amtInt = $('#amt').val().replace(/,/g, '');
-				
-				$('#stdAmt').val((Math.floor(amtInt*0.9)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-				$('#taxAmt').val((Math.floor(amtInt*0.1)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-				
-				$('#amt_han').text(viewKorean($('#amt').val().replace(/,/g, '')));
-				$('#stdAmt_han').text(viewKorean($('#stdAmt').val().replace(/,/g, '')));
-				$('#taxAmt_han').text(viewKorean($('#taxAmt').val().replace(/,/g, '')));
-				
-			});			
-			
-			//기존설정항목 세팅
-			<c:if test="${viewType == 'U'}">
-			setDynamicPuddInfo("pay_type_info", "checkbox", "${contractDetailInfo.pay_type_info}");
-			setDynamicPuddInfo("restrict_area_info", "checkbox", "${contractDetailInfo.restrict_area_info}");
-			setDynamicPuddInfo("decision_type_info", "radio", "${contractDetailInfo.decision_type_info}");
-			setDynamicPuddInfoTable("restrictSectorList", "setorAddBase", "${contractDetailInfo.restrict_sector_info}");
-			setDynamicPuddInfoTable("nomineeList", "nomineeAddBase", "${contractDetailInfo.nominee_info}");
-			</c:if>
-			*/
 		});
 		
 		function attachLayerPop(){
@@ -249,6 +545,7 @@
 			if(fnValidationCheck() == true){
 
 				insertDataObject.attch_file_info = JSON.stringify(attachFormList);
+				insertDataObject.budget_list_info = JSON.stringify(insertDataObject.budgetObjList);
 				
 				if(type == 0){
 					confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc(1)', '취소', '');	
@@ -298,8 +595,11 @@
 							openerRefreshList();				
 							msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");							
 						}else{
-							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=${seq}",  "ApprCreatePop", 1000, 729, 1, 1) ;
-							self.close();
+							
+							fnPaymentCreate();
+							
+							//openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=${seq}",  "ApprCreatePop", 1000, 729, 1, 1) ;
+							//self.close();
 						}
 						
 					}else{
@@ -313,6 +613,440 @@
 			});
 			
 		}
+		
+		var conclusionbudgetList = [];
+		var conclusionRemainAmt = 0;			
+		
+		function fnPaymentCreate(){
+			
+			conclusionbudgetList = insertDataObject.budgetObjList;
+			conclusionRemainAmt = parseInt(insertDataObject.meet_amt_spent);
+			fnConsDocInsert();
+				
+		}		
+		
+		
+		function fnConsDocInsert() {
+			/* [ parameter ] */
+			parameter = {};
+
+			parameter.resNote = ''; /* 결의문서 적요 */
+			parameter.erpCompSeq = ''; /* ERP 회사 코드 */
+			parameter.erpDivSeq = ''; /* ERP 사업장 명칭 */
+			parameter.erpDivName = ''; /* ERP 사업장 명칭 */
+			parameter.erpDeptSeq = ''; /* ERP 부서 코드 */
+			parameter.erpEmpSeq = ''; /* ERP 사원 코드 */
+			parameter.erpGisu = ''; /* ERP 기수 */
+			parameter.erpExpendYear = ''; /* ERP 회계 연도 */
+			parameter.compSeq = ''; /* GW 회사 코드 */
+			parameter.compName = ''; /* GW 회사 명칭 */
+			parameter.deptSeq = ''; /* GW 부서 코드 */
+			parameter.deptName = ''; /* GW 부서 명칭 */
+			parameter.empSeq = ''; /* GW 사용자 코드 */
+			parameter.empName = ''; /* GW 사용자 명칭 */
+			//parameter.formSeq = eaBaseInfo[0].formSeq; /* 전자결재 양식 코드 */
+			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetErpEmpInfo()))); /* ERP 사용자 정보 저장 */
+			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetGwEmpInfo()))); /* GW 사용자 정보 저장 */
+			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetErpGisuInfo()))); /* ERP 기수 정보 저장 */
+
+			/* 외부연동 ( 전용개발 또는 내부 개발 항목 - 근태 등 ) */
+			parameter.outProcessInterfaceId = outProcessCode;
+			parameter.outProcessInterfaceMId = "${seq}";
+			parameter.outProcessInterfaceDId = "";
+			
+			$.ajax({
+				type : 'post',
+				url : '${pageContext.request.contextPath}/ex/np/user/cons/ConsDocInsert.do',
+				datatype : 'json',
+				async : false,
+				/*   - data : resNote(결의문서 적요), erpCompSeq(ERP 회사 코드), erpDivSeq(ERP 회계단위 코드), erpDivName(ERP 회계단위 명칭), erpDeptSeq(ERP 부서 코드), erpEmpSeq(ERP 사원 코드), erpGisu(ERP 기수), erpExpendYear(ERP 회계 연도), compSeq(GW 회사 코드), compName(GW 회사 명칭), deptSeq(GW 부서 코드), deptName(GW 부서 명칭), empSeq(GW 사용자 코드), empName(GW 사용자 명칭) */
+				data : Option.Common.GetSaveParam(parameter),
+				success : function(result) {
+					/* 결의 정보 저장 */
+					var aData = Option.Common.GetResult(result, 'aData');
+					optionSet.consDocInfo = aData;
+
+					
+					if (aData) {
+						
+						consDocSeq = aData.consDocSeq;
+						
+						$.each(conclusionbudgetList, function( idx, conclusionbudgetInfo ) {
+							fnConsInsert(idx);
+						});
+						
+					} else {
+						resDocSeq = '';
+						msgSnackbar("error", "품의서 연동데이터(ConsDoc) 생성 실패");
+					}
+				},
+				error : function(result) {
+					msgSnackbar("error", "품의서 연동데이터(ConsHead) 생성 실패");
+				}
+			});
+			return;
+		}			
+		
+		
+		function fnConsInsert(idx) {
+			
+			parameter.consDocSeq = consDocSeq; /* [*]품의문서 키 */
+			parameter.docuFgCode = '1'; /* [*]결의구분코드 */
+			parameter.docuFgName = '지출품의서'; /* [*]결의구분명칭 */
+
+			parameter.btrSeq = ''; /* [*]입출금계좌코드 */
+			parameter.btrName = ''; /* [*]입출금계좌명칭 */
+			parameter.btrNb = ''; /* [*]입출금계좌 */
+			
+			parameter.erpDivSeq = ''; /* ERP 회계단위코드 */
+			parameter.erpDivName = ''; /* ERP 회계단위명칭 */
+			parameter.erpMgtSeq = conclusionbudgetList[idx].pjt_seq; /* [*]부서/프로젝트 코드 */
+			parameter.erpMgtName = conclusionbudgetList[idx].pjt_name; /* [*]부서/프로젝트 명칭 */
+			parameter.bottomSeq = conclusionbudgetList[idx].bottom_seq; /* [*]하위사업코드 */
+			parameter.bottomName = conclusionbudgetList[idx].bottom_name; /* [*]하위사업명칭 */
+			parameter.consDate = '${toDate}';
+			parameter.causeDate = '';
+			parameter.inspectDate = '';
+			parameter.signDate = '';
+			parameter.pjtToDate = '';
+			parameter.pjtFromDate = '';
+			
+			parameter.erpGisu = '';
+			parameter.gisu = (Option.Common.iCUBE() ? optionSet.erpGisu.gisu : '0');
+			parameter.erpGisuFromDate = (Option.Common.iCUBE() ? optionSet.erpGisu.fromDate : '');
+			parameter.erpGisuToDate = (Option.Common.iCUBE() ? optionSet.erpGisu.toDate : '');
+			parameter.erpYear = ((parameter.consDate || '').length >= 4 ? parameter.consDate.substring(0, 4) : '')
+
+			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetErpEmpInfo()))); /* ERP 사용자 정보 저장 */
+			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetGwEmpInfo()))); /* GW 사용자 정보 저장 */
+			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetErpGisuInfo()))); /* ERP 기수 정보 저장 */
+
+			$.ajax({
+				type : 'post',
+				url : '${pageContext.request.contextPath}/ex/np/user/cons/ConsHeadInsert.do',
+				datatype : 'json',
+				async : false,
+				data : Option.Common.GetSaveParam(parameter),
+				success : function(result) {
+
+					var aData = Option.Common.GetResult(result, 'aData');
+					var resultCode = Option.Common.GetResultCode(result);
+
+					if (resultCode === 'SUCCESS') {
+						consSeq = aData.consSeq;
+						
+						fnBudgetInsert(idx);
+						
+					}  else if(resultCode == 'GISU_CLOSE'){
+						msgSnackbar("error", "기수 마감되어 품의서를 입력할 수 없습니다.");
+					} else {
+						msgSnackbar("error", "품의서 연동데이터(ConsHead) 생성 실패");
+					}
+				},
+				error : function(result) {
+					msgSnackbar("error", "품의서 연동데이터(ConsHead) 생성 실패");
+				}
+			});
+
+			return;
+		}		
+		
+		
+		
+		function fnBudgetInsert(idx) {
+
+			parameter.consDocSeq = consDocSeq; /* [*]품의문서 키 */
+			parameter.consSeq = consSeq; /* [*]품의문서 키 */
+
+			
+			parameter.erpBudgetDivSeq = conclusionbudgetList[idx].erp_budget_div_seq;
+			parameter.erpBudgetDivName = conclusionbudgetList[idx].erp_budget_div_name;		
+			
+			parameter.erpBudgetSeq = conclusionbudgetList[idx].erp_budget_seq; /* [*]ERP 예산과목 코드 (예산단위 코드) */
+			parameter.erpBudgetName = conclusionbudgetList[idx].erp_budget_name; /* [*]ERP 예산과목 명칭 (예산단위 명칭) */
+			
+			parameter.erpMgtSeq = conclusionbudgetList[idx].pjt_seq; /* [*]부서/프로젝트 코드 */
+			parameter.erpMgtName = conclusionbudgetList[idx].pjt_name; /* [*]부서/프로젝트 명칭 */
+			parameter.bottomSeq = conclusionbudgetList[idx].bottom_seq; /* [*]하위사업코드 */
+			parameter.bottomName = conclusionbudgetList[idx].bottom_name; /* [*]하위사업명칭 */		
+			
+			parameter.erpBgt1Name = conclusionbudgetList[idx].erp_bgt1_name; /* [*]관 명칭 */
+			parameter.erpBgt1Seq = conclusionbudgetList[idx].erp_bgt1_seq; /* [*]관 코드 */
+			parameter.erpBgt2Name = conclusionbudgetList[idx].erp_bgt2_name; /* [*]항 명칭 */
+			parameter.erpBgt2Seq = conclusionbudgetList[idx].erp_bgt2_seq; /* [*]항 코드 */
+			parameter.erpBgt3Name = conclusionbudgetList[idx].erp_bgt3_name; /* [*]목 명칭 */
+			parameter.erpBgt3Seq = conclusionbudgetList[idx].erp_bgt3_seq; /* [*]목 코드 */
+			parameter.erpBgt4Name = conclusionbudgetList[idx].erp_bgt4_name; /* [*]세 명칭 */
+			parameter.erpBgt4Seq = conclusionbudgetList[idx].erp_bgt4_seq; /* [*]세 코드 */
+			
+			parameter.erpOpenAmt = '0'; /* [*]ERP 예산 편성 금액 */
+			parameter.erpApplyAmt = '0'; /* [*]ERP 집행액 */
+			parameter.erpLeftAmt = '0'; /* [*]ERP 잔액 */
+			parameter.budgetAmt = '0'; /* [*]총금액 */
+			
+			parameter.expendDate = parameter.consDate.replace(/-/g, '');
+
+			/* 부가세 통제 여부 체크 */
+			if (optionSet.erpEmpInfo.vatControl == '1'){
+				parameter.ctlFgCode = '1';
+				parameter.ctlFgName = 'I_IN_TAX_Y';
+			}else {
+				parameter.ctlFgCode = '0';
+				parameter.ctlFgName = 'I_IN_TAX_N';
+			}
+			
+			//예산잔액 조회
+			$.ajax({
+				type : 'post',
+				url : '<c:url value="/ex/np/user/res/resBudgetInfoSelect.do" />',
+				datatype : 'json',
+				async : false,
+				data : parameter,
+				success : function(result) {
+					var data = result.result.aData;
+					
+					conclusionbudgetList[idx].balanceAmt = Math.floor(data.balanceAmt/10)*10;
+					conclusionbudgetList[idx].erpOpenAmt = data.openAmt;
+					conclusionbudgetList[idx].erpApplyAmt = data.applyAmt;
+					conclusionbudgetList[idx].erpLeftAmt = data.erpLeftAmt;					
+					
+					if(conclusionRemainAmt <= conclusionbudgetList[idx].balanceAmt){
+						parameter.budgetAmt = conclusionRemainAmt; /* [*]금액 */
+						
+						conclusionRemainAmt = 0;
+					}else{
+						parameter.budgetAmt = conclusionbudgetList[idx].balanceAmt; /* [*]금액 */
+						
+						conclusionRemainAmt -= conclusionbudgetList[idx].balanceAmt;
+					}					
+					
+					parameter.erpOpenAmt = conclusionbudgetList[idx].erpOpenAmt;
+					parameter.erpApplyAmt = conclusionbudgetList[idx].erpApplyAmt;
+					parameter.erpLeftAmt = conclusionbudgetList[idx].erpLeftAmt;
+				},
+				/*   - error :  */
+				error : function(result) {
+					msgSnackbar("error", "예산정보 조회 중 오류 발생");
+					return;
+				}
+			});				
+
+			$.ajax({
+				type : 'post',
+				url : '${pageContext.request.contextPath}/ex/np/user/cons/ConsBudgetInsert.do',
+				datatype : 'json',
+				async : false,
+				data : Option.Common.GetSaveParam(parameter),
+				extendParam : {
+					consSeq : parameter.consSeq,
+					budgetSeq : parameter.budgetSeq,
+					budgetAmt : parameter.budgetAmt
+				},
+
+				success : function(result) {
+
+					var aData = Option.Common.GetResult(result, 'aData');
+					var resultCode = Option.Common.GetResultCode(result);
+
+					if (resultCode === 'SUCCESS') {
+						
+						if(conclusionbudgetList.length-2 < idx){
+							fnEventApproval();
+						}
+						
+					} else if (resultCode === 'EXCEED') {
+						msgSnackbar("error", "${CL.ex_exceedMesage}");
+					} else {
+						msgSnackbar("error", "품의서 연동데이터(ConsBudget) 생성 실패");
+					}
+				},
+				error : function(result) {
+					msgSnackbar("error", "품의서 연동데이터(ConsBudget) 생성 실패");
+				}
+			});
+
+			return;
+		}	
+		
+		
+		
+		/* ## 결재작성 ## */
+		/* ====================================================================================================================================================== */
+		function fnEventApproval() {
+
+			/* [ parameter ] */
+			var parameter = {};
+
+			parameter.processId = optionSet.formInfo.formDTp;
+			parameter.approKey = optionSet.formInfo.formDTp + '_NP_' + consDocSeq;
+			parameter.consDocSeq = consDocSeq;
+			parameter.interlockName = "정보수정";
+			// 20180910 soyoung, interlockName 정보수정 영문/일문/중문 추가
+			parameter.interlockNameEn = "Edit information";
+			parameter.interlockNameJp = "情報修正";
+			parameter.interlockNameCn = "信息修改";
+			parameter.docSeq = preDocSeq;
+			parameter.formSeq = optionSet.formInfo.formSeq;
+			parameter.groupSeq = optionSet.loginVo.groupSeq;
+			parameter.erpDivSeq = optionSet.erpEmpInfo.erpDivSeq;
+			parameter.header = '';
+			parameter.content = '';
+			parameter.footer = '';
+			parameter.reDraftUrl = location.protocol + '//' + location.host + "<c:url value='/ExpendReUsePop.do' />";
+			
+			parameter.oriApproKey = '${param.oriApproKey}';
+			parameter.oriDocId = '${param.oriDocId}';
+			parameter.form_gb = '${param.form_gb}';
+			parameter.copyApprovalLine = '${param.copyApprovalLine}';
+			parameter.copyAttachFile = '${param.copyAttachFile}';
+			parameter.eapCallDomain = ( origin || '' );
+			parameter.formType = "CONS";
+			if(optionSet.conVo.erpTypeCode=='ERPiU'){
+				parameter.gisuFromDate = optionSet.erpGisu.gisuFromDate;
+				parameter.gisuToDate = optionSet.erpGisu.gisuToDate;
+			}
+			/* [ ajax ] */
+			$.ajax({
+				type : 'post',
+				/*   - url : /ex/np/user/cons/interlock/ExDocMake.do */
+				url : domain + '/ex/np/user/cons/interlock/ExDocMake.do',
+				datatype : 'json',
+				async : false,
+				/*   - data : consNote(결의문서 적요), erpCompSeq(ERP 회사 코드), erpDivSeq(ERP 회계단위 코드), erpDivName(ERP 회계단위 명칭), erpDeptSeq(ERP 부서 코드), erpEmpSeq(ERP 사원 코드), erpGisu(ERP 기수), erpExpendYear(ERP 회계 연도), compSeq(GW 회사 코드), compName(GW 회사 명칭), deptSeq(GW 부서 코드), deptName(GW 부서 명칭), empSeq(GW 사용자 코드), empName(GW 사용자 명칭) */
+				data : parameter,
+				/*   - success :  */
+				success : function(result) {
+					fnAjaxLog(this.url, result);
+
+					var resultCode = Option.Common.GetResultCode(result);
+
+					if (resultCode === 'SUCCESS') {
+						fnDocPopOpen(result);
+					} else {
+						alert("전자결재 문서 생성 중 오류가 발생하였습니다.");
+						return;
+					}
+				},
+				/*   - error :  */
+				error : function(result) {
+					console.error(result);
+				}
+			});
+
+			return;
+		}
+
+		function fnDocPopOpen(data) {
+			var url = '/';
+			url += data.result.eaType; 
+
+			if (data.result.eaType == "eap") {
+				url += '/ea/interface/eadocpop.do';
+			} else if (data.result.eaType == "ea") {
+				if('' != '${param.oriApproKey}'){
+					url += '/ea/interface/eadocRedraftPop.do';
+				} else {
+					url += '/ea/interface/eadocpop.do';
+					// url += '/edoc/eapproval/docCommonDrafWrite.do';
+				}
+			} else {
+				alert("전자결재 문서 생성 중 오류가 발생하였습니다.");
+				return;
+			}
+
+			if (data.result.eaType == "eap") {
+				if (data.result.docSeq != '0' && data.result.eaType != '' && data.result.formSeq != '0' && data.result.approKey != '') {
+					url = url + '?form_id=' + optionSet.formInfo.formSeq;
+					url = url + '&docId=' + data.result.docSeq;
+					url = url + '&approKey=' + data.result.approKey;
+					url = url + '&processId=' + optionSet.formInfo.formDTp;
+				} else {
+					alert("전자결재 문서 생성 중 오류가 발생하였습니다.");
+					return;
+				}
+			} else if (data.result.eaType == "ea") {
+				if (data.result.docSeq != '-1' && data.result.eaType != '' && data.result.formSeq != '0' && data.result.approKey != '') {
+	 				if('' != '${param.oriApproKey}'){
+						url += '?oriApproKey=${param.oriApproKey}';
+						url += '&approKey=' + data.result.approKey;
+						url += '&oriDocId=${param.oriDocId}';
+						url += '&tiFormGb=${param.form_gb}';
+						url += '&form_gb=${param.form_gb}';
+						url += '&copyApprovalLine=${param.copyApprovalLine}';
+						url += '&copyAttachFile=${param.copyAttachFile}';
+					} else {
+						// 비영리 결재 template_key 파라미터 사용하지 않음.
+						// url += '?template_key=' + optionSet.formInfo.formSeq;
+						url += '?form_id=' + optionSet.formInfo.formSeq;
+						url += '&docId=' + data.result.docSeq;
+						url += '&approKey=' + data.result.approKey;
+						url += '&processId=' + optionSet.formInfo.formDTp;					
+					}
+				} else {
+					alert("전자결재 문서 생성 중 오류가 발생하였습니다.");
+					return;
+				}
+			}
+			
+			var thisX = parseInt(document.body.scrollWidth);
+			var thisY = parseInt(document.body.scrollHeight);
+			var maxThisX = screen.width - 50;
+			var maxThisY = screen.height - 50;
+
+			if (maxThisX > 1000) {
+				maxThisX = 1000;
+			}
+			var marginY = 0;
+			// 브라우저별 높이 조절. (표준 창 하에서 조절해 주십시오.)
+			if (navigator.userAgent.indexOf("MSIE 6") > 0)
+				marginY = 45; // IE 6.x
+			else if (navigator.userAgent.indexOf("MSIE 7") > 0)
+				marginY = 75; // IE 7.x
+			else if (navigator.userAgent.indexOf("Firefox") > 0)
+				marginY = 50; // FF
+			else if (navigator.userAgent.indexOf("Opera") > 0)
+				marginY = 30; // Opera
+			else if (navigator.userAgent.indexOf("Netscape") > 0)
+				marginY = -2; // Netscape
+
+			if (thisX > maxThisX) {
+				window.document.body.scroll = "yes";
+				thisX = maxThisX;
+			}
+			if (thisY > maxThisY - marginY) {
+				window.document.body.scroll = "yes";
+				thisX += 19;
+				thisY = maxThisY - marginY;
+			}
+
+			// 센터 정렬
+			var windowX = (screen.width - (maxThisX + 10)) / 2;
+			var windowY = (screen.height - (maxThisY)) / 2 - 20;
+			/* location.href : [기능 : 새로운 페이지로 이동된다] [형태 : 속성] [주소 히스토리 : 기록된다] [사용예 : location.href='url'] */
+			/* location.replace : [기능 : 기존페이지를 새로운 페이지로 변경시킨다] [형태 : 메서드] [주소 히스토리 : 기록되지 않는다] [사용예 : location.replace('url')] */
+			/* 지출결의 특성상 뒤로가기를 이용하여 이전페이지로 돌아오면 안되기 때문에 replace 를 사용한다. */
+			var win = window.open(url, '', "scrollbars=yes,resizable=yes,width=" + maxThisX + ",height=" + (maxThisY - 50) + ",top=" + windowY + ",left=" + windowX);
+			if (win == null || win.screenLeft == 0) {
+				alert("브라우져 팝업차단 설정을 확인해 주세요");
+			} else {
+				self.close();
+			}
+		}		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		function openerRefreshList(){
 			if(opener != null && typeof opener.fnGetListBind != "undefined"){
@@ -517,6 +1251,10 @@
 			</table>
 		</div>			
 		
+			
+			
+			
+			
 		<!-- 예산정보 -->
 		<div class="btn_div mt25">
 			<div class="left_div">	
@@ -525,52 +1263,143 @@
 		</div>
 		
 		<div class="com_ta4">
-			<table>
+			<table name="budgetList" objKey="budgetObjList" objCheckFor="checkVal('obj', 'budgetList', '예산정보', 'mustAlert', '')">
 				<colgroup>
+					<c:if test="${disabledYn == 'N'}"> 
 					<col width="50"/>
+					</c:if>
 					<col width=""/>
 					<col width=""/>
 					<col width=""/>
 					<col width=""/>
 				</colgroup>
 				<tr>
+					<c:if test="${disabledYn == 'N'}"> 
 					<th class="ac">
-						<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+						<input type="button" onclick="fnSectorAdd('budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 					</th>
+					</c:if>
 					<th class="ac">예산회계단위</th>
 					<th class="ac">프로젝트</th>
 					<th class="ac">하위사업</th>
 					<th class="ac">예산과목</th>
 				</tr>
-				<tr>
+				<tr name="dataBase" onclick="fnSetBudgetAmtInfo(this);" style="display:none;">
+					<c:if test="${disabledYn == 'N'}"> 
 					<td>
-						<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 					</td>
+					</c:if>
 					<td>
 						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
+							<input tbval="Y" name="erp_budget_div_seq" type="hidden" value="" />
+							<input tbval="Y" name="erp_budget_div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
+							
+							<c:if test="${disabledYn == 'N'}">
+							<a href="#n" onclick="fnCommonCodeCustomPop('div', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
 						</div>
 					</td>
 					<td>
 						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
+							<input tbval="Y" name="pjt_seq" type="hidden" value="" />
+							<input tbval="Y" name="pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
+
+							<c:if test="${disabledYn == 'N'}">
+							<a href="#n" onclick="fnCommonCodeCustomPop('project', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
 						</div>
 					</td>
 					<td>
 						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
+							<input tbval="Y" name="bottom_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />							
+							
+							<c:if test="${disabledYn == 'N'}">
+							<a href="#n" onclick="fnCommonCodeCustomPop('bottom', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
 						</div>
 					</td>
 					<td>
 						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
+							<input tbval="Y" name="erp_bgt1_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt2_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt3_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt4_seq" type="hidden" value="" requiredNot="true" />
+													
+							<input tbval="Y" name="erp_bgt1_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt2_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt3_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt4_name" type="hidden" value="" requiredNot="true" />
+						
+							<input tbval="Y" name="erp_budget_seq" type="hidden" value="" />
+							<input tbval="Y" name="erp_budget_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
+
+							<c:if test="${disabledYn == 'N'}"> 
+							<a href="#n" onclick="fnCommonCodeCustomPop('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
 						</div>
 					</td>
 				</tr>
+				
+				<tr name="addData" onclick="fnSetBudgetAmtInfo(this);">
+					<c:if test="${disabledYn == 'N'}"> 
+					<td>
+						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+					</td>
+					</c:if>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="erp_budget_div_seq" type="hidden" value="" />
+							<input tbval="Y" name="erp_budget_div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
+							
+							<c:if test="${disabledYn == 'N'}"> 
+							<a href="#n" onclick="fnCommonCodeCustomPop('div', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="pjt_seq" type="hidden" value="" />
+							<input tbval="Y" name="pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
+							
+							<c:if test="${disabledYn == 'N'}"> 
+							<a href="#n" onclick="fnCommonCodeCustomPop('project', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="bottom_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />							
+							
+							<c:if test="${disabledYn == 'N'}"> 
+							<a href="#n" onclick="fnCommonCodeCustomPop('bottom', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="erp_bgt1_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt2_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt3_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt4_seq" type="hidden" value="" requiredNot="true" />
+													
+							<input tbval="Y" name="erp_bgt1_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt2_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt3_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt4_name" type="hidden" value="" requiredNot="true" />
+						
+							<input tbval="Y" name="erp_budget_seq" type="hidden" value="" />
+							<input tbval="Y" name="erp_budget_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
+							
+							<c:if test="${disabledYn == 'N'}"> 
+							<a href="#n" ${disabled} onclick="fnCommonCodeCustomPop('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
+						</div>
+					</td>
+				</tr>				
+				
 			</table>
 		</div>
 
@@ -578,37 +1407,38 @@
 		<div class="com_ta6 mt10">
 			<table>
 				<colgroup>
-					<col width="100"/>
-					<col width="150"/>
-					<col width="100"/>
-					<col width="150"/>
-					<col width="100"/>
-					<col width="150"/>
-					<col width="100"/>
-					<col width="150"/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
 				</colgroup>
 				<tr>
+					<input id="bgtSeq" type="hidden" value="" />
 					<th>관</th>
-					<td>운영비(210)</td>
+					<td id="bgt1Name" objCheckFor="checkVal('text()', this, '관', '', '')"></td>
 					<th>항</th>
-					<td>일반수용비(01)</td>
+					<td id="bgt2Name" objCheckFor="checkVal('text()', this, '항', '', '')"></td>
 					<th>목</th>
-					<td></td>
+					<td id="bgt3Name" objCheckFor="checkVal('text()', this, '목', '', '')"></td>
 					<th>세</th>
-					<td></td>
+					<td id="bgt4Name" objCheckFor="checkVal('text()', this, '세', '', '')"></td>
 				</tr>				
 				<tr>
 					<th>예산액</th>
-					<td class="ri pr10">1,000,000</td>
+					<td class="ri pr10" id="txtOpenAmt"></td>
 					<th>집행액</th>
-					<td class="ri pr10">1,000,000</td>
+					<td class="ri pr10" id="txtConsBalanceAmt"></td>
 					<th>품의액</th>
-					<td class="ri pr10">1,000,000</td>
+					<td class="ri pr10" id="txtApplyAmt"></td>
 					<th>예산잔액</th>
-					<td class="ri pr10">1,000,000</td>
+					<td class="ri pr10" id="txtBalanceAmt"></td>
 				</tr>
 			</table>
-		</div>		
+		</div>				
 		
 		
 		

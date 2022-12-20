@@ -940,29 +940,6 @@
 		}		
 		
 		
-		/* ## 공통코드 - 팝업호출 ## */
-		function fnCommonCodePop(code, obj, callback, data) {
-			/* [ parameter ] */
-			/*   - obj : 전송할 파라미터 */
-			obj = (obj || {});
-			/*   - callback : 코백 호출할 함수 명 */
-			callback = (callback || '');
-			/*   - data : 더미 */
-			data = (data || {});
-
-			/* 팝업 호출 */
-			obj.widthSize = 780;
-			obj.heightSize = 582;
-
-			fnCallCommonCodePop({
-				code : code,
-				popupType : 2,
-				param : JSON.stringify(obj),
-				callbackFunction : callback,
-				dummy : JSON.stringify(data)
-			});
-		}		
-
 		var callbackResult;
 
 		function fnCommonCode_callback(param) {
@@ -1159,7 +1136,30 @@
 
 			/* [ return ] */
 			return;
-		}		
+		}
+		
+		/* ## 공통코드 - 팝업호출 ## */
+		function fnCommonCodePop(code, obj, callback, data) {
+			/* [ parameter ] */
+			/*   - obj : 전송할 파라미터 */
+			obj = (obj || {});
+			/*   - callback : 코백 호출할 함수 명 */
+			callback = (callback || '');
+			/*   - data : 더미 */
+			data = (data || {});
+
+			/* 팝업 호출 */
+			obj.widthSize = 780;
+			obj.heightSize = 582;
+
+			fnCallCommonCodePop({
+				code : code,
+				popupType : 2,
+				param : JSON.stringify(obj),
+				callbackFunction : callback,
+				dummy : JSON.stringify(data)
+			});
+		}			
 		
 	</script>
 </head>

@@ -667,8 +667,7 @@
 		return;
 	}	
 	
-	var temp000;
-	
+
 	function fnTradeDataCurrection(parameter){
 		parameter.etcRequiredAmt = parameter.etcRequiredAmt || '0';
 		parameter.etcIncomeAmt = parameter.etcIncomeAmt || '0';
