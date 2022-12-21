@@ -172,8 +172,8 @@
 					,	title : "계약시작일"
 					,	width : 150	
 					,	content : {		
-						template : function() {
-							var html = '<input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/>';
+						template : function(rowData) {
+							var html = '<input type="text" value="' + rowData.contract_start_dt + '" class="puddSetup" pudd-type="datepicker"/>';
 							return html;
 						}
 					}					
@@ -199,22 +199,22 @@
 				title : "계약대상자 정보"
 			,	columns : [
 				{
-						field : "partner_name"
+						field : "tr_name"
 					,	title : "계약대상자"
 					,	width : 100
 				}					
 			,	{
-						field : "partner_bizno"
+						field : "tr_reg_number"
 					,	title : "사업자등록번호"
 					,	width : 100
 				}
 			,	{
-						field : "partner_owner"
+						field : "ceo_name"
 					,	title : "대표자명"
 					,	width : 100							
 				}
 			,	{
-						field : "data13"
+						field : "hope_company_info"
 					,	title : "희망기업여부"
 					,	width : 100
 				}						
@@ -224,12 +224,12 @@
 				title : "발주정보"
 			,	columns : [
 				{
-						field : "contract_type_name"
+						field : "contract_type_text"
 					,	title : "입찰/수의"
 					,	width : 100
 				}					
 			,	{
-						field : "data15"
+						field : "amt"
 					,	title : "발주금액"
 					,	width : 100
 					,	content : {
@@ -237,22 +237,22 @@
 					}
 				}
 			,	{
-						field : "data16"
+						field : "compete_type_text"
 					,	title : "경쟁방식"
 					,	width : 100							
 				}
 			,	{
-						field : "data17"
+						field : "decision_type_text"
 					,	title : "낙찰자결정방법"
 					,	width : 100
 				}	
 			,	{
-						field : "data18"
+						field : "emp_name"
 					,	title : "담당자"
 					,	width : 100
 			}
 			,	{
-						field : "data19"
+						field : "dept_name"
 					,	title : "담당부서"
 					,	width : 120
 			}					
