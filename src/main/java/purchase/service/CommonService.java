@@ -17,4 +17,6 @@ public interface CommonService {
 	
 	public void UpdateAppr ( Map<String, Object> params );
 	
+	public void DelConsTemp ( Map<String, Object> params );
+	
 }

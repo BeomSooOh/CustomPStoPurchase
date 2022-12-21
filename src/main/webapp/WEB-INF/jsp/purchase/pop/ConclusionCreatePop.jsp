@@ -1370,7 +1370,9 @@
 							<ul name="hopeCompanyList" objKey="hope_company_info" objCheckFor="checkVal('ul', 'hopeCompanyList', '희망기업여부', 'mustAlert', '')" class="multibox" style="width:100%;">							
 								<li name="dataBase" addCode="" style="display:none;">
 									<span name="addName"></span>
+									<c:if test="${disabledYn == 'N'}"> 
 									<a href="#n" onclick="$(this).closest('li').remove();" class="close_btn"><img src="${pageContext.request.contextPath}/customStyle/Images/ico/sc_multibox_close.png" /></a>
+									</c:if>
 								</li>
 							</ul>								
 						</div>

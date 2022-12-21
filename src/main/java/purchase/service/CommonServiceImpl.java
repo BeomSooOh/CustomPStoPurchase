@@ -58,8 +58,16 @@ public class CommonServiceImpl implements CommonService {
 			params.put("approkeyPlan", params.get("approKey"));
 			params.put("seq", params.get("approKey").toString().split("_")[1]);
 		}else if(params.get("processId").equals("Contract02")) {
+			
 			params.put("approkeyMeet", params.get("approKey"));
 			params.put("seq", params.get("approKey").toString().split("_")[1]);
+			
+			//평가회의 품의데이터 상태값 업데이트
+			params.put("out_process_interface_id", "Contract02");
+			params.put("out_process_interface_m_id", params.get("seq"));
+			params.put("out_process_interface_d_id", "DUPLICATE_TEMP");
+			commonServiceDAO.UpdateConsDocSts(params);
+			
 		}else if(params.get("processId").equals("Contract03")) {
 			params.put("approkeyResult", params.get("approKey"));
 			params.put("seq", params.get("approKey").toString().split("_")[1]);
@@ -92,8 +100,6 @@ public class CommonServiceImpl implements CommonService {
 		commonServiceDAO.SaveFormInfo(params);
 		
 	}	
-	
-	
 	
 	@SuppressWarnings("deprecation")
 	public boolean SendMailAlert ( String groupSeq, String compSeq, String subject, String contents, String mailTo ) throws EmailException {
@@ -207,5 +213,12 @@ public class CommonServiceImpl implements CommonService {
 		
 		return true;
 	}
+	
+	public void DelConsTemp ( Map<String, Object> params ) {
+		
+		commonServiceDAO.DelConsTemp(params);
+		
+	}	
+	
 }
 

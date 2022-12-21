@@ -282,6 +282,21 @@ public class CommonMainController {
     	
     	return result;
     }
+    
+    
+    @RequestMapping("/DelConsTemp.do")
+    public ModelAndView DelConsTemp(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+    	ModelAndView mv = new ModelAndView();
+    	
+		commonService.DelConsTemp(params);	
+		
+		mv.addObject("resultCode", "SUCCESS");	
+		mv.setViewName("jsonView");    	
+    	
+		return mv;
+    }    
 
+    
 
 }

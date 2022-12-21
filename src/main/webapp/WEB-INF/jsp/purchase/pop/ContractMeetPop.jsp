@@ -589,7 +589,7 @@
 				url : '<c:url value="/purchase/MeetSaveProc.do" />',
 	    		datatype:"json",
 	            data: insertDataObject ,
-				async : false,
+				async : true,
 				success : function(result) {
 					
 					if(result.resultCode == "success"){
@@ -600,9 +600,7 @@
 						}else{
 							
 							fnPaymentCreate();
-							
-							//openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=${seq}",  "ApprCreatePop", 1000, 729, 1, 1) ;
-							//self.close();
+
 						}
 						
 					}else{
@@ -621,10 +619,34 @@
 		var conclusionRemainAmt = 0;			
 		
 		function fnPaymentCreate(){
+
+			//기존 품의(임시)데이터 삭제
+			parameter = {};
+			parameter.out_process_interface_id = outProcessCode;
+			parameter.out_process_interface_m_id = "${seq}";
+			parameter.out_process_interface_d_id = "DUPLICATE_TEMP";			
 			
-			conclusionbudgetList = insertDataObject.budgetObjList;
-			conclusionRemainAmt = parseInt(insertDataObject.meet_amt_spent);
-			fnConsDocInsert();
+			$.ajax({
+				type : 'post',
+				url : '<c:url value="/DelConsTemp.do" />',
+	    		datatype:"json",
+	            data: parameter ,
+				async : false,
+				success : function(result) {
+					
+					if(result.resultCode == "SUCCESS"){
+						conclusionbudgetList = insertDataObject.budgetObjList;
+						conclusionRemainAmt = parseInt(insertDataObject.meet_amt_spent);
+						fnConsDocInsert();
+					}else{
+						msgSnackbar("error", "품의데이터 초기화 오류");	
+					}
+					
+				},
+				error : function(result) {
+					msgSnackbar("error", "품의데이터 초기화 오류");
+				}
+			});			
 				
 		}		
 		
@@ -647,7 +669,6 @@
 			parameter.deptName = ''; /* GW 부서 명칭 */
 			parameter.empSeq = ''; /* GW 사용자 코드 */
 			parameter.empName = ''; /* GW 사용자 명칭 */
-			//parameter.formSeq = eaBaseInfo[0].formSeq; /* 전자결재 양식 코드 */
 			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetErpEmpInfo()))); /* ERP 사용자 정보 저장 */
 			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetGwEmpInfo()))); /* GW 사용자 정보 저장 */
 			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetErpGisuInfo()))); /* ERP 기수 정보 저장 */
@@ -655,7 +676,7 @@
 			/* 외부연동 ( 전용개발 또는 내부 개발 항목 - 근태 등 ) */
 			parameter.outProcessInterfaceId = outProcessCode;
 			parameter.outProcessInterfaceMId = "${seq}";
-			parameter.outProcessInterfaceDId = "";
+			parameter.outProcessInterfaceDId = "DUPLICATE_TEMP";
 			
 			$.ajax({
 				type : 'post',
@@ -668,7 +689,6 @@
 					/* 결의 정보 저장 */
 					var aData = Option.Common.GetResult(result, 'aData');
 					optionSet.consDocInfo = aData;
-
 					
 					if (aData) {
 						
@@ -855,10 +875,13 @@
 						
 						if(conclusionbudgetList.length-2 < idx){
 							
-							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=${seq}",  "ApprCreatePop", 1000, 729, 1, 1) ;
-							self.close();
-							
-							//fnEventApproval();
+							if(conclusionRemainAmt > 0){
+								msgSnackbar("error", "품의금액이 예산잔액을 초과합니다.");
+							}else{
+								openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=${seq}",  "ApprCreatePop", 1000, 729, 1, 1) ;
+								self.close();								
+							}
+
 						}
 						
 					} else if (resultCode === 'EXCEED') {
@@ -874,84 +897,6 @@
 
 			return;
 		}	
-		
-		
-		
-		/* ## 결재작성 ## */
-		/* ====================================================================================================================================================== */
-		function fnEventApproval() {
-
-			/* [ parameter ] */
-			var parameter = {};
-
-			parameter.processId = optionSet.formInfo.formDTp;
-			parameter.approKey = optionSet.formInfo.formDTp + '_NP_' + consDocSeq;
-			parameter.consDocSeq = consDocSeq;
-			parameter.interlockName = "정보수정";
-			// 20180910 soyoung, interlockName 정보수정 영문/일문/중문 추가
-			parameter.interlockNameEn = "Edit information";
-			parameter.interlockNameJp = "情報修正";
-			parameter.interlockNameCn = "信息修改";
-			//parameter.docSeq = preDocSeq;
-			parameter.formSeq = optionSet.formInfo.formSeq;
-			parameter.groupSeq = optionSet.loginVo.groupSeq;
-			parameter.erpDivSeq = optionSet.erpEmpInfo.erpDivSeq;
-			parameter.header = '';
-			parameter.content = '';
-			parameter.footer = '';
-			//parameter.reDraftUrl = location.protocol + '//' + location.host + "<c:url value='/ExpendReUsePop.do' />";
-			
-			parameter.oriApproKey = '${param.oriApproKey}';
-			parameter.oriDocId = '${param.oriDocId}';
-			parameter.form_gb = '${param.form_gb}';
-			parameter.copyApprovalLine = '${param.copyApprovalLine}';
-			parameter.copyAttachFile = '${param.copyAttachFile}';
-			parameter.eapCallDomain = ( origin || '' );
-			parameter.formType = "CONS";
-			
-			if(optionSet.conVo.erpTypeCode=='ERPiU'){
-				parameter.gisuFromDate = optionSet.erpGisu.gisuFromDate;
-				parameter.gisuToDate = optionSet.erpGisu.gisuToDate;
-			}
-			/* [ ajax ] */
-			$.ajax({
-				type : 'post',
-				url : '${pageContext.request.contextPath}/ex/np/user/cons/interlock/ExDocMake.do',
-				datatype : 'json',
-				async : false,
-				/*   - data : consNote(결의문서 적요), erpCompSeq(ERP 회사 코드), erpDivSeq(ERP 회계단위 코드), erpDivName(ERP 회계단위 명칭), erpDeptSeq(ERP 부서 코드), erpEmpSeq(ERP 사원 코드), erpGisu(ERP 기수), erpExpendYear(ERP 회계 연도), compSeq(GW 회사 코드), compName(GW 회사 명칭), deptSeq(GW 부서 코드), deptName(GW 부서 명칭), empSeq(GW 사용자 코드), empName(GW 사용자 명칭) */
-				data : parameter,
-				/*   - success :  */
-				success : function(result) {
-
-					var resultCode = Option.Common.GetResultCode(result);
-
-					if (resultCode === 'SUCCESS') {
-						openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=${seq}",  "ApprCreatePop", 1000, 729, 1, 1) ;
-						self.close();
-					} else {
-						alert("전자결재 문서 생성 중 오류가 발생하였습니다.");
-						return;
-					}
-				},
-				/*   - error :  */
-				error : function(result) {
-					console.error(result);
-				}
-			});
-
-			return;
-		}
-
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 		
 		function openerRefreshList(){

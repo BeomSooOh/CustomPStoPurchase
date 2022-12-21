@@ -65,9 +65,6 @@
 		attachFormList.push(tempObj);
 		</c:forEach>	
 		
-
-		
-
 		
 		$(document).ready(function() {
 			
@@ -741,39 +738,48 @@
 						<div class="com_ta4">
 							<table name="resultJudgesList" objKey="result_judges_info" objCheckFor="checkVal('table', 'resultJudgesList', '평가위원', 'true')">
 								<colgroup>
+									<c:if test="${disabledYn == 'N'}">
 									<col width="50"/>
+									</c:if>
 									<col width="180"/>
 									<col width="120"/>
 									<col width="130"/>
 									<col width=""/>
 								</colgroup>
 								<tr>
+									<c:if test="${disabledYn == 'N'}">
 									<th class="ac">
 										<input type="button" onclick="fnSectorAdd('resultJudgesList', 'resultJudgesAddBase')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 									</th>
+									</c:if>
 									<th class="ac">소속</th>
 									<th class="ac">성명</th>
 									<th class="ac">직위</th>
 									<th class="ac">비고</th>
 								</tr>
-								<tr name="resultJudgesAddBase" style="display:none;">
-									<td>
-										<input type="button" onclick="fnSectorDel(this)" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
-									</td>
-									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
-									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
-									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
-									<td><input name="tableVal" requiredNot="true" must type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
-								</tr>								
 								<tr name="addData">
+									<c:if test="${disabledYn == 'N'}">
 									<td>
 										<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 									</td>
-									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
-									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
-									<td><input name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
-									<td><input name="tableVal" requiredNot="true" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
-								</tr>
+									</c:if>
+									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input ${disabled} name="tableVal" requiredNot="true" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+								</tr>								
+								<tr name="resultJudgesAddBase" style="display:none;">
+									<c:if test="${disabledYn == 'N'}">
+									<td>
+										<input type="button" onclick="fnSectorDel(this)" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+									</td>
+									</c:if>
+									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input ${disabled} name="tableVal" requiredNot="true" must type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+								</tr>								
+
 							</table>
 						</div>
 					</td>
@@ -800,37 +806,39 @@
 						<div class="com_ta4">
 							<table name="nomineeList" objKey=nominee_info objCheckFor="checkVal('table', 'nomineeList', '평가대상', 'true', 'notnull')" >
 								<colgroup>
+									<c:if test="${disabledYn == 'N'}">
 									<col width="34"/>
+									</c:if>
 									<col width=""/>
 									<col width="150"/>
 								</colgroup>
 								<tr>
+									<c:if test="${disabledYn == 'N'}">
 									<th class="ac">
-										<c:if test="${disabledYn == 'N'}">
 										<input type="button" onclick="fnSectorAdd('nomineeList', 'nomineeAddBase', 5)" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
-										</c:if>
 									</th>
+									</c:if>
 									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 거래처명</th>
 									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 사업자번호</th>
 								</tr>
-								<tr name="nomineeAddBase" style="display:none;">
+								<tr name="addData" rowcnt="1">
+									<c:if test="${disabledYn == 'N'}">
 									<td>
-										<c:if test="${disabledYn == 'N'}">
 										<input type="button" onclick="fnSectorDel(this, 'nomineeList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
-										</c:if>
 									</td>
+									</c:if>
 									<td><input ${disabled} onkeyup="fnNomineeNameSync(this);" name="tableVal" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
 									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
-								</tr>
-								<tr name="addData">
+								</tr>	
+								<tr name="nomineeAddBase" style="display:none;">
+									<c:if test="${disabledYn == 'N'}">
 									<td>
-										<c:if test="${disabledYn == 'N'}">
-										<input type="button" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
-										</c:if>
+										<input type="button" onclick="fnSectorDel(this, 'nomineeList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 									</td>
+									</c:if>
 									<td><input ${disabled} onkeyup="fnNomineeNameSync(this);" name="tableVal" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
 									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
-								</tr>								
+								</tr>															
 							</table>
 						</div>
 					</td>
@@ -844,7 +852,9 @@
 						<div class="com_ta4">
 							<table name="resultScoreList" objKey="result_score_info" objCheckFor="checkVal('table', 'resultScoreList', '제안서 평가결과', 'true', 'notnull')">
 								<colgroup>
+									<c:if test="${disabledYn == 'N'}">
 									<col width="50"/>
+									</c:if>
 									<col width="150"/>
 									<col width=""/>
 									<col width=""/>
@@ -855,9 +865,11 @@
 									<col itemNo="5" width=""/>
 								</colgroup>
 								<tr>
+									<c:if test="${disabledYn == 'N'}">
 									<th class="ac" rowspan="2">
 										<input type="button" onclick="fnSectorAdd('resultScoreList', 'scoreInfoAddBase')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 									</th>
+									</c:if>
 									<th class="ac" rowspan="2" colspan="2">구분</th>
 									<th class="ac" rowspan="2">배점</th>
 									<th class="ac" colspan="5">업체명</th>
@@ -871,28 +883,30 @@
 								</tr>
 
 								<tr name="scoreInfoAddBase" style="display:none;">
+									<c:if test="${disabledYn == 'N'}">
 									<td>
 										<input type="button" onclick="fnSectorDel(this)" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 									</td>
+									</c:if>
 									<td>
-										<select name="tableVal" style="width: 90;">
+										<select ${disabled} name="tableVal" style="width: 90;">
 											<c:forEach var="items" items="${scoreTypeCode}">
 											<option value="${items.CODE}">${items.NAME}</option>
 											</c:forEach>
 										</select>									
 									</td>
-									<td><input name="tableVal" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
-									<td><input name="tableVal" itemType = "rate" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td><input ${disabled} name="tableVal" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input ${disabled} name="tableVal" itemType = "rate" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
 									
-									<td itemNo="1"><input itemScore="1" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
-									<td itemNo="2"><input itemScore="2" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
-									<td itemNo="3"><input itemScore="3" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
-									<td itemNo="4"><input itemScore="4" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
-									<td itemNo="5"><input itemScore="5" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td itemNo="1"><input ${disabled} itemScore="1" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td itemNo="2"><input ${disabled} itemScore="2" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td itemNo="3"><input ${disabled} itemScore="3" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td itemNo="4"><input ${disabled} itemScore="4" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td itemNo="5"><input ${disabled} itemScore="5" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
 								</tr>
 								
 								<tr name="totalTr">
-									<td colspan="3">합계</td>
+									<td colspan="<c:if test="${disabledYn == 'N'}">3</c:if><c:if test="${disabledYn == 'Y'}">2</c:if>">합계</td>
 									<td itemType = "sumrate" class="ri">0</td>
 									
 									<td itemNo="1" itemTotal="1" class="ri"></td>
@@ -902,7 +916,7 @@
 									<td itemNo="5" itemTotal="5" class="ri"></td>
 								</tr>
 								<tr name="rankTr">
-									<td colspan="3">우선협상순위</td>
+									<td colspan="<c:if test="${disabledYn == 'N'}">3</c:if><c:if test="${disabledYn == 'Y'}">2</c:if>">우선협상순위</td>
 									<td class="ri"></td>
 									
 									<td itemNo="1" itemRank="1" class="ri"></td>
@@ -918,7 +932,7 @@
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 낙찰가격</th>
 					<td colspan="3">
-						<input objKey="result_amt" objCheckFor="checkVal('text', this, '낙찰가격', 'mustAlert', 'parseToInt')" id="resultAmt" type="text" pudd-style="width:150px;" class="puddSetup ar" value="${contractDetailInfo.result_amt}" maxlength="15"/> 원 
+						<input ${disabled} objKey="result_amt" objCheckFor="checkVal('text', this, '낙찰가격', 'mustAlert', 'parseToInt')" id="resultAmt" type="text" pudd-style="width:150px;" class="puddSetup ar" value="${contractDetailInfo.result_amt}" maxlength="15"/> 원 
 						<span id="resultAmt_han"></span>		
 					</td>
 				</tr>

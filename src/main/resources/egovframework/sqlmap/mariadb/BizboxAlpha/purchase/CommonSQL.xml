@@ -199,7 +199,7 @@
 		
 		delete from cust_sto.t_purchase_attach_info where seq = '$seq$' and outProcessCode = '$outProcessCode$';
 
-	</delete>	
+	</delete>
 	
 	<insert	id="CommonSQL.InsertAttachInfo" parameterClass="HashMap" >
 
@@ -304,5 +304,37 @@
 		VALUES('$seq$', '$outProcessCode$', '$resDocSeq$', '$payType$', '$payCnt$', '$resAmt$', '$remainAmt$', NOW(), '$created_by$');
 	</insert>		
 	
+	<update	id="CommonSQL.DelConsTemp" parameterClass="HashMap" >
+	
+		update $DB_NEOS$t_exnp_consdoc 
+		set
+		doc_status = null
+		, out_process_interface_id = concat(out_process_interface_id, '_DEL')
+		, out_process_interface_m_id = concat(out_process_interface_m_id, '_DEL')
+		, out_process_interface_d_id = 'DUPLICATE_DEL'
+		where
+		out_process_interface_id = '$out_process_interface_id$'
+		and out_process_interface_m_id = '$out_process_interface_m_id$'
+		and out_process_interface_d_id = '$out_process_interface_d_id$';	
+
+	</update>
+	
+	<update	id="CommonSQL.UpdateConsDocSts" parameterClass="HashMap" >
+	
+		update $DB_NEOS$t_exnp_consdoc 
+		set
+        doc_status = '$docSts$'
+		<isNotEmpty property="docId">
+		, doc_seq = '$docId$'
+		</isNotEmpty>
+		<isNotEmpty property="docNum">
+		, doc_no = '$docNum$'
+		</isNotEmpty>				          
+		where
+		out_process_interface_id = '$out_process_interface_id$'
+		and out_process_interface_m_id = '$out_process_interface_m_id$'
+		and out_process_interface_d_id = '$out_process_interface_d_id$';
+
+	</update>				
 		
 </sqlMap>
