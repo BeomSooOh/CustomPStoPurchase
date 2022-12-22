@@ -76,7 +76,8 @@ public class ContractMainController {
         
         try {
         	String toDate = DateUtil.getCurrentDate("yyyy-MM-dd");
-        	String fromDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", -1);
+        	String fromDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", -3);
+        	toDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", 12);
         	mv.addObject("fromDate", fromDate);
         	mv.addObject("toDate", toDate);        
         	

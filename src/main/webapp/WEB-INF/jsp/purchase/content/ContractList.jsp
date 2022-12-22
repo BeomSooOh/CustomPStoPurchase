@@ -60,13 +60,14 @@
 			url : '<c:url value="/purchase/ContractAdminChangeProc.do" />',
     		datatype:"json",
             data: insertDataObject ,
-			async : false,
+			async : true,
 			success : function(result) {
 				
 				if(result.resultCode == "success"){
 					
 					msgSnackbar("success", "요청하신 변경건 처리가 완료되었습니다.");
 					BindGrid();
+					changeInfoList = [];
 					
 				}else{
 					
@@ -128,8 +129,11 @@
 				,	dataType : "json"
 				,   parameterMapping : function( data ) {
 					
-					data.fromDate = $("#searchFromDate").val(); ;
-					data.toDate = $("#searchToDate").val();
+					data.searchFromDate = $("#searchFromDate").val(); ;
+					data.searchToDate = $("#searchToDate").val();
+					data.contractTitle = $("#contractTitle").val();
+					data.writeDeptName = $("#writeDeptName").val();
+					data.writeEmpName = $("#writeEmpName").val();
 					
 					return data;
 				}
@@ -156,12 +160,12 @@
 		,	pageable : {
 				buttonCount : 10 
 			,	pageList : [ 10, 20, 30, 40, 50 ]
+			,	pageInfo : true
 			}
 		
 		,	noDataMessage : {
 			message : "대금지급 요청건이 존재하지 않습니다."
 		}		
-		
 		,	progressBar : {
 		   	 
 				progressType : "loading"
@@ -173,7 +177,6 @@
 			,	percentTextSize : "12px"
 			,	backgroundLayerAttributes : { style : "background-color:#fff;filter:alpha(opacity=0);opacity:0;width:100%;height:100%;position:fixed;top:0px; left:0px;" }
 		}	
-		
 		,	loadCallback : function( headerTable, contentTable, footerTable, gridObj) {
 			
 				gridObj.on( "gridRowClick", function( e ) {
@@ -446,33 +449,53 @@
 				title : "변경계약정보"
 			,	columns : [
 				{
-						field : "data26"
+						field : ""
 					,	title : "변경계약일"
 					,	width : 150
 					,	content : {		
-						template : function() {
-							var html = '<input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/>';
-							return html;
+						template : function(rowData) {
+							
+							if(rowData.change_doc_sts == "90"){
+								return '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'contract_change_dt\', \''+rowData.contract_change_dt+'\', this.value)" type="text" value="' + rowData.contract_change_dt + '" class="puddSetup" pudd-type="datepicker"/>';	
+							}else if(rowData.change_doc_sts != "" && rowData.change_doc_sts != "10"){
+								return rowData.contract_change_dt;
+							}else{
+								return "";
+							}
+							
 						}
 					}
 				}					
 			,	{
-						field : "data27"
+						field : "work_info_after"
 					,	title : "과업내용변경"
 					,	width : 100
 				}
 			,	{
-						field : "data28"
-					,	title : "경계약기간변경"
+						field : "contract_end_dt_after"
+					,	title : "계약기간변경"
 					,	width : 100							
 				}	
 			,	{
-						field : "data29"
+						field : ""
 					,	title : "계약금액변경"
-					,	width : 100							
+					,	width : 100		
+					
+					,	content : {		
+						template : function(rowData) {
+							
+							if(rowData.contract_amt_after != "" && rowData.contract_amt_after != "0"){
+								return rowData.contract_amt_after + " 원";
+							}else{
+								return "";
+							}
+							
+						}
+					}					
+					
 				}	
 			,	{
-						field : "data30"
+						field : "change_etc"
 					,	title : "기타변경"
 					,	width : 100							
 				}			
@@ -482,7 +505,7 @@
 				title : "대금지급정보"
 			,	columns : [
 				{
-						field : "data31"
+						field : "pay_amt_a"
 					,	title : "선금액"
 					,	width : 100
 					,	content : {
@@ -490,7 +513,7 @@
 					}
 				}					
 			,	{
-						field : "data32"
+						field : "pay_amt_b"
 					,	title : "기성금합산"
 					,	width : 100
 					,	content : {
@@ -498,7 +521,7 @@
 					}
 				}
 			,	{
-						field : "data33"
+						field : "pay_amt_c"
 					,	title : "준공금"
 					,	width : 100	
 					,	content : {
@@ -506,7 +529,7 @@
 					}						
 				}	
 			,	{
-						field : "data34"
+						field : "remain_amt"
 					,	title : "잔액"
 					,	width : 100
 					,	content : {
@@ -514,9 +537,25 @@
 					}
 				}					
 			,	{
-						field : "data35"
+						field : ""
 					,	title : "준공율"
 					,	width : 100
+					,	content : {		
+						template : function(rowData) {
+							
+							if(rowData.remain_amt != ""){
+								
+								var amt = parseInt(rowData.amt.replace(/,/g, ''));
+								var remain_amt = parseInt(rowData.remain_amt.replace(/,/g, ''));
+								
+								return ((amt-remain_amt)/amt*100).toFixed(1) + " %";
+								
+							}else{
+								return "";
+							}
+							
+						}
+					}						
 				}			
 				]
 			}
@@ -552,11 +591,11 @@
 						attributes : { class : "le" },
 						template : function(rowData) {
 							
-							if(rowData.contract_attach_info != ""){
+							if(rowData.submit_attach_info != ""){
 								
 								var attachInfo =  rowData.submit_attach_info.split("▦");
 								
-								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="'+attachInfo[2]+'" class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName">'+attachInfo[0]+'<span></em><span name="uploadFileExt">'+attachInfo[1]+'</span></span> <input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'contract_attach_info\', this)" /></div>';	
+								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="'+attachInfo[2]+'" class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName">'+attachInfo[0]+'<span></em><span name="uploadFileExt">'+attachInfo[1]+'</span></span> <input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'submit_attach_info\', this)" /></div>';	
 							}else{
 								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="" class="fl ellipsis pl5 text_ho" style="max-width:200px; display:none;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName"><span></em><span name="uploadFileExt"></span></span> <input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'submit_attach_info\', this)" /></div>';
 							}							
@@ -943,15 +982,15 @@
 	<dl>
 		<dt class="ar" style="width:60px;">계약기간</dt>
 		<dd>
-			<input type="text" id="searchFromDate" value="" class="puddSetup" pudd-type="datepicker"/> ~
-			<input type="text" id="searchToDate" value="" class="puddSetup" pudd-type="datepicker"/>
+			<input type="text" id="searchFromDate" value="${fromDate}" class="puddSetup" pudd-type="datepicker"/> ~
+			<input type="text" id="searchToDate" value="${toDate}" class="puddSetup" pudd-type="datepicker"/>
 		</dd>
 		<dt class="ar" style="width:40px;">계약명</dt>
-		<dd><input type="text" pudd-style="width:120px;" class="puddSetup" placeHolder="공고명 입력" value="" /></dd>
+		<dd><input type="text" id="contractTitle" pudd-style="width:120px;" class="puddSetup" placeHolder="공고명 입력" value="" /></dd>
 		<dt class="ar" style="width:40px;">부서명</dt>
-		<dd><input type="text" pudd-style="width:120px;" class="puddSetup" placeHolder="부서명 입력" value="" /></dd>
+		<dd><input type="text" id="writeDeptName" pudd-style="width:120px;" class="puddSetup" placeHolder="부서명 입력" value="" /></dd>
 		<dt class="ar" style="width:40px;">사원명</dt>
-		<dd><input type="text" pudd-style="width:90px;" class="puddSetup" placeHolder="사원명 입력" value="" /></dd>
+		<dd><input type="text" id="writeEmpName" pudd-style="width:90px;" class="puddSetup" placeHolder="사원명 입력" value="" /></dd>
 		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="BindGrid();" /></dd>
 	</dl>
 </div>

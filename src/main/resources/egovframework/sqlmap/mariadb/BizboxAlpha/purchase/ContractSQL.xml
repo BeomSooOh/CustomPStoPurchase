@@ -19,8 +19,25 @@
 		SELECT 
 		count(*)		
 		FROM cust_sto.t_purchase_contract a
-		join cust_sto.t_purchase_code_detail cd_target_type on cd_target_type.`GROUP` ='targetType' and ifnull(a.c_target_type, a.target_type) =cd_target_type.code
-		join cust_sto.t_purchase_code_detail cd_base_law on cd_base_law.`GROUP` ='baseLaw' and ifnull(a.c_base_law, a.base_law) =cd_base_law.code	
+		left join $DB_NEOS$t_co_dept_multi cdm on ifnull(a.c_write_dept_seq,a.write_dept_seq) = cdm.dept_seq and cdm.lang_code = 'kr'
+		left join $DB_NEOS$t_co_emp_multi cem on ifnull(a.c_write_emp_seq,a.write_emp_seq) = cem.emp_seq and cem.lang_code = 'kr'		
+		where 
+		1=1
+		<isNotEmpty property="searchFromDate">
+		and  ifnull(a.c_contract_end_dt, a.contract_end_dt) <![CDATA[ >= ]]> '$searchFromDate$'
+		</isNotEmpty>
+		<isNotEmpty property="searchToDate">
+		and  ifnull(a.c_contract_end_dt, a.contract_end_dt) <![CDATA[ <= ]]> '$searchToDate$'
+		</isNotEmpty>
+		<isNotEmpty property="contractTitle">
+		and  ifnull(a.c_title, a.title) like concat('%', '$contractTitle$', '%')
+		</isNotEmpty>
+		<isNotEmpty property="writeDeptName">
+		and  cdm.dept_name like concat('%', '$writeDeptName$', '%')
+		</isNotEmpty>
+		<isNotEmpty property="writeEmpName">
+		and  cem.emp_name like concat('%', '$writeEmpName$', '%')
+		</isNotEmpty>			
 	
 	</select>
 		
@@ -43,7 +60,8 @@
 		cem.emp_name,
 		a.noti_type, 
 		a.budget_type, 
-		a.target_type, cd_target_type.NAME as target_type_name,
+		a.target_type, 
+		cust_sto.fn_get_purchase_code_text('targetType', a.target_type) as target_type_name,
 		ifnull(a.c_title, a.title) as title, 
 		ifnull(a.contract_start_dt,'') as contract_start_dt, 
 		ifnull(a.c_contract_end_dt, a.contract_end_dt) as contract_end_dt, 
@@ -51,7 +69,8 @@
 		a.amt_kor,
 		FORMAT(a.std_amt, 0) as std_amt,
 		FORMAT(a.tax_amt, 0) as tax_amt,		
-		a.base_law, cd_base_law.NAME as base_law_name,
+		a.base_law, 
+		cust_sto.fn_get_purchase_code_text('baseLaw', a.base_law) as base_law_name,
 		a.pay_type_info, 
 		a.work_info, 
 		a.emergency_yn, 
@@ -84,6 +103,41 @@
 		ifnull(a.re_notice_start_dt,'') as re_notice_start_dt,
 		ifnull(a.re_notice_end_dt,'') as re_notice_end_dt,
 		
+		ifnull(a.contract_change_dt,'') as contract_change_dt,
+		ifnull(cc.work_info_after,'') as work_info_after,
+		ifnull(cc.contract_end_dt_after,'') as contract_end_dt_after,
+		ifnull(format(cc.contract_amt_after,0),'') as contract_amt_after,
+		ifnull(cc.change_etc,'') as change_etc,
+		ifnull(cc.doc_sts,'') as change_doc_sts,
+		
+		case when ifnull(a.contract_amt,0) != 0 then 
+		ifnull((
+		select format(sum(aaa.res_amt),0) from cust_sto.t_purchase_payment_doc_info aaa
+		join $DB_NEOS$t_exnp_resdoc bbb on aaa.res_doc_seq  = bbb.res_doc_seq and IFNULL(bbb.doc_seq, '') != '' and IFNULL(bbb.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+		where aaa.outProcessCode = 'CONCLUSION' and aaa.seq = a.seq and aaa.pay_type = 'A'
+		),'0') else '' end as pay_amt_a,
+		
+		case when ifnull(a.contract_amt,0) != 0 then 
+		ifnull((
+		select format(sum(aaa.res_amt),0) from cust_sto.t_purchase_payment_doc_info aaa
+		join $DB_NEOS$t_exnp_resdoc bbb on aaa.res_doc_seq  = bbb.res_doc_seq and IFNULL(bbb.doc_seq, '') != '' and IFNULL(bbb.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+		where aaa.outProcessCode = 'CONCLUSION' and aaa.seq = a.seq and aaa.pay_type = 'B'
+		),'0') else '' end as pay_amt_b,
+		
+		case when ifnull(a.contract_amt,0) != 0 then 
+		ifnull((
+		select format(sum(aaa.res_amt),0) from cust_sto.t_purchase_payment_doc_info aaa
+		join $DB_NEOS$t_exnp_resdoc bbb on aaa.res_doc_seq  = bbb.res_doc_seq and IFNULL(bbb.doc_seq, '') != '' and IFNULL(bbb.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+		where aaa.outProcessCode = 'CONCLUSION' and aaa.seq = a.seq and aaa.pay_type = 'C'
+		),'0') else '' end as pay_amt_c,		
+		
+		case when ifnull(a.contract_amt,0) != 0 then 
+		ifnull((
+		select format(a.contract_amt - ifnull(sum(aaa.res_amt),0),0) from cust_sto.t_purchase_payment_doc_info aaa
+		join $DB_NEOS$t_exnp_resdoc bbb on aaa.res_doc_seq  = bbb.res_doc_seq and IFNULL(bbb.doc_seq, '') != '' and IFNULL(bbb.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+		where aaa.outProcessCode = 'CONCLUSION' and aaa.seq = a.seq
+		),'0') else '' end as remain_amt,					
+		
 		ifnull(a.contract_attach_info,'') as contract_attach_info,
 		ifnull(a.submit_attach_info,'') as submit_attach_info,
 		 
@@ -100,11 +154,28 @@
 		ifnull(a.approkey_change,'') as approkey_change
 		
 		FROM cust_sto.t_purchase_contract a
-		join cust_sto.t_purchase_code_detail cd_target_type on cd_target_type.`GROUP` ='targetType' and ifnull(a.c_target_type, a.target_type) =cd_target_type.code
-		join cust_sto.t_purchase_code_detail cd_base_law on cd_base_law.`GROUP` ='baseLaw' and ifnull(a.c_base_law, a.base_law) =cd_base_law.code
+		left join cust_sto.t_purchase_conclusion_change cc on a.approkey_change = concat('Conclu02_', cc.seq, '_', cc.change_seq)
 		left join cust_sto.t_purchase_trade_info trade on a.seq = trade.seq
 		left join $DB_NEOS$t_co_dept_multi cdm on ifnull(a.c_write_dept_seq,a.write_dept_seq) = cdm.dept_seq and cdm.lang_code = 'kr'
 		left join $DB_NEOS$t_co_emp_multi cem on ifnull(a.c_write_emp_seq,a.write_emp_seq) = cem.emp_seq and cem.lang_code = 'kr'		
+		
+		where 
+		1=1
+		<isNotEmpty property="searchFromDate">
+		and  ifnull(a.c_contract_end_dt, a.contract_end_dt) <![CDATA[ >= ]]> '$searchFromDate$'
+		</isNotEmpty>
+		<isNotEmpty property="searchToDate">
+		and  ifnull(a.c_contract_end_dt, a.contract_end_dt) <![CDATA[ <= ]]> '$searchToDate$'
+		</isNotEmpty>
+		<isNotEmpty property="contractTitle">
+		and  ifnull(a.c_title, a.title) like concat('%', '$contractTitle$', '%')
+		</isNotEmpty>
+		<isNotEmpty property="writeDeptName">
+		and  cdm.dept_name like concat('%', '$writeDeptName$', '%')
+		</isNotEmpty>
+		<isNotEmpty property="writeEmpName">
+		and  cem.emp_name like concat('%', '$writeEmpName$', '%')
+		</isNotEmpty>								
 		
 		order by a.seq desc
 		LIMIT $startNum$ ,  $endNum$
@@ -508,7 +579,10 @@
 		</isNotEmpty>	
 		<isNotEmpty property="re_notice_end_dt">
 		 ,re_notice_end_dt='$re_notice_end_dt$'
-		</isNotEmpty>	
+		</isNotEmpty>
+		<isNotEmpty property="contract_change_dt">
+		 ,contract_change_dt='$contract_change_dt$'
+		</isNotEmpty>				
 		<isNotEmpty property="contract_attach_info">
 		 ,contract_attach_info='$contract_attach_info$'
 		</isNotEmpty>														
