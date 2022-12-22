@@ -60,6 +60,24 @@ public class ContractServiceImpl implements ContractService {
 	}
 	
 	
+	public Map<String, Object> ContractAdminChangeProc ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
+		
+		//변경정보 리스트화
+		String jsonStr = (String)params.get("change_info_list");
+		ObjectMapper mapper = new ObjectMapper();
+		List<Map<String, Object>> changeInfoList = new ArrayList<Map<String, Object>>();
+		changeInfoList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
+		
+		for (Map<String, Object> map : changeInfoList) {
+			contractServiceDAO.UpdateContractAdmin(map);	
+		}
+		
+		return params;
+		
+	}	
+	
+	
+	
 	public Map<String, Object> InsertConclusion ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
 		
 		//입찰계약정보 등록

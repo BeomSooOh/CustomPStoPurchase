@@ -74,6 +74,18 @@
 		ifnull(trade.ceo_name, '') as ceo_name,	
 		cust_sto.fn_get_purchase_code_text('hopeCompany', a.hope_company_info) as hope_company_info,
 		cust_sto.fn_get_purchase_code_text('contractType', a.contract_type) as contract_type_text,
+		
+		ifnull(a.bidder_cnt,'') as bidder_cnt,
+		ifnull(a.meet_dt,'') as meet_dt,
+		
+		ifnull(a.pre_notice_end_dt,'') as pre_notice_end_dt,
+		ifnull(a.notice_start_dt,'') as notice_start_dt,
+		ifnull(a.notice_end_dt,'') as notice_end_dt,
+		ifnull(a.re_notice_start_dt,'') as re_notice_start_dt,
+		ifnull(a.re_notice_end_dt,'') as re_notice_end_dt,
+		
+		ifnull(a.contract_attach_info,'') as contract_attach_info,
+		ifnull(a.submit_attach_info,'') as submit_attach_info,
 		 
 		a.created_dt, 
 		a.created_by, 
@@ -465,7 +477,49 @@
 		modify_by='$created_by$'
 		
 		WHERE seq='$seq$'; 
-	</update>	
+	</update>
+	
+	
+	<update	id="ContractSQL.UpdateContractAdmin" parameterClass="HashMap" >
+		UPDATE cust_sto.t_purchase_contract
+		SET
+		modify_dt=now()
+		,modify_by='$created_by$'
+		<isNotEmpty property="contract_no">
+		,contract_no='$contract_no$' 
+		</isNotEmpty>
+		<isNotEmpty property="contract_start_dt">
+		,contract_start_dt='$contract_start_dt$' 
+		</isNotEmpty>
+		<isNotEmpty property="bidder_cnt">
+		 ,bidder_cnt='$bidder_cnt$'
+		</isNotEmpty>
+		<isNotEmpty property="pre_notice_end_dt">
+		 ,pre_notice_end_dt='$pre_notice_end_dt$'
+		</isNotEmpty>	
+		<isNotEmpty property="notice_start_dt">
+		 ,notice_start_dt='$notice_start_dt$'
+		</isNotEmpty>	
+		<isNotEmpty property="notice_end_dt">
+		 ,notice_end_dt='$notice_end_dt$'
+		</isNotEmpty>	
+		<isNotEmpty property="re_notice_start_dt">
+		 ,re_notice_start_dt='$re_notice_start_dt$'
+		</isNotEmpty>	
+		<isNotEmpty property="re_notice_end_dt">
+		 ,re_notice_end_dt='$re_notice_end_dt$'
+		</isNotEmpty>	
+		<isNotEmpty property="contract_attach_info">
+		 ,contract_attach_info='$contract_attach_info$'
+		</isNotEmpty>														
+		<isNotEmpty property="submit_attach_info">
+		 ,submit_attach_info='$submit_attach_info$'
+		</isNotEmpty>	
+		
+		WHERE seq='$seq$'; 
+	</update>
+	
+			
 	
 	<update	id="ContractSQL.UpdateConclusion" parameterClass="HashMap" >
 		UPDATE cust_sto.t_purchase_contract

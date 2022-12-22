@@ -73,8 +73,8 @@
 			$('#amt').keyup(function() {
 				var amtInt = $('#amt').val().replace(/,/g, '');
 				
-				$('#stdAmt').val((Math.floor(amtInt*0.9)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-				$('#taxAmt').val((Math.floor(amtInt*0.1)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+				$('#stdAmt').val((Math.floor(amtInt/1.1)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+				$('#taxAmt').val((Math.ceil(amtInt/11)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 				
 				$('#amt_han').text(viewKorean($('#amt').val().replace(/,/g, '')));
 				$('#stdAmt_han').text(viewKorean($('#stdAmt').val().replace(/,/g, '')));

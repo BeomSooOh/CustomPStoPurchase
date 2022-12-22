@@ -65,6 +65,12 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 		
 	}
 	
+	public void UpdateContractAdmin ( Map<String, Object> params ) {
+		
+		update( "ContractSQL.UpdateContractAdmin", params );
+		
+	}	
+	
 	public void UpdateConclusion ( Map<String, Object> params ) {
 		
 		update( "ContractSQL.UpdateConclusion", params );

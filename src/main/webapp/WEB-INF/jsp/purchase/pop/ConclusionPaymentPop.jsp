@@ -583,17 +583,14 @@
 		
 		if(conclusionRemainAmt <= conclusionbudgetList[idx].balanceAmt){
 			parameter.tradeAmt = conclusionRemainAmt; /* [*]금액 */
-			parameter.tradeStdAmt = parameter.tradeAmt*0.9; /* [*]공급가액 */
-			parameter.tradeVatAmt = parameter.tradeAmt*0.1; /* [*]부가세 */
-			
 			conclusionRemainAmt = 0;
 		}else{
 			parameter.tradeAmt = conclusionbudgetList[idx].balanceAmt; /* [*]금액 */
-			parameter.tradeStdAmt = parameter.tradeAmt*0.9; /* [*]공급가액 */
-			parameter.tradeVatAmt = parameter.tradeAmt*0.1; /* [*]부가세 */
-			
 			conclusionRemainAmt -= conclusionbudgetList[idx].balanceAmt;
 		}
+
+		parameter.tradeStdAmt = Math.floor(parameter.tradeAmt/1.1); /* [*]공급가액 */
+		parameter.tradeVatAmt = Math.ceil(parameter.tradeAmt/11); /* [*]부가세 */
 		
 		parameter.jiroSeq = ''; /* 미사용? */
 		parameter.jiroName = ''; /* 미사용? */

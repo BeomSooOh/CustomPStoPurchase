@@ -17,4 +17,6 @@ public interface ContractService {
 	
 	public Map<String, Object> UpdateMeet ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
 	
+	public Map<String, Object> ContractAdminChangeProc ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
+	
 }

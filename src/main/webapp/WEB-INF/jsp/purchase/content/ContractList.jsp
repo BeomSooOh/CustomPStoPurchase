@@ -5,6 +5,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="validator" uri="http://www.springmodules.org/tags/commons-validator"%>
+<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -26,18 +27,100 @@
 <script>
 
 	var targetSeq = "";
+	var uploadPer = 0;
 
 
 	$(document).ready(function() {
 		
 		BindGrid();
+		
+		document.getElementById('file_upload').addEventListener('change', handleFileSelect, false);
 
 	});//---documentready
+	
+	var changeInfoList = [];
+	
+	function fnSaveColInfo(){
+		
+		if(changeInfoList.length > 0){
+			confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc()', '취소', '');	
+		}else{
+			msgSnackbar("warning", "수정한 항목이 없습니다.");
+		}
+		
+	}
+	
+	function fnSaveProc(){
+		
+		var insertDataObject = {};
+		insertDataObject.change_info_list = JSON.stringify(changeInfoList);
+		
+		$.ajax({
+			type : 'post',
+			url : '<c:url value="/purchase/ContractAdminChangeProc.do" />',
+    		datatype:"json",
+            data: insertDataObject ,
+			async : false,
+			success : function(result) {
+				
+				if(result.resultCode == "success"){
+					
+					msgSnackbar("success", "요청하신 변경건 처리가 완료되었습니다.");
+					BindGrid();
+					
+				}else{
+					
+					msgSnackbar("error", "등록에 실패했습니다.");
+					
+				}
+				
+			},
+			error : function(result) {
+				msgSnackbar("error", "등록에 실패했습니다.");
+			}
+		});		
+		
+	}
+	
+	function fnSetChangeInfo(seq, calName, oriVal, newVal){
+		
+		console.log("seq > " + seq);
+		console.log("calName > " + calName);
+		console.log("oriVal > " + oriVal);
+		console.log("newVal > " + newVal);		
+		
+		var targetObj = changeInfoList.find(obj => obj.seq === seq);
+		
+		if(oriVal != newVal && targetObj == null){
+			var changeInfo = {};
+			changeInfo.seq = seq;
+			changeInfoList.push(changeInfo)
+		}
+		
+		if(oriVal != newVal){
+			changeInfoList.find(obj => obj.seq === seq)[calName] = newVal;
+		}else if(targetObj){
+			delete changeInfoList.find(obj => obj.seq === seq)[calName];
+		}
+		
+		if(changeInfoList.find(obj => obj.seq === seq)){
+			
+			if(Object.keys(changeInfoList.find(obj => obj.seq === seq)).length == 1){
+				changeInfoList.some(function(item, index) {
+			    	(changeInfoList[index]["seq"] == seq) ? !!(changeInfoList.splice(index, 1)) : false;
+			    });
+			}
+			
+		}
+		
+
+	}
 	
 	function BindGrid(){
 		
 		var dataSource = new Pudd.Data.DataSource({
 				serverPaging: true
+			,	editable : true
 			,	pageSize: 10
 			,	request : {
 				    url : '<c:url value="/purchase/${authLevel}/SelectContractList.do" />'
@@ -137,10 +220,11 @@
 					,	width : 120
 					,	content : {		
 						template : function(rowData) {
-							var html = '<input type="text" pudd-style="width:100%;" class="puddSetup ac" value="' + rowData.seq + '" />';
+							var html = '<input onkeyup="fnSetChangeInfo(\''+rowData.seq+'\', \'contract_no\', \''+rowData.contract_no+'\', this.value)" type="text" pudd-style="width:100%;" class="puddSetup ac" value="' + rowData.contract_no + '" />';
 							return html;
 						}
-					}
+					}				
+					
 				}
 			,	{
 						field : "target_type_name"
@@ -173,7 +257,7 @@
 					,	width : 150	
 					,	content : {		
 						template : function(rowData) {
-							var html = '<input type="text" value="' + rowData.contract_start_dt + '" class="puddSetup" pudd-type="datepicker"/>';
+							var html = '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'contract_start_dt\', \''+rowData.contract_start_dt+'\', this.value)" type="text" value="' + rowData.contract_start_dt + '" class="puddSetup" pudd-type="datepicker"/>';
 							return html;
 						}
 					}					
@@ -262,58 +346,99 @@
 				title : "입찰정보"
 			,	columns : [
 				{
-						field : "data20"
+						field : ""
 					,	title : "사전규격공개기간"
-					,	width : 290
+					,	width : 150
 					,	content : {		
-						template : function() {
-							var html = '<input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/> ~ <input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/>';
-							return html;
+						template : function(rowData) {
+							
+							if(rowData.contract_type == "01"){
+								var html = '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'pre_notice_end_dt\', \''+rowData.pre_notice_end_dt+'\', this.value)" type="text" value="' + rowData.pre_notice_end_dt + '" class="puddSetup" pudd-type="datepicker"/>';
+								return html;								
+							}else{
+								return "";
+							}
+
 						}
 					}
 				}					
 			,	{
-						field : "data21"
+						field : ""
 					,	title : "본 공고기간"
 					,	width : 290
 					,	content : {		
-						template : function() {
-							var html = '<input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/> ~ <input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/>';
-							return html;
+						template : function(rowData) {
+							
+							if(rowData.contract_type == "01"){
+								var html = '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'notice_start_dt\', \''+rowData.notice_start_dt+'\', this.value)" type="text" value="' + rowData.notice_start_dt + '" class="puddSetup" pudd-type="datepicker"/> ~ <input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'notice_end_dt\', \''+rowData.notice_end_dt+'\', this.value)" type="text" value="' + rowData.notice_end_dt + '" class="puddSetup" pudd-type="datepicker"/>';
+								return html;						
+							}else{
+								return "";
+							}							
+
 						}
 					}
 				}
 			,	{
-						field : "data22"
+						field : ""
 					,	title : "재 공고기간"
 					,	width : 290			
 					,	content : {		
-						template : function() {
-							var html = '<input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/> ~ <input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/>';
-							return html;
+						template : function(rowData) {
+							
+							if(rowData.contract_type == "01"){
+								var html = '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'re_notice_start_dt\', \''+rowData.re_notice_start_dt+'\', this.value)" type="text" value="' + rowData.re_notice_start_dt + '" class="puddSetup" pudd-type="datepicker"/> ~ <input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'re_notice_end_dt\', \''+rowData.re_notice_end_dt+'\', this.value)" type="text" value="' + rowData.re_notice_end_dt + '" class="puddSetup" pudd-type="datepicker"/>';
+								return html;
+							}else{
+								return "";
+							}
+							
 						}
 					}				
 				}
 			,	{
-						field : "data23"
+						field : ""
 					,	title : "공고기간 확정"
 					,	width : 100
+					,	content : {		
+						template : function(rowData) {
+							
+							if(rowData.contract_type == "01"){
+								
+								if(rowData.notice_start_dt != "" && rowData.notice_end_dt != ""){
+									return "확정";									
+								}else{
+									return "";
+								}
+								
+							}else{
+								return "";
+							}
+							
+						}
+					}					
 				}	
 			,	{
-						field : "data24"
+						field : "bidder_cnt"
 					,	title : "투찰자수"
 					,	width : 100
 					,	content : {		
-						template : function() {
-							var html = '<input type="text" pudd-style="width:50px;" class="puddSetup ar" value="" /> 건';
-							return html;
+						template : function(rowData) {
+							
+							if(rowData.contract_type == "01"){
+								var html = '<input onkeyup="fnSetChangeInfo(\''+rowData.seq+'\', \'bidder_cnt\', \''+rowData.bidder_cnt+'\', this.value)" type="number" style="width:50px;" class="puddSetup ac" maxlength="2" value="' + rowData.bidder_cnt + '" /> 건';
+								return html;
+							}else{
+								return "";
+							}							
+							
 						}
 					}
 			}
 			,	{
-						field : "data25"
+						field : "meet_dt"
 					,	title : "제안서평가일"
-					,	width : 120
+					,	width : 180
 			}					
 				]
 			}
@@ -399,27 +524,43 @@
 				title : "자료"
 			,	columns : [
 				{
-						field : "data36"
+						field : ""
 					,	title : "계약서"
 					,	width : 300
 					,	content : {
 						attributes : { class : "le" },
-						template : function() {
-							var html = '<div><span class="text_ho"><em class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> STOB221014STOB221014STOB221014-008</em>.zip</span> <input type="button" class="puddSetup ml5" value="추가" /></div>';
-							return html;
+						template : function(rowData) {
+							
+							if(rowData.contract_attach_info != ""){
+								
+								var attachInfo =  rowData.contract_attach_info.split("▦");
+								
+								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="'+attachInfo[2]+'" class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName">'+attachInfo[0]+'<span></em><span name="uploadFileExt">'+attachInfo[1]+'</span></span> <input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'contract_attach_info\', this)" /></div>';	
+							}else{
+								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="" class="fl ellipsis pl5 text_ho" style="max-width:200px; display:none;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName"><span></em><span name="uploadFileExt"></span></span> <input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'contract_attach_info\', this)" /></div>';
+							}
+							
 						}
 					}
 				}					
 			,	{
-						field : "data37"
+						field : ""
 					,	title : "계약제출서류"
 					,	width : 100
 					,	width : 300
 					,	content : {
 						attributes : { class : "le" },
-						template : function() {
-							var html = '<div><span class="text_ho"><em class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> STOB221014STOB221014STOB221014-008</em>.zip</span> <input type="button" class="puddSetup ml5" value="추가" /></div>';
-							return html;
+						template : function(rowData) {
+							
+							if(rowData.contract_attach_info != ""){
+								
+								var attachInfo =  rowData.submit_attach_info.split("▦");
+								
+								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="'+attachInfo[2]+'" class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName">'+attachInfo[0]+'<span></em><span name="uploadFileExt">'+attachInfo[1]+'</span></span> <input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'contract_attach_info\', this)" /></div>';	
+							}else{
+								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="" class="fl ellipsis pl5 text_ho" style="max-width:200px; display:none;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName"><span></em><span name="uploadFileExt"></span></span> <input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'submit_attach_info\', this)" /></div>';
+							}							
+							
 						}
 					}
 				}			
@@ -430,6 +571,141 @@
 		
 		
 	} 	
+	
+	var attachTargetSeq;
+	var attachTargetColName;
+	var attachTargetObj;
+	
+	function fnSearchFile(seq, colName, el){
+		attachTargetSeq = seq;
+		attachTargetColName = colName;
+		attachTargetObj = $(el).closest("td");
+		
+		$("#file_upload").click();
+	}
+	
+	function getUUID() {
+		  return 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 3 | 8);
+		    return v.toString(16);
+		  });
+	}
+	
+	function handleFileSelect(evt) {
+		
+	    evt.stopPropagation();
+	    evt.preventDefault();
+	    
+	    var f = evt.target.files[0];
+	
+	    var fileEx = "";
+	    var lastDot = f.name.lastIndexOf('.');
+	    
+	    if(lastDot > 0){
+	    	
+	    	f.uid = '<fmt:formatDate value="${currentTime}" type="date" pattern="yyyyMMdd"/>' + getUUID();
+	    	f.fileName = f.name.substr(0, lastDot);
+	    	f.fileExt = f.name.substr(lastDot);
+		
+			var abort = false;
+			var formData = new FormData();
+			var nfcFileNames = btoa(unescape(encodeURIComponent(f.name)));
+	           
+			formData.append("file0", f);
+			formData.append("fileId", f.uid);
+			formData.append("nfcFileNames", nfcFileNames);
+	   	    
+			fnSetProgress();
+	
+	        var AJAX = $.ajax({
+	        	url: '<c:url value="/ajaxFileUploadProc.do" />',
+	            type: 'POST',
+	        	timeout:600000,
+	            xhr: function () {
+	                   myXhr = $.ajaxSettings.xhr();
+	
+	                   if (myXhr.upload) {
+	                       myXhr.upload.addEventListener('progress', progressHandlingFunction, false);
+	                       myXhr.abort;
+	                   }
+	                   return myXhr;
+	             },
+	             success: completeHandler = function (data) {
+	               	
+	                fnRemoveProgress();
+	               	
+	                $(attachTargetObj).find('em').attr("fileid", f.uid).show();
+	                $(attachTargetObj).find('[name="uploadFileName"]').text(f.fileName);
+	                $(attachTargetObj).find('[name="uploadFileExt"]').text(f.fileExt);
+	                
+	                fnSetChangeInfo(attachTargetSeq, attachTargetColName, "", f.fileName + "▦" + f.fileExt + "▦" + f.uid);
+					
+	               },
+	               error: errorHandler = function () {
+	
+	                   if (abort) {
+	                       alert('업로드를 취소하였습니다.');
+	                   } else {
+	                       alert('첨부파일 처리중 장애가 발생되었습니다. 다시 시도하여 주십시오');
+	                   }
+	
+	                   //UPLOAD_COMPLITE = false;
+	                   fnRemoveProgress();
+	               },
+	               data: formData,
+	               cache: false,
+	               contentType: false,
+	               processData: false
+	           });	
+	    	
+	    }
+	    
+	  	$('#file_upload').val("");
+	    
+	}
+  
+	function progressHandlingFunction(e) {
+	    if (e.lengthComputable) {
+	    	
+	    	uploadPer = parseInt((e.loaded / e.total) * 100);
+	    }
+	}			    
+  
+	function fnSetProgress() {
+		
+		uploadPer = 0;
+	
+		Pudd( "#exArea" ).puddProgressBar({
+			 
+			progressType : "circular"
+		,	attributes : { style:"width:70px; height:70px;" }
+		 
+		,	strokeColor : "#00bcd4"	// progress 색상
+		,	strokeWidth : "3px"	// progress 두께
+		 
+		,	textAttributes : { style : "" }		// text 객체 속성 설정
+		 
+		,	percentText : ""
+		,	percentTextColor : "#444"
+		,	percentTextSize : "24px"
+		,	backgroundLayerAttributes : { style : "background-color:#000;filter:alpha(opacity=20);opacity:0.2;width:100%;height:100%;position:fixed;top:0px; left:0px;" }
+		,	modal : true// 기본값 false - progressType : linear, circular 인 경우만 해당
+		 
+			// 200 millisecond 마다 callback 호출됨
+		,	progressCallback : function( progressBarObj ) {
+				return uploadPer;
+			}
+		});		    	
+		
+	}		    
+  
+	function fnRemoveProgress() {
+		uploadPer = 100;
+	}	
+	
+	function fnDownload(e){
+		this.location.href = "${pageContext.request.contextPath}/fileDownloadProc.do?fileId=" + $(e).attr("fileid");
+	}	
 	
 	function fnSetBtn(rowData){
 		
@@ -486,6 +762,10 @@
 		}else if(callId == "btnResult"){
 			
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractResultPop.do?seq=" + targetSeq,  "ContractResultViewPop", 1200, 800, 1, 1) ;
+			
+		}else if(callId == "btnSave"){
+			
+			fnSaveColInfo();
 			
 		}else if(callId == "btnSelect"){
 			
@@ -684,7 +964,7 @@
 				<input type="button" onclick="fnCallBtn('newContract');" class="puddSetup" style="background:#03a9f4;color:#fff" value="계약입찰발주계획" />
 				<input type="button" id="btnMeet" onclick="fnContractStatePop('btnMeet');" class="puddSetup" value="제안서 평가회의" />
 				<input type="button" id="btnResult" onclick="fnContractStatePop('btnResult');" class="puddSetup" value="제안서 평가결과" />
-				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="저장" />
+				<input type="button" onclick="fnCallBtn('btnSave');" class="puddSetup" value="저장" />
 				<input type="button" onclick="fnContractStatePop('btnConclusion');" style="background:#03a9f4;color:#fff" class="puddSetup" value="계약체결" />
 				<input type="button" onclick="fnContractStatePop('btnConclusionChange');" class="puddSetup" value="변경계약" />
 				<input type="button" onclick="fnContractStatePop('btnConclusionPayment');" class="puddSetup" value="대금지급" />
@@ -698,5 +978,6 @@
 			<div id="grid1"></div>
 		</div>
 	</div>
-	
+	<input style="display:none;" id="file_upload" type="file" />
+	<div id="exArea"></div>
 </div><!-- //sub_contents_wrap -->
