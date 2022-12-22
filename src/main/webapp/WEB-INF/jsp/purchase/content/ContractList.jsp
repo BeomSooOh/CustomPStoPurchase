@@ -164,7 +164,7 @@
 			}
 		
 		,	noDataMessage : {
-			message : "대금지급 요청건이 존재하지 않습니다."
+			message : "검색된 데이터가 없습니다."
 		}		
 		,	progressBar : {
 		   	 
