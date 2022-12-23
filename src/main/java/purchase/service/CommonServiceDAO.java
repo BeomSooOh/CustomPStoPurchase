@@ -2,10 +2,13 @@
 package purchase.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
+
+import bizbox.orgchart.service.vo.LoginVO;
 import egovframework.com.cmm.service.impl.EgovComAbstractDAO;
 
 @Repository("CommonServiceDAO")
@@ -24,6 +27,26 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 	@SuppressWarnings ( "unchecked" )
 	public Map<String, Object> GetCompInfo ( Map<String, Object> params ) {
 		return (Map<String, Object>) select( "CommonSQL.getCompInfo", params );
+	}
+	
+	public Boolean CheckAuthFromMenuInfo ( LoginVO loginVo, String servletPath ) {
+		
+		Map<String, Object> params = new HashMap<String, Object>();
+		
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("compSeq", loginVo.getOrganId());
+		params.put("deptSeq", loginVo.getOrgnztId());
+		params.put("empSeq", loginVo.getUniqId());		
+		params.put("servletPath", servletPath);
+		
+		int checkAuthResult = (int) select( "CommonSQL.checkAuth", params );
+		
+		if(checkAuthResult > 0) {
+			return true;
+		}else {
+			return false;
+		}
+		
 	}
 	
 	public String GetCodeText ( Map<String, Object> params ) {

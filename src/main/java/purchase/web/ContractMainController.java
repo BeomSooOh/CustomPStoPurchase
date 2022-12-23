@@ -42,6 +42,7 @@ import purchase.service.CommonServiceDAO;
 import purchase.service.ContractService;
 import purchase.service.ContractServiceDAO;
 import common.vo.common.CommonMapper;
+import common.vo.common.CommonMapInterface.commonExPath;
 import common.vo.interlock.InterlockExpendVO;
 
 @Controller
@@ -75,15 +76,20 @@ public class ContractMainController {
         mv.addObject("authLevel", authLevel);
         
         try {
+            LoginVO loginVo = CommonConvert.CommonGetEmpVO();  
+            
+            //메뉴접근 권한체크
+            if(!commonServiceDAO.CheckAuthFromMenuInfo(loginVo, request.getServletPath())) {
+            	//권한없음
+            	mv.setViewName( commonExPath.ERRORPAGEPATH + commonExPath.CMERRORCHECKAUTH );
+            	return mv;
+            }
+        	
         	String toDate = DateUtil.getCurrentDate("yyyy-MM-dd");
         	String fromDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", -3);
         	toDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", 12);
         	mv.addObject("fromDate", fromDate);
         	mv.addObject("toDate", toDate);        
-        	
-            /* 변수 설정 */
-            LoginVO loginVo = CommonConvert.CommonGetEmpVO();
-            params.put("groupSeq", loginVo.getGroupSeq());
             
             params.put("useYn", "Y");
             params.put("group", "resFormSeq");
@@ -111,11 +117,15 @@ public class ContractMainController {
     public ModelAndView SelectContractList(@PathVariable String authLevel, @RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
     	
         ModelAndView mv = new ModelAndView();
-        params.put("authLevel", authLevel);
         
         /* 변수 설정 */
         LoginVO loginVo = CommonConvert.CommonGetEmpVO();
-        params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("compSeq", loginVo.getOrganId());
+		params.put("deptSeq", loginVo.getOrgnztId());
+		params.put("empSeq", loginVo.getUniqId());
+		
+		params.put("authLevel", authLevel);
         
 		PaginationInfo paginationInfo = new PaginationInfo();
 		paginationInfo = getPaginationInfo(params);

@@ -37,7 +37,14 @@
 		</isNotEmpty>
 		<isNotEmpty property="writeEmpName">
 		and  cem.emp_name like concat('%', '$writeEmpName$', '%')
-		</isNotEmpty>			
+		</isNotEmpty>
+		
+		<isEqual property="authLevel" compareValue="dept">
+		and (a.write_dept_seq = '$deptSeq$' or a.c_write_dept_seq = '$deptSeq$')   
+		</isEqual>		
+		<isEqual property="authLevel" compareValue="user">
+		and (a.write_emp_seq = '$empSeq$' or a.c_write_emp_seq = '$empSeq$')   
+		</isEqual>
 	
 	</select>
 		
@@ -175,7 +182,14 @@
 		</isNotEmpty>
 		<isNotEmpty property="writeEmpName">
 		and  cem.emp_name like concat('%', '$writeEmpName$', '%')
-		</isNotEmpty>								
+		</isNotEmpty>	
+		
+		<isEqual property="authLevel" compareValue="dept">
+		and (a.write_dept_seq = '$deptSeq$' or a.c_write_dept_seq = '$deptSeq$')   
+		</isEqual>		
+		<isEqual property="authLevel" compareValue="user">
+		and (a.write_emp_seq = '$empSeq$' or a.c_write_emp_seq = '$empSeq$')   
+		</isEqual>									
 		
 		order by a.seq desc
 		LIMIT $startNum$ ,  $endNum$

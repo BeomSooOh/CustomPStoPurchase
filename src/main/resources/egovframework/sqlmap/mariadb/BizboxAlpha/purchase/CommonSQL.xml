@@ -15,6 +15,17 @@
 		select * from $DB_NEOS$t_co_group_path where os_type = '$osType$' and path_seq = '$pathSeq$'
 	</select>	
 	
+	<select	id="CommonSQL.checkAuth" parameterClass="HashMap" resultClass="int">
+		
+		SELECT count(*)
+		FROM $DB_NEOS$t_co_auth_relate car
+		JOIN $DB_NEOS$t_co_authcode a ON car.author_code = a.author_code  AND car.author_type = a.author_type AND a.author_use_yn = 'Y'
+		join $DB_NEOS$t_co_menu_auth ma on a.author_code = ma.author_code 
+		join $DB_NEOS$t_co_menu m on ma.menu_no = m.menu_no and m.url_path like concat('%','$servletPath$','%')
+		WHERE (car.author_type = '001' and car.comp_seq='$compSeq$' and car.emp_seq='$empSeq$') or (car.author_type = '002' and car.dept_seq='$deptSeq$')
+		
+	</select>	
+	
 	<select	id="CommonSQL.SelectPurchaseDetailCodeList" parameterClass="HashMap" resultClass="HashMap">
 		
 		select

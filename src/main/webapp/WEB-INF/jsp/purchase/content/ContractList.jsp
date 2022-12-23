@@ -28,8 +28,7 @@
 
 	var targetSeq = "";
 	var uploadPer = 0;
-
-
+	
 	$(document).ready(function() {
 		
 		BindGrid();
@@ -133,7 +132,13 @@
 					data.searchToDate = $("#searchToDate").val();
 					data.contractTitle = $("#contractTitle").val();
 					data.writeDeptName = $("#writeDeptName").val();
+					
+					<c:if test="${authLevel!='user'}">
 					data.writeEmpName = $("#writeEmpName").val();
+					</c:if>
+					<c:if test="${authLevel=='user'}">
+					data.writeEmpName = "";
+					</c:if>					
 					
 					return data;
 				}
@@ -156,7 +161,7 @@
 			dataSource : dataSource
 		,	scrollable : true
 		, 	pageSize : 10	// grid와 연동되는 경우 grid > pageable > pageList 배열값 중의 하나이여야 함
-		,	serverPaging : true			
+		,	serverPaging : true		
 		,	pageable : {
 				buttonCount : 10 
 			,	pageList : [ 10, 20, 30, 40, 50 ]
@@ -223,8 +228,13 @@
 					,	width : 120
 					,	content : {		
 						template : function(rowData) {
-							var html = '<input onkeyup="fnSetChangeInfo(\''+rowData.seq+'\', \'contract_no\', \''+rowData.contract_no+'\', this.value)" type="text" pudd-style="width:100%;" class="puddSetup ac" value="' + rowData.contract_no + '" />';
-							return html;
+							
+							<c:choose><c:when test="${authLevel=='admin'}">
+							return '<input onkeyup="fnSetChangeInfo(\''+rowData.seq+'\', \'contract_no\', \''+rowData.contract_no+'\', this.value)" type="text" pudd-style="width:100%;" class="puddSetup ac" value="' + rowData.contract_no + '" />';
+							</c:when><c:otherwise>
+							return rowData.contract_no;
+							</c:otherwise></c:choose>
+							
 						}
 					}				
 					
@@ -260,8 +270,13 @@
 					,	width : 150	
 					,	content : {		
 						template : function(rowData) {
-							var html = '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'contract_start_dt\', \''+rowData.contract_start_dt+'\', this.value)" type="text" value="' + rowData.contract_start_dt + '" class="puddSetup" pudd-type="datepicker"/>';
-							return html;
+							
+							<c:choose><c:when test="${authLevel=='admin'}">
+							return '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'contract_start_dt\', \''+rowData.contract_start_dt+'\', this.value)" type="text" value="' + rowData.contract_start_dt + '" class="puddSetup" pudd-type="datepicker"/>';
+							</c:when><c:otherwise>
+							return rowData.contract_start_dt;
+							</c:otherwise></c:choose>
+							
 						}
 					}					
 				}
@@ -356,8 +371,13 @@
 						template : function(rowData) {
 							
 							if(rowData.contract_type == "01"){
-								var html = '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'pre_notice_end_dt\', \''+rowData.pre_notice_end_dt+'\', this.value)" type="text" value="' + rowData.pre_notice_end_dt + '" class="puddSetup" pudd-type="datepicker"/>';
-								return html;								
+								
+								<c:choose><c:when test="${authLevel=='admin'}">
+								return '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'pre_notice_end_dt\', \''+rowData.pre_notice_end_dt+'\', this.value)" type="text" value="' + rowData.pre_notice_end_dt + '" class="puddSetup" pudd-type="datepicker"/>';
+								</c:when><c:otherwise>
+								return rowData.pre_notice_end_dt;
+								</c:otherwise></c:choose>								
+								
 							}else{
 								return "";
 							}
@@ -373,8 +393,13 @@
 						template : function(rowData) {
 							
 							if(rowData.contract_type == "01"){
-								var html = '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'notice_start_dt\', \''+rowData.notice_start_dt+'\', this.value)" type="text" value="' + rowData.notice_start_dt + '" class="puddSetup" pudd-type="datepicker"/> ~ <input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'notice_end_dt\', \''+rowData.notice_end_dt+'\', this.value)" type="text" value="' + rowData.notice_end_dt + '" class="puddSetup" pudd-type="datepicker"/>';
-								return html;						
+								
+								<c:choose><c:when test="${authLevel=='admin'}">
+								return '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'notice_start_dt\', \''+rowData.notice_start_dt+'\', this.value)" type="text" value="' + rowData.notice_start_dt + '" class="puddSetup" pudd-type="datepicker"/> ~ <input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'notice_end_dt\', \''+rowData.notice_end_dt+'\', this.value)" type="text" value="' + rowData.notice_end_dt + '" class="puddSetup" pudd-type="datepicker"/>';
+								</c:when><c:otherwise>
+								return rowData.notice_start_dt + " ~ " + rowData.notice_end_dt;
+								</c:otherwise></c:choose>								
+								
 							}else{
 								return "";
 							}							
@@ -390,8 +415,13 @@
 						template : function(rowData) {
 							
 							if(rowData.contract_type == "01"){
-								var html = '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'re_notice_start_dt\', \''+rowData.re_notice_start_dt+'\', this.value)" type="text" value="' + rowData.re_notice_start_dt + '" class="puddSetup" pudd-type="datepicker"/> ~ <input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'re_notice_end_dt\', \''+rowData.re_notice_end_dt+'\', this.value)" type="text" value="' + rowData.re_notice_end_dt + '" class="puddSetup" pudd-type="datepicker"/>';
-								return html;
+								
+								<c:choose><c:when test="${authLevel=='admin'}">
+								return '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'re_notice_start_dt\', \''+rowData.re_notice_start_dt+'\', this.value)" type="text" value="' + rowData.re_notice_start_dt + '" class="puddSetup" pudd-type="datepicker"/> ~ <input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'re_notice_end_dt\', \''+rowData.re_notice_end_dt+'\', this.value)" type="text" value="' + rowData.re_notice_end_dt + '" class="puddSetup" pudd-type="datepicker"/>';
+								</c:when><c:otherwise>
+								return rowData.re_notice_start_dt + " ~ " + rowData.re_notice_end_dt;
+								</c:otherwise></c:choose>									
+
 							}else{
 								return "";
 							}
@@ -429,8 +459,13 @@
 						template : function(rowData) {
 							
 							if(rowData.contract_type == "01"){
-								var html = '<input onkeyup="fnSetChangeInfo(\''+rowData.seq+'\', \'bidder_cnt\', \''+rowData.bidder_cnt+'\', this.value)" type="number" style="width:50px;" class="puddSetup ac" maxlength="2" value="' + rowData.bidder_cnt + '" /> 건';
-								return html;
+								
+								<c:choose><c:when test="${authLevel=='admin'}">
+								return '<input onkeyup="fnSetChangeInfo(\''+rowData.seq+'\', \'bidder_cnt\', \''+rowData.bidder_cnt+'\', this.value)" type="number" style="width:50px;" class="puddSetup ac" maxlength="2" value="' + rowData.bidder_cnt + '" /> 건';
+								</c:when><c:otherwise>
+								return rowData.bidder_cnt + (rowData.bidder_cnt != " 건" ? "" : ""); 
+								</c:otherwise></c:choose>								
+								
 							}else{
 								return "";
 							}							
@@ -456,7 +491,13 @@
 						template : function(rowData) {
 							
 							if(rowData.change_doc_sts == "90"){
-								return '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'contract_change_dt\', \''+rowData.contract_change_dt+'\', this.value)" type="text" value="' + rowData.contract_change_dt + '" class="puddSetup" pudd-type="datepicker"/>';	
+								
+								<c:choose><c:when test="${authLevel=='admin'}">
+								return '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'contract_change_dt\', \''+rowData.contract_change_dt+'\', this.value)" type="text" value="' + rowData.contract_change_dt + '" class="puddSetup" pudd-type="datepicker"/>';
+								</c:when><c:otherwise>
+								return rowData.contract_change_dt; 
+								</c:otherwise></c:choose>								
+								
 							}else if(rowData.change_doc_sts != "" && rowData.change_doc_sts != "10"){
 								return rowData.contract_change_dt;
 							}else{
@@ -571,12 +612,10 @@
 						template : function(rowData) {
 							
 							if(rowData.contract_attach_info != ""){
-								
 								var attachInfo =  rowData.contract_attach_info.split("▦");
-								
-								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="'+attachInfo[2]+'" class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName">'+attachInfo[0]+'<span></em><span name="uploadFileExt">'+attachInfo[1]+'</span></span> <input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'contract_attach_info\', this)" /></div>';	
+								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="'+attachInfo[2]+'" class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName">'+attachInfo[0]+'<span></em><span name="uploadFileExt">'+attachInfo[1]+'</span></span> <c:if test="${authLevel=='admin'}"><input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'contract_attach_info\', this)" /></c:if></div>';	
 							}else{
-								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="" class="fl ellipsis pl5 text_ho" style="max-width:200px; display:none;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName"><span></em><span name="uploadFileExt"></span></span> <input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'contract_attach_info\', this)" /></div>';
+								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="" class="fl ellipsis pl5 text_ho" style="max-width:200px; display:none;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName"><span></em><span name="uploadFileExt"></span></span> <c:if test="${authLevel=='admin'}"><input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'contract_attach_info\', this)" /></c:if></div>';
 							}
 							
 						}
@@ -592,12 +631,10 @@
 						template : function(rowData) {
 							
 							if(rowData.submit_attach_info != ""){
-								
 								var attachInfo =  rowData.submit_attach_info.split("▦");
-								
-								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="'+attachInfo[2]+'" class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName">'+attachInfo[0]+'<span></em><span name="uploadFileExt">'+attachInfo[1]+'</span></span> <input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'submit_attach_info\', this)" /></div>';	
+								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="'+attachInfo[2]+'" class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName">'+attachInfo[0]+'<span></em><span name="uploadFileExt">'+attachInfo[1]+'</span></span> <c:if test="${authLevel=='admin'}"><input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'submit_attach_info\', this)" /></c:if></div>';	
 							}else{
-								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="" class="fl ellipsis pl5 text_ho" style="max-width:200px; display:none;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName"><span></em><span name="uploadFileExt"></span></span> <input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'submit_attach_info\', this)" /></div>';
+								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="" class="fl ellipsis pl5 text_ho" style="max-width:200px; display:none;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName"><span></em><span name="uploadFileExt"></span></span> <c:if test="${authLevel=='admin'}"><input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'submit_attach_info\', this)" /></c:if></div>';
 							}							
 							
 						}
@@ -989,9 +1026,14 @@
 		<dd><input type="text" id="contractTitle" pudd-style="width:120px;" class="puddSetup" placeHolder="공고명 입력" value="" /></dd>
 		<dt class="ar" style="width:40px;">부서명</dt>
 		<dd><input type="text" id="writeDeptName" pudd-style="width:120px;" class="puddSetup" placeHolder="부서명 입력" value="" /></dd>
+		
+		<c:if test="${authLevel!='user'}">
 		<dt class="ar" style="width:40px;">사원명</dt>
 		<dd><input type="text" id="writeEmpName" pudd-style="width:90px;" class="puddSetup" placeHolder="사원명 입력" value="" /></dd>
+		</c:if>
+		
 		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="BindGrid();" /></dd>
+		
 	</dl>
 </div>
 
@@ -1003,7 +1045,9 @@
 				<input type="button" onclick="fnCallBtn('newContract');" class="puddSetup" style="background:#03a9f4;color:#fff" value="계약입찰발주계획" />
 				<input type="button" id="btnMeet" onclick="fnContractStatePop('btnMeet');" class="puddSetup" value="제안서 평가회의" />
 				<input type="button" id="btnResult" onclick="fnContractStatePop('btnResult');" class="puddSetup" value="제안서 평가결과" />
+				<c:if test="${authLevel=='admin'}">
 				<input type="button" onclick="fnCallBtn('btnSave');" class="puddSetup" value="저장" />
+				</c:if>
 				<input type="button" onclick="fnContractStatePop('btnConclusion');" style="background:#03a9f4;color:#fff" class="puddSetup" value="계약체결" />
 				<input type="button" onclick="fnContractStatePop('btnConclusionChange');" class="puddSetup" value="변경계약" />
 				<input type="button" onclick="fnContractStatePop('btnConclusionPayment');" class="puddSetup" value="대금지급" />
