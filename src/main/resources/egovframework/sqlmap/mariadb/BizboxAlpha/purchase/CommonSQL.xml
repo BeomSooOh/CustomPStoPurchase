@@ -346,6 +346,17 @@
 		and out_process_interface_m_id = '$out_process_interface_m_id$'
 		and out_process_interface_d_id = '$out_process_interface_d_id$';
 
-	</update>				
+	</update>	
+	
+	<select	id="CommonSQL.SelectContractManagerList" parameterClass="HashMap" resultClass="HashMap">
+		
+		SELECT distinct car.emp_seq as empSeq 
+		FROM $DB_NEOS$t_co_auth_relate car
+		JOIN $DB_NEOS$t_co_authcode a ON car.author_code = a.author_code  AND car.author_type = a.author_type AND a.author_use_yn = 'Y'
+		join $DB_NEOS$t_co_menu_auth ma on a.author_code = ma.author_code 
+		join $DB_NEOS$t_co_menu m on ma.menu_no = m.menu_no and m.url_path like '%/purchase/admin/ContractList.do%'
+		where car.author_type = '001'
+		
+	</select>					
 		
 </sqlMap>

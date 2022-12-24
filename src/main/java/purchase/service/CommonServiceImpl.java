@@ -16,12 +16,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import neos.cmm.util.BizboxAProperties;
+import neos.cmm.util.CommonEventSend;
 
 @Service("CommonService")
 public class CommonServiceImpl implements CommonService {
 
     @Resource(name = "CommonServiceDAO")
-    private CommonServiceDAO commonServiceDAO;    	
+    private CommonServiceDAO commonServiceDAO;
+    
+    @Resource(name = "ContractServiceDAO")
+    private ContractServiceDAO contractServiceDAO;     	    
 	
 	public List<Map<String, Object>> SelectPurchaseDetailCodeList ( Map<String, Object> params ){
 		return commonServiceDAO.SelectPurchaseDetailCodeList(params);
@@ -84,14 +88,40 @@ public class CommonServiceImpl implements CommonService {
 		
 		commonServiceDAO.UpdateAppr(params);
 		
-		/*
-		try {
-			SendMailAlert(params.get("groupSeq").toString(), params.get("compSeq").toString(), "제목입니다.", "내용입니다.", "");
-		} catch (EmailException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if(params.get("processId").equals("Contract01") && params.get("docSts").equals("90")) {
+			
+			//공고일정 확정요청 알림이벤트 전송
+			Map<String, Object> contractInfo = contractServiceDAO.SelectContractDetail(params);
+			
+			Map<String, Object> eventParam = new HashMap<String,Object>();
+			eventParam.put("eventType", "CUST");
+			eventParam.put("eventSubType", "PURCHASE001");
+			eventParam.put("groupSeq", params.get("groupSeq"));
+			eventParam.put("compSeq", params.get("compSeq"));
+			eventParam.put("empSeq", params.get("empSeq"));
+			eventParam.put("url", "/CustomPStoPurchase/purchase/admin/ContractList.do");
+			
+			Map<String, Object> eventData = new HashMap<String,Object>();
+			
+			String title = "[공고일정 확인요청] " + contractInfo.get("title");
+			String contents = title;
+			contents += "\r\n 등록자 : " + contractInfo.get("write_emp_name");
+			
+			eventData.put("title", title);
+			eventData.put("contents", contents);
+			eventData.put("userSeq", params.get("empSeq"));
+			
+			List<Map<String, Object>> recvEmpList = commonServiceDAO.SelectContractManagerList(params);
+			
+			eventParam.put("eventData", eventData);
+			eventParam.put("recvEmpList", recvEmpList);
+			
+			try {
+				CommonEventSend.commonEventSend(eventParam);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-		*/
 		
 	}
 	

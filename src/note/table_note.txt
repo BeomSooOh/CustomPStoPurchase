@@ -1,0 +1,2 @@
+커스텀 알림 이미지 복사
+/home/upload/img/custAlertIcon/CUST_PURCHASE001.png

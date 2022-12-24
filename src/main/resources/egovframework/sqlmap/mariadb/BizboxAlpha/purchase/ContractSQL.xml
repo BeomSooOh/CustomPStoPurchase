@@ -204,18 +204,18 @@
 		ifnull(a.contract_no, '') as contract_no,
 		a.contract_type,
 		a.write_comp_seq, 
-		a.write_dept_seq, dm.dept_name as write_dept_name, 
-		a.write_emp_seq, em.emp_name as write_emp_name, 
+		a.write_dept_seq, ifnull(dm.dept_name,'') as write_dept_name, 
+		a.write_emp_seq, ifnull(em.emp_name,'') as write_emp_name, 
 		a.write_dt,
 		a.c_write_comp_seq, 
-		a.c_write_dept_seq, cdm.dept_name as c_write_dept_name, 
-		a.c_write_emp_seq, cem.emp_name as c_write_emp_name, 
+		a.c_write_dept_seq, ifnull(cdm.dept_name,'') as c_write_dept_name, 
+		ifnull(a.c_write_emp_seq,a.write_emp_seq) as c_write_emp_seq, ifnull(cem.emp_name,'') as c_write_emp_name, 
 		a.c_write_dt,		
 		a.noti_type, 
 		a.budget_type, a.c_budget_type, 
 		a.target_type, a.c_target_type, 
-		a.title,
-		a.c_title, 
+		ifnull(a.title, '') as title,
+		ifnull(a.c_title, a.title) as c_title, 
 		a.contract_start_dt, 
 		a.contract_end_dt, 
 		a.c_contract_end_dt, 
@@ -277,7 +277,10 @@
 		a.pm_hp,
 		a.pm_name,
 		FORMAT(a.contract_amt, 0) as contract_amt,
-		ifnull(a.contract_amt_info,'') as contract_amt_info
+		ifnull(a.contract_amt_info,'') as contract_amt_info,
+		
+		ifnull(a.notice_start_dt,'') as notice_start_dt,
+		ifnull(a.notice_end_dt,'') as notice_end_dt
 		
 		FROM cust_sto.t_purchase_contract a
 		left join cust_sto.t_purchase_conclusion_change pcc on a.seq = pcc.seq and ifnull(pcc.doc_sts,'') != '90'

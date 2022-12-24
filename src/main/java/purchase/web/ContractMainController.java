@@ -409,6 +409,11 @@ public class ContractMainController {
 
 		params.put("groupSeq", loginVo.getGroupSeq());
 		params.put("created_by", loginVo.getUniqId());
+		params.put("compSeq", loginVo.getOrganId());
+		params.put("empSeq", loginVo.getUniqId());
+		params.put("deptName", loginVo.getOrgnztNm());
+		params.put("positionName", loginVo.getPositionNm());
+		params.put("empName", loginVo.getName());
 		
 		contractService.ContractAdminChangeProc(params);
 		

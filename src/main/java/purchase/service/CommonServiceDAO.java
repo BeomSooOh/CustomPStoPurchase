@@ -190,6 +190,13 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		
 		update( "CommonSQL.UpdateConsDocSts", params );
 		
+	}	
+	
+	@SuppressWarnings ( "unchecked" )
+	public List<Map<String, Object>> SelectContractManagerList ( Map<String, Object> params ) {
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
+		result = (List<Map<String, Object>>) list( "CommonSQL.SelectContractManagerList", params );
+		return result;
 	}		
 	
 }

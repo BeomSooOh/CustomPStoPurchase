@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import neos.cmm.util.BizboxAProperties;
 
+import neos.cmm.util.CommonEventSend;
+
 @Service("ContractService")
 public class ContractServiceImpl implements ContractService {
 
@@ -69,7 +71,88 @@ public class ContractServiceImpl implements ContractService {
 		changeInfoList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
 		
 		for (Map<String, Object> map : changeInfoList) {
-			contractServiceDAO.UpdateContractAdmin(map);	
+			
+			contractServiceDAO.UpdateContractAdmin(map);
+			
+			if(map.containsKey("contract_attach_info") || map.containsKey("notice_start_dt") || map.containsKey("notice_end_dt")) {
+				
+				Map<String, Object> contractInfo = contractServiceDAO.SelectContractDetail(map);
+				
+				if(contractInfo != null) {
+					
+					if((map.containsKey("notice_start_dt") || map.containsKey("notice_end_dt")) && !contractInfo.get("notice_start_dt").equals("") && !contractInfo.get("notice_end_dt").equals("")) {
+						
+						//본 공고기간 등록 알림이벤트 전송
+						Map<String, Object> eventParam = new HashMap<String,Object>();
+						eventParam.put("eventType", "CUST");
+						eventParam.put("eventSubType", "PURCHASE001");
+						eventParam.put("groupSeq", params.get("groupSeq"));
+						eventParam.put("compSeq", params.get("compSeq"));
+						eventParam.put("empSeq", params.get("empSeq"));
+						eventParam.put("url", "/CustomPStoPurchase/purchase/user/ContractList.do");
+						
+						Map<String, Object> eventData = new HashMap<String,Object>();
+						
+						String title = "[공고기간 등록알림] " + contractInfo.get("title");
+						String contents = title;
+						contents += "\r\n 등록자 : " + params.get("empName");
+						contents += "\r\n 공고기간 : " + contractInfo.get("notice_start_dt") + " ~ " + contractInfo.get("notice_end_dt");
+						
+						eventData.put("title", title);
+						eventData.put("contents", contents);
+						eventData.put("userSeq", params.get("empSeq"));
+						
+						List<Map<String, Object>> recvEmpList = new ArrayList<Map<String, Object>>();
+						Map<String, Object> recvEmpInfo = new HashMap<String,Object>();
+						recvEmpInfo.put("empSeq", contractInfo.get("write_emp_seq"));
+						recvEmpList.add(recvEmpInfo);
+						
+						eventParam.put("eventData", eventData);
+						eventParam.put("recvEmpList", recvEmpList);
+						
+						CommonEventSend.commonEventSend(eventParam);
+						
+					}						
+					
+					if(map.containsKey("contract_attach_info")) {
+						
+						//계약서 등록 알림이벤트 전송
+						Map<String, Object> eventParam = new HashMap<String,Object>();
+						eventParam.put("eventType", "CUST");
+						eventParam.put("eventSubType", "PURCHASE001");
+						eventParam.put("groupSeq", params.get("groupSeq"));
+						eventParam.put("compSeq", params.get("compSeq"));
+						eventParam.put("empSeq", params.get("empSeq"));
+						eventParam.put("url", "/CustomPStoPurchase/purchase/user/ContractList.do");
+						
+						Map<String, Object> eventData = new HashMap<String,Object>();
+						
+						String title = "[계약서 등록알림] " + contractInfo.get("c_title");
+						String contents = title;
+						contents += "\r\n 등록자 : " + params.get("empName");
+						
+						eventData.put("title", title);
+						eventData.put("contents", contents);
+						eventData.put("userSeq", params.get("empSeq"));
+						
+						List<Map<String, Object>> recvEmpList = new ArrayList<Map<String, Object>>();
+						Map<String, Object> recvEmpInfo = new HashMap<String,Object>();
+						recvEmpInfo.put("empSeq", contractInfo.get("c_write_emp_seq"));
+						recvEmpList.add(recvEmpInfo);
+						
+						eventParam.put("eventData", eventData);
+						eventParam.put("recvEmpList", recvEmpList);
+						
+						CommonEventSend.commonEventSend(eventParam);
+						
+					}
+					
+				}
+			
+				
+			}
+			
+
 		}
 		
 		return params;

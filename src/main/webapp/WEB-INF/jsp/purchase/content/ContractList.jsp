@@ -59,7 +59,7 @@
 			url : '<c:url value="/purchase/ContractAdminChangeProc.do" />',
     		datatype:"json",
             data: insertDataObject ,
-			async : true,
+			async : false,
 			success : function(result) {
 				
 				if(result.resultCode == "success"){
@@ -613,9 +613,9 @@
 							
 							if(rowData.contract_attach_info != ""){
 								var attachInfo =  rowData.contract_attach_info.split("▦");
-								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="'+attachInfo[2]+'" class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName">'+attachInfo[0]+'<span></em><span name="uploadFileExt">'+attachInfo[1]+'</span></span> <c:if test="${authLevel=='admin'}"><input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'contract_attach_info\', this)" /></c:if></div>';	
+								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="'+attachInfo[2]+'" class="fl ellipsis pl5 text_ho" style="max-width:<c:if test="${authLevel=='admin'}">230</c:if><c:if test="${authLevel!='admin'}">288</c:if>px;" ><img name="uploadFileIco" src="${pageContext.request.contextPath}' + fncGetFileClassImg(attachInfo[1]) + '" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName">' + attachInfo[0] + attachInfo[1] + '<span></em></span> <c:if test="${authLevel=='admin'}"><input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'contract_attach_info\', this)" /></c:if></div>';	
 							}else{
-								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="" class="fl ellipsis pl5 text_ho" style="max-width:200px; display:none;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName"><span></em><span name="uploadFileExt"></span></span> <c:if test="${authLevel=='admin'}"><input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'contract_attach_info\', this)" /></c:if></div>';
+								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="" class="fl ellipsis pl5 text_ho" style="max-width:<c:if test="${authLevel=='admin'}">230</c:if><c:if test="${authLevel!='admin'}">288</c:if>px; display:none;" ><img name="uploadFileIco" src="" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName"><span></em></span> <c:if test="${authLevel=='admin'}"><input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'contract_attach_info\', this)" /></c:if></div>';
 							}
 							
 						}
@@ -632,9 +632,9 @@
 							
 							if(rowData.submit_attach_info != ""){
 								var attachInfo =  rowData.submit_attach_info.split("▦");
-								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="'+attachInfo[2]+'" class="fl ellipsis pl5 text_ho" style="max-width:200px;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName">'+attachInfo[0]+'<span></em><span name="uploadFileExt">'+attachInfo[1]+'</span></span> <c:if test="${authLevel=='admin'}"><input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'submit_attach_info\', this)" /></c:if></div>';	
+								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="'+attachInfo[2]+'" class="fl ellipsis pl5 text_ho" style="max-width:<c:if test="${authLevel=='admin'}">230</c:if><c:if test="${authLevel!='admin'}">288</c:if>px;" ><img name="uploadFileIco" src="${pageContext.request.contextPath}' + fncGetFileClassImg(attachInfo[1]) + '" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName">'+attachInfo[0]+attachInfo[1]+'<span></em></span> <c:if test="${authLevel=='admin'}"><input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'submit_attach_info\', this)" /></c:if></div>';	
 							}else{
-								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="" class="fl ellipsis pl5 text_ho" style="max-width:200px; display:none;" ><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName"><span></em><span name="uploadFileExt"></span></span> <c:if test="${authLevel=='admin'}"><input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'submit_attach_info\', this)" /></c:if></div>';
+								return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="" class="fl ellipsis pl5 text_ho" style="max-width:<c:if test="${authLevel=='admin'}">230</c:if><c:if test="${authLevel!='admin'}">288</c:if>px; display:none;" ><img name="uploadFileIco" src="" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName"><span></em></span> <c:if test="${authLevel=='admin'}"><input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.seq+'\', \'submit_attach_info\', this)" /></c:if></div>';
 							}							
 							
 						}
@@ -711,8 +711,8 @@
 	                fnRemoveProgress();
 	               	
 	                $(attachTargetObj).find('em').attr("fileid", f.uid).show();
-	                $(attachTargetObj).find('[name="uploadFileName"]').text(f.fileName);
-	                $(attachTargetObj).find('[name="uploadFileExt"]').text(f.fileExt);
+	                $(attachTargetObj).find('[name="uploadFileName"]').text(f.fileName + f.fileExt);
+	                $(attachTargetObj).find('[name="uploadFileIco"]').attr("src", "${pageContext.request.contextPath}" + fncGetFileClassImg(f.fileExt));
 	                
 	                fnSetChangeInfo(attachTargetSeq, attachTargetColName, "", f.fileName + "▦" + f.fileExt + "▦" + f.uid);
 					

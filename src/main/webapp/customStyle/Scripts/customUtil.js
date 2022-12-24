@@ -354,3 +354,65 @@ function selectDate(e){
 	return true;
 }
 
+
+function fncGetFileClassImg(fileEx){
+   	
+	var fileClass;
+	
+   	if(fileEx.indexOf('.') != -1){    	
+   		
+   		fileEx = fileEx.split('.')[fileEx.split('.').length-1];
+   		
+        //확장자정규식
+        var expBmp = /bmp/i;
+        var expCsv = /csv/i;
+        var expGif = /gif|gifx/i;
+        var expHwp = /hwp/i;
+        var expJpg = /jpg|jpeg/i;
+        var expPdf = /pdf/i;
+        var expPng = /png/i;
+        var expTif = /tif/i;
+        var expWord = /word|doc|docx/i;
+        var expXls = /xls|xlsx/i;
+        var expZip = /zip/i;
+        var expPpt = /ppt|pptx/i;
+        var expTxt = /txt/i;
+
+        if (expBmp.test(fileEx)) {
+            fileClass = "ico_bmp";
+        } else if (expCsv.test(fileEx)) {
+            fileClass = "ico_csv";
+        } else if (expGif.test(fileEx)) {
+            fileClass = "ico_gif";
+        } else if (expHwp.test(fileEx)) {
+            fileClass = "ico_hwp";
+        } else if (expJpg.test(fileEx)) {
+            fileClass = "ico_jpg";
+        } else if (expPdf.test(fileEx)) {
+            fileClass = "ico_pdf";
+        } else if (expPng.test(fileEx)) {
+            fileClass = "ico_png";
+        } else if (expTif.test(fileEx)) {
+            fileClass = "ico_tif";
+        } else if (expWord.test(fileEx)) {
+            fileClass = "ico_word";
+        } else if (expXls.test(fileEx)) {
+            fileClass = "ico_xls";
+        } else if (expZip.test(fileEx)) {
+            fileClass = "ico_zip";
+        } else if (expPpt.test(fileEx)) {
+            fileClass = "ico_ppt";
+        } else if (expTxt.test(fileEx)) {
+            fileClass = "ico_txt";
+        } else {
+            fileClass = "ico_etc";
+        }   		
+   		
+   	}
+   	else{
+   		fileClass = "ico_etc";
+   	}
+
+   return "/customStyle/Images/ico/" + fileClass + ".png";
+    
+}
