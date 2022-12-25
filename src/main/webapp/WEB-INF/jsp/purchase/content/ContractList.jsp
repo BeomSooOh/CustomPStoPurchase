@@ -23,7 +23,10 @@
 	<script type="text/javascript" src="<c:url value='/customStyle/Scripts/jqueryui/jquery-ui.min.js' />"></script>
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/common.js' />"></script>
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script> 
-
+    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/excel/jszip-3.1.5.min.js' />"></script> 
+    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/excel/FileSaver-1.2.2_1.js' />"></script> 
+    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/excel/jexcel-1.0.5.js' />"></script> 
+    
 <script>
 
 	var targetSeq = "";
@@ -116,6 +119,13 @@
 			    });
 			}
 		}
+		
+		if(changeInfoList.length > 0){
+			$("#adminSaveBtn").show();	
+		}else{
+			$("#adminSaveBtn").hide();
+		}
+		
 	}
 	
 	function BindGrid(){
@@ -259,7 +269,7 @@
 					}
 				}				
 			,	{
-						field : "amt"
+						field : "contract_amt"
 					,	title : "계약금액"
 					,	width : 130
 					,	content : {
@@ -399,7 +409,7 @@
 								<c:choose><c:when test="${authLevel=='admin'}">
 								return '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'notice_start_dt\', \''+rowData.notice_start_dt+'\', this.value)" type="text" value="' + rowData.notice_start_dt + '" class="puddSetup" pudd-type="datepicker"/> ~ <input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'notice_end_dt\', \''+rowData.notice_end_dt+'\', this.value)" type="text" value="' + rowData.notice_end_dt + '" class="puddSetup" pudd-type="datepicker"/>';
 								</c:when><c:otherwise>
-								return rowData.notice_start_dt + " ~ " + rowData.notice_end_dt;
+								return rowData.notice_start_dt != "" && rowData.notice_end_dt != "" ? (rowData.notice_start_dt + " ~ " + rowData.notice_end_dt) : "";
 								</c:otherwise></c:choose>								
 								
 							}else{
@@ -421,7 +431,7 @@
 								<c:choose><c:when test="${authLevel=='admin'}">
 								return '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'re_notice_start_dt\', \''+rowData.re_notice_start_dt+'\', this.value)" type="text" value="' + rowData.re_notice_start_dt + '" class="puddSetup" pudd-type="datepicker"/> ~ <input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'re_notice_end_dt\', \''+rowData.re_notice_end_dt+'\', this.value)" type="text" value="' + rowData.re_notice_end_dt + '" class="puddSetup" pudd-type="datepicker"/>';
 								</c:when><c:otherwise>
-								return rowData.re_notice_start_dt + " ~ " + rowData.re_notice_end_dt;
+								return rowData.re_notice_start_dt != "" && rowData.re_notice_end_dt != "" ? (rowData.re_notice_start_dt + " ~ " + rowData.re_notice_end_dt) : "";
 								</c:otherwise></c:choose>									
 
 							}else{
@@ -588,7 +598,7 @@
 							
 							if(rowData.remain_amt != ""){
 								
-								var amt = parseInt(rowData.amt.replace(/,/g, ''));
+								var amt = parseInt(rowData.contract_amt.replace(/,/g, ''));
 								var remain_amt = parseInt(rowData.remain_amt.replace(/,/g, ''));
 								
 								return ((amt-remain_amt)/amt*100).toFixed(1) + " %";
@@ -787,6 +797,10 @@
 	
 	function fnSetBtn(rowData){
 		
+		if(targetSeq == rowData.seq){
+			return;
+		}
+		
 		var reqParam = {};
 		reqParam.seq = rowData.seq;
 		
@@ -977,7 +991,7 @@
 					var btnName = changeState == "C" ? "변경계약등록" : "변경계약조회";
 					
 					var btnInfo = {
-							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
+						attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
 					,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
 					,	value : btnName
 					,	clickCallback : function( puddActionBar ) {
@@ -999,7 +1013,7 @@
 					var btnName = "대금지급신청";
 					
 					var btnInfo = {
-							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
+						attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
 					,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
 					,	value : btnName
 					,	clickCallback : function( puddActionBar ) {
@@ -1010,7 +1024,19 @@
 						}
 					}
 					btnList.push(btnInfo);			
-				}		
+				}	
+				
+				//닫기버튼
+				var btnCancel = {
+					attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
+				,	controlAttributes : { class : "cancel", style : "background: #000000;color:#fff;border-color: #484848;" }// control 자체 객체 속성 설정
+				,	value : "닫기"
+				,	clickCallback : function( puddActionBar ) {
+						puddActionBar.showActionBar( false );
+					}
+				}
+				btnList.push(btnCancel);				
+				
 				
 				puddActionBar_ = Pudd.puddActionBar({
 					 
@@ -1025,12 +1051,16 @@
 				});
 				
 				targetSeq = result.resultData.seq;
-				
-				/*
-				setTimeout(function() {
-					$(".iframe_wrap").on("click", function(e){puddActionBar_.showActionBar( false );$('.iframe_wrap').attr('onclick','').unbind('click');});
-				}, 200);				
-				*/					
+
+				$(".iframe_wrap").on("click", function(e){
+					
+					if($("#grid1").find(e.target).length == 0){
+						puddActionBar_.showActionBar( false );
+						targetSeq = "";
+						$('.iframe_wrap').attr('onclick','').unbind('click');
+					}
+					
+				});
 				
 			},
 			error : function(result) {
@@ -1251,12 +1281,282 @@
 				msgSnackbar("error", "데이터 요청에 실패했습니다.");
 			}
 		});		
-		
-
-		
 	}
 	
 	
+    function excelDown() {
+        
+    	Pudd( "#circularProgressBar" ).puddProgressBar({
+     
+    		progressType : "circular"
+    	,	attributes : { style:"width:150px; height:150px;" }
+    	,	strokeColor : "#00bcd4"	// progress 색상
+    	,	strokeWidth : "3px"	// progress 두께
+    	,	percentText : ""
+    	,	percentTextColor : "#fff"
+    	,	percentTextSize : "24px"
+    	,	modal : true
+    	,	extraText : {
+    			text : ""
+    		,	attributes : { style : "" }
+    		}
+    	,	progressStartCallback : function( progressBarObj ) {
+     
+    			excelDownloadProcess( "계약현황.xlsx", progressBarObj );
+    		}
+    	});
+    }	
+	
+    function excelDownloadProcess( fileName, progressBarObj ) {
+        
+    	var dataSourceList = new Pudd.Data.DataSource({
+     
+    		pageSize : 999999
+    	,	serverPaging : true
+     
+    	,	request : {
+     
+    			url : '<c:url value="/purchase/${authLevel}/SelectContractList.do" />'
+    		,	type : 'post'
+    		,	dataType : "json"
+     
+    		,	parameterMapping : function( data ) {
+     
+	    			data.searchFromDate = $("#searchFromDate").val();
+	    			data.searchToDate = $("#searchToDate").val();
+	    			data.contractTitle = $("#contractTitle").val();
+	    			data.writeDeptName = $("#writeDeptName").val();
+	    			<c:if test="${authLevel!='user'}">
+	    			data.writeEmpName = $("#writeEmpName").val();
+	    			</c:if>
+	    			<c:if test="${authLevel=='user'}">
+	    			data.writeEmpName = "";
+	    			</c:if>	
+	 				return data ;
+    			}
+    		}
+     
+    	,	result : {
+     
+    			data : function( response ) {
+     
+    				return response.list;
+    			}
+     
+    		,	totalCount : function( response ) {
+     
+    				return response.totalCount;
+    			}
+     
+    		,	error : function( response ) {
+     
+    				//alert( "error - Pudd.Data.DataSource.read, status code - " + response.status );
+    			}
+    		}
+    	});
+     
+    	progressBarObj.updateProgressBar( 10 );// 10%
+     
+    	setTimeout( function() {
+     
+    		dataSourceList.read( false, function(){
+     
+    			if( true === dataSourceList.responseResult ) {// success
+     
+    				progressBarObj.updateProgressBar( 40 );// 40%
+     
+    				// json data 저장
+    				var dataPage = dataSourceList.dataPage;
+    				var dataLen = dataPage.length;
+     
+    				// excel파일 다운로드 처리
+    				generateExcelDownload( dataPage, fileName, function() {// saveCallback
+     
+    					progressBarObj.updateProgressBar( 100 );// 100%
+    					progressBarObj.clearIntervalSet();// progressBar 종료
+     
+    				}, function( rowIdx ){// stepCallback
+     
+    					if( dataLen ) {
+     
+    						var percent = ( ( rowIdx * 100 / dataLen ) / 2 ) + 40;
+    						percent = parseInt( percent );
+     
+    						progressBarObj.updateProgressBar( percent );
+    					}
+    				});
+     
+    			} else {// error
+     
+    				progressBarObj.clearIntervalSet();// progressBar 종료
+    			}
+    		});
+    	}, 10);
+    }    
+    
+    
+    function generateExcelDownload( dataPage, fileName, saveCallback, stepCallback ) {
+        
+    	var excel = new JExcel("맑은 고딕 11 #333333");
+    	excel.set( { sheet : 0, value : "Sheet1" } );
+     	
+		var totalCount = dataPage.length;
+		
+    	// 엑셀 상단 기간 세팅
+    	var periodStyle = excel.addStyle({
+    		font: "맑은 고딕 11 #333333 B"
+    	})
+    	var period = "계약기간: " + $("#searchFromDate").val() + "~" + $("#searchToDate").val() + " / 총 " + totalCount + "건"; 
+    	excel.set(0, 0, 0, period, periodStyle);
+    	
+    	var formatHeader = excel.addStyle ({
+    		border: "thin,thin,thin,thin #000000",
+    		fill: "#dedede",
+    		font: "맑은 고딕 11 #333333 B",// U : underline, B : bold, I : Italic
+    		align : "C C",
+    	});
+		    	
+    	var headerRow = 3;
+    	var headerCol = 37;
+    	
+    	for(var i=1; i < headerRow; i++) {
+    		for(var j=0; j < headerCol; j++) {
+    			excel.set(0, j, i, null, formatHeader);
+    		}
+    	}
+    	
+    	excel.set(0, 0, 1, "기본정보");
+    	excel.mergeCell(0, 0, 1, 8, 1);
+    	excel.set(0, 0, 2, "연번");
+    	excel.set(0, 1, 2, "관리번호");
+    	excel.set(0, 2, 2, "계약번호");
+    	excel.set(0, 3, 2, "계약목적물");
+    	excel.set(0, 4, 2, "계약명");
+    	excel.set(0, 5, 2, "계약금액");
+    	excel.set(0, 6, 2, "계약시작일");
+    	excel.set(0, 7, 2, "계약종료일");
+    	excel.set(0, 8, 2, "근거법령");
+    	
+    	excel.set(0, 9, 1, "계약대상자정보");
+    	excel.mergeCell(0, 9, 1, 12, 1);
+    	excel.set(0, 9, 2, "계약대상자");
+    	excel.set(0, 10, 2, "사업자등록번호");
+    	excel.set(0, 11, 2, "대표자명");
+    	excel.set(0, 12, 2, "희망기업여부");
+    	
+    	excel.set(0, 13, 1, "발주정보");
+    	excel.mergeCell(0, 13, 1, 18, 1);
+    	excel.set(0, 13, 2, "입찰/수의");
+    	excel.set(0, 14, 2, "발주금액");
+    	excel.set(0, 15, 2, "경쟁방식");
+    	excel.set(0, 16, 2, "낙찰자결정방법");    	
+    	excel.set(0, 17, 2, "담당자");    	
+    	excel.set(0, 18, 2, "담당부서");   
+    	
+    	excel.set(0, 19, 1, "입찰정보");
+    	excel.mergeCell(0, 19, 1, 24, 1);
+    	excel.set(0, 19, 2, "사전규격공개기간");
+    	excel.set(0, 20, 2, "본 공고기간");
+    	excel.set(0, 21, 2, "재 공고기간");
+    	excel.set(0, 22, 2, "공고기간 확정");    	
+    	excel.set(0, 23, 2, "투찰자수");    	
+    	excel.set(0, 24, 2, "제안서평가일");     
+    	
+    	excel.set(0, 25, 1, "변경계약정보");
+    	excel.mergeCell(0, 25, 1, 29, 1);
+    	excel.set(0, 25, 2, "변경계약일");
+    	excel.set(0, 26, 2, "과업내용변경");
+    	excel.set(0, 27, 2, "계약기간변경");
+    	excel.set(0, 28, 2, "계약금액변경");    	
+    	excel.set(0, 29, 2, "기타변경");    	
+    	
+    	excel.set(0, 30, 1, "대금지급정보");
+    	excel.mergeCell(0, 30, 1, 34, 1);
+    	excel.set(0, 30, 2, "선금액");
+    	excel.set(0, 31, 2, "기성금합산");
+    	excel.set(0, 32, 2, "준공금");
+    	excel.set(0, 33, 2, "잔액");    	
+    	excel.set(0, 34, 2, "준공율");    	
+    	
+    	excel.set(0, 35, 1, "자료");
+    	excel.mergeCell(0, 35, 1, 36, 1);
+    	excel.set(0, 35, 2, "계약서");
+    	excel.set(0, 36, 2, "계약제출서류");
+    	
+    	// sheet번호, column, value(width)
+    	for( var i = 0; i < 37; i++ ) {
+    		excel.setColumnWidth( 0, i, 20 );
+    	}    	
+    	
+    	excel.setColumnWidth( 0, 4, 50 );
+    	excel.setColumnWidth( 0, 8, 50 );
+    	
+    	excel.setColumnWidth( 0, 12, 25 );
+    	excel.setColumnWidth( 0, 20, 25 );
+    	excel.setColumnWidth( 0, 21, 25 );
+    	excel.setColumnWidth( 0, 24, 25 );
+    	
+    	var formatCell = excel.addStyle ({
+    		align : "C"
+    	});
+    	
+    	// header row 이후부터 출력
+    	for( var i = 0; i < totalCount; i++ ) {
+    		var rowNo = i + 3;
+    		excel.set( 0, 0, rowNo, dataPage[ i ][ "seq" ], formatCell );
+    		excel.set( 0, 1, rowNo, dataPage[ i ][ "manage_no" ], formatCell );
+    		excel.set( 0, 2, rowNo, dataPage[ i ][ "contract_no" ], formatCell );
+    		excel.set( 0, 3, rowNo, dataPage[ i ][ "target_type_name" ], formatCell );
+    		excel.set( 0, 4, rowNo, dataPage[ i ][ "title" ], formatCell );
+    		excel.set( 0, 5, rowNo, dataPage[ i ][ "contract_amt" ], formatCell );
+    		excel.set( 0, 6, rowNo, dataPage[ i ][ "contract_start_dt" ], formatCell );
+    		excel.set( 0, 7, rowNo, dataPage[ i ][ "contract_end_dt" ], formatCell );
+    		excel.set( 0, 8, rowNo, dataPage[ i ][ "base_law_name" ], formatCell );
+    		excel.set( 0, 9, rowNo, dataPage[ i ][ "tr_name" ], formatCell );
+    		excel.set( 0, 10, rowNo, dataPage[ i ][ "tr_reg_number" ], formatCell );
+    		excel.set( 0, 11, rowNo, dataPage[ i ][ "ceo_name" ], formatCell );
+    		excel.set( 0, 12, rowNo, dataPage[ i ][ "hope_company_info" ], formatCell );
+    		excel.set( 0, 13, rowNo, dataPage[ i ][ "contract_type_text" ], formatCell );
+    		excel.set( 0, 14, rowNo, dataPage[ i ][ "amt" ], formatCell );
+    		excel.set( 0, 15, rowNo, dataPage[ i ][ "compete_type_text" ], formatCell );
+    		excel.set( 0, 16, rowNo, dataPage[ i ][ "decision_type_text" ], formatCell );
+    		excel.set( 0, 17, rowNo, dataPage[ i ][ "emp_name" ], formatCell );
+    		excel.set( 0, 18, rowNo, dataPage[ i ][ "dept_name" ], formatCell );
+    		excel.set( 0, 19, rowNo, dataPage[ i ][ "pre_notice_end_dt" ], formatCell );
+    		excel.set( 0, 20, rowNo, dataPage[ i ][ "notice_start_dt" ] != "" && dataPage[ i ][ "notice_end_dt" ] != "" ? (dataPage[ i ][ "notice_start_dt" ] + "~" + dataPage[ i ][ "notice_end_dt" ]) : "", formatCell );
+    		excel.set( 0, 21, rowNo, dataPage[ i ][ "re_notice_start_dt" ] != "" && dataPage[ i ][ "re_notice_end_dt" ] != "" ? (dataPage[ i ][ "re_notice_start_dt" ] + "~" + dataPage[ i ][ "re_notice_end_dt" ]) : "", formatCell );
+    		excel.set( 0, 22, rowNo, dataPage[ i ][ "notice_start_dt" ] != "" && dataPage[ i ][ "notice_end_dt" ] != "" ? "확정" : "", formatCell );
+    		excel.set( 0, 23, rowNo, dataPage[ i ][ "bidder_cnt" ], formatCell );
+    		excel.set( 0, 24, rowNo, dataPage[ i ][ "meet_dt" ], formatCell );
+    		excel.set( 0, 25, rowNo, dataPage[ i ][ "contract_change_dt" ], formatCell );
+    		excel.set( 0, 26, rowNo, dataPage[ i ][ "work_info_after" ], formatCell );
+    		excel.set( 0, 27, rowNo, dataPage[ i ][ "contract_end_dt_after" ], formatCell );
+    		excel.set( 0, 28, rowNo, dataPage[ i ][ "contract_amt_after" ] != "" && dataPage[ i ][ "contract_amt_after" ] != "0" ? dataPage[ i ][ "contract_amt_after" ] : "", formatCell );
+    		excel.set( 0, 29, rowNo, dataPage[ i ][ "change_etc" ], formatCell );
+    		excel.set( 0, 30, rowNo, dataPage[ i ][ "pay_amt_a" ], formatCell );
+    		excel.set( 0, 31, rowNo, dataPage[ i ][ "pay_amt_b" ], formatCell );
+    		excel.set( 0, 32, rowNo, dataPage[ i ][ "pay_amt_c" ], formatCell );
+    		excel.set( 0, 33, rowNo, dataPage[ i ][ "remain_amt" ], formatCell );
+    		
+			if(dataPage[ i ][ "remain_amt" ] != ""){
+				var amt = parseInt(dataPage[ i ][ "contract_amt" ].replace(/,/g, ''));
+				var remain_amt = parseInt(dataPage[ i ][ "remain_amt" ].replace(/,/g, ''));
+				excel.set( 0, 34, rowNo, ((amt-remain_amt)/amt*100).toFixed(1) + " %", formatCell );
+				
+			}   		
+			
+			if(dataPage[ i ][ "contract_attach_info" ] != ""){
+				excel.set( 0, 35, rowNo, "등록", formatCell );	
+			}
+			
+			if(dataPage[ i ][ "submit_attach_info" ] != ""){
+				excel.set( 0, 36, rowNo, "등록", formatCell );
+			}			
+    		
+    	}
+     
+    	excel.generate( fileName, saveCallback, stepCallback );
+    }    
 	
 </script>
 
@@ -1291,16 +1591,15 @@
 	<div class="btn_div">
 		<div class="right_div">
 			<div id="" class="controll_btn p0">
-				<input type="button" onclick="fnCallBtn('newContract');" class="puddSetup" style="background:#03a9f4;color:#fff" value="계약입찰발주계획" />
-				<input type="button" id="btnMeet" onclick="fnContractStatePop('btnMeet');" class="puddSetup" value="제안서 평가회의" />
-				<input type="button" id="btnResult" onclick="fnContractStatePop('btnResult');" class="puddSetup" value="제안서 평가결과" />
-				<c:if test="${authLevel=='admin'}">
-				<input type="button" onclick="fnCallBtn('btnSave');" class="puddSetup" value="저장" />
-				</c:if>
+				<input type="button" onclick="fnCallBtn('newContract');" class="puddSetup" style="background:#03a9f4;color:#fff;" value="계약입찰발주계획" />
 				<input type="button" onclick="fnCallBtn('newConclusion');" style="background:#03a9f4;color:#fff" class="puddSetup" value="계약체결" />
-				<input type="button" onclick="fnContractStatePop('btnConclusionChange');" class="puddSetup" value="변경계약" />
-				<input type="button" onclick="fnContractStatePop('btnConclusionPayment');" class="puddSetup" value="대금지급" />
-				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="엑셀다운로드" />
+
+				<c:if test="${authLevel=='admin'}">
+				<input id="adminSaveBtn" style="display:none;width:70px;background:rgb(0 0 0);color:#fff;" type="button" onclick="fnCallBtn('btnSave');" class="puddSetup" value="저장" />
+				
+				</c:if>
+				
+				<input type="button" onclick="excelDown();" class="puddSetup" value="엑셀다운로드" />
 			</div>
 		</div>
 	</div>
@@ -1312,4 +1611,7 @@
 	</div>
 	<input style="display:none;" id="file_upload" type="file" />
 	<div id="exArea"></div>
+	<div id="jugglingProgressBar"></div>
+	<div id="loadingProgressBar"></div>
+	<div id="circularProgressBar"></div>	
 </div><!-- //sub_contents_wrap -->
