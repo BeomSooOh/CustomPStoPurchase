@@ -694,8 +694,10 @@
 		nominee_info='$nominee_info$', 
 		</isNotEmpty>			
 		
-		result_judges_info='$result_judges_info$', 
+		result_judges_info='$result_judges_info$',
+		result_judges_info_html=#result_judges_info_html#, 
 		result_score_info='$result_score_info$', 
+		result_score_info_html=#result_score_info_html#, 
 		result_target_info='$result_target_info$', 
 		result_amt='$result_amt$', 
 		modify_dt=now(), 

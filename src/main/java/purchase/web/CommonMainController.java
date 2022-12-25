@@ -37,6 +37,7 @@ import egovframework.com.utl.fcc.service.EgovFileUploadUtil;
 import purchase.service.CommonService;
 import purchase.service.CommonServiceDAO;
 import common.vo.common.CommonMapper;
+import common.vo.common.CommonMapInterface.commonExPath;
 import common.vo.interlock.InterlockExpendVO;
 
 @Controller
@@ -298,5 +299,29 @@ public class CommonMainController {
     }    
 
     
+    @RequestMapping("/purchase/admin/FormEditor.do")
+    public ModelAndView FormEditor(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+        
+        //메뉴접근 권한체크
+        if(!commonServiceDAO.CheckAuthFromMenuInfo(loginVo, request.getServletPath())) {
+        	//권한없음
+        	mv.setViewName( commonExPath.ERRORPAGEPATH + commonExPath.CMERRORCHECKAUTH );
+        	return mv;
+        }        
+        
+        params.put("groupSeq", loginVo.getGroupSeq());
+        params.put("group", "contentsForm");
+        params.put("useYn", "Y");
+        List<Map<String, Object>> formList = commonServiceDAO.SelectPurchaseDetailCodeList(params);            	
+        mv.addObject("formList", formList);
+        
+        mv.setViewName("/purchase/content/FormEditor");
+
+        return mv;
+    }    
 
 }

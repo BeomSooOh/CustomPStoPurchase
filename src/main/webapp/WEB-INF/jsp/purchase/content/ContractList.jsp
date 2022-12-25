@@ -359,6 +359,11 @@
 						field : "decision_type_text"
 					,	title : "낙찰자결정방법"
 					,	width : 100
+					,   ellipsis : true
+					,	tooltip : { 
+						alwaysShow : false		// 말줄임 여부와 관계없이 tooltip 보여줄 것인지 설정, 기본값 false
+					,	showAtClientX : false	// toolTip 보여주는 위치가 mouse 움직이는 X 좌표 기준 여부, 기본값 false ( toolTip 부모객체 기준 )
+					}						
 				}	
 			,	{
 						field : "emp_name"
@@ -913,6 +918,7 @@
 								
 								$('.iframe_wrap').attr('onclick','').unbind('click');
 								puddActionBar.showActionBar( false );
+								targetSeq = "";
 							}
 					};
 						
@@ -934,6 +940,7 @@
 								
 								$('.iframe_wrap').attr('onclick','').unbind('click');
 								puddActionBar.showActionBar( false );
+								targetSeq = "";
 							}
 					};
 						
@@ -955,6 +962,7 @@
 								
 								$('.iframe_wrap').attr('onclick','').unbind('click');
 								puddActionBar.showActionBar( false );
+								targetSeq = "";
 							}
 					};
 						
@@ -977,6 +985,7 @@
 							
 							$('.iframe_wrap').attr('onclick','').unbind('click');
 							puddActionBar.showActionBar( false );
+							targetSeq = "";
 							
 						}
 					}
@@ -999,6 +1008,7 @@
 							
 							$('.iframe_wrap').attr('onclick','').unbind('click');
 							puddActionBar.showActionBar( false );
+							targetSeq = "";
 						}
 					}
 
@@ -1021,6 +1031,7 @@
 							
 							$('.iframe_wrap').attr('onclick','').unbind('click');
 							puddActionBar.showActionBar( false );
+							targetSeq = "";
 						}
 					}
 					btnList.push(btnInfo);			
@@ -1033,6 +1044,7 @@
 				,	value : "닫기"
 				,	clickCallback : function( puddActionBar ) {
 						puddActionBar.showActionBar( false );
+						targetSeq = "";
 					}
 				}
 				btnList.push(btnCancel);				

@@ -75,6 +75,7 @@ public class CommonServiceImpl implements CommonService {
 		}else if(params.get("processId").equals("Contract03")) {
 			params.put("approkeyResult", params.get("approKey"));
 			params.put("seq", params.get("approKey").toString().split("_")[1]);
+			
 		}else if(params.get("processId").equals("Conclu01")) {
 			params.put("approkeyConclusion", params.get("approKey"));
 			params.put("seq", params.get("approKey").toString().split("_")[1]);

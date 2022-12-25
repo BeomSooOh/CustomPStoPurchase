@@ -524,6 +524,48 @@
 			insertDataObject.viewType = "${viewType}"
 			insertDataObject.seq = "${seq}"
 			
+			//제안서평과위원정보 html
+			var resultJudgesInfoHtml = "";
+			var cloneData = $('[name=resultJudgesListHtml]').clone();
+			$(cloneData).find("[removehtml=Y]").remove();
+			$(cloneData).css("width", "100%");
+			
+			//input 요소 텍스트화
+			$.each($(cloneData).find("input"), function( idx, obj ) {
+				$(obj).replaceWith($(obj).val());
+			});				
+			
+			resultJudgesInfoHtml = $(cloneData)[0].outerHTML;
+			insertDataObject.result_judges_info_html = resultJudgesInfoHtml;
+			
+			//제안서평과결과정보 html
+			var resultScoreInfoHtml = "";
+			var cloneData = $('[name=resultScoreListHtml]').clone();
+			$(cloneData).find("[removehtml=Y]").remove();
+			$(cloneData).css("width", "100%");
+			
+			$.each($(cloneData).find("[colspanHtml]"), function( idx, obj ) {
+				$(obj).attr("colspan", $(obj).attr("colspanHtml"));
+			});
+			
+			//input 요소 텍스트화
+			$.each($(cloneData).find("input"), function( idx, obj ) {
+				$(obj).replaceWith($(obj).val());
+			});	
+			
+			//Clone객체 select checked option 정보 누락 현상관련 temp변수에 임시저장/활용
+			var selectTextTemp = [];
+			$.each($('[name=resultScoreList]').find("select"), function( idx, obj ) {
+				selectTextTemp.push($(obj).find("option:checked").text());
+			});	
+			
+			$.each($(cloneData).find("select"), function( idx, obj ) {
+				$(obj).replaceWith(selectTextTemp[idx]);
+			});			
+
+			resultScoreInfoHtml = $(cloneData)[0].outerHTML;
+			insertDataObject.result_score_info_html = resultScoreInfoHtml;
+			
 			$.ajax({
 				type : 'post',
 				url : '<c:url value="/purchase/ResultSaveProc.do" />',
@@ -735,11 +777,11 @@
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 평가위원</th>
 					<td colspan="3">
 						<!-- 그리드 -->
-						<div class="com_ta4">
+						<div name="resultJudgesListHtml" class="com_ta4">
 							<table name="resultJudgesList" objKey="result_judges_info" objCheckFor="checkVal('table', 'resultJudgesList', '평가위원', 'true')">
 								<colgroup>
 									<c:if test="${disabledYn == 'N'}">
-									<col width="50"/>
+									<col removeHtml="Y" width="50"/>
 									</c:if>
 									<col width="180"/>
 									<col width="120"/>
@@ -748,7 +790,7 @@
 								</colgroup>
 								<tr>
 									<c:if test="${disabledYn == 'N'}">
-									<th class="ac">
+									<th removeHtml="Y" class="ac">
 										<input type="button" onclick="fnSectorAdd('resultJudgesList', 'resultJudgesAddBase')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 									</th>
 									</c:if>
@@ -759,7 +801,7 @@
 								</tr>
 								<tr name="addData">
 									<c:if test="${disabledYn == 'N'}">
-									<td>
+									<td removeHtml="Y">
 										<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 									</td>
 									</c:if>
@@ -770,7 +812,7 @@
 								</tr>								
 								<tr name="resultJudgesAddBase" style="display:none;">
 									<c:if test="${disabledYn == 'N'}">
-									<td>
+									<td removeHtml="Y">
 										<input type="button" onclick="fnSectorDel(this)" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 									</td>
 									</c:if>
@@ -849,11 +891,11 @@
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 제안서 평가결과</th>
 					<td colspan="3">
 						<!-- 그리드 -->
-						<div class="com_ta4">
+						<div name="resultScoreListHtml" class="com_ta4">
 							<table name="resultScoreList" objKey="result_score_info" objCheckFor="checkVal('table', 'resultScoreList', '제안서 평가결과', 'true', 'notnull')">
 								<colgroup>
 									<c:if test="${disabledYn == 'N'}">
-									<col width="50"/>
+									<col removeHtml="Y" width="50"/>
 									</c:if>
 									<col width="150"/>
 									<col width=""/>
@@ -866,7 +908,7 @@
 								</colgroup>
 								<tr>
 									<c:if test="${disabledYn == 'N'}">
-									<th class="ac" rowspan="2">
+									<th removeHtml="Y" class="ac" rowspan="2">
 										<input type="button" onclick="fnSectorAdd('resultScoreList', 'scoreInfoAddBase')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 									</th>
 									</c:if>
@@ -884,7 +926,7 @@
 
 								<tr name="scoreInfoAddBase" style="display:none;">
 									<c:if test="${disabledYn == 'N'}">
-									<td>
+									<td removeHtml="Y">
 										<input type="button" onclick="fnSectorDel(this)" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 									</td>
 									</c:if>
@@ -895,35 +937,35 @@
 											</c:forEach>
 										</select>									
 									</td>
-									<td><input ${disabled} name="tableVal" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
-									<td><input ${disabled} name="tableVal" itemType = "rate" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
+									<td><input ${disabled} name="tableVal" itemType = "rate" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ac" value="" /></td>
 									
-									<td itemNo="1"><input ${disabled} itemScore="1" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
-									<td itemNo="2"><input ${disabled} itemScore="2" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
-									<td itemNo="3"><input ${disabled} itemScore="3" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
-									<td itemNo="4"><input ${disabled} itemScore="4" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
-									<td itemNo="5"><input ${disabled} itemScore="5" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ar" value="" /></td>
+									<td itemNo="1"><input ${disabled} itemScore="1" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ac" value="" /></td>
+									<td itemNo="2"><input ${disabled} itemScore="2" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ac" value="" /></td>
+									<td itemNo="3"><input ${disabled} itemScore="3" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ac" value="" /></td>
+									<td itemNo="4"><input ${disabled} itemScore="4" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ac" value="" /></td>
+									<td itemNo="5"><input ${disabled} itemScore="5" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ac" value="" /></td>
 								</tr>
 								
 								<tr name="totalTr">
-									<td colspan="<c:if test="${disabledYn == 'N'}">3</c:if><c:if test="${disabledYn == 'Y'}">2</c:if>">합계</td>
-									<td itemType = "sumrate" class="ri">0</td>
+									<td colspanHtml="2" colspan="<c:if test="${disabledYn == 'N'}">3</c:if><c:if test="${disabledYn == 'Y'}">2</c:if>">합계</td>
+									<td itemType = "sumrate" class="cen">0</td>
 									
-									<td itemNo="1" itemTotal="1" class="ri"></td>
-									<td itemNo="2" itemTotal="2" class="ri"></td>
-									<td itemNo="3" itemTotal="3" class="ri"></td>
-									<td itemNo="4" itemTotal="4" class="ri"></td>
-									<td itemNo="5" itemTotal="5" class="ri"></td>
+									<td itemNo="1" itemTotal="1" class="cen"></td>
+									<td itemNo="2" itemTotal="2" class="cen"></td>
+									<td itemNo="3" itemTotal="3" class="cen"></td>
+									<td itemNo="4" itemTotal="4" class="cen"></td>
+									<td itemNo="5" itemTotal="5" class="cen"></td>
 								</tr>
 								<tr name="rankTr">
-									<td colspan="<c:if test="${disabledYn == 'N'}">3</c:if><c:if test="${disabledYn == 'Y'}">2</c:if>">우선협상순위</td>
-									<td class="ri"></td>
+									<td colspanHtml="2" colspan="<c:if test="${disabledYn == 'N'}">3</c:if><c:if test="${disabledYn == 'Y'}">2</c:if>">우선협상순위</td>
+									<td class="cen"></td>
 									
-									<td itemNo="1" itemRank="1" class="ri"></td>
-									<td itemNo="2" itemRank="2" class="ri"></td>
-									<td itemNo="3" itemRank="3" class="ri"></td>
-									<td itemNo="4" itemRank="4" class="ri"></td>
-									<td itemNo="5" itemRank="5" class="ri"></td>
+									<td itemNo="1" itemRank="1" class="cen"></td>
+									<td itemNo="2" itemRank="2" class="cen"></td>
+									<td itemNo="3" itemRank="3" class="cen"></td>
+									<td itemNo="4" itemRank="4" class="cen"></td>
+									<td itemNo="5" itemRank="5" class="cen"></td>
 								</tr>
 							</table>
 						</div>
