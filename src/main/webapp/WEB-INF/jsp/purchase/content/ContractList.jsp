@@ -31,11 +31,21 @@
 	
 	$(document).ready(function() {
 		
+		popUpResize();
+		
 		BindGrid();
 		
 		document.getElementById('file_upload').addEventListener('change', handleFileSelect, false);
 
 	});//---documentready
+	
+	function popUpResize(){
+		
+		if(!parent.getTopMenu){
+			window.resizeTo(1200, 650);
+		}
+		
+	}	
 	
 	var changeInfoList = [];
 	
@@ -84,11 +94,6 @@
 	
 	function fnSetChangeInfo(seq, calName, oriVal, newVal){
 		
-		console.log("seq > " + seq);
-		console.log("calName > " + calName);
-		console.log("oriVal > " + oriVal);
-		console.log("newVal > " + newVal);		
-		
 		var targetObj = changeInfoList.find(obj => obj.seq === seq);
 		
 		if(oriVal != newVal && targetObj == null){
@@ -110,10 +115,7 @@
 			    	(changeInfoList[index]["seq"] == seq) ? !!(changeInfoList.splice(index, 1)) : false;
 			    });
 			}
-			
 		}
-		
-
 	}
 	
 	function BindGrid(){
@@ -213,14 +215,14 @@
 						field : "manage_no"
 					,	title : "관리번호"
 					,	width : 130
-					
+					/*
 					,	content : {
 						// param : row에 해당되는 Data, td Node 객체, tr Node 객체, grid 객체
 						clickCallback : function( rowData, tdNode, trNode, gridObj ) {
 							fnContractStatePop("contractView", rowData.seq);
 						}
 					}
-					
+					*/
 				}
 			,	{
 						field : "contract_no"
@@ -490,7 +492,7 @@
 					,	content : {		
 						template : function(rowData) {
 							
-							if(rowData.change_doc_sts == "90"){
+							if(rowData.doc_sts_change == "90"){
 								
 								<c:choose><c:when test="${authLevel=='admin'}">
 								return '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'contract_change_dt\', \''+rowData.contract_change_dt+'\', this.value)" type="text" value="' + rowData.contract_change_dt + '" class="puddSetup" pudd-type="datepicker"/>';
@@ -498,7 +500,7 @@
 								return rowData.contract_change_dt; 
 								</c:otherwise></c:choose>								
 								
-							}else if(rowData.change_doc_sts != "" && rowData.change_doc_sts != "10"){
+							}else if(rowData.doc_sts_change != "" && rowData.doc_sts_change != "10"){
 								return rowData.contract_change_dt;
 							}else{
 								return "";
@@ -785,14 +787,256 @@
 	
 	function fnSetBtn(rowData){
 		
-		targetSeq = rowData.seq;
+		var reqParam = {};
+		reqParam.seq = rowData.seq;
 		
-		console.log("seq > " + rowData.seq);
-		console.log("doc_sts > " + rowData.doc_sts);
-		console.log("approkey_plan > " + rowData.approkey_plan);
-		console.log("approkey_meet > " + rowData.approkey_meet);
-		console.log("approkey_result > " + rowData.approkey_result);
-		
+		$.ajax({
+			type : 'post',
+			url : '<c:url value="/purchase/ContractInfo.do" />',
+			datatype : 'json',
+			data : reqParam,
+			async : true,
+			success : function(result) {
+				
+				console.log("seq > " + result.resultData.seq);
+				console.log("contract_type > " + result.resultData.contract_type);
+				console.log("doc_sts > " + result.resultData.doc_sts);
+				console.log("approkey_plan > " + result.resultData.approkey_plan);
+				console.log("approkey_meet > " + result.resultData.approkey_meet);
+				console.log("approkey_result > " + result.resultData.approkey_result);
+				console.log("approkey_conclusion > " + result.resultData.approkey_conclusion);
+				console.log("approkey_change > " + result.resultData.approkey_change);
+				console.log("doc_sts_change > " + result.resultData.doc_sts_change);
+				console.log("change_seq > " + result.resultData.change_seq);
+				console.log("change_seq_temp > " + result.resultData.change_seq_temp);
+				
+				var planState = "";
+				var meetState = "";		
+				var resultState = "";
+				var conclusionState = "";
+				var changeState = "";
+				var paymentState = "";
+				
+				if(result.resultData.contract_type == "01"){
+					
+					//입찰
+					planState = "V";
+					
+					if(result.resultData.approkey_conclusion != ""){
+						
+						meetState = "V";		
+						resultState = "V";
+						conclusionState = "V";				
+						
+						if(result.resultData.doc_sts == "90"){
+							
+							paymentState = "C";
+							
+							if(result.resultData.change_seq_temp != "" || result.resultData.doc_sts_change == "10" || result.resultData.doc_sts_change == "20"){
+								changeState = "V";					
+							}else{
+								changeState = "C";
+							}
+							
+						}				
+						
+					}else if(result.resultData.approkey_result != ""){
+						
+						meetState = "V";		
+						resultState = "V";	
+						
+						if(result.resultData.doc_sts == "90"){
+							conclusionState = "C";	
+						}
+						
+					}else if(result.resultData.approkey_meet != ""){
+						
+						meetState = "V";
+						
+						if(result.resultData.doc_sts == "90"){
+							resultState = "C";	
+						}				
+						
+					}else if(result.resultData.approkey_plan != ""){
+						
+						if(result.resultData.doc_sts == "90"){
+							meetState = "C";	
+						}
+						
+					}
+					
+				}else{
+					
+					//수의
+					conclusionState = "V";
+					
+					if(result.resultData.doc_sts == "90"){
+						
+						if(result.resultData.doc_sts_change == "" || result.resultData.doc_sts_change == "90"){
+							paymentState = "C";
+							changeState = "C";
+						}else{
+							//변경계약 진행
+							changeState = "V";
+						}
+					}
+					
+				}
+				
+				var btnList = [];
+				
+				if(planState != ""){
+					
+					var btnStyle = "cancel";
+					var btnName = "계약입찰발주계획조회";
+				
+					var btnInfo = {
+							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
+						,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
+						,	value : btnName
+						,	clickCallback : function( puddActionBar ) {
+								fnCallBtn('contractView', result.resultData.seq);
+								
+								$('.iframe_wrap').attr('onclick','').unbind('click');
+								puddActionBar.showActionBar( false );
+							}
+					};
+						
+					btnList.push(btnInfo);			
+					
+				}		
+				
+				if(meetState != ""){
+					
+					var btnStyle = meetState == "C" ? "submit" : "cancel";
+					var btnName = meetState == "C" ? "제안서평가회의등록" : "제안서평가회의조회";
+				
+					var btnInfo = {
+							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
+						,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
+						,	value : btnName
+						,	clickCallback : function( puddActionBar ) {
+								fnContractStatePop('btnMeet');
+								
+								$('.iframe_wrap').attr('onclick','').unbind('click');
+								puddActionBar.showActionBar( false );
+							}
+					};
+						
+					btnList.push(btnInfo);			
+					
+				}
+				
+				if(resultState != ""){
+					
+					var btnStyle = resultState == "C" ? "submit" : "cancel";
+					var btnName = resultState == "C" ? "제안서평과결과등록" : "제안서평과결과조회";
+				
+					var btnInfo = {
+							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
+						,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
+						,	value : btnName
+						,	clickCallback : function( puddActionBar ) {
+								fnContractStatePop('btnResult');
+								
+								$('.iframe_wrap').attr('onclick','').unbind('click');
+								puddActionBar.showActionBar( false );
+							}
+					};
+						
+					btnList.push(btnInfo);			
+					
+				}			
+
+				if(conclusionState != ""){
+					
+					var btnStyle = conclusionState == "C" ? "submit" : "cancel";
+					var btnName = conclusionState == "C" ? "계약체결등록" : "계약체결조회";
+					
+					var btnInfo = {
+						attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
+					,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
+					,	value : btnName
+					,	clickCallback : function( puddActionBar ) {
+						
+							fnCallBtn("btnConclusion", result.resultData.seq);
+							
+							$('.iframe_wrap').attr('onclick','').unbind('click');
+							puddActionBar.showActionBar( false );
+							
+						}
+					}
+
+					btnList.push(btnInfo);			
+					
+				}
+				
+				if(changeState != ""){
+					
+					var btnStyle = changeState == "C" ? "submit" : "cancel";
+					var btnName = changeState == "C" ? "변경계약등록" : "변경계약조회";
+					
+					var btnInfo = {
+							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
+					,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
+					,	value : btnName
+					,	clickCallback : function( puddActionBar ) {
+							fnContractStatePop('btnConclusionChange');
+							
+							$('.iframe_wrap').attr('onclick','').unbind('click');
+							puddActionBar.showActionBar( false );
+						}
+					}
+
+					btnList.push(btnInfo);			
+					
+				}		
+				
+				
+				if(paymentState != ""){
+					
+					var btnStyle = "submit";
+					var btnName = "대금지급신청";
+					
+					var btnInfo = {
+							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
+					,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
+					,	value : btnName
+					,	clickCallback : function( puddActionBar ) {
+							fnContractStatePop('btnConclusionPayment');
+							
+							$('.iframe_wrap').attr('onclick','').unbind('click');
+							puddActionBar.showActionBar( false );
+						}
+					}
+					btnList.push(btnInfo);			
+				}		
+				
+				puddActionBar_ = Pudd.puddActionBar({
+					 
+					height	: 100
+				,	message : {
+							type : "html"		// text, html
+						,	content : '<span style="display: inline-block;padding: 10px 0 0 20px;font-size: 14px;color: #ffffff;">[ ' + (result.resultData.c_title ? result.resultData.c_title : result.resultData.title) + ' ]</span></br><span style="display: inline-block;padding: 10px 0 0 20px;font-size: 14px;color: #c2c2c2;">상세조회 항목을 선택해 주세요</span>'				
+					}
+				
+				,	buttons : btnList	
+				
+				});
+				
+				targetSeq = result.resultData.seq;
+				
+				/*
+				setTimeout(function() {
+					$(".iframe_wrap").on("click", function(e){puddActionBar_.showActionBar( false );$('.iframe_wrap').attr('onclick','').unbind('click');});
+				}, 200);				
+				*/					
+				
+			},
+			error : function(result) {
+				msgSnackbar("error", "데이터 요청에 실패했습니다.");
+			}
+		});			
 	}
 	
 	var puddActionBar_;
@@ -931,23 +1175,28 @@
 				console.log("approkey_result > " + result.resultData.approkey_result);
 				console.log("approkey_conclusion > " + result.resultData.approkey_conclusion);
 				console.log("approkey_change > " + result.resultData.approkey_change);
+				console.log("doc_sts_change > " + result.resultData.doc_sts_change);
 				console.log("change_seq > " + result.resultData.change_seq);
+				console.log("change_seq_temp > " + result.resultData.change_seq_temp);
 				
 				if(btnType == "btnConclusionPayment"){
 					
-					if(result.resultData.change_seq != ""){
+					if(result.resultData.doc_sts_change == "20"){
+						//변경계약 결재 진행중
 						msgSnackbar("warning", "진행중인 변경계약건이 있어 대금지급 신청이 불가합니다.");
-						return;	
-					}else if(result.resultData.approkey_conclusion != "" && result.resultData.doc_sts == "90"){
+						return;							
+					}else{
 						resultState = true;
 					}
 					
 				}else if(btnType == "btnConclusionChange"){
 					
-					if(result.resultData.change_seq != ""){
+					if(result.resultData.change_seq_temp != ""){
+						fnCallBtn("btnConclusionChange", result.resultData.seq, result.resultData.change_seq_temp);
+						return;							
+					}else if(result.resultData.doc_sts_change == "10"){
 						fnCallBtn("btnConclusionChange", result.resultData.seq, result.resultData.change_seq);
-						return;						
-						
+						return;							
 					}else if(result.resultData.approkey_conclusion != "" && result.resultData.doc_sts == "90") {
 						resultState = true;
 						btnType = "newConclusionChange";
@@ -959,7 +1208,7 @@
 					
 					if(result.resultData.contract_type == "02"){
 						btnType = "btnConclusion";
-					}else if(result.resultData.c_title != null){
+					}else if(result.resultData.c_title != null && result.resultData.c_title != ""){
 						btnType = "btnSelect";
 					}
 					
@@ -1048,7 +1297,7 @@
 				<c:if test="${authLevel=='admin'}">
 				<input type="button" onclick="fnCallBtn('btnSave');" class="puddSetup" value="저장" />
 				</c:if>
-				<input type="button" onclick="fnContractStatePop('btnConclusion');" style="background:#03a9f4;color:#fff" class="puddSetup" value="계약체결" />
+				<input type="button" onclick="fnCallBtn('newConclusion');" style="background:#03a9f4;color:#fff" class="puddSetup" value="계약체결" />
 				<input type="button" onclick="fnContractStatePop('btnConclusionChange');" class="puddSetup" value="변경계약" />
 				<input type="button" onclick="fnContractStatePop('btnConclusionPayment');" class="puddSetup" value="대금지급" />
 				<input type="button" onclick="fnCallBtn('ing');" class="puddSetup" value="엑셀다운로드" />
@@ -1056,8 +1305,8 @@
 		</div>
 	</div>
 	
-	<div class="dal_Box">
-		<div class="dal_BoxIn posi_re">
+	<div class="dal_Box_">
+		<div class="dal_BoxIn_ posi_re">
 			<div id="grid1"></div>
 		</div>
 	</div>

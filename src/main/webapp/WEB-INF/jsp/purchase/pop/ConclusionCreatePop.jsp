@@ -633,12 +633,13 @@
 			
 			<c:if test="${contractType == '01'}">
 			insertDataObject.outProcessCode = "Conclusion01-1";
+			insertDataObject.viewType = "U";
 			</c:if>
 			<c:if test="${contractType == '02'}">
 			insertDataObject.outProcessCode = "Conclusion01-2";
+			insertDataObject.viewType = "${viewType}";
 			</c:if>			
 			
-			insertDataObject.viewType = "${viewType}";
 			insertDataObject.seq = "${seq}";
 			
 			$.ajax({
