@@ -78,8 +78,10 @@
 		cust_sto.fn_get_purchase_code_text('targetType',ifnull(a.c_target_type, a.target_type)) as target_type, 
 		ifnull(a.contract_start_dt, '') as contract_start_dt, 
 		ifnull(a.c_contract_end_dt, a.contract_end_dt) as contract_end_dt, 
-		FORMAT(a.amt, 0) as amt,
-		a.amt_kor as amt_kor,
+		ifnull(FORMAT(a.amt, 0),'') as amt,
+		ifnull(a.amt_kor,'') as amt_kor,
+		ifnull(FORMAT(a.contract_amt, 0),'') as contract_amt,
+		ifnull(a.contract_amt_kor,'') as contract_amt_kor,		
 		FORMAT(a.std_amt, 0) as std_amt,
 		FORMAT(a.tax_amt, 0) as tax_amt,
 		cust_sto.fn_get_purchase_code_text('baseLaw',ifnull(a.c_base_law, a.base_law)) as base_law, 
@@ -92,9 +94,9 @@
 		cust_sto.fn_get_purchase_code_text('restrictArea',a.restrict_area_info) as restrict_area, 
 		a.nominee_info, 
 		cust_sto.fn_get_purchase_code_text('decisionType',a.decision_type_info) as decision_type, 
-		a.contract_form1, 
-		a.contract_form2, 
-		a.contract_form3, 
+		cust_sto.fn_get_purchase_code_text('contractForm1',a.contract_form1) as contract_form1,
+		cust_sto.fn_get_purchase_code_text('contractForm2',a.contract_form2) as contract_form2,
+		cust_sto.fn_get_purchase_code_text('contractForm3',a.contract_form3) as contract_form3,
 		a.rebid_yn, 
 		a.eorder_use_yn, 
 		a.created_dt, 
@@ -114,9 +116,31 @@
 		pbi.erp_bgt3_name,case when pbi.erp_bgt4_name = '' then '' else ' / ' end ,
 		pbi.erp_bgt4_name) from cust_sto.t_purchase_budget_info pbi where pbi.outProcessCode = 'Contract02' and pbi.seq = a.seq limit 1),'') as meet_budget_name,
 		
+		ifnull((select concat(
+		pbi.erp_bgt1_name,case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
+		pbi.erp_bgt2_name,case when pbi.erp_bgt3_name = '' then '' else ' / ' end ,
+		pbi.erp_bgt3_name,case when pbi.erp_bgt4_name = '' then '' else ' / ' end ,
+		pbi.erp_bgt4_name) from cust_sto.t_purchase_budget_info pbi where pbi.outProcessCode like '%Conclusion01%' and pbi.seq = a.seq limit 1),'') as conclusion_budget_name,		
+		
 		ifnull(a.result_judges_info_html,'') as result_judges_info_html,
 		ifnull(a.result_score_info_html,'') as result_score_info_html,
-				
+
+		ifnull(pti.tr_name,'') as tr_name,
+		ifnull(pti.ceo_name,'') as ceo_name,
+		ifnull(pti.tr_reg_number,'') as tr_reg_number,
+		ifnull(pti.addr,'') as addr,
+		ifnull(pti.depositor,'') as depositor,
+		ifnull(pti.ba_nb,'') as ba_nb,
+		ifnull(pti.btr_name,'') as btr_name,
+		ifnull(pti.pm_email,'') as pm_email,
+		ifnull(pti.pm_hp,'') as pm_hp,
+		ifnull(pti.pm_name,'') as pm_name,
+		
+		cust_sto.fn_get_purchase_code_text('privateReason',a.private_reason) as private_reason,
+		
+		case when ifnull(a.hope_company_info, '') = '' then '해당없음' else
+		cust_sto.fn_get_purchase_code_text('hopeCompany', a.hope_company_info) end as hope_company_info,	
+						
 		<isNotEmpty property="change_seq">
 		
 		</isNotEmpty>			
@@ -140,6 +164,7 @@
 		FORMAT(a.result_amt, 0) as result_amt					
 		
 		FROM cust_sto.t_purchase_contract a
+		left join cust_sto.t_purchase_trade_info pti on a.seq = pti.seq
 		
 		<isNotEmpty property="change_seq">
 		left join cust_sto.t_purchase_conclusion_change pcc on a.seq = pcc.seq and pcc.change_seq = $change_seq$
@@ -202,7 +227,8 @@
 			,a.c_work_info = (case when ifnull(b.work_info_after,'') != '' then b.work_info_after else a.c_work_info end)
 			,a.c_contract_end_dt = (case when ifnull(b.contract_end_dt_after,'') != '' then b.contract_end_dt_after else a.c_contract_end_dt end)
 			,a.contract_amt_info = (case when ifnull(b.contract_amt_info_after,'') != '' then b.contract_amt_info_after else a.contract_amt_info end)
-			,a.contract_amt = (case when ifnull(b.contract_amt_info_after,'') != '' then b.contract_amt_after else a.contract_amt end)			
+			,a.contract_amt = (case when ifnull(b.contract_amt_info_after,'') != '' then b.contract_amt_after else a.contract_amt end)
+			,a.contract_amt_kor = (case when ifnull(b.contract_amt_info_after,'') != '' then b.contract_amt_kor_after else a.contract_amt_kor end)			
 			</isEqual>			
 			
 			where a.seq = '$seq$' and b.change_seq = '$change_seq$';

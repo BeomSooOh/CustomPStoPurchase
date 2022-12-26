@@ -361,8 +361,8 @@
 		}
 		
 		function openerRefreshList(){
-			if(opener != null && typeof opener.fnGetListBind != "undefined"){
-				opener.fnGetListBind();
+			if(opener != null && typeof opener.BindGrid != "undefined"){
+				opener.BindGrid();
 			}	
 		}
 		
@@ -574,7 +574,7 @@
 				</colgroup>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 공고명</th>
-					<td><input ${disabled} objKey="title" objCheckFor="checkVal('text', this, '공고명', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.title}</c:if>" /></td>
+					<td><input ${disabled} onkeyup="chkChar(this)" objKey="title" objCheckFor="checkVal('text', this, '공고명', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.title}</c:if>" /></td>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약기간</th>
 					<td objKey="contract_end_dt" objCheckFor="checkVal('date', 'contractEndDt', '계약기간', 'selectDate(this)', '')" >계약체결일 ~ <input ${disabled} name="contractEndDt" type="text" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.contract_end_dt}</c:if>" class="puddSetup" pudd-type="datepicker"/></td>
 				</tr>

@@ -900,8 +900,8 @@
 		
 		
 		function openerRefreshList(){
-			if(opener != null && typeof opener.fnGetListBind != "undefined"){
-				opener.fnGetListBind();
+			if(opener != null && typeof opener.BindGrid != "undefined"){
+				opener.BindGrid();
 			}	
 		}
 		
@@ -1088,7 +1088,7 @@
 				</tr>
 				<tr>
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 평가회의 장소</th>
-					<td colspan="3"><input ${disabled} objKey="meet_place" objCheckFor="checkVal('text', this, '평가회의 장소', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.meet_place}" /></td>
+					<td colspan="3"><input ${disabled} onkeyup="chkChar(this)" objKey="meet_place" objCheckFor="checkVal('text', this, '평가회의 장소', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.meet_place}" /></td>
 				</tr>
 				<tr>
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 평가방법</th>

@@ -113,9 +113,14 @@ public class CommonPopController {
 			
 			String FORM_HTML = "";
 			apprFormData = commonServiceDAO.SelectApprFormData(params);
-			
 			params.put("group", "contentsForm");
-			params.put("code", params.get("outProcessCode"));
+			
+			if(params.get("outProcessCode").equals("Conclu01") || params.get("outProcessCode").equals("Conclu02")) {
+				params.put("code", params.get("outProcessCode").toString() + "-" + apprFormData.get("contract_type").toString());
+			}else {
+				params.put("code", params.get("outProcessCode"));	
+			}
+			
 			formInfo = commonServiceDAO.SelectPurchaseDetailCodeInfo(params);
 			
 			if(formInfo != null) {

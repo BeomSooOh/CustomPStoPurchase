@@ -601,6 +601,8 @@
 					insertDataObject.contract_amt += parseInt($(objInfo).val().replace(/,/g, ''));
 				});
 				
+				insertDataObject.contract_amt_kor = viewKorean(insertDataObject.contract_amt);
+				
 				if(type == 0){
 					confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc(1)', '취소', '');	
 				}else if(type == 1){
@@ -673,8 +675,8 @@
 		}
 		
 		function openerRefreshList(){
-			if(opener != null && typeof opener.fnGetListBind != "undefined"){
-				opener.fnGetListBind();
+			if(opener != null && typeof opener.BindGrid != "undefined"){
+				opener.BindGrid();
 			}	
 		}
 		
@@ -1259,7 +1261,7 @@
 				</colgroup>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약명</th>
-					<td colspan="3"><input ${disabled} objKey="c_title" objCheckFor="checkVal('text', this, '계약명', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.c_title}" /></td>
+					<td colspan="3"><input ${disabled} onkeyup="chkChar(this)" objKey="c_title" objCheckFor="checkVal('text', this, '계약명', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.c_title}" /></td>
 				</tr>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약기간(1)</th>
@@ -1422,7 +1424,7 @@
 					<col width="80"/>
 					<col width=""/>
 					<col width="100"/>
-					<col width="110"/>
+					<col width="150"/>
 					<col width="150"/>
 				</colgroup>
 				<tr>

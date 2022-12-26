@@ -1599,7 +1599,6 @@
 </div>
 
 <div class="sub_contents_wrap posi_re">
-	<!-- 연차생성 -->
 	<div class="btn_div">
 		<div class="right_div">
 			<div id="" class="controll_btn p0">

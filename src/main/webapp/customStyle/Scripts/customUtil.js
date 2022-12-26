@@ -1,3 +1,11 @@
+function chkChar(obj){
+    var RegExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+┼<>@\#$%&\'\"\\\(\=]/gi;	//정규식 구문
+    if (RegExp.test(obj.value)) {
+      // 특수문자 모두 제거    
+      obj.value = obj.value.replace(RegExp , '');
+    }
+}
+
 function getUUID() {
 	  return 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 	    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 3 | 8);
@@ -218,7 +226,7 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 				
 				console.log($(tableVal).attr("requiredNot"));
 				
-				if($(tableVal).attr("requiredNot") == "true"){
+				if($(tableVal).val() == "" && $(tableVal).attr("requiredNot") == "true"){
 					$(tableVal).val(" ");
 				}
 				

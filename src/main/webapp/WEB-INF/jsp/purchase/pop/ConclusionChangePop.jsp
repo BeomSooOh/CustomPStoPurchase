@@ -542,6 +542,7 @@
 					insertDataObject.contract_amt_info_before = "";
 					insertDataObject.contract_amt_info_after = "";
 					insertDataObject.contract_amt_after = "0";
+					insertDataObject.contract_amt_kor_after = "";
 				}else{
 					insertDataObject.contract_amt_info_before = "${contractDetailInfo.contract_amt_info}";
 					
@@ -551,6 +552,8 @@
 					$.each($("[name=amtInfoList] [name=addData] [amounttype=amt]"), function( key, objInfo ) {
 						insertDataObject.contract_amt_after += parseInt($(objInfo).val().replace(/,/g, ''));
 					});
+					
+					insertDataObject.contract_amt_kor_after = viewKorean(insertDataObject.contract_amt_after);
 					
 				}
 				
@@ -625,8 +628,8 @@
 		}
 		
 		function openerRefreshList(){
-			if(opener != null && typeof opener.fnGetListBind != "undefined"){
-				opener.fnGetListBind();
+			if(opener != null && typeof opener.BindGrid != "undefined"){
+				opener.BindGrid();
 			}	
 		}
 		

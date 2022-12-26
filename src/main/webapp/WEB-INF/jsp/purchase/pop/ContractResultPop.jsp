@@ -597,8 +597,8 @@
 		}
 		
 		function openerRefreshList(){
-			if(opener != null && typeof opener.fnGetListBind != "undefined"){
-				opener.fnGetListBind();
+			if(opener != null && typeof opener.BindGrid != "undefined"){
+				opener.BindGrid();
 			}	
 		}
 		
@@ -802,7 +802,7 @@
 								<tr name="addData">
 									<c:if test="${disabledYn == 'N'}">
 									<td removeHtml="Y">
-										<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+										<input type="button" onclick="fnSectorDel(this, 'resultJudgesList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 									</td>
 									</c:if>
 									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
@@ -813,7 +813,7 @@
 								<tr name="resultJudgesAddBase" style="display:none;">
 									<c:if test="${disabledYn == 'N'}">
 									<td removeHtml="Y">
-										<input type="button" onclick="fnSectorDel(this)" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+										<input type="button" onclick="fnSectorDel(this, 'resultJudgesList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 									</td>
 									</c:if>
 									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>

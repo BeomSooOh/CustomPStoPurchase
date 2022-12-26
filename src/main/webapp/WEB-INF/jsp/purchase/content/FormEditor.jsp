@@ -111,28 +111,25 @@
 </head>
 
 <body>
-<div class="pop_wrap" style="min-width:650px;">
-	<div class="pop_sign_head posi_re">
-	<h1>연동/안내양식관리</h1>
-		<div class="psh_btnbox">
-			<div class="psh_right">
-				<div class="btn_cen mt8">
-					<select id = "formCode" onchange="fnChangeForm(this)" style="    float: left;    margin-right: 10px;    margin-top: 4px;">
-						<c:forEach var="items" items="${formList}">
-							<option value="${items.CODE}">${items.NAME}</option>
-						</c:forEach>							
-					</select>
-					<input type="button" class="psh_btn" onclick="fnSave(0)" value="저장" />
-				</div>
+
+<div class="sub_contents_wrap posi_re" style="min-width:650px;">
+	<div class="btn_div">
+		<div class="right_div">
+			<div id="" class="controll_btn p0">
+				<select id = "formCode" onchange="fnChangeForm(this)" style="margin-right: 10px;">
+					<c:forEach var="items" items="${formList}">
+						<option value="${items.CODE}">${items.NAME}</option>
+					</c:forEach>							
+				</select>				
+				<input type="button" onclick="fnSave(0)" style="background:#03a9f4;color:#fff" class="puddSetup" value="저장" />
 			</div>
 		</div>
 	</div>
-
-	<div class="pop_con" style="overflow: auto; min-height:f 460px;">
+	
+	<div style="overflow: auto; min-height:f 460px;">
 		<iframe id="editorView" src="/gw/editorView.do" style="min-width:100%;height: 500px;"></iframe>
 	</div><!-- //pop_con -->
-</div><!-- //pop_wrap -->
-
-
+	
+</div><!-- //sub_contents_wrap -->
 </body>
 </html>
