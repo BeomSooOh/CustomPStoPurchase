@@ -387,7 +387,40 @@
 		and out_process_interface_m_id = '$out_process_interface_m_id$'
 		and out_process_interface_d_id = '$out_process_interface_d_id$';
 
+	</update>
+	
+	
+	<update	id="CommonSQL.UpdateCommonCode" parameterClass="HashMap" >
+	
+		update cust_sto.t_purchase_code_detail 
+		set
+		LINK = LINK
+		<isNotEmpty property="NAME">
+		, NAME = '$NAME$'
+		</isNotEmpty>
+		<isNotEmpty property="USE_YN">
+		, USE_YN = '$USE_YN$'
+		</isNotEmpty>				
+		<isNotEmpty property="ORDER_NUM">
+		, ORDER_NUM = '$ORDER_NUM$'
+		</isNotEmpty>					
+		<isNotEmpty property="NOTE">
+		, NOTE = '$NOTE$'
+		</isNotEmpty>								          
+		where
+		`GROUP` = '$GROUP$' and `CODE` = '$CODE$';
+
 	</update>	
+	
+	<delete	id="CommonSQL.DeleteCommonCode" parameterClass="HashMap" >
+	
+		delete 
+		from cust_sto.t_purchase_code_detail 
+		where
+		`GROUP` = '$GROUP$' and `CODE` = '$CODE$';
+
+	</delete>		
+	
 	
 	<select	id="CommonSQL.SelectContractManagerList" parameterClass="HashMap" resultClass="HashMap">
 		
@@ -398,6 +431,49 @@
 		join $DB_NEOS$t_co_menu m on ma.menu_no = m.menu_no and m.url_path like '%/purchase/admin/ContractList.do%'
 		where car.author_type = '001'
 		
-	</select>					
+	</select>
+	
+	
+	
+	<select	id="CommonSQL.SelectCodeGroupList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
+		
+		SELECT 
+		count(*)		
+		from cust_sto.t_purchase_code_group where `type` = 'cm'
+	
+	</select>
+		
+	<select	id="CommonSQL.SelectCodeGroupList" parameterClass="HashMap" resultClass="HashMap">
+		
+		select * 
+		from cust_sto.t_purchase_code_group where `type` = 'cm'
+		order by ORDER_NUM
+		LIMIT $startNum$ ,  $endNum$	
+		
+	</select>	
+	
+	<select	id="CommonSQL.SelectCodeList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
+		
+		SELECT 
+		count(*)		
+		from cust_sto.t_purchase_code_detail where `GROUP` = '$GROUP$'
+	
+	</select>
+		
+	<select	id="CommonSQL.SelectCodeList" parameterClass="HashMap" resultClass="HashMap">
+		
+		select 
+		`GROUP`,	
+		CODE,	
+		NAME,	
+		USE_YN,	
+		ifnull(ORDER_NUM,'') as ORDER_NUM,	
+		ifnull(NOTE,'') as NOTE,	
+		ifnull(LINK,'') as LINK
+		from cust_sto.t_purchase_code_detail where `GROUP` = '$GROUP$'
+		order by ORDER_NUM
+		LIMIT $startNum$ ,  $endNum$	
+		
+	</select>						
 		
 </sqlMap>

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import bizbox.orgchart.service.vo.LoginVO;
 import egovframework.com.cmm.service.impl.EgovComAbstractDAO;
+import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 
 @Repository("CommonServiceDAO")
 public class CommonServiceDAO extends EgovComAbstractDAO {
@@ -192,11 +193,30 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		
 	}	
 	
+	public void UpdateCommonCode ( Map<String, Object> params ) {
+		
+		update( "CommonSQL.UpdateCommonCode", params );
+		
+	}	
+	
+	public void DeleteCommonCode ( Map<String, Object> params ) {
+		
+		update( "CommonSQL.DeleteCommonCode", params );
+		
+	}	
+	
 	@SuppressWarnings ( "unchecked" )
 	public List<Map<String, Object>> SelectContractManagerList ( Map<String, Object> params ) {
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
 		result = (List<Map<String, Object>>) list( "CommonSQL.SelectContractManagerList", params );
 		return result;
-	}		
+	}	
 	
+	public Map<String, Object> SelectCodeGroupList (Map<String, Object> paramMap, PaginationInfo paginationInfo) {
+		return super.listOfPaging2(paramMap, paginationInfo, "CommonSQL.SelectCodeGroupList");
+	}	
+	
+	public Map<String, Object> SelectCodeList (Map<String, Object> paramMap, PaginationInfo paginationInfo) {
+		return super.listOfPaging2(paramMap, paginationInfo, "CommonSQL.SelectCodeList");
+	}		
 }

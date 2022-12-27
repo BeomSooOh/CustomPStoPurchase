@@ -30,6 +30,40 @@ public class CommonServiceImpl implements CommonService {
 	public List<Map<String, Object>> SelectPurchaseDetailCodeList ( Map<String, Object> params ){
 		return commonServiceDAO.SelectPurchaseDetailCodeList(params);
 	}
+	
+	public Map<String, Object> updateCommonCodeProc ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
+		
+		//변경정보 리스트화
+		String jsonStr = (String)params.get("change_info_list");
+		ObjectMapper mapper = new ObjectMapper();
+		List<Map<String, Object>> changeInfoList = new ArrayList<Map<String, Object>>();
+		changeInfoList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
+		
+		for (Map<String, Object> map : changeInfoList) {
+			map.put("GROUP", params.get("GROUP"));
+			commonServiceDAO.UpdateCommonCode(map);
+		}
+		
+		return params;
+		
+	}	
+	
+	public Map<String, Object> deleteCommonCodeProc ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
+		
+		//변경정보 리스트화
+		String jsonStr = (String)params.get("change_info_list");
+		ObjectMapper mapper = new ObjectMapper();
+		List<Map<String, Object>> changeInfoList = new ArrayList<Map<String, Object>>();
+		changeInfoList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
+		
+		for (Map<String, Object> map : changeInfoList) {
+			map.put("GROUP", params.get("GROUP"));
+			commonServiceDAO.DeleteCommonCode(map);
+		}
+		
+		return params;
+		
+	}		
 		
 	public Map<String, Object> UpdateAttachInfo ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
 		

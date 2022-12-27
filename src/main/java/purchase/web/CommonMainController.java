@@ -34,6 +34,9 @@ import common.helper.exception.NotFoundLoginSessionException;
 import common.helper.info.CommonInfo;
 import common.helper.logger.ExpInfo;
 import egovframework.com.utl.fcc.service.EgovFileUploadUtil;
+import egovframework.com.utl.fcc.service.EgovStringUtil;
+import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import neos.cmm.util.DateUtil;
 import purchase.service.CommonService;
 import purchase.service.CommonServiceDAO;
 import common.vo.common.CommonMapper;
@@ -323,5 +326,139 @@ public class CommonMainController {
 
         return mv;
     }    
+    
+    
+    @RequestMapping("/purchase/admin/CommonCodeEditor.do")
+    public ModelAndView CommonCodeEditor(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+        
+        //메뉴접근 권한체크
+        if(!commonServiceDAO.CheckAuthFromMenuInfo(loginVo, request.getServletPath())) {
+        	//권한없음
+        	mv.setViewName( commonExPath.ERRORPAGEPATH + commonExPath.CMERRORCHECKAUTH );
+        	return mv;
+        }        
+        
+        /*
+        params.put("groupSeq", loginVo.getGroupSeq());
+        params.put("group", "contentsForm");
+        params.put("useYn", "Y");
+        List<Map<String, Object>> formList = commonServiceDAO.SelectPurchaseDetailCodeList(params);            	
+        mv.addObject("formList", formList);
+        */
+        
+        mv.setViewName("/purchase/content/CommonCodeEditor");
+
+        return mv;
+    }      
+
+    @RequestMapping("/purchase/admin/SelectCodeGroupList.do")
+    public ModelAndView SelectCodeGroupList(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        
+        /* 변수 설정 */
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("compSeq", loginVo.getOrganId());
+		params.put("deptSeq", loginVo.getOrgnztId());
+		params.put("empSeq", loginVo.getUniqId());
+        
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo = getPaginationInfo(params);
+		
+		Map<String,Object> resultMap = commonServiceDAO.SelectCodeGroupList(params, paginationInfo);        	
+		mv.addAllObjects(resultMap);
+        
+        mv.setViewName("jsonView");
+
+        return mv;
+    }  
+    
+    @RequestMapping("/purchase/admin/SelectCodeList.do")
+    public ModelAndView SelectCodeList(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        
+        /* 변수 설정 */
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("compSeq", loginVo.getOrganId());
+		params.put("deptSeq", loginVo.getOrgnztId());
+		params.put("empSeq", loginVo.getUniqId());
+        
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo = getPaginationInfo(params);
+		
+		Map<String,Object> resultMap = commonServiceDAO.SelectCodeList(params, paginationInfo);        	
+		mv.addAllObjects(resultMap);
+        
+        mv.setViewName("jsonView");
+
+        return mv;
+    } 
+    
+    
+    @RequestMapping(value="/purchase/admin/updateCommonCodeProc.do", method={RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public ModelAndView updateCommonCodeProc(@RequestParam Map<String,Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("created_by", loginVo.getUniqId());
+		
+		commonService.updateCommonCodeProc(params);
+		
+		mv.addObject("resultData", params);
+		mv.addObject("resultCode", "success");	
+		mv.setViewName("jsonView");
+		return mv;
+	}    
+    
+    
+    @RequestMapping(value="/purchase/admin/deleteCommonCodeProc.do", method={RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public ModelAndView deleteCommonCodeProc(@RequestParam Map<String,Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("created_by", loginVo.getUniqId());
+		
+		commonService.deleteCommonCodeProc(params);
+		
+		mv.addObject("resultData", params);
+		mv.addObject("resultCode", "success");	
+		mv.setViewName("jsonView");
+		return mv;
+	}    
+    
+    
+	private PaginationInfo getPaginationInfo(Map<String, Object> paramMap) {	
+		
+		PaginationInfo paginationInfo = new PaginationInfo();
+		int pageSize =  10;
+		int page = 1 ;
+		String temp = (String)paramMap.get("pageSize");
+		if (!EgovStringUtil.isEmpty(temp )  ) {
+			pageSize = Integer.parseInt(temp) ;
+		}
+		temp = (String)paramMap.get("page") ;
+		if (!EgovStringUtil.isEmpty(temp )  ) {
+			page = Integer.parseInt(temp) ;
+		}
+		
+		paginationInfo.setPageSize(pageSize);
+		paginationInfo.setCurrentPageNo(page);
+		return paginationInfo;
+	}	 
 
 }

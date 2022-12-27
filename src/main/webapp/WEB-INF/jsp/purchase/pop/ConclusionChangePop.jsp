@@ -553,7 +553,7 @@
 						insertDataObject.contract_amt_after += parseInt($(objInfo).val().replace(/,/g, ''));
 					});
 					
-					insertDataObject.contract_amt_kor_after = viewKorean(insertDataObject.contract_amt_after);
+					insertDataObject.contract_amt_kor_after = viewKorean(insertDataObject.contract_amt_after.toString());
 					
 				}
 				

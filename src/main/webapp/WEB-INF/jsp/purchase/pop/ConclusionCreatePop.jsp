@@ -601,7 +601,7 @@
 					insertDataObject.contract_amt += parseInt($(objInfo).val().replace(/,/g, ''));
 				});
 				
-				insertDataObject.contract_amt_kor = viewKorean(insertDataObject.contract_amt);
+				insertDataObject.contract_amt_kor = viewKorean(insertDataObject.contract_amt.toString());
 				
 				if(type == 0){
 					confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc(1)', '취소', '');	
@@ -1170,7 +1170,7 @@
 <body>
 <div class="pop_wrap" style="min-width:998px;"> <!-- 팝업창사이즈 가로 : 1000px -->
 	<div class="pop_sign_head posi_re">
-		<h1>계약입찰 발주계획 등록</h1>
+		<h1>계약체결 등록</h1>
 		<div class="psh_btnbox">
 			<div class="psh_right">
 				<div class="btn_cen mt8">

@@ -11,6 +11,10 @@ public interface CommonService {
 
 	public List<Map<String, Object>> SelectPurchaseDetailCodeList ( Map<String, Object> params );
 	
+	public Map<String, Object> updateCommonCodeProc ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
+	
+	public Map<String, Object> deleteCommonCodeProc ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
+	
 	public Map<String, Object> UpdateAttachInfo ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
 
 	public void SaveFormInfo ( Map<String, Object> params );
