@@ -84,6 +84,12 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		return (Map<String, Object>) select( "CommonSQL.SelectPurchaseDetailCodeInfo", params );
 	}
 	
+	public void InsertCodeInfo ( Map<String, Object> params ) {
+		
+		insert( "CommonSQL.InsertCodeInfo", params );
+		
+	}	
+	
 	public void UpdateAppr ( Map<String, Object> params ) {
 		
 		update( "CommonSQL.UpdateAppr", params );

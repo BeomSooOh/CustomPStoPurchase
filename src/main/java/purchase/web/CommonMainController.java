@@ -342,18 +342,30 @@ public class CommonMainController {
         	return mv;
         }        
         
-        /*
-        params.put("groupSeq", loginVo.getGroupSeq());
-        params.put("group", "contentsForm");
-        params.put("useYn", "Y");
-        List<Map<String, Object>> formList = commonServiceDAO.SelectPurchaseDetailCodeList(params);            	
-        mv.addObject("formList", formList);
-        */
-        
         mv.setViewName("/purchase/content/CommonCodeEditor");
 
         return mv;
     }      
+    
+    
+    @RequestMapping("/purchase/admin/CommonAttachFormEditor.do")
+    public ModelAndView CommonAttachFormEditor(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+        
+        //메뉴접근 권한체크
+        if(!commonServiceDAO.CheckAuthFromMenuInfo(loginVo, request.getServletPath())) {
+        	//권한없음
+        	mv.setViewName( commonExPath.ERRORPAGEPATH + commonExPath.CMERRORCHECKAUTH );
+        	return mv;
+        }        
+        
+        mv.setViewName("/purchase/content/CommonAttachFormEditor");
+
+        return mv;
+    }          
 
     @RequestMapping("/purchase/admin/SelectCodeGroupList.do")
     public ModelAndView SelectCodeGroupList(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
@@ -441,6 +453,48 @@ public class CommonMainController {
 		return mv;
 	}    
     
+    @RequestMapping(value="/purchase/admin/fnCheckCodeValidation.do", method={RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public ModelAndView fnCheckCodeValidation(@RequestParam Map<String,Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("created_by", loginVo.getUniqId());
+		params.put("group", params.get("GROUP"));
+		params.put("code", params.get("CODE"));
+		
+		if(commonServiceDAO.SelectPurchaseDetailCodeInfo(params) == null) {
+			mv.addObject("resultCode", "success");	
+		}else {
+			mv.addObject("resultCode", "duplication");
+		}
+		
+		mv.setViewName("jsonView");
+		return mv;
+	}    
+    
+    @RequestMapping(value="/purchase/admin/insertCommonCodeProc.do", method={RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public ModelAndView insertCommonCodeProc(@RequestParam Map<String,Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("created_by", loginVo.getUniqId());
+		params.put("group", params.get("GROUP"));
+		params.put("code", params.get("CODE"));
+		
+		commonServiceDAO.InsertCodeInfo(params);
+		
+		mv.addObject("resultCode", "success");
+		mv.setViewName("jsonView");
+		return mv;
+	}      
     
 	private PaginationInfo getPaginationInfo(Map<String, Object> paramMap) {	
 		

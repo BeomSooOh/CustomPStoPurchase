@@ -64,6 +64,12 @@ public class CommonServiceImpl implements CommonService {
 		return params;
 		
 	}		
+	
+	public void InsertCodeInfo ( Map<String, Object> params ) {
+		
+		commonServiceDAO.InsertCodeInfo(params);
+		
+	}		
 		
 	public Map<String, Object> UpdateAttachInfo ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
 		

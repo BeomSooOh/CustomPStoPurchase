@@ -253,6 +253,16 @@
 
 	</delete>
 	
+	
+	<insert	id="CommonSQL.InsertCodeInfo" parameterClass="HashMap" >
+	
+		INSERT INTO cust_sto.t_purchase_code_detail
+		(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+		VALUES('$GROUP$', '$CODE$', '$NAME$', '$USE_YN$', '$ORDER_NUM$', '$NOTE$', '$LINK$', '');	
+
+	</insert>	
+	
+		
 	<insert	id="CommonSQL.InsertAttachInfo" parameterClass="HashMap" >
 
 		INSERT INTO cust_sto.t_purchase_attach_info
@@ -406,7 +416,10 @@
 		</isNotEmpty>					
 		<isNotEmpty property="NOTE">
 		, NOTE = '$NOTE$'
-		</isNotEmpty>								          
+		</isNotEmpty>	
+		<isNotEmpty property="LINK">
+		, LINK = '$LINK$'
+		</isNotEmpty>										          
 		where
 		`GROUP` = '$GROUP$' and `CODE` = '$CODE$';
 
@@ -439,14 +452,14 @@
 		
 		SELECT 
 		count(*)		
-		from cust_sto.t_purchase_code_group where `type` = 'cm'
+		from cust_sto.t_purchase_code_group where `type` = '$TYPE$'
 	
 	</select>
 		
 	<select	id="CommonSQL.SelectCodeGroupList" parameterClass="HashMap" resultClass="HashMap">
 		
 		select * 
-		from cust_sto.t_purchase_code_group where `type` = 'cm'
+		from cust_sto.t_purchase_code_group where `type` = '$TYPE$'
 		order by ORDER_NUM
 		LIMIT $startNum$ ,  $endNum$	
 		

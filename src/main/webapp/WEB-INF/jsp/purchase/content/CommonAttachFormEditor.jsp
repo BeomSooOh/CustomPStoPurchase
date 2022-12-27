@@ -5,14 +5,16 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="validator" uri="http://www.springmodules.org/tags/commons-validator"%>
+<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:useBean id="currentTime" class="java.util.Date" />
+
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>공통코드관리</title>
+    <title>프로세스별 첨부파일 양식관리</title>
 
     <!--css-->
     <link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/pudd.css' />">
@@ -38,6 +40,7 @@
 
 		$(document).ready(function() {
 			BindGroupGrid();
+			document.getElementById('file_upload').addEventListener('change', handleFileSelect, false);
 		});
 			
 		function BindGroupGrid(){
@@ -51,7 +54,7 @@
 					,	type : 'post'
 					,	dataType : "json"
 					,   parameterMapping : function( data ) {
-						data.TYPE = "cm";
+						data.TYPE = "attachForm";
 						return data;
 					}
 				}	    
@@ -77,7 +80,7 @@
 			,	pageable : {
 					buttonCount : 10 
 				,	pageList : [ 10, 20, 30, 40, 50 ]
-				,	pageInfo : true
+				,	pageInfo : false
 				}
 			
 			,	noDataMessage : {
@@ -115,28 +118,22 @@
 			
 			,	columns : [
 					{
-						field : "GROUP"
-					,	title : "그룹코드"
-					,	width : 150
-					,	content : {
-							attributes : { class : "ci" }
-						}
-					},
-					{
 						field : "NAME"
-					,	title : "그룹명"
-					,	width : 250
+					,	title : "프로세스명"
+					,	width : 110
 					,	content : {
 							attributes : { class : "ci" }
 						}
-					},
+					},	
 					{
 						field : "NOTE"
 					,	title : "비고"
+					,	width : 50
 					,	content : {
 							attributes : { class : "ci" }
 						}
-					}						
+					}					
+					
 				]
 			});	
 		} 	
@@ -215,12 +212,12 @@
 					},				
 					{
 						field : "CODE"
-					,	title : "코드"
+					,	title : "양식코드"
 					,	width : 50
 					},
 					{
 						field : "NAME"
-					,	title : "코드명"
+					,	title : "양식명"
 					,	width : 90
 					,	content : {
 							template : function( rowData ) {
@@ -229,15 +226,48 @@
 						}
 					},
 					{
-						field : "NOTE"
-					,	title : "비고"
-					,	width : 70
+						field : ""
+					,	title : "양식파일"
+					,	width : 200
 					,	content : {
 							template : function( rowData ) {
-								return '<input onkeyup="fnSetChangeInfo(\''+rowData.CODE+'\', \'NOTE\', \''+rowData.NOTE+'\', this.value)" class="puddSetup ac" type="text" value="' + rowData.NOTE + '" pudd-style="height:100%;width:100%;"/>';
+								
+								var attachInfo =  rowData.LINK.split("▦");
+								
+								if(attachInfo.length > 1 && attachInfo[1] != ""){
+									
+									var fileExt = "";
+								    var lastDot = attachInfo[1].lastIndexOf('.');
+								    
+								    if(lastDot > 0){
+								    	fileExt = attachInfo[1].substr(lastDot);
+								    }
+									
+									return '<div link_attach="'+rowData.CODE+'" style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="'+attachInfo[2]+'" class="fl ellipsis pl5 text_ho" style="max-width:180px;" ><img name="uploadFileIco" src="${pageContext.request.contextPath}' + fncGetFileClassImg(fileExt) + '" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName">' + attachInfo[1] + '<span></em></span> <input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.CODE+'\', \'LINK\', this)" /></div>';
+								}else{
+									return '<div link_attach="'+rowData.CODE+'" style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="" class="fl ellipsis pl5 text_ho" style="max-width:180px; display:none;" ><img name="uploadFileIco" src="" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName"><span></em></span> <input type="button" class="puddSetup ml5" value="파일찾기" onclick="fnSearchFile(\''+rowData.CODE+'\', \'LINK\', this)" /></div>';
+								}
 							}
 						}
-					},	
+					},					
+					{
+						field : "USE_YN"
+					,	title : "필수여부"
+					,	width : 50
+					,	content : {
+							template : function( rowData ) {
+								
+								var requiredYn = "N";
+								var attachInfo =  rowData.LINK.split("▦");
+								
+								if(attachInfo[0] == "Y"){
+									requiredYn = "Y";
+								}
+								
+								return '<select link_required="'+rowData.CODE+'" style="width:50px;text-align:center;" onchange="fnSetChangeInfo(\''+rowData.CODE+'\', \'LINK\', \''+rowData.LINK+'\')"><option value="Y"' + (requiredYn == "Y" ? ' selected ' : '') + '>Y</option><option value="N"' + (requiredYn != "Y" ? ' selected ' : '') + '>N</option></select>';
+							}
+						}
+					},		
 					{
 						field : "ORDER_NUM"
 					,	title : "정렬"
@@ -261,6 +291,135 @@
 				]
 			});	
 		}	
+		
+		var attachTargetSeq;
+		var attachTargetColName;
+		var attachTargetObj;
+		
+		function fnSearchFile(seq, colName, el){
+			attachTargetSeq = seq;
+			attachTargetColName = colName;
+			attachTargetObj = $(el).closest("td");
+			
+			$("#file_upload").click();
+		}
+		
+		function handleFileSelect(evt) {
+			
+		    evt.stopPropagation();
+		    evt.preventDefault();
+		    
+		    var f = evt.target.files[0];
+		
+		    var fileEx = "";
+		    var lastDot = f.name.lastIndexOf('.');
+		    
+		    if(lastDot > 0){
+		    	
+		    	f.uid = '<fmt:formatDate value="${currentTime}" type="date" pattern="yyyyMMdd"/>' + getUUID();
+		    	f.fileName = f.name.substr(0, lastDot);
+		    	f.fileExt = f.name.substr(lastDot);
+			
+				var abort = false;
+				var formData = new FormData();
+				var nfcFileNames = btoa(unescape(encodeURIComponent(f.name)));
+		           
+				formData.append("file0", f);
+				formData.append("fileId", f.uid);
+				formData.append("nfcFileNames", nfcFileNames);
+		   	    
+				fnSetProgress();
+		
+		        var AJAX = $.ajax({
+		        	url: '<c:url value="/ajaxFileUploadProc.do" />',
+		            type: 'POST',
+		        	timeout:600000,
+		            xhr: function () {
+		                   myXhr = $.ajaxSettings.xhr();
+		
+		                   if (myXhr.upload) {
+		                       myXhr.upload.addEventListener('progress', progressHandlingFunction, false);
+		                       myXhr.abort;
+		                   }
+		                   return myXhr;
+		             },
+		             success: completeHandler = function (data) {
+		               	
+		                fnRemoveProgress();
+		               	
+		                $(attachTargetObj).find('em').attr("fileid", f.uid).show();
+		                $(attachTargetObj).find('[name="uploadFileName"]').text(f.fileName + f.fileExt);
+		                $(attachTargetObj).find('[name="uploadFileIco"]').attr("src", "${pageContext.request.contextPath}" + fncGetFileClassImg(f.fileExt));
+		                
+		                fnSetChangeInfo(attachTargetSeq, "LINK", "");
+						
+		               },
+		               error: errorHandler = function () {
+		
+		                   if (abort) {
+		                       alert('업로드를 취소하였습니다.');
+		                   } else {
+		                       alert('첨부파일 처리중 장애가 발생되었습니다. 다시 시도하여 주십시오');
+		                   }
+		
+		                   //UPLOAD_COMPLITE = false;
+		                   fnRemoveProgress();
+		               },
+		               data: formData,
+		               cache: false,
+		               contentType: false,
+		               processData: false
+		           });	
+		    	
+		    }
+		    
+		  	$('#file_upload').val("");
+		    
+		}
+	  
+		function progressHandlingFunction(e) {
+		    if (e.lengthComputable) {
+		    	
+		    	uploadPer = parseInt((e.loaded / e.total) * 100);
+		    }
+		}			    
+	  
+		function fnSetProgress() {
+			
+			uploadPer = 0;
+		
+			Pudd( "#exArea" ).puddProgressBar({
+				 
+				progressType : "circular"
+			,	attributes : { style:"width:70px; height:70px;" }
+			 
+			,	strokeColor : "#00bcd4"	// progress 색상
+			,	strokeWidth : "3px"	// progress 두께
+			 
+			,	textAttributes : { style : "" }		// text 객체 속성 설정
+			 
+			,	percentText : ""
+			,	percentTextColor : "#444"
+			,	percentTextSize : "24px"
+			,	backgroundLayerAttributes : { style : "background-color:#000;filter:alpha(opacity=20);opacity:0.2;width:100%;height:100%;position:fixed;top:0px; left:0px;" }
+			,	modal : true// 기본값 false - progressType : linear, circular 인 경우만 해당
+			 
+				// 200 millisecond 마다 callback 호출됨
+			,	progressCallback : function( progressBarObj ) {
+					return uploadPer;
+				}
+			});		    	
+			
+		}		    
+	  
+		function fnRemoveProgress() {
+			uploadPer = 100;
+		}	
+		
+		function fnDownload(e){
+			this.location.href = "${pageContext.request.contextPath}/fileDownloadProc.do?fileId=" + $(e).attr("fileid");
+		}
+		
 		
 		
 		function insertLayerPop(){
@@ -287,7 +446,7 @@
 			,	body : {
 			 
 					iframe : true
-				,	url : "${pageContext.request.contextPath}/purchase/layer/CodeInsertLayer.do"
+				,	url : "${pageContext.request.contextPath}/purchase/layer/CodeFormInsertLayer.do"
 				,	iframeAttribute : {
 					id : "dlgFrame"
 				}				
@@ -392,6 +551,12 @@
 
 		
 		function fnSetChangeInfo(CODE, calName, oriVal, newVal){
+			
+			if(calName == "LINK"){
+				newVal = $("[link_required='"+CODE+"']").val() 
+				+ "▦" + $("[link_attach='"+CODE+"']").find("[name=uploadFileName]").text() 
+				+ "▦" + $("[link_attach='"+CODE+"'] em").attr("fileid");
+			}
 			
 			var targetObj = changeInfoList.find(obj => obj.CODE === CODE);
 			
@@ -534,16 +699,16 @@
 
 	<div class="sub_contents_wrap">
 		<div class="twinbox">
-			<table style="min-height:450px;"> 
+			<table style="min-width:800px;min-height:450px;"> 
 				<colgroup>
-					<col width="50%"/>
-					<col />
+					<col width="300px;"/>
+					<col width="700px;"/>
 				</colgroup>
 				<tr>
 					<td class="twinbox_td">
 						<div class="btn_div mt0">
 							<div class="left_div">							
-								<h5>공통코드</h5>
+								<h5>프로세스별 첨부파일 양식관리</h5>
 							</div>
 						</div>
 	
@@ -569,8 +734,6 @@
 			
 			
 	</div><!-- //sub_contents_wrap -->
-
-
-
+	<input style="display:none;" id="file_upload" type="file" />
 </body>
 </html>

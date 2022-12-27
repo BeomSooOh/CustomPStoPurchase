@@ -15,6 +15,8 @@ public interface CommonService {
 	
 	public Map<String, Object> deleteCommonCodeProc ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
 	
+	public void InsertCodeInfo ( Map<String, Object> params );
+	
 	public Map<String, Object> UpdateAttachInfo ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
 
 	public void SaveFormInfo ( Map<String, Object> params );
