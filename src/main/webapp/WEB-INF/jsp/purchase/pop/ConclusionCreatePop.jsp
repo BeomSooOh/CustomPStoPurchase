@@ -1346,7 +1346,7 @@
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 계약법령</th>
 					<td colspan="3">
 					
-						<select ${disabled} objKey="contract_law" objCheckFor="checkVal('select', this, '계약법령', 'mustAlert', '')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
+						<select ${disabled} onchange="Pudd( '[objkey=private_reason]' ).getPuddObject().setSelectedIndex($(this).val());" objKey="contract_law" objCheckFor="checkVal('select', this, '계약법령', 'mustAlert', '')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
 							<c:forEach var="items" items="${contractLawCode}">
 								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && items.CODE == contractDetailInfo.contract_law }">selected</c:if> >${items.NAME}</option>
 							</c:forEach>							

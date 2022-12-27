@@ -153,7 +153,7 @@ public class CommonPopController {
 			
 			if(params.get("outProcessCode").equals("Contract01")) {
 				params.put("detailUrl", request.getContextPath() + "/purchase/pop/ContractCreatePop.do?seq=" + params.get("seq").toString());
-				params.put("subjectStr", apprFormData.get("title"));
+				params.put("subjectStr", apprFormData.get("title").toString() + " 입찰");
 				
 			}else if(params.get("outProcessCode").equals("Contract02")) {
 				params.put("detailUrl", request.getContextPath() + "/purchase/pop/ContractMeetPop.do?seq=" + params.get("seq").toString());
