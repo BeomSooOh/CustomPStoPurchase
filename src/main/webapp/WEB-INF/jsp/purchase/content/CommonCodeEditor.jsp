@@ -1,0 +1,455 @@
+<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="validator" uri="http://www.springmodules.org/tags/commons-validator"%>
+<jsp:useBean id="currentTime" class="java.util.Date" />
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>공통코드관리</title>
+
+    <!--css-->
+    <link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/pudd.css' />">
+	<link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/Scripts/jqueryui/jquery-ui.css' />"/>
+    <link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/common.css' />">
+	<link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/re_pudd.css' />">
+	<link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/animate.css' />">
+	    
+    <!--js-->
+    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/pudd/pudd-1.1.200.min.js' />"></script>
+    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/jquery-1.9.1.min.js' />"></script>
+	<script type="text/javascript" src="<c:url value='/customStyle/Scripts/jqueryui/jquery.min.js' />"></script>
+	<script type="text/javascript" src="<c:url value='/customStyle/Scripts/jqueryui/jquery-ui.min.js' />"></script>
+    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/common.js' />"></script>
+    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script>  
+    <script type="text/javascript" src="<c:url value='/js/jquery.maskMoney.js' />"></script>  
+	
+	<script type="text/javascript">
+	
+		var changeInfoList = [];	
+		var selGroup;		
+
+		$(document).ready(function() {
+			BindGroupGrid();
+		});
+			
+		function BindGroupGrid(){
+			
+			var dataSource = new Pudd.Data.DataSource({
+					serverPaging: true
+				,	editable : true
+				,	pageSize: 10
+				,	request : {
+					    url : '<c:url value="/purchase/admin/SelectCodeGroupList.do" />'
+					,	type : 'post'
+					,	dataType : "json"
+					,   parameterMapping : function( data ) {
+						return data;
+					}
+				}	    
+				,   result : {
+					data : function(response){
+						return response.list;
+					},
+					totalCount : function(response){
+						return response.totalCount;	
+					},
+					error : function(response){
+						alert("error");
+					}	
+				}
+					    
+			});
+			
+			Pudd("#grid1").puddGrid({
+				dataSource : dataSource
+			,	scrollable : true
+			, 	pageSize : 10	// grid와 연동되는 경우 grid > pageable > pageList 배열값 중의 하나이여야 함
+			,	serverPaging : true		
+			,	pageable : {
+					buttonCount : 10 
+				,	pageList : [ 10, 20, 30, 40, 50 ]
+				,	pageInfo : true
+				}
+			
+			,	noDataMessage : {
+				message : "검색된 데이터가 없습니다."
+			}		
+			,	progressBar : {
+			   	 
+					progressType : "loading"
+				,	attributes : { style:"width:70px; height:70px;" }
+				,	strokeColor : "#84c9ff"	// progress 색상
+				,	strokeWidth : "3px"	// progress 두께
+				,	percentText : "loading"	// loading 표시 문자열 설정 - progressType loading 인 경우만
+				,	percentTextColor : "#84c9ff"
+				,	percentTextSize : "12px"
+				,	backgroundLayerAttributes : { style : "background-color:#fff;filter:alpha(opacity=0);opacity:0;width:100%;height:100%;position:fixed;top:0px; left:0px;" }
+			}	
+			,	loadCallback : function( headerTable, contentTable, footerTable, gridObj) {
+				
+					gridObj.on( "gridRowClick", function( e ) {
+						 
+						var evntVal = e.detail;
+					 
+						if( ! evntVal ) return;
+						if( ! evntVal.trObj ) return;
+					 
+						var rowData = evntVal.trObj.rowData;
+						
+						selGroup = rowData.GROUP;
+						changeInfoList = [];
+						$("#adminSaveBtn").hide();
+						BindCodeGrid();
+					 
+					});				
+			}		
+			
+			,	columns : [
+					{
+						field : "GROUP"
+					,	title : "그룹코드"
+					,	width : 150
+					,	content : {
+							attributes : { class : "ci" }
+						}
+					},
+					{
+						field : "NAME"
+					,	title : "그룹명"
+					,	width : 250
+					,	content : {
+							attributes : { class : "ci" }
+						}
+					},
+					{
+						field : "NOTE"
+					,	title : "비고"
+					,	content : {
+							attributes : { class : "ci" }
+						}
+					}						
+				]
+			});	
+		} 	
+		
+
+		
+		function BindCodeGrid(){
+			
+			changeInfoList = [];
+			$("#adminSaveBtn").hide();			
+			
+			var dataSource = new Pudd.Data.DataSource({
+					serverPaging: true
+				,	editable : true
+				,	pageSize: 10
+				,	request : {
+					    url : '<c:url value="/purchase/admin/SelectCodeList.do" />'
+					,	type : 'post'
+					,	dataType : "json"
+					,   parameterMapping : function( data ) {
+						
+						data.GROUP = selGroup;
+						return data;
+					}
+				}	    
+				,   result : {
+					data : function(response){
+						return response.list;
+					},
+					totalCount : function(response){
+						return response.totalCount;	
+					},
+					error : function(response){
+						alert("error");
+					}	
+				}
+					    
+			});
+			
+			Pudd("#grid2").puddGrid({
+				dataSource : dataSource
+			,	scrollable : true
+			, 	pageSize : 10	// grid와 연동되는 경우 grid > pageable > pageList 배열값 중의 하나이여야 함
+			,	serverPaging : true	
+			
+			,	pageable : {
+					buttonCount : 10 
+				,	pageList : [ 10, 20, 30, 40, 50 ]
+				,	pageInfo : true
+				}
+			
+			,	noDataMessage : {
+				message : "검색된 데이터가 없습니다."
+			}		
+			,	progressBar : {
+			   	 
+					progressType : "loading"
+				,	attributes : { style:"width:70px; height:70px;" }
+				,	strokeColor : "#84c9ff"	// progress 색상
+				,	strokeWidth : "3px"	// progress 두께
+				,	percentText : "loading"	// loading 표시 문자열 설정 - progressType loading 인 경우만
+				,	percentTextColor : "#84c9ff"
+				,	percentTextSize : "12px"
+				,	backgroundLayerAttributes : { style : "background-color:#fff;filter:alpha(opacity=0);opacity:0;width:100%;height:100%;position:fixed;top:0px; left:0px;" }
+			}	
+			
+			,	columns : [
+					{
+						field : "gridCheckBox"		// grid 내포 checkbox 사용할 경우 고유값 전달
+					,	width : 34
+					,	editControl : {
+							type : "checkbox"
+						,	basicUse : true
+						}
+					},				
+					{
+						field : "CODE"
+					,	title : "코드"
+					,	width : 50
+					},
+					{
+						field : "NAME"
+					,	title : "코드명"
+					,	width : 90
+					,	content : {
+							template : function( rowData ) {
+								return '<input onkeyup="fnSetChangeInfo(\''+rowData.CODE+'\', \'NAME\', \''+rowData.NAME+'\', this.value)" class="puddSetup ac" type="text" value="' + rowData.NAME + '" pudd-style="height:100%;width:100%;"/>';
+							}
+						}
+					},
+					{
+						field : "NOTE"
+					,	title : "비고"
+					,	width : 70
+					,	content : {
+							template : function( rowData ) {
+								return '<input onkeyup="fnSetChangeInfo(\''+rowData.CODE+'\', \'NOTE\', \''+rowData.NOTE+'\', this.value)" class="puddSetup ac" type="text" value="' + rowData.NOTE + '" pudd-style="height:100%;width:100%;"/>';
+							}
+						}
+					},	
+					{
+						field : "ORDER_NUM"
+					,	title : "정렬"
+					,	width : 50
+					,	content : {
+							template : function( rowData ) {
+								return '<input onkeyup="fnSetChangeInfo(\''+rowData.CODE+'\', \'ORDER_NUM\', \''+rowData.ORDER_NUM.toString() +'\', this.value)" class="puddSetup ac" type="text" value="' + rowData.ORDER_NUM.toString() + '" pudd-style="height:100%;width:100%;" onKeyup="this.value=this.value.replace(/[^0-9]/g,\'\');" />';
+							}
+						}
+					},
+					{
+						field : "USE_YN"
+					,	title : "사용여부"
+					,	width : 50
+					,	content : {
+							template : function( rowData ) {
+								return '<select style="width:50px;text-align:center;" onchange="fnSetChangeInfo(\''+rowData.CODE+'\', \'USE_YN\', \''+rowData.USE_YN+'\', this.value)"><option value="Y"' + (rowData.USE_YN == "Y" ? ' selected ' : '') + '>Y</option><option value="N"' + (rowData.USE_YN == "N" ? ' selected ' : '') + '>N</option></select>';
+							}
+						}
+					}					
+				]
+			});	
+		}		
+		
+				
+		function checkNumber(event) {
+			  if(event.key >= 0 && event.key <= 9) {
+			    return true;
+			  }
+			  
+			  return false;
+		}
+		
+
+		
+		function fnSetChangeInfo(CODE, calName, oriVal, newVal){
+			
+			var targetObj = changeInfoList.find(obj => obj.CODE === CODE);
+			
+			if(oriVal != newVal && targetObj == null){
+				var changeInfo = {};
+				changeInfo.CODE = CODE;
+				changeInfoList.push(changeInfo)
+			}
+			
+			if(oriVal != newVal){
+				changeInfoList.find(obj => obj.CODE === CODE)[calName] = newVal;
+			}else if(targetObj){
+				delete changeInfoList.find(obj => obj.CODE === CODE)[calName];
+			}
+			
+			if(changeInfoList.find(obj => obj.CODE === CODE)){
+				
+				if(Object.keys(changeInfoList.find(obj => obj.CODE === CODE)).length == 1){
+					changeInfoList.some(function(item, index) {
+				    	(changeInfoList[index]["CODE"] == CODE) ? !!(changeInfoList.splice(index, 1)) : false;
+				    });
+				}
+			}
+			
+			if(changeInfoList.length > 0){
+				$("#adminSaveBtn").show();	
+			}else{
+				$("#adminSaveBtn").hide();
+			}
+			
+		}		
+		
+		function fnSaveColInfo(){
+			
+			if(changeInfoList.length > 0){
+				confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc()', '취소', '');	
+			}else{
+				msgSnackbar("warning", "수정한 항목이 없습니다.");
+			}
+			
+		}		
+		
+		function fnSaveProc(){
+			
+			var insertDataObject = {};
+			insertDataObject.GROUP = selGroup;
+			insertDataObject.change_info_list = JSON.stringify(changeInfoList);
+			
+			$.ajax({
+				type : 'post',
+				url : '<c:url value="/purchase/admin/updateCommonCodeProc.do" />',
+	    		datatype:"json",
+	            data: insertDataObject ,
+				async : false,
+				success : function(result) {
+					
+					if(result.resultCode == "success"){
+						
+						msgSnackbar("success", "요청하신 변경건 처리가 완료되었습니다.");
+						BindCodeGrid();
+						
+					}else{
+						
+						msgSnackbar("error", "등록에 실패했습니다.");
+						
+					}
+					
+				},
+				error : function(result) {
+					msgSnackbar("error", "등록에 실패했습니다.");
+				}
+			});		
+			
+		}		
+		
+		var delParam = {};
+		
+		function fnDel(){
+			
+			var dataCheckedRow = Pudd( "#grid2" ).getPuddObject().getGridCheckedRowData( "gridCheckBox" );
+			
+		    if(dataCheckedRow && dataCheckedRow.length == 0) {
+		    	msgSnackbar("error", "삭제할 코드를 선택해 주세요.");
+				return;
+			}
+			
+		    var selectedList = [];
+		    
+		    $.each(dataCheckedRow, function (i, t) {
+		    	
+		    	var selectedInfo = {};
+				selectedInfo.GROUP = selGroup;
+				selectedInfo.CODE = t.CODE;
+				selectedList.push(selectedInfo);
+		    	
+		    });
+		    
+			delParam = {};
+			delParam.GROUP = selGroup;
+			delParam.change_info_list = JSON.stringify(selectedList);		
+			
+			confirmAlert(350, 100, 'question', '삭제하시겠습니까?', '삭제', 'fnDelProc()', '취소', '');			
+
+		}		
+		
+		function fnDelProc(){
+			
+			$.ajax({
+				type : 'post',
+				url : '<c:url value="/purchase/admin/deleteCommonCodeProc.do" />',
+	    		datatype:"json",
+	            data: delParam ,
+				async : false,
+				success : function(result) {
+					
+					if(result.resultCode == "success"){
+						
+						msgSnackbar("success", "요청하신 삭제건 처리가 완료되었습니다.");
+						BindCodeGrid();
+						
+					}else{
+						
+						msgSnackbar("error", "삭제 실패했습니다.");
+						
+					}
+					
+				},
+				error : function(result) {
+					msgSnackbar("error", "삭제 실패했습니다.");
+				}
+			});		
+			
+		}
+		
+	</script>
+</head>
+
+<body>
+
+
+	<div class="sub_contents_wrap">
+		<div class="twinbox">
+			<table style="min-height:450px;"> 
+				<colgroup>
+					<col width="50%"/>
+					<col />
+				</colgroup>
+				<tr>
+					<td class="twinbox_td">
+						<div class="btn_div mt0">
+							<div class="left_div">							
+								<h5>공통코드</h5>
+							</div>
+						</div>
+	
+						<div id="grid1"></div>			
+					</td>
+	
+					<td class="twinbox_td">
+						<div class="btn_div mt0">
+							<div class="right_div">
+								<div id="" class="controll_btn p0">
+									<input type="button" class="puddSetup" value="추가" />
+									<input onclick="fnDel();" type="button" class="puddSetup" value="삭제" />
+									<input onclick="fnSaveColInfo()" id="adminSaveBtn" style="background:#03a9f4;color:#fff;display:none;" type="button" class="puddSetup" value="저장" />
+								</div>
+							</div>
+						</div>
+	
+						<div id="grid2"></div>	
+					</td>
+				</tr>
+			</table>
+		</div>
+			
+			
+	</div><!-- //sub_contents_wrap -->
+
+
+
+</body>
+</html>
