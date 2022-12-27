@@ -601,7 +601,7 @@
 					insertDataObject.contract_amt += parseInt($(objInfo).val().replace(/,/g, ''));
 				});
 				
-				insertDataObject.contract_amt_kor = viewKorean(insertDataObject.contract_amt);
+				insertDataObject.contract_amt_kor = viewKorean(insertDataObject.contract_amt.toString());
 				
 				if(type == 0){
 					confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc(1)', '취소', '');	
