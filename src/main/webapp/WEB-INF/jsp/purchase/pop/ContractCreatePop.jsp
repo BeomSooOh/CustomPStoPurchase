@@ -683,8 +683,8 @@
 										</c:if>
 									</th>
 									<th class="ac">그룹</th>
-									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 업종명</th>
 									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 업종코드</th>
+									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 업종명</th>
 								</tr>
 								<tr name="setorAddBase" style="display:none;">
 									<td>

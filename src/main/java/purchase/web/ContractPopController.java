@@ -258,7 +258,7 @@ public class ContractPopController {
             List<Map<String, Object>> contractTerm = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> contractYear = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> contractType = new ArrayList<Map<String, Object>>();
-            List<Map<String, Object>> baseLaw = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> contractLaw = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> privateReason = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> hopeCompany = new ArrayList<Map<String, Object>>();
             
@@ -279,8 +279,8 @@ public class ContractPopController {
         				contractYear.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("contractType")) {
         				contractType.add(codeinfo);
-        			}else if(codeinfo.get("GROUP").equals("baseLaw")) {
-        				baseLaw.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("contractLaw")) {
+        				contractLaw.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("privateReason")) {
         				privateReason.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("hopeCompany")) {
@@ -390,7 +390,7 @@ public class ContractPopController {
             mv.addObject("contractTermCode", contractTerm);
             mv.addObject("contractYearCode", contractYear);
             mv.addObject("contractTypeCode", contractType);
-            mv.addObject("baseLawCode", baseLaw);
+            mv.addObject("contractLawCode", contractLaw);
             mv.addObject("privateReasonCode", privateReason);
             mv.addObject("hopeCompanyCode", hopeCompany);
             

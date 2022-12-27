@@ -215,7 +215,7 @@
 			,	columns : [
 				{
 						field : "seq"
-					,	title : "연변"
+					,	title : "연번"
 					,	width : 70
 					,	content : {
 							attributes : { class : "ci" }
@@ -255,7 +255,12 @@
 						field : "target_type_name"
 					,	title : "계약목적물"
 					,	width : 120
-				}					
+				}	
+			,	{
+					field : "contract_type_text"
+				,	title : "입찰/수의"
+				,	width : 100
+				}				
 			,	{
 						field : "title"
 					,	title : "계약명"
@@ -297,16 +302,6 @@
 					,	title : "계약종료일"
 					,	width : 100							
 				}
-			,	{
-						field : "base_law_name"
-					,	title : "근거법령"
-					,	width : 150
-					, ellipsis : true
-					,	tooltip : { 
-						alwaysShow : false		// 말줄임 여부와 관계없이 tooltip 보여줄 것인지 설정, 기본값 false
-					,	showAtClientX : false	// toolTip 보여주는 위치가 mouse 움직이는 X 좌표 기준 여부, 기본값 false ( toolTip 부모객체 기준 )
-					}					
-				}						
 				]
 			}
 			,	{
@@ -338,11 +333,6 @@
 				title : "발주정보"
 			,	columns : [
 				{
-						field : "contract_type_text"
-					,	title : "입찰/수의"
-					,	width : 100
-				}					
-			,	{
 						field : "amt"
 					,	title : "발주금액"
 					,	width : 100
@@ -1431,27 +1421,27 @@
     	}
     	
     	excel.set(0, 0, 1, "기본정보");
-    	excel.mergeCell(0, 0, 1, 8, 1);
+    	excel.mergeCell(0, 0, 1, 9, 1);
     	excel.set(0, 0, 2, "연번");
     	excel.set(0, 1, 2, "관리번호");
     	excel.set(0, 2, 2, "계약번호");
     	excel.set(0, 3, 2, "계약목적물");
-    	excel.set(0, 4, 2, "계약명");
-    	excel.set(0, 5, 2, "계약금액");
-    	excel.set(0, 6, 2, "계약시작일");
-    	excel.set(0, 7, 2, "계약종료일");
-    	excel.set(0, 8, 2, "근거법령");
+    	excel.set(0, 4, 2, "입찰/수의");    	
+    	excel.set(0, 5, 2, "계약명");
+    	excel.set(0, 6, 2, "계약금액");
+    	excel.set(0, 7, 2, "계약시작일");
+    	excel.set(0, 8, 2, "계약종료일");
+    	excel.set(0, 9, 2, "근거법령");
     	
-    	excel.set(0, 9, 1, "계약대상자정보");
-    	excel.mergeCell(0, 9, 1, 12, 1);
-    	excel.set(0, 9, 2, "계약대상자");
-    	excel.set(0, 10, 2, "사업자등록번호");
-    	excel.set(0, 11, 2, "대표자명");
-    	excel.set(0, 12, 2, "희망기업여부");
+    	excel.set(0, 10, 1, "계약대상자정보");
+    	excel.mergeCell(0, 10, 1, 13, 1);
+    	excel.set(0, 10, 2, "계약대상자");
+    	excel.set(0, 11, 2, "사업자등록번호");
+    	excel.set(0, 12, 2, "대표자명");
+    	excel.set(0, 13, 2, "희망기업여부");
     	
-    	excel.set(0, 13, 1, "발주정보");
-    	excel.mergeCell(0, 13, 1, 18, 1);
-    	excel.set(0, 13, 2, "입찰/수의");
+    	excel.set(0, 14, 1, "발주정보");
+    	excel.mergeCell(0, 14, 1, 18, 1);
     	excel.set(0, 14, 2, "발주금액");
     	excel.set(0, 15, 2, "경쟁방식");
     	excel.set(0, 16, 2, "낙찰자결정방법");    	
@@ -1493,10 +1483,10 @@
     		excel.setColumnWidth( 0, i, 20 );
     	}    	
     	
-    	excel.setColumnWidth( 0, 4, 50 );
-    	excel.setColumnWidth( 0, 8, 50 );
+    	excel.setColumnWidth( 0, 5, 50 );
+    	excel.setColumnWidth( 0, 9, 50 );
     	
-    	excel.setColumnWidth( 0, 12, 25 );
+    	excel.setColumnWidth( 0, 13, 25 );
     	excel.setColumnWidth( 0, 20, 25 );
     	excel.setColumnWidth( 0, 21, 25 );
     	excel.setColumnWidth( 0, 24, 25 );
@@ -1512,16 +1502,16 @@
     		excel.set( 0, 1, rowNo, dataPage[ i ][ "manage_no" ], formatCell );
     		excel.set( 0, 2, rowNo, dataPage[ i ][ "contract_no" ], formatCell );
     		excel.set( 0, 3, rowNo, dataPage[ i ][ "target_type_name" ], formatCell );
-    		excel.set( 0, 4, rowNo, dataPage[ i ][ "title" ], formatCell );
-    		excel.set( 0, 5, rowNo, dataPage[ i ][ "contract_amt" ], formatCell );
-    		excel.set( 0, 6, rowNo, dataPage[ i ][ "contract_start_dt" ], formatCell );
-    		excel.set( 0, 7, rowNo, dataPage[ i ][ "contract_end_dt" ], formatCell );
-    		excel.set( 0, 8, rowNo, dataPage[ i ][ "base_law_name" ], formatCell );
-    		excel.set( 0, 9, rowNo, dataPage[ i ][ "tr_name" ], formatCell );
-    		excel.set( 0, 10, rowNo, dataPage[ i ][ "tr_reg_number" ], formatCell );
-    		excel.set( 0, 11, rowNo, dataPage[ i ][ "ceo_name" ], formatCell );
-    		excel.set( 0, 12, rowNo, dataPage[ i ][ "hope_company_info" ], formatCell );
-    		excel.set( 0, 13, rowNo, dataPage[ i ][ "contract_type_text" ], formatCell );
+    		excel.set( 0, 4, rowNo, dataPage[ i ][ "contract_type_text" ], formatCell );
+    		excel.set( 0, 5, rowNo, dataPage[ i ][ "title" ], formatCell );
+    		excel.set( 0, 6, rowNo, dataPage[ i ][ "contract_amt" ], formatCell );
+    		excel.set( 0, 7, rowNo, dataPage[ i ][ "contract_start_dt" ], formatCell );
+    		excel.set( 0, 8, rowNo, dataPage[ i ][ "contract_end_dt" ], formatCell );
+    		excel.set( 0, 9, rowNo, dataPage[ i ][ "base_law_name" ], formatCell );
+    		excel.set( 0, 10, rowNo, dataPage[ i ][ "tr_name" ], formatCell );
+    		excel.set( 0, 11, rowNo, dataPage[ i ][ "tr_reg_number" ], formatCell );
+    		excel.set( 0, 12, rowNo, dataPage[ i ][ "ceo_name" ], formatCell );
+    		excel.set( 0, 13, rowNo, dataPage[ i ][ "hope_company_info" ], formatCell );
     		excel.set( 0, 14, rowNo, dataPage[ i ][ "amt" ], formatCell );
     		excel.set( 0, 15, rowNo, dataPage[ i ][ "compete_type_text" ], formatCell );
     		excel.set( 0, 16, rowNo, dataPage[ i ][ "decision_type_text" ], formatCell );
