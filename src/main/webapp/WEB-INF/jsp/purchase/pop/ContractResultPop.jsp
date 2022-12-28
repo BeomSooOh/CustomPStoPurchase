@@ -159,6 +159,8 @@
 		
 		function fnCalculateResultScore(){
 			
+			$("[colspanTarget=Y]").attr("colspan", $("[name=compTr] [use_yn=Y]").length);
+			
 			if($("[name=resultScoreList] tr[name=addData]").length > 0){
 				
 				var allPointRate = 0;
@@ -914,7 +916,7 @@
 									</c:if>
 									<th class="ac" rowspan="2" colspan="2">구분</th>
 									<th class="ac" rowspan="2">배점</th>
-									<th class="ac" colspan="5">업체명</th>
+									<th class="ac" colspan="5" colspanTarget="Y">업체명</th>
 								</tr>
 								<tr name="compTr">
 									<th itemNo="1" itemTarget="target_1" use_yn = "N" class="ac">-</th>

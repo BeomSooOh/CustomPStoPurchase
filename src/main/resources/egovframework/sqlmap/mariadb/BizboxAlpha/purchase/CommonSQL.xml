@@ -136,16 +136,22 @@
 		ifnull(pti.pm_email,'') as pm_email,
 		ifnull(pti.pm_hp,'') as pm_hp,
 		ifnull(pti.pm_name,'') as pm_name,
-		
 		cust_sto.fn_get_purchase_code_text('privateReason',a.private_reason) as private_reason,
 		
 		case when ifnull(a.hope_company_info, '') = '' then '해당없음' else
 		cust_sto.fn_get_purchase_code_text('hopeCompany', a.hope_company_info) end as hope_company_info,	
-						
 		<isNotEmpty property="change_seq">
-		
-		</isNotEmpty>			
-		
+		case when ifnull(pcc.contract_end_dt_after,'') != '' then pcc.contract_end_dt_after else a.contract_end_dt end as contract_end_dt_after,
+		case when ifnull(pcc.work_info_after,'') != '' then pcc.work_info_after else ifnull(a.c_work_info, a.work_info) end as work_info_after,
+		ifnull(FORMAT((case when ifnull(pcc.contract_amt_info_after,'') != '' then pcc.contract_amt_after else a.contract_amt end), 0),'') as contract_amt_after,
+		case when ifnull(pcc.contract_amt_info_after,'') != '' then pcc.contract_amt_kor_after else ifnull(a.contract_amt_kor,'') end as contract_amt_kor_after,
+		</isNotEmpty>
+		<isEmpty property="change_seq">
+		a.contract_end_dt as contract_end_dt_after,
+		ifnull(a.c_work_info, a.work_info) as work_info_after,
+		ifnull(FORMAT(a.contract_amt, 0),'') as contract_amt_after,
+		ifnull(a.contract_amt_kor,'') as contract_amt_kor_after,		
+		</isEmpty>			
 		ifnull(a.doc_sts,'') as doc_sts, 
 		ifnull(a.approkey_plan,'') as approkey_plan, 
 		ifnull(a.approkey_meet,'') as approkey_meet, 
@@ -169,7 +175,7 @@
 		
 		<isNotEmpty property="change_seq">
 		left join cust_sto.t_purchase_conclusion_change pcc on a.seq = pcc.seq and pcc.change_seq = $change_seq$
-		</isNotEmpty>		
+		</isNotEmpty>
 		left join $DB_NEOS$t_co_dept_multi dm on ifnull(a.c_write_dept_seq, a.write_dept_seq) = dm.dept_seq and dm.lang_code = 'kr'
 		left join $DB_NEOS$t_co_emp_multi em on ifnull(a.c_write_emp_seq, a.write_emp_seq) = em.emp_seq and em.lang_code = 'kr'
 		where a.seq = $seq$

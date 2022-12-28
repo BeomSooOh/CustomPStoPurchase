@@ -207,14 +207,18 @@ public class CommonPopController {
 					String oriPath = pathMp.get("absol_path").toString() + File.separator + "purchase" + File.separator + file_id.substring(0, 4)+ File.separator + file_id.substring(4, 8) + File.separator + file_id;
 					
 					File srcDir = new File(oriPath);
-					File trgDir = new File(targetForder);
 					
-			    	// 디렉토리 생성
-			    	if (! trgDir.getParentFile().exists()) {
-			    		trgDir.getParentFile().mkdirs();
-			    	}
+					if(srcDir.exists()) {
+						
+						File trgDir = new File(targetForder);
+						
+				    	// 디렉토리 생성
+				    	if (! trgDir.getParentFile().exists()) {
+				    		trgDir.getParentFile().mkdirs();
+				    	}
 
-					FileUtils.copyDirectory(srcDir, trgDir);					
+						FileUtils.copyDirectory(srcDir, trgDir);							
+					}
 					
 				}
 				

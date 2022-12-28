@@ -152,7 +152,7 @@
 				var amtInt = $(this).val().replace(/,/g, '');
 				var targetTr = $(this).closest("tr[name=addData]");
 				
-				$(targetTr).find("[amounttype=stdAmt]").val((Math.floor(amtInt/1.1)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+				$(targetTr).find("[amounttype=stdAmt]").val((Math.floor(amtInt*10/11)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 				$(targetTr).find("[amounttype=taxAmt]").val((Math.ceil(amtInt/11)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 				$(targetTr).find("[name=viewKorean]").text(viewKorean(amtInt));
 				

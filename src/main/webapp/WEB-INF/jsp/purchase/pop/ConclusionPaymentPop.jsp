@@ -589,7 +589,7 @@
 			conclusionRemainAmt -= conclusionbudgetList[idx].balanceAmt;
 		}
 
-		parameter.tradeStdAmt = Math.floor(parameter.tradeAmt/1.1); /* [*]공급가액 */
+		parameter.tradeStdAmt = Math.floor(parameter.tradeAmt*10/11); /* [*]공급가액 */
 		parameter.tradeVatAmt = Math.ceil(parameter.tradeAmt/11); /* [*]부가세 */
 		
 		parameter.jiroSeq = ''; /* 미사용? */

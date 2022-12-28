@@ -834,7 +834,7 @@
 							
 							paymentState = "C";
 							
-							if(result.resultData.change_seq_temp != "" || result.resultData.doc_sts_change == "10" || result.resultData.doc_sts_change == "20"){
+							if(result.resultData.doc_sts_change == "10" || result.resultData.doc_sts_change == "20"){
 								changeState = "V";					
 							}else{
 								changeState = "C";
@@ -865,6 +865,8 @@
 							meetState = "C";	
 						}
 						
+					}else{
+						planState = "C";
 					}
 					
 				}else{
@@ -881,6 +883,8 @@
 							//변경계약 진행
 							changeState = "V";
 						}
+					}else if(result.resultData.doc_sts == "" || result.resultData.doc_sts == "10"){
+						conclusionState = "C";
 					}
 					
 				}
@@ -889,8 +893,8 @@
 				
 				if(planState != ""){
 					
-					var btnStyle = "cancel";
-					var btnName = "계약입찰발주계획조회";
+					var btnStyle = planState == "C" ? "submit" : "cancel";
+					var btnName = planState == "C" ? "계약입찰발주계획등록" : "계약입찰발주계획조회";					
 				
 					var btnInfo = {
 							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
