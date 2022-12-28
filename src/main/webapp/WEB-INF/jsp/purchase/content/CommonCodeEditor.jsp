@@ -71,7 +71,7 @@
 			
 			Pudd("#grid1").puddGrid({
 				dataSource : dataSource
-			,	scrollable : true
+			,	scrollable : false
 			, 	pageSize : 10	// grid와 연동되는 경우 grid > pageable > pageList 배열값 중의 하나이여야 함
 			,	serverPaging : true		
 			,	pageable : {
@@ -179,7 +179,7 @@
 			
 			Pudd("#grid2").puddGrid({
 				dataSource : dataSource
-			,	scrollable : true
+			,	scrollable : false
 			, 	pageSize : 10	// grid와 연동되는 경우 grid > pageable > pageList 배열값 중의 하나이여야 함
 			,	serverPaging : true	
 			
