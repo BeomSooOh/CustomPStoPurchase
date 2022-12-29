@@ -938,7 +938,7 @@
 				if(resultState != ""){
 					
 					var btnStyle = resultState == "C" ? "submit" : "cancel";
-					var btnName = resultState == "C" ? "제안서평과결과등록" : "제안서평과결과조회";
+					var btnName = resultState == "C" ? "제안서평가결과등록" : "제안서평가결과조회";
 				
 					var btnInfo = {
 							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
@@ -984,7 +984,7 @@
 				if(changeState != ""){
 					
 					var btnStyle = changeState == "C" ? "submit" : "cancel";
-					var btnName = changeState == "C" ? "변경계약등록" : "변경계약조회";
+					var btnName = changeState == "C" ? "변경계약체결" : "변경계약조회";
 					
 					var btnInfo = {
 						attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
@@ -1007,7 +1007,7 @@
 				if(paymentState != ""){
 					
 					var btnStyle = "submit";
-					var btnName = "대금지급신청";
+					var btnName = "대금지급";
 					
 					var btnInfo = {
 						attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
@@ -1589,8 +1589,8 @@
 	<div class="btn_div">
 		<div class="right_div">
 			<div id="" class="controll_btn p0">
-				<input type="button" onclick="fnCallBtn('newContract');" class="puddSetup" style="background:#03a9f4;color:#fff;" value="계약입찰발주계획" />
-				<input type="button" onclick="fnCallBtn('newConclusion');" style="background:#03a9f4;color:#fff" class="puddSetup" value="계약체결" />
+				<input type="button" onclick="fnCallBtn('newContract');" class="puddSetup" style="background:#03a9f4;color:#fff;" value="신규입찰발주" />
+				<input type="button" onclick="fnCallBtn('newConclusion');" style="background:#03a9f4;color:#fff" class="puddSetup" value="1인수의계약체결" />
 
 				<c:if test="${authLevel=='admin'}">
 				<input id="adminSaveBtn" style="display:none;width:70px;background:rgb(0 0 0);color:#fff;" type="button" onclick="fnCallBtn('btnSave');" class="puddSetup" value="저장" />

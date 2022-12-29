@@ -43,7 +43,10 @@
 		and (a.write_dept_seq = '$deptSeq$' or a.c_write_dept_seq = '$deptSeq$')   
 		</isEqual>		
 		<isEqual property="authLevel" compareValue="user">
-		and (a.write_emp_seq = '$empSeq$' or a.c_write_emp_seq = '$empSeq$')   
+		and (
+				(a.write_emp_seq = '$empSeq$' or a.c_write_emp_seq = '$empSeq$')
+				or a.public_info like '%|$empSeq$|u%'
+			)   
 		</isEqual>
 	
 	</select>
@@ -193,8 +196,11 @@
 		and (a.write_dept_seq = '$deptSeq$' or a.c_write_dept_seq = '$deptSeq$')   
 		</isEqual>		
 		<isEqual property="authLevel" compareValue="user">
-		and (a.write_emp_seq = '$empSeq$' or a.c_write_emp_seq = '$empSeq$')   
-		</isEqual>									
+		and (
+				(a.write_emp_seq = '$empSeq$' or a.c_write_emp_seq = '$empSeq$')
+				or a.public_info like '%|$empSeq$|u%'
+			)   
+		</isEqual>
 		
 		order by a.seq desc
 		LIMIT $startNum$ ,  $endNum$
@@ -286,7 +292,8 @@
 		ifnull(a.contract_amt_info,'') as contract_amt_info,
 		
 		ifnull(a.notice_start_dt,'') as notice_start_dt,
-		ifnull(a.notice_end_dt,'') as notice_end_dt
+		ifnull(a.notice_end_dt,'') as notice_end_dt,
+		ifnull(a.public_info,'') as public_info
 		
 		FROM cust_sto.t_purchase_contract a
 		left join cust_sto.t_purchase_conclusion_change pcc on a.approkey_change = concat('Conclu02_', pcc.seq, '_', pcc.change_seq)
@@ -338,6 +345,7 @@
 		manage_no, 
 		contract_no,
 		contract_type,
+		public_info,
 		write_comp_seq, 
 		write_dept_seq, 
 		write_emp_seq, 
@@ -377,6 +385,7 @@
 		'$manage_no$', 
 		'$contract_no$',
 		'$contract_type$',
+		'$public_info$',
 		'$write_comp_seq$', 
 		'$write_dept_seq$', 
 		'$write_emp_seq$', 
@@ -426,6 +435,7 @@
 		manage_no, 
 		contract_no,
 		contract_type,
+		public_info,
 		c_write_comp_seq, 
 		c_write_dept_seq, 
 		c_write_emp_seq, 
@@ -462,6 +472,7 @@
 		'$manage_no$', 
 		'$contract_no$',
 		'$contract_type$',
+		'$public_info$',
 		'$c_write_comp_seq$', 
 		'$c_write_dept_seq$', 
 		'$c_write_emp_seq$', 
@@ -542,6 +553,7 @@
 	<update	id="ContractSQL.UpdateContract" parameterClass="HashMap" >
 		UPDATE cust_sto.t_purchase_contract
 		SET
+		public_info='$public_info$',
 		write_comp_seq='$write_comp_seq$', 
 		write_dept_seq='$write_dept_seq$', 
 		write_emp_seq='$write_emp_seq$', 
@@ -625,7 +637,7 @@
 	<update	id="ContractSQL.UpdateConclusion" parameterClass="HashMap" >
 		UPDATE cust_sto.t_purchase_contract
 		SET
-
+		public_info='$public_info$',
 		c_write_comp_seq='$c_write_comp_seq$', 
 		c_write_dept_seq='$c_write_dept_seq$', 
 		c_write_emp_seq='$c_write_emp_seq$', 

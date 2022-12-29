@@ -111,7 +111,10 @@
 			setDynamicSetInfoBudget();
 			
 			amountInputSet();
-			amountKoreanSet();			
+			amountKoreanSet();		
+			
+			//담당자 선택항목 세팅
+			setDynamicPublicInfo("${contractDetailInfo.public_info}");			
 			
 		});
 		
@@ -698,9 +701,37 @@
 			
 		}	
 		
+
+		
+		function setDynamicPublicInfo(public_info){
+			
+			var public_list = [];
+			
+			$.each(public_info.split("▦▦"), function( key, val ) {
+				var valInfo =  val.split("▦");
+				if(valInfo.length > 1){
+					var valueObj = {};
+					valueObj.value = valInfo[0];
+					valueObj.text = valInfo[1];
+					public_list.push(valueObj);
+				}
+			});		 
+			
+			renderPublicInfo(public_list);			
+			
+		}
+		
+		
+		
 		function selectOrgchart(){
 			
-			 $("#selectedItems").val($("#createSuperKey").val());	 
+			var selectedItems = "";
+			 
+			$.each(Pudd( "#publicInfo" ).getPuddObject().getData(), function( key, val ) {
+				selectedItems += (key == 0 ? "" : ",") + val.value;
+			});				 
+			 
+			 $("#selectedItems").val(selectedItems);
 			 
 			 var pop = window.open("", "cmmOrgPop", "width=799,height=769,scrollbars=no");
 				$("#callback").val("callbackSel");
@@ -709,26 +740,81 @@
 				frmPop.action = "/gw/systemx/orgChart.do";
 				frmPop.submit();
 				pop.focus();
-		 }	
+		}	
+	
+		function getPublicInfo(){
+			
+			var selectedItems = "";
+			 
+			$.each(Pudd( "#publicInfo" ).getPuddObject().getData(), function( key, val ) {
+				selectedItems += (key == 0 ? "" : "▦▦") + val.value + "▦" + val.text;
+			});		
+			
+			return selectedItems;
+			 
+		}			
 		
-		function callbackSel(data){	 
-
-			if(data.returnObj.length > 0){
+		function callbackSel(data){
+			
+			jsonData = data.returnObj;	
+			 
+			var orgData = [];
+			 
+			for(var i=0;i<jsonData.length; i++){
+				var data = {};
+				data.value = jsonData[i].superKey;
+				data.text = jsonData[i].orgName;
 				
-				$("#createDeptName").val(data.returnObj[0].deptName);
-				$("#createEmpName").val(data.returnObj[0].empName);
-				$("[objKey='c_write_comp_seq']").val(data.returnObj[0].compSeq);
-				$("[objKey='c_write_dept_seq']").val(data.returnObj[0].deptSeq);
-				$("[objKey='c_write_emp_seq']").val(data.returnObj[0].empSeq);
-				$("#createSuperKey").val(data.returnObj[0].superKey);
-				
-			}else{
-				
-				msgSnackbar("error", "작성자 선택은 필수입니다.");
-				
+				orgData.push(data);
 			}
+			 
+			renderPublicInfo(orgData);	
 
-		 }		
+		 }
+		
+		function renderPublicInfo(publicList){
+			
+		 	 var dataSourcePublicList = new Pudd.Data.DataSource({
+			 		data : publicList
+				 });
+			   
+			 Pudd( "#publicInfo" ).puddSelectiveInput({
+					// 수정모드인 경우 dataSource 전달, 신규는 해당없음
+					dataSource : dataSourcePublicList
+				,	dataValueField : "value"
+				,	dataTextField : "text"
+		 
+				,	writeMode : false // 기본 입력 모드
+				,	disabled : false
+				,	editButton : false
+				,	deleteButton : true
+		 
+				// 입력박스에서 내용이 없는 상태에서 backspace 입력하는 경우 이전 항목 삭제처리
+				,	backspaceDelete : false
+			 });
+			 
+			 /*
+			 Pudd( "#publicInfo" ).on( "selectiveInputItemClick", function( e ) {
+				 
+					// e.detail 항목으로 customEvent param 전달됨
+					// e.detail.spanObj - click 객체
+					var evntVal = e.detail;
+				 
+					if( ! evntVal ) return;
+					if( ! evntVal.spanObj ) return;
+				 
+					var valStr = "|" + evntVal.spanObj.inputObj.val() + "|";
+					if(valStr.indexOf("|u|") > -1){
+						var empSeq = valStr.split("|")[4];
+						openEmpProfileInfoPop('','',empSeq);
+					}
+			 });
+			 */
+		}		
+		
+		
+		
+		
 		
 		function setDynamicPuddInfo(objKey, type, value){
 			
@@ -1190,18 +1276,13 @@
 	<div class="pop_con" style="overflow: auto; min-height: 460px;">
 		<div class="top_box">
 			<dl>
-				<dt>작성부서/작성자</dt>
-				<dd><input id="createDeptName" type="text" readonly pudd-style="width:200px;" class="puddSetup" value="${createDeptName}" placeholder="작성부서" /></dd>
-				<dd><input id="createEmpName" type="text" readonly pudd-style="width:100px;" class="puddSetup" value="${createEmpName}" placeholder="작성자" /></dd>
+				<dt>작성일자</dt>
+				<dd objKey="c_write_dt" objCheckFor="checkVal('date', 'writeDt', '작성일자', 'selectDate(this)', '')" ><input ${disabled} name="writeDt" type="text" value="${c_write_dt}" class="puddSetup" pudd-type="datepicker"/></dd>
+				
 				<input objKey="c_write_comp_seq" objCheckFor="checkVal('text', this, '작성부서', '', '')" type="hidden" value="${c_write_comp_seq}" />
 				<input objKey="c_write_dept_seq" objCheckFor="checkVal('text', this, '작성부서', '', '')" type="hidden" value="${c_write_dept_seq}" />
 				<input objKey="c_write_emp_seq" objCheckFor="checkVal('text', this, '작성자', 'selectOrgchart()', '')" type="hidden" value="${c_write_emp_seq}" />
-				<input id="createSuperKey" type="hidden" value="${createSuperKey}" />
-				<c:if test="${disabledYn == 'N'}">
-				<dd><input onclick="selectOrgchart()" type="button" value="선택" /></dd>
-				</c:if>				
-				<dt>작성일자</dt>
-				<dd objKey="c_write_dt" objCheckFor="checkVal('date', 'writeDt', '작성일자', 'selectDate(this)', '')" ><input ${disabled} name="writeDt" type="text" value="${c_write_dt}" class="puddSetup" pudd-type="datepicker"/></dd>
+				
 			</dl>
 		</div>
 
@@ -1242,6 +1323,15 @@
 						</c:forEach>						
 					</td>
 				</tr>
+				<tr>
+					<th>담당자</th>
+					<td objKey="public_info" objCheckFor="getPublicInfo()" >
+						<div id="publicInfo" style="min-width:200px;"></div>
+						<c:if test="${disabledYn == 'N'}">
+						<input onclick="selectOrgchart()" type="button" value="선택" />
+						</c:if>	
+					</td>
+				</tr>				
 			</table>
 		</div>
 		
@@ -1660,12 +1750,12 @@
 		<input type="hidden" name="selectedItems" id="selectedItems" value="" />
 		<input type="hidden" name="popUrlStr" id="txt_popup_url" value="/gw/systemx/orgChart.do" />
 		<input type="hidden" name="selectMode" id="selectMode" value="u" />
-		<input type="hidden" name="selectItem" value="s" />
+		<input type="hidden" name="selectItem" value="m" />
 		<input type="hidden" name="callback" id="callback" value="" />
 		<input type="hidden" name="compSeq" value="" />
 		<input type="hidden" name="callbackUrl" value="/gw/html/common/callback/cmmOrgPopCallback.jsp"/>
-		<input type="hidden" name="empUniqYn" value="N" />
-		<input type="hidden" name="empUniqGroup" value="" />
+		<input type="hidden" name="empUniqYn" value="Y" />
+		<input type="hidden" name="empUniqGroup" value="ALL" />
 </form>
 <input style="display:none;" id="file_upload" type="file" />
 </body>

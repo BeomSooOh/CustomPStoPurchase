@@ -1201,3 +1201,6 @@ INSERT IGNORE INTO cust_sto.t_purchase_code_detail
 (`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
 VALUES('targetType', '06', '공사', 'Y', 6, NULL, NULL, NULL);
 
+
+
+ALTER TABLE cust_sto.t_purchase_contract ADD public_info varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '담당자정보';

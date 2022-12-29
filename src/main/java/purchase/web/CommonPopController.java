@@ -96,16 +96,11 @@ public class CommonPopController {
 		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
 		
 		params.put("groupSeq", loginVo.getGroupSeq());
-		params.put("compSeq", loginVo.getOrganId());
-		params.put("deptSeq", loginVo.getOrgnztId());
-		params.put("empSeq", loginVo.getUniqId());
 		
 		Map<String, Object> apprFormData = new HashMap<String, Object>();
 		Map<String, Object> formInfo = new HashMap<String, Object>();
 		Map<String, Object> innerParam = new HashMap<String, Object>( );
 		innerParam.putAll(params);
-		
-		
 		
 		params.put("mod", "W");
 		
