@@ -135,6 +135,28 @@ public class CommonPopController {
 					
 				}
 				
+				//입찰, 계약체결 시 청렴계약이행서약서 추가
+				if(params.get("outProcessCode").equals("Contract01") || params.get("outProcessCode").equals("Conclu01")) {
+					params.put("group", "contentsForm");
+					params.put("code", "Contract01-1");
+					formInfo = commonServiceDAO.SelectPurchaseDetailCodeInfo(params);
+					
+					if(formInfo != null) {
+						FORM_HTML += formInfo.get("FORM_HTML").toString();
+					}					
+				}
+				
+				//계약체결 시 안전보건관리준수서약서 추가
+				if(params.get("outProcessCode").equals("Conclu01")) {
+					params.put("group", "contentsForm");
+					params.put("code", "Conclu01-3");
+					formInfo = commonServiceDAO.SelectPurchaseDetailCodeInfo(params);
+					
+					if(formInfo != null) {
+						FORM_HTML += formInfo.get("FORM_HTML").toString();
+					}					
+				}				
+				
 				for( String strKey : apprFormData.keySet() ){
 					String strValue = apprFormData.get(strKey) != null ? apprFormData.get(strKey).toString() : "";
 					FORM_HTML = FORM_HTML.replace("$" + strKey + "$", strValue);

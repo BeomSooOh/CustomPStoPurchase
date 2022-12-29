@@ -114,9 +114,34 @@
 			amountKoreanSet();		
 			
 			//담당자 선택항목 세팅
-			setDynamicPublicInfo("${contractDetailInfo.public_info}");			
+			setDynamicPublicInfo("${contractDetailInfo.public_info}");		
+			
+			
+			//옵션값 설정
+			setCommonOption();
 			
 		});
+		
+		
+		function setCommonOption(){
+			
+			<c:forEach var="items" items="${option}" varStatus="status">
+			
+			console.log("option ${items.CODE} > ${items.NOTE}");
+			
+			if("${items.CODE}" == "def_erp_budget_div_seq"){
+				$("[name=erp_budget_div_seq]").val("${items.NOTE}");
+				
+				$("[optionTarget=def_erp_budget_div_seq]").hide();
+				
+			}else if("${items.CODE}" == "def_erp_budget_div_name"){
+				$("[name=erp_budget_div_name]").val("${items.NOTE}");
+			}			
+			
+			</c:forEach>				
+			
+			
+		}
 		
 		function setDynamicSetInfoBudget(targetName, value){
 			
@@ -1435,25 +1460,23 @@
 				<tr>
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 계약법령</th>
 					<td colspan="3">
-					
-						<select ${disabled} onchange="Pudd( '[objkey=private_reason]' ).getPuddObject().setSelectedIndex($(this).val());" objKey="contract_law" objCheckFor="checkVal('select', this, '계약법령', 'mustAlert', '')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
+						<select ${disabled} type="select" name="contractLaw" onchange="Pudd( '[objkey=private_reason]' ).getPuddObject().setSelectedIndex($(this).val());fnChangeEtc(this);fnChangeEtc($('[name=privateReason]'));" objKey="contract_law" objCheckFor="checkVal('select', this, '계약법령', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
 							<c:forEach var="items" items="${contractLawCode}">
-								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && items.CODE == contractDetailInfo.contract_law }">selected</c:if> >${items.NAME}</option>
+								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && (items.CODE == contractDetailInfo.contract_law || (items.CODE == 'etc' && contractDetailInfo.contract_law.indexOf('etc▦') > -1))}">selected</c:if> >${items.NAME}</option>
 							</c:forEach>							
 						</select>					
-					
+						<input name="contractLaw_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.contract_law.indexOf('etc▦') == -1 ) }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.contract_law.indexOf('etc▦') > -1 }">${(contractDetailInfo.contract_law).substring(4)}</c:if>" />
 					</td>
 				</tr>
 				<tr <c:if test="${contractType == '01'}">style="display:none;"</c:if>>
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 수의계약사유</th>
 					<td colspan="3">
-					
-						<select ${disabled} objKey="private_reason" objCheckFor="checkVal('select', this, '수의계약사유', 'mustAlert', '')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
+						<select ${disabled} type="select" name="privateReason" onchange="fnChangeEtc(this);" objKey="private_reason" objCheckFor="checkVal('select', this, '수의계약사유', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
 							<c:forEach var="items" items="${privateReasonCode}">
-								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && items.CODE == contractDetailInfo.private_reason }">selected</c:if> >${items.NAME}</option>
+								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && (items.CODE == contractDetailInfo.private_reason || (items.CODE == 'etc' && contractDetailInfo.private_reason.indexOf('etc▦') > -1))}">selected</c:if> >${items.NAME}</option>
 							</c:forEach>							
 						</select>		
-						
+						<input name="privateReason_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.private_reason.indexOf('etc▦') == -1 ) }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.private_reason.indexOf('etc▦') > -1 }">${(contractDetailInfo.private_reason).substring(4)}</c:if>" />
 					</td>
 				</tr>
 				<tr>
@@ -1580,7 +1603,7 @@
 						<input type="button" onclick="fnSectorAdd('budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 					</th>
 					</c:if>
-					<th class="ac">예산회계단위</th>
+					<th optionTarget="def_erp_budget_div_seq" class="ac">예산회계단위</th>
 					<th class="ac">프로젝트</th>
 					<th class="ac">하위사업</th>
 					<th class="ac">예산과목</th>
@@ -1591,7 +1614,7 @@
 						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 					</td>
 					</c:if>
-					<td>
+					<td optionTarget="def_erp_budget_div_seq">
 						<div class="posi_re">
 							<input tbval="Y" name="erp_budget_div_seq" type="hidden" value="" />
 							<input tbval="Y" name="erp_budget_div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
@@ -1649,7 +1672,7 @@
 						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 					</td>
 					</c:if>
-					<td>
+					<td optionTarget="def_erp_budget_div_seq">
 						<div class="posi_re">
 							<input tbval="Y" name="erp_budget_div_seq" type="hidden" value="" />
 							<input tbval="Y" name="erp_budget_div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							

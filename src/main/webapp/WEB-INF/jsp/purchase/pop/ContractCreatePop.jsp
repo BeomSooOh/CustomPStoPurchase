@@ -80,7 +80,15 @@
 				$('#stdAmt_han').text(viewKorean($('#stdAmt').val().replace(/,/g, '')));
 				$('#taxAmt_han').text(viewKorean($('#taxAmt').val().replace(/,/g, '')));
 				
+			});
+			
+			$('#stdAmt').keyup(function() {
+				$('#stdAmt_han').text(viewKorean($('#stdAmt').val().replace(/,/g, '')));
 			});			
+			
+			$('#taxAmt').keyup(function() {
+				$('#taxAmt_han').text(viewKorean($('#taxAmt').val().replace(/,/g, '')));
+			});				
 			
 			//기존설정항목 세팅
 			<c:if test="${viewType == 'U'}">
@@ -680,13 +688,14 @@
 						<input ${disabled} objKey="tax_amt" objCheckFor="checkVal('text', this, '부가가치세', 'mustAlert', 'parseToInt')" id="taxAmt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.tax_amt}</c:if>" maxlength="15" /> 원 
 						<span id="taxAmt_han"></span>
 					</td>
-					<th>근거법령</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 근거법령</th>
 					<td>
-						<select ${disabled} objKey="base_law" objCheckFor="checkVal('select', this, '근거법령', 'mustAlert', '')" class="puddSetup" pudd-style="width:100%;">
+						<select ${disabled} type="select" name="baseLaw" onchange="fnChangeEtc(this)" objKey="base_law" objCheckFor="checkVal('select', this, '근거법령', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:100%;">
 							<c:forEach var="items" items="${baseLawCode}">
-								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && items.CODE == contractDetailInfo.base_law }">selected</c:if> >${items.NAME}</option>
+								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && (items.CODE == contractDetailInfo.base_law || (items.CODE == 'etc' && contractDetailInfo.base_law.indexOf('etc▦') > -1))}">selected</c:if> >${items.NAME}</option>
 							</c:forEach>							
 						</select>
+						<input name="baseLaw_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.base_law.indexOf('etc▦') == -1 ) }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.base_law.indexOf('etc▦') > -1 }">${(contractDetailInfo.base_law).substring(4)}</c:if>" />						
 					</td>					
 				</tr>
 				<tr>
@@ -824,7 +833,7 @@
 						</c:forEach>							
 					</td>
 				</tr>
-				<tr name="competeType_02" <c:if test="${ (viewType == 'I') || (viewType == 'U' && contractDetailInfo.compete_type == '01') }">style="display:none;"</c:if>>
+				<tr name="competeType_02" <c:if test="${ (viewType == 'I') || (viewType == 'U' && contractDetailInfo.compete_type != '02') }">style="display:none;"</c:if>>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 지명업체</th>
 					<td colspan="5">						
 						<!-- 테이블 -->

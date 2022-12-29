@@ -780,7 +780,7 @@
 					<td colspan="3">
 						<!-- 그리드 -->
 						<div name="resultJudgesListHtml" class="com_ta4">
-							<table name="resultJudgesList" objKey="result_judges_info" objCheckFor="checkVal('table', 'resultJudgesList', '평가위원', 'true')">
+							<table border="1" width="100%" name="resultJudgesList" objKey="result_judges_info" objCheckFor="checkVal('table', 'resultJudgesList', '평가위원', 'true')">
 								<colgroup>
 									<c:if test="${disabledYn == 'N'}">
 									<col removeHtml="Y" width="50"/>
@@ -894,7 +894,7 @@
 					<td colspan="3">
 						<!-- 그리드 -->
 						<div name="resultScoreListHtml" class="com_ta4">
-							<table name="resultScoreList" objKey="result_score_info" objCheckFor="checkVal('table', 'resultScoreList', '제안서 평가결과', 'true', 'notnull')">
+							<table border="1" width="100%" name="resultScoreList" objKey="result_score_info" objCheckFor="checkVal('table', 'resultScoreList', '제안서 평가결과', 'true', 'notnull')">
 								<colgroup>
 									<c:if test="${disabledYn == 'N'}">
 									<col removeHtml="Y" width="50"/>

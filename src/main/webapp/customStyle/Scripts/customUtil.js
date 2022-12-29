@@ -146,6 +146,19 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 		
 		if(subValueFor == "parseToInt"){
 			returnVal = returnVal.replace(/,/g, "")
+		}else if(subValueFor == "|etc|" && $(elementFor).val() == "etc"){
+			
+			var subValueForValue = $("[name='"+$(elementFor).attr("name")+ "_etc']").val();
+			
+			if(subValueForValue == ""){
+				
+				$("[name='"+$(elementFor).attr("name")+ "_etc']").focus();
+				returnVal = "";
+				
+			}else{
+				returnVal += "▦" + subValueForValue;	
+			}	
+					
 		}
 		
 	}else if(type == "radio"){
