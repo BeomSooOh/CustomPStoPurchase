@@ -437,10 +437,10 @@
 			
 			$("#amt").text("₩ ${contractDetailInfo.amt} " + viewKorean("${contractDetailInfo.amt}".replace(/,/g, '')) + " / 부가세 포함");
 			
-			setDynamicSetInfoBudget();
-			
 			//옵션값 설정
 			setCommonOption();
+			
+			setDynamicSetInfoBudget();
 			
 		});
 		
