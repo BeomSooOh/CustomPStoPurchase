@@ -1646,6 +1646,7 @@
 					</td>
 					<td>
 						<div class="posi_re">
+							<input tbval="Y" name="amt" type="hidden" value="0" requiredNot="true" />
 							<input tbval="Y" name="erp_bgt1_seq" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="erp_bgt2_seq" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="erp_bgt3_seq" type="hidden" value="" requiredNot="true" />
@@ -1704,6 +1705,7 @@
 					</td>
 					<td>
 						<div class="posi_re">
+							<input tbval="Y" name="amt" type="hidden" value="0" requiredNot="true" />
 							<input tbval="Y" name="erp_bgt1_seq" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="erp_bgt2_seq" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="erp_bgt3_seq" type="hidden" value="" requiredNot="true" />

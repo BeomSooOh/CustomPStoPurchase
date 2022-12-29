@@ -289,7 +289,11 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 					return false;
 				}
 				
-				obj[$(tableVal).attr("name")] = $(tableVal).val();
+				if($(tableVal).attr("amountInput") == "Y"){
+					obj[$(tableVal).attr("name")] = $(tableVal).val().replace(/,/g, '');
+				}else{
+					obj[$(tableVal).attr("name")] = $(tableVal).val();	
+				}
 				
 			});
 			

@@ -826,7 +826,13 @@ public class ContractPopController {
             	String formSeq = consFormSeq.get(0).get("LINK").toString();
             	params.put("formSeq", formSeq);
             	mv.addObject("consFormSeq", formSeq);	
-            }            
+            }  
+            
+            //옵션코드 조회
+            params.put("group", "option");
+            params.remove("code");
+            List<Map<String, Object>> cmOption = commonServiceDAO.SelectPurchaseDetailCodeList(params);            
+            mv.addObject("option", cmOption);
             
 			/* [예외 검증] ERP 연결정보 조회 */
 			ConnectionVO conVo = cmInfo.CommonGetConnectionInfo( CommonConvert.CommonGetStr( loginVo.getCompSeq( ) ) );

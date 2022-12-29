@@ -322,14 +322,35 @@
 	<insert	id="CommonSQL.InsertBudgetInfo" parameterClass="HashMap" >
 		
 		INSERT INTO cust_sto.t_purchase_budget_info
-		(seq, outProcessCode, erp_budget_seq, erp_budget_name, erp_budget_div_seq, erp_budget_div_name, erp_bgt1_seq, erp_bgt2_seq, erp_bgt3_seq, erp_bgt4_seq, erp_bgt1_name, erp_bgt2_name, erp_bgt3_name, erp_bgt4_name, pjt_seq, pjt_name, bottom_seq, bottom_name, created_dt, created_by)
-		VALUES('$seq$', '$outProcessCode$', '$erp_budget_seq$', '$erp_budget_name$', '$erp_budget_div_seq$', '$erp_budget_div_name$', '$erp_bgt1_seq$', '$erp_bgt2_seq$', '$erp_bgt3_seq$', '$erp_bgt4_seq$', '$erp_bgt1_name$', '$erp_bgt2_name$', '$erp_bgt3_name$', '$erp_bgt4_name$', '$pjt_seq$', '$pjt_name$', '$bottom_seq$', '$bottom_name$', now(), '$created_by$');
+		(seq, outProcessCode, erp_budget_seq, erp_budget_name, erp_budget_div_seq, erp_budget_div_name, erp_bgt1_seq, erp_bgt2_seq, erp_bgt3_seq, erp_bgt4_seq, erp_bgt1_name, erp_bgt2_name, erp_bgt3_name, erp_bgt4_name, pjt_seq, pjt_name, bottom_seq, bottom_name, amt, created_dt, created_by)
+		VALUES('$seq$', '$outProcessCode$', '$erp_budget_seq$', '$erp_budget_name$', '$erp_budget_div_seq$', '$erp_budget_div_name$', '$erp_bgt1_seq$', '$erp_bgt2_seq$', '$erp_bgt3_seq$', '$erp_bgt4_seq$', '$erp_bgt1_name$', '$erp_bgt2_name$', '$erp_bgt3_name$', '$erp_bgt4_name$', '$pjt_seq$', '$pjt_name$', '$bottom_seq$', '$bottom_name$', '$amt$', now(), '$created_by$');
 
 	</insert>
 	
 	<select	id="CommonSQL.SelectBudgetList" parameterClass="HashMap" resultClass="HashMap">
 		
-		select * 
+		select
+		seq,
+		outProcessCode,	
+		erp_budget_seq,	
+		erp_budget_name,
+		erp_budget_div_seq,
+		erp_budget_div_name,
+		erp_bgt1_seq,
+		erp_bgt1_name,
+		erp_bgt2_seq,
+		erp_bgt2_name,
+		erp_bgt3_seq,
+		erp_bgt3_name,
+		erp_bgt4_seq,
+		erp_bgt4_name,
+		pjt_seq,
+		pjt_name,
+		bottom_seq,
+		bottom_name,
+		FORMAT(amt,0) as amt,
+		created_dt,
+		created_by 
 		from cust_sto.t_purchase_budget_info where seq = '$seq$' and outProcessCode = '$outProcessCode$'
 
 	</select>	

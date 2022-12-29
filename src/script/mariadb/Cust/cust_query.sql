@@ -1205,6 +1205,7 @@ ALTER TABLE cust_sto.t_purchase_contract ADD public_info varchar(500) CHARACTER 
 ALTER TABLE cust_sto.t_purchase_contract MODIFY COLUMN contract_law varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '계약법령';
 ALTER TABLE cust_sto.t_purchase_contract MODIFY COLUMN base_law varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '근거법령';
 ALTER TABLE cust_sto.t_purchase_contract MODIFY COLUMN private_reason varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '수의계약사유';
+ALTER TABLE cust_sto.t_purchase_budget_info ADD amt decimal(19,2) NULL COMMENT '신청금액' AFTER bottom_name;
 
 INSERT IGNORE INTO cust_sto.t_purchase_code_detail
 (`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
@@ -1217,3 +1218,6 @@ VALUES('option', 'def_erp_budget_div_seq', '디폴트예산회계단위코드', 
 INSERT IGNORE INTO cust_sto.t_purchase_code_detail
 (`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
 VALUES('option', 'def_erp_budget_div_name', '디폴트예산회계단위코드명', 'Y', 0, '재단법인 서울관광재단', NULL, NULL);
+
+
+ 

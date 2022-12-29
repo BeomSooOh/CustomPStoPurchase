@@ -103,7 +103,7 @@
 			$(cloneData).find("[name=pjt_name]").val("${items.pjt_name}");
 			$(cloneData).find("[name=bottom_seq]").val("${items.bottom_seq}");
 			$(cloneData).find("[name=bottom_name]").val("${items.bottom_name}");
-
+			$(cloneData).find("[name=amt]").val("${items.amt}");
 			
 			$('[name="budgetList"]').append(cloneData);
 			
@@ -200,7 +200,7 @@
 					}					
 				
 					//예산금액 조회
-					fnSetBudgetAmtInfo();
+					fnSetBudgetAmtInfo(null, true);
 					
 				}			
 				
@@ -211,10 +211,14 @@
 		
 		/*	[예산조회] 예산잔액 가조회
 		------------------------------------------- */
-		function fnSetBudgetAmtInfo(e){
+		function fnSetBudgetAmtInfo(e, calAmt){
 			
 			if(e != null){
-				commonElement = e;
+				if(commonElement == e){
+					return;
+				}else{
+					commonElement = e;	
+				}
 			}
 			
 			$('#bgtSeq').val("");
@@ -269,6 +273,40 @@
 						$('#txtConsBalanceAmt').text(fnGetCurrencyCode(data.consBalanceAmt));
 						$('#txtApplyAmt').text(fnGetCurrencyCode(data.resApplyAmt));
 						$('#txtBalanceAmt').text(fnGetCurrencyCode(data.balanceAmt));
+						
+						if(calAmt){
+							//금액 초기화
+							$(commonElement).find("[name=amt]").val("0");
+							
+							if(data.balanceAmt > 0){
+								
+								var meetAmtSpent = 0;
+								var totalAmt = 0;
+								var remainAmt = 0;
+								
+								if($("#meetAmtSpent").val() != "" && $("#meetAmtSpent").val() != "0"){
+									meetAmtSpent = parseInt($("#meetAmtSpent").val().replace(/,/g, ''));
+								}
+								
+								$.each($("[name=addData] [name=amt]"), function( idx, obj ) {
+									if($(obj).val() != "" && $(obj).val() != "0"){
+										totalAmt += parseInt($(obj).val().replace(/,/g, ''));
+									}
+								});								
+								
+								remainAmt = meetAmtSpent - totalAmt;
+								
+								if(remainAmt > 0){
+									
+									if(remainAmt > data.balanceAmt){
+										$(commonElement).find("[name=amt]").val(data.balanceAmt.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+									}else{
+										$(commonElement).find("[name=amt]").val(remainAmt.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+									}
+								}
+							}
+					
+						}
 
 					},
 					/*   - error :  */
@@ -339,8 +377,10 @@
 			
 			$('[name="'+tableName+'"]').append(cloneData);
 			
-			amountInputSet();
-			
+			$('[amountInput=Y]').maskMoney({
+				precision : 0,
+				allowNegative: false
+			});	
 		}		
 		
 		function fnSectorDel(e, tableName){
@@ -390,7 +430,7 @@
 	
 		$(document).ready(function() {
 			
-			$('#meetAmtSpent').maskMoney({
+			$('#meetAmtSpent, [amountInput=Y]').maskMoney({
 				precision : 0,
 				allowNegative: false
 			});			
@@ -399,7 +439,32 @@
 			
 			setDynamicSetInfoBudget();
 			
+			//옵션값 설정
+			setCommonOption();
+			
 		});
+		
+		
+		function setCommonOption(){
+			
+			<c:forEach var="items" items="${option}" varStatus="status">
+			
+			console.log("option ${items.CODE} > ${items.NOTE}");
+			
+			if("${items.CODE}" == "def_erp_budget_div_seq"){
+				$("[name=erp_budget_div_seq]").val("${items.NOTE}");
+				
+				$("[optionTarget=def_erp_budget_div_seq]").hide();
+				
+			}else if("${items.CODE}" == "def_erp_budget_div_name"){
+				$("[name=erp_budget_div_name]").val("${items.NOTE}");
+			}			
+			
+			</c:forEach>				
+			
+			
+		}		
+		
 		
 		function attachLayerPop(){
 			
@@ -549,6 +614,26 @@
 
 				insertDataObject.attch_file_info = JSON.stringify(attachFormList);
 				insertDataObject.budget_list_info = JSON.stringify(insertDataObject.budgetObjList);
+				
+				//신청금액 체크
+				var meetAmtSpent = 0;
+				var totalAmt = 0;
+				var remainAmt = 0;
+				
+				if($("#meetAmtSpent").val() != "" && $("#meetAmtSpent").val() != "0"){
+					meetAmtSpent = parseInt($("#meetAmtSpent").val().replace(/,/g, ''));
+				}
+				
+				$.each($("[name=addData] [name=amt]"), function( idx, obj ) {
+					if($(obj).val() != "" && $(obj).val() != "0"){
+						totalAmt += parseInt($(obj).val().replace(/,/g, ''));
+					}
+				});								
+				
+				if(meetAmtSpent != totalAmt){
+					msgSnackbar("warning", "지출금액과 신청금액이 일치하지 않습니다.");
+					return;
+				}
 				
 				if(type == 0){
 					confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc(1)', '취소', '');	
@@ -831,12 +916,13 @@
 					conclusionbudgetList[idx].balanceAmt = Math.floor(data.balanceAmt/10)*10;
 					conclusionbudgetList[idx].erpOpenAmt = data.openAmt;
 					conclusionbudgetList[idx].erpApplyAmt = data.applyAmt;
-					conclusionbudgetList[idx].erpLeftAmt = data.erpLeftAmt;					
+					conclusionbudgetList[idx].erpLeftAmt = data.erpLeftAmt;
 					
-					if(conclusionRemainAmt <= conclusionbudgetList[idx].balanceAmt){
-						parameter.budgetAmt = conclusionRemainAmt; /* [*]금액 */
-						
-						conclusionRemainAmt = 0;
+					var reqAmt = parseInt(conclusionbudgetList[idx].amt.replace(/,/g, ''));
+					
+					if(reqAmt <= conclusionbudgetList[idx].balanceAmt){
+						parameter.budgetAmt = reqAmt; /* [*]금액 */
+						conclusionRemainAmt -= reqAmt;
 					}else{
 						parameter.budgetAmt = conclusionbudgetList[idx].balanceAmt; /* [*]금액 */
 						
@@ -1130,10 +1216,11 @@
 						<input type="button" onclick="fnSectorAdd('budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 					</th>
 					</c:if>
-					<th class="ac">예산회계단위</th>
+					<th optionTarget="def_erp_budget_div_seq" class="ac">예산회계단위</th>
 					<th class="ac">프로젝트</th>
 					<th class="ac">하위사업</th>
 					<th class="ac">예산과목</th>
+					<th class="ac">금액</th>
 				</tr>
 				<tr name="dataBase" onclick="fnSetBudgetAmtInfo(this);" style="display:none;">
 					<c:if test="${disabledYn == 'N'}"> 
@@ -1141,7 +1228,7 @@
 						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 					</td>
 					</c:if>
-					<td>
+					<td optionTarget="def_erp_budget_div_seq">
 						<div class="posi_re">
 							<input tbval="Y" name="erp_budget_div_seq" type="hidden" value="" />
 							<input tbval="Y" name="erp_budget_div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
@@ -1191,6 +1278,11 @@
 							</c:if>
 						</div>
 					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" />							
+						</div>
+					</td>					
 				</tr>
 				
 				<tr name="addData" onclick="fnSetBudgetAmtInfo(this);">
@@ -1199,7 +1291,7 @@
 						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 					</td>
 					</c:if>
-					<td>
+					<td optionTarget="def_erp_budget_div_seq">
 						<div class="posi_re">
 							<input tbval="Y" name="erp_budget_div_seq" type="hidden" value="" />
 							<input tbval="Y" name="erp_budget_div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
@@ -1249,6 +1341,11 @@
 							</c:if>
 						</div>
 					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" />							
+						</div>
+					</td>					
 				</tr>				
 				
 			</table>
