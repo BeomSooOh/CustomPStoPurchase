@@ -162,6 +162,16 @@ public class CommonPopController {
 					FORM_HTML = FORM_HTML.replace("$" + strKey + "$", strValue);
 				}
 				
+				//전자결재 연동코드 적용
+				innerParam.put("group", "eaFormReplaceCode");
+				innerParam.put("useYn", "Y");
+				innerParam.remove("code");
+	            List<Map<String, Object>> eaFormCodeList = commonServiceDAO.SelectPurchaseDetailCodeList(innerParam);            
+				
+	    		for (Map<String, Object> eaFormCode : eaFormCodeList) {
+	    			FORM_HTML = FORM_HTML.replace(eaFormCode.get("CODE").toString(), eaFormCode.get("NAME").toString());
+	    		}	            
+				
 				params.put("contentsStr", FORM_HTML);
 				
 			}			
