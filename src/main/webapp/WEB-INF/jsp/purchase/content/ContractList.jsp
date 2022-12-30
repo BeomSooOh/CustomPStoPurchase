@@ -1587,19 +1587,20 @@
 
 <div class="sub_contents_wrap posi_re">
 	<div class="btn_div">
-		<div class="right_div">
+		<div class="left_div">
 			<div id="" class="controll_btn p0">
 				<input type="button" onclick="fnCallBtn('newContract');" class="puddSetup" style="background:#03a9f4;color:#fff;" value="신규입찰발주" />
 				<input type="button" onclick="fnCallBtn('newConclusion');" style="background:#03a9f4;color:#fff" class="puddSetup" value="1인수의계약체결" />
-
-				<c:if test="${authLevel=='admin'}">
-				<input id="adminSaveBtn" style="display:none;width:70px;background:rgb(0 0 0);color:#fff;" type="button" onclick="fnCallBtn('btnSave');" class="puddSetup" value="저장" />
-				
-				</c:if>
-				
-				<input type="button" onclick="excelDown();" class="puddSetup" value="엑셀다운로드" />
 			</div>
 		</div>
+		<div class="right_div">
+			<div id="" class="controll_btn p0">
+				<c:if test="${authLevel=='admin'}">
+				<input id="adminSaveBtn" style="display:none;width:70px;background:rgb(0 0 0);color:#fff;" type="button" onclick="fnCallBtn('btnSave');" class="puddSetup" value="저장" />
+				</c:if>
+				<input type="button" onclick="excelDown();" class="puddSetup" value="엑셀다운로드" />
+			</div>
+		</div>		
 	</div>
 	
 	<div class="dal_Box_">

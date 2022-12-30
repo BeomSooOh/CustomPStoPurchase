@@ -1458,6 +1458,14 @@
 					</td>
 				</tr>
 				<tr>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 공동계약방법</th>
+					<td colspan="3" objKey="joint_contract_method" objCheckFor="checkVal('radio', 'jointContractMethod', '공동계약방법', '', '')" >
+						<c:forEach var="items" items="${jointContractMethod}" varStatus="status">
+						<input ${disabled} type="radio" name="jointContractMethod" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}"  <c:if test="${ (viewType == 'I' && status.index == 0) || (viewType == 'U' && items.CODE == contractDetailInfo.joint_contract_method)   }">checked</c:if> />
+						</c:forEach>						
+					</td>						
+				</tr>				
+				<tr>
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 계약법령</th>
 					<td colspan="3">
 						<select ${disabled} type="select" name="contractLaw" onchange="Pudd( '[objkey=private_reason]' ).getPuddObject().setSelectedIndex($(this).val());fnChangeEtc(this);fnChangeEtc($('[name=privateReason]'));" objKey="contract_law" objCheckFor="checkVal('select', this, '계약법령', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">

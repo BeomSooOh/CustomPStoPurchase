@@ -140,6 +140,7 @@
 		
 		case when ifnull(a.hope_company_info, '') = '' then '해당없음' else
 		cust_sto.fn_get_purchase_code_text('hopeCompany', a.hope_company_info) end as hope_company_info,	
+		cust_sto.fn_get_purchase_code_text('jointContractMethod', a.joint_contract_method) as joint_contract_method,
 
 		<isNotEmpty property="change_seq">
 		case when ifnull(pcc.contract_end_dt_after,'') != '' then pcc.contract_end_dt_after else a.contract_end_dt end as contract_end_dt_after,

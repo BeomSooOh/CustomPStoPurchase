@@ -107,6 +107,8 @@
 		ifnull(trade.ceo_name, '') as ceo_name,	
 		cust_sto.fn_get_purchase_code_text('hopeCompany', a.hope_company_info) as hope_company_info,
 		cust_sto.fn_get_purchase_code_text('contractType', a.contract_type) as contract_type_text,
+		ifnull(a.joint_contract_method, '') as joint_contract_method,
+		cust_sto.fn_get_purchase_code_text('jointContractMethod', a.joint_contract_method) as joint_contract_method_text,
 		
 		ifnull(a.bidder_cnt,'') as bidder_cnt,
 		ifnull(a.meet_dt,'') as meet_dt,
@@ -275,6 +277,7 @@
 		ifnull(a.result_score_info,'') as result_score_info, 		
 		ifnull(a.result_target_info,'') as result_target_info, 
 		FORMAT(a.result_amt, 0) as result_amt,
+		ifnull(a.joint_contract_method, '') as joint_contract_method,
 		
 		a.contract_term,
 		a.hope_attach_info,
@@ -460,7 +463,8 @@
 		pm_hp,
 		pm_name,
 		contract_amt,
-		contract_amt_info,		
+		contract_amt_info,	
+		joint_contract_method,
 		 
 		created_dt, 
 		created_by, 
@@ -497,7 +501,9 @@
 		'$pm_hp$',
 		'$pm_name$',
 		'$contract_amt$',
-		'$contract_amt_info$',		
+		'$contract_amt_info$',
+		'$joint_contract_method$',	
+			
 		now(), 
 		'$created_by$', 
 		null, 
@@ -647,7 +653,8 @@
 		c_title='$c_title$', 
 		c_contract_end_dt='$c_contract_end_dt$', 
 		contract_law='$contract_law$', 
-		c_work_info='$c_work_info$', 
+		c_work_info='$c_work_info$',
+		joint_contract_method='$joint_contract_method$', 
 		
 		contract_term='$contract_term$',
 		hope_attach_info='$hope_attach_info$',
