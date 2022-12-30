@@ -530,6 +530,7 @@
 			var resultJudgesInfoHtml = "";
 			var cloneData = $('[name=resultJudgesListHtml]').clone();
 			$(cloneData).find("[removehtml=Y]").remove();
+			$(cloneData).find("[name]").removeAttr("name");
 			$(cloneData).css("width", "100%");
 			
 			//input 요소 텍스트화
@@ -544,6 +545,7 @@
 			var resultScoreInfoHtml = "";
 			var cloneData = $('[name=resultScoreListHtml]').clone();
 			$(cloneData).find("[removehtml=Y]").remove();
+			$(cloneData).find("[name]").removeAttr("name");
 			$(cloneData).css("width", "100%");
 			
 			$.each($(cloneData).find("[colspanHtml]"), function( idx, obj ) {
