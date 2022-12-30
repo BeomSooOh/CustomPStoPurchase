@@ -257,8 +257,8 @@
 	}   	
 	
 	var conclusionPaymentAmt = {};
-	var conclusionTradeInfo = {};	
-	var conclusionbudgetList = [];
+	var conclusionTradeList = [];
+	var conclusionBudgetList = [];
 	var conclusionRemainAmt = 0;
 	
 	function fnPaymentCreate(){
@@ -277,9 +277,10 @@
 			success : function(result) {
 				
 				if(result.resultData.conclusionPaymentAmt != null 
-						&& result.resultData.conclusionTradeInfo != null 
-						&& result.resultData.conclusionbudgetList != null 
-						&& result.resultData.conclusionbudgetList.length > 0){
+						&& result.resultData.conclusionTradeList != null 
+						&& result.resultData.conclusionTradeList.length > 0
+						&& result.resultData.conclusionBudgetList != null 
+						&& result.resultData.conclusionBudgetList.length > 0){
 					
 					conclusionPaymentAmt = result.resultData.conclusionPaymentAmt;
 					
@@ -288,8 +289,8 @@
 					
 					if(conclusionPaymentAmt.res_amt_total < conclusionPaymentAmt.contract_amt){
 						
-						conclusionTradeInfo = result.resultData.conclusionTradeInfo;
-						conclusionbudgetList = result.resultData.conclusionbudgetList;
+						conclusionTradeList = result.resultData.conclusionTradeList;
+						conclusionBudgetList = result.resultData.conclusionBudgetList;
 						
 						//결의 잔여 금액
 						conclusionRemainAmt = conclusionPaymentAmt.contract_amt - conclusionPaymentAmt.res_amt_total;
@@ -355,7 +356,7 @@
 				if (aData) {
 					resDocSeq = aData.resDocSeq;
 					
-					$.each(conclusionbudgetList, function( idx, conclusionbudgetInfo ) {
+					$.each(conclusionBudgetList, function( idx, conclusionbudgetInfo ) {
 						fnResInsert(idx);
 					});						
 					
@@ -389,10 +390,10 @@
 		
 		parameter.erpDivSeq = ''; /* ERP 회계단위코드 */
 		parameter.erpDivName = ''; /* ERP 회계단위명칭 */
-		parameter.erpMgtSeq = conclusionbudgetList[idx].pjt_seq; /* [*]부서/프로젝트 코드 */
-		parameter.erpMgtName = conclusionbudgetList[idx].pjt_name; /* [*]부서/프로젝트 명칭 */
-		parameter.bottomSeq = conclusionbudgetList[idx].bottom_seq; /* [*]하위사업코드 */
-		parameter.bottomName = conclusionbudgetList[idx].bottom_name; /* [*]하위사업명칭 */		
+		parameter.erpMgtSeq = conclusionBudgetList[idx].pjt_seq; /* [*]부서/프로젝트 코드 */
+		parameter.erpMgtName = conclusionBudgetList[idx].pjt_name; /* [*]부서/프로젝트 명칭 */
+		parameter.bottomSeq = conclusionBudgetList[idx].bottom_seq; /* [*]하위사업코드 */
+		parameter.bottomName = conclusionBudgetList[idx].bottom_name; /* [*]하위사업명칭 */		
 
 		parameter.erpEmpSeq = ''; /* ERP 사원코드 */
 		parameter.erpEmpName = ''; /* ERP 사원명 */
@@ -454,23 +455,23 @@
 		
 		parameter.erpDivSeq = ''; /* ERP 회계단위 코드 */
 		parameter.erpDivName = ''; /* ERP 회계단위 명칭 */			
-		parameter.erpBudgetDivSeq = conclusionbudgetList[idx].erp_budget_div_seq;
-		parameter.erpBudgetDivName = conclusionbudgetList[idx].erp_budget_div_name;		
+		parameter.erpBudgetDivSeq = conclusionBudgetList[idx].erp_budget_div_seq;
+		parameter.erpBudgetDivName = conclusionBudgetList[idx].erp_budget_div_name;		
 		
-		parameter.erpBudgetSeq = conclusionbudgetList[idx].erp_budget_seq; /* [*]ERP 예산과목 코드 (예산단위 코드) */
-		parameter.erpBudgetName = conclusionbudgetList[idx].erp_budget_name; /* [*]ERP 예산과목 명칭 (예산단위 명칭) */
+		parameter.erpBudgetSeq = conclusionBudgetList[idx].erp_budget_seq; /* [*]ERP 예산과목 코드 (예산단위 코드) */
+		parameter.erpBudgetName = conclusionBudgetList[idx].erp_budget_name; /* [*]ERP 예산과목 명칭 (예산단위 명칭) */
 		
 		//parameter.erpFiacctName = '도서인쇄비'; /* [*]ERP 회계계정 코드 */
 		//parameter.erpFiacctSeq = '82600'; /* [*]ERP 회계계정 명칭 */
 		
-		parameter.erpBgt1Name = conclusionbudgetList[idx].erp_bgt1_name; /* [*]관 명칭 */
-		parameter.erpBgt1Seq = conclusionbudgetList[idx].erp_bgt1_seq; /* [*]관 코드 */
-		parameter.erpBgt2Name = conclusionbudgetList[idx].erp_bgt2_name; /* [*]항 명칭 */
-		parameter.erpBgt2Seq = conclusionbudgetList[idx].erp_bgt2_seq; /* [*]항 코드 */
-		parameter.erpBgt3Name = conclusionbudgetList[idx].erp_bgt3_name; /* [*]목 명칭 */
-		parameter.erpBgt3Seq = conclusionbudgetList[idx].erp_bgt3_seq; /* [*]목 코드 */
-		parameter.erpBgt4Name = conclusionbudgetList[idx].erp_bgt4_name; /* [*]세 명칭 */
-		parameter.erpBgt4Seq = conclusionbudgetList[idx].erp_bgt4_seq; /* [*]세 코드 */
+		parameter.erpBgt1Name = conclusionBudgetList[idx].erp_bgt1_name; /* [*]관 명칭 */
+		parameter.erpBgt1Seq = conclusionBudgetList[idx].erp_bgt1_seq; /* [*]관 코드 */
+		parameter.erpBgt2Name = conclusionBudgetList[idx].erp_bgt2_name; /* [*]항 명칭 */
+		parameter.erpBgt2Seq = conclusionBudgetList[idx].erp_bgt2_seq; /* [*]항 코드 */
+		parameter.erpBgt3Name = conclusionBudgetList[idx].erp_bgt3_name; /* [*]목 명칭 */
+		parameter.erpBgt3Seq = conclusionBudgetList[idx].erp_bgt3_seq; /* [*]목 코드 */
+		parameter.erpBgt4Name = conclusionBudgetList[idx].erp_bgt4_name; /* [*]세 명칭 */
+		parameter.erpBgt4Seq = conclusionBudgetList[idx].erp_bgt4_seq; /* [*]세 코드 */
 		
 		parameter.erpOpenAmt = '0'; /* [*]ERP 예산 편성 금액 */
 		parameter.erpApplyAmt = '0'; /* [*]ERP 집행액 */
@@ -521,7 +522,7 @@
 			data : parameter,
 			success : function(result) {
 				var data = result.result.aData;
-				conclusionbudgetList[idx].balanceAmt = Math.floor(data.balanceAmt/10)*10;
+				conclusionBudgetList[idx].balanceAmt = Math.floor(data.balanceAmt/10)*10;
 			},
 			/*   - error :  */
 			error : function(result) {
@@ -548,7 +549,11 @@
 				if (resultCode === 'SUCCESS') {
 					/* 예산정보 갱신 ( 금회집행 ) */
 					budgetSeq = (aData.budgetSeq || '').toString();
-					fnTradeInsert(idx);
+					
+					$.each(conclusionTradeList, function( tr_idx, conclusiontradeInfo ) {
+						fnTradeInsert(idx, tr_idx);
+					});
+					
 
 				} else if (resultCode === 'EXCEED') {
 					msgSnackbar("error", "${CL.ex_exceedMesage}");
@@ -563,7 +568,7 @@
 		return;
 	}
 	
-	function fnTradeInsert(idx) {
+	function fnTradeInsert(idx, tr_idx) {
 
 		parameter.budgetSeq = budgetSeq; /* [*]예산 키 */
 		
@@ -577,27 +582,33 @@
 		parameter.divSeq = parameter.erpDivSeq;
 		parameter.divName = parameter.erpDivName;		
 
-		parameter.trSeq = conclusionTradeInfo.tr_seq; /* [*]거래처 코드 */
-		parameter.trName = conclusionTradeInfo.tr_name; /* [*]거래처 명칭 */
-		parameter.ceoName = conclusionTradeInfo.ceo_name; /* [*]대표자 명칭 */
+		parameter.trSeq = conclusionTradeList[tr_idx].tr_seq; /* [*]거래처 코드 */
+		parameter.trName = conclusionTradeList[tr_idx].tr_name; /* [*]거래처 명칭 */
+		parameter.ceoName = conclusionTradeList[tr_idx].ceo_name; /* [*]대표자 명칭 */
 		
-		if(conclusionRemainAmt <= conclusionbudgetList[idx].balanceAmt){
-			parameter.tradeAmt = conclusionRemainAmt; /* [*]금액 */
+		/*
+		if(conclusionRemainAmt <= conclusionBudgetList[idx].balanceAmt){
+			parameter.tradeAmt = conclusionRemainAmt;
 			conclusionRemainAmt = 0;
 		}else{
-			parameter.tradeAmt = conclusionbudgetList[idx].balanceAmt; /* [*]금액 */
-			conclusionRemainAmt -= conclusionbudgetList[idx].balanceAmt;
+			parameter.tradeAmt = conclusionBudgetList[idx].balanceAmt;
+			conclusionRemainAmt -= conclusionBudgetList[idx].balanceAmt;
 		}
 
-		parameter.tradeStdAmt = Math.floor(parameter.tradeAmt*10/11); /* [*]공급가액 */
-		parameter.tradeVatAmt = Math.ceil(parameter.tradeAmt/11); /* [*]부가세 */
+		parameter.tradeStdAmt = Math.floor(parameter.tradeAmt*10/11);
+		parameter.tradeVatAmt = Math.ceil(parameter.tradeAmt/11);
+		*/
+		
+		parameter.tradeAmt = 0;
+		parameter.tradeStdAmt = 0;
+		parameter.tradeVatAmt = 0;
 		
 		parameter.jiroSeq = ''; /* 미사용? */
 		parameter.jiroName = ''; /* 미사용? */
-		parameter.baNb = conclusionTradeInfo.ba_nb; /* [*]계좌 번호 */
-		parameter.btrSeq = conclusionTradeInfo.btr_seq; /* [*]금융기관 코드 */
-		parameter.btrName = conclusionTradeInfo.btr_name; /* [*]금융기관 명 */
-		parameter.depositor = conclusionTradeInfo.depositor; /* [*]예금주 */
+		parameter.baNb = conclusionTradeList[tr_idx].ba_nb; /* [*]계좌 번호 */
+		parameter.btrSeq = conclusionTradeList[tr_idx].btr_seq; /* [*]금융기관 코드 */
+		parameter.btrName = conclusionTradeList[tr_idx].btr_name; /* [*]금융기관 명 */
+		parameter.depositor = conclusionTradeList[tr_idx].depositor; /* [*]예금주 */
 		parameter.tradeNote = ''; /* [*]채주 비고 */
 		
 		parameter.ctrSeq = ''; /* 법인카드 - 카드거래처 */
@@ -644,7 +655,7 @@
 				
 				if (resultCode === 'SUCCESS') {
 					
-					if(conclusionbudgetList.length-2 < idx){
+					if(conclusionBudgetList.length-2 < idx && conclusionTradeList.length-2 < tr_idx){
 						fnPaymentExpendCreatePop();	
 					}
 					

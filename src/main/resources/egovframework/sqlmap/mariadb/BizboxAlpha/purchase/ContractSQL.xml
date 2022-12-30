@@ -172,7 +172,7 @@
 		
 		FROM cust_sto.t_purchase_contract a
 		left join cust_sto.t_purchase_conclusion_change cc on a.approkey_change = concat('Conclu02_', cc.seq, '_', cc.change_seq)
-		left join cust_sto.t_purchase_trade_info trade on a.seq = trade.seq
+		left join cust_sto.t_purchase_trade_info trade on a.seq = trade.seq and trade.tr_idx = '0' and trade.outProcessCode like '%Conclusion01%'
 		left join $DB_NEOS$t_co_dept_multi cdm on ifnull(a.c_write_dept_seq,a.write_dept_seq) = cdm.dept_seq and cdm.lang_code = 'kr'
 		left join $DB_NEOS$t_co_emp_multi cem on ifnull(a.c_write_emp_seq,a.write_emp_seq) = cem.emp_seq and cem.lang_code = 'kr'		
 		

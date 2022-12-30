@@ -172,6 +172,13 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 	}
 	
 	@SuppressWarnings ( "unchecked" )
+	public List<Map<String, Object>> SelectTradeList ( Map<String, Object> params ) {
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
+		result = (List<Map<String, Object>>) list( "CommonSQL.SelectTradeList", params );
+		return result;
+	}		
+	
+	@SuppressWarnings ( "unchecked" )
 	public Map<String, Object> SelectTradeInfo ( Map<String, Object> params ) {
 		return (Map<String, Object>) select( "CommonSQL.SelectTradeInfo", params );
 	}

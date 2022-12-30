@@ -178,7 +178,7 @@
 		FORMAT(a.result_amt, 0) as result_amt					
 		
 		FROM cust_sto.t_purchase_contract a
-		left join cust_sto.t_purchase_trade_info pti on a.seq = pti.seq
+		left join cust_sto.t_purchase_trade_info pti on a.seq = pti.seq and pti.tr_idx = '0' and pti.outProcessCode like '%Conclusion01%'
 		
 		<isNotEmpty property="change_seq">
 		left join cust_sto.t_purchase_conclusion_change pcc on a.seq = pcc.seq and pcc.change_seq = $change_seq$
@@ -371,10 +371,17 @@
 	<insert	id="CommonSQL.InsertTradeInfo" parameterClass="HashMap" >
 	
 		INSERT INTO cust_sto.t_purchase_trade_info
-		(seq, outProcessCode, tr_seq, tr_name, at_tr_name, ceo_name, tr_reg_number, addr, depositor, ba_nb, btr_name, btr_seq, tr_fg, tr_fg_name, pm_email, pm_hp, pm_name, created_dt, created_by)
-		VALUES('$seq$', '$outProcessCode$', '$tr_seq$', '$tr_name$', '$at_tr_name$', '$ceo_name$', '$tr_reg_number$', '$addr$', '$depositor$', '$ba_nb$', '$btr_name$', '$btr_seq$', '$tr_fg$', '$tr_fg_name$', '$pm_email$', '$pm_hp$', '$pm_name$', now(), '$created_by$');
+		(seq, outProcessCode, tr_seq, tr_name, at_tr_name, ceo_name, tr_reg_number, addr, depositor, ba_nb, btr_name, btr_seq, tr_fg, tr_fg_name, pm_email, pm_hp, pm_name, created_dt, created_by, tr_idx)
+		VALUES('$seq$', '$outProcessCode$', '$tr_seq$', '$tr_name$', '$at_tr_name$', '$ceo_name$', '$tr_reg_number$', '$addr$', '$depositor$', '$ba_nb$', '$btr_name$', '$btr_seq$', '$tr_fg$', '$tr_fg_name$', '$pm_email$', '$pm_hp$', '$pm_name$', now(), '$created_by$', '$tr_idx$');
 		
 	</insert>
+	
+	<select	id="CommonSQL.SelectTradeList" parameterClass="HashMap" resultClass="HashMap">
+		
+		select * 
+		from cust_sto.t_purchase_trade_info where seq = '$seq$' and outProcessCode = '$outProcessCode$';
+
+	</select>		
 	
 	<select	id="CommonSQL.SelectTradeInfo" parameterClass="HashMap" resultClass="HashMap">
 		

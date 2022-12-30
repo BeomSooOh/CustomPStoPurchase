@@ -209,12 +209,30 @@ public class ContractServiceImpl implements ContractService {
 			commonServiceDAO.InsertBudgetInfo(map);
 		}
 		
+		
 		//결재정보 저장
+		jsonStr = (String)params.get("trade_list_info");
+		mapper = new ObjectMapper();
+		
+		@SuppressWarnings("unused")
+		List<Map<String, Object>> tradeList = new ArrayList<Map<String, Object>>();
+		tradeList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
+		
 		if(params.get("viewType").equals("U")) {
-			commonServiceDAO.DeleteTradeInfo(params);	
+			commonServiceDAO.DeleteTradeInfo(params);		
 		}
 		
-		commonServiceDAO.InsertTradeInfo(params);
+		int tr_inx = 0;
+		
+		for (Map<String, Object> map : tradeList) {
+			
+			map.put("tr_idx", tr_inx);
+			map.put("seq", params.get("seq"));
+			map.put("outProcessCode", params.get("outProcessCode"));
+			map.put("created_by", params.get("created_by"));
+			commonServiceDAO.InsertTradeInfo(map);
+			tr_inx ++;
+		}		
 		
 		return params;
 		

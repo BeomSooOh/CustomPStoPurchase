@@ -373,8 +373,8 @@ public class ContractPopController {
             		List<Map<String, Object>> budgetList = commonServiceDAO.SelectBudgetList(params);
             		mv.addObject("budgetList", budgetList);
             		
-            		Map<String, Object> tradeInfo = commonServiceDAO.SelectTradeInfo(params);
-            		mv.addObject("tradeInfo", tradeInfo);            		
+            		List<Map<String, Object>> tradeList = commonServiceDAO.SelectTradeList(params);
+            		mv.addObject("tradeList", tradeList);            		
             		
             	}else {
             		return mv;

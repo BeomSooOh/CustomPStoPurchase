@@ -109,6 +109,7 @@
 			setDynamicSetInfoUl("hopeCompanyList", "${contractDetailInfo.hope_company_info}");
 			setDynamicSetInfoFile("hopeAttachList", "${contractDetailInfo.hope_attach_info}");
 			setDynamicSetInfoBudget();
+			setDynamicSetInfoTrade();
 			
 			amountInputSet();
 			amountKoreanSet();		
@@ -185,6 +186,46 @@
 			</c:if>			
 			
 		}
+		
+		
+		function setDynamicSetInfoTrade(targetName, value){
+			
+			<c:if test="${tradeList.size() > 0 }">
+			$("[name=tradeList] [name=addData]").remove();
+			var cloneData;
+			
+			<c:forEach var="items" items="${tradeList}" varStatus="status">
+			
+			cloneData = $('[name="tradeList"] [name=dataBase]').clone();
+			$(cloneData).show().attr("name", "addData");
+			
+			$(cloneData).find("[name=tr_seq]").val("${items.tr_seq}");
+			$(cloneData).find("[name=tr_name]").val("${items.tr_name}");
+			
+			$(cloneData).find("[name=tr_reg_number]").text("${items.tr_reg_number}");
+			$(cloneData).find("[name=ceo_name]").text("${items.ceo_name}");
+			$(cloneData).find("[name=addr]").text("${items.addr}");
+			
+			$(cloneData).find("[name=at_tr_name]").val("${items.at_tr_name}");
+			$(cloneData).find("[name=ba_nb]").val("${items.ba_nb}");
+			$(cloneData).find("[name=btr_name]").val("${items.btr_name}");
+			$(cloneData).find("[name=btr_seq]").val("${items.btr_seq}");
+			$(cloneData).find("[name=depositor]").val("${items.depositor}");
+			$(cloneData).find("[name=tr_fg]").val("${items.tr_fg}");
+			$(cloneData).find("[name=tr_fg_name]").val("${items.tr_fg_name}");
+			
+			$(cloneData).find("[name=pm_email]").val("${items.pm_email}");
+			$(cloneData).find("[name=pm_hp]").val("${items.pm_hp}");
+			$(cloneData).find("[name=pm_name]").val("${items.pm_name}");
+			
+			$('[name="tradeList"]').append(cloneData);
+			
+			</c:forEach>			
+			</c:if>			
+			
+		}
+		
+		
 	
 		function setDynamicSetInfoFile(targetName, value){
 			
@@ -621,6 +662,7 @@
 
 				insertDataObject.attch_file_info = JSON.stringify(attachFormList);
 				insertDataObject.budget_list_info = JSON.stringify(insertDataObject.budgetObjList);
+				insertDataObject.trade_list_info = JSON.stringify(insertDataObject.tradeObjList);
 				
 				//계약총금액 조회
 				insertDataObject.contract_amt = 0;
@@ -1064,19 +1106,26 @@
 				
 				//거래처 
 				if(param.code == "tr"){
-					$("[objKey=tr_seq]").val( param.trSeq || "" );
-					$("[objKey=tr_name]").val( param.trName || "" );
-					$("[objKey=tr_reg_number]").text( param.trRegNumber || "" );
-					$("[objKey=ceo_name]").text( param.ceoName || "" );
-					$("[objKey=addr]").text( param.addr || "" );
 					
-					$("[objKey=at_tr_name]").val( param.atTrName || "" );
-					$("[objKey=ba_nb]").val( param.baNb || "" );
-					$("[objKey=btr_name]").val( param.btrName || "" );
-					$("[objKey=btr_seq]").val( param.btrSeq || "" );
-					$("[objKey=depositor]").val( param.depositor || "" );
-					$("[objKey=tr_fg]").val( param.trFg || "" );
-					$("[objKey=tr_fg_name]").val( param.trFgName || "" );
+					if($("[name=tr_seq][value="+param.trSeq+"]").length > 0){
+						msgSnackbar("error", "이미 선택된 거래처입니다.");
+						return;
+					}					
+					
+					$(commonElement).find("[name=tr_seq]").val( param.trSeq || "" );
+					$(commonElement).find("[name=tr_name]").val( param.trName || "" );
+					
+					$(commonElement).find("[name=tr_reg_number]").text( param.trRegNumber || "" );
+					$(commonElement).find("[name=ceo_name]").text( param.ceoName || "" );
+					$(commonElement).find("[name=addr]").text( param.addr || "" );
+					
+					$(commonElement).find("[name=at_tr_name]").val( param.atTrName || "" );
+					$(commonElement).find("[name=ba_nb]").val( param.baNb || "" );
+					$(commonElement).find("[name=btr_name]").val( param.btrName || "" );
+					$(commonElement).find("[name=btr_seq]").val( param.btrSeq || "" );
+					$(commonElement).find("[name=depositor]").val( param.depositor || "" );
+					$(commonElement).find("[name=tr_fg]").val( param.trFg || "" );
+					$(commonElement).find("[name=tr_fg_name]").val( param.trFgName || "" );
 				
 				//회계단위	
 				}else if(param.code == "div"){
@@ -1235,15 +1284,18 @@
 			if(e != null){
 				commonElement = $(e).closest("tr");
 				
-				if(code == "budgetlist"){
-					commonParam.erpDivSeq = $(commonElement).find("[name=erp_budget_div_seq]").val() + "|"; /* 회계통제단위 구분값 '|' */
-					commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val() + "|"; /* 예산통제단위 구분값 '|' */
-				}else{
-					commonParam.erpDivSeq = $(commonElement).find("[name=erp_budget_div_seq]").val(); /* 회계통제단위 구분값 '|' */
-					commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val(); /* 예산통제단위 구분값 '|' */
+				if(code != "tr"){
+					if(code == "budgetlist"){
+						commonParam.erpDivSeq = $(commonElement).find("[name=erp_budget_div_seq]").val() + "|"; /* 회계통제단위 구분값 '|' */
+						commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val() + "|"; /* 예산통제단위 구분값 '|' */
+					}else{
+						commonParam.erpDivSeq = $(commonElement).find("[name=erp_budget_div_seq]").val(); /* 회계통제단위 구분값 '|' */
+						commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val(); /* 예산통제단위 구분값 '|' */
+					}
+					commonParam.bottomSeq = $(commonElement).find("[name=bottom_seq]").val(); /* 하위사업 구분값 '|' */
+					commonParam.erpBudgetDivSeq = commonParam.erpDivSeq.replace('|', '');
 				}
-				commonParam.bottomSeq = $(commonElement).find("[name=bottom_seq]").val(); /* 하위사업 구분값 '|' */
-				commonParam.erpBudgetDivSeq = commonParam.erpDivSeq.replace('|', '');
+
 			}
 
 			fnCommonCodePop(code, commonParam, commonParam.callback);
@@ -1538,8 +1590,11 @@
 		</div>
 				
 		<div class="com_ta mt10">
-			<table>
+			<table name="tradeList" objKey="tradeObjList" objCheckFor="checkVal('obj', 'tradeList', '계약대상', 'mustAlert', '')">
 				<colgroup>
+					<c:if test="${disabledYn == 'N'}"> 
+					<col width="50"/>
+					</c:if>				
 					<col width="200"/>
 					<col width="120"/>
 					<col width="80"/>
@@ -1549,6 +1604,11 @@
 					<col width="150"/>
 				</colgroup>
 				<tr>
+					<c:if test="${disabledYn == 'N'}"> 
+					<th class="cen">
+						<input type="button" onclick="fnSectorAdd('tradeList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+					</th>
+					</c:if>				
 					<th class="cen">사업자명</th>
 					<th class="cen">사업자등록번호</th>
 					<th class="cen">대표자</th>
@@ -1557,32 +1617,68 @@
 					<th class="cen">담당자(PM) 연락처</th>
 					<th class="cen">담당자(PM) 전자우편</th>
 				</tr>
-				<tr>
+				<tr name="dataBase" style="display:none;">
+					<c:if test="${disabledYn == 'N'}"> 
+					<td>
+						<input type="button" onclick="fnSectorDel(this, 'tradeList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+					</td>
+					</c:if>				
 					<td>
 						<div class="posi_re">
-							<input objKey="at_tr_name" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.at_tr_name}</c:if>" />
-							<input objKey="ba_nb" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.ba_nb}</c:if>" />
-							<input objKey="btr_name" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.btr_name}</c:if>" />
-							<input objKey="btr_seq" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.btr_seq}</c:if>" />
-							<input objKey="tr_fg" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.tr_fg}</c:if>" />
-							<input objKey="tr_fg_name" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.tr_fg_name}</c:if>" />
-							<input objKey="depositor" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.depositor}</c:if>" />
+							<input tbval="Y" name="at_tr_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="ba_nb" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="btr_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="btr_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="tr_fg" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="tr_fg_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="depositor" type="hidden" value="" requiredNot="true" />
 						
-							<input objKey="tr_seq" objCheckFor="checkVal('text', this, '계약대상', 'mustAlert', '')" type="hidden" value="<c:if test="${ viewType == 'U'}">${tradeInfo.tr_seq}</c:if>" />
-							<input objKey="tr_name" objCheckFor="checkVal('text', this, '계약대상', '', '')" type="text" pudd-style="width:calc( 100% );" class="puddSetup pr30" value="<c:if test="${ viewType == 'U'}">${tradeInfo.tr_name}</c:if>" readonly />
+							<input tbval="Y" name="tr_seq" type="hidden" value="" />
+							<input tbval="Y" name="tr_name" type="text" pudd-style="width:calc( 100% );" class="puddSetup pr30" value="" readonly />
 							
 							<c:if test="${disabledYn == 'N'}"> 
-							<a href="#n" onclick="fnCommonCode_trName('tr')" class="btn_search" style="margin-left: -25px;"></a>
+							<a href="#n" onclick="fnCommonCode_trName('tr', this)" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
 						</div>
 					</td>
-					<td objKey="tr_reg_number" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"><c:if test="${ viewType == 'U'}">${tradeInfo.tr_reg_number}</c:if></td>
-					<td objKey="ceo_name" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" class="cen"><c:if test="${ viewType == 'U'}">${tradeInfo.ceo_name}</c:if></td>
-					<td objKey="addr" objCheckFor="checkVal('innerText', this, '계약대상', '', '')" ><c:if test="${ viewType == 'U'}">${tradeInfo.addr}</c:if></td>
-					<td><input ${readonly} objKey="pm_name" objCheckFor="checkVal('text', this, '담당자(PM)성명', '', '')" type="text" pudd-style="width:100%;" class="puddSetup ac" value="<c:if test="${ viewType == 'U'}">${tradeInfo.pm_name}</c:if>" /></td>
-					<td><input ${readonly} objKey="pm_hp" objCheckFor="checkVal('text', this, '담당자(PM)연락처', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${tradeInfo.pm_hp}</c:if>" /></td>
-					<td><input ${readonly} objKey="pm_email" objCheckFor="checkVal('text', this, '담당자(PM)전자우편', '', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U'}">${tradeInfo.pm_email}</c:if>" /></td>
+					<td tbval="Y" name="tr_reg_number" requiredNot="true" class="cen"></td>
+					<td tbval="Y" name="ceo_name" requiredNot="true" class="cen"></td>
+					<td tbval="Y" name="addr" requiredNot="true"></td>
+					<td><input ${readonly} tbval="Y" tbType = "innerText" name="pm_name" type="text" pudd-style="width:100%;" class="puddSetup ac" value="" requiredNot="true" /></td>
+					<td><input ${readonly} tbval="Y" tbType = "innerText" name="pm_hp" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
+					<td><input ${readonly} tbval="Y" tbType = "innerText" name="pm_email" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
 				</tr>
+				<tr name="addData">
+					<c:if test="${disabledYn == 'N'}"> 
+					<td>
+						<input type="button" onclick="fnSectorDel(this, 'tradeList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+					</td>
+					</c:if>				
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="at_tr_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="ba_nb" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="btr_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="btr_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="tr_fg" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="tr_fg_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="depositor" type="hidden" value="" requiredNot="true" />
+						
+							<input tbval="Y" name="tr_seq" type="hidden" value="" />
+							<input tbval="Y" name="tr_name" type="text" pudd-style="width:calc( 100% );" class="puddSetup pr30" value="" readonly />
+							
+							<c:if test="${disabledYn == 'N'}"> 
+							<a href="#n" onclick="fnCommonCode_trName('tr', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
+						</div>
+					</td>
+					<td tbval="Y" name="tr_reg_number" requiredNot="true" class="cen"></td>
+					<td tbval="Y" name="ceo_name" requiredNot="true" class="cen"></td>
+					<td tbval="Y" name="addr" requiredNot="true"></td>
+					<td><input ${readonly} tbval="Y" tbType = "innerText" name="pm_name" type="text" pudd-style="width:100%;" class="puddSetup ac" value="" requiredNot="true" /></td>
+					<td><input ${readonly} tbval="Y" tbType = "innerText" name="pm_hp" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
+					<td><input ${readonly} tbval="Y" tbType = "innerText" name="pm_email" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
+				</tr>				
 			</table>
 		</div>
 

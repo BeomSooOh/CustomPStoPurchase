@@ -281,7 +281,15 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 			
 			$.each($(objInfo).find("[tbval=Y]"), function( key, tableVal ) {
 				
-				if($(tableVal).attr("requiredNot") != "true" && $(tableVal).val() == ""){
+				var tableValThis = "";
+				
+				if($(tableVal).attr("tbType") == "innerText"){
+					tableValThis = $(tableVal).text();
+				}else{
+					tableValThis = $(tableVal).val();
+				}
+				
+				if($(tableVal).attr("requiredNot") != "true" && tableValThis == ""){
 					
 					focusTarget = tableVal;
 					obj = {};
@@ -290,9 +298,9 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 				}
 				
 				if($(tableVal).attr("amountInput") == "Y"){
-					obj[$(tableVal).attr("name")] = $(tableVal).val().replace(/,/g, '');
+					obj[$(tableVal).attr("name")] = tableValThis.replace(/,/g, '');
 				}else{
-					obj[$(tableVal).attr("name")] = $(tableVal).val();	
+					obj[$(tableVal).attr("name")] = tableValThis;	
 				}
 				
 			});
