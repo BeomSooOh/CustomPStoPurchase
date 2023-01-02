@@ -1312,3 +1312,7 @@ INSERT ignore INTO cust_sto.t_purchase_code_detail
 VALUES('jointContractMethod', '03', '공동(분담)이행', 'Y', 1, NULL, NULL, NULL);
 
 ALTER TABLE cust_sto.t_purchase_trade_info ADD tr_idx int(11) NULL COMMENT '순번';
+
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('option', 'ServiceKey', '공공데이터포털 인증키', 'Y', 0, 'PNQxDknffndjLgpc7m2eLwB3NkDdWbuS/FWdlGDfkvpldisL7f1X0729A2GNQVnTB014fBT3fiqqvMEIWfhl6A==', 'http://apis.data.go.kr/1230000/ShoppingMallPrdctInfoService05/getShoppingMallPrdctInfoList', NULL);

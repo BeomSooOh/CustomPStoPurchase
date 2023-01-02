@@ -30,6 +30,7 @@ import purchase.service.CommonServiceDAO;
 import purchase.service.PurchaseService;
 import purchase.service.PurchaseServiceDAO;
 import common.vo.common.CommonMapper;
+import neos.cmm.util.DateUtil;
 
 
 
@@ -67,6 +68,11 @@ public class PurchasePopController {
         try {
             /* 변수 설정 */
             LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+            
+        	String toDate = DateUtil.getCurrentDate("yyyy-MM-dd");
+        	String fromDate = DateUtil.getFormattedDateAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", -10, 0, 0);
+        	mv.addObject("fromDate", fromDate);
+        	mv.addObject("toDate", toDate);                  
             
             mv.addObject("viewType", "I");
             mv.addObject("disabledYn", "N");
@@ -197,7 +203,7 @@ public class PurchasePopController {
             
             mv.addObject("loginVo", loginVo);
             
-            mv.setViewName("/purchase/pop/ContractCreatePop");
+            mv.setViewName("/purchase/pop/PurchaseCreatePop");
 
         } catch (Exception e) {
             e.printStackTrace();
