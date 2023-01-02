@@ -3,17 +3,6 @@
 
 <sqlMap namespace="ContractSQL">
 	
-	<select	id="ContractSQL.SelectContractSeqFromManageNo" parameterClass="HashMap" resultClass="int">
-		
-		SELECT 
-		seq
-		FROM cust_sto.t_purchase_contract
-		where manage_no = '$manage_no$'
-		
-	</select>
-	
-	
-	
 	<select	id="ContractSQL.SelectContractList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
 		
 		SELECT 
@@ -339,10 +328,6 @@
 	
 	<insert	id="ContractSQL.InsertContract" parameterClass="HashMap" >
 		
-		<selectKey keyProperty="manage_no" resultClass="java.lang.String">
-		select concat('$budget_type$', '-', YEAR(now()), '-', LPAD( ifnull( (select max(substr(manage_no, 9)) from cust_sto.t_purchase_contract where manage_no like concat('$budget_type$-',YEAR(now()),'-%')) , '0') + 1 , 4, '0')) as manage_no from dual		
-	    </selectKey>		
-		
 		INSERT INTO cust_sto.t_purchase_contract
 		(
 		manage_no, 
@@ -423,15 +408,15 @@
 		null, 
 		null
 		);
+		
+		<selectKey keyProperty="seq" resultClass="int">
+			SELECT LAST_INSERT_ID();
+		</selectKey>			
 
 	</insert>	
 	
 	
 	<insert	id="ContractSQL.InsertConclusion" parameterClass="HashMap" >
-		
-		<selectKey keyProperty="manage_no" resultClass="java.lang.String">
-		select concat('$c_budget_type$', '-', YEAR(now()), '-', LPAD( ifnull( (select max(substr(manage_no, 9)) from cust_sto.t_purchase_contract where manage_no like concat('$c_budget_type$-',YEAR(now()),'-%')) , '0') + 1 , 4, '0')) as manage_no from dual		
-	    </selectKey>		
 		
 		INSERT INTO cust_sto.t_purchase_contract
 		(
@@ -473,7 +458,7 @@
 		
 		)
 		VALUES(
-		'$manage_no$', 
+		'', 
 		'$contract_no$',
 		'$contract_type$',
 		'$public_info$',
@@ -509,6 +494,10 @@
 		null, 
 		null
 		);
+		
+		<selectKey keyProperty="seq" resultClass="int">
+			SELECT LAST_INSERT_ID();
+		</selectKey>	
 
 	</insert>
 	

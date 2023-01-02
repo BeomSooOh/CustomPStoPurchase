@@ -28,29 +28,13 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 		return (Map<String, Object>) select( "ContractSQL.SelectConclusionChangeDetail", params );
 	}	
 	
-	public int SelectContractSeqFromManageNo ( Map<String, Object> params ) {
-		return (int) select( "ContractSQL.SelectContractSeqFromManageNo", params );
-	}	
-	
 	public Map<String, Object> InsertContract ( Map<String, Object> params ) {
-		
-		int seq = 0;
 		insert( "ContractSQL.InsertContract", params );
-		seq = (int) select( "ContractSQL.SelectContractSeqFromManageNo", params );
-				
-		params.put("seq", seq);
-		
 		return params;
 	}	
 	
 	public Map<String, Object> InsertConclusion ( Map<String, Object> params ) {
-		
-		int seq = 0;
 		insert( "ContractSQL.InsertConclusion", params );
-		seq = (int) select( "ContractSQL.SelectContractSeqFromManageNo", params );
-				
-		params.put("seq", seq);
-		
 		return params;
 	}	
 	

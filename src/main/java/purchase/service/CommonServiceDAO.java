@@ -68,10 +68,6 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		return (Map<String, Object>) select( "CommonSQL.SelectApprFormData", params );
 	}	
 	
-	public int SelectContractSeqFromManageNo ( Map<String, Object> params ) {
-		return (int) select( "CommonSQL.SelectContractSeqFromManageNo", params );
-	}	
-	
 	@SuppressWarnings ( "unchecked" )
 	public List<Map<String, Object>> SelectPurchaseDetailCodeList ( Map<String, Object> params ) {
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
@@ -94,6 +90,13 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		
 		update( "CommonSQL.UpdateAppr", params );
 		
+	}	
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> SelectNewManageNo ( Map<String, Object> params ) {
+		
+		return (Map<String, Object>) select( "CommonSQL.SelectNewManageNo", params );
+
 	}	
 	
 	public void DelConsTemp ( Map<String, Object> params ) {

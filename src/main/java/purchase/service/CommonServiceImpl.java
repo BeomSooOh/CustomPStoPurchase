@@ -127,6 +127,17 @@ public class CommonServiceImpl implements CommonService {
 			commonServiceDAO.UpdateApprChange(params);
 		}
 		
+		//종결 시 관리번호 등록
+		if(params.get("docSts").equals("90") && (params.get("processId").equals("Contract01") || params.get("processId").equals("Conclu01"))) {
+			
+			Map<String, Object> newManageNo = commonServiceDAO.SelectNewManageNo(params);
+			
+			if(newManageNo != null) {
+				params.put("newManageNo", newManageNo.get("new_manage_no"));
+			}
+			
+		}
+		
 		commonServiceDAO.UpdateAppr(params);
 		
 		if(params.get("processId").equals("Contract01") && params.get("docSts").equals("90")) {
