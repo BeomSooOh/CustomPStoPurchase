@@ -1319,3 +1319,8 @@ VALUES('option', 'ServiceKey', '공공데이터포털 인증키', 'Y', 0, 'PNQxD
 
 ALTER TABLE cust_sto.t_purchase_contract ADD c_contract_form1 varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '계약체결형태(1)';
 ALTER TABLE cust_sto.t_purchase_contract ADD c_contract_form2 varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '계약체결형태(2)';
+----------------- 운영서버에 여기까지 반영 -------------------
+
+
+ALTER TABLE cust_sto.t_purchase_trade_info ADD hope_attach_info varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '희망기업확인서정보';
+ALTER TABLE cust_sto.t_purchase_trade_info ADD hope_company_info varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '희망기업선택정보';
