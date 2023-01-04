@@ -90,6 +90,8 @@
 					,   parameterMapping : function( data ) {
 						data.inqryDiv = "1";
 						data.prdctClsfcNoNm = $("#prdctClsfcNoNm").val();
+						data.dtilPrdctClsfcNoNm = $("#dtilPrdctClsfcNoNm").val();
+						data.prdctIdntNoNm = $("#prdctIdntNoNm").val();
 						data.inqryBgnDate = $("#inqryBgnDate").val();
 						data.inqryEndDate = $("#inqryEndDate").val();
 						return data;
@@ -281,12 +283,14 @@
 					<input type="text" id="inqryBgnDate" value="${params.inqryBgnDate}" class="puddSetup" pudd-type="datepicker"/> ~
 					<input type="text" id="inqryEndDate" value="${params.inqryEndDate}" class="puddSetup" pudd-type="datepicker"/>
 				</dd>
-				
-				
 			</dl>
 			<dl class="next2">
+				<dt class="ar" style="width:60px;">물품규격명</dt>
+				<dd><input input id="prdctIdntNoNm" type="text" pudd-style="width:100%;" class="puddSetup" placeHolder="물품분류번호 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 				<dt class="ar" style="width:60px;">품명</dt>
-				<dd style="width:278px;"><input id="prdctClsfcNoNm" type="text" pudd-style="width:100%;" class="puddSetup" placeHolder="품명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+				<dd><input id="prdctClsfcNoNm" type="text" pudd-style="width:100%;" class="puddSetup" placeHolder="품명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+				<dt class="ar" style="width:60px;">세부품명</dt>
+				<dd><input input id="dtilPrdctClsfcNoNm" type="text" pudd-style="width:100%;" class="puddSetup" placeHolder="물품분류번호 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 				<dd><input onclick="BindGrid();" type="button" class="puddSetup submit" id="searchButton" value="검색" /></dd>
 			</dl>
 		</div>

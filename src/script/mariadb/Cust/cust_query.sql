@@ -1324,3 +1324,8 @@ ALTER TABLE cust_sto.t_purchase_contract ADD c_contract_form2 varchar(10) CHARAC
 
 ALTER TABLE cust_sto.t_purchase_trade_info ADD hope_attach_info varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '희망기업확인서정보';
 ALTER TABLE cust_sto.t_purchase_trade_info ADD hope_company_info varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '희망기업선택정보';
+
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('resFormSeq', 'Purchase01', '구매품의양식코드', 'Y', 3, NULL, '219', NULL);
+
