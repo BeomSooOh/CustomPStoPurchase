@@ -262,6 +262,9 @@ public class ContractPopController {
             List<Map<String, Object>> privateReason = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> hopeCompany = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> jointContractMethod = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> contractForm1 = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> contractForm2 = new ArrayList<Map<String, Object>>();
+            
             
             
             List<Map<String, Object>> attachForm_Conclusion01_1 = new ArrayList<Map<String, Object>>();
@@ -283,6 +286,10 @@ public class ContractPopController {
         				contractYear.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("contractType")) {
         				contractType.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("contractForm1")) {
+        				contractForm1.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("contractForm2")) {
+        				contractForm2.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("contractLaw")) {
         				contractLaw.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("privateReason")) {
@@ -346,6 +353,8 @@ public class ContractPopController {
             			detailInfo.put("c_title", detailInfo.get("title"));
             			detailInfo.put("c_contract_end_dt", detailInfo.get("contract_end_dt"));
             			detailInfo.put("c_work_info", detailInfo.get("work_info"));
+            			detailInfo.put("c_contract_form1", detailInfo.get("contract_form1"));
+            			detailInfo.put("c_contract_form2", detailInfo.get("contract_form2"));
             			
                     	mv.addObject("createDeptName", loginVo.getOrgnztNm());
                     	mv.addObject("createEmpName", loginVo.getName());
@@ -402,6 +411,8 @@ public class ContractPopController {
             mv.addObject("privateReasonCode", privateReason);
             mv.addObject("hopeCompanyCode", hopeCompany);
             mv.addObject("jointContractMethod", jointContractMethod);
+            mv.addObject("contractForm1Code", contractForm1);
+            mv.addObject("contractForm2Code", contractForm2);
             
             mv.addObject("option", option);
             

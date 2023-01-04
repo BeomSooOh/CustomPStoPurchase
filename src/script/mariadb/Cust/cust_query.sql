@@ -1316,3 +1316,6 @@ ALTER TABLE cust_sto.t_purchase_trade_info ADD tr_idx int(11) NULL COMMENT '순�
 INSERT IGNORE INTO cust_sto.t_purchase_code_detail
 (`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
 VALUES('option', 'ServiceKey', '공공데이터포털 인증키', 'Y', 0, 'PNQxDknffndjLgpc7m2eLwB3NkDdWbuS/FWdlGDfkvpldisL7f1X0729A2GNQVnTB014fBT3fiqqvMEIWfhl6A==', 'http://apis.data.go.kr/1230000/ShoppingMallPrdctInfoService05/getShoppingMallPrdctInfoList', NULL);
+
+ALTER TABLE cust_sto.t_purchase_contract ADD c_contract_form1 varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '계약체결형태(1)';
+ALTER TABLE cust_sto.t_purchase_contract ADD c_contract_form2 varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '계약체결형태(2)';

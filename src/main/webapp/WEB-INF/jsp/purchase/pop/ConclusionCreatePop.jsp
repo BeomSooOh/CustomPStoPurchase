@@ -1442,6 +1442,24 @@
 					</td>					
 				</tr>
 				<tr>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약체결형태(1)</th>
+					<td>
+						<select ${disabled} objKey="c_contract_form1" objCheckFor="checkVal('select', this, '계약체결형태(1)', '', '')" class="puddSetup" pudd-style="width:150px;">
+							<c:forEach var="items" items="${contractForm1Code}">
+								<option value="${items.CODE}" <c:if test="${ items.CODE == contractDetailInfo.c_contract_form1 }">selected</c:if>>${items.NAME}</option>
+							</c:forEach>							
+						</select>
+					</td>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약체결형태(2)</th>
+					<td>
+						<select ${disabled} objKey="c_contract_form2" objCheckFor="checkVal('select', this, '계약체결형태(2)', '', '')" class="puddSetup" pudd-style="width:150px;">
+							<c:forEach var="items" items="${contractForm2Code}">
+								<option value="${items.CODE}" <c:if test="${ items.CODE == contractDetailInfo.c_contract_form2 }">selected</c:if>>${items.NAME}</option>
+							</c:forEach>
+						</select>
+					</td>
+				</tr>				
+				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약내용</th>
 					<td colspan="3"><input ${disabled} objKey="c_work_info" objCheckFor="checkVal('text', this, '계약내용', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.c_work_info}" /></td>
 				</tr>				

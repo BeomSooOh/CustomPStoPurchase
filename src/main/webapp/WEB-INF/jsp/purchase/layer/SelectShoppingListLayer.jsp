@@ -43,7 +43,7 @@
 			
 		}
 		
-		function viewImgPop(el){
+		function viewImgPop(imgSrc, itemNm){
 			
 			// puddDialog 함수
 			Pudd.puddDialog({
@@ -56,7 +56,7 @@
 			,	resize : false			// 기본값 false
 			 
 			,	header : {
-					title : "물품이미지"
+					title : itemNm
 				,	align : "center"	// left, center, right
 				,	minimizeButton : false	// 기본값 false
 				,	maximizeButton : false	// 기본값 false
@@ -70,7 +70,7 @@
 			 
 			,	body : {
 					iframe : false
-				,	content : "<img style='max-width:400;' src=" + $(el).attr("src") + " />"
+				,	content : "<img style='max-width:400;' src=" + imgSrc + " />"
 				}
 			});			
 			
@@ -151,7 +151,7 @@
 					,	width : 50
 					,	content : {
 						template : function( rowData ) {
-							return "<img onclick='viewImgPop(this);' style='max-width:40px;' src=" + rowData.prdctImgUrl + " />";
+							return "<img onclick='viewImgPop(\""+rowData.prdctImgUrl+"\", \""+rowData.prdctClsfcNoNm+"\");' style='max-width:40px;' src=" + rowData.prdctImgUrl + " />";
 						}
 					}					
 					},					

@@ -106,9 +106,10 @@
 		cust_sto.fn_get_purchase_code_text('restrictArea',a.restrict_area_info) as restrict_area, 
 		a.nominee_info, 
 		cust_sto.fn_get_purchase_code_text('decisionType',a.decision_type_info) as decision_type, 
-		cust_sto.fn_get_purchase_code_text('contractForm1',a.contract_form1) as contract_form1,
-		cust_sto.fn_get_purchase_code_text('contractForm2',a.contract_form2) as contract_form2,
+		cust_sto.fn_get_purchase_code_text('contractForm1',ifnull(a.c_contract_form1, a.contract_form1)) as contract_form1,
+		cust_sto.fn_get_purchase_code_text('contractForm2',ifnull(a.c_contract_form2, a.contract_form2)) as contract_form2,
 		cust_sto.fn_get_purchase_code_text('contractForm3',a.contract_form3) as contract_form3,
+		
 		a.rebid_yn, 
 		a.eorder_use_yn, 
 		a.created_dt, 
