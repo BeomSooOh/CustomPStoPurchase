@@ -1339,3 +1339,88 @@ VALUES('attachForm_Purchase02', 'attachForm', '물품검수', 'Y', 8, '');
 
 
 
+INSERT IGNORE INTO cust_sto.t_purchase_code_group
+(`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
+VALUES('unit', 'cm', '[구매]단위', 'Y', 17, '');
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('unit', '01', '킬로그램', 'Y', 1, NULL, NULL, NULL);
+
+
+INSERT IGNORE INTO cust_sto.t_purchase_code_group
+(`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
+VALUES('inventory', 'cm', '[구매]물품대장코드', 'Y', 18, '');
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('inventory', '01', '내구성물품대장', 'Y', 1, NULL, NULL, NULL);
+
+
+INSERT IGNORE INTO cust_sto.t_purchase_code_group
+(`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
+VALUES('useLocation', 'cm', '[구매]사용위치', 'Y', 19, '');
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('useLocation', '01', '본사1층 서울광광플라자', 'Y', 1, NULL, NULL, NULL);
+
+
+INSERT IGNORE INTO cust_sto.t_purchase_code_group
+(`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
+VALUES('foreignType', 'cm', '[구매]국내외구분', 'Y', 20, '');
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('foreignType', '01', '국내', 'Y', 1, NULL, NULL, NULL);
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('foreignType', '02', '국외', 'Y', 2, NULL, NULL, NULL);
+
+
+INSERT IGNORE INTO cust_sto.t_purchase_code_group
+(`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
+VALUES('country', 'cm', '[구매]국가코드', 'Y', 21, '');
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('country', 'kr', '대한민국', 'Y', 1, NULL, NULL, NULL);
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('country', 'en', '미국', 'Y', 2, NULL, NULL, NULL);
+
+
+INSERT IGNORE INTO cust_sto.t_purchase_code_group
+(`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
+VALUES('acquisitionReason', 'cm', '[구매]취득사유', 'Y', 22, '');
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('acquisitionReason', '01', '취득/무상관리전환', 'Y', 1, NULL, NULL, NULL);
+
+
+INSERT IGNORE INTO cust_sto.t_purchase_code_group
+(`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
+VALUES('greenCertType', 'cm', '[구매]녹색제품인증구분', 'Y', 23, '');
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('greenCertType', '', '--', 'Y', 1, NULL, NULL, NULL);
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('greenCertType', '01', '에너지절약', 'Y', 2, NULL, NULL, NULL);
+
+
+INSERT IGNORE INTO cust_sto.t_purchase_code_group
+(`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
+VALUES('nonGreenReason', 'cm', '[구매]녹색미구매사유', 'Y', 24, '');
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('nonGreenReason', '', '--', 'Y', 1, NULL, NULL, NULL);
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('nonGreenReason', '01', '품목에 녹색제품 없음', 'Y', 2, NULL, NULL, NULL);
+
+
+INSERT IGNORE INTO cust_sto.t_purchase_code_group
+(`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
+VALUES('greenClass', 'cm', '[구매]녹색제품분류', 'Y', 25, '');
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('greenClass', '', '--', 'Y', 1, NULL, NULL, NULL);
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('greenClass', '01', '필기구 및 필기구 소모품', 'Y', 2, NULL, NULL, NULL);

@@ -129,7 +129,7 @@
 			,	scrollable : false
 			, 	pageSize : 10	// grid와 연동되는 경우 grid > pageable > pageList 배열값 중의 하나이여야 함
 			,	serverPaging : true	
-			
+			//,	ellipsis : true
 			,	pageable : {
 					buttonCount : 10 
 				,	pageList : [ 10, 20, 30, 40, 50 ]
@@ -176,17 +176,17 @@
 					
 					{
 						field : "cntrctCorpNm"
-					,	title : "계약업체명"
+					,	title : "업체명"
 					,	width : 50
 					},
 					{
 						field : "entrprsDivNm"
-					,	title : "기업구분명"
+					,	title : "기업구분"
 					,	width : 90
 					},
 					{
 						field : "cntrctMthdNm"
-					,	title : "계약방법명"
+					,	title : "계약방법"
 					,	width : 70
 					},	
 					{
@@ -201,27 +201,27 @@
 					},
 					{
 						field : "prdctUnit"
-					,	title : "물품단위"
+					,	title : "단위"
 					,	width : 50
 					},	
 					{
 						field : "prdctSplyRgnNm"
-					,	title : "물품공급지역명"
+					,	title : "공급지역명"
 					,	width : 50
 					},
 					{
 						field : "prdctMakrNm"
-					,	title : "물품제조사명"
+					,	title : "제조사명"
 					,	width : 50
 					},
 					{
 						field : "prdctLrgclsfcCd"
-					,	title : "물품대분류명"
+					,	title : "대분류명"
 					,	width : 50
 					},
 					{
 						field : "prdctMidclsfcCd"
-					,	title : "물품중분류코드"
+					,	title : "중분류코드"
 					,	width : 50
 					},
 					{
@@ -236,23 +236,28 @@
 					},
 					{
 						field : "prdctClsfcNo"
-					,	title : "물품분류번호"
+					,	title : "분류번호"
 					,	width : 50
 					},
 					{
 						field : "prdctIdntNo"
-					,	title : "물품식별번호"
+					,	title : "식별번호"
 					,	width : 50
 					},
 					{
 						field : "prodctCertList"
 					,	title : "제품인증목록"
 					,	width : 50
+					,	tooltip : {
+							alwaysShow : false		// 말줄임 여부와 관계없이 tooltip 보여줄 것인지 설정, 기본값 false
+						,	showAtClientX : false	// toolTip 보여주는 위치가 mouse 움직이는 X 좌표 기준 여부, 기본값 false ( toolTip 부모객체 기준 )
+						,	attributes : { style : "" }
+						}					
 					},
 					{
 						field : "rgstDt"
 					,	title : "등록일시"
-					,	width : "10px"
+					,	width : 55
 					,	content : {
 							template : function( rowData ) {
 								if(rowData.rgstDt.length == 8){

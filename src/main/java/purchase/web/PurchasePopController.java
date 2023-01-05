@@ -252,6 +252,15 @@ public class PurchasePopController {
             List<Map<String, Object>> attachForm_Purchase01 = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> option = new ArrayList<Map<String, Object>>();
             
+            List<Map<String, Object>> unit = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> inventory = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> useLocation = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> foreignType = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> country = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> acquisitionReason = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> greenCertType = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> nonGreenReason = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> greenClass = new ArrayList<Map<String, Object>>();
             
             if(codeList != null && codeList.size() > 0) {
             	
@@ -285,8 +294,25 @@ public class PurchasePopController {
         				attachForm_Purchase01.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("option")) {
         				option.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("unit")) {
+        				unit.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("inventory")) {
+        				inventory.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("useLocation")) {
+        				useLocation.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("foreignType")) {
+        				foreignType.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("country")) {
+        				country.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("acquisitionReason")) {
+        				acquisitionReason.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("greenCertType")) {
+        				greenCertType.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("nonGreenReason")) {
+        				nonGreenReason.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("greenClass")) {
+        				greenClass.add(codeinfo);
         			}
-        			
         		}            	
             }
             
@@ -353,6 +379,16 @@ public class PurchasePopController {
             mv.addObject("contractForm3Code", contractForm3);
             mv.addObject("sectorGroupCode", sectorGroup);
             mv.addObject("option", option);
+            
+            mv.addObject("unitCode", unit);
+            mv.addObject("inventoryCode", inventory);
+            mv.addObject("useLocationCode", useLocation);
+            mv.addObject("foreignTypeCode", foreignType);
+            mv.addObject("countryCode", country);
+            mv.addObject("acquisitionReasonCode", acquisitionReason);
+            mv.addObject("greenCertTypeCode", greenCertType);
+            mv.addObject("nonGreenReasonCode", nonGreenReason);
+            mv.addObject("greenClassCode", greenClass);
             
             mv.setViewName("/purchase/pop/PurchaseCreatePop");
 

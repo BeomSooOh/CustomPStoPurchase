@@ -201,6 +201,13 @@
 		
 	}		
 	
+
+	function openerRefreshList(){
+		if(opener != null && typeof opener.BindGrid != "undefined"){
+			opener.BindGrid();
+		}	
+	}
+	
 	function fnSectorDel(e, tableName){
 		
 		if(tableName != null && $('[name="'+tableName+'"] tr[name=addData]').length == 1){
@@ -211,9 +218,7 @@
 		
 	}		
 	
-	
-	
-	function fnCommonCode_trName(code, e) {
+	function fnCommonCodeCustomPop(code, e) {
 		
 		if(e != null){
 			commonElement = $(e).closest("tr");
@@ -228,12 +233,18 @@
 				}
 				commonParam.bottomSeq = $(commonElement).find("[name=bottom_seq]").val(); /* 하위사업 구분값 '|' */
 				commonParam.erpBudgetDivSeq = commonParam.erpDivSeq.replace('|', '');
-			}
+			}			
 
 		}
 
-		fnCommonCodePop(code, commonParam, commonParam.callback);
-
+		fnCallCommonCodePop({
+			code : code,
+			popupType : 2,
+			param : JSON.stringify(commonParam),
+			callbackFunction : commonParam.callback,
+			dummy : JSON.stringify({})
+		});			
+		
 		/* [ return ] */
 		return;
 	}
@@ -349,7 +360,7 @@
 				}					
 			
 				//예산금액 조회
-				fnSetBudgetAmtInfo();
+				fnSetBudgetAmtInfo(null, true);				
 				
 			}			
 			
@@ -358,10 +369,132 @@
 	}
 	
 	
+	/*	[예산조회] 예산잔액 가조회
+	------------------------------------------- */
+	function fnSetBudgetAmtInfo(e, calAmt){
+		
+		if(e != null){
+			if(commonElement == e){
+				return;
+			}else{
+				commonElement = e;	
+			}
+		}
+		
+		$('#bgtSeq').val("");
+		$('#bgt1Name').text("");
+		$('#bgt2Name').text("");
+		$('#bgt3Name').text("");
+		$('#bgt4Name').text("");
+		
+		$('#txtOpenAmt').text("");
+		$('#txtConsBalanceAmt').text("");
+		$('#txtApplyAmt').text("");
+		$('#txtBalanceAmt').text("");			
+		
+		if($(commonElement).find("[name=erp_budget_seq]").val() != ""){
+
+			commonParam.erpBudgetSeq = $(commonElement).find("[name=erp_budget_seq]").val();
+			if($('#bgtSeq').val() == commonParam.erpBudgetSeq){
+				return;
+			}
+
+			commonParam.erpBudgetDivSeq = $(commonElement).find("[name=erp_budget_div_seq]").val();
+			commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val();
+			
+			$('#bgtSeq').val(commonParam.erpBudgetSeq);
+			
+			if($(commonElement).find("[name=erp_bgt1_seq]").val() != ""){
+				$('#bgt1Name').text($(commonElement).find("[name=erp_bgt1_name]").val() + " (" + $(commonElement).find("[name=erp_bgt1_seq]").val() + ")");	
+			}
+			
+			if($(commonElement).find("[name=erp_bgt2_seq]").val() != ""){
+				$('#bgt2Name').text($(commonElement).find("[name=erp_bgt2_name]").val() + " (" + $(commonElement).find("[name=erp_bgt2_seq]").val() + ")");	
+			}
+			
+			if($(commonElement).find("[name=erp_bgt3_seq]").val() != ""){
+				$('#bgt3Name').text($(commonElement).find("[name=erp_bgt3_name]").val() + " (" + $(commonElement).find("[name=erp_bgt3_seq]").val() + ")");	
+			}
+			
+			if($(commonElement).find("[name=erp_bgt4_seq]").val() != ""){
+				$('#bgt4Name').text($(commonElement).find("[name=erp_bgt4_name]").val() + " (" + $(commonElement).find("[name=erp_bgt4_seq]").val() + ")");	
+			}				
+			
+			$.ajax({
+				type : 'post',
+				url : '<c:url value="/ex/np/user/res/resBudgetInfoSelect.do" />',
+				datatype : 'json',
+				async : true,
+				data : commonParam,
+				success : function(result) {
+
+					var data = result.result.aData;
+					$('#txtOpenAmt').text(fnGetCurrencyCode(data.openAmt));
+					$('#txtConsBalanceAmt').text(fnGetCurrencyCode(data.consBalanceAmt));
+					$('#txtApplyAmt').text(fnGetCurrencyCode(data.resApplyAmt));
+					$('#txtBalanceAmt').text(fnGetCurrencyCode(data.balanceAmt));
+					
+					if(calAmt){
+						//금액 초기화
+						$(commonElement).find("[name=amt]").val("0");
+						
+						if(data.balanceAmt > 0){
+							
+							var itemAmtTotal = 0;
+							var totalAmt = 0;
+							var remainAmt = 0;
+							
+							$.each($("[name=itemList] [name=addData] [name=item_total_amt]"), function( idx, obj ) {
+								if($(obj).val() != "" && $(obj).val() != "0"){
+									itemAmtTotal += parseInt($(obj).val().replace(/,/g, ''));
+								}
+							});								
+							
+							$.each($("[name=addData] [name=amt]"), function( idx, obj ) {
+								if($(obj).val() != "" && $(obj).val() != "0"){
+									totalAmt += parseInt($(obj).val().replace(/,/g, ''));
+								}
+							});								
+							
+							remainAmt = itemAmtTotal - totalAmt;
+							
+							if(remainAmt > 0){
+								
+								if(remainAmt > data.balanceAmt){
+									$(commonElement).find("[name=amt]").val(data.balanceAmt.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+								}else{
+									$(commonElement).find("[name=amt]").val(remainAmt.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+								}
+							}
+						}
+				
+					}
+
+				},
+				/*   - error :  */
+				error : function(result) {
+					
+					msgSnackbar("error", "예산정보 조회 중 오류 발생");
+					
+				}
+			});				
+			
+		}
+	}
+	
+	/*	[공용] 숫자에 콤마 찍어서 가져오기
+	---------------------------------------- */
+	function fnGetCurrencyCode(value){
+	    value = '' + value || '';
+	    value = '' + value.split('.')[0];
+	    value = value.replace(/[^0-9\-]/g, '') || '0';
+	    var returnVal = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	    return returnVal;
+	}		
+	
+	
 	function commonCodeSelectLayer(group, title, type, target, multiYn){
 
-
-		// puddDialog 함수
 		Pudd.puddDialog({
 		 
 			width : type == "shopping" ? 1200 : 400
@@ -383,7 +516,7 @@
 		,	body : {
 		 
 				iframe : true
-			,	url : "${pageContext.request.contextPath}/purchase/layer/" + (type == "shopping" ? "SelectShoppingListLayer" : "CodeSelectLayer") + ".do?multiYn=" + multiYn + "&group=" + group
+			,	url : "${pageContext.request.contextPath}/purchase/layer/" + (type == "shopping" ? "SelectShoppingListLayer" : "CodeSelectLayer") + ".do?inqryBgnDate=${fromDate}&inqryEndDate=${toDate}&multiYn=" + multiYn + "&group=" + group
 			,	iframeAttribute : {
 				id : "dlgFrame"
 			}						
@@ -452,10 +585,29 @@
 				$(target).find("[name=item_name]").val(selectedList[0].prdctClsfcNoNm);
 				$(target).find("[name=item_amt]").val(selectedList[0].cntrctPrceAmt.replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 				$(target).find("[name=item_cnt]").val("1");
+				$(target).find("[name=item_total_amt_text]").text(selectedList[0].cntrctPrceAmt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " 원");
+				$(target).find("[name=item_total_amt]").val(selectedList[0].cntrctPrceAmt);
+				
+				$(target).find("[name=item_unit]").val(selectedList[0].prdctUnit);
+			}
+			
+		}else if(type == "text"){
+
+			if(selectedList.length > 0){
+				$(target).find("[codetarget]").val(selectedList[0].name);
 			}
 			
 		}
 	}	
+	
+	function fnCalculateTotal(el){
+
+		var item_amt = $(el).find("[name=item_amt]").val() == "" ? "0" : $(el).find("[name=item_amt]").val().replace(/,/g, '');
+		var item_cnt = $(el).find("[name=item_cnt]").val() == "" ? "0" : $(el).find("[name=item_cnt]").val();
+		
+		$(el).find("[name=item_total_amt_text]").text((parseInt(item_amt)*parseInt(item_cnt)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " 원");
+		$(el).find("[name=item_total_amt]").val((parseInt(item_amt)*parseInt(item_cnt)));
+	}
 	
 	function fnSearchFile(e){
 		targetElement = $(e).find('[name="hope_attach_info"]');
@@ -599,8 +751,288 @@
 	
 	function fnDelFile(e){
 		targetElement = $(e).closest("li").remove();
-	}		
+	}	
+	
+	function fnClose(){
 		
+		self.close();
+		
+	}			
+	
+	function fnCallBtn(callId){
+		
+		if(callId == "attach"){
+			attachLayerPop();
+		}else if(callId == "save"){
+			fnSave(0);
+		}else if(callId == "appr"){
+			fnSave(1);
+		}
+		
+	}	
+	
+	
+	
+	function attachLayerPop(){
+		
+		if(attachFormList.length == 0){
+			msgAlert("error", "첨부파일 양식코드가 존재하지 않습니다.", "");
+			return;
+		}
+		
+		var layerHeight = 86+(30*attachFormList.length);
+		
+		// puddDialog 함수
+		Pudd.puddDialog({
+		 
+			width : 800
+		,	height : layerHeight
+		 
+		,	modal : true			// 기본값 true
+		,	draggable : false		// 기본값 true
+		,	resize : false			// 기본값 false
+		 
+		,	header : {
+	 		title : "첨부파일"
+		,	closeButton : true	// 기본값 true
+		,	closeCallback : function( puddDlg ) {
+				// close 버튼은 내부에서 showDialog( false ) 실행함 - 즉, 닫기 처리는 내부에서 진행됨
+				// 추가적인 작업 내용이 있는 경우 이곳에서 처리
+			}
+		}
+		 
+		,	body : {
+		 
+				iframe : true
+			,	url : "${pageContext.request.contextPath}/purchase/layer/AttachLayer.do?disabledYn=${disabledYn}"
+
+		}
+		 
+			// dialog 하단을 사용할 경우 설정할 부분
+		,	footer : {
+		
+				buttons : [
+					
+					<c:if test="${disabledYn == 'N'}">
+					{
+						attributes : {}// control 부모 객체 속성 설정
+					,	controlAttributes : { id : "btnConfirm", class : "submit" }// control 자체 객체 속성 설정
+					,	value : <c:if test="${viewType == 'I'}">"확인"</c:if><c:if test="${viewType != 'I'}">"저장"</c:if>
+					,	clickCallback : function( puddDlg ) {
+						
+						temptemp = puddDlg;
+							fnUpdateAttachInfo();
+							puddDlg.showDialog( false );
+							// 추가적인 작업 내용이 있는 경우 이곳에서 처리
+							
+						}
+					},
+					</c:if>
+					
+					{
+						attributes : { style : "margin-left:5px;" }// control 부모 객체 속성 설정
+					,	controlAttributes : { id : "btnCancel" }// control 자체 객체 속성 설정
+					,	value : <c:if test="${disabledYn == 'Y'}">"닫기"</c:if><c:if test="${disabledYn == 'N'}">"취소"</c:if>
+					,	clickCallback : function( puddDlg ) {
+							puddDlg.showDialog( false );
+							attachFileNew = [];
+							attachFileDel = [];	
+						}
+					}
+				]
+			}
+		});			
+		
+	}		
+	
+	function fnUpdateAttachInfo(){
+		$.each(attachFileDel, function( key1, attchDelInfo ) {
+			$.each(attachFormList, function( key2, attchFormInfo ) {
+				if(attchDelInfo == attchFormInfo.fileId){
+					attchFormInfo.fileId = "";
+					attchFormInfo.fileName = "";
+					attchFormInfo.fileExt = "";
+				}
+			});	
+		});				
+		
+		$.each(attachFileNew, function( key1, attchNewInfo ) {
+			$.each(attachFormList, function( key2, attchFormInfo ) {
+				if(attchNewInfo.attachformcode == attchFormInfo.code){
+					attchFormInfo.fileId = attchNewInfo.uid;
+					attchFormInfo.fileName = attchNewInfo.fileName;
+					attchFormInfo.fileExt = attchNewInfo.fileExt;
+				}
+			});	
+		});
+		
+		attachFileNew = [];
+		attachFileDel = [];	
+		
+		insertDataObject.attch_file_info = JSON.stringify(attachFormList);
+		insertDataObject.outProcessCode = outProcessCode;
+		insertDataObject.seq = "${seq}"
+		
+		$.ajax({
+			type : 'post',
+			url : '<c:url value="/attachSaveProc.do" />',
+    		datatype:"json",
+            data: insertDataObject ,
+			async : false,
+			success : function(result) {
+				
+				if(result.resultCode != "success"){
+					msgSnackbar("error", "첨부파일 실패");
+				}
+				
+			},
+			error : function(result) {
+				msgSnackbar("error", "등록에 실패했습니다.");
+			}
+		});			
+		
+	}
+	
+	function fnValidationCheck(){
+		insertDataObject = {};
+		
+		var validationCheck = true;
+		
+		$.each($("[objKey]"), function( key, objInfo ) {
+			
+			var objValue = eval($(objInfo).attr("objCheckFor"));
+			
+			if(objValue == "$failAlert$"){
+				validationCheck = false;
+				return false;
+			}
+			
+			insertDataObject[$(objInfo).attr("objKey")] = objValue;
+			
+		});
+		
+		return validationCheck;
+	}
+	
+
+	function fnSave(type){
+		
+		if(fnValidationCheck() == true){
+
+			insertDataObject.attch_file_info = JSON.stringify(attachFormList);
+			insertDataObject.item_list_info = JSON.stringify(insertDataObject.itemObjList);
+			insertDataObject.budget_list_info = JSON.stringify(insertDataObject.budgetObjList);
+			
+			//신청금액 체크
+			var itemAmtTotal = 0;
+			var totalAmt = 0;
+			var remainAmt = 0;
+			
+			$.each($("[name=itemList] [name=addData] [name=item_total_amt]"), function( idx, obj ) {
+				if($(obj).val() != "" && $(obj).val() != "0"){
+					itemAmtTotal += parseInt($(obj).val().replace(/,/g, ''));
+				}
+			});	
+			
+			$.each($("[name=addData] [name=amt]"), function( idx, obj ) {
+				if($(obj).val() != "" && $(obj).val() != "0"){
+					totalAmt += parseInt($(obj).val().replace(/,/g, ''));
+				}
+			});								
+			
+			if(itemAmtTotal != totalAmt){
+				msgSnackbar("warning", "물품금액과 품의금액이 일치하지 않습니다.");
+				return;
+			}
+			
+			if(type == 0){
+				confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc(1)', '취소', '');	
+			}else if(type == 1){
+				
+				var attachValidationcheck = true;
+				
+				$.each(attachFormList, function( key, objInfo ) {
+					
+					if(objInfo.mustYn == "Y" && objInfo.fileId == ""){
+						attachValidationcheck = false;
+						msgSnackbar("error", "필수 첨부파일을 업로드해 주세요.");
+						fnCallBtn('attach');
+						return false;
+					}
+					
+				});	
+				
+				if(attachValidationcheck){
+					confirmAlert(350, 100, 'question', '결재작성 하시겠습니까?', '확인', 'fnSaveProc(2)', '취소', '');	
+				}
+					
+			}
+								
+		}			
+	}
+	
+	function fnSaveProc(type){
+
+		insertDataObject.reqType = type;
+		insertDataObject.outProcessCode = outProcessCode;
+		insertDataObject.viewType = "${viewType}"
+		insertDataObject.seq = "${seq}"
+		
+		$.ajax({
+			type : 'post',
+			url : '<c:url value="/purchase/PurchaseSaveProc.do" />',
+    		datatype:"json",
+            data: insertDataObject ,
+			async : true,
+			success : function(result) {
+				
+				if(result.resultCode == "success"){
+					
+					if(type == 1){
+						openerRefreshList();				
+						msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");							
+					}else{
+						
+						fnPaymentCreate();
+
+					}
+					
+				}else{
+					msgSnackbar("error", "등록에 실패했습니다.");	
+				}
+				
+			},
+			error : function(result) {
+				msgSnackbar("error", "등록에 실패했습니다.");
+			}
+		});
+		
+	}	
+	
+	
+	function fnNoticePop(formCode, noticeName){
+		
+		Pudd.puddDialog({
+			width : 800
+		,	height : 500
+		,	modal : true			// 기본값 true
+		,	draggable : false		// 기본값 true
+		,	resize : false			// 기본값 false
+		,	header : {
+	 		title : noticeName
+		,	closeButton : true	// 기본값 true
+		}
+		,	body : {
+				iframe : true
+			,	url : "${pageContext.request.contextPath}/purchase/layer/NoticePopLayer.do?formCode=" + formCode
+			,	iframeAttribute : {
+				id : "dlgFrame"
+			}						
+		}
+		});			
+	}
+	
+	
 	</script>
 </head>
 
@@ -649,8 +1081,8 @@
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 유형선택</th>
 					<td colspan="3" objKey="purchase_type" objCheckFor="checkVal('radio', 'purchaseType', '유형선택', '', '')" >
-						<input ${disabled} type="radio" name="purchaseType" class="puddSetup" pudd-label="비품" value="01" <c:if test="${ (viewType == 'I') || (viewType == 'U' && purchaseDetailInfo.purchase_type == '01') }">checked</c:if> />
-						<input ${disabled} type="radio" name="purchaseType" class="puddSetup" pudd-label="소모품" value="02" <c:if test="${ viewType == 'U' && purchaseDetailInfo.purchase_type == '02' }">checked</c:if> />
+						<input ${disabled} onclick="fnNoticePop('ManualPop01', '비품')" type="radio" name="purchaseType" class="puddSetup" pudd-label="비품" value="01" <c:if test="${ (viewType == 'I') || (viewType == 'U' && purchaseDetailInfo.purchase_type == '01') }">checked</c:if> />
+						<input ${disabled} onclick="fnNoticePop('ManualPop02', '소모품')" type="radio" name="purchaseType" class="puddSetup" pudd-label="소모품" value="02" <c:if test="${ viewType == 'U' && purchaseDetailInfo.purchase_type == '02' }">checked</c:if> />
 					</td>	
 				</tr>
 				<tr>
@@ -678,6 +1110,16 @@
 				<tr>
 					<th>공급업체</th>
 					<td colspan="3">
+					
+						<div class="fr mt10 mb10">
+							<span class="fl mr20">※ 희망기업 정보조회</span>
+							<div class="fl">
+								<span class="pr10"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="15px" height="15px"><a href="#n" onclick="window.open('https://www.coop.go.kr','mgjCode','width=1050, height=670, scrollbars=yes');"> 협동조합</a></span>
+								<span class="pr10"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="15px" height="15px"><a href="#n" onclick="window.open('https://www.smpp.go.kr','mgjCode','width=1050, height=670, scrollbars=yes');"> 중소기업중앙회</a></span>
+								<span class="pr10"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="15px" height="15px"><a href="#n" onclick="window.open('https://www.socialenterprise.or.kr','mgjCode','width=1050, height=670, scrollbars=yes');"> 사회적기업진흥원</a></span>
+							</div>
+						</div>					
+					
 						<div class="com_ta mt10">
 							<table name="tradeList" objKey="tradeObjList" objCheckFor="checkVal('obj', 'tradeList', '공급업체', 'mustAlert', '')">
 								<colgroup>
@@ -720,7 +1162,7 @@
 											<input tbval="Y" name="tr_name" type="text" pudd-style="width:calc( 100% );" class="puddSetup pr30" value="" readonly />
 											
 											<c:if test="${disabledYn == 'N'}"> 
-											<a href="#n" onclick="fnCommonCode_trName('tr', this)" class="btn_search" style="margin-left: -25px;"></a>
+											<a href="#n" onclick="fnCommonCodeCustomPop('tr', this)" class="btn_search" style="margin-left: -25px;"></a>
 											</c:if>
 										</div>
 									</td>
@@ -778,7 +1220,7 @@
 											<input tbval="Y" name="tr_name" type="text" pudd-style="width:calc( 100% );" class="puddSetup pr30" value="" readonly />
 											
 											<c:if test="${disabledYn == 'N'}"> 
-											<a href="#n" onclick="fnCommonCode_trName('tr', this)" class="btn_search" style="margin-left: -25px;"></a>
+											<a href="#n" onclick="fnCommonCodeCustomPop('tr', this)" class="btn_search" style="margin-left: -25px;"></a>
 											</c:if>
 										</div>
 									</td>
@@ -825,26 +1267,29 @@
 
 
 		<!-- 물품규격 -->
-		<div class="btn_div mt25">
+		<div class="btn_div mt25" style="margin-bottom: 5px;">
 			<div class="left_div">	
 				<p class="tit_p mt5 mb0">물품규격</p>
 			</div>
+			<div class="right_div">	
+				<a href="#n" onclick="window.open('https://www.g2b.go.kr/pt/menu/selectSubFrame.do?menuId=000508&framesrc=/pt/menu/frameGonggong.do?url=https://www.g2b.go.kr:8073/cm/procmntfee/fwdDmgdPurchaseFeeDtl.do','mgjCode','width=1050, height=670, scrollbars=yes');" class="fr pt5 pb5 text_blue"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="16px" height="16px" /> 수수료계산(나라장터)</a>
+			</div>			
 		</div>
 		
 		<div class="com_ta4 ova_sc">
-			<table name="itemList" objKey="itemObjList" objCheckFor="checkVal('obj', 'tradeList', '공급업체', 'mustAlert', '')" style="width:2600px;">
+			<table name="itemList" objKey="itemObjList" objCheckFor="checkVal('obj', 'itemList', '물품규격', 'mustAlert', '')" style="width:2600px;">
 				<colgroup>
 					<col width="50"/>
 					<col width="200"/>
 					<col width="250"/>
-					<col width="200"/>
+					<col width="300"/>
 					<col width="200"/>
 					<col width="150"/>
 					<col width="200"/>
 					<col width="150"/>
 					<col width="300"/>
-					<col width="250"/>
-					<col width="250"/>
+					<col width="200"/>
+					<col width="200"/>
 					<col width="200"/>
 					<col width="200"/>
 					<col width="130"/>
@@ -877,7 +1322,7 @@
 					<th class="ac">녹색제품미구매사유</th>
 					<th class="ac">녹색제품분류</th>
 				</tr>
-				<tr name="dataBase" style="display1:none;">
+				<tr name="dataBase" style="display:none;">
 					<td>
 						<input type="button" onclick="fnSectorDel(this, 'itemList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 					</td>
@@ -885,75 +1330,154 @@
 					<td>
 						<div class="posi_re">
 							<input tbval="Y" name="item_idn_no" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;" onclick="commonCodeSelectLayer('', '', 'shopping', $(this).closest('tr'), 'N')"></a>
+							<a href="#n" class="btn_search" style="margin-left: -25px;" onclick="commonCodeSelectLayer('', '나라장터 종합쇼핑몰', 'shopping', $(this).closest('tr'), 'N')"></a>
 						</div>
 					</td>
 					<td><input tbval="Y" name="item_name" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
-					<td><input tbval="Y" name="item_amt" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="" /> 원</td>
-					<td><input tbval="Y" name="item_cnt" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="" /></td>
-					<td tbval="Y" name="item_total_amt" tbtype="innerText" class="ri">0 원</td>
-					<td><input type="text" value="" class="puddSetup" pudd-type="datepicker"/></td>
-					<td><input type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
+					<td><input tbval="Y" name="item_amt" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> 원</td>
+					<td><input tbval="Y" name="item_cnt" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="1" /></td>
+					<td tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
+					<input tbval="Y" name="item_total_amt" type="hidden" value="0" requiredNot="true" />
+					<td><input tbval="Y" name="item_deadline" type="text" value="" class="puddSetup" pudd-type="datepicker"/></td>
+					<td><input tbval="Y" name="item_pickup_location" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
+					<td><input tbval="Y" name="item_fee_amt" amountInput="Y" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
 					<td class="le">
-						<input type="text" pudd-style="width:100px;" class="puddSetup ar" value="" /> 원
-						<a href="#n" class="btn_search ml10"></a>
-					</td>
-					<td class="file_add">	
-						<ul class="file_list_box fl">
-							<li>
-								<a href="javascript:;" class="fl ellipsis pl5" style="max-width:150px;" id="">킬로그램</a>
-								<a href="javascript:;" id="" title="파일삭제"><img src="../../../Images/btn/close_btn01.png" id="" alt=""></a>
-							</li>
-						</ul>
-						<sapn class="fr"><a href="#n" class="btn_search" style="margin-left: -30px; margin-top:-4px"></a></span>
+						<input tbval="Y" name="item_unit" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" readonly codetarget /> 
+						<a href="#n" class="btn_search ml10" onclick="commonCodeSelectLayer('unit', '단위', 'text', $(this).closest('td'), 'N')"></a>
 					</td>
 					<td>
-						<select class="puddSetup" pudd-style="width:calc( 100% - 10px);">
-							<option value="">내구성물품대장</option>
+						<select tbval="Y" name="item_inventory_cd" >
+							<c:forEach var="items" items="${inventoryCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>								
 						</select>
 					</td>
 					<td>
-						<select class="puddSetup" pudd-style="width:calc( 100% - 10px);">
-							<option value="">본사1층 서울관광플라자</option>
+						<select tbval="Y" name="item_use_location" >
+							<c:forEach var="items" items="${useLocationCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>	
 						</select>
 					</td>
 					<td>
-						<select class="puddSetup" pudd-style="width:calc( 100% - 10px);">
-							<option value="">국내</option>
+						<select tbval="Y" name="item_foreign_type" >
+							<c:forEach var="items" items="${foreignTypeCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>	
 						</select>
 					</td>
-					<td class="file_add">	
-						<ul class="file_list_box fl">
-							<li>
-								<a href="javascript:;" class="fl ellipsis pl5" style="max-width:150px;" id="">남아프리카공화국 오스트레일리아</a>
-								<a href="javascript:;" id="" title="파일삭제"><img src="../../../Images/btn/close_btn01.png" id="" alt=""></a>
-							</li>
-						</ul>
-						<sapn class="fr"><a href="#n" class="btn_search" style="margin-left: -30px; margin-top:-4px"></a></span>
+					<td class="le">
+						<input tbval="Y" name="item_contry" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" readonly codetarget /> 
+						<a href="#n" class="btn_search ml10" onclick="commonCodeSelectLayer('country', '국가코드', 'text', $(this).closest('td'), 'N')"></a>
 					</td>
 					<td>
-						<select class="puddSetup" pudd-style="width:calc( 100% - 10px);">
-							<option value="">취득/무상관리전환</option>
+						<select tbval="Y" name="item_acquisition_reason" style="text-align: center;">
+							<c:forEach var="items" items="${acquisitionReasonCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>
 						</select>
 					</td>
 					
 					<td>
-						<select class="puddSetup" pudd-style="width:calc( 100% - 10px);">
-							<option value="">해당없음</option>
+						<select tbval="Y" name="item_green_cert_type" style="text-align: center;">
+							<c:forEach var="items" items="${greenCertTypeCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>
 						</select>
 					</td>
 					<td>
-						<select class="puddSetup" pudd-style="width:calc( 100% - 10px);">
-							<option value="">--</option>
+						<select tbval="Y" name="item_non_green_reason" style="text-align: center;">
+							<c:forEach var="items" items="${nonGreenReasonCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>
 						</select>
 					</td>
 					<td>
-						<select class="puddSetup" pudd-style="width:calc( 100% - 10px);">
-							<option value="">--</option>
+						<select tbval="Y" name="item_green_class" style="text-align: center;">
+							<c:forEach var="items" items="${greenClassCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>
 						</select>
 					</td>															
-					
 				</tr>
+				<tr name="addData">
+					<td>
+						<input type="button" onclick="fnSectorDel(this, 'itemList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+					</td>
+					<td><input tbval="Y" name="item_div_no" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="item_idn_no" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
+							<a href="#n" class="btn_search" style="margin-left: -25px;" onclick="commonCodeSelectLayer('', '나라장터 종합쇼핑몰', 'shopping', $(this).closest('tr'), 'N')"></a>
+						</div>
+					</td>
+					<td><input tbval="Y" name="item_name" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
+					<td><input tbval="Y" name="item_amt" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> 원</td>
+					<td><input tbval="Y" name="item_cnt" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="1" /></td>
+					<td tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
+					<input tbval="Y" name="item_total_amt" type="hidden" value="0" requiredNot="true" />
+					<td><input tbval="Y" name="item_deadline" type="text" value="" class="puddSetup" pudd-type="datepicker"/></td>
+					<td><input tbval="Y" name="item_pickup_location" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
+					<td><input tbval="Y" name="item_fee_amt" amountInput="Y" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
+					<td class="le">
+						<input tbval="Y" name="item_unit" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" readonly codetarget /> 
+						<a href="#n" class="btn_search ml10" onclick="commonCodeSelectLayer('unit', '단위', 'text', $(this).closest('td'), 'N')"></a>
+					</td>
+					<td>
+						<select tbval="Y" name="item_inventory_cd" >
+							<c:forEach var="items" items="${inventoryCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>								
+						</select>
+					</td>
+					<td>
+						<select tbval="Y" name="item_use_location" >
+							<c:forEach var="items" items="${useLocationCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>	
+						</select>
+					</td>
+					<td>
+						<select tbval="Y" name="item_foreign_type" >
+							<c:forEach var="items" items="${foreignTypeCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>	
+						</select>
+					</td>
+					<td class="le">
+						<input tbval="Y" name="item_contry" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" readonly codetarget /> 
+						<a href="#n" class="btn_search ml10" onclick="commonCodeSelectLayer('country', '국가코드', 'text', $(this).closest('td'), 'N')"></a>
+					</td>
+					<td>
+						<select tbval="Y" name="item_acquisition_reason" style="text-align: center;">
+							<c:forEach var="items" items="${acquisitionReasonCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>
+						</select>
+					</td>
+					
+					<td>
+						<select tbval="Y" name="item_green_cert_type" style="text-align: center;">
+							<c:forEach var="items" items="${greenCertTypeCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>
+						</select>
+					</td>
+					<td>
+						<select tbval="Y" name="item_non_green_reason" style="text-align: center;">
+							<c:forEach var="items" items="${nonGreenReasonCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>
+						</select>
+					</td>
+					<td>
+						<select tbval="Y" name="item_green_class" style="text-align: center;">
+							<c:forEach var="items" items="${greenClassCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>
+						</select>
+					</td>															
+				</tr>				
 			</table>
 		</div>
 

@@ -67,12 +67,24 @@ public class CommonPopController {
         try {
         	mv.addObject("params", params);
             mv.setViewName("/purchase/layer/" + layerName);
+            LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+            params.put("groupSeq", loginVo.getGroupSeq());
+            params.put("useYn", "Y");
             
-            //코드도움 데이터 조회
-            if(layerName.equals("CodeSelectLayer")) {
-                LoginVO loginVo = CommonConvert.CommonGetEmpVO();
-                params.put("groupSeq", loginVo.getGroupSeq());
-                params.put("useYn", "Y");
+            if(layerName.equals("NoticePopLayer")) {
+            	
+            	params.put("group", "contentsForm");
+            	params.put("code", params.get("formCode"));
+            	
+            	Map<String, Object> formInfo = commonServiceDAO.SelectPurchaseDetailCodeInfo(params);
+            	
+            	if(formInfo != null) {
+            		mv.addObject("FORM_HTML", formInfo.get("FORM_HTML"));	
+            	}
+                
+            }else if(layerName.equals("CodeSelectLayer")) {
+            	
+                //코드도움 데이터 조회
                 List<Map<String, Object>> codeList = commonServiceDAO.SelectPurchaseDetailCodeList(params);            	
                 mv.addObject("codeList", codeList);
             }
