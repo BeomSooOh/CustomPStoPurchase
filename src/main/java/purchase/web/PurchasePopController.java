@@ -249,7 +249,8 @@ public class PurchasePopController {
             List<Map<String, Object>> contractForm3 = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> sectorGroup = new ArrayList<Map<String, Object>>();
             
-            List<Map<String, Object>> attachForm_Contract01 = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> attachForm_Purchase01 = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> option = new ArrayList<Map<String, Object>>();
             
             
             if(codeList != null && codeList.size() > 0) {
@@ -280,8 +281,10 @@ public class PurchasePopController {
         				contractForm3.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("sectorGroup")) {
         				sectorGroup.add(codeinfo);
-        			}else if(codeinfo.get("GROUP").equals("attachForm_Contract01")) {
-        				attachForm_Contract01.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("attachForm_Purchase01")) {
+        				attachForm_Purchase01.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("option")) {
+        				option.add(codeinfo);
         			}
         			
         		}            	
@@ -317,7 +320,7 @@ public class PurchasePopController {
                 	mv.addObject("createSuperKey", loginVo.getGroupSeq() + "|" + detailInfo.get("write_comp_seq") + "|" + detailInfo.get("write_dept_seq") + "|" + detailInfo.get("write_emp_seq") + "|u");
                 	mv.addObject("write_dt", detailInfo.get("write_dt"));
             		
-            		params.put("outProcessCode", "Contract01");
+            		params.put("outProcessCode", "Purchase01");
             		List<Map<String, Object>> formAttachList = commonServiceDAO.SelectFormAttachList(params);
             		
             		mv.addObject("formAttachList", formAttachList);
@@ -326,7 +329,7 @@ public class PurchasePopController {
             		return mv;
             	}
             }else {
-            	mv.addObject("formAttachList", attachForm_Contract01);
+            	mv.addObject("formAttachList", attachForm_Purchase01);
             	
             	mv.addObject("createDeptName", loginVo.getOrgnztNm());
             	mv.addObject("createEmpName", loginVo.getName());
@@ -349,9 +352,7 @@ public class PurchasePopController {
             mv.addObject("contractForm2Code", contractForm2);
             mv.addObject("contractForm3Code", contractForm3);
             mv.addObject("sectorGroupCode", sectorGroup);
-            
-            
-            mv.addObject("loginVo", loginVo);
+            mv.addObject("option", option);
             
             mv.setViewName("/purchase/pop/PurchaseCreatePop");
 

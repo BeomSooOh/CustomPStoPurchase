@@ -31,17 +31,30 @@
     
 	<script type="text/javascript">
 	
+		var selectedList = [];
+		var rowData;	
+	
 		$(document).ready(function() {
 			
 			BindGrid();
 			
 		});
 		
-		function getSelectedData(){
+		function fnGetSelectedList(){
 			
-			return Pudd( "#grid" ).getPuddObject().getGridCheckedRowData( "gridCheckBox" );
+			<c:if test="${params.multiYn == 'Y'}">
+			selectedList = Pudd( "#grid" ).getPuddObject().getGridCheckedRowData( "gridCheckBox" );
+			</c:if>
+			<c:if test="${params.multiYn == 'N'}">
+			selectedList = [];
+			if(rowData != null){
+				selectedList.push(rowData);
+			}
+			</c:if>	
 			
-		}
+			return selectedList;
+			
+		}			
 		
 		function viewImgPop(imgSrc, itemNm){
 			
@@ -139,6 +152,8 @@
 			}	
 			
 			,	columns : [
+				
+					<c:if test="${params.multiYn == 'Y'}">
 					{
 						field : "gridCheckBox"		// grid 내포 checkbox 사용할 경우 고유값 전달
 					,	width : 34
@@ -146,7 +161,8 @@
 							type : "checkbox"
 						,	basicUse : true
 						}
-					},			
+					},	
+					</c:if>	
 					{
 						field : "prdctImgUrl"
 					,	title : "이미지"
@@ -250,6 +266,24 @@
 					}					
 				]
 			});	
+			
+			
+			<c:if test="${params.multiYn == 'N'}">
+			Pudd( "#grid" ).on( "gridRowClick", function( e ) {
+				 
+				// e.detail 항목으로 customEvent param 전달됨
+				var evntVal = e.detail;
+			 
+				if( ! evntVal ) return;
+				if( ! evntVal.trObj ) return;
+			 
+				// dataSource에서 전달된 row data
+				rowData = evntVal.trObj.rowData;
+			 
+				// grid 이벤트 관련된 처리부분
+			});	
+			</c:if>
+			
 		}			
 		 
 	

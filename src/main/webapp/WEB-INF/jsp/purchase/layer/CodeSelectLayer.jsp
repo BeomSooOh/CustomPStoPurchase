@@ -42,7 +42,9 @@
 		tempObj.note = "${items.NOTE}";
 		tempObj.link = "${items.LINK}";
 		exData.push(tempObj);
-		</c:forEach>			
+		</c:forEach>	
+		
+		var selectedList = [];
 		
 		function fnDlgFrameFunc(){
 			
@@ -57,6 +59,22 @@
 			</c:if>			
 			
 		}
+		
+		function fnGetSelectedList(){
+			
+			<c:if test="${params.multiYn == 'Y'}">
+			selectedList = Pudd( "#grid" ).getPuddObject().getGridCheckedRowData( "gridCheckBox" );
+			</c:if>
+			<c:if test="${params.multiYn == 'N'}">
+			selectedList = [];
+			if(rowData != null){
+				selectedList.push(rowData);
+			}
+			</c:if>	
+			
+			return selectedList;
+			
+		}		
 		
 		$(document).ready(function() {
 			

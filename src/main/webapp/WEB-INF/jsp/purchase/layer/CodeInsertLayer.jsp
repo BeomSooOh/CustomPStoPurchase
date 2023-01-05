@@ -36,7 +36,7 @@
 		insertCodeInfo.CODE = $("[name=CODE]").val();
 		insertCodeInfo.NAME = $("[name=NAME]").val();
 		insertCodeInfo.NOTE = $("[name=NOTE]").val();
-		insertCodeInfo.ORDER_NUM = $("[name=ORDER_NUM]").val();
+		insertCodeInfo.ORDER_NUM = $("[name=ORDER_NUM]").val() == "" ? "0" : $("[name=ORDER_NUM]").val();
 		insertCodeInfo.USE_YN = $("[name=USE_YN]").val();
 		return insertCodeInfo;
 	}

@@ -1329,3 +1329,13 @@ INSERT IGNORE INTO cust_sto.t_purchase_code_detail
 (`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
 VALUES('resFormSeq', 'Purchase01', '구매품의양식코드', 'Y', 3, NULL, '219', NULL);
 
+insert IGNORE INTO cust_sto.t_purchase_code_group
+(`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
+VALUES('attachForm_Purchase01', 'attachForm', '구매품의', 'Y', 7, '');
+
+insert IGNORE INTO cust_sto.t_purchase_code_group
+(`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
+VALUES('attachForm_Purchase02', 'attachForm', '물품검수', 'Y', 8, '');
+
+
+

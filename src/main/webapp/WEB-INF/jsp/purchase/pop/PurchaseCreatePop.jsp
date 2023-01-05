@@ -74,7 +74,7 @@
 	commonParam.resSeq = "-1";
 	commonParam.selectedBudgetSeqs = "";	
 	
-	var outProcessCode = "Conclu01";
+	var outProcessCode = "Purchase01";
 	var disabledYn = "${disabledYn}";
 	
 	var insertDataObject = {};
@@ -89,7 +89,7 @@
 	var tempObj = {};
 	var tempStr = "";
 	
-	<c:forEach var="items" items="${attachForm_Purchase01}">
+	<c:forEach var="items" items="${formAttachList}">
 	
 	tempObj = {};
 	tempArray =  "${items.LINK}".split('▦');
@@ -106,7 +106,42 @@
 	tempObj.newYn = "${items.new_yn}";
 	
 	attachFormList.push(tempObj);
-	</c:forEach>	
+	</c:forEach>
+	
+	$(document).ready(function() {
+		
+		$('[amountInput=Y]').maskMoney({
+			precision : 0,
+			allowNegative: false
+		});			
+		
+		//$("#amt").text("₩ ${contractDetailInfo.amt} " + viewKorean("${contractDetailInfo.amt}".replace(/,/g, '')) + " / 부가세 포함");
+		
+		//옵션값 설정
+		setCommonOption();
+		
+		//setDynamicSetInfoBudget();
+		
+	});	
+	
+	function setCommonOption(){
+		
+		<c:forEach var="items" items="${option}" varStatus="status">
+		
+		console.log("option ${items.CODE} > ${items.NOTE}");
+		
+		if("${items.CODE}" == "def_erp_budget_div_seq"){
+			$("[name=erp_budget_div_seq]").val("${items.NOTE}");
+			
+			$("[optionTarget=def_erp_budget_div_seq]").hide();
+			
+		}else if("${items.CODE}" == "def_erp_budget_div_name"){
+			$("[name=erp_budget_div_name]").val("${items.NOTE}");
+		}			
+		
+		</c:forEach>				
+		
+	}	
 	
 	function fnChangeEtc(e){
 		
@@ -144,6 +179,27 @@
 		amountInputSet();
 		
 	}
+	
+	function amountInputSet(){
+		
+		$('[amountInput=Y]').maskMoney({
+			precision : 0,
+			allowNegative: false
+		});
+		
+		$('[amountType=amt]').keyup(function() {
+			
+			var amtInt = $(this).val().replace(/,/g, '');
+			var targetTr = $(this).closest("tr[name=addData]");
+			
+			$(targetTr).find("[amounttype=stdAmt]").val((Math.floor(amtInt*10/11)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+			$(targetTr).find("[amounttype=taxAmt]").val((Math.ceil(amtInt/11)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+			$(targetTr).find("[name=viewKorean]").text(viewKorean(amtInt));
+			
+		});						
+		
+		
+	}		
 	
 	function fnSectorDel(e, tableName){
 		
@@ -303,20 +359,13 @@
 	
 	
 	function commonCodeSelectLayer(group, title, type, target, multiYn){
-		
-		commonCodeTargetInfo = [];
-		
-		/*
-		if(appendYn == "Y"){
-			commonCodeTargetSet(type, targetName);	
-		}
-		*/
-		
+
+
 		// puddDialog 함수
 		Pudd.puddDialog({
 		 
-			width : 400
-		,	height : 500
+			width : type == "shopping" ? 1200 : 400
+		,	height : type == "shopping" ? 600 : 500
 		 
 		,	modal : true			// 기본값 true
 		,	draggable : false		// 기본값 true
@@ -324,17 +373,17 @@
 		 
 		,	header : {
 	 		title : title
-		,	closeButton : true	// 기본값 true
+		,	closeButton : false	// 기본값 true
 		,	closeCallback : function( puddDlg ) {
 				// close 버튼은 내부에서 showDialog( false ) 실행함 - 즉, 닫기 처리는 내부에서 진행됨
 				// 추가적인 작업 내용이 있는 경우 이곳에서 처리
 			}
 		}
-		 
+		
 		,	body : {
 		 
 				iframe : true
-			,	url : "${pageContext.request.contextPath}/purchase/layer/CodeSelectLayer.do?multiYn=" + multiYn + "&group=" + group
+			,	url : "${pageContext.request.contextPath}/purchase/layer/" + (type == "shopping" ? "SelectShoppingListLayer" : "CodeSelectLayer") + ".do?multiYn=" + multiYn + "&group=" + group
 			,	iframeAttribute : {
 				id : "dlgFrame"
 			}						
@@ -353,8 +402,7 @@
 					,	clickCallback : function( puddDlg ) {
 						
 						var iframeTag = document.getElementById( "dlgFrame" );
-						iframeTag.contentWindow.fnDlgFrameFunc();							
-						commonCodeCallback(type, target);
+						commonCodeCallback(type, target, iframeTag.contentWindow.fnGetSelectedList());
 						puddDlg.showDialog( false );
 							
 						}
@@ -376,17 +424,36 @@
 		
 	}		
 	
-	function commonCodeCallback(type, target){
+	function commonCodeCallback(type, target, selectedList){
 		
 		if(type == "ul"){
-			$(target).find('[name="hope_company_list"] [name=addData]').remove();
-			$.each(commonCodeTargetInfo, function( idx, addData ) {
-				var cloneData = $(target).find('[name="hope_company_list"] [name=dataBase]').clone();
+			$(target).find('[name=addData]').remove();
+			$.each(selectedList, function( idx, addData ) {
+				var cloneData = $(target).find('[name=dataBase]').clone();
 				$(cloneData).show().attr("name", "addData");
 				$(cloneData).attr("addCode", addData.code);
 				$(cloneData).find("[name=addName]").text(addData.name);
-				$(target).find('[name="hope_company_list"]').append(cloneData);				
+				$(target).find('ul').append(cloneData);				
 			});									
+		}else if(type == "shopping"){
+			
+			/*
+			prdctClsfcNo : 물품분류번호 item_div_no
+			prdctIdntNo : 물품식별번호 item_idn_no
+			prdctClsfcNoNm : 품명 item_name
+			prdctUnit : 물품단위
+			cntrctPrceAmt : 계약가격금액 item_amt
+			dlvrTmlmtDaynum : 납품기한일수
+			*/
+			
+			if(selectedList.length > 0){
+				$(target).find("[name=item_div_no]").val(selectedList[0].prdctClsfcNo);
+				$(target).find("[name=item_idn_no]").val(selectedList[0].prdctIdntNo);
+				$(target).find("[name=item_name]").val(selectedList[0].prdctClsfcNoNm);
+				$(target).find("[name=item_amt]").val(selectedList[0].cntrctPrceAmt.replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+				$(target).find("[name=item_cnt]").val("1");
+			}
+			
 		}
 	}	
 	
@@ -583,7 +650,7 @@
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 유형선택</th>
 					<td colspan="3" objKey="purchase_type" objCheckFor="checkVal('radio', 'purchaseType', '유형선택', '', '')" >
 						<input ${disabled} type="radio" name="purchaseType" class="puddSetup" pudd-label="비품" value="01" <c:if test="${ (viewType == 'I') || (viewType == 'U' && purchaseDetailInfo.purchase_type == '01') }">checked</c:if> />
-						<input ${disabled} type="radio" name="purchaseType" class="puddSetup" pudd-label="소모품" value="02" <c:if test="${ viewType == 'U' && purchaseDetailInfo.purchase_type == '02' }">checked</c:if> />	
+						<input ${disabled} type="radio" name="purchaseType" class="puddSetup" pudd-label="소모품" value="02" <c:if test="${ viewType == 'U' && purchaseDetailInfo.purchase_type == '02' }">checked</c:if> />
 					</td>	
 				</tr>
 				<tr>
@@ -612,7 +679,7 @@
 					<th>공급업체</th>
 					<td colspan="3">
 						<div class="com_ta mt10">
-							<table name="tradeList" objKey="tradeObjList" objCheckFor="checkVal('obj', 'tradeList', '계약대상', 'mustAlert', '')">
+							<table name="tradeList" objKey="tradeObjList" objCheckFor="checkVal('obj', 'tradeList', '공급업체', 'mustAlert', '')">
 								<colgroup>
 									<c:if test="${disabledYn == 'N'}"> 
 									<col width="50"/>
@@ -671,7 +738,7 @@
 										</div>
 										<c:if test="${disabledYn == 'N'}"> 
 										<div class="controll_btn p0 pt4">	
-											<button id="" onclick="commonCodeSelectLayer('hopeCompany', '희망기업여부', 'ul', $(this).closest('tr'), 'Y')">선택</button>
+											<button id="" onclick="commonCodeSelectLayer('hopeCompany', '희망기업여부', 'ul', $(this).closest('td'), 'Y')">선택</button>
 										</div>
 										</c:if>
 									</td>									
@@ -729,7 +796,7 @@
 										</div>
 										<c:if test="${disabledYn == 'N'}"> 
 										<div class="controll_btn p0 pt4">	
-											<button id="" onclick="commonCodeSelectLayer('hopeCompany', '희망기업여부', 'ul', $(this).closest('tr'), 'Y')">선택</button>
+											<button id="" onclick="commonCodeSelectLayer('hopeCompany', '희망기업여부', 'ul', $(this).closest('td'), 'Y')">선택</button>
 										</div>
 										</c:if>
 									</td>									
@@ -757,100 +824,6 @@
 		</div>
 
 
-		<!-- 예산정보 -->
-		<div class="btn_div mt25">
-			<div class="left_div">	
-				<p class="tit_p mt5 mb0">예산정보</p>
-			</div>
-		</div>
-		
-		<div class="com_ta4">
-			<table>
-				<colgroup>
-					<col width="50"/>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-				</colgroup>
-				<tr>
-					<th class="ac">
-						<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('../../../Images/btn/btn_plus01.png') no-repeat center" value="" />
-					</th>
-					<th class="ac">예산회계단위</th>
-					<th class="ac">프로젝트</th>
-					<th class="ac">하위사업</th>
-					<th class="ac">예산과목</th>
-				</tr>
-				<tr>
-					<td>
-						<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('../../../Images/btn/btn_minus01.png') no-repeat center" value="" />
-					</td>
-					<td>
-						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
-						</div>
-					</td>
-				</tr>
-			</table>
-		</div>
-
-		<!-- 테이블 -->
-		<div class="com_ta6 mt10">
-			<table>
-				<colgroup>
-					<col width="100"/>
-					<col width="150"/>
-					<col width="100"/>
-					<col width="150"/>
-					<col width="100"/>
-					<col width="150"/>
-					<col width="100"/>
-					<col width="150"/>
-				</colgroup>
-				<tr>
-					<th>관</th>
-					<td>운영비(210)</td>
-					<th>항</th>
-					<td>일반수용비(01)</td>
-					<th>목</th>
-					<td></td>
-					<th>세</th>
-					<td></td>
-				</tr>				
-				<tr>
-					<th>예산액</th>
-					<td class="ri pr10">1,000,000</td>
-					<th>집행액</th>
-					<td class="ri pr10">1,000,000</td>
-					<th>품의액</th>
-					<td class="ri pr10">1,000,000</td>
-					<th>예산잔액</th>
-					<td class="ri pr10">1,000,000</td>
-				</tr>
-			</table>
-		</div>	
-
-
 		<!-- 물품규격 -->
 		<div class="btn_div mt25">
 			<div class="left_div">	
@@ -859,13 +832,13 @@
 		</div>
 		
 		<div class="com_ta4 ova_sc">
-			<table style="width:2000px;">
+			<table name="itemList" objKey="itemObjList" objCheckFor="checkVal('obj', 'tradeList', '공급업체', 'mustAlert', '')" style="width:2600px;">
 				<colgroup>
 					<col width="50"/>
 					<col width="200"/>
 					<col width="250"/>
 					<col width="200"/>
-					<col width="150"/>
+					<col width="200"/>
 					<col width="150"/>
 					<col width="200"/>
 					<col width="150"/>
@@ -877,10 +850,13 @@
 					<col width="130"/>
 					<col width="250"/>
 					<col width="200"/>
+					<col width="200"/>
+					<col width="200"/>
+					<col width="200"/>
 				</colgroup>
 				<tr>
 					<th class="ac">
-						<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('../../../Images/btn/btn_plus01.png') no-repeat center" value="" />
+						<input type="button" onclick="fnSectorAdd('itemList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 					</th>
 					<th class="ac">물품분류번호</th>
 					<th class="ac">물품식별번호</th>
@@ -897,23 +873,26 @@
 					<th class="ac">국내외구분</th>
 					<th class="ac">국가코드</th>
 					<th class="ac">취득사유코드</th>
+					<th class="ac">녹색제품인증구분</th>
+					<th class="ac">녹색제품미구매사유</th>
+					<th class="ac">녹색제품분류</th>
 				</tr>
-				<tr>
+				<tr name="dataBase" style="display1:none;">
 					<td>
-						<input type="button" id="" class="puddSetup" style="width:20px;height:20px;background:url('../../../Images/btn/btn_minus01.png') no-repeat center" value="" />
+						<input type="button" onclick="fnSectorDel(this, 'itemList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 					</td>
-					<td><input type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
+					<td><input tbval="Y" name="item_div_no" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
 					<td>
 						<div class="posi_re">
-							<input type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;"></a>
+							<input tbval="Y" name="item_idn_no" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
+							<a href="#n" class="btn_search" style="margin-left: -25px;" onclick="commonCodeSelectLayer('', '', 'shopping', $(this).closest('tr'), 'N')"></a>
 						</div>
 					</td>
-					<td><input type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
-					<td><input type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="" /></td>
-					<td><input type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="" /></td>
-					<td class="ri">1,000,000원</td>
-					<td><input type="text" value="2018-03-30" class="puddSetup" pudd-type="datepicker"/></td>
+					<td><input tbval="Y" name="item_name" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
+					<td><input tbval="Y" name="item_amt" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="" /> 원</td>
+					<td><input tbval="Y" name="item_cnt" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="" /></td>
+					<td tbval="Y" name="item_total_amt" tbtype="innerText" class="ri">0 원</td>
+					<td><input type="text" value="" class="puddSetup" pudd-type="datepicker"/></td>
 					<td><input type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
 					<td class="le">
 						<input type="text" pudd-style="width:100px;" class="puddSetup ar" value="" /> 원
@@ -957,50 +936,225 @@
 							<option value="">취득/무상관리전환</option>
 						</select>
 					</td>
+					
+					<td>
+						<select class="puddSetup" pudd-style="width:calc( 100% - 10px);">
+							<option value="">해당없음</option>
+						</select>
+					</td>
+					<td>
+						<select class="puddSetup" pudd-style="width:calc( 100% - 10px);">
+							<option value="">--</option>
+						</select>
+					</td>
+					<td>
+						<select class="puddSetup" pudd-style="width:calc( 100% - 10px);">
+							<option value="">--</option>
+						</select>
+					</td>															
+					
 				</tr>
 			</table>
 		</div>
 
-		<!-- 테이블 -->
-		<div class="com_ta mt10">
-			<table>
-				<colgroup>
-					<col width="160"/>
-					<col width="408"/>
-					<col width="160"/>
-					<col width="270"/>
-				</colgroup>
-				<tr>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 녹색제품구매확인</th>
-					<td>
-						<input type="radio" name="radi" class="puddSetup" pudd-label="녹색제품 구입" />
-						<input type="radio" name="radi" class="puddSetup" pudd-label="해당없음" />
-						
-						<select class="puddSetup pl15" pudd-style="width:150px;">
-							<option value="">인증구분 선택</option>
-						</select>
-					</td>
-					<th>녹색제품 미구매 사유</th>
-					<td>
-						<select class="puddSetup pl15" pudd-style="width:100%;">
-							<option value="">품목에 녹색제품 없음</option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<th>녹색제품 분류</th>
-					<td colspan="3">
-						<div class="posi_re lh24">
-							<span class="fl" style="width:calc( 100% - 30px);">업체요구사항업체요구사항 <img src="../../../Images/btn/close_btn01.png" id="" alt="" class="mtImg" onclick="" /></span>
-							<sapn class="fr pr10"><a href="#n" class="btn_search" style="margin-left: -15px;"></a></span>
-						</div>	
-					</td>
-				</tr>
-			</table>
+			
+		<!-- 예산정보 -->
+		<div class="btn_div mt25">
+			<div class="left_div">	
+				<p class="tit_p mt5 mb0">예산정보</p>
+			</div>
 		</div>
 		
-		
-		
+		<div class="com_ta4">
+			<table name="budgetList" objKey="budgetObjList" objCheckFor="checkVal('obj', 'budgetList', '예산정보', 'mustAlert', '')">
+				<colgroup>
+					<c:if test="${disabledYn == 'N'}"> 
+					<col width="50"/>
+					</c:if>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+				</colgroup>
+				<tr>
+					<c:if test="${disabledYn == 'N'}"> 
+					<th class="ac">
+						<input type="button" onclick="fnSectorAdd('budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+					</th>
+					</c:if>
+					<th optionTarget="def_erp_budget_div_seq" class="ac">예산회계단위</th>
+					<th class="ac">프로젝트</th>
+					<th class="ac">하위사업</th>
+					<th class="ac">예산과목</th>
+					<th class="ac">금액</th>
+				</tr>
+				<tr name="dataBase" onclick="fnSetBudgetAmtInfo(this);" style="display:none;">
+					<c:if test="${disabledYn == 'N'}"> 
+					<td>
+						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+					</td>
+					</c:if>
+					<td optionTarget="def_erp_budget_div_seq">
+						<div class="posi_re">
+							<input tbval="Y" name="erp_budget_div_seq" type="hidden" value="" />
+							<input tbval="Y" name="erp_budget_div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
+							
+							<c:if test="${disabledYn == 'N'}">
+							<a href="#n" onclick="fnCommonCodeCustomPop('div', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="pjt_seq" type="hidden" value="" />
+							<input tbval="Y" name="pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
+
+							<c:if test="${disabledYn == 'N'}">
+							<a href="#n" onclick="fnCommonCodeCustomPop('project', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="bottom_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />							
+							
+							<c:if test="${disabledYn == 'N'}">
+							<a href="#n" onclick="fnCommonCodeCustomPop('bottom', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="erp_bgt1_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt2_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt3_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt4_seq" type="hidden" value="" requiredNot="true" />
+													
+							<input tbval="Y" name="erp_bgt1_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt2_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt3_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt4_name" type="hidden" value="" requiredNot="true" />
+						
+							<input tbval="Y" name="erp_budget_seq" type="hidden" value="" />
+							<input tbval="Y" name="erp_budget_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
+
+							<c:if test="${disabledYn == 'N'}"> 
+							<a href="#n" onclick="fnCommonCodeCustomPop('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" />							
+						</div>
+					</td>					
+				</tr>
+				
+				<tr name="addData" onclick="fnSetBudgetAmtInfo(this);">
+					<c:if test="${disabledYn == 'N'}"> 
+					<td>
+						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+					</td>
+					</c:if>
+					<td optionTarget="def_erp_budget_div_seq">
+						<div class="posi_re">
+							<input tbval="Y" name="erp_budget_div_seq" type="hidden" value="" />
+							<input tbval="Y" name="erp_budget_div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
+							
+							<c:if test="${disabledYn == 'N'}"> 
+							<a href="#n" onclick="fnCommonCodeCustomPop('div', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="pjt_seq" type="hidden" value="" />
+							<input tbval="Y" name="pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
+							
+							<c:if test="${disabledYn == 'N'}"> 
+							<a href="#n" onclick="fnCommonCodeCustomPop('project', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="bottom_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />							
+							
+							<c:if test="${disabledYn == 'N'}"> 
+							<a href="#n" onclick="fnCommonCodeCustomPop('bottom', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="erp_bgt1_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt2_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt3_seq" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt4_seq" type="hidden" value="" requiredNot="true" />
+													
+							<input tbval="Y" name="erp_bgt1_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt2_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt3_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="erp_bgt4_name" type="hidden" value="" requiredNot="true" />
+						
+							<input tbval="Y" name="erp_budget_seq" type="hidden" value="" />
+							<input tbval="Y" name="erp_budget_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
+							
+							<c:if test="${disabledYn == 'N'}"> 
+							<a href="#n" ${disabled} onclick="fnCommonCodeCustomPop('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
+							</c:if>
+						</div>
+					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" />							
+						</div>
+					</td>					
+				</tr>				
+				
+			</table>
+		</div>
+
+		<!-- 테이블 -->
+		<div class="com_ta6 mt10">
+			<table>
+				<colgroup>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+				</colgroup>
+				<tr>
+					<input id="bgtSeq" type="hidden" value="" />
+					<th>관</th>
+					<td id="bgt1Name" objCheckFor="checkVal('text()', this, '관', '', '')"></td>
+					<th>항</th>
+					<td id="bgt2Name" objCheckFor="checkVal('text()', this, '항', '', '')"></td>
+					<th>목</th>
+					<td id="bgt3Name" objCheckFor="checkVal('text()', this, '목', '', '')"></td>
+					<th>세</th>
+					<td id="bgt4Name" objCheckFor="checkVal('text()', this, '세', '', '')"></td>
+				</tr>				
+				<tr>
+					<th>예산액</th>
+					<td class="ri pr10" id="txtOpenAmt"></td>
+					<th>집행액</th>
+					<td class="ri pr10" id="txtConsBalanceAmt"></td>
+					<th>품의액</th>
+					<td class="ri pr10" id="txtApplyAmt"></td>
+					<th>예산잔액</th>
+					<td class="ri pr10" id="txtBalanceAmt"></td>
+				</tr>
+			</table>
+		</div>	
+
+
 	</div><!-- //pop_con -->
 </div><!-- //pop_wrap -->
 
