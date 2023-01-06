@@ -1651,11 +1651,7 @@
 					<td><input tbval="Y" name="item_cnt" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="1" /></td>
 					<td tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
 					<input tbval="Y" name="item_total_amt" type="hidden" value="0" requiredNot="true" />
-					
-					<td>
-					<div id="baseDatePicker"></div>
-					</td>
-					
+					<td><input tbval="Y" name="item_deadline" type="text" value="" class="puddSetup" pudd-type="datepicker"/></td>
 					<td><input tbval="Y" name="item_pickup_location" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
 					<td><input tbval="Y" name="item_fee_amt" amountInput="Y" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
 					<td class="le">
