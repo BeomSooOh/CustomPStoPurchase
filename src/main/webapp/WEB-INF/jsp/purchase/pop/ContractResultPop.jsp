@@ -528,25 +528,39 @@
 			
 			//제안서평과위원정보 html
 			var resultJudgesInfoHtml = "";
+			
+			$('[name=resultJudgesListHtml]').find("[displaynone]").removeAttr("displaynone");
+			$('[name=resultJudgesListHtml]').find(":hidden").attr("displaynone", "Y");
+			
 			var cloneData = $('[name=resultJudgesListHtml]').clone();
+			$(cloneData).find("[displaynone]").remove();
 			$(cloneData).find("[removehtml=Y]").remove();
+			$(cloneData).find("[name=resultJudgesAddBase]").remove();
+			$(cloneData).find("[name=resultJudgesList]").attr("border", "1");
+			$(cloneData).find("[name=resultJudgesList]").attr("width", "100%");
 			$(cloneData).find("[name]").removeAttr("name");
-			$(cloneData).css("width", "100%");
 			
 			//input 요소 텍스트화
 			$.each($(cloneData).find("input"), function( idx, obj ) {
 				$(obj).replaceWith($(obj).val());
-			});				
+			});
 			
 			resultJudgesInfoHtml = $(cloneData)[0].outerHTML;
 			insertDataObject.result_judges_info_html = resultJudgesInfoHtml;
 			
 			//제안서평과결과정보 html
 			var resultScoreInfoHtml = "";
+			
+			$('[name=resultScoreListHtml]').find("[displaynone]").removeAttr("displaynone");
+			$('[name=resultScoreListHtml]').find(":hidden").attr("displaynone", "Y");
+			
 			var cloneData = $('[name=resultScoreListHtml]').clone();
+			$(cloneData).find("[displaynone]").remove();
 			$(cloneData).find("[removehtml=Y]").remove();
+			$(cloneData).find("[name=scoreInfoAddBase]").remove();
+			$(cloneData).find("[name=resultScoreList]").attr("border", "1");
+			$(cloneData).find("[name=resultScoreList]").attr("width", "100%");
 			$(cloneData).find("[name]").removeAttr("name");
-			$(cloneData).css("width", "100%");
 			
 			$.each($(cloneData).find("[colspanHtml]"), function( idx, obj ) {
 				$(obj).attr("colspan", $(obj).attr("colspanHtml"));
@@ -565,8 +579,8 @@
 			
 			$.each($(cloneData).find("select"), function( idx, obj ) {
 				$(obj).replaceWith(selectTextTemp[idx]);
-			});			
-
+			});
+			
 			resultScoreInfoHtml = $(cloneData)[0].outerHTML;
 			insertDataObject.result_score_info_html = resultScoreInfoHtml;
 			
@@ -782,7 +796,7 @@
 					<td colspan="3">
 						<!-- 그리드 -->
 						<div name="resultJudgesListHtml" class="com_ta4">
-							<table border="1" width="100%" name="resultJudgesList" objKey="result_judges_info" objCheckFor="checkVal('table', 'resultJudgesList', '평가위원', 'true')">
+							<table name="resultJudgesList" objKey="result_judges_info" objCheckFor="checkVal('table', 'resultJudgesList', '평가위원', 'true')">
 								<colgroup>
 									<c:if test="${disabledYn == 'N'}">
 									<col removeHtml="Y" width="50"/>
@@ -896,7 +910,7 @@
 					<td colspan="3">
 						<!-- 그리드 -->
 						<div name="resultScoreListHtml" class="com_ta4">
-							<table border="1" width="100%" name="resultScoreList" objKey="result_score_info" objCheckFor="checkVal('table', 'resultScoreList', '제안서 평가결과', 'true', 'notnull')">
+							<table name="resultScoreList" objKey="result_score_info" objCheckFor="checkVal('table', 'resultScoreList', '제안서 평가결과', 'true', 'notnull')">
 								<colgroup>
 									<c:if test="${disabledYn == 'N'}">
 									<col removeHtml="Y" width="50"/>
