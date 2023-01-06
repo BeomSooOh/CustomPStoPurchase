@@ -90,7 +90,6 @@ public class PurchasePopController {
             LoginVO loginVo = CommonConvert.CommonGetEmpVO();
             
             params.put("groupSeq", loginVo.getGroupSeq());
-            
             params.put("useYn", "Y");
             params.put("group", "resFormSeq");
             params.put("code", "Purchase01");
@@ -327,7 +326,7 @@ public class PurchasePopController {
             			//임시저장 버튼 표시
             			mv.addObject("btnSaveYn", "N");
             			
-            			if(!detailInfo.get("approkey_meet").equals("") || !detailInfo.get("doc_sts").equals("10")) {
+            			if(!detailInfo.get("approkey_purchase").equals("") || !detailInfo.get("doc_sts").equals("10")) {
             				mv.addObject("btnApprYn", "N");
             				mv.addObject("disabledYn", "Y");
             				mv.addObject("disabled", "disabled");
@@ -336,7 +335,7 @@ public class PurchasePopController {
             		
             		mv.addObject("viewType", "U");
             		mv.addObject("seq", params.get("seq"));
-            		mv.addObject("contractDetailInfo", detailInfo);
+            		mv.addObject("purchaseDetailInfo", detailInfo);
             		
                 	mv.addObject("createDeptName", detailInfo.get("write_dept_name"));
                 	mv.addObject("createEmpName", detailInfo.get("write_emp_name"));
@@ -348,8 +347,16 @@ public class PurchasePopController {
             		
             		params.put("outProcessCode", "Purchase01");
             		List<Map<String, Object>> formAttachList = commonServiceDAO.SelectFormAttachList(params);
-            		
             		mv.addObject("formAttachList", formAttachList);
+            		
+            		List<Map<String, Object>> budgetList = commonServiceDAO.SelectBudgetList(params);
+            		mv.addObject("budgetList", budgetList);
+            		
+            		List<Map<String, Object>> tradeList = commonServiceDAO.SelectTradeList(params);
+            		mv.addObject("tradeList", tradeList);
+            		
+            		List<Map<String, Object>> itemList = purchaseServiceDAO.SelectItemList(params);
+            		mv.addObject("itemList", itemList);            		
             		
             	}else {
             		return mv;
@@ -389,6 +396,8 @@ public class PurchasePopController {
             mv.addObject("greenCertTypeCode", greenCertType);
             mv.addObject("nonGreenReasonCode", nonGreenReason);
             mv.addObject("greenClassCode", greenClass);
+            
+            mv.addObject("seq", params.get("seq"));
             
             mv.setViewName("/purchase/pop/PurchaseCreatePop");
 

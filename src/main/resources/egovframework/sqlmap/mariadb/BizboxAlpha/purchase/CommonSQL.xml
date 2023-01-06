@@ -377,8 +377,18 @@
 	<insert	id="CommonSQL.InsertTradeInfo" parameterClass="HashMap" >
 	
 		INSERT INTO cust_sto.t_purchase_trade_info
-		(seq, outProcessCode, tr_seq, tr_name, at_tr_name, ceo_name, tr_reg_number, addr, depositor, ba_nb, btr_name, btr_seq, tr_fg, tr_fg_name, pm_email, pm_hp, pm_name, created_dt, created_by, tr_idx)
-		VALUES('$seq$', '$outProcessCode$', '$tr_seq$', '$tr_name$', '$at_tr_name$', '$ceo_name$', '$tr_reg_number$', '$addr$', '$depositor$', '$ba_nb$', '$btr_name$', '$btr_seq$', '$tr_fg$', '$tr_fg_name$', '$pm_email$', '$pm_hp$', '$pm_name$', now(), '$created_by$', '$tr_idx$');
+		(seq, outProcessCode, tr_seq, tr_name, at_tr_name, ceo_name, tr_reg_number, addr, depositor, ba_nb, btr_name, btr_seq, tr_fg, tr_fg_name, pm_email, pm_hp, pm_name, created_dt, created_by, tr_idx
+		<isNotEmpty property="hope_company_info">
+		, hope_company_info
+		, hope_attach_info
+		</isNotEmpty>		
+		)
+		VALUES('$seq$', '$outProcessCode$', '$tr_seq$', '$tr_name$', '$at_tr_name$', '$ceo_name$', '$tr_reg_number$', '$addr$', '$depositor$', '$ba_nb$', '$btr_name$', '$btr_seq$', '$tr_fg$', '$tr_fg_name$', '$pm_email$', '$pm_hp$', '$pm_name$', now(), '$created_by$', '$tr_idx$'
+		<isNotEmpty property="hope_company_info">
+		, '$hope_company_info$'
+		, '$hope_attach_info$'
+		</isNotEmpty>			
+		);
 		
 	</insert>
 	

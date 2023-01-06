@@ -11,5 +11,5 @@ public interface PurchaseService {
 
 	public List<Map<String, Object>> SelectPurchaseList ( Map<String, Object> params );	
 	
-	
+	public Map<String, Object> InsertPurchase ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
 }

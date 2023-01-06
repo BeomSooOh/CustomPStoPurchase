@@ -193,5 +193,26 @@ public class PurchaseMainController {
     }        
     
     
+    
+    @RequestMapping(value="/purchase/PurchaseSaveProc.do", method={RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public ModelAndView PurchaseSaveProc(@RequestParam Map<String,Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("created_by", loginVo.getUniqId());
+		
+		purchaseService.InsertPurchase(params);
+		
+		mv.addObject("resultData", params);
+		mv.addObject("resultCode", "success");	
+		mv.setViewName("jsonView");
+		return mv;
+	}     
+    
+    
 
 }

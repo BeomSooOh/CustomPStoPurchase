@@ -209,7 +209,7 @@ CREATE table if not exists cust_sto.`t_purchase_contract` (
   `contract_attach_info` varchar(100) DEFAULT NULL COMMENT '계약서첨부파일정보',
   `submit_attach_info` varchar(100) DEFAULT NULL COMMENT '제출첨부파일정보',
   PRIMARY KEY (`seq`)
-) ENGINE=InnoDB AUTO_INCREMENT=127 DEFAULT CHARSET=utf8mb4 COMMENT='계약/발주등록정보';
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COMMENT='계약/발주등록정보';
 
 
 
@@ -1424,3 +1424,27 @@ VALUES('greenClass', '', '--', 'Y', 1, NULL, NULL, NULL);
 INSERT IGNORE INTO cust_sto.t_purchase_code_detail
 (`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
 VALUES('greenClass', '01', '필기구 및 필기구 소모품', 'Y', 2, NULL, NULL, NULL);
+
+
+
+CREATE table if not exists cust_sto.`t_purchase_item_info` (
+  `seq` int(11) NOT NULL AUTO_INCREMENT,
+  `manage_no` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '구매번호',
+  `write_comp_seq` varchar(32) DEFAULT NULL COMMENT '작성자회사시퀀스',
+  `write_dept_seq` varchar(32) DEFAULT NULL COMMENT '작성부서시퀀스',
+  `write_emp_seq` varchar(32) DEFAULT NULL COMMENT '작성자시퀀스',
+  `write_dt` char(10) DEFAULT NULL COMMENT '작성일자',
+  `created_dt` datetime DEFAULT NULL COMMENT '생성일자',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '생성자',
+  `modify_dt` datetime DEFAULT NULL COMMENT '수정일자',
+  `modify_by` varchar(32) DEFAULT NULL COMMENT '수정자',
+  `doc_sts` varchar(10) DEFAULT NULL COMMENT '결재상태코드',
+  `approkey_purchase` varchar(50) DEFAULT NULL COMMENT '구매품의결재연동키',
+  `approkey_check` varchar(50) DEFAULT NULL COMMENT '물품검수전자결재연동키',
+  `title` varchar(200) DEFAULT NULL COMMENT '문서제목',
+  `purchase_method` varchar(200) DEFAULT NULL COMMENT '구매방법',
+  `purchase_type` varchar(10) DEFAULT NULL COMMENT '구매유형',
+  `pay_type_info` varchar(200) DEFAULT NULL COMMENT '결재방법',
+  `public_info` varchar(500) DEFAULT NULL COMMENT '담당자정보',
+  PRIMARY KEY (`seq`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COMMENT='구매품의등록정보';

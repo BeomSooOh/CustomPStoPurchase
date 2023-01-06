@@ -46,8 +46,8 @@
 	var commonElement;
 	
 	commonParam.callback = 'fnCommonCode_callback';
-	commonParam.widthSize = "628";
-	commonParam.heightSize = "546";
+	commonParam.widthSize = 780;
+	commonParam.heightSize = 582;
 	commonParam.erpGisu = optionSet.erpGisu.gisu; /* ERP 기수 */
 	commonParam.erpGisuFromDate = optionSet.erpGisu.fromDate; /* 기수 시작일 */
 	commonParam.erpGisuToDate = optionSet.erpGisu.toDate; /* 기수 종료일 */
@@ -115,14 +115,209 @@
 			allowNegative: false
 		});			
 		
-		//$("#amt").text("₩ ${contractDetailInfo.amt} " + viewKorean("${contractDetailInfo.amt}".replace(/,/g, '')) + " / 부가세 포함");
+		setDynamicPublicInfo("${purchaseDetailInfo.public_info}");
 		
 		//옵션값 설정
 		setCommonOption();
 		
-		//setDynamicSetInfoBudget();
+		//기존설정항목 세팅
+		<c:if test="${viewType == 'U'}">
+		setDynamicPuddInfo("pay_type_info", "checkbox", "${purchaseDetailInfo.pay_type_info}");
+		setDynamicSetInfoBudget();
+		setDynamicSetInfoTrade();
+		setDynamicSetInfoItem();
+		</c:if>
 		
 	});	
+	
+	function setDynamicPuddInfo(objKey, type, value){
+		
+		if(value != ""){
+			
+			var valueObj = {};
+			
+			$.each(value.split("▦▦"), function( key, val ) {
+				
+				var valInfo =  val.split("▦");
+				
+				if(valInfo.length > 1){
+					valueObj[valInfo[0]] = valInfo[1];
+				}else{
+					valueObj[valInfo[0]] = "";
+				}
+				
+			});			
+			
+			$.each($("[objkey="+objKey+"] input[type="+type+"]"), function( key, selectedObj ) {
+				
+				var vvalue = $(selectedObj).attr("value");
+				
+				if(valueObj[vvalue] != null){
+					
+					Pudd( selectedObj ).getPuddObject().setChecked( true );
+					
+					if(valueObj[vvalue] != ""){
+						
+						$("[objkey="+objKey+"] [name="+$(selectedObj).attr("name")+"_"+vvalue+"]").val(valueObj[vvalue]).show();
+						
+					}
+				}
+				
+			});					
+			
+		}
+		
+	}	
+	
+	
+	function setDynamicSetInfoItem(){
+		
+		<c:if test="${itemList.size() > 0 }">
+		$("[name=itemList] tr[name=addData]").remove();
+		
+		var cloneData;
+		<c:forEach var="items" items="${itemList}" varStatus="status">
+		
+		cloneData = $('[name="itemList"] tr[name=dataBase]').clone();
+		$(cloneData).show().attr("name", "addData");
+		
+		$(cloneData).find("[name=item_div_no]").val("${items.item_div_no}");
+		$(cloneData).find("[name=item_idn_no]").val("${items.item_idn_no}");
+		$(cloneData).find("[name=item_name]").val("${items.item_name}");
+		$(cloneData).find("[name=item_amt]").val("${items.item_amt}");
+		$(cloneData).find("[name=item_cnt]").val("${items.item_cnt}");
+		$(cloneData).find("[name=item_total_amt_text]").text("${items.item_total_amt_text}");
+		$(cloneData).find("[name=item_total_amt]").val("${items.item_total_amt}");
+		$(cloneData).find("[name=item_unit]").val("${items.item_unit}");
+		$(cloneData).find("[name=item_pickup_location]").val("${items.item_pickup_location}");
+		$(cloneData).find("[name=item_fee_amt]").val("${items.item_fee_amt}");
+		$(cloneData).find("[name=item_inventory_cd]").val("${items.item_inventory_cd}");
+		$(cloneData).find("[name=item_use_location]").val("${items.item_use_location}");
+		$(cloneData).find("[name=item_foreign_type]").val("${items.item_foreign_type}");
+		$(cloneData).find("[name=item_contry]").val("${items.item_contry}");
+		$(cloneData).find("[name=item_acquisition_reason]").val("${items.item_acquisition_reason}");
+		$(cloneData).find("[name=item_green_cert_type]").val("${items.item_green_cert_type}");
+		$(cloneData).find("[name=item_non_green_reason]").val("${items.item_non_green_reason}");
+		$(cloneData).find("[name=item_green_class]").val("${items.item_green_class}");
+		
+		$(cloneData).find("[name=item_deadline]").val("${items.item_deadline}");
+		
+		$('[name="itemList"]').append(cloneData);
+		
+		</c:forEach>			
+		</c:if>			
+		
+	}		
+	
+	
+	function setDynamicSetInfoTrade(){
+		
+		<c:if test="${tradeList.size() > 0 }">
+		$("[name=tradeList] tr[name=addData]").remove();
+		
+		var cloneData;
+		<c:forEach var="items" items="${tradeList}" varStatus="status">
+		
+		cloneData = $('[name="tradeList"] tr[name=dataBase]').clone();
+		$(cloneData).show().attr("name", "addData");
+		
+		$(cloneData).find("[name=tr_seq]").val("${items.tr_seq}");
+		$(cloneData).find("[name=tr_name]").val("${items.tr_name}");
+		
+		$(cloneData).find("[name=tr_reg_number]").text("${items.tr_reg_number}");
+		$(cloneData).find("[name=ceo_name]").text("${items.ceo_name}");
+		$(cloneData).find("[name=addr]").text("${items.addr}");
+		
+		$(cloneData).find("[name=at_tr_name]").val("${items.at_tr_name}");
+		$(cloneData).find("[name=ba_nb]").val("${items.ba_nb}");
+		$(cloneData).find("[name=btr_name]").val("${items.btr_name}");
+		$(cloneData).find("[name=btr_seq]").val("${items.btr_seq}");
+		$(cloneData).find("[name=depositor]").val("${items.depositor}");
+		$(cloneData).find("[name=tr_fg]").val("${items.tr_fg}");
+		$(cloneData).find("[name=tr_fg_name]").val("${items.tr_fg_name}");
+		
+		if("${items.hope_company_info}" != ""){
+			
+			commonCodeTargetInfo = [];
+			
+			$.each("${items.hope_company_info}".split("▦▦"), function( key, val ) {
+				var valInfo =  val.split("▦");
+				var objInfo = {};
+				objInfo.code = valInfo[0];
+				objInfo.name = valInfo[1];
+				commonCodeTargetInfo.push(objInfo);
+				
+			});	
+			
+			commonCodeCallback("ul", $(cloneData).find("[name=hope_company_info_td]"), commonCodeTargetInfo);
+		}
+		
+		if("${items.hope_attach_info}" != ""){
+			
+			$.each("${items.hope_attach_info}".split("▦▦"), function( key, val ) {
+				
+				var valInfo =  val.split("▦");
+				
+				var fileCloneData = $(cloneData).find("[name=hope_attach_info] [name=attachBase]").clone();
+				$(fileCloneData).show().attr("name", "addFile");
+				$(fileCloneData).find('[name="attachFileName"]').attr("fileid", valInfo[0]);
+				$(fileCloneData).find('[name="attachFileName"]').text(valInfo[1]);
+				$(fileCloneData).find('[name="attachExtName"]').text(valInfo[2]);	
+				
+				$(cloneData).find("[name=hope_attach_info]").append(fileCloneData);						
+			});				
+		}		
+		
+		
+		$('[name="tradeList"]').append(cloneData);
+		
+		</c:forEach>			
+		</c:if>			
+		
+	}	
+	
+	function setDynamicSetInfoBudget(){
+		
+		<c:if test="${budgetList.size() > 0 }">
+		$("[name=budgetList] [name=addData]").remove();
+		var cloneData;
+		
+		<c:forEach var="items" items="${budgetList}" varStatus="status">
+		
+		cloneData = $('[name="budgetList"] [name=dataBase]').clone();
+		$(cloneData).show().attr("name", "addData");
+		
+		$(cloneData).find("[name=erp_budget_seq]").val("${items.erp_budget_seq}");
+		$(cloneData).find("[name=erp_budget_name]").val("${items.erp_budget_name}");
+		$(cloneData).find("[name=erp_budget_div_seq]").val("${items.erp_budget_div_seq}");
+		$(cloneData).find("[name=erp_budget_div_name]").val("${items.erp_budget_div_name}");
+		
+		$(cloneData).find("[name=erp_bgt1_seq]").val("${items.erp_bgt1_seq}");
+		$(cloneData).find("[name=erp_bgt2_seq]").val("${items.erp_bgt2_seq}");
+		$(cloneData).find("[name=erp_bgt3_seq]").val("${items.erp_bgt3_seq}");
+		$(cloneData).find("[name=erp_bgt4_seq]").val("${items.erp_bgt4_seq}");	
+		
+		$(cloneData).find("[name=erp_bgt1_name]").val("${items.erp_bgt1_name}");
+		$(cloneData).find("[name=erp_bgt2_name]").val("${items.erp_bgt2_name}");
+		$(cloneData).find("[name=erp_bgt3_name]").val("${items.erp_bgt3_name}");
+		$(cloneData).find("[name=erp_bgt4_name]").val("${items.erp_bgt4_name}");	
+		
+		$(cloneData).find("[name=pjt_seq]").val("${items.pjt_seq}");
+		$(cloneData).find("[name=pjt_name]").val("${items.pjt_name}");
+		$(cloneData).find("[name=bottom_seq]").val("${items.bottom_seq}");
+		$(cloneData).find("[name=bottom_name]").val("${items.bottom_name}");
+		$(cloneData).find("[name=amt]").val("${items.amt}");
+		
+		$('[name="budgetList"]').append(cloneData);
+		
+		if(${status.index} == 0){
+			fnSetBudgetAmtInfo(cloneData);	
+		}
+		
+		</c:forEach>			
+		</c:if>			
+		
+	}		
 	
 	function setCommonOption(){
 		
@@ -271,6 +466,8 @@
 			dummy : JSON.stringify(data)
 		});
 	}	
+
+	var callbackResult;
 	
 	function fnCommonCode_callback(param) {
 		
@@ -869,6 +1066,8 @@
 		attachFileNew = [];
 		attachFileDel = [];	
 		
+		//수정일 경우 즉시 업데이트
+		<c:if test="${viewType == 'U'}">
 		insertDataObject.attch_file_info = JSON.stringify(attachFormList);
 		insertDataObject.outProcessCode = outProcessCode;
 		insertDataObject.seq = "${seq}"
@@ -890,6 +1089,8 @@
 				msgSnackbar("error", "등록에 실패했습니다.");
 			}
 		});			
+		
+		</c:if>
 		
 	}
 	
@@ -920,6 +1121,7 @@
 		if(fnValidationCheck() == true){
 
 			insertDataObject.attch_file_info = JSON.stringify(attachFormList);
+			insertDataObject.trade_list_info = JSON.stringify(insertDataObject.tradeObjList);
 			insertDataObject.item_list_info = JSON.stringify(insertDataObject.itemObjList);
 			insertDataObject.budget_list_info = JSON.stringify(insertDataObject.budgetObjList);
 			
@@ -1033,6 +1235,110 @@
 	}
 	
 	
+	function getPublicInfo(){
+		
+		var selectedItems = "";
+		 
+		$.each(Pudd( "#publicInfo" ).getPuddObject().getData(), function( key, val ) {
+			selectedItems += (key == 0 ? "" : "▦▦") + val.value + "▦" + val.text;
+		});		
+		
+		return selectedItems;
+		 
+	}	
+	
+	
+	
+	function setDynamicPublicInfo(public_info){
+		
+		var public_list = [];
+		
+		$.each(public_info.split("▦▦"), function( key, val ) {
+			var valInfo =  val.split("▦");
+			if(valInfo.length > 1){
+				var valueObj = {};
+				valueObj.value = valInfo[0];
+				valueObj.text = valInfo[1];
+				public_list.push(valueObj);
+			}
+		});		 
+		
+		renderPublicInfo(public_list);			
+		
+	}
+	
+	
+	function selectOrgchart(){
+		
+		var selectedItems = "";
+		 
+		$.each(Pudd( "#publicInfo" ).getPuddObject().getData(), function( key, val ) {
+			selectedItems += (key == 0 ? "" : ",") + val.value;
+		});				 
+		 
+		 $("#selectedItems").val(selectedItems);
+		 
+		 var pop = window.open("", "cmmOrgPop", "width=799,height=769,scrollbars=no");
+			$("#callback").val("callbackSel");
+			frmPop.target = "cmmOrgPop";
+			frmPop.method = "post";
+			frmPop.action = "/gw/systemx/orgChart.do";
+			frmPop.submit();
+			pop.focus();
+	}	
+
+	function getPublicInfo(){
+		
+		var selectedItems = "";
+		 
+		$.each(Pudd( "#publicInfo" ).getPuddObject().getData(), function( key, val ) {
+			selectedItems += (key == 0 ? "" : "▦▦") + val.value + "▦" + val.text;
+		});		
+		
+		return selectedItems;
+		 
+	}			
+	
+	function callbackSel(data){
+		
+		jsonData = data.returnObj;	
+		 
+		var orgData = [];
+		 
+		for(var i=0;i<jsonData.length; i++){
+			var data = {};
+			data.value = jsonData[i].superKey;
+			data.text = jsonData[i].orgName;
+			
+			orgData.push(data);
+		}
+		 
+		renderPublicInfo(orgData);	
+
+	 }
+	
+	function renderPublicInfo(publicList){
+		
+	 	 var dataSourcePublicList = new Pudd.Data.DataSource({
+		 		data : publicList
+			 });
+		   
+		 Pudd( "#publicInfo" ).puddSelectiveInput({
+				// 수정모드인 경우 dataSource 전달, 신규는 해당없음
+				dataSource : dataSourcePublicList
+			,	dataValueField : "value"
+			,	dataTextField : "text"
+	 
+			,	writeMode : false // 기본 입력 모드
+			,	disabled : false
+			,	editButton : false
+			,	deleteButton : true
+			,	backspaceDelete : false
+		 });
+
+	}	
+	
+	
 	</script>
 </head>
 
@@ -1080,10 +1386,17 @@
 				</colgroup>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 유형선택</th>
-					<td colspan="3" objKey="purchase_type" objCheckFor="checkVal('radio', 'purchaseType', '유형선택', '', '')" >
+					<td objKey="purchase_type" objCheckFor="checkVal('radio', 'purchaseType', '유형선택', '', '')" >
 						<input ${disabled} onclick="fnNoticePop('ManualPop01', '비품')" type="radio" name="purchaseType" class="puddSetup" pudd-label="비품" value="01" <c:if test="${ (viewType == 'I') || (viewType == 'U' && purchaseDetailInfo.purchase_type == '01') }">checked</c:if> />
 						<input ${disabled} onclick="fnNoticePop('ManualPop02', '소모품')" type="radio" name="purchaseType" class="puddSetup" pudd-label="소모품" value="02" <c:if test="${ viewType == 'U' && purchaseDetailInfo.purchase_type == '02' }">checked</c:if> />
 					</td>	
+					<th>담당자</th>
+					<td objKey="public_info" objCheckFor="getPublicInfo()" >
+						<div id="publicInfo" style="min-width:200px;"></div>
+						<c:if test="${disabledYn == 'N'}">
+						<input onclick="selectOrgchart()" type="button" value="선택" />
+						</c:if>	
+					</td>					
 				</tr>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 문서제목</th>
@@ -1167,9 +1480,9 @@
 										</div>
 									</td>
 									<td tbval="Y" name="tr_reg_number" requiredNot="true" class="cen"></td>
-									<td>
+									<td name="hope_company_info_td">
 										<div class="multi_sel" style="width:calc( 100% - 58px);">
-											<ul tbval="Y" tbType="ul" name="hope_company_list" class="multibox" style="width:100%;">							
+											<ul tbval="Y" tbType="ul" name="hope_company_info" class="multibox" style="width:100%;">							
 												<li name="dataBase" addCode="" style="display:none;">
 													<span name="addName"></span>
 													<c:if test="${disabledYn == 'N'}"> 
@@ -1185,7 +1498,7 @@
 										</c:if>
 									</td>									
 									<td class="file_add">	
-										<ul tbval="Y" tbType="file" name="hope_attach_info" class="file_list_box fl">
+										<ul tbval="Y" tbType="file" name="hope_attach_info" requiredNot="true" class="file_list_box fl">
 											<li name="attachBase" style="display:none;">
 												<img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" class="fl" alt="">
 												<a href="javascript:;" name="attachFileName" onClick="fnDownload(this)" class="fl ellipsis pl5" style="max-width: 250px;"></a>
@@ -1225,9 +1538,9 @@
 										</div>
 									</td>
 									<td tbval="Y" name="tr_reg_number" requiredNot="true" class="cen"></td>
-									<td>
+									<td name="hope_company_info_td">
 										<div class="multi_sel" style="width:calc( 100% - 58px);">
-											<ul tbval="Y" tbType="ul" name="hope_company_list" class="multibox" style="width:100%;">							
+											<ul tbval="Y" tbType="ul" name="hope_company_info" class="multibox" style="width:100%;">							
 												<li name="dataBase" addCode="" style="display:none;">
 													<span name="addName"></span>
 													<c:if test="${disabledYn == 'N'}"> 
@@ -1243,7 +1556,7 @@
 										</c:if>
 									</td>									
 									<td class="file_add">	
-										<ul tbval="Y" tbType="file" name="hope_attach_info" class="file_list_box fl">
+										<ul tbval="Y" tbType="file" name="hope_attach_info" requiredNot="true" class="file_list_box fl">
 											<li name="attachBase" style="display:none;">
 												<img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" class="fl" alt="">
 												<a href="javascript:;" name="attachFileName" onClick="fnDownload(this)" class="fl ellipsis pl5" style="max-width: 250px;"></a>
@@ -1338,7 +1651,11 @@
 					<td><input tbval="Y" name="item_cnt" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="1" /></td>
 					<td tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
 					<input tbval="Y" name="item_total_amt" type="hidden" value="0" requiredNot="true" />
-					<td><input tbval="Y" name="item_deadline" type="text" value="" class="puddSetup" pudd-type="datepicker"/></td>
+					
+					<td>
+					<div id="baseDatePicker"></div>
+					</td>
+					
 					<td><input tbval="Y" name="item_pickup_location" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
 					<td><input tbval="Y" name="item_fee_amt" amountInput="Y" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
 					<td class="le">
@@ -1379,14 +1696,14 @@
 					</td>
 					
 					<td>
-						<select tbval="Y" name="item_green_cert_type" style="text-align: center;">
+						<select tbval="Y" name="item_green_cert_type" requiredNot="true" style="text-align: center;">
 							<c:forEach var="items" items="${greenCertTypeCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
 						</select>
 					</td>
 					<td>
-						<select tbval="Y" name="item_non_green_reason" style="text-align: center;">
+						<select tbval="Y" name="item_non_green_reason" requiredNot="true" style="text-align: center;">
 							<c:forEach var="items" items="${nonGreenReasonCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
@@ -1457,14 +1774,14 @@
 					</td>
 					
 					<td>
-						<select tbval="Y" name="item_green_cert_type" style="text-align: center;">
+						<select tbval="Y" name="item_green_cert_type" requiredNot="true" style="text-align: center;">
 							<c:forEach var="items" items="${greenCertTypeCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
 						</select>
 					</td>
 					<td>
-						<select tbval="Y" name="item_non_green_reason" style="text-align: center;">
+						<select tbval="Y" name="item_non_green_reason" requiredNot="true" style="text-align: center;">
 							<c:forEach var="items" items="${nonGreenReasonCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>

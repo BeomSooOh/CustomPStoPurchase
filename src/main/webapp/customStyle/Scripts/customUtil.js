@@ -285,12 +285,27 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 				
 				if($(tableVal).attr("tbType") == "innerText"){
 					tableValThis = $(tableVal).text();
+				}else if($(tableVal).attr("tbType") == "ul"){
+					
+					$.each($(tableVal).find("[name='addData']"), function( key, objInfo ) {
+						var values = $(objInfo).attr("addcode") + "▦" + $(objInfo).find('[name="addName"]').text();
+						tableValThis += (tableValThis == "" ? "" : "▦▦") + values;	
+						
+					});					
+				}else if($(tableVal).attr("tbType") == "file"){
+					
+					$.each($(tableVal).find("[name='addFile']"), function( key, objInfo ) {
+						var values = $(objInfo).find('[name="attachFileName"]').attr("fileid") +
+						"▦" + $(objInfo).find('[name="attachFileName"]').text() + "▦" + $(objInfo).find('[name="attachExtName"]').text();
+						tableValThis += (tableValThis == "" ? "" : "▦▦") + values;	
+						
+					});						
 				}else{
 					tableValThis = $(tableVal).val();
 				}
 				
 				if($(tableVal).attr("requiredNot") != "true" && tableValThis == ""){
-					
+					console.log("obj필수값 누락 > " + $(tableVal).attr("name"));
 					focusTarget = tableVal;
 					obj = {};
 					breakYn = true;
