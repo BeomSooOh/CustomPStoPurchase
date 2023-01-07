@@ -539,6 +539,8 @@
 			$(cloneData).find("[name=resultJudgesList]").attr("border", "1");
 			$(cloneData).find("[name=resultJudgesList]").attr("width", "100%");
 			$(cloneData).find("[name]").removeAttr("name");
+			$(cloneData).find("th").attr("align", "center").attr("bgcolor", "#f1f1f1").attr("height", "25");
+			$(cloneData).find("td").attr("align", "center").attr("height", "20");
 			
 			//input 요소 텍스트화
 			$.each($(cloneData).find("input"), function( idx, obj ) {
@@ -561,6 +563,8 @@
 			$(cloneData).find("[name=resultScoreList]").attr("border", "1");
 			$(cloneData).find("[name=resultScoreList]").attr("width", "100%");
 			$(cloneData).find("[name]").removeAttr("name");
+			$(cloneData).find("th").attr("align", "center").attr("bgcolor", "#f1f1f1").attr("height", "25");
+			$(cloneData).find("td").attr("align", "center").attr("height", "20");
 			
 			$.each($(cloneData).find("[colspanHtml]"), function( idx, obj ) {
 				$(obj).attr("colspan", $(obj).attr("colspanHtml"));
