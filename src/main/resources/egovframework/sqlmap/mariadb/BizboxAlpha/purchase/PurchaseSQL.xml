@@ -8,6 +8,134 @@
 	</select>
 	
 	
+	<select	id="PurchaseSQL.SelectPurchaseList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
+		
+		SELECT 
+		count(*)		
+		FROM cust_sto.t_purchase_purchase a
+		join cust_sto.t_purchase_item_info item on a.seq = item.seq
+		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
+		left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'		
+		where 
+		1=1
+		<isNotEmpty property="searchFromDate">
+		and  item.item_deadline <![CDATA[ >= ]]> '$searchFromDate$'
+		</isNotEmpty>
+		<isNotEmpty property="searchToDate">
+		and  item.item_deadline <![CDATA[ <= ]]> '$searchToDate$'
+		</isNotEmpty>
+		<isNotEmpty property="itemName">
+		and  item.item_name like concat('%', '$itemName$', '%')
+		</isNotEmpty>
+		<isNotEmpty property="itemUseLocation">
+		and  item.item_use_location like concat('%', '$itemUseLocation$', '%')
+		</isNotEmpty>		
+		<isNotEmpty property="writeDeptName">
+		and  cdm.dept_name like concat('%', '$writeDeptName$', '%')
+		</isNotEmpty>
+		<isNotEmpty property="writeEmpName">
+		and  cem.emp_name like concat('%', '$writeEmpName$', '%')
+		</isNotEmpty>
+		
+		<isEqual property="authLevel" compareValue="dept">
+		and (a.write_dept_seq = '$deptSeq$')   
+		</isEqual>		
+		<isEqual property="authLevel" compareValue="user">
+		and (
+				(a.write_emp_seq = '$empSeq$')
+				or a.public_info like '%|$empSeq$|u%'
+			)   
+		</isEqual>
+	
+	</select>	
+	
+	
+	<select	id="PurchaseSQL.SelectPurchaseList" parameterClass="HashMap" resultClass="HashMap">
+		
+		SELECT 
+		a.seq, 
+		a.manage_no, 
+		a.write_comp_seq, 
+		a.write_dept_seq, ifnull(dm.dept_name,'') as write_dept_name, 
+		a.write_emp_seq, ifnull(em.emp_name,'') as write_emp_name, 
+		a.write_dt,
+		ifnull(a.title, '') as title,
+		ifnull(a.doc_sts,'') as doc_sts,
+		ifnull(a.approkey_purchase,'') as approkey_purchase, 
+		ifnull(a.approkey_check,'') as approkey_check, 
+		ifnull(a.purchase_method,'') as purchase_method,
+		ifnull(a.purchase_type,'') as purchase_type,
+		ifnull(a.pay_type_info,'') as pay_type_info,
+		ifnull(a.public_info,'') as public_info,
+		FORMAT(a.purchase_amt, 0) as purchase_amt,
+		a.purchase_amt_kor,
+		a.created_dt, 
+		a.created_by, 
+		a.modify_dt, 
+		a.modify_by,
+		
+		item.item_idn_no, 
+		item.item_div_no, 
+		item.item_name,
+		FORMAT(item.item_amt, 0) as item_amt,
+		FORMAT(item.item_fee_amt, 0) as item_fee_amt,
+		FORMAT(item.item_total_amt, 0) as item_total_amt, 
+		item.item_total_amt_text, 
+		item.item_cnt, 
+		item.item_deadline, 
+		item.item_acquisition_reason, 
+		item.item_inventory_cd, 
+		item.item_unit, 
+		item.item_use_location, 
+		item.item_contry, 
+		item.item_pickup_location, 
+		item.item_green_cert_type, 
+		item.item_non_green_reason, 
+		item.item_green_class, 
+		item.item_foreign_type		
+		
+		FROM cust_sto.t_purchase_purchase a
+		join cust_sto.t_purchase_item_info item on a.seq = item.seq
+		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
+		left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'		
+		
+		where 
+		1=1
+		<isNotEmpty property="searchFromDate">
+		and  item.item_deadline <![CDATA[ >= ]]> '$searchFromDate$'
+		</isNotEmpty>
+		<isNotEmpty property="searchToDate">
+		and  item.item_deadline <![CDATA[ <= ]]> '$searchToDate$'
+		</isNotEmpty>
+		<isNotEmpty property="itemName">
+		and  item.item_name like concat('%', '$itemName$', '%')
+		</isNotEmpty>
+		<isNotEmpty property="itemUseLocation">
+		and  item.item_use_location like concat('%', '$itemUseLocation$', '%')
+		</isNotEmpty>		
+		<isNotEmpty property="writeDeptName">
+		and  cdm.dept_name like concat('%', '$writeDeptName$', '%')
+		</isNotEmpty>
+		<isNotEmpty property="writeEmpName">
+		and  cem.emp_name like concat('%', '$writeEmpName$', '%')
+		</isNotEmpty>	
+		
+		<isEqual property="authLevel" compareValue="dept">
+		and (a.write_dept_seq = '$deptSeq$')   
+		</isEqual>		
+		<isEqual property="authLevel" compareValue="user">
+		and (
+				(a.write_emp_seq = '$empSeq$')
+				or a.public_info like '%|$empSeq$|u%'
+			)   
+		</isEqual>
+		
+		order by a.seq desc
+		LIMIT $startNum$ ,  $endNum$
+		
+	</select>		
+	
+	
 	<select	id="PurchaseSQL.SelectPurchaseDetail" parameterClass="HashMap" resultClass="HashMap">
 		
 		SELECT 
@@ -25,6 +153,9 @@
 		ifnull(a.purchase_type,'') as purchase_type,
 		ifnull(a.pay_type_info,'') as pay_type_info,
 		ifnull(a.public_info,'') as public_info,
+		FORMAT(a.purchase_amt, 0) as purchase_amt,
+		a.purchase_amt_kor,
+		
 		a.created_dt, 
 		a.created_by, 
 		a.modify_dt, 
@@ -52,7 +183,9 @@
 		purchase_method, 
 		purchase_type, 
 		pay_type_info,
-		public_info,			 
+		public_info,	
+		purchase_amt,	
+		purchase_amt_kor,	 
 		 
 		created_dt, 
 		created_by, 
@@ -72,6 +205,8 @@
 		'$purchase_type$', 
 		'$pay_type_info$',
 		'$public_info$', 
+		'$purchase_amt$', 
+		'$purchase_amt_kor$', 
 			
 		now(), 
 		'$created_by$', 
@@ -99,6 +234,8 @@
 		purchase_type='$purchase_type$',
 		pay_type_info='$pay_type_info$',
 		public_info='$public_info$',
+		purchase_amt='$purchase_amt$',
+		purchase_amt_kor='$purchase_amt_kor$',
 		
 		modify_dt=now(), 
 		modify_by='$created_by$'

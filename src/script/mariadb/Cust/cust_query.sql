@@ -1321,6 +1321,29 @@ ALTER TABLE cust_sto.t_purchase_contract ADD c_contract_form1 varchar(10) CHARAC
 ALTER TABLE cust_sto.t_purchase_contract ADD c_contract_form2 varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '계약체결형태(2)';
 ----------------- 운영서버에 여기까지 반영 -------------------
 
+CREATE TABLE if not exists cust_stot_purchase_purchase (
+  `seq` int(11) NOT NULL AUTO_INCREMENT,
+  `manage_no` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '구매번호',
+  `write_comp_seq` varchar(32) DEFAULT NULL COMMENT '작성자회사시퀀스',
+  `write_dept_seq` varchar(32) DEFAULT NULL COMMENT '작성부서시퀀스',
+  `write_emp_seq` varchar(32) DEFAULT NULL COMMENT '작성자시퀀스',
+  `write_dt` char(10) DEFAULT NULL COMMENT '작성일자',
+  `created_dt` datetime DEFAULT NULL COMMENT '생성일자',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '생성자',
+  `modify_dt` datetime DEFAULT NULL COMMENT '수정일자',
+  `modify_by` varchar(32) DEFAULT NULL COMMENT '수정자',
+  `doc_sts` varchar(10) DEFAULT NULL COMMENT '결재상태코드',
+  `approkey_purchase` varchar(50) DEFAULT NULL COMMENT '구매품의결재연동키',
+  `approkey_check` varchar(50) DEFAULT NULL COMMENT '물품검수전자결재연동키',
+  `title` varchar(200) DEFAULT NULL COMMENT '문서제목',
+  `purchase_method` varchar(200) DEFAULT NULL COMMENT '구매방법',
+  `purchase_type` varchar(10) DEFAULT NULL COMMENT '구매유형',
+  `pay_type_info` varchar(200) DEFAULT NULL COMMENT '결재방법',
+  `public_info` varchar(500) DEFAULT NULL COMMENT '담당자정보',
+  `purchase_amt` decimal(19,2) DEFAULT NULL COMMENT '구매총금액',
+  `purchase_amt_kor` varchar(50) DEFAULT NULL COMMENT '구매금액(한글)',
+  PRIMARY KEY (`seq`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COMMENT='구매품의등록정보';
 
 ALTER TABLE cust_sto.t_purchase_trade_info ADD hope_attach_info varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '희망기업확인서정보';
 ALTER TABLE cust_sto.t_purchase_trade_info ADD hope_company_info varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '희망기업선택정보';
@@ -1448,3 +1471,12 @@ CREATE table if not exists cust_sto.`t_purchase_item_info` (
   `public_info` varchar(500) DEFAULT NULL COMMENT '담당자정보',
   PRIMARY KEY (`seq`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COMMENT='구매품의등록정보';
+
+
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('contentsForm', 'Purchase01', '구매계약모듈(구매품의)', 'Y', 6, NULL, NULL, '');
+
+INSERT IGNORE INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('contentsForm', 'Purchase02', '구매계약모듈(물품검수)', 'Y', 7, NULL, NULL, '');

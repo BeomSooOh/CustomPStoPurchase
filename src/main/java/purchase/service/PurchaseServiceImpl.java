@@ -26,10 +26,6 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Resource(name = "CommonServiceDAO")
     private CommonServiceDAO commonServiceDAO;         
 	
-	public List<Map<String, Object>> SelectPurchaseList ( Map<String, Object> params ){
-		return purchaseServiceDAO.SelectPurchaseList(params);
-	}		
-	
 	public Map<String, Object> InsertPurchase ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
 		
 		//입찰계약정보 등록

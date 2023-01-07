@@ -73,7 +73,7 @@
 		
 	</select>		
 	
-	<select	id="CommonSQL.SelectApprFormData" parameterClass="HashMap" resultClass="HashMap">
+	<select	id="CommonSQL.SelectApprFormDataContract" parameterClass="HashMap" resultClass="HashMap">
 		
 		SELECT 
 		a.seq,
@@ -200,6 +200,41 @@
 		where a.seq = $seq$
 		
 	</select>	
+	
+	
+	
+	<select	id="CommonSQL.SelectApprFormDataPurchase" parameterClass="HashMap" resultClass="HashMap">
+		
+		SELECT 
+		a.seq,
+		a.title,  
+		a.manage_no, 
+		dm.dept_name as write_dept_name,
+		em.emp_name as write_emp_name,
+		a.write_dt,
+		
+		a.created_dt, 
+		a.created_by, 
+		a.modify_dt, 
+		a.modify_by,
+		
+		cust_sto.fn_get_purchase_code_text('purchaseMethod',a.purchase_method) as purchase_method, 
+		cust_sto.fn_get_purchase_code_text('purchaseType',a.purchase_type) as purchase_type, 
+		cust_sto.fn_get_purchase_code_text('payType',a.pay_type_info) as pay_type, 
+		
+		ifnull(a.doc_sts,'') as doc_sts, 
+		ifnull(a.approkey_purchase,'') as approkey_purchase, 
+		ifnull(a.approkey_check,'') as approkey_check, 
+		
+		FORMAT(a.purchase_amt, 0) as purchase_amt					
+		
+		FROM cust_sto.t_purchase_purchase a
+		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
+		left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'
+		where a.seq = $seq$
+		
+	</select>	
+	
 	
 	<update	id="CommonSQL.SaveFormInfo" parameterClass="HashMap" >
 	

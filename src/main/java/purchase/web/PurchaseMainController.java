@@ -36,6 +36,7 @@ import common.helper.exception.NotFoundLoginSessionException;
 import common.helper.info.CommonInfo;
 import common.helper.logger.ExpInfo;
 import egovframework.com.utl.fcc.service.EgovFileUploadUtil;
+import egovframework.com.utl.fcc.service.EgovStringUtil;
 import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import neos.cmm.util.DateUtil;
 import neos.cmm.util.HttpJsonUtil;
@@ -121,21 +122,79 @@ public class PurchaseMainController {
     public ModelAndView SelectContractList(@PathVariable String authLevel, @RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
     	
         ModelAndView mv = new ModelAndView();
-        mv.addObject("authLevel", authLevel);
-        params.put("authLevel", authLevel);
         
         /* 변수 설정 */
         LoginVO loginVo = CommonConvert.CommonGetEmpVO();
-        params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("compSeq", loginVo.getOrganId());
+		params.put("deptSeq", loginVo.getOrgnztId());
+		params.put("empSeq", loginVo.getUniqId());
+		
+		params.put("authLevel", authLevel);
         
-        List<Map<String, Object>> list = purchaseService.SelectPurchaseList(params);
-        mv.addObject("resultList", list);
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo = getPaginationInfo(params);
+		
+		Map<String,Object> resultMap = purchaseServiceDAO.SelectPurchaseList(params, paginationInfo);        	
+		mv.addAllObjects(resultMap);
+        
         mv.setViewName("jsonView");
 
         return mv;
-    } 
+    }
     
+	private PaginationInfo getPaginationInfo(Map<String, Object> paramMap) {	
+		
+		String fromDate= (String)paramMap.get("fromDate") ;
+		String toDate= (String)paramMap.get("toDate") ;
+
+		if(EgovStringUtil.isEmpty(toDate)) {
+			toDate = DateUtil.getCurrentDate("yyyyMMdd");
+			fromDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyyMMdd", "yyyyMMdd", -1);
+			paramMap.put("fromDate", fromDate);
+			paramMap.put("toDate", toDate);
+		}else {
+			if(fromDate.length() == 10 ) {
+				fromDate = fromDate.replaceAll("-", "");
+				toDate = toDate.replaceAll("-", "");
+				paramMap.put("fromDate", fromDate);
+				paramMap.put("toDate", toDate);
+			}
+		}
+
+		PaginationInfo paginationInfo = new PaginationInfo();
+		int pageSize =  10;
+		int page = 1 ;
+		String temp = (String)paramMap.get("pageSize");
+		if (!EgovStringUtil.isEmpty(temp )  ) {
+			pageSize = Integer.parseInt(temp) ;
+		}
+		temp = (String)paramMap.get("page") ;
+		if (!EgovStringUtil.isEmpty(temp )  ) {
+			page = Integer.parseInt(temp) ;
+		}
+		
+		paginationInfo.setPageSize(pageSize);
+		paginationInfo.setCurrentPageNo(page);
+		return paginationInfo;
+	}	    
     
+	
+	@RequestMapping("/purchase/PurchaseInfo.do")
+	public ModelAndView PurchaseInfo(@RequestParam Map<String, Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		
+		Map<String, Object> resultData = purchaseServiceDAO.SelectPurchaseDetail(params);
+		
+		mv.addObject("resultData", resultData);
+		mv.addObject("resultCode", "success");	
+		mv.setViewName("jsonView");
+		return mv;
+	}	
     
     @SuppressWarnings("unchecked")
 	@RequestMapping("/interlock/SelectShoppingList.do")

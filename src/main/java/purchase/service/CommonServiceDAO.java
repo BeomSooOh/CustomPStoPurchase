@@ -65,7 +65,13 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 	
 	@SuppressWarnings ( "unchecked" )
 	public Map<String, Object> SelectApprFormData ( Map<String, Object> params ) {
-		return (Map<String, Object>) select( "CommonSQL.SelectApprFormData", params );
+		
+		if(params.get("outProcessCode").toString().contains("Con")) {
+			return (Map<String, Object>) select( "CommonSQL.SelectApprFormDataContract", params );	
+		}else {
+			return (Map<String, Object>) select( "CommonSQL.SelectApprFormDataPurchase", params );	
+		}
+		
 	}	
 	
 	@SuppressWarnings ( "unchecked" )

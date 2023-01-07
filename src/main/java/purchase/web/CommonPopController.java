@@ -116,7 +116,13 @@ public class CommonPopController {
 		
 		params.put("mod", "W");
 		
-		if(params.get("outProcessCode").equals("Contract01") || params.get("outProcessCode").equals("Contract02")  || params.get("outProcessCode").equals("Contract03") || params.get("outProcessCode").equals("Conclu01") || params.get("outProcessCode").equals("Conclu02")) {
+		if(params.get("outProcessCode").equals("Contract01") || 
+				params.get("outProcessCode").equals("Contract02")  || 
+				params.get("outProcessCode").equals("Contract03") || 
+				params.get("outProcessCode").equals("Conclu01") || 
+				params.get("outProcessCode").equals("Conclu02") ||
+				params.get("outProcessCode").equals("Purchase01")
+				) {
 			
 			String FORM_HTML = "";
 			apprFormData = commonServiceDAO.SelectApprFormData(params);
@@ -221,6 +227,9 @@ public class CommonPopController {
 				
 				params.put("approKey", params.get("outProcessCode").toString() + "_" + params.get("seq").toString() + "_" + params.get("change_seq").toString());
             	
+			}else if(params.get("outProcessCode").equals("Purchase01")) {
+				params.put("detailUrl", request.getContextPath() + "/purchase/pop/PurchaseCreatePop.do?seq=" + params.get("seq").toString());
+				params.put("subjectStr", apprFormData.get("title").toString());
 			}
 			
 			params.put("detailName", "정보수정");

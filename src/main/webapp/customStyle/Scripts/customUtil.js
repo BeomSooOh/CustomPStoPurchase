@@ -231,7 +231,7 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 		
 		var breakYn = false;
 		
-		$.each($("[name='"+elementFor+"'] [name='addData']"), function( key, objInfo ) {
+		$.each($("[name='"+elementFor+"'] tr[name='addData']"), function( key, objInfo ) {
 			
 			var values = "";
 			
@@ -275,7 +275,7 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 		returnVal = [];
 		var breakYn = false;
 		
-		$.each($("[name='"+elementFor+"'] [name='addData']"), function( key, objInfo ) {
+		$.each($("[name='"+elementFor+"'] tr[name='addData']"), function( key, objInfo ) {
 			
 			var obj = {};
 			
