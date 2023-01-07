@@ -239,7 +239,7 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 				
 				console.log($(tableVal).attr("requiredNot"));
 				
-				if($(tableVal).val() == "" && $(tableVal).attr("requiredNot") == "true"){
+				if($(tableVal).val() == "" && eval($(tableVal).attr("requiredNot")) == true){
 					$(tableVal).val(" ");
 				}
 				
@@ -304,7 +304,7 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 					tableValThis = $(tableVal).val();
 				}
 				
-				if($(tableVal).attr("requiredNot") != "true" && tableValThis == ""){
+				if(eval($(tableVal).attr("requiredNot")) != true && tableValThis == ""){
 					console.log("obj필수값 누락 > " + $(tableVal).attr("name"));
 					focusTarget = tableVal;
 					obj = {};

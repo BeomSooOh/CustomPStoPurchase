@@ -119,6 +119,7 @@
 		
 		//옵션값 설정
 		setCommonOption();
+		datePickerInit();
 		
 		//기존설정항목 세팅
 		<c:if test="${viewType == 'U'}">
@@ -127,6 +128,8 @@
 		setDynamicSetInfoTrade();
 		setDynamicSetInfoItem();
 		</c:if>
+		
+
 		
 	});	
 	
@@ -321,6 +324,19 @@
 	
 	function setCommonOption(){
 		
+		$.datepicker.setDefaults({
+			  dateFormat: 'yy-mm-dd',
+			  prevText: '이전 달',
+			  nextText: '다음 달',
+			  monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+			  monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+			  dayNames: ['일', '월', '화', '수', '목', '금', '토'],
+			  dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+			  dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+			  showMonthAfterYear: true,
+			  yearSuffix: '년'
+		});		
+		
 		<c:forEach var="items" items="${option}" varStatus="status">
 		
 		console.log("option ${items.CODE} > ${items.NOTE}");
@@ -336,7 +352,11 @@
 		
 		</c:forEach>				
 		
-	}	
+	}
+	
+	function datePickerInit(){
+		$("[name=addData] [name=item_deadline]").datepicker();
+	}
 	
 	function fnChangeEtc(e){
 		
@@ -372,6 +392,10 @@
 		$('[name="'+tableName+'"]').append(cloneData);
 		
 		amountInputSet();
+		
+		if(tableName == "itemList"){
+			datePickerInit();
+		}
 		
 	}
 	
@@ -1498,7 +1522,7 @@
 										</c:if>
 									</td>									
 									<td class="file_add">	
-										<ul tbval="Y" tbType="file" name="hope_attach_info" requiredNot="true" class="file_list_box fl">
+										<ul tbval="Y" tbType="file" name="hope_attach_info" requiredNot="$(this).closest('tr').find('[name=hope_company_info] [addcode=00]').length > 0" class="file_list_box fl">
 											<li name="attachBase" style="display:none;">
 												<img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" class="fl" alt="">
 												<a href="javascript:;" name="attachFileName" onClick="fnDownload(this)" class="fl ellipsis pl5" style="max-width: 250px;"></a>
@@ -1556,7 +1580,7 @@
 										</c:if>
 									</td>									
 									<td class="file_add">	
-										<ul tbval="Y" tbType="file" name="hope_attach_info" requiredNot="true" class="file_list_box fl">
+										<ul tbval="Y" tbType="file" name="hope_attach_info" requiredNot="$(this).closest('tr').find('[name=hope_company_info] [addcode=00]').length > 0" class="file_list_box fl">
 											<li name="attachBase" style="display:none;">
 												<img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" class="fl" alt="">
 												<a href="javascript:;" name="attachFileName" onClick="fnDownload(this)" class="fl ellipsis pl5" style="max-width: 250px;"></a>
@@ -1651,7 +1675,7 @@
 					<td><input tbval="Y" name="item_cnt" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="1" /></td>
 					<td tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
 					<input tbval="Y" name="item_total_amt" type="hidden" value="0" requiredNot="true" />
-					<td><input tbval="Y" name="item_deadline" type="text" value="" class="puddSetup" pudd-type="datepicker"/></td>
+					<td><input tbval="Y" name="item_deadline" value="" readonly style="text-align: center;height: 22px;border: ridge;width: 90px;" /></td>
 					<td><input tbval="Y" name="item_pickup_location" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
 					<td><input tbval="Y" name="item_fee_amt" amountInput="Y" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
 					<td class="le">
@@ -1729,7 +1753,7 @@
 					<td><input tbval="Y" name="item_cnt" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="1" /></td>
 					<td tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
 					<input tbval="Y" name="item_total_amt" type="hidden" value="0" requiredNot="true" />
-					<td><input tbval="Y" name="item_deadline" type="text" value="" class="puddSetup" pudd-type="datepicker"/></td>
+					<td><input tbval="Y" name="item_deadline" value="" readonly style="text-align: center;height: 22px;border: ridge;width: 90px;"/></td>
 					<td><input tbval="Y" name="item_pickup_location" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
 					<td><input tbval="Y" name="item_fee_amt" amountInput="Y" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
 					<td class="le">
