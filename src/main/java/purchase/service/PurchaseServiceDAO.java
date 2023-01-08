@@ -30,6 +30,10 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 		update( "PurchaseSQL.UpdatePurchase", params );
 	}	
 	
+	public void UpdatePurchaseAttachInfo ( Map<String, Object> params ) {
+		update( "PurchaseSQL.UpdatePurchaseAttachInfo", params );
+	}		
+	
 	public void DeleteItemInfo ( Map<String, Object> params ) {
 		delete( "PurchaseSQL.DeleteItemInfo", params );
 	}
@@ -43,6 +47,13 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
 		result = (List<Map<String, Object>>) list( "PurchaseSQL.SelectItemList", params );
 		return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> SelectNewManageNo ( Map<String, Object> params ) {
+		
+		return (Map<String, Object>) select( "PurchaseSQL.SelectNewManageNo", params );
+
 	}	
 	
 }

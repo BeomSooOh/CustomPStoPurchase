@@ -1342,6 +1342,8 @@ CREATE TABLE if not exists cust_stot_purchase_purchase (
   `public_info` varchar(500) DEFAULT NULL COMMENT '담당자정보',
   `purchase_amt` decimal(19,2) DEFAULT NULL COMMENT '구매총금액',
   `purchase_amt_kor` varchar(50) DEFAULT NULL COMMENT '구매금액(한글)',
+  `item_info_html` longtext COMMENT '물품규격정보연동html',
+  `purchase_attach_info` varchar(100) DEFAULT NULL COMMENT '붙임문서정보',
   PRIMARY KEY (`seq`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COMMENT='구매품의등록정보';
 
@@ -1451,27 +1453,32 @@ VALUES('greenClass', '01', '필기구 및 필기구 소모품', 'Y', 2, NULL, NU
 
 
 CREATE table if not exists cust_sto.`t_purchase_item_info` (
-  `seq` int(11) NOT NULL AUTO_INCREMENT,
-  `manage_no` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '구매번호',
-  `write_comp_seq` varchar(32) DEFAULT NULL COMMENT '작성자회사시퀀스',
-  `write_dept_seq` varchar(32) DEFAULT NULL COMMENT '작성부서시퀀스',
-  `write_emp_seq` varchar(32) DEFAULT NULL COMMENT '작성자시퀀스',
-  `write_dt` char(10) DEFAULT NULL COMMENT '작성일자',
+  `seq` int(11) NOT NULL COMMENT '물품구매 시퀀스',
+  `outProcessCode` varchar(15) NOT NULL COMMENT '외부연동코드',
+  `item_tr_seq` varchar(50) DEFAULT NULL COMMENT '공급업체시퀀스',  
+  `item_idn_no` varchar(50) NOT NULL COMMENT '식별번호',
+  `item_div_no` varchar(50) DEFAULT NULL COMMENT '분류번호',
+  `item_name` varchar(200) DEFAULT NULL COMMENT '품명',
+  `item_amt` decimal(19,2) DEFAULT NULL COMMENT '단가',
+  `item_fee_amt` decimal(19,2) DEFAULT NULL COMMENT '부가세',
+  `item_total_amt` decimal(19,2) DEFAULT NULL COMMENT '소계액',
+  `item_total_amt_text` varchar(50) DEFAULT NULL COMMENT '소계액',
+  `item_cnt` varchar(10) DEFAULT NULL COMMENT '수량',
+  `item_deadline` varchar(10) DEFAULT NULL COMMENT '납품기한',
+  `item_acquisition_reason` varchar(50) NOT NULL COMMENT '취득사유',
+  `item_inventory_cd` varchar(50) DEFAULT NULL COMMENT '물품대장코드',
+  `item_unit` varchar(50) DEFAULT NULL COMMENT '단위',
+  `item_use_location` varchar(200) DEFAULT NULL COMMENT '사용위치',
+  `item_contry` varchar(10) DEFAULT NULL COMMENT '국가',
+  `item_pickup_location` varchar(200) DEFAULT NULL COMMENT '수령장소',
+  `item_green_cert_type` varchar(50) DEFAULT NULL COMMENT '녹색제품인증구분',
+  `item_non_green_reason` varchar(50) DEFAULT NULL COMMENT '녹색제품미구매사유',
+  `item_green_class` varchar(50) DEFAULT NULL COMMENT '녹색제품분류',
+  `item_foreign_type` varchar(10) DEFAULT NULL COMMENT '국내외구분',
   `created_dt` datetime DEFAULT NULL COMMENT '생성일자',
   `created_by` varchar(32) DEFAULT NULL COMMENT '생성자',
-  `modify_dt` datetime DEFAULT NULL COMMENT '수정일자',
-  `modify_by` varchar(32) DEFAULT NULL COMMENT '수정자',
-  `doc_sts` varchar(10) DEFAULT NULL COMMENT '결재상태코드',
-  `approkey_purchase` varchar(50) DEFAULT NULL COMMENT '구매품의결재연동키',
-  `approkey_check` varchar(50) DEFAULT NULL COMMENT '물품검수전자결재연동키',
-  `title` varchar(200) DEFAULT NULL COMMENT '문서제목',
-  `purchase_method` varchar(200) DEFAULT NULL COMMENT '구매방법',
-  `purchase_type` varchar(10) DEFAULT NULL COMMENT '구매유형',
-  `pay_type_info` varchar(200) DEFAULT NULL COMMENT '결재방법',
-  `public_info` varchar(500) DEFAULT NULL COMMENT '담당자정보',
-  PRIMARY KEY (`seq`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COMMENT='구매품의등록정보';
-
+  PRIMARY KEY (`seq`,`outProcessCode`,`item_idn_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='물품정보';
 
 INSERT IGNORE INTO cust_sto.t_purchase_code_detail
 (`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
@@ -1480,3 +1487,9 @@ VALUES('contentsForm', 'Purchase01', '구매계약모듈(구매품의)', 'Y', 6,
 INSERT IGNORE INTO cust_sto.t_purchase_code_detail
 (`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
 VALUES('contentsForm', 'Purchase02', '구매계약모듈(물품검수)', 'Y', 7, NULL, NULL, '');
+
+
+ALTER TABLE cust_sto.t_purchase_budget_info ADD txt_open_amt varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '예산액(작성시점)';
+ALTER TABLE cust_sto.t_purchase_budget_info ADD txt_cons_balance_amt varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '집행액(작성시점)';
+ALTER TABLE cust_sto.t_purchase_budget_info ADD txt_apply_amt varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '품의액(작성시점)';
+ALTER TABLE cust_sto.t_purchase_budget_info ADD txt_balance_amt varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '예산잔액(작성시점)';

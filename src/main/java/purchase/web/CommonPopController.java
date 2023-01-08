@@ -1,12 +1,18 @@
 package purchase.web;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,9 +33,11 @@ import common.helper.info.CommonInfo;
 import common.helper.logger.ExpInfo;
 import purchase.service.ContractService;
 import purchase.service.ContractServiceDAO;
+import purchase.service.PurchaseServiceDAO;
 import purchase.service.CommonService;
 import purchase.service.CommonServiceDAO;
 import common.vo.common.CommonMapper;
+import neos.cmm.util.DateUtil;
 
 
 
@@ -58,7 +66,10 @@ public class CommonPopController {
     private ContractService contractService;    
     
     @Resource(name = "ContractServiceDAO")
-    private ContractServiceDAO contractServiceDAO;    	       
+    private ContractServiceDAO contractServiceDAO;
+    
+    @Resource(name = "PurchaseServiceDAO")
+    private PurchaseServiceDAO purchaseServiceDAO;    
     
     @RequestMapping("/purchase/layer/{layerName}.do")
     public ModelAndView CommonLayerView(@PathVariable String layerName, @RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
@@ -272,10 +283,54 @@ public class CommonPopController {
 				
 				params.put("fileKey", fileKey);
 				
-			}
-			
-			
+				//물품구매품의 붙임문서 압축파일 생성
+				if(params.get("outProcessCode").equals("Purchase01")) {
+					
+					String zipFileId = DateUtil.getCurrentDate("yyyyMMdd") + UUID.randomUUID().toString().replace("-", "");
+					
+					targetForder = pathMp.get("absol_path").toString() + File.separator + "purchase" + File.separator + zipFileId.substring(0, 4)+ File.separator + zipFileId.substring(4, 8) + File.separator + zipFileId;				
+					
+					String zipFilePath = targetForder + File.separator + params.get("approKey").toString() + ".zip";
+					
+					File zipFile = new File(zipFilePath);				
+					
+					// 디렉토리 생성
+					if (! zipFile.getParentFile().exists()) {
+						zipFile.getParentFile().mkdirs();
+					}				
+					
+					byte[] buf = new byte[4096];
+					
+				    ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFilePath));
+				    
+					for (Map<String, Object> attachinfo : attachList) {
 						
+						String file_id = attachinfo.get("file_id").toString();
+						
+						String oriPath = pathMp.get("absol_path").toString() + File.separator + "purchase" + File.separator + file_id.substring(0, 4)+ File.separator + file_id.substring(4, 8) + File.separator + file_id;
+						
+						File srcDir = new File(oriPath);
+						
+						File oriFile = srcDir.listFiles()[0];
+						
+						FileInputStream in = new FileInputStream(oriFile);
+						ZipEntry ze = new ZipEntry(oriFile.getName());
+						out.putNextEntry(ze);
+				        int len;
+				        while ((len = in.read(buf)) > 0) {
+				            out.write(buf, 0, len);
+				        }
+				          
+				        out.closeEntry();
+				        in.close();
+					}				    
+					out.close();
+					
+					params.put("purchase_attach_info", params.get("approKey").toString() + "▦.zip▦" + zipFileId);
+					purchaseServiceDAO.UpdatePurchaseAttachInfo(params);
+					
+				}
+			}
 		}
 		
 		String queryString = "";

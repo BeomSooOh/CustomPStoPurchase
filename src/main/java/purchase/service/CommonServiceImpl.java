@@ -25,7 +25,10 @@ public class CommonServiceImpl implements CommonService {
     private CommonServiceDAO commonServiceDAO;
     
     @Resource(name = "ContractServiceDAO")
-    private ContractServiceDAO contractServiceDAO;     	    
+    private ContractServiceDAO contractServiceDAO;    
+    
+    @Resource(name = "PurchaseServiceDAO")
+    private PurchaseServiceDAO purchaseServiceDAO;        
 	
 	public List<Map<String, Object>> SelectPurchaseDetailCodeList ( Map<String, Object> params ){
 		return commonServiceDAO.SelectPurchaseDetailCodeList(params);
@@ -125,6 +128,31 @@ public class CommonServiceImpl implements CommonService {
 			params.put("change_seq", params.get("approKey").toString().split("_")[2]);
 			
 			commonServiceDAO.UpdateApprChange(params);
+		}else if(params.get("processId").equals("Purchase01")) {
+			
+			params.put("approkeyPurchase", params.get("approKey"));
+			params.put("seq", params.get("approKey").toString().split("_")[1]);
+			
+			//평가회의 품의데이터 상태값 업데이트
+			params.put("out_process_interface_id", "Purchase01");
+			params.put("out_process_interface_m_id", params.get("seq"));
+			params.put("out_process_interface_d_id", "DUPLICATE_TEMP");
+			commonServiceDAO.UpdateConsDocSts(params);
+			
+			//종결 시 관리번호 등록
+			if(params.get("docSts").equals("90")) {
+				
+				Map<String, Object> newManageNo = purchaseServiceDAO.SelectNewManageNo(params);
+				
+				if(newManageNo != null) {
+					params.put("newManageNo", newManageNo.get("new_manage_no"));
+				}
+			}			
+			
+		}else if(params.get("processId").equals("Purchase02")) {
+			
+			params.put("approkeyCheck", params.get("approKey"));
+			params.put("seq", params.get("approKey").toString().split("_")[1]);
 		}
 		
 		//종결 시 관리번호 등록
@@ -138,7 +166,9 @@ public class CommonServiceImpl implements CommonService {
 			
 		}
 		
+		
 		commonServiceDAO.UpdateAppr(params);
+		
 		
 		if(params.get("processId").equals("Contract01") && params.get("docSts").equals("90")) {
 			

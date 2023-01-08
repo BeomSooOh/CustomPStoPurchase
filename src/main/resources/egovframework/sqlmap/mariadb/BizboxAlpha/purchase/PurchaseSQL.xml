@@ -56,7 +56,8 @@
 		a.seq, 
 		a.manage_no, 
 		a.write_comp_seq, 
-		a.write_dept_seq, ifnull(dm.dept_name,'') as write_dept_name, 
+		a.write_dept_seq, ifnull(dm.dept_name,'') as write_dept_name,
+		ifnull(d.standard_code,'') as operation_dept_code,
 		a.write_emp_seq, ifnull(em.emp_name,'') as write_emp_name, 
 		a.write_dt,
 		ifnull(a.title, '') as title,
@@ -83,22 +84,24 @@
 		item.item_total_amt_text, 
 		item.item_cnt, 
 		item.item_deadline, 
-		item.item_acquisition_reason, 
-		item.item_inventory_cd, 
 		item.item_unit, 
-		item.item_use_location, 
 		item.item_contry, 
 		item.item_pickup_location, 
-		item.item_green_cert_type, 
-		item.item_non_green_reason, 
-		item.item_green_class, 
-		item.item_foreign_type		
 		
+		cust_sto.fn_get_purchase_code_text('acquisitionReason', item.item_acquisition_reason) as item_acquisition_reason, 
+		cust_sto.fn_get_purchase_code_text('inventory', item.item_inventory_cd) as item_inventory_cd, 
+		cust_sto.fn_get_purchase_code_text('useLocation', item.item_use_location) as item_use_location, 
+		cust_sto.fn_get_purchase_code_text('greenCertType', item.item_green_cert_type) as item_green_cert_type, 
+		cust_sto.fn_get_purchase_code_text('nonGreenReason', item.item_non_green_reason) as item_non_green_reason, 
+		cust_sto.fn_get_purchase_code_text('greenClass', item.item_green_class) as item_green_class, 
+		cust_sto.fn_get_purchase_code_text('foreignType', item.item_foreign_type) as item_foreign_type, 
+		
+		ifnull(a.purchase_attach_info,'') as purchase_attach_info
 		FROM cust_sto.t_purchase_purchase a
 		join cust_sto.t_purchase_item_info item on a.seq = item.seq
 		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
 		left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'		
-		
+		left join $DB_NEOS$t_co_dept d on a.write_dept_seq = d.dept_seq
 		where 
 		1=1
 		<isNotEmpty property="searchFromDate">
@@ -185,7 +188,8 @@
 		pay_type_info,
 		public_info,	
 		purchase_amt,	
-		purchase_amt_kor,	 
+		purchase_amt_kor,	
+		item_info_html, 
 		 
 		created_dt, 
 		created_by, 
@@ -206,7 +210,8 @@
 		'$pay_type_info$',
 		'$public_info$', 
 		'$purchase_amt$', 
-		'$purchase_amt_kor$', 
+		'$purchase_amt_kor$',
+		'$item_info_html$', 
 			
 		now(), 
 		'$created_by$', 
@@ -236,12 +241,21 @@
 		public_info='$public_info$',
 		purchase_amt='$purchase_amt$',
 		purchase_amt_kor='$purchase_amt_kor$',
+		item_info_html=#item_info_html#, 
 		
 		modify_dt=now(), 
 		modify_by='$created_by$'
 		
 		WHERE seq='$seq$'; 
 	</update>		
+	
+	
+	<update	id="PurchaseSQL.UpdatePurchaseAttachInfo" parameterClass="HashMap" >
+		UPDATE cust_sto.t_purchase_purchase
+		SET
+		purchase_attach_info='$purchase_attach_info$'
+		WHERE seq='$seq$'; 
+	</update>	
 	
 	
 	<delete	id="PurchaseSQL.DeleteItemInfo" parameterClass="HashMap" >
@@ -256,6 +270,7 @@
 		(
 		seq, 
 		outProcessCode, 
+		item_tr_seq,
 		item_idn_no, 
 		item_div_no, 
 		item_name, 
@@ -281,6 +296,7 @@
 		VALUES(
 		'$seq$', 
 		'$outProcessCode$',
+		'$item_tr_seq$',
 		'$item_idn_no$',
 		'$item_div_no$',
 		'$item_name$',
@@ -312,6 +328,7 @@
 		SELECT 
 		seq, 
 		outProcessCode, 
+		item_tr_seq,
 		item_idn_no, 
 		item_div_no, 
 		item_name,
@@ -334,9 +351,18 @@
 		created_dt, 
 		created_by
 		FROM cust_sto.t_purchase_item_info 
-		where '$seq$' and outProcessCode = '$outProcessCode$';
+		where seq='$seq$' and outProcessCode = '$outProcessCode$';
 
-	</select>		
+	</select>	
+	
+	
+	<select	id="PurchaseSQL.SelectNewManageNo" parameterClass="HashMap" resultClass="HashMap">
+	
+		select concat(
+		'STOP', DATE_FORMAT(NOW(), '%y%m%d'), '-', LPAD( ifnull( (select max(substr(manage_no, 12)) from cust_sto.t_purchase_purchase where manage_no like concat(
+		'STOP',DATE_FORMAT(NOW(), '%y%m%d'),'-%')) , '0') + 1 , 3, '0')) as new_manage_no;
+		
+	</select>
 	
 		
 </sqlMap>

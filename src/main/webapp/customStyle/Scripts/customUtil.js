@@ -306,6 +306,11 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 				
 				if(eval($(tableVal).attr("requiredNot")) != true && tableValThis == ""){
 					console.log("obj필수값 누락 > " + $(tableVal).attr("name"));
+					
+					if($(tableVal).attr("tbname")){
+						objName += " > " + $(tableVal).attr("tbname");
+					}
+					
 					focusTarget = tableVal;
 					obj = {};
 					breakYn = true;
@@ -372,10 +377,8 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 			
 			if(type == "text"){
 				$(elementFor).focus();
-			}else if(type == "table"){
-				
+			}else if(type == "table" || type == "obj"){
 				$(focusTarget).focus();
-				
 			}			
 		}
 						

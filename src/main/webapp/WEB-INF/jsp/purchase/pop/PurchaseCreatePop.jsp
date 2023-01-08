@@ -40,6 +40,7 @@
 	/* 예산관련 변수 시작 */
 	var consDocSeq = "";
 	var consSeq = "";
+	var thisSeq = "${seq}";
 	
 	var eaBaseInfo = ${eaBaseInfo};
 	var commonParam = {};
@@ -119,7 +120,7 @@
 		
 		//옵션값 설정
 		setCommonOption();
-		datePickerInit();
+		
 		
 		//기존설정항목 세팅
 		<c:if test="${viewType == 'U'}">
@@ -129,7 +130,7 @@
 		setDynamicSetInfoItem();
 		</c:if>
 		
-
+		datePickerInit();
 		
 	});	
 	
@@ -183,7 +184,7 @@
 		
 		cloneData = $('[name="itemList"] tr[name=dataBase]').clone();
 		$(cloneData).show().attr("name", "addData");
-		
+		$(cloneData).find("[name=item_tr_seq]").val("${items.item_tr_seq}");
 		$(cloneData).find("[name=item_div_no]").val("${items.item_div_no}");
 		$(cloneData).find("[name=item_idn_no]").val("${items.item_idn_no}");
 		$(cloneData).find("[name=item_name]").val("${items.item_name}");
@@ -277,6 +278,8 @@
 		</c:forEach>			
 		</c:if>			
 		
+		itemTradeReset();
+		
 	}	
 	
 	function setDynamicSetInfoBudget(){
@@ -310,6 +313,11 @@
 		$(cloneData).find("[name=bottom_seq]").val("${items.bottom_seq}");
 		$(cloneData).find("[name=bottom_name]").val("${items.bottom_name}");
 		$(cloneData).find("[name=amt]").val("${items.amt}");
+		
+		$(cloneData).find("[name=txt_open_amt]").val("${items.txt_open_amt}");
+		$(cloneData).find("[name=txt_cons_balance_amt]").val("${items.txt_cons_balance_amt}");
+		$(cloneData).find("[name=txt_apply_amt]").val("${items.txt_apply_amt}");
+		$(cloneData).find("[name=txt_balance_amt]").val("${items.txt_balance_amt}");
 		
 		$('[name="budgetList"]').append(cloneData);
 		
@@ -435,6 +443,10 @@
 		
 		$(e).closest("tr").remove();
 		
+		if(tableName == "tradeList"){
+			itemTradeReset();	
+		}
+		
 	}		
 	
 	function fnCommonCodeCustomPop(code, e) {
@@ -521,6 +533,8 @@
 				$(commonElement).find("[name=depositor]").val( param.depositor || "" );
 				$(commonElement).find("[name=tr_fg]").val( param.trFg || "" );
 				$(commonElement).find("[name=tr_fg_name]").val( param.trFgName || "" );
+				
+				itemTradeReset();	
 			
 			//회계단위	
 			}else if(param.code == "div"){
@@ -639,7 +653,15 @@
 			
 			if($(commonElement).find("[name=erp_bgt4_seq]").val() != ""){
 				$('#bgt4Name').text($(commonElement).find("[name=erp_bgt4_name]").val() + " (" + $(commonElement).find("[name=erp_bgt4_seq]").val() + ")");	
-			}				
+			}
+			
+			if(!calAmt && $(commonElement).find("[name=txt_open_amt]").val() != ""){
+				$('#txtOpenAmt').text($(commonElement).find("[name=txt_open_amt]").val());
+				$('#txtConsBalanceAmt').text($(commonElement).find("[name=txt_cons_balance_amt]").val());
+				$('#txtApplyAmt').text($(commonElement).find("[name=txt_apply_amt]").val());
+				$('#txtBalanceAmt').text($(commonElement).find("[name=txt_balance_amt]").val());
+				return;
+			}
 			
 			$.ajax({
 				type : 'post',
@@ -655,6 +677,11 @@
 					$('#txtApplyAmt').text(fnGetCurrencyCode(data.resApplyAmt));
 					$('#txtBalanceAmt').text(fnGetCurrencyCode(data.balanceAmt));
 					
+					$(commonElement).find("[name=txt_open_amt]").val(fnGetCurrencyCode(data.openAmt));
+					$(commonElement).find("[name=txt_cons_balance_amt]").val(fnGetCurrencyCode(data.consBalanceAmt));
+					$(commonElement).find("[name=txt_apply_amt]").val(fnGetCurrencyCode(data.resApplyAmt));
+					$(commonElement).find("[name=txt_balance_amt]").val(fnGetCurrencyCode(data.balanceAmt));						
+
 					if(calAmt){
 						//금액 초기화
 						$(commonElement).find("[name=amt]").val("0");
@@ -1094,7 +1121,7 @@
 		<c:if test="${viewType == 'U'}">
 		insertDataObject.attch_file_info = JSON.stringify(attachFormList);
 		insertDataObject.outProcessCode = outProcessCode;
-		insertDataObject.seq = "${seq}"
+		insertDataObject.seq = thisSeq;
 		
 		$.ajax({
 			type : 'post',
@@ -1218,7 +1245,7 @@
 		insertDataObject.reqType = type;
 		insertDataObject.outProcessCode = outProcessCode;
 		insertDataObject.viewType = "${viewType}";
-		insertDataObject.seq = "${seq}";
+		insertDataObject.seq = thisSeq;
 		
 		var itemAmtTotal = 0;
 		
@@ -1231,6 +1258,45 @@
 		insertDataObject.purchase_amt = itemAmtTotal;
 		insertDataObject.purchase_amt_kor = viewKorean(itemAmtTotal.toString());
 		
+		//품품정보 html
+		$('[name=itemObjListHtml]').find("[displaynone]").removeAttr("displaynone");
+		$('[name=itemObjListHtml]').find(":hidden").attr("displaynone", "Y");
+		
+		//Clone객체 select checked option 정보 누락 현상관련 temp Attr에 임시저장/활용
+		$.each($('[name=itemList]').find("select"), function( idx, obj ) {
+			$(obj).attr("htmlTempVal", $(obj).find("option:checked").text());
+		});			
+		
+		var cloneData = $('[name=itemObjListHtml]').clone();
+		$(cloneData).find("[displaynone]").remove();
+		$(cloneData).find("[removehtml=Y]").remove();
+		$(cloneData).find("[name=dataBase]").remove();
+		$(cloneData).find("[name=itemList]").attr("border", "1").attr("width", "100%").css("width", "100%");
+		$(cloneData).find("th").attr("align", "center").attr("bgcolor", "#f1f1f1").attr("height", "25");
+		$(cloneData).find("td").attr("align", "center").attr("height", "20");
+		$(cloneData).find("[name]").removeAttr("name");
+		$(cloneData).find("[objcheckfor]").removeAttr("objcheckfor");
+		
+		//개별 align 적용
+		$.each($(cloneData).find("[htmlalign]"), function( idx, obj ) {
+			$(obj).attr("align", $(obj).attr("htmlalign"));
+		});		
+		
+		$.each($(cloneData).find("[colspanHtml]"), function( idx, obj ) {
+			$(obj).attr("colspan", $(obj).attr("colspanHtml"));
+		});
+		
+		//input 요소 텍스트화
+		$.each($(cloneData).find("input"), function( idx, obj ) {
+			$(obj).replaceWith($(obj).val());
+		});	
+		
+		$.each($(cloneData).find("select"), function( idx, obj ) {
+			$(obj).replaceWith($(obj).attr("htmlTempVal"));
+		});
+		
+		insertDataObject.item_info_html = $(cloneData)[0].outerHTML;		
+		
 		$.ajax({
 			type : 'post',
 			url : '<c:url value="/purchase/PurchaseSaveProc.do" />',
@@ -1240,6 +1306,8 @@
 			success : function(result) {
 				
 				if(result.resultCode == "success"){
+					
+					thisSeq = result.resultData.seq;
 					
 					if(type == 1){
 						openerRefreshList();				
@@ -1389,11 +1457,6 @@
 
 	}	
 	
-	
-	
-	
-	
-	
 	var conclusionbudgetList = [];
 	var conclusionRemainAmt = 0;			
 	
@@ -1402,7 +1465,7 @@
 		//기존 품의(임시)데이터 삭제
 		parameter = {};
 		parameter.out_process_interface_id = outProcessCode;
-		parameter.out_process_interface_m_id = "${seq}";
+		parameter.out_process_interface_m_id = thisSeq;
 		parameter.out_process_interface_d_id = "DUPLICATE_TEMP";			
 		
 		$.ajax({
@@ -1454,7 +1517,7 @@
 
 		/* 외부연동 ( 전용개발 또는 내부 개발 항목 - 근태 등 ) */
 		parameter.outProcessInterfaceId = outProcessCode;
-		parameter.outProcessInterfaceMId = "${seq}";
+		parameter.outProcessInterfaceMId = thisSeq;
 		parameter.outProcessInterfaceDId = "DUPLICATE_TEMP";
 		
 		$.ajax({
@@ -1658,7 +1721,7 @@
 						if(conclusionRemainAmt > 0){
 							msgSnackbar("error", "품의금액이 예산잔액을 초과합니다.");
 						}else{
-							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=${seq}",  "ApprCreatePop", 1000, 729, 1, 1) ;
+							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=" + thisSeq,  "ApprCreatePop", 1000, 729, 1, 1) ;
 							self.close();								
 						}
 
@@ -1676,8 +1739,23 @@
 		});
 
 		return;
-	}	
+	}
 	
+	function itemTradeReset(){
+		
+		$("[name=itemList] [name=item_tr_seq] option").remove();
+		
+		$("[name=itemList] [name=item_tr_seq]").append("<option value=''>--</option>");
+		
+		$.each($("[name=tradeList] tr[name=addData]"), function( key, obj ) {
+			
+			if($(obj).find("[name=tr_seq]").val() != ""){
+				$("[name=itemList] [name=item_tr_seq]").append("<option value='"+$(obj).find("[name=tr_seq]").val()+"'>"+$(obj).find("[name=tr_name]").val()+"</option>");
+			}
+			
+		});			
+		
+	}
 	
 	</script>
 </head>
@@ -1740,11 +1818,11 @@
 				</tr>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 문서제목</th>
-					<td colspan="3"><input objKey="title" objCheckFor="checkVal('text', this, '문서제목', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U' }">${purchaseDetailInfo.title}</c:if>" /></td>
+					<td colspan="3"><input ${disabled} objKey="title" objCheckFor="checkVal('text', this, '문서제목', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U' }">${purchaseDetailInfo.title}</c:if>" /></td>
 				</tr>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 구매방법</th>
-					<td><input objKey="purchase_method" objCheckFor="checkVal('text', this, '구매방법', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U' }">${purchaseDetailInfo.purchase_method}</c:if>" /></td>
+					<td><input ${disabled} objKey="purchase_method" objCheckFor="checkVal('text', this, '구매방법', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U' }">${purchaseDetailInfo.purchase_method}</c:if>" /></td>
 					<th>결재방법</th>
 					<td objKey="pay_type_info" objCheckFor="checkVal('checkbox', 'payType', '결제방법', 'mustAlert', '|etc|')" >
 						<c:forEach var="items" items="${payTypeCode}">
@@ -1929,124 +2007,139 @@
 			</div>			
 		</div>
 		
-		<div class="com_ta4 ova_sc">
-			<table name="itemList" objKey="itemObjList" objCheckFor="checkVal('obj', 'itemList', '물품규격', 'mustAlert', '')" style="width:2600px;">
+		<div class="com_ta4 ova_sc" name="itemObjListHtml">
+			<table name="itemList" objKey="itemObjList" objCheckFor="checkVal('obj', 'itemList', '물품규격', 'mustAlert', '')" style="width:2760px;">
 				<colgroup>
-					<col width="50"/>
+					<c:if test="${disabledYn == 'N'}"> 
+					<col width="50" removehtml="Y"/>
+					</c:if>
 					<col width="200"/>
+					<col width="200" removehtml="Y"/>
 					<col width="250"/>
 					<col width="300"/>
 					<col width="200"/>
 					<col width="150"/>
 					<col width="200"/>
-					<col width="150"/>
-					<col width="300"/>
-					<col width="200"/>
-					<col width="200"/>
-					<col width="200"/>
-					<col width="200"/>
-					<col width="130"/>
-					<col width="250"/>
-					<col width="200"/>
-					<col width="200"/>
-					<col width="200"/>
-					<col width="200"/>
+					<col width="150" removehtml="Y"/>
+					<col width="300" removehtml="Y"/>
+					<col width="200" removehtml="Y"/>
+					<col width="200" removehtml="Y"/>
+					<col width="200" removehtml="Y"/>
+					<col width="200" removehtml="Y"/>
+					<col width="130" removehtml="Y"/>
+					<col width="250" removehtml="Y"/>
+					<col width="200" removehtml="Y"/>
+					<col width="200" removehtml="Y"/>
+					<col width="200" removehtml="Y"/>
+					<col width="200" removehtml="Y"/>
 				</colgroup>
 				<tr>
-					<th class="ac">
+					<c:if test="${disabledYn == 'N'}"> 
+					<th class="ac" removehtml="Y">
 						<input type="button" onclick="fnSectorAdd('itemList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 					</th>
-					<th class="ac">물품분류번호</th>
+					</c:if>
+					<th class="ac">공급업체</th>
+					<th class="ac" removehtml="Y">물품분류번호</th>
 					<th class="ac">물품식별번호</th>
 					<th class="ac">품명</th>
 					<th class="ac">조달단가</th>
 					<th class="ac">구매수량</th>
 					<th class="ac">소계</th>
-					<th class="ac">납품기한</th>
-					<th class="ac">수령장소</th>					
-					<th class="ac">취득수수료</th>
-					<th class="ac">단위</th>
-					<th class="ac">물품대장코드</th>
-					<th class="ac">사용위치</th>
-					<th class="ac">국내외구분</th>
-					<th class="ac">국가코드</th>
-					<th class="ac">취득사유코드</th>
-					<th class="ac">녹색제품인증구분</th>
-					<th class="ac">녹색제품미구매사유</th>
-					<th class="ac">녹색제품분류</th>
+					<th class="ac" removehtml="Y">납품기한</th>
+					<th class="ac" removehtml="Y">수령장소</th>					
+					<th class="ac" removehtml="Y">취득수수료</th>
+					<th class="ac" removehtml="Y">단위</th>
+					<th class="ac" removehtml="Y">물품대장코드</th>
+					<th class="ac" removehtml="Y">사용위치</th>
+					<th class="ac" removehtml="Y">국내외구분</th>
+					<th class="ac" removehtml="Y">국가코드</th>
+					<th class="ac" removehtml="Y">취득사유코드</th>
+					<th class="ac" removehtml="Y">녹색제품인증구분</th>
+					<th class="ac" removehtml="Y">녹색제품미구매사유</th>
+					<th class="ac" removehtml="Y">녹색제품분류</th>
 				</tr>
 				<tr name="dataBase" style="display:none;">
-					<td>
+					<c:if test="${disabledYn == 'N'}"> 
+					<td removehtml="Y">
 						<input type="button" onclick="fnSectorDel(this, 'itemList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 					</td>
-					<td><input tbval="Y" name="item_div_no" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
+					</c:if>
+					<td><select ${disabled} tbval="Y" name="item_tr_seq" tbname="공급업체" style="min-width: 120px;"><option value=""></option></select></td>
+					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_div_no" tbname="물품분류번호" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
 					<td>
 						<div class="posi_re">
-							<input tbval="Y" name="item_idn_no" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;" onclick="commonCodeSelectLayer('', '나라장터 종합쇼핑몰', 'shopping', $(this).closest('tr'), 'N')"></a>
+							<input tbval="Y" ${disabled} name="item_idn_no" tbname="물품식별번호" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
+							<c:if test="${disabledYn == 'N'}"> 
+							<a removehtml="Y" href="#n" class="btn_search" style="margin-left: -25px;" onclick="commonCodeSelectLayer('', '나라장터 종합쇼핑몰', 'shopping', $(this).closest('tr'), 'N')"></a>
+							</c:if>	
 						</div>
 					</td>
-					<td><input tbval="Y" name="item_name" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
-					<td><input tbval="Y" name="item_amt" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> 원</td>
-					<td><input tbval="Y" name="item_cnt" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="1" /></td>
-					<td tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
+					<td><input ${disabled} tbval="Y" name="item_name" tbname="품명" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
+					<td htmlalign="right"><input ${disabled} tbval="Y" name="item_amt" tbname="조달단가" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> <span removehtml="Y">원</span></td>
+					<td><input ${disabled} tbval="Y" name="item_cnt" tbname="구매수량" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="1" /></td>
+					<td htmlalign="right" tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
 					<input tbval="Y" name="item_total_amt" amountInput="Y" type="hidden" value="0" requiredNot="true" />
-					<td><input tbval="Y" name="item_deadline" value="" readonly style="text-align: center;height: 22px;border: ridge;width: 90px;" /></td>
-					<td><input tbval="Y" name="item_pickup_location" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
-					<td><input tbval="Y" name="item_fee_amt" amountInput="Y" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
-					<td class="le">
-						<input tbval="Y" name="item_unit" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" readonly codetarget /> 
+					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_deadline" tbname="납품기한" value="" readonly style="text-align: center;height: 22px;border: ridge;width: 90px;" /></td>
+					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_pickup_location" tbname="수령장소" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
+					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_fee_amt" tbname="취득수수료" amountInput="Y" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
+					<td class="le" removehtml="Y">
+						<input tbval="Y" name="item_unit" tbname="단위" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" readonly codetarget />
+						<c:if test="${disabledYn == 'N'}"> 
 						<a href="#n" class="btn_search ml10" onclick="commonCodeSelectLayer('unit', '단위', 'text', $(this).closest('td'), 'N')"></a>
+						</c:if>	
 					</td>
-					<td>
-						<select tbval="Y" name="item_inventory_cd" >
+					<td  removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_inventory_cd" tbname="물품대장코드" >
 							<c:forEach var="items" items="${inventoryCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>								
 						</select>
 					</td>
-					<td>
-						<select tbval="Y" name="item_use_location" >
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_use_location" tbname="사용위치" >
 							<c:forEach var="items" items="${useLocationCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>	
 						</select>
 					</td>
-					<td>
-						<select tbval="Y" name="item_foreign_type" >
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_foreign_type" >
 							<c:forEach var="items" items="${foreignTypeCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>	
 						</select>
 					</td>
-					<td class="le">
-						<input tbval="Y" name="item_contry" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" readonly codetarget /> 
+					<td class="le" removehtml="Y">
+						<input tbval="Y" name="item_contry" tbname="국가코드" type="text" pudd-style="width:100px;" class="puddSetup ar" value="대한민국" readonly codetarget />
+						<c:if test="${disabledYn == 'N'}">  
 						<a href="#n" class="btn_search ml10" onclick="commonCodeSelectLayer('country', '국가코드', 'text', $(this).closest('td'), 'N')"></a>
+						</c:if>	
 					</td>
-					<td>
-						<select tbval="Y" name="item_acquisition_reason" style="text-align: center;">
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_acquisition_reason" tbname="취득사유코드" style="text-align: center;">
 							<c:forEach var="items" items="${acquisitionReasonCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
 						</select>
 					</td>
 					
-					<td>
-						<select tbval="Y" name="item_green_cert_type" requiredNot="true" style="text-align: center;">
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_green_cert_type" tbname="녹색제품인증구분" requiredNot="true" style="text-align: center;">
 							<c:forEach var="items" items="${greenCertTypeCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
 						</select>
 					</td>
-					<td>
-						<select tbval="Y" name="item_non_green_reason" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() != ''" style="text-align: center;">
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_non_green_reason" tbname="녹색제품미구매사유" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() != ''" style="text-align: center;">
 							<c:forEach var="items" items="${nonGreenReasonCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
 						</select>
 					</td>
-					<td>
-						<select tbval="Y" name="item_green_class" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() == ''" style="text-align: center;">
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_green_class" tbname="녹색제품분류" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() == ''" style="text-align: center;">
 							<c:forEach var="items" items="${greenClassCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
@@ -2054,82 +2147,91 @@
 					</td>															
 				</tr>
 				<tr name="addData">
-					<td>
+					<c:if test="${disabledYn == 'N'}"> 
+					<td removehtml="Y">
 						<input type="button" onclick="fnSectorDel(this, 'itemList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 					</td>
-					<td><input tbval="Y" name="item_div_no" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
+					</c:if>
+					<td><select ${disabled} tbval="Y" name="item_tr_seq" tbname="공급업체" style="min-width: 120px;"><option value=""></option></select></td>
+					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_div_no" tbname="물품분류번호" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
 					<td>
 						<div class="posi_re">
-							<input tbval="Y" name="item_idn_no" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
-							<a href="#n" class="btn_search" style="margin-left: -25px;" onclick="commonCodeSelectLayer('', '나라장터 종합쇼핑몰', 'shopping', $(this).closest('tr'), 'N')"></a>
+							<input tbval="Y" ${disabled} name="item_idn_no" tbname="물품식별번호" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup pr30" value="" />
+							<c:if test="${disabledYn == 'N'}"> 
+							<a removehtml="Y" href="#n" class="btn_search" style="margin-left: -25px;" onclick="commonCodeSelectLayer('', '나라장터 종합쇼핑몰', 'shopping', $(this).closest('tr'), 'N')"></a>
+							</c:if>	
 						</div>
 					</td>
-					<td><input tbval="Y" name="item_name" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
-					<td><input tbval="Y" name="item_amt" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> 원</td>
-					<td><input tbval="Y" name="item_cnt" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="1" /></td>
-					<td tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
+					<td><input ${disabled} tbval="Y" name="item_name" tbname="품명" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
+					<td htmlalign="right"><input ${disabled} tbval="Y" name="item_amt" tbname="조달단가" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> <span removehtml="Y">원</span></td>
+					<td><input ${disabled} tbval="Y" name="item_cnt" tbname="구매수량" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="1" /></td>
+					<td htmlalign="right" tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
 					<input tbval="Y" name="item_total_amt" amountInput="Y" type="hidden" value="0" requiredNot="true" />
-					<td><input tbval="Y" name="item_deadline" value="" readonly style="text-align: center;height: 22px;border: ridge;width: 90px;"/></td>
-					<td><input tbval="Y" name="item_pickup_location" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
-					<td><input tbval="Y" name="item_fee_amt" amountInput="Y" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
-					<td class="le">
-						<input tbval="Y" name="item_unit" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" readonly codetarget /> 
+					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_deadline" tbname="납품기한" value="" readonly style="text-align: center;height: 22px;border: ridge;width: 90px;" /></td>
+					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_pickup_location" tbname="수령장소" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
+					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_fee_amt" tbname="취득수수료" amountInput="Y" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
+					<td class="le" removehtml="Y">
+						<input tbval="Y" name="item_unit" tbname="단위" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" readonly codetarget />
+						<c:if test="${disabledYn == 'N'}"> 
 						<a href="#n" class="btn_search ml10" onclick="commonCodeSelectLayer('unit', '단위', 'text', $(this).closest('td'), 'N')"></a>
+						</c:if>	
 					</td>
-					<td>
-						<select tbval="Y" name="item_inventory_cd" >
+					<td  removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_inventory_cd" tbname="물품대장코드" >
 							<c:forEach var="items" items="${inventoryCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>								
 						</select>
 					</td>
-					<td>
-						<select tbval="Y" name="item_use_location" >
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_use_location" tbname="사용위치" >
 							<c:forEach var="items" items="${useLocationCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>	
 						</select>
 					</td>
-					<td>
-						<select tbval="Y" name="item_foreign_type" >
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_foreign_type" >
 							<c:forEach var="items" items="${foreignTypeCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>	
 						</select>
 					</td>
-					<td class="le">
-						<input tbval="Y" name="item_contry" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" readonly codetarget /> 
+					<td class="le" removehtml="Y">
+						<input tbval="Y" name="item_contry" tbname="국가코드" type="text" pudd-style="width:100px;" class="puddSetup ar" value="대한민국" readonly codetarget />
+						<c:if test="${disabledYn == 'N'}">  
 						<a href="#n" class="btn_search ml10" onclick="commonCodeSelectLayer('country', '국가코드', 'text', $(this).closest('td'), 'N')"></a>
+						</c:if>	
 					</td>
-					<td>
-						<select tbval="Y" name="item_acquisition_reason" style="text-align: center;">
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_acquisition_reason" tbname="취득사유코드" style="text-align: center;">
 							<c:forEach var="items" items="${acquisitionReasonCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
 						</select>
 					</td>
 					
-					<td>
-						<select tbval="Y" name="item_green_cert_type" requiredNot="true" style="text-align: center;">
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_green_cert_type" tbname="녹색제품인증구분" requiredNot="true" style="text-align: center;">
 							<c:forEach var="items" items="${greenCertTypeCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
 						</select>
 					</td>
-					<td>
-						<select tbval="Y" name="item_non_green_reason" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() != ''" style="text-align: center;">
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_non_green_reason" tbname="녹색제품미구매사유" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() != ''" style="text-align: center;">
 							<c:forEach var="items" items="${nonGreenReasonCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
 						</select>
 					</td>
-					<td>
-						<select tbval="Y" name="item_green_class" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() == ''" style="text-align: center;">
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_green_class" tbname="녹색제품분류" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() == ''" style="text-align: center;">
 							<c:forEach var="items" items="${greenClassCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
 						</select>
-					</td>															
+					</td>														
 				</tr>				
 			</table>
 		</div>
@@ -2215,6 +2317,11 @@
 						
 							<input tbval="Y" name="erp_budget_seq" type="hidden" value="" />
 							<input tbval="Y" name="erp_budget_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
+							
+							<input tbval="Y" name="txt_open_amt" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="txt_cons_balance_amt" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="txt_apply_amt" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="txt_balance_amt" type="hidden" value="" requiredNot="true" />							
 
 							<c:if test="${disabledYn == 'N'}"> 
 							<a href="#n" onclick="fnCommonCodeCustomPop('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
@@ -2279,6 +2386,11 @@
 							<input tbval="Y" name="erp_budget_seq" type="hidden" value="" />
 							<input tbval="Y" name="erp_budget_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
 							
+							<input tbval="Y" name="txt_open_amt" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="txt_cons_balance_amt" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="txt_apply_amt" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="txt_balance_amt" type="hidden" value="" requiredNot="true" />
+							
 							<c:if test="${disabledYn == 'N'}"> 
 							<a href="#n" ${disabled} onclick="fnCommonCodeCustomPop('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
@@ -2286,7 +2398,7 @@
 					</td>
 					<td>
 						<div class="posi_re">
-							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" />							
+							<input ${disabled} tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" />							
 						</div>
 					</td>					
 				</tr>				

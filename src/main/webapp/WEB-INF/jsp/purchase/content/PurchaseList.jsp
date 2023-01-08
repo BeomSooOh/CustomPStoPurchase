@@ -192,7 +192,7 @@
 				,	width : 100							
 				}	
 			,	{
-					field : "item_dept_code"
+					field : "operation_dept_code"
 				,	title : "운영부서코드"
 				,	width : 100							
 				}	
@@ -209,7 +209,7 @@
 			,	{
 				field : "item_use_location"
 			,	title : "물품사용위치"
-			,	width : 100							
+			,	width : 200							
 			}		
 			,	{
 				field : "item_foreign_type"
@@ -238,7 +238,7 @@
 			}				
 			,	{
 				field : ""
-			,	title : "물품검수회수"
+			,	title : "물품검수여부"
 			,	width : 100							
 			}
 			,	{
@@ -259,7 +259,18 @@
 			,	{
 				field : ""
 			,	title : "붙임문서"
-			,	width : 100							
+			,	width : 200	
+			,	content : {
+				attributes : { class : "le" },
+				template : function(rowData) {
+						if(rowData.purchase_attach_info != ""){
+							var attachInfo =  rowData.purchase_attach_info.split("▦");
+							return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="'+attachInfo[2]+'" class="fl ellipsis pl5 text_ho" style="max-width:288px;" ><img name="uploadFileIco" src="${pageContext.request.contextPath}' + fncGetFileClassImg(attachInfo[1]) + '" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName">'+attachInfo[0]+attachInfo[1]+'<span></em></span></div>';	
+						}else{
+							return '';
+						}							
+					}
+				}			
 			}			
 			
 			]

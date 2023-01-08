@@ -1343,7 +1343,7 @@
 					</td>
 					<td>
 						<div class="posi_re">
-							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" />							
+							<input ${disabled} tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" />							
 						</div>
 					</td>					
 				</tr>				

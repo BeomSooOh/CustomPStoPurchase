@@ -94,7 +94,11 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 	
 	public void UpdateAppr ( Map<String, Object> params ) {
 		
-		update( "CommonSQL.UpdateAppr", params );
+		if(params.get("processId").equals("Purchase01") || params.get("processId").equals("Purchase02")) {
+			update( "CommonSQL.UpdateApprPurchase", params );
+		}else {
+			update( "CommonSQL.UpdateApprContract", params );
+		}		
 		
 	}	
 	

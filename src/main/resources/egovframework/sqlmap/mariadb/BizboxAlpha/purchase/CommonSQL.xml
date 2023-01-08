@@ -226,7 +226,9 @@
 		ifnull(a.approkey_purchase,'') as approkey_purchase, 
 		ifnull(a.approkey_check,'') as approkey_check, 
 		
-		FORMAT(a.purchase_amt, 0) as purchase_amt					
+		FORMAT(a.purchase_amt, 0) as purchase_amt,			
+		a.purchase_amt_kor,
+		a.item_info_html
 		
 		FROM cust_sto.t_purchase_purchase a
 		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
@@ -244,7 +246,7 @@
 	
 	</update>	
 	
-	<update	id="CommonSQL.UpdateAppr" parameterClass="HashMap" >
+	<update	id="CommonSQL.UpdateApprContract" parameterClass="HashMap" >
 	
 		<isNull property="approkeyChange">
 			UPDATE cust_sto.t_purchase_contract
@@ -290,6 +292,26 @@
 		</isNotNull>	
 		
 	</update>
+	
+	
+	<update	id="CommonSQL.UpdateApprPurchase" parameterClass="HashMap" >
+	
+		UPDATE cust_sto.t_purchase_purchase
+		SET
+		doc_sts='$docSts$'
+		<isNotEmpty property="newManageNo">
+		,manage_no='$newManageNo$'
+		</isNotEmpty>			
+		<isNotEmpty property="approkeyPurchase">
+		,approkey_purchase='$approkeyPurchase$'
+		</isNotEmpty>	
+		<isNotEmpty property="approkeycheck">
+		,approkey_check='$approkeycheck$'
+		</isNotEmpty>
+		
+		WHERE seq='$seq$';		  
+	
+	</update>	
 	
 	
 	<update	id="CommonSQL.UpdateApprChange" parameterClass="HashMap" >
@@ -370,8 +392,22 @@
 	<insert	id="CommonSQL.InsertBudgetInfo" parameterClass="HashMap" >
 		
 		INSERT INTO cust_sto.t_purchase_budget_info
-		(seq, outProcessCode, erp_budget_seq, erp_budget_name, erp_budget_div_seq, erp_budget_div_name, erp_bgt1_seq, erp_bgt2_seq, erp_bgt3_seq, erp_bgt4_seq, erp_bgt1_name, erp_bgt2_name, erp_bgt3_name, erp_bgt4_name, pjt_seq, pjt_name, bottom_seq, bottom_name, amt, created_dt, created_by)
-		VALUES('$seq$', '$outProcessCode$', '$erp_budget_seq$', '$erp_budget_name$', '$erp_budget_div_seq$', '$erp_budget_div_name$', '$erp_bgt1_seq$', '$erp_bgt2_seq$', '$erp_bgt3_seq$', '$erp_bgt4_seq$', '$erp_bgt1_name$', '$erp_bgt2_name$', '$erp_bgt3_name$', '$erp_bgt4_name$', '$pjt_seq$', '$pjt_name$', '$bottom_seq$', '$bottom_name$', '$amt$', now(), '$created_by$');
+		(seq, outProcessCode, erp_budget_seq, erp_budget_name, erp_budget_div_seq, erp_budget_div_name, erp_bgt1_seq, erp_bgt2_seq, erp_bgt3_seq, erp_bgt4_seq, erp_bgt1_name, erp_bgt2_name, erp_bgt3_name, erp_bgt4_name, pjt_seq, pjt_name, bottom_seq, bottom_name, amt, created_dt, created_by
+		<isNotEmpty property="txt_open_amt">
+		,txt_open_amt
+		,txt_cons_balance_amt
+		,txt_apply_amt
+		,txt_balance_amt
+		</isNotEmpty>			
+		)
+		VALUES('$seq$', '$outProcessCode$', '$erp_budget_seq$', '$erp_budget_name$', '$erp_budget_div_seq$', '$erp_budget_div_name$', '$erp_bgt1_seq$', '$erp_bgt2_seq$', '$erp_bgt3_seq$', '$erp_bgt4_seq$', '$erp_bgt1_name$', '$erp_bgt2_name$', '$erp_bgt3_name$', '$erp_bgt4_name$', '$pjt_seq$', '$pjt_name$', '$bottom_seq$', '$bottom_name$', '$amt$', now(), '$created_by$'
+		<isNotEmpty property="txt_open_amt">
+		,'$txt_open_amt$'
+		,'$txt_cons_balance_amt$'
+		,'$txt_apply_amt$'
+		,'$txt_balance_amt$'
+		</isNotEmpty>			
+		);
 
 	</insert>
 	
@@ -397,6 +433,10 @@
 		bottom_seq,
 		bottom_name,
 		FORMAT(amt,0) as amt,
+		ifnull(txt_open_amt,'') as txt_open_amt,
+		ifnull(txt_cons_balance_amt,'') as txt_cons_balance_amt,
+		ifnull(txt_apply_amt,'') as txt_apply_amt,
+		ifnull(txt_balance_amt,'') as txt_balance_amt,
 		created_dt,
 		created_by 
 		from cust_sto.t_purchase_budget_info where seq = '$seq$' and outProcessCode = '$outProcessCode$'
