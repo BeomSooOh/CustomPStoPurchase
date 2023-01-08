@@ -410,6 +410,98 @@ public class PurchasePopController {
         }
         return mv;
     }   
+    
+    
+    
+    
+    
+    @RequestMapping("/purchase/pop/PurchaseCheckPop.do")
+    public ModelAndView PurchaseCheckPop(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        try {
+            /* 변수 설정 */
+            LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+            
+            mv.addObject("viewType", "U");
+            mv.addObject("disabledYn", "N");
+            mv.addObject("btnSaveYn", "Y");
+            mv.addObject("btnApprYn", "Y");
+            
+            Map<String, Object> queryParam = new HashMap<String, Object>();
+            params.put("groupSeq", loginVo.getGroupSeq());
+            queryParam.put("groupSeq", loginVo.getGroupSeq());
+            
+            //기존 작성정보 조회
+            Map<String, Object> detailInfo = purchaseServiceDAO.SelectPurchaseDetail(params);
+        	
+        	if(detailInfo != null) {
+        		
+        		if(!detailInfo.get("approkey_check").equals("")) {
+        			
+        			//임시저장 버튼 표시
+        			mv.addObject("btnSaveYn", "N");
+        			
+        			if(!detailInfo.get("doc_sts").equals("10")) {
+        				mv.addObject("btnApprYn", "N");
+        				mv.addObject("disabledYn", "Y");
+        				mv.addObject("disabled", "disabled");
+        			}
+        		}
+        		
+        		if(detailInfo.get("c_write_emp_seq") != null && !detailInfo.get("c_write_emp_seq").equals("")) {
+                	mv.addObject("c_write_comp_seq", detailInfo.get("c_write_comp_seq"));
+                	mv.addObject("c_write_dept_seq", detailInfo.get("c_write_dept_seq"));
+                	mv.addObject("c_write_emp_seq", detailInfo.get("c_write_emp_seq"));
+                	mv.addObject("c_write_dt", detailInfo.get("c_write_dt"));
+                	
+        		}else {
+                	mv.addObject("c_write_comp_seq", loginVo.getOrganId());
+                	mv.addObject("c_write_dept_seq", loginVo.getOrgnztId());
+                	mv.addObject("c_write_emp_seq", loginVo.getUniqId());
+                	mv.addObject("c_write_dt", CommonUtil.date(new Date(), "yyyy-MM-dd"));        
+        		}        		
+        		
+                //구매계약 전용코드 조회
+                queryParam.put("useYn", "Y");
+                queryParam.put("group", "useLocation");
+                List<Map<String, Object>> useLocation = commonServiceDAO.SelectPurchaseDetailCodeList(queryParam);
+                mv.addObject("useLocationCode", useLocation);
+                
+        		mv.addObject("seq", params.get("seq"));
+        		mv.addObject("purchaseDetailInfo", detailInfo);
+        		
+        		params.put("outProcessCode", "Purchase02");
+        		List<Map<String, Object>> formAttachList = commonServiceDAO.SelectFormAttachList(params);
+        		
+        		mv.addObject("formAttachList", formAttachList);
+        		
+        		params.put("outProcessCode", "Purchase01");
+        		
+        		List<Map<String, Object>> tradeList = commonServiceDAO.SelectTradeList(params);
+        		mv.addObject("tradeList", tradeList);
+        		
+        		List<Map<String, Object>> itemList = purchaseServiceDAO.SelectItemList(params);
+        		mv.addObject("itemList", itemList);            		
+        		
+        	}else {
+        		return mv;
+        	}
+            
+            mv.addObject("loginVo", loginVo);
+            
+            mv.setViewName("/purchase/pop/PurchaseCheckPop");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExpInfo.ProcessLog(e.getLocalizedMessage());
+            mv.addObject("errMsg", e.getMessage());
+            mv.setViewName(CommonMapper.GetExError());
+            logger.error(e);
+        }
+        return mv;
+    }       
+    
 
     
 	private Map<String, Object> getPublicLoginVo (LoginVO loginVo){

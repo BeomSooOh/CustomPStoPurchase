@@ -1344,6 +1344,12 @@ CREATE TABLE if not exists cust_stot_purchase_purchase (
   `purchase_amt_kor` varchar(50) DEFAULT NULL COMMENT '구매금액(한글)',
   `item_info_html` longtext COMMENT '물품규격정보연동html',
   `purchase_attach_info` varchar(100) DEFAULT NULL COMMENT '붙임문서정보',
+  `c_write_comp_seq` varchar(32) DEFAULT NULL COMMENT '(검수)작성자회사시퀀스',
+  `c_write_dept_seq` varchar(32) DEFAULT NULL COMMENT '(검수)작성부서시퀀스',
+  `c_write_emp_seq` varchar(32) DEFAULT NULL COMMENT '(검수)작성자시퀀스',
+  `c_write_dt` char(10) DEFAULT NULL COMMENT '(검수)작성일자',
+  `check_location` varchar(10) DEFAULT NULL COMMENT '검수장소',
+  `release_dt` char(10) DEFAULT NULL COMMENT '납품일자',
   PRIMARY KEY (`seq`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COMMENT='구매품의등록정보';
 
@@ -1454,8 +1460,8 @@ VALUES('greenClass', '01', '필기구 및 필기구 소모품', 'Y', 2, NULL, NU
 
 CREATE table if not exists cust_sto.`t_purchase_item_info` (
   `seq` int(11) NOT NULL COMMENT '물품구매 시퀀스',
+  `item_tr_seq` varchar(50) DEFAULT NULL COMMENT '공급업체시퀀스',
   `outProcessCode` varchar(15) NOT NULL COMMENT '외부연동코드',
-  `item_tr_seq` varchar(50) DEFAULT NULL COMMENT '공급업체시퀀스',  
   `item_idn_no` varchar(50) NOT NULL COMMENT '식별번호',
   `item_div_no` varchar(50) DEFAULT NULL COMMENT '분류번호',
   `item_name` varchar(200) DEFAULT NULL COMMENT '품명',
@@ -1464,6 +1470,7 @@ CREATE table if not exists cust_sto.`t_purchase_item_info` (
   `item_total_amt` decimal(19,2) DEFAULT NULL COMMENT '소계액',
   `item_total_amt_text` varchar(50) DEFAULT NULL COMMENT '소계액',
   `item_cnt` varchar(10) DEFAULT NULL COMMENT '수량',
+  `item_check_cnt` varchar(10) DEFAULT NULL COMMENT '검수수량',
   `item_deadline` varchar(10) DEFAULT NULL COMMENT '납품기한',
   `item_acquisition_reason` varchar(50) NOT NULL COMMENT '취득사유',
   `item_inventory_cd` varchar(50) DEFAULT NULL COMMENT '물품대장코드',

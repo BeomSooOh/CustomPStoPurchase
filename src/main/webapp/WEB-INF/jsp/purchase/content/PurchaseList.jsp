@@ -21,6 +21,7 @@
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/jquery-1.9.1.min.js' />"></script>
 	<script type="text/javascript" src="<c:url value='/customStyle/Scripts/jqueryui/jquery.min.js' />"></script>
 	<script type="text/javascript" src="<c:url value='/customStyle/Scripts/jqueryui/jquery-ui.min.js' />"></script>
+	<script type="text/javascript" src="<c:url value='/js/neos/NeosUtil.js' />"></script>
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/common.js' />"></script>
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script> 
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/excel/jszip-3.1.5.min.js' />"></script> 
@@ -39,6 +40,24 @@
 		BindGrid();
 		
 	});//---documentready
+	
+	function titleOnClickApp(c_dikeyCode, c_miseqnum, c_diseqnum, c_rideleteopt, c_tifogmgb, c_distatus){
+		
+		if(c_rideleteopt =='d'){
+			fnPuddDiaLog("warning", NeosUtil.getMessage("TX000009232","삭제된 문서는 열수 없습니다"));
+			return;
+		}
+		var obj = {
+				diSeqNum  : c_diseqnum,
+				miSeqNum  : c_miseqnum,
+				diKeyCode : c_dikeyCode,
+				tiFormGb  : c_tifogmgb,
+				diStatus  : c_distatus,
+				socketList : 'Y'
+			};
+		var param = NeosUtil.makeParam(obj);
+		neosPopup("POP_DOCVIEW", param);
+	}	
 	
 	function popUpResize(){
 		
@@ -143,7 +162,7 @@
 			,	{
 						field : "manage_no"
 					,	title : "구매번호"
-					,	width : 100
+					,	width : 150
 				}
 			,	{
 					field : "item_idn_no"
@@ -155,16 +174,21 @@
 				,	title : "물품분류번호"
 				,	width : 100
 				}
-	
 			,	{
 					field : "item_name"
 				,	title : "품명"
 				,	width : 200
+				,	content : {
+					attributes : { class : "le" }
+					}				
 				}				
 			,	{
 					field : "item_amt"
 				,	title : "취득단가"
 				,	width : 150
+				,	content : {
+					attributes : { class : "ri" }
+					}				
 				}				
 			,	{
 					field : "item_cnt"
@@ -174,12 +198,18 @@
 			,	{
 					field : "item_total_amt"
 				,	title : "금액"
-				,	width : 150							
+				,	width : 150			
+				,	content : {
+					attributes : { class : "ri" }
+					}					
 				}
 			,	{
 					field : "item_fee_amt"
 				,	title : "취득수수료"
-				,	width : 150							
+				,	width : 150	
+				,	content : {
+					attributes : { class : "ri" }
+					}				
 				}	
 			,	{
 					field : "item_unit"
@@ -229,12 +259,29 @@
 			,	{
 				field : "title"
 			,	title : "품의명"
-			,	width : 100							
+			,	width : 200		
+			,	content : {
+					attributes : { class : "le ellipsis" }
+				}			
 			}				
 			,	{
-				field : ""
+				field : "DOCSTSNAME"
 			,	title : "품의결재상태"
-			,	width : 100							
+			,	width : 100	
+			,	content : {
+				template : function(rowData) {
+						if(rowData.DOCSTSNAME != ""){
+							
+							//titleOnClickApp(c_dikeyCode, c_miseqnum, c_diseqnum, c_rideleteopt, c_tifogmgb, c_distatus)
+							
+							return '<a href="#n" onclick="titleOnClickApp(\''+rowData.C_DIKEYCODE+'\')" >'+rowData.DOCSTSNAME+'</a>';	
+						}else{
+							return '';
+						}							
+						
+						
+					}
+				}			
 			}				
 			,	{
 				field : ""
@@ -457,84 +504,17 @@
 			
 			openWindow2("${pageContext.request.contextPath}/purchase/pop/PurchaseCreatePop.do?seq=" + seq,  "purchaseViewPop", 1200, 800, 1, 1) ;
 			
-		}else if(callId == "newConclusion"){
+		}else if(callId == "btnCheck"){
 			
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionCreatePop.do",  "ConclusionCreatePop", 1200, 800, 1, 1) ;
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/PurchaseCheckPop.do?seq=" + (seq != null ? seq : targetSeq),  "PurchaseCheckViewPop", 1200, 800, 1, 1) ;
 			
-		}else if(callId == "btnConclusion"){
-			
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionCreatePop.do?seq=" + (seq != null ? seq : targetSeq),  "ConclusionViewPop", 1200, 800, 1, 1) ;
-			
-		}else if(callId == "newConclusionChange"){
-			
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionChangePop.do?seq=" + (seq != null ? seq : targetSeq),  "ConclusionChangeCreatePop", 1200, 800, 1, 1) ;
-			
-		}else if(callId == "btnConclusionChange"){
-			
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionChangePop.do?seq=" + (seq != null ? seq : targetSeq) + "&change_seq=" + sub_seq,  "ConclusionChangeViewPop", 1200, 800, 1, 1) ;
-			
-		}else if(callId == "btnConclusionPayment"){
+		}else if(callId == "btnPayment"){
 			
 			if('${resFormSeq}' != ''){
-				openWindow2("${pageContext.request.contextPath}/purchase/pop/ConclusionPaymentPop.do?formSeq=${resFormSeq}&seq=" + (seq != null ? seq : targetSeq),  "ConclusionPaymentViewPop", 1350, 800, 1, 1) ;	
+				openWindow2("${pageContext.request.contextPath}/purchase/pop/PurchasePaymentPop.do?formSeq=${resFormSeq}&seq=" + (seq != null ? seq : targetSeq),  "ConclusionPaymentViewPop", 1350, 800, 1, 1) ;	
 			}else{
 				msgSnackbar("warning", "대금지급 지출결의 양식코드 미설정");
 			}
-			
-		}else if(callId == "btnMeet"){
-			
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractMeetPop.do?seq=" + targetSeq,  "ContractMeetViewPop", 1200, 800, 1, 1) ;
-			
-		}else if(callId == "btnResult"){
-			
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractResultPop.do?seq=" + targetSeq,  "ContractResultViewPop", 1200, 800, 1, 1) ;
-			
-		}else if(callId == "btnSave"){
-			
-			fnSaveColInfo();
-			
-		}else if(callId == "btnSelect"){
-			
-			puddActionBar_ = Pudd.puddActionBar({
-				 
-				height	: 100
-			,	message : {
-		 
-						type : "text"		// text, html
-					,	content : "상세조회 항목을 선택해 주세요"
-					//	type : "html"		// text, html
-					//,	content : '<span style="display: inline-block;padding: 10px 0 0 20px;font-size: 14px;color: #ffffff;">결재문서를 상신하시겠습니까?</span>'
-				}
-			,	buttons : [
-						{
-								attributes : { style : "margin-top:4px;width:auto;" }// control 부모 객체 속성 설정
-							,	controlAttributes : { id : "", class : "submit" }// control 자체 객체 속성 설정
-							,	value : "계약입찰발주계획 상세"
-							,	clickCallback : function( puddActionBar ) {
-									fnCallBtn("contractView", seq);
-									
-									$('.iframe_wrap').attr('onclick','').unbind('click');
-									puddActionBar.showActionBar( false );
-								}
-						}
-					,	{
-								attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
-							,	controlAttributes : { id : "", class : "submit" }// control 자체 객체 속성 설정
-							,	value : "계약체결 상세"
-							,	clickCallback : function( puddActionBar ) {
-									fnCallBtn("btnConclusion", seq);
-									
-									$('.iframe_wrap').attr('onclick','').unbind('click');
-									puddActionBar.showActionBar( false );
-								}
-						}
-				]
-		});			
-			
-			setTimeout(function() {
-				$(".iframe_wrap").on("click", function(e){puddActionBar_.showActionBar( false );$('.iframe_wrap').attr('onclick','').unbind('click');});
-			}, 200);				
-			
 			
 		}else {
 			msgSnackbar("warning", "개발중입니다.");
@@ -543,11 +523,6 @@
 	}
 	
 	function fnPurchaseStatePop(btnType, seq){
-		
-		if(seq == null && targetSeq == ""){
-			msgSnackbar("warning", "등록하실 계약건을 선택해 주세요.");
-			return;
-		}
 		
 		var reqParam = {};
 		
@@ -572,67 +547,21 @@
 				console.log("approkey_purchase > " + result.resultData.approkey_purchase);
 				console.log("approkey_check > " + result.resultData.approkey_check);
 				
-				if(btnType == "btnConclusionPayment"){
+				if(result.resultData.approkey_check != ""){
 					
-					if(result.resultData.doc_sts_change == "20"){
-						//변경계약 결재 진행중
-						msgSnackbar("warning", "진행중인 변경계약건이 있어 대금지급 신청이 불가합니다.");
-						return;							
-					}else{
+					if(btnType == "btnCheck" || (btnType == "btnPayment" && result.resultData.doc_sts == "90")){
 						resultState = true;
-					}
+					}					
 					
-				}else if(btnType == "btnConclusionChange"){
+				}else if(result.resultData.approkey_purchase != ""){
 					
-					if(result.resultData.change_seq_temp != ""){
-						fnCallBtn("btnConclusionChange", result.resultData.seq, result.resultData.change_seq_temp);
-						return;							
-					}else if(result.resultData.doc_sts_change == "10"){
-						fnCallBtn("btnConclusionChange", result.resultData.seq, result.resultData.change_seq);
-						return;							
-					}else if(result.resultData.approkey_conclusion != "" && result.resultData.doc_sts == "90") {
-						resultState = true;
-						btnType = "newConclusionChange";
-					}
-					
-				}else if(btnType == "contractView"){
-					
-					resultState = true;
-					
-					if(result.resultData.contract_type == "02"){
-						btnType = "btnConclusion";
-					}else if(result.resultData.c_title != null && result.resultData.c_title != ""){
-						btnType = "btnSelect";
-					}
-					
-				}else if(btnType == "btnConclusion"){
-					
-					if(result.resultData.approkey_conclusion != "" || (result.resultData.approkey_result != "" && result.resultData.doc_sts == "90")){
-						resultState = true;
-					}
-					
-				}else if(result.resultData.approkey_result != ""){
-					
-					if(btnType == "btnMeet" || btnType == "btnResult"){
-						resultState = true;
-					}
-					
-				}else if(result.resultData.approkey_meet != ""){
-					
-					if(btnType == "btnMeet" || (btnType == "btnResult" && result.resultData.doc_sts == "90")){
-						resultState = true;
-					}
-					
-				}else if(result.resultData.approkey_plan != ""){
-					
-					if(btnType == "btnMeet" && result.resultData.doc_sts == "90"){
+					if(btnType == "btnCheck" && result.resultData.doc_sts == "90"){
 						resultState = true;
 					}
 					
 				}
 				
 				if(resultState){
-					
 					fnCallBtn(btnType, seq);
 					
 				}else{

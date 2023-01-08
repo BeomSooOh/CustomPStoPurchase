@@ -843,7 +843,6 @@
 									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
 									<td><input ${disabled} name="tableVal" requiredNot="true" must type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup" value="" /></td>
 								</tr>								
-
 							</table>
 						</div>
 					</td>
