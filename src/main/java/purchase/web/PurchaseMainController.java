@@ -95,16 +95,14 @@ public class PurchaseMainController {
         	mv.addObject("fromDate", fromDate);
         	mv.addObject("toDate", toDate);        
             
-        	/*
             params.put("useYn", "Y");
             params.put("group", "resFormSeq");
             params.put("code", "CONCLUSION");
-            List<Map<String, Object>> resFormSeq = commonServiceDAO.SelectPurchaseDetailCodeList(params);
+            Map<String, Object> resFormSeq = commonServiceDAO.SelectPurchaseDetailCodeInfo(params);
             
-            if(resFormSeq.size() > 0) {
-            	mv.addObject("resFormSeq", resFormSeq.get(0).get("LINK"));	
+            if(resFormSeq != null) {
+            	mv.addObject("resFormSeq", resFormSeq.get("LINK"));	
             }
-            */
             
             mv.setViewName("/purchase/content/PurchaseList");
 
@@ -270,7 +268,98 @@ public class PurchaseMainController {
 		mv.addObject("resultCode", "success");	
 		mv.setViewName("jsonView");
 		return mv;
-	}     
+	}
+    
+    
+    @RequestMapping("/purchase/SelectPurchasePaymentList.do")
+    @ResponseBody
+    public ModelAndView SelectPurchasePaymentList(@RequestParam Map<String, Object> paramMap, HttpServletRequest request) throws Exception {
+    	
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo = getPaginationInfo(paramMap);
+		
+		LoginVO loginVO = CommonConvert.CommonGetEmpVO();
+		paramMap.put("loginvo", loginVO);
+		
+		Map<String,Object> resultMap = null;
+		try {
+			resultMap = purchaseServiceDAO.SelectPurchasePaymentList(paramMap, paginationInfo);
+		} catch (Exception e) {
+			resultMap = new HashMap<String,Object>();
+			e.printStackTrace();
+			logger.error(e);
+		}
+	 
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("jsonView");
+		mv.addAllObjects(resultMap);	// data.result
+		return mv;    	
+    
+    } 	    
+    
+    
+	@RequestMapping("/purchase/PurchasePaymentResInfo.do")
+	public ModelAndView PurchasePaymentResInfo(@RequestParam Map<String, Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		
+		Map<String, Object> result = new HashMap<String, Object>( );
+		Map<String, Object> contractInfo = purchaseServiceDAO.SelectPurchaseDetail(params);
+		
+		if(contractInfo != null) {
+			
+			params.put("outProcessCode", "Purchase01");
+			result.put("conclusionBudgetList", commonServiceDAO.SelectBudgetList(params));
+			result.put("conclusionTradeList", commonServiceDAO.SelectTradeList(params));
+			result.put("conclusionPaymentAmt", purchaseServiceDAO.SelectPurchasePaymentAmt(params));
+			result.put("consDocInfo", purchaseServiceDAO.SelectPurchaseConsDocInfo(params));
+			
+		}
+		
+		mv.addObject("resultData", result);
+		mv.addObject("resultCode", "success");	
+		mv.setViewName("jsonView");
+		return mv;
+	}	
+	
+	@RequestMapping("/purchase/PurchasePaymentDocInfoCheck.do")
+	public ModelAndView PurchasePaymentDocInfoCheck(@RequestParam Map<String, Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		
+		Map<String, Object> paymentDocInfoCheck = purchaseServiceDAO.SelectPurchasePaymentDocInfoCheck(params);
+		
+		if(paymentDocInfoCheck.get("FAIL_DUPLICATE").equals("Y")) {
+			mv.addObject("resultCode", "FAIL_DUPLICATE");	
+		}else if(paymentDocInfoCheck.get("FAIL_RES_AMT_OVER").equals("Y")) {
+			mv.addObject("resultCode", "FAIL_RES_AMT_OVER");	
+		}else {
+
+			Map<String, Object> resdocInfo = commonServiceDAO.SelectResdocInfo(params);
+			
+			if(resdocInfo != null) {
+				params.put("outProcessCode", resdocInfo.get("out_process_interface_id"));
+				params.put("seq", resdocInfo.get("out_process_interface_m_id"));
+				commonServiceDAO.DeletePaymentDocInfo(params);
+				 
+				params.put("resAmt", params.get("tryAmt"));
+				params.put("remainAmt", "0");
+				params.put("created_by", loginVo.getUniqId());
+				commonServiceDAO.InsertPaymentDocInfo(params);
+			}
+			
+			mv.addObject("resultCode", "SUCCESS");	
+		}
+		
+		mv.setViewName("jsonView");
+		return mv;
+	}    
     
     
 

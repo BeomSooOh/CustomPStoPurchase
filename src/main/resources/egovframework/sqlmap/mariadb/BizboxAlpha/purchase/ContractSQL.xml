@@ -737,8 +737,8 @@
         INNER JOIN $DB_NEOS$A_DOCINFO di ON df.c_dikeycode  = di.c_dikeycode
         INNER JOIN cust_sto.t_purchase_payment_doc_info pdi ON df.c_dikeycode  = pdi.res_doc_seq
         where
-        pdi.seq = '$seq$'
-        -- and df.c_diwriteday BETWEEN '20220914' AND   '20221214'		
+        pdi.seq = '$seq$' and pdi.outProcessCode = 'CONCLUSION'
+        and df.c_diwriteday BETWEEN '$fromDate$' AND '$toDate$'		
 		
 	</select>	
 	

@@ -511,7 +511,7 @@
 		}else if(callId == "btnPayment"){
 			
 			if('${resFormSeq}' != ''){
-				openWindow2("${pageContext.request.contextPath}/purchase/pop/PurchasePaymentPop.do?formSeq=${resFormSeq}&seq=" + (seq != null ? seq : targetSeq),  "ConclusionPaymentViewPop", 1350, 800, 1, 1) ;	
+				openWindow2("${pageContext.request.contextPath}/purchase/pop/PurchasePaymentPop.do?formSeq=${resFormSeq}&seq=" + (seq != null ? seq : targetSeq),  "PurchasePaymentViewPop", 1350, 800, 1, 1) ;	
 			}else{
 				msgSnackbar("warning", "대금지급 지출결의 양식코드 미설정");
 			}

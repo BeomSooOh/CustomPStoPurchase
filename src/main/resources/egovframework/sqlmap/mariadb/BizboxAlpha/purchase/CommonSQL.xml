@@ -56,7 +56,7 @@
 		<isNotEmpty property="group">
 		and `group`='$group$'
 		</isNotEmpty>
-		<isNotEmpty property="group">
+		<isNotEmpty property="code">
 		and `code`='$code$'
 		</isNotEmpty>	
 		limit 1;	

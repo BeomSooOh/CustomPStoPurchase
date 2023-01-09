@@ -62,6 +62,52 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 	
 	public void UpdateItemCheckCnt ( Map<String, Object> params ) {
 		update( "PurchaseSQL.UpdateItemCheckCnt", params );
+	}
+	
+
+	public Map<String, Object> SelectPurchasePaymentList (Map<String, Object> paramMap, PaginationInfo paginationInfo) {
+		
+		return super.listOfPaging2(paramMap, paginationInfo, "PurchaseSQL.SelectPurchasePaymentList");
+		
 	}	
+	
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> SelectPurchasePaymentAmt ( Map<String, Object> params ) {
+		
+		return (Map<String, Object>) select( "PurchaseSQL.SelectPurchasePaymentAmt", params );
+		
+	}		
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> SelectPurchasePaymentDocInfo ( Map<String, Object> params ) {
+		
+		return (Map<String, Object>) select( "PurchaseSQL.SelectPurchasePaymentDocInfo", params );
+		
+	}		
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> SelectPurchasePaymentDocInfoCheck ( Map<String, Object> params ) {
+		
+		return (Map<String, Object>) select( "PurchaseSQL.SelectPurchasePaymentDocInfoCheck", params );
+		
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> SelectPurchasePaymentNextDocInfo ( Map<String, Object> params ) {
+		
+		return (Map<String, Object>) select( "PurchaseSQL.SelectPurchasePaymentNextDocInfo", params );
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> SelectPurchaseConsDocInfo ( Map<String, Object> params ) {
+		
+		return (Map<String, Object>) select( "PurchaseSQL.SelectPurchaseConsDocInfo", params );
+		
+	}	
+	
+	
 	
 }
