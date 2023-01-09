@@ -438,6 +438,10 @@
 				var resultCode = Option.Common.GetResultCode(result);
 
 				if (resultCode === 'SUCCESS') {
+
+					parameter.confferSeq = "";
+					parameter.confferDocSeq = "";
+					
 					resSeq = (aData.resSeq || '').toString();
 					fnBudgetInsert(idx);
 				} else if(resultCode == 'GISU_CLOSE'){

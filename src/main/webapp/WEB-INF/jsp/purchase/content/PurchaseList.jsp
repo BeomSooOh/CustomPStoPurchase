@@ -286,7 +286,23 @@
 			,	{
 				field : ""
 			,	title : "물품검수여부"
-			,	width : 100							
+			,	width : 100	
+			,	content : {
+				template : function(rowData) {
+					
+						if(rowData.approkey_check != ""){
+							
+							if(rowData.doc_sts == "90"){
+								return "검수완료";	
+							}else if(rowData.doc_sts == "20"){
+								return "검수진행중";
+							}
+								
+						}else{
+							return '';
+						}						
+					}
+				}			
 			}
 			,	{
 				field : ""

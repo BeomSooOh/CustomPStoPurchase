@@ -472,7 +472,7 @@
                    ,   concat(format(pdi.res_amt,0), ' 원') as P_RESAMT
                    ,   concat(format(
 						(select
-						ifnull(pc.contract_amt - sum(a.res_amt), pc.contract_amt) 
+						ifnull(pc.purchase_amt - sum(a.res_amt), pc.purchase_amt) 
 						from cust_sto.t_purchase_payment_doc_info a
 						join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and IFNULL(b.doc_seq, '') != '' and IFNULL(b.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
 						where a.outProcessCode = pdi.outProcessCode and a.seq = pdi.seq and cast(a.res_doc_seq as unsigned) <![CDATA[ <= ]]> cast(pdi.res_doc_seq as unsigned)
@@ -484,7 +484,7 @@
               INNER JOIN $DB_NEOS$t_exnp_resdoc er ON df.c_dikeycode  = er.doc_seq
               
               INNER JOIN cust_sto.t_purchase_payment_doc_info pdi ON er.res_doc_seq  = pdi.res_doc_seq and pdi.outProcessCode = 'PURCHASE'
-              INNER JOIN cust_sto.t_purchase_contract pc on pdi.seq = pc.seq
+              INNER JOIN cust_sto.t_purchase_purchase pc on pdi.seq = pc.seq
               
               where
               pdi.seq = '$seq$'
@@ -500,13 +500,13 @@
 	<select	id="PurchaseSQL.SelectPurchasePaymentAmt" parameterClass="HashMap" resultClass="HashMap">
 
 		select 
-		ifnull(pc.contract_amt,0) as contract_amt
+		ifnull(pc.purchase_amt,0) as contract_amt
 		,ifnull((
 		select sum(a.res_amt)  from cust_sto.t_purchase_payment_doc_info a
 		join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq  = b.res_doc_seq and IFNULL(b.doc_seq, '') != '' and IFNULL(b.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
 		where a.outProcessCode = 'PURCHASE' and a.seq = pc.seq
 		),0) as res_amt_total
-		from cust_sto.t_purchase_contract pc
+		from cust_sto.t_purchase_purchase pc
 		where pc.seq = '$seq$'
 	
 	</select>
@@ -543,8 +543,8 @@
 		) as FAIL_DUPLICATE,
 		(
 			select
-			case when pc.contract_amt - ifnull(sum(pdi.res_amt),0) - $tryAmt$ <![CDATA[ < ]]> 0 then 'Y' else 'N' end
-			from cust_sto.t_purchase_contract pc
+			case when pc.purchase_amt - ifnull(sum(pdi.res_amt),0) - $tryAmt$ <![CDATA[ < ]]> 0 then 'Y' else 'N' end
+			from cust_sto.t_purchase_t_purchase pc
 			join $DB_NEOS$t_exnp_resdoc a on pc.seq = a.out_process_interface_m_id and a.out_process_interface_id = 'PURCHASE' and a.res_doc_seq = '$resDocSeq$'
 			left join $DB_NEOS$t_exnp_resdoc b on a.out_process_interface_id = b.out_process_interface_id and a.out_process_interface_m_id =b.out_process_interface_m_id and IFNULL(b.doc_seq, '') != '' and IFNULL(b.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
 			left join cust_sto.t_purchase_payment_doc_info pdi on pdi.res_doc_seq = b.res_doc_seq 		
