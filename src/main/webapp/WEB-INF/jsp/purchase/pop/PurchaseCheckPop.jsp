@@ -424,8 +424,11 @@
 				$(obj).replaceWith($(obj).attr("htmlTempVal"));
 			});
 			
-			insertDataObject.check_info_html = $(cloneData)[0].outerHTML;				
+			$.each($(cloneData).find("div.PUDD"), function( idx, obj ) {
+				$(obj).replaceWith($(obj).text());
+			});
 			
+			insertDataObject.check_info_html = $(cloneData)[0].outerHTML;				
 			
 			if(type == 0){
 				confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc(1)', '취소', '');	
