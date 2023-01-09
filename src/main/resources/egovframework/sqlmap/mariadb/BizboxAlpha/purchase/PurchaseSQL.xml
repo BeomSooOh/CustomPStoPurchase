@@ -382,6 +382,7 @@
 		c_write_dt='$c_write_dt$',
 		check_location='$check_location$',
 		release_dt='$release_dt$',
+		check_info_html=#check_info_html#,
 				
 		modify_dt=now(), 
 		modify_by='$created_by$'

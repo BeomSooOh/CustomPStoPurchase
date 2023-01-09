@@ -28,12 +28,14 @@ public class PurchaseServiceImpl implements PurchaseService {
 	
 	public Map<String, Object> InsertPurchase ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
 		
-		//입찰계약정보 등록
-		if(params.get("viewType").equals("I")) {
+		
+		if(params.get("outProcessCode").equals("Purchase02")) {
+			purchaseServiceDAO.UpdatePurchaseCheck(params);
+		}else if(params.get("viewType").equals("I")) {
 			Map<String, Object> result = purchaseServiceDAO.InsertPurchase(params);	
 			params.put("seq", result.get("seq"));
 		}else {
-			purchaseServiceDAO.UpdatePurchase(params);	
+			purchaseServiceDAO.UpdatePurchase(params);
 		}
 		
 		//첨부파일정보 저장
@@ -55,68 +57,88 @@ public class PurchaseServiceImpl implements PurchaseService {
 			}
 		}
 		
-		//예산정보 저장
-		jsonStr = (String)params.get("budget_list_info");
-		mapper = new ObjectMapper();
-		
-		@SuppressWarnings("unused")
-		List<Map<String, Object>> budgetList = new ArrayList<Map<String, Object>>();
-		budgetList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
-		
-		if(params.get("viewType").equals("U")) {
-			commonServiceDAO.DeleteBudgetInfo(params);	
-		}
-		
-		for (Map<String, Object> map : budgetList) {
-			map.put("seq", params.get("seq"));
-			map.put("outProcessCode", params.get("outProcessCode"));
-			map.put("created_by", params.get("created_by"));
-			commonServiceDAO.InsertBudgetInfo(map);
-		}
-		
-		
-		//결재정보 저장
-		jsonStr = (String)params.get("trade_list_info");
-		mapper = new ObjectMapper();
-		
-		@SuppressWarnings("unused")
-		List<Map<String, Object>> tradeList = new ArrayList<Map<String, Object>>();
-		tradeList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
-		
-		if(params.get("viewType").equals("U")) {
-			commonServiceDAO.DeleteTradeInfo(params);		
-		}
-		
-		int tr_inx = 0;
-		
-		for (Map<String, Object> map : tradeList) {
+		if(params.get("outProcessCode").equals("Purchase02")) {
+			//물품정보 저장
+			jsonStr = (String)params.get("item_list_info");
+			mapper = new ObjectMapper();
 			
-			map.put("tr_idx", tr_inx);
-			map.put("seq", params.get("seq"));
-			map.put("outProcessCode", params.get("outProcessCode"));
-			map.put("created_by", params.get("created_by"));
-			commonServiceDAO.InsertTradeInfo(map);
-			tr_inx ++;
-		}	
-		
-		//물품정보 저장
-		jsonStr = (String)params.get("item_list_info");
-		mapper = new ObjectMapper();
-		
-		@SuppressWarnings("unused")
-		List<Map<String, Object>> itemList = new ArrayList<Map<String, Object>>();
-		itemList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
-		
-		if(params.get("viewType").equals("U")) {
-			purchaseServiceDAO.DeleteItemInfo(params);	
+			@SuppressWarnings("unused")
+			List<Map<String, Object>> itemList = new ArrayList<Map<String, Object>>();
+			itemList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
+			
+			for (Map<String, Object> map : itemList) {
+				map.put("seq", params.get("seq"));
+				map.put("outProcessCode", params.get("outProcessCode"));
+				map.put("created_by", params.get("created_by"));
+				purchaseServiceDAO.UpdateItemCheckCnt(map);
+			}
+			
+		}else {
+			//예산정보 저장
+			jsonStr = (String)params.get("budget_list_info");
+			mapper = new ObjectMapper();
+			
+			@SuppressWarnings("unused")
+			List<Map<String, Object>> budgetList = new ArrayList<Map<String, Object>>();
+			budgetList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
+			
+			if(params.get("viewType").equals("U")) {
+				commonServiceDAO.DeleteBudgetInfo(params);	
+			}
+			
+			for (Map<String, Object> map : budgetList) {
+				map.put("seq", params.get("seq"));
+				map.put("outProcessCode", params.get("outProcessCode"));
+				map.put("created_by", params.get("created_by"));
+				commonServiceDAO.InsertBudgetInfo(map);
+			}
+			
+			
+			//결재정보 저장
+			jsonStr = (String)params.get("trade_list_info");
+			mapper = new ObjectMapper();
+			
+			@SuppressWarnings("unused")
+			List<Map<String, Object>> tradeList = new ArrayList<Map<String, Object>>();
+			tradeList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
+			
+			if(params.get("viewType").equals("U")) {
+				commonServiceDAO.DeleteTradeInfo(params);		
+			}
+			
+			int tr_inx = 0;
+			
+			for (Map<String, Object> map : tradeList) {
+				
+				map.put("tr_idx", tr_inx);
+				map.put("seq", params.get("seq"));
+				map.put("outProcessCode", params.get("outProcessCode"));
+				map.put("created_by", params.get("created_by"));
+				commonServiceDAO.InsertTradeInfo(map);
+				tr_inx ++;
+			}	
+			
+			//물품정보 저장
+			jsonStr = (String)params.get("item_list_info");
+			mapper = new ObjectMapper();
+			
+			@SuppressWarnings("unused")
+			List<Map<String, Object>> itemList = new ArrayList<Map<String, Object>>();
+			itemList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
+			
+			if(params.get("viewType").equals("U")) {
+				purchaseServiceDAO.DeleteItemInfo(params);	
+			}
+			
+			for (Map<String, Object> map : itemList) {
+				map.put("seq", params.get("seq"));
+				map.put("outProcessCode", params.get("outProcessCode"));
+				map.put("created_by", params.get("created_by"));
+				purchaseServiceDAO.InsertItemInfo(map);
+			}			
 		}
 		
-		for (Map<String, Object> map : itemList) {
-			map.put("seq", params.get("seq"));
-			map.put("outProcessCode", params.get("outProcessCode"));
-			map.put("created_by", params.get("created_by"));
-			purchaseServiceDAO.InsertItemInfo(map);
-		}		
+		
 		
 		
 		return params;

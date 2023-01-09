@@ -13,7 +13,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>구매품의 등록</title>
+    <title>물품검수</title>
 
     <!--css-->
     <link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/pudd.css' />">
@@ -97,7 +97,7 @@
 		$(cloneData).find("[name=item_name]").text("${items.item_name}");
 		$(cloneData).find("[name=item_amt]").text("${items.item_amt}");
 		$(cloneData).find("[name=item_cnt]").text("${items.item_cnt}");
-		$(cloneData).find("[name=item_check_cnt]").val("${items.item_check_cnt}");
+		$(cloneData).find("[name=item_check_cnt]").val("${items.item_check_cnt}" == "" ? "${items.item_cnt}" : "${items.item_check_cnt}");
 		$(cloneData).find("[name=item_total_amt_text]").text("${items.item_total_amt_text}");
 		$(cloneData).find("[name=item_total_amt]").text("${items.item_total_amt}");
 		$(cloneData).find("[name=item_unit]").text("${items.item_unit}");
@@ -116,12 +116,12 @@
 	function setDynamicSetInfoTrade(){
 		
 		<c:if test="${tradeList.size() > 0 }">
+		var supplier = "";
 		<c:forEach var="items" items="${tradeList}" varStatus="status">
-		
-		
-		</c:forEach>			
+		supplier += (supplier == "" ? "" : ", ") + "${items.tr_name}";
+		</c:forEach>	
+		$("[name=supplier]").text(supplier);
 		</c:if>			
-		
 		
 	}	
 
@@ -387,6 +387,46 @@
 			insertDataObject.attch_file_info = JSON.stringify(attachFormList);
 			insertDataObject.item_list_info = JSON.stringify(insertDataObject.itemObjList);
 			
+			//품품정보 html
+			$('[name=itemObjListHtml]').find("[displaynone]").removeAttr("displaynone");
+			$('[name=itemObjListHtml]').find(":hidden").attr("displaynone", "Y");
+			
+			//Clone객체 select checked option 정보 누락 현상관련 temp Attr에 임시저장/활용
+			$.each($('[name=itemList]').find("select"), function( idx, obj ) {
+				$(obj).attr("htmlTempVal", $(obj).find("option:checked").text());
+			});			
+			
+			var cloneData = $('[name=itemObjListHtml]').clone();
+			$(cloneData).find("[displaynone]").remove();
+			$(cloneData).find("[removehtml=Y]").remove();
+			$(cloneData).find("[name=dataBase]").remove();
+			$(cloneData).find("[name=itemList]").attr("border", "1").attr("width", "100%").css("width", "100%");
+			$(cloneData).find("th").attr("align", "center").attr("bgcolor", "#f1f1f1").attr("height", "25");
+			$(cloneData).find("td").attr("align", "center").attr("height", "20");
+			$(cloneData).find("[name]").removeAttr("name");
+			$(cloneData).find("[objcheckfor]").removeAttr("objcheckfor");
+			
+			//개별 align 적용
+			$.each($(cloneData).find("[htmlalign]"), function( idx, obj ) {
+				$(obj).attr("align", $(obj).attr("htmlalign"));
+			});		
+			
+			$.each($(cloneData).find("[colspanHtml]"), function( idx, obj ) {
+				$(obj).attr("colspan", $(obj).attr("colspanHtml"));
+			});
+			
+			//input 요소 텍스트화
+			$.each($(cloneData).find("input"), function( idx, obj ) {
+				$(obj).replaceWith($(obj).val());
+			});	
+			
+			$.each($(cloneData).find("select"), function( idx, obj ) {
+				$(obj).replaceWith($(obj).attr("htmlTempVal"));
+			});
+			
+			insertDataObject.check_info_html = $(cloneData)[0].outerHTML;				
+			
+			
 			if(type == 0){
 				confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc(1)', '취소', '');	
 			}else if(type == 1){
@@ -503,7 +543,7 @@
 				</tr>
 				<tr>
 					<th>납품자</th>
-					<td></td>
+					<td name="supplier"></td>
 					<th>계약금액</th>
 					<td>₩${purchaseDetailInfo.purchase_amt}원 ${purchaseDetailInfo.purchase_amt_kor}</td>
 				</tr>
@@ -512,7 +552,7 @@
 					<td objKey="release_dt" objCheckFor="checkVal('date', 'releaseDt', '납품일자', 'mustAlert', '')"><input ${disabled} name="releaseDt" type="text" value="${purchaseDetailInfo.release_dt}" class="puddSetup" pudd-type="datepicker"/></td>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 검수장소</th>
 					<td>
-						<input objKey="check_location" objCheckFor="checkVal('text', this, '검수장소', 'mustAlert', '')" type="text" pudd-style="width:200px;" class="puddSetup ar" value="" readonly codetarget />
+						<input objKey="check_location" objCheckFor="checkVal('text', this, '검수장소', 'mustAlert', '')" type="text" pudd-style="width:200px;" class="puddSetup ar" value="${purchaseDetailInfo.check_location}" readonly codetarget />
 						<c:if test="${disabledYn == 'N'}">  
 						<a href="#n" class="btn_search ml10" onclick="commonCodeSelectLayer('useLocation', '검수장소', 'text', $(this).closest('td'), 'N')"></a>
 						</c:if>	
@@ -529,7 +569,7 @@
 			</div>
 		</div>
 		
-		<div class="com_ta4">
+		<div class="com_ta4" name="itemObjListHtml">
 			<table name="itemList" objKey="itemObjList" objCheckFor="checkVal('obj', 'itemList', '물품규격', 'mustAlert', '')" style="width:100%;">
 				<colgroup>
 					<col width="300"/>
@@ -538,8 +578,8 @@
 					<col width="300"/>
 					<col width="200"/>
 					<col width="150"/>
-					<col width="200"/>
 					<col width="150"/>
+					<col width="200"/>
 				</colgroup>
 				<tr>
 					<th class="ac">품명</th>
@@ -548,14 +588,14 @@
 					<th class="ac">물품식별번호</th>
 					<th class="ac">조달단가</th>
 					<th class="ac">구매수량</th>
-					<th class="ac">금회검수수량</th>
+					<th class="ac">검수수량</th>
 					<th class="ac">납품기한</th>
 				</tr>
 				<tr name="dataBase" style="display:none;">
 					<td name="item_name"></td>
 					<td name="item_unit"></td>
 					<td name="item_div_no"></td>
-					<td name="item_idn_no"></td>
+					<td tbval="Y" tbtype="innerText" name="item_idn_no"></td>
 					<td name="item_amt"></td>
 					<td name="item_cnt"></td>
 					<td>

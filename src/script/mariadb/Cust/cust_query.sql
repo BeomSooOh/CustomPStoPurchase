@@ -1343,12 +1343,13 @@ CREATE TABLE if not exists cust_stot_purchase_purchase (
   `purchase_amt` decimal(19,2) DEFAULT NULL COMMENT '구매총금액',
   `purchase_amt_kor` varchar(50) DEFAULT NULL COMMENT '구매금액(한글)',
   `item_info_html` longtext COMMENT '물품규격정보연동html',
+  `check_info_html` longtext COMMENT '물품검수정보연동html',
   `purchase_attach_info` varchar(100) DEFAULT NULL COMMENT '붙임문서정보',
   `c_write_comp_seq` varchar(32) DEFAULT NULL COMMENT '(검수)작성자회사시퀀스',
   `c_write_dept_seq` varchar(32) DEFAULT NULL COMMENT '(검수)작성부서시퀀스',
   `c_write_emp_seq` varchar(32) DEFAULT NULL COMMENT '(검수)작성자시퀀스',
   `c_write_dt` char(10) DEFAULT NULL COMMENT '(검수)작성일자',
-  `check_location` varchar(10) DEFAULT NULL COMMENT '검수장소',
+  `check_location` varchar(200) DEFAULT NULL COMMENT '검수장소',
   `release_dt` char(10) DEFAULT NULL COMMENT '납품일자',
   PRIMARY KEY (`seq`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COMMENT='구매품의등록정보';
