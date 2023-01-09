@@ -571,9 +571,10 @@
 	<select	id="PurchaseSQL.SelectPurchaseConsDocInfo" parameterClass="HashMap" resultClass="HashMap">
 
 		select
-		cons_doc_seq,
-		doc_seq
-		from t_exnp_consdoc where out_process_interface_id = 'Purchase01' and out_process_interface_m_id = '$seq$' limit 1;
+		b.cons_doc_seq , b.cons_seq 
+		from $DB_NEOS$t_exnp_consdoc a
+		join $DB_NEOS$t_exnp_conshead b on a.cons_doc_seq =b.cons_doc_seq 
+		where a.out_process_interface_id = 'Purchase01' and a.out_process_interface_m_id = '$seq$' limit 1;		
 	
 	</select>	
 	

@@ -310,7 +310,7 @@ public class PurchaseMainController {
 		Map<String, Object> contractInfo = purchaseServiceDAO.SelectPurchaseDetail(params);
 		
 		if(contractInfo != null) {
-			
+			params.put("consMode", "Y");
 			params.put("outProcessCode", "Purchase01");
 			result.put("conclusionBudgetList", commonServiceDAO.SelectBudgetList(params));
 			result.put("conclusionTradeList", commonServiceDAO.SelectTradeList(params));

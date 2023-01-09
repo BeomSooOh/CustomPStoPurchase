@@ -290,10 +290,10 @@
 					
 					console.log("contract_amt > " + conclusionPaymentAmt.contract_amt);
 					console.log("res_amt_total > " + conclusionPaymentAmt.res_amt_total);
-					console.log("conffer_seq > " + result.resultData.consDocInfo.doc_seq);
+					console.log("conffer_seq > " + result.resultData.consDocInfo.cons_seq);
 					console.log("conffer_doc_seq > " + result.resultData.consDocInfo.cons_doc_seq);
 					
-					confferSeq = result.resultData.consDocInfo.doc_seq;
+					confferSeq = result.resultData.consDocInfo.cons_seq;
 					confferDocSeq = result.resultData.consDocInfo.cons_doc_seq;
 					
 					if(conclusionPaymentAmt.res_amt_total < conclusionPaymentAmt.contract_amt){
@@ -325,6 +325,9 @@
 	function fnResDocInsert() {
 		/* [ parameter ] */
 		parameter = {};
+		
+		parameter.confferSeq = confferSeq;
+		parameter.confferDocSeq = confferDocSeq;
 
 		parameter.resNote = ''; /* 결의문서 적요 */
 		parameter.erpCompSeq = ''; /* ERP 회사 코드 */
@@ -383,9 +386,6 @@
 	
 	function fnResInsert(idx) {
 
-		parameter.confferSeq = confferSeq;
-		parameter.confferDocSeq = confferDocSeq;
-		
 		parameter.resDocSeq = resDocSeq; /* [*]결의문서 키 */
 		parameter.docuFgCode = '1'; /* [*]결의구분코드 */
 		parameter.docuFgName = '지출결의서'; /* [*]결의구분명칭 */
@@ -438,8 +438,8 @@
 
 				if (resultCode === 'SUCCESS') {
 
-					parameter.confferSeq = "";
-					parameter.confferDocSeq = "";
+					//parameter.confferSeq = "";
+					//parameter.confferDocSeq = "";
 					
 					resSeq = (aData.resSeq || '').toString();
 					fnBudgetInsert(idx);
@@ -474,11 +474,10 @@
 		parameter.erpBudgetDivSeq = conclusionBudgetList[idx].erp_budget_div_seq;
 		parameter.erpBudgetDivName = conclusionBudgetList[idx].erp_budget_div_name;		
 		
+		parameter.confferBudgetSeq = conclusionBudgetList[idx].conffer_budget_seq;
+		
 		parameter.erpBudgetSeq = conclusionBudgetList[idx].erp_budget_seq; /* [*]ERP 예산과목 코드 (예산단위 코드) */
 		parameter.erpBudgetName = conclusionBudgetList[idx].erp_budget_name; /* [*]ERP 예산과목 명칭 (예산단위 명칭) */
-		
-		//parameter.erpFiacctName = '도서인쇄비'; /* [*]ERP 회계계정 코드 */
-		//parameter.erpFiacctSeq = '82600'; /* [*]ERP 회계계정 명칭 */
 		
 		parameter.erpBgt1Name = conclusionBudgetList[idx].erp_bgt1_name; /* [*]관 명칭 */
 		parameter.erpBgt1Seq = conclusionBudgetList[idx].erp_bgt1_seq; /* [*]관 코드 */
@@ -519,7 +518,7 @@
 
 		parameter.erpGisuDate = '';
 		parameter.expendDate = '';
-
+		
 		/* 부가세 통제 여부 체크 */
 		if (optionSet.erpEmpInfo.vatControl == '1' || (budgetData.trFgCode=='4' || budgetData.trFgCode=='8' || budgetData.trFgCode=='9')){
 			parameter.ctlFgCode = '1';
@@ -528,24 +527,6 @@
 			parameter.ctlFgCode = '0';
 			parameter.ctlFgName = 'I_IN_TAX_N';
 		}
-
-		//예산잔액 조회
-		$.ajax({
-			type : 'post',
-			url : '<c:url value="/ex/np/user/res/resBudgetInfoSelect.do" />',
-			datatype : 'json',
-			async : false,
-			data : parameter,
-			success : function(result) {
-				var data = result.result.aData;
-				conclusionBudgetList[idx].balanceAmt = Math.floor(data.balanceAmt/10)*10;
-			},
-			/*   - error :  */
-			error : function(result) {
-				msgSnackbar("error", "예산정보 조회 중 오류 발생");
-				return;
-			}
-		});			
 
 		/* [DB] INT 형 파라미터 데이터 보정 */
 		parameter = fnBudgetDataCurrection(parameter);
