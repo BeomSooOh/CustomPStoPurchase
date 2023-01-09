@@ -224,11 +224,15 @@
 		
 		ifnull(a.doc_sts,'') as doc_sts, 
 		ifnull(a.approkey_purchase,'') as approkey_purchase, 
-		ifnull(a.approkey_check,'') as approkey_check, 
+		ifnull(a.approkey_check,'') as approkey_check,
+		
+		ifnull(a.check_location,'') as check_location,
+		ifnull(a.release_dt,'') as release_dt,
 		
 		FORMAT(a.purchase_amt, 0) as purchase_amt,			
 		a.purchase_amt_kor,
-		a.item_info_html
+		a.item_info_html,
+		ifnull(a.check_info_html,'') as check_info_html
 		
 		FROM cust_sto.t_purchase_purchase a
 		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
@@ -305,8 +309,8 @@
 		<isNotEmpty property="approkeyPurchase">
 		,approkey_purchase='$approkeyPurchase$'
 		</isNotEmpty>	
-		<isNotEmpty property="approkeycheck">
-		,approkey_check='$approkeycheck$'
+		<isNotEmpty property="approkeyCheck">
+		,approkey_check='$approkeyCheck$'
 		</isNotEmpty>
 		
 		WHERE seq='$seq$';		  
