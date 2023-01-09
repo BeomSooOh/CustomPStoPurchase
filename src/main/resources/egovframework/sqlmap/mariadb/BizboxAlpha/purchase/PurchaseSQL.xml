@@ -109,13 +109,13 @@
 		where aaa.outProcessCode = 'PURCHASE' and aaa.seq = a.seq
 		),'0') else '' end as total_pay_amt,	
 		
-		(select
+		ifnull((select
 		concat(case pdi.pay_type when 'A' then '선금 ' when 'B' then '중도금 ' else '잔금 ' end, pdi.pay_cnt, '차')
 		from cust_sto.t_purchase_payment_doc_info pdi
 		join $DB_NEOS$t_exnp_resdoc er2 on pdi.res_doc_seq = er2.res_doc_seq and IFNULL(er2.doc_seq, '') != '' and IFNULL(er2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
 		where pdi.seq = a.seq and pdi.outProcessCode = 'PURCHASE'
 		order by pdi.pay_type desc, pdi.pay_cnt desc
-		limit 1) as pay_cnt,		        
+		limit 1),'') as pay_cnt,		        
 		
 		ifnull(a.purchase_attach_info,'') as purchase_attach_info
 		FROM cust_sto.t_purchase_purchase a
@@ -575,6 +575,95 @@
 		doc_seq
 		from t_exnp_consdoc where out_process_interface_id = 'Purchase01' and out_process_interface_m_id = '$seq$' limit 1;
 	
+	</select>	
+	
+	
+	
+	<select	id="PurchaseSQL.SelectResolutionList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
+	
+		SELECT   COUNT(*)
+        FROM $DB_NEOS$A_DRAFTINFO df
+        INNER JOIN $DB_NEOS$A_RECORDINFO ri ON df.C_DIKEYCODE  = ri.c_dikeycode 
+        INNER JOIN $DB_NEOS$A_DOCINFO di ON df.c_dikeycode  = di.c_dikeycode
+        INNER JOIN cust_sto.t_purchase_payment_doc_info pdi ON df.c_dikeycode  = pdi.res_doc_seq
+        where
+        pdi.outProcessCode = 'PURCHASE'
+        and df.c_diwriteday BETWEEN '$fromDate$' AND '$toDate$'		
+		
+	</select>	
+	
+	<select	id="PurchaseSQL.SelectResolutionList" parameterClass="HashMap" resultClass="HashMap">
+		
+        SELECT    CTE.C_DIKEYCODE AS C_DIKEYCODE
+             ,    CTE.C_DIORGCODE AS C_DIORGCODE
+             ,    DATE_FORMAT(CTE.C_DIWRITEDAY,'%Y-%m-%d')  AS C_DIWRITEDAY
+             ,    CTE.C_DIWRITETIME AS C_DIWRITETIME
+             ,    IF(IFNULL(CTE.c_distatus, '008') = '009', '008', IFNULL(CTE.c_distatus, '008')) AS C_DISTATUS
+             ,    CONCAT($DB_NEOS$GET_CODE_DETAIL_INFO('0', 'COM109', IF(IFNULL(CTE.c_distatus, '008') = '009', '008', IFNULL(CTE.c_distatus, '008')) , 'kr') 
+                          , CASE WHEN IFNULL(c_dilastuserkey, '') = '' THEN '' ELSE IFNULL(CONCAT('(', $DB_NEOS$FN_GetMultiname('kr', 'emp',c_dilastuserkey), ')'),'') END ) AS DOCSTSNAME
+             ,    CTE.c_didoctype AS DOCTYPE_CODE
+             ,    CTE.c_dititle AS C_DITITLE
+             ,    CASE WHEN IF(IFNULL(CTE.c_distatus, '008') = '009', '008', IFNULL(CTE.c_distatus, '008')) = '008' THEN '000' ELSE C_DIDOCGRADE END AS C_DIDOCGRADE
+             ,    CTE.C_DIUSERKEY AS C_DIUSERKEY
+             ,    CTE.C_DIPROPERTY AS C_DIPROPERTY
+             ,    CTE.C_TIKEYCODE AS C_TIKEYCODE
+             ,    IFNULL(D_C_DIFLAG, '0') AS C_DIFLAG
+             ,    CTE.C_DIDOCFLAG AS C_DIDOCFLAG
+             ,    $DB_NEOS$GET_CODE_DETAIL_INFO('0', 'COM103', CTE.C_DIDOCFLAG , 'kr') AS C_DIDOCFLAGNAME
+             ,    $DB_NEOS$GET_CODE_DETAIL_Info('0', 'COM102', IFNULL(CTE.D_C_DIFLAG, '0') , 'kr') AS C_DIFLAGNAME
+             ,    IFNULL(CTE.c_disecretgrade,'000') AS C_DISECRETGRADE
+             ,    ((SELECT COUNT(*)  FROM $DB_NEOS$A_KYULJAELINEINFO WHERE C_DIKEYCODE = CTE.C_DIKEYCODE AND C_KLUSERTYPE  = '128') + (SELECT COUNT(*)  FROM $DB_NEOS$A_doc_audit_info WHERE C_DIKEYCODE = CTE.C_DIKEYCODE)) AS AUDITCOUNT
+             ,    IFNULL(( SELECT 'Y' FROM $DB_NEOS$A_KYULJAELINEINFO WHERE C_DIKEYCODE = CTE.C_DIKEYCODE AND C_KLUSERTYPE > '001' AND C_KLSTATUS IS NULL LIMIT 1 ), 'N') MIDDLE_APPROVALYN
+             ,    C_RIDOCFULLNUM   AS C_RIDOCFULLNUM
+             ,    C_RIDELETEOPT    AS C_RIDELETEOPT
+             ,    CASE WHEN IFNULL(C_RIDOCNUM, '') = '' THEN '-' ELSE DATE_FORMAT(C_RIREGDATE,'%Y-%m-%d') END AS C_RIREGDATE
+             ,    P_PAYTYPE AS P_PAYTYPE
+             ,    P_PAYCNT AS P_PAYCNT
+             ,    P_RESAMT AS P_RESAMT
+             ,    P_REMAINAMT AS P_REMAINAMT                 
+             
+        FROM  ( 
+        
+              SELECT 
+                       df.*
+                   ,   ri.C_RIDOCNUM
+                   ,   di.c_tikeycode
+                   ,   di.C_DIFILETYPE
+                   ,   di.c_dititle
+                   ,   di.c_disecretgrade
+                   ,   di.c_dipublic
+                   ,   di.c_digrade
+                   ,   di.c_didocflag
+                   ,   di.c_diflag AS D_C_DIFLAG
+                   ,   C_RIDOCFULLNUM
+                   ,   C_RIDELETEOPT
+                   ,   C_RIREGDATE
+                   ,   case pdi.pay_type when 'A' then '선금' when 'B' then '중도금' when 'C' then '잔금' else '' end as P_PAYTYPE
+                   ,   concat(pdi.pay_cnt, '차') as P_PAYCNT
+                   ,   concat(format(pdi.res_amt,0), ' 원') as P_RESAMT
+                   ,   concat(format(
+						(select
+						ifnull(pc.purchase_amt - sum(a.res_amt), pc.purchase_amt) 
+						from cust_sto.t_purchase_payment_doc_info a
+						join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and IFNULL(b.doc_seq, '') != '' and IFNULL(b.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+						where a.outProcessCode = pdi.outProcessCode and a.seq = pdi.seq and cast(a.res_doc_seq as unsigned) <![CDATA[ <= ]]> cast(pdi.res_doc_seq as unsigned)
+						),0), ' 원') as P_REMAINAMT             
+                         
+              FROM $DB_NEOS$A_DRAFTINFO df
+              INNER JOIN $DB_NEOS$A_RECORDINFO ri ON df.C_DIKEYCODE  = ri.c_dikeycode 
+              INNER JOIN $DB_NEOS$A_DOCINFO di ON df.c_dikeycode  = di.c_dikeycode
+              INNER JOIN $DB_NEOS$t_exnp_resdoc er ON df.c_dikeycode  = er.doc_seq
+              
+              INNER JOIN cust_sto.t_purchase_payment_doc_info pdi ON er.res_doc_seq  = pdi.res_doc_seq and pdi.outProcessCode = 'PURCHASE'
+              INNER JOIN cust_sto.t_purchase_purchase pc on pdi.seq = pc.seq
+              
+              where
+			  df.c_diwriteday BETWEEN '$fromDate$' AND '$toDate$'
+
+         ) CTE
+         ORDER BY c_diwriteday DESC, c_diwritetime DESC, c_dikeycode DESC  
+		 LIMIT $startNum$ ,  $endNum$
+		
 	</select>	
 		
 </sqlMap>

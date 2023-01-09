@@ -75,16 +75,25 @@
 			,	editable : true
 			,	pageSize: 10
 			,	request : {
-				    url : '<c:url value="/purchase/${authLevel}/SelectPurchaseList.do" />'
+				    url : '<c:url value="/purchase/${authLevel}/SelectResolutionList.do" />'
 				,	type : 'post'
 				,	dataType : "json"
 				,   parameterMapping : function( data ) {
 					
 					data.searchFromDate = $("#searchFromDate").val(); ;
 					data.searchToDate = $("#searchToDate").val();
-					data.itemName = $("#itemName").val();
-					data.itemUseLocation = $("#itemUseLocation").val();
+					
+					data.title = $("#title").val();
+					data.docSts = $("#docSts").val();
+					data.docNo = $("#docNo").val();
+					data.trName = $("#trName").val();
+					
+					<c:if test="${authLevel!='admin'}">
+					data.writeDeptName = "";
+					</c:if>
+					<c:if test="${authLevel=='admin'}">
 					data.writeDeptName = $("#writeDeptName").val();
+					</c:if>							
 					
 					<c:if test="${authLevel!='user'}">
 					data.writeEmpName = $("#writeEmpName").val();
@@ -143,228 +152,102 @@
 				 
 					if( ! evntVal ) return;
 					if( ! evntVal.trObj ) return;
-				 
-					var rowData = evntVal.trObj.rowData;
-					fnSetBtn(rowData);
+
+					fnSetBtn(evntVal.trObj.rowData);
 				 
 				});				
 		}		
 		
 		,	columns : [
-				{
-					field : "seq"
-				,	title : "연번"
-				,	width : 70
-				,	content : {
-						attributes : { class : "ci" }
-					}
-				}					
-			,	{
-						field : "manage_no"
-					,	title : "구매번호"
-					,	width : 150
-				}
-			,	{
-					field : "item_idn_no"
-				,	title : "물품식별번호"
-				,	width : 100
-				}			
-			,	{
-					field : "item_div_no"
-				,	title : "물품분류번호"
-				,	width : 100
-				}
-			,	{
-					field : "item_name"
-				,	title : "품명"
-				,	width : 200
-				,	content : {
-					attributes : { class : "le" }
-					}				
-				}				
-			,	{
-					field : "item_amt"
-				,	title : "취득단가"
-				,	width : 150
-				,	content : {
-					attributes : { class : "ri" }
-					}				
-				}				
-			,	{
-					field : "item_cnt"
-				,	title : "취득수량"
-				,	width : 100
-				}
-			,	{
-					field : "item_total_amt"
-				,	title : "금액"
-				,	width : 150			
-				,	content : {
-					attributes : { class : "ri" }
-					}					
-				}
-			,	{
-					field : "item_fee_amt"
-				,	title : "취득수수료"
-				,	width : 150	
-				,	content : {
-					attributes : { class : "ri" }
-					}				
-				}	
-			,	{
-					field : "item_unit"
-				,	title : "단위코드"
-				,	width : 80							
-				}		
-			,	{
-					field : "write_dept_name"
-				,	title : "운영부서"
-				,	width : 100							
-				}	
-			,	{
-					field : "operation_dept_code"
-				,	title : "운영부서코드"
-				,	width : 100							
-				}	
-			,	{
-				field : "item_inventory_cd"
-			,	title : "물품대장코드"
-			,	width : 100							
-			}		
-			,	{
-				field : "write_emp_name"
-			,	title : "물품담당자"
-			,	width : 100							
-			}	
-			,	{
-				field : "item_use_location"
-			,	title : "물품사용위치"
-			,	width : 200							
-			}		
-			,	{
-				field : "item_foreign_type"
-			,	title : "국내외구분"
-			,	width : 100							
-			}		
-			,	{
-				field : "item_contry"
-			,	title : "국가코드"
-			,	width : 70							
-			}		
-			,	{
-				field : "item_acquisition_reason"
-			,	title : "취득사유코드"
-			,	width : 100							
-			}				
-			,	{
-				field : "title"
-			,	title : "품의명"
-			,	width : 200		
-			,	content : {
-					attributes : { class : "le ellipsis" }
-				}			
-			}				
-			,	{
-				field : "DOCSTSNAME"
-			,	title : "품의결재상태"
-			,	width : 100	
-			,	content : {
-				template : function(rowData) {
-						if(rowData.DOCSTSNAME != ""){
+	 	    {  field : "C_RIDOCFULLNUM",	title : "문서번호",	width : 130}
+			,	{  field : "C_DITITLE"
+				,	title : "결의제목" 
+				,   width : 200
+				,	content : {	
+					   template : TextOverFlowApp
+					,  attributes : { style : "text-align:left;padding-left:5px;" }
+				    }				
+			    }
+			,   {  field : "C_DIWRITEDAY",	title : "기안일자",	width : 90}
+			,   {  field : "P_RESAMT",	title : "결의금액",	width : 130
+				   , content : {
+						template : function( rowData ) {
 							
-							//titleOnClickApp(c_dikeyCode, c_miseqnum, c_diseqnum, c_rideleteopt, c_tifogmgb, c_distatus)
-							
-							return '<a href="#n" onclick="titleOnClickApp(\''+rowData.C_DIKEYCODE+'\')" >'+rowData.DOCSTSNAME+'</a>';	
-						}else{
-							return '';
-						}							
-						
-						
-					}
-				}			
-			}				
-			,	{
-				field : ""
-			,	title : "물품검수여부"
-			,	width : 100	
-			,	content : {
-				template : function(rowData) {
-					
-						if(rowData.approkey_check != ""){
-							
-							if(rowData.doc_sts == "90"){
-								return "검수완료";	
-							}else if(rowData.doc_sts == "20"){
-								return "검수진행중";
+							if(rowData.C_DISTATUS == "007"){
+								return 	'<text style="color:red;text-decoration: line-through;">' + rowData.P_RESAMT + '</text>';
+							}else{
+								return 	rowData.P_RESAMT;
 							}
-								
-						}else{
-							return '';
-						}						
-					}
-				}			
-			}
-			,	{
-				field : "pay_cnt"
-			,	title : "대금지급회차"
-			,	width : 100							
-			}		
-			,	{
-				field : ""
-			,	title : "대금지급금액"
-			,	width : 100	
-			,	content : {
-				attributes : { class : "ri" },
-				template : function(rowData) {
-					
-						if(rowData.total_pay_amt != "0"){
-							return rowData.total_pay_amt + " 원";	
-						}else{
-							return "";
-						}
-					
-									
-					}
-				}			
-			}		
-			,	{
-				field : ""
-			,	title : "대금지급완료여부"
-			,	width : 100	
-			,	content : {
-				template : function(rowData) {
-					
-						if(parseInt(rowData.purchase_amt.replace(/,/g, '')) > parseInt(rowData.total_pay_amt.replace(/,/g, ''))){
-							return "";
-						}else{
-							return "완료";
 						}
 					}
-				}			
-			}	
-			,	{
-				field : ""
-			,	title : "붙임문서"
-			,	width : 200	
-			,	content : {
-				template : function(rowData) {
-						if(rowData.purchase_attach_info != ""){
-							var attachInfo =  rowData.purchase_attach_info.split("▦");
-							return '<div style="text-align: right;"><span class="text_ho"><em onclick="fnDownload(this)" fileid="'+attachInfo[2]+'" class="fl ellipsis pl5 text_ho" style="max-width:288px;" ><img name="uploadFileIco" src="${pageContext.request.contextPath}' + fncGetFileClassImg(attachInfo[1]) + '" alt="" style="vertical-align: middle;" class="mtImg"/> <span name="uploadFileName">'+attachInfo[0]+attachInfo[1]+'<span></em></span></div>';	
-						}else{
-							return '';
-						}							
-					}
-				}			
-			}			
 			
-			]
+				}
+			,   {  field : "",	title : "업체명",	width : 130}
+			,   {  field : "DOCSTSNAME",	title : "결재상태",	width : 120}
+			
+			,   {  field : "",	title : "전송여부",	width : 120}
+			,   {  field : "",	title : "전송자",	width : 120}
+			
+			,	{  field : "C_DIKEYCODE"
+				,	title : "결재선보기"
+				,	width : 80
+				,	content : {	
+					   template : openPopApprovalLinePudd
+				    }				
+			    }
+		
+		]
 	});	
 		
 		
 	} 	
 	
+	
+	//결재선보기 
+	function openPopApprovalLinePudd(e){
+		var diKeyCode = e.C_DIKEYCODE ;
+		var param = "diKeyCode="+diKeyCode;
 
+		return '<span class="ico-blank" onClick="neosPopup(\'POP_APPLINE\', \''+param+'\');"></span>';
+	} 
+	
+	function TextOverFlowApp(e){
+		
+		var C_RIDELETEOPT = "";
+		if(!ncCom_Empty(e.C_RIDELETEOPT)){
+			C_RIDELETEOPT = e.C_RIDELETEOPT;
+		}
+		
+		var c_dititle = e.C_DITITLE.replace(/</gi, "&lt;").replace(/>/gi, "&gt;"); 
+			
+		var title = "<span onClick='titleOnClickApp(\"" + e.C_DIKEYCODE +"\", \"" + e.C_MISEQNUM +"\", \"" + e.C_DISEQNUM +"\" , \"" + e.C_RIDELETEOPT +"\", \"" + e.C_TIFORMGB +"\", \"" + e.C_DISTATUS +"\")' style='cursor:pointer; ' >";
+		if(e.AUDITCOUNT > 0){
+			  title += "<img src='/ea/Images/ico/ico_gamsa.png' title='"+ NeosUtil.getMessage("TX000020865","감사문서") +"'/> ";
+		}
+		if(e.C_DISECRETGRADE == "009"){
+			  title += "<img src='"+_g_contextPath_ +"/Images/ico/ico_security.png' title='"+ NeosUtil.getMessage("TX000008484","보안문서") +"'/> ";
+		}
+		if(e.C_DIDOCGRADE == "002"){
+			  title += "<img src='"+_g_contextPath_ +"/Images/ico/ico_emergency.png' title='"+ NeosUtil.getMessage("TX000009230","긴급문서") +"'/> ";
+		}
+		
+		if(e.SUBAPPROV == "Y"){
+			  title += "<img src='"+_g_contextPath_ +"/Images/ico/ico_proxy.png' title='"+ NeosUtil.getMessage("TX000002949","대결") +"'/> ";
+		}
+		if(e.DOCCOUNT > 1){
+			  title += "<img src='"+_g_contextPath_ +"/Images/ico/ico_draft.png' title='"+ NeosUtil.getMessage("TX000021117","일괄기안") +"'/> ";
+		}
+		
+	    if(C_RIDELETEOPT == "d"){
+	    	title += "<a href=\"javascript:;\" class=\"text_red\">" + c_dititle +"</a>";
+	    }else{
+	    	title += "<a href=\"javascript:;\">" + c_dititle +"</a>";
+	    }
+		
+		title +="</span>";
+		
+		return  title ;
+	}	
 	
 	function fnDownload(e){
 		this.location.href = "${pageContext.request.contextPath}/fileDownloadProc.do?fileId=" + $(e).attr("fileid");
@@ -865,30 +748,44 @@
 <div class="top_box">
 
 	<dl>
-		<dt class="ar" style="width:60px;">취득일자</dt>
+		<dt class="ar">기안일자</dt>
 		<dd>
 			<input type="text" id="searchFromDate" value="${fromDate}" class="puddSetup" pudd-type="datepicker"/> ~
 			<input type="text" id="searchToDate" value="${toDate}" class="puddSetup" pudd-type="datepicker"/>
 		</dd>
 		
-		<dt class="ar" style="width:60px;">운영부서</dt>
-		<dd><input type="text" id="writeDeptName" pudd-style="width:120px;" class="puddSetup" placeHolder="부서명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+		<dt class="ar" style="width:40px;">제목</dt>
+		<dd><input type="text" id=title" pudd-style="width:120px;" class="puddSetup" placeHolder="제목 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		
-		<c:if test="${authLevel!='user'}">
-		<dt class="ar" style="width:60px;">물품담당자</dt>
-		<dd><input type="text" id="writeEmpName" pudd-style="width:90px;" class="puddSetup" placeHolder="사원명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
-		</c:if>
+		<dt class="ar" style="width:60px;">결재상태</dt>
+		<dd>
+			<select type="select" id=docSts" onchange="BindGrid();" class="puddSetup" pudd-style="width:100%;">
+				<option value="">전체</option>
+				<c:forEach var="items" items="${docStsCode}">
+					<option value="${items.CODE}">${items.NAME}</option>
+				</c:forEach>							
+			</select>		
+		</dd>
+		
+		<dt class="ar" style="width:60px;">문서번호</dt>
+		<dd><input type="text" id=docNo" pudd-style="width:120px;" class="puddSetup" placeHolder="문서번호 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+
 		
 		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="BindGrid();" /></dd>
 	</dl>
 	
 	<dl class="next2">
 	
-		<dt class="ar" style="width:40px;">품목명</dt>
-		<dd><input type="text" id="itemName" pudd-style="width:120px;" class="puddSetup" placeHolder="품목명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+		<dt class="ar" style="width:40px;">업체명</dt>
+		<dd><input type="text" id="trName" pudd-style="width:130px;" class="puddSetup" placeHolder="업체명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+	
+		<dt class="ar" style="width:60px;">부서명</dt>
+		<dd><input type="text" id="writeDeptName" pudd-style="width:120px;" class="puddSetup" placeHolder="부서명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		
-		<dt class="ar" style="width:60px;">사용위치</dt>
-		<dd><input type="text" id="itemUseLocation" pudd-style="width:120px;" class="puddSetup" placeHolder="사용위치 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+		<c:if test="${authLevel!='user'}">
+		<dt class="ar" style="width:60px;">사원명</dt>
+		<dd><input type="text" id="writeEmpName" pudd-style="width:90px;" class="puddSetup" placeHolder="사원명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+		</c:if>
 	
 	</dl>	
 	
@@ -896,9 +793,12 @@
 
 <div class="sub_contents_wrap posi_re">
 	<div class="btn_div">
-		<div class="left_div">
-			<div id="" class="controll_btn p0">
-				<input type="button" onclick="fnCallBtn('newPurchase');" class="puddSetup" style="background:#03a9f4;color:#fff;" value="구매품의" />
+		<div class="left_div" style="padding-top: 10px;">
+			<span class="fl mr20">※ 희망기업 정보조회</span>
+			<div class="fl">
+				<span class="pr10"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="15px" height="15px"><a href="#n" onclick="window.open('https://www.coop.go.kr','mgjCode','width=1050, height=670, scrollbars=yes');"> 협동조합</a></span>
+				<span class="pr10"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="15px" height="15px"><a href="#n" onclick="window.open('https://www.smpp.go.kr','mgjCode','width=1050, height=670, scrollbars=yes');"> 중소기업중앙회</a></span>
+				<span class="pr10"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="15px" height="15px"><a href="#n" onclick="window.open('https://www.socialenterprise.or.kr','mgjCode','width=1050, height=670, scrollbars=yes');"> 사회적기업진흥원</a></span>
 			</div>
 		</div>
 		<div class="right_div">
