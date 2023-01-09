@@ -241,6 +241,8 @@
 
 				commonParam.erpBudgetDivSeq = $(commonElement).find("[name=erp_budget_div_seq]").val();
 				commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val();
+				commonParam.bottomSeq = $(commonElement).find("[name=bottom_seq]").val();		
+
 				
 				$('#bgtSeq').val(commonParam.erpBudgetSeq);
 				

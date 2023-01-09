@@ -67,8 +67,15 @@
 		commonParam.consSeq = "-1";
 		commonParam.resSeq = "-1";
 		commonParam.selectedBudgetSeqs = "";		
-	
+
+
+		<c:if test="${contractType == '01'}">
+		var outProcessCode = "Conclu01_2";
+		</c:if>
+		<c:if test="${contractType == '02'}"> 
 		var outProcessCode = "Conclu01";
+		</c:if>
+
 		var disabledYn = "${disabledYn}";
 		
 		var insertDataObject = {};
@@ -202,9 +209,14 @@
 			$(cloneData).find("[name=tr_seq]").val("${items.tr_seq}");
 			$(cloneData).find("[name=tr_name]").val("${items.tr_name}");
 			
-			$(cloneData).find("[name=tr_reg_number]").text("${items.tr_reg_number}");
-			$(cloneData).find("[name=ceo_name]").text("${items.ceo_name}");
-			$(cloneData).find("[name=addr]").text("${items.addr}");
+/* 			$(cloneData).find("[name=tr_reg_number]").text("${items.tr_reg_number}");
+			$(cloneData).find("[name=ceo_name]").text("${items.ceo_name}");*/
+			$(cloneData).find("[name=addr]").text("${items.addr}"); 
+			
+			$(cloneData).find("[name=tr_reg_number]").val("${items.tr_reg_number}");
+			$(cloneData).find("[name=ceo_name]").val("${items.ceo_name}");
+			$(cloneData).find("[name=addr]").val("${items.addr}"); 
+			
 			
 			$(cloneData).find("[name=at_tr_name]").val("${items.at_tr_name}");
 			$(cloneData).find("[name=ba_nb]").val("${items.ba_nb}");
@@ -728,7 +740,7 @@
 							openerRefreshList();				
 							msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");							
 						}else{
-							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=" + result.resultData.seq,  "ApprCreatePop", 1000, 729, 1, 1) ;
+							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?useYn=Y&outProcessCode="+outProcessCode+"&seq=" + result.resultData.seq,  "ApprCreatePop", 1000, 729, 1, 1) ;
 							self.close();
 						}
 						
@@ -1115,9 +1127,14 @@
 					$(commonElement).find("[name=tr_seq]").val( param.trSeq || "" );
 					$(commonElement).find("[name=tr_name]").val( param.trName || "" );
 					
-					$(commonElement).find("[name=tr_reg_number]").text( param.trRegNumber || "" );
-					$(commonElement).find("[name=ceo_name]").text( param.ceoName || "" );
-					$(commonElement).find("[name=addr]").text( param.addr || "" );
+/* 					$(commonElement).find("[name=tr_reg_number]").text( param.trRegNumber || "" );
+					$(commonElement).find("[name=ceo_name]").text( param.ceoName || "" );*/
+					$(commonElement).find("[name=addr]").text( param.addr || "" ); 
+					
+					$(commonElement).find("[name=tr_reg_number]").val( param.trRegNumber || "" );
+					$(commonElement).find("[name=ceo_name]").val( param.ceoName || "" );
+					$(commonElement).find("[name=addr]").val( param.addr || "" );
+					
 					
 					$(commonElement).find("[name=at_tr_name]").val( param.atTrName || "" );
 					$(commonElement).find("[name=ba_nb]").val( param.baNb || "" );
@@ -1223,6 +1240,7 @@
 
 				commonParam.erpBudgetDivSeq = $(commonElement).find("[name=erp_budget_div_seq]").val();
 				commonParam.erpMgtSeq = $(commonElement).find("[name=pjt_seq]").val();
+				commonParam.bottomSeq = $(commonElement).find("[name=bottom_seq]").val();
 				
 				$('#bgtSeq').val(commonParam.erpBudgetSeq);
 				
@@ -1461,7 +1479,10 @@
 				</tr>				
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약내용</th>
-					<td colspan="3"><input ${disabled} objKey="c_work_info" objCheckFor="checkVal('text', this, '계약내용', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.c_work_info}" /></td>
+					<td colspan="3">
+					<textarea cols="170" rows="3" ${disabled} objKey="c_work_info" objCheckFor="checkVal('text', this, '계약내용', 'mustAlert', '')" class="puddSetup" >${contractDetailInfo.c_work_info}</textarea>
+					<%-- <input ${disabled} objKey="c_work_info" objCheckFor="checkVal('text', this, '계약내용', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.c_work_info}" /> --%>
+					</td>
 				</tr>				
 				<tr>
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 계약금액</th>
@@ -1558,7 +1579,7 @@
 					</td>
 				</tr>
 				<tr>
-					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 희망기업여부</th>
+					<th><%-- <img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> --%> 희망기업여부</th>
 					<td>
 						<div class="multi_sel" style="width:calc( 100% - 58px);">
 							<ul name="hopeCompanyList" objKey="hope_company_info" objCheckFor="checkVal('ul', 'hopeCompanyList', '희망기업여부', 'mustAlert', '')" class="multibox" style="width:100%;">							
@@ -1648,6 +1669,7 @@
 							<input tbval="Y" name="btr_name" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="btr_seq" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="tr_fg" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="tr_fg" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="tr_fg_name" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="depositor" type="hidden" value="" requiredNot="true" />
 						
@@ -1659,12 +1681,17 @@
 							</c:if>
 						</div>
 					</td>
-					<td tbval="Y" name="tr_reg_number" requiredNot="true" class="cen"></td>
-					<td tbval="Y" name="ceo_name" requiredNot="true" class="cen"></td>
-					<td tbval="Y" name="addr" requiredNot="true"></td>
-					<td><input ${readonly} tbval="Y" tbType = "innerText" name="pm_name" type="text" pudd-style="width:100%;" class="puddSetup ac" value="" requiredNot="true" /></td>
-					<td><input ${readonly} tbval="Y" tbType = "innerText" name="pm_hp" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
-					<td><input ${readonly} tbval="Y" tbType = "innerText" name="pm_email" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
+<!-- 					<td tbval="Y" name="tr_reg_number"  requiredNot="true" class="cen" ></td>
+					<td tbval="Y" name="ceo_name" requiredNot="true" class="cen" ></td>
+					<td tbval="Y" name="addr"  requiredNot="true" ></td> -->  
+					
+					<td><input  tbval="Y" name="tr_reg_number" type="text" style="border: none; pudd-style="width:100%;" class="cen" value="" requiredNot="true" readonly/></td>
+					<td><input  tbval="Y" name="ceo_name" type="text" style="border: none; pudd-style="width:100%;" class="cen" value="" requiredNot="true" readonly/></td>
+					<td tbval="Y" name="addr"  requiredNot="true"><input  tbval="Y" name="addr" type="hidden" style="border: none; pudd-style="width:100%;" value="" requiredNot="true" readonly/></td> 
+					
+					<td><input  tbval="Y" name="pm_name" type="text" pudd-style="width:100%;" class="puddSetup ac" value="" requiredNot="true" /></td>
+					<td><input  tbval="Y" name="pm_hp" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
+					<td><input  tbval="Y" name="pm_email" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
 				</tr>
 				<tr name="addData">
 					<c:if test="${disabledYn == 'N'}"> 
@@ -1690,12 +1717,18 @@
 							</c:if>
 						</div>
 					</td>
-					<td tbval="Y" name="tr_reg_number" requiredNot="true" class="cen"></td>
-					<td tbval="Y" name="ceo_name" requiredNot="true" class="cen"></td>
-					<td tbval="Y" name="addr" requiredNot="true"></td>
-					<td><input ${readonly} tbval="Y" tbType = "innerText" name="pm_name" type="text" pudd-style="width:100%;" class="puddSetup ac" value="" requiredNot="true" /></td>
-					<td><input ${readonly} tbval="Y" tbType = "innerText" name="pm_hp" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
-					<td><input ${readonly} tbval="Y" tbType = "innerText" name="pm_email" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
+					<!-- <td tbval="Y" name="tr_reg_number"  requiredNot="true" class="cen" ></td>
+					<td tbval="Y" name="ceo_name" requiredNot="true" class="cen" ></td>
+					<td tbval="Y" name="addr"  requiredNot="true" ></td> -->
+					
+					<td><input  tbval="Y" name="tr_reg_number" type="text" style="border: none; pudd-style="width:100%;" class="cen" value="" requiredNot="true" readonly/></td>
+					<td><input  tbval="Y" name="ceo_name" type="text" style="border: none; pudd-style="width:100%;" class="cen" value="" requiredNot="true" readonly/></td>
+					
+					<td tbval="Y" name="addr"  requiredNot="true" ><input  tbval="Y" name="addr" type="hidden" style="border: none; pudd-style="width:100%;" value="" requiredNot="true" readonly/></td>
+					
+					<td><input  tbval="Y" name="pm_name" type="text" pudd-style="width:100%;" class="puddSetup ac" value="" requiredNot="true" /></td>
+					<td><input  tbval="Y" name="pm_hp" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
+					<td><input  tbval="Y" name="pm_email" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
 				</tr>				
 			</table>
 		</div>

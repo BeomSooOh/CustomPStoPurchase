@@ -1116,7 +1116,10 @@
 				
 				<tr name="changeItem_01" <c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦01▦') < 0 ) }">style="display:none;"</c:if>>
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 과업변경 (후)</th>
-					<td colspan="3"><input objKey="work_info_after" objCheckFor="checkVal('text', this, '과업변경', '$(\'[name=changeItem][value=01]:checked\').length > 0', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.work_info_after}" /></td>
+					<td colspan="3"> 
+					<textarea cols="170" rows="3" objKey="work_info_after" objCheckFor="checkVal('text', this, '과업변경', '$(\'[name=changeItem][value=01]:checked\').length > 0', '')" class="puddSetup" >${contractDetailInfo.work_info_after}</textarea>
+					<%-- <input objKey="work_info_after" objCheckFor="checkVal('text', this, '과업변경', '$(\'[name=changeItem][value=01]:checked\').length > 0', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.work_info_after}" /> --%>
+					</td>
 				</tr>
 				<tr name="changeItem_02" <c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦02▦') < 0 ) }">style="display:none;"</c:if>>
 					<th>기간변경 (전)</th>
