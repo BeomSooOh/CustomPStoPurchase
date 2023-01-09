@@ -101,6 +101,21 @@
         case when df.c_dikeycode is null then '' else
         (CONCAT($DB_NEOS$GET_CODE_DETAIL_INFO('0', 'COM109', IF(IFNULL(df.c_distatus, '008') = '009', '008', IFNULL(df.c_distatus, '008')) , 'kr') 
         , CASE WHEN IFNULL(df.c_dilastuserkey, '') = '' THEN '' ELSE IFNULL(CONCAT('(', $DB_NEOS$FN_GetMultiname('kr', 'emp',df.c_dilastuserkey), ')'),'') END )) end AS DOCSTSNAME,
+        
+		case when ifnull(a.purchase_amt,0) != 0 then 
+		ifnull((
+		select format(ifnull(sum(aaa.res_amt),0),0) from cust_sto.t_purchase_payment_doc_info aaa
+		join $DB_NEOS$t_exnp_resdoc bbb on aaa.res_doc_seq  = bbb.res_doc_seq and IFNULL(bbb.doc_seq, '') != '' and IFNULL(bbb.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+		where aaa.outProcessCode = 'PURCHASE' and aaa.seq = a.seq
+		),'0') else '' end as total_pay_amt,	
+		
+		(select
+		concat(case pdi.pay_type when 'A' then '선금 ' when 'B' then '중도금 ' else '잔금 ' end, pdi.pay_cnt, '차')
+		from cust_sto.t_purchase_payment_doc_info pdi
+		join $DB_NEOS$t_exnp_resdoc er2 on pdi.res_doc_seq = er2.res_doc_seq and IFNULL(er2.doc_seq, '') != '' and IFNULL(er2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+		where pdi.seq = a.seq and pdi.outProcessCode = 'PURCHASE'
+		order by pdi.pay_type desc, pdi.pay_cnt desc
+		limit 1) as pay_cnt,		        
 		
 		ifnull(a.purchase_attach_info,'') as purchase_attach_info
 		FROM cust_sto.t_purchase_purchase a
@@ -524,8 +539,8 @@
 		select
 		pdi.seq, pdi.outProcessCode, pdi.res_doc_seq, pdi.pay_type, pdi.pay_cnt + 1 as pay_cnt, pdi.res_amt, pdi.remain_amt, pdi.created_dt, pdi.created_by
 		from cust_sto.t_purchase_payment_doc_info pdi
-		join neos.t_exnp_resdoc er1 on pdi.outProcessCode = er1.out_process_interface_id  and pdi.seq = er1.out_process_interface_m_id and er1.res_doc_seq = '$resDocSeq$'
-		join neos.t_exnp_resdoc er2 on pdi.res_doc_seq = er2.res_doc_seq and IFNULL(er2.doc_seq, '') != '' and IFNULL(er2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+		join $DB_NEOS$t_exnp_resdoc er1 on pdi.outProcessCode = er1.out_process_interface_id  and pdi.seq = er1.out_process_interface_m_id and er1.res_doc_seq = '$resDocSeq$'
+		join $DB_NEOS$t_exnp_resdoc er2 on pdi.res_doc_seq = er2.res_doc_seq and IFNULL(er2.doc_seq, '') != '' and IFNULL(er2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
 		order by pdi.pay_type desc, pdi.pay_cnt desc
 		limit 1;
 	

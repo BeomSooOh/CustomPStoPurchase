@@ -305,26 +305,50 @@
 				}			
 			}
 			,	{
-				field : ""
+				field : "pay_cnt"
 			,	title : "대금지급회차"
 			,	width : 100							
 			}		
 			,	{
 				field : ""
 			,	title : "대금지급금액"
-			,	width : 100							
+			,	width : 100	
+			,	content : {
+				attributes : { class : "ri" },
+				template : function(rowData) {
+					
+						if(rowData.total_pay_amt != "0"){
+							return rowData.total_pay_amt + " 원";	
+						}else{
+							return "";
+						}
+					
+									
+					}
+				}			
 			}		
 			,	{
 				field : ""
 			,	title : "대금지급완료여부"
-			,	width : 100							
+			,	width : 100	
+			,	content : {
+				template : function(rowData) {
+					
+						if(parseInt(rowData.purchase_amt.replace(/,/g, '')) > parseInt(rowData.total_pay_amt.replace(/,/g, ''))){
+							return "";
+						}else{
+							return "완료";
+						}
+					
+									
+					}
+				}			
 			}	
 			,	{
 				field : ""
 			,	title : "붙임문서"
 			,	width : 200	
 			,	content : {
-				attributes : { class : "le" },
 				template : function(rowData) {
 						if(rowData.purchase_attach_info != ""){
 							var attachInfo =  rowData.purchase_attach_info.split("▦");
