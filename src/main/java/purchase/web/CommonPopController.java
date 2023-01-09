@@ -132,7 +132,8 @@ public class CommonPopController {
 				params.get("outProcessCode").equals("Contract03") || 
 				params.get("outProcessCode").equals("Conclu01") || 
 				params.get("outProcessCode").equals("Conclu02") ||
-				params.get("outProcessCode").equals("Purchase01")
+				params.get("outProcessCode").equals("Purchase01") ||
+				params.get("outProcessCode").equals("Purchase02")
 				) {
 			
 			String FORM_HTML = "";
@@ -241,6 +242,9 @@ public class CommonPopController {
 			}else if(params.get("outProcessCode").equals("Purchase01")) {
 				params.put("detailUrl", request.getContextPath() + "/purchase/pop/PurchaseCreatePop.do?seq=" + params.get("seq").toString());
 				params.put("subjectStr", apprFormData.get("title").toString());
+			}else if(params.get("outProcessCode").equals("Purchase02")) {
+				params.put("detailUrl", request.getContextPath() + "/purchase/pop/PurchaseCheckPop.do?seq=" + params.get("seq").toString());
+				params.put("subjectStr", apprFormData.get("title").toString() + " 물품검사(수) 조서");
 			}
 			
 			params.put("detailName", "정보수정");
