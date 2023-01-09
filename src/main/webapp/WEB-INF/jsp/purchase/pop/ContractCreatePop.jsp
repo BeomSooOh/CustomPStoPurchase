@@ -355,10 +355,10 @@
 							openerRefreshList();				
 							msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");							
 						}else{
-							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=" + result.resultData.seq,  "ApprCreatePop", 1000, 729, 1, 1) ;
+							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?useYn=Y&outProcessCode="+outProcessCode+"&seq=" + result.resultData.seq,  "ApprCreatePop", 1000, 729, 1, 1) ;
 							self.close();
 						}
-						
+										
 					}else{
 						msgSnackbar("error", "등록에 실패했습니다.");	
 					}
@@ -716,7 +716,12 @@
 				</tr>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 과업내용</th>
-					<td colspan="3"><input ${disabled} objKey="work_info" objCheckFor="checkVal('text', this, '과업내용', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.work_info}</c:if>" /></td>
+					<td colspan="3">
+					<textarea cols="170" rows="3" ${disabled} objKey="work_info" objCheckFor="checkVal('text', this, '과업내용', 'mustAlert', '')" class="puddSetup" ><c:if test="${ viewType == 'U' }" >${contractDetailInfo.work_info}</c:if></textarea>
+					<%-- <input ${disabled} objKey="work_info" objCheckFor="checkVal('text', this, '과업내용', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.work_info}</c:if>" /> --%>
+					
+					</td>
+					
 				</tr>				
 			</table>
 		</div>

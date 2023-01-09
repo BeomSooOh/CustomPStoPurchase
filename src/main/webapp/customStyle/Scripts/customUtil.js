@@ -1,9 +1,10 @@
 function chkChar(obj){
-    var RegExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+┼<>@\#$%&\'\"\\\(\=]/gi;	//정규식 구문
+    var RegExp = /[\{\}\[\]\/?.,;:|\)*`!^\-_+┼<>@\#$%&\'\"\\\(\=]/gi;	//정규식 구문
     if (RegExp.test(obj.value)) {
       // 특수문자 모두 제거    
       obj.value = obj.value.replace(RegExp , '');
     }
+    
 }
 
 function getUUID() {
@@ -136,10 +137,13 @@ function msgSnackbar(type, msg, callback){
 }
 
 
+
 function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 	
 	var returnVal = "";
 	var focusTarget;
+	var isNtHp = false;
+	
 	
 	if(type == "text" || type == "select"){
 		returnVal = $(elementFor).val();
@@ -334,32 +338,50 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 			
 		});	
 		
-	}else if(type == "file"){
-		
-		$.each($("[name='"+elementFor+"'] [name='addFile']"), function( key, objInfo ) {
-			
-			var values = $(objInfo).find('[name="attachFileName"]').attr("fileid") +
-			"▦" + $(objInfo).find('[name="attachFileName"]').text() + "▦" + $(objInfo).find('[name="attachExtName"]').text();
-			
-			returnVal += (returnVal == "" ? "" : "▦▦") + values;	
-			
-		});	
-		
 	}else if(type == "ul"){
-		
+	
 		$.each($("[name='"+elementFor+"'] [name='addData']"), function( key, objInfo ) {
 			
 			var values = $(objInfo).attr("addcode") + "▦" + $(objInfo).find('[name="addName"]').text();
 			
-			returnVal += (returnVal == "" ? "" : "▦▦") + values;	
+			returnVal += (returnVal == "" ? "" : "▦▦") + values;
 			
 		});	
+		
+	}else if(type == "file"){
+		
+		$.each($("[name='hopeCompanyList'] [name='addData']"), function( key, objInfo ) {
+			
+			var chkCom = $(objInfo).attr("addcode");
+			
+			if (chkCom == "00" && isNtHp == false) {
+				isNtHp = true;
+			}
+		});
+		
+		if (!isNtHp) {
+			$.each($("[name='"+elementFor+"'] [name='addFile']"), function( key, objInfo ) {
+				
+				var values = $(objInfo).find('[name="attachFileName"]').attr("fileid") +
+				"▦" + $(objInfo).find('[name="attachFileName"]').text() + "▦" + $(objInfo).find('[name="attachExtName"]').text();
+				
+				returnVal += (returnVal == "" ? "" : "▦▦") + values;	
+				
+			});
+		}
 		
 	}else if(type == "innerText"){
 		returnVal = $(elementFor).text();
 	}
 	
-	if(returnVal == ""){
+/*	if (chkCom == "00" && type == "file"){
+		
+		returnVal = "테스트"
+		
+		
+	} else {*/
+	
+	if(returnVal == "" && !isNtHp ){
 		
 		if(func != "mustAlert" && !eval(func)){
 			func = "";
@@ -394,9 +416,10 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 			
 		}
 		
-	}
+	} 
 	
 	return returnVal;
+	/*}*/
 }		
 
 
