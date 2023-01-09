@@ -305,11 +305,11 @@
 				]
 			}
 			,	{
-				title : "계약대상자 정보"
+				title : "계약상대자 정보"
 			,	columns : [
 				{
 						field : "tr_name"
-					,	title : "계약대상자"
+					,	title : "계약상대자"
 					,	width : 100
 				}					
 			,	{
@@ -916,7 +916,7 @@
 				if(meetState != ""){
 					
 					var btnStyle = meetState == "C" ? "submit" : "cancel";
-					var btnName = meetState == "C" ? "제안서평가회의등록" : "제안서평가회의조회";
+					var btnName = meetState == "C" ? "제안서평가위원회 개최" : "제안서평가위원회 개최 조회";
 				
 					var btnInfo = {
 							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
@@ -960,7 +960,7 @@
 				if(conclusionState != ""){
 					
 					var btnStyle = conclusionState == "C" ? "submit" : "cancel";
-					var btnName = conclusionState == "C" ? "계약체결등록" : "계약체결조회";
+					var btnName = conclusionState == "C" ? "계약체결품의" : "계약체결조회";
 					
 					var btnInfo = {
 						attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
@@ -1074,11 +1074,11 @@
 		
 		if(callId == "newContract"){
 			//입찰발주계획 신규
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do",  "ContractCreatePop", 1200, 800, 1, 1) ;
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do",  "ContractCreatePop", 1200, 900, 1, 1) ;
 			
 		}else if(callId == "contractView"){
 			//입찰발주계획 조회
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do?seq=" + seq,  "ContractViewPop", 1200, 800, 1, 1) ;
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/ContractCreatePop.do?seq=" + seq,  "ContractViewPop", 1200, 900, 1, 1) ;
 			
 		}else if(callId == "newConclusion"){
 			
@@ -1437,9 +1437,9 @@
     	excel.set(0, 8, 2, "계약종료일");
     	excel.set(0, 9, 2, "근거법령");
     	
-    	excel.set(0, 10, 1, "계약대상자정보");
+    	excel.set(0, 10, 1, "계약상대자정보");
     	excel.mergeCell(0, 10, 1, 13, 1);
-    	excel.set(0, 10, 2, "계약대상자");
+    	excel.set(0, 10, 2, "계약상대자");
     	excel.set(0, 11, 2, "사업자등록번호");
     	excel.set(0, 12, 2, "대표자명");
     	excel.set(0, 13, 2, "희망기업여부");
