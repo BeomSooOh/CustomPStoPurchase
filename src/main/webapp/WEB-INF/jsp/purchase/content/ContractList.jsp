@@ -357,14 +357,37 @@
 				}	
 			,	{
 						field : "emp_name"
-					,	title : "담당자"
+					,	title : "기안자"
 					,	width : 100
 			}
 			,	{
 						field : "dept_name"
-					,	title : "담당부서"
+					,	title : "기안자부서"
 					,	width : 120
-			}					
+			}
+			,	{
+				field : ""
+			,	title : "담당자"
+			,	width : 120
+			,	content : {
+				template : function(rowData) {
+						
+						const arr = rowData.public_info.split("▦");
+						const arr1 = [];
+						const public_info = [];
+						
+						for(var i=1; i<arr.length; i+=3){
+							const arr1 = arr[i].split("(");
+							for(var j=0; j<arr1.length; j+=2){
+/* 								if (i % 2 == 0) { */
+									public_info.push(arr1[j]); 
+								  /* } */
+							}
+								}
+						return public_info;
+				}
+			}
+			}
 				]
 			}
 			,	{
@@ -1449,8 +1472,8 @@
     	excel.set(0, 14, 2, "발주금액");
     	excel.set(0, 15, 2, "경쟁방식");
     	excel.set(0, 16, 2, "낙찰자결정방법");    	
-    	excel.set(0, 17, 2, "담당자");    	
-    	excel.set(0, 18, 2, "담당부서");   
+    	excel.set(0, 17, 2, "기안자");    	
+    	excel.set(0, 18, 2, "기안자부서");   
     	
     	excel.set(0, 19, 1, "입찰정보");
     	excel.mergeCell(0, 19, 1, 24, 1);

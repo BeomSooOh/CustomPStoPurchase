@@ -159,7 +159,10 @@
 		ifnull(a.approkey_meet,'') as approkey_meet, 
 		ifnull(a.approkey_result,'') as approkey_result,
 		ifnull(a.approkey_conclusion,'') as approkey_conclusion,
-		ifnull(a.approkey_change,'') as approkey_change
+		ifnull(a.approkey_change,'') as approkey_change,
+		
+		a.public_info as public_info
+		
 		
 		FROM cust_sto.t_purchase_contract a
 		left join cust_sto.t_purchase_conclusion_change cc on a.approkey_change = concat('Conclu02_', cc.seq, '_', cc.change_seq)
