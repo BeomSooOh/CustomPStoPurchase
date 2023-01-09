@@ -5,6 +5,7 @@
 	
 	<select	id="ContractSQL.SelectContractList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
 		
+		
 		SELECT 
 		count(*)		
 		FROM cust_sto.t_purchase_contract a
