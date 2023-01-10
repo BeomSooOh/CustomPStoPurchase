@@ -559,9 +559,9 @@
 		<isNotEmpty property="ORDER_NUM">
 		, ORDER_NUM = '$ORDER_NUM$'
 		</isNotEmpty>					
-		<isNotEmpty property="NOTE">
+		<isNotNull property="NOTE">
 		, NOTE = '$NOTE$'
-		</isNotEmpty>	
+		</isNotNull>	
 		<isNotEmpty property="LINK">
 		, LINK = '$LINK$'
 		</isNotEmpty>										          
@@ -614,12 +614,34 @@
 		
 		SELECT 
 		count(*)		
-		from cust_sto.t_purchase_code_detail where `GROUP` = '$GROUP$'
+		from cust_sto.t_purchase_code_detail
+		where
+		<isEqual property="GROUP" compareValue="PURCHASE_GOAL">
+		`GROUP` = 'hopeCompany'
+		</isEqual>
+		<isNotEqual property="GROUP" compareValue="PURCHASE_GOAL">
+		`GROUP` = '$GROUP$'
+		</isNotEqual>			
 	
 	</select>
 		
 	<select	id="CommonSQL.SelectCodeList" parameterClass="HashMap" resultClass="HashMap">
-		
+	
+		<isEqual property="GROUP" compareValue="PURCHASE_GOAL">
+		select 
+		'PURCHASE_GOAL' as `GROUP`,	
+		concat(a.CODE, '_$purchaseGoalYear$') as CODE,	
+		a.NAME,	
+		ifnull(b.USE_YN,'Y') as USE_YN,	
+		ifnull(b.ORDER_NUM,'0') as ORDER_NUM,	
+		ifnull(b.NOTE,'0') as NOTE,	
+		ifnull(b.LINK,'') as LINK
+		from cust_sto.t_purchase_code_detail a
+		left join cust_sto.t_purchase_code_detail b on b.`GROUP` = 'PURCHASE_GOAL' and concat(a.CODE, '_$purchaseGoalYear$') = b.CODE 
+		where a.`GROUP` = 'hopeCompany' and a.CODE != '00'
+		order by ifnull(b.ORDER_NUM,a.ORDER_NUM)
+		</isEqual>
+		<isNotEqual property="GROUP" compareValue="PURCHASE_GOAL">
 		select 
 		`GROUP`,	
 		CODE,	
@@ -630,8 +652,8 @@
 		ifnull(LINK,'') as LINK
 		from cust_sto.t_purchase_code_detail where `GROUP` = '$GROUP$'
 		order by ORDER_NUM
+		</isNotEqual>			
 		LIMIT $startNum$ ,  $endNum$	
-		
 	</select>						
 		
 </sqlMap>

@@ -37,6 +37,8 @@
 
 		$(document).ready(function() {
 			BindGroupGrid();
+			
+			yearSelInut();
 		});
 			
 		function BindGroupGrid(){
@@ -146,7 +148,14 @@
 			
 			changeInfoList = [];
 			$("#adminSaveBtn").hide();
-			$("#codeEditBtn").show();
+			$("[name=codeEditBtn]").show();
+			
+			if(selGroup == "PURCHASE_GOAL"){
+				$("#yearSelect").show();
+				$("[name=codeEditBtn]").hide();
+			}else{
+				$("#yearSelect").hide();
+			}
 			
 			var dataSource = new Pudd.Data.DataSource({
 					serverPaging: true
@@ -157,7 +166,7 @@
 					,	type : 'post'
 					,	dataType : "json"
 					,   parameterMapping : function( data ) {
-						
+						data.purchaseGoalYear = $("#purchaseGoalYear").val();
 						data.GROUP = selGroup;
 						return data;
 					}
@@ -175,6 +184,90 @@
 				}
 					    
 			});
+			
+			var colArray = [];
+			
+			if(selGroup != "PURCHASE_GOAL"){
+				
+				colArray.push({
+					field : "gridCheckBox"		// grid 내포 checkbox 사용할 경우 고유값 전달
+						,	width : 34
+						,	editControl : {
+								type : "checkbox"
+							,	basicUse : true
+							}
+						,	attributes : { class : "display:none;" }
+						});
+				
+				colArray.push({
+					field : "CODE"
+						,	title : "코드"
+						,	width : 50
+						});						
+				
+				
+			}else{
+				
+				colArray.push({
+					field : "CODE"
+						,	title : "적용년도"
+						,	width : 50
+						,	content : {
+								template : function( rowData ) {
+									return $("#purchaseGoalYear").val() + " 년도";
+								}
+							}
+						});				
+				
+			}
+			
+			colArray.push({
+				field : "NAME"
+					,	title : selGroup == "PURCHASE_GOAL" ? "희망기업구분" : "코드명"
+					,	width : 90
+					,	content : {
+							template : function( rowData ) {
+								
+								if(selGroup == "PURCHASE_GOAL"){
+									return rowData.NAME;
+								}else{
+									return '<input '+(selGroup == "PURCHASE_GOAL" ? "readonly" : "")+' onkeyup="fnSetChangeInfo(\''+rowData.CODE+'\', \'NAME\', \''+rowData.NAME+'\', this.value)" class="puddSetup ac" type="text" value="' + rowData.NAME + '" pudd-style="height:100%;width:100%;"/>';	
+								}
+								
+							}
+						}
+					});
+			
+			colArray.push({
+				field : "NOTE"
+					,	title : selGroup == "PURCHASE_GOAL" ? "목표액" : "비고"
+					,	width : 70
+					,	content : {
+							template : function( rowData ) {
+								return '<input name="goalAmt" onkeyup="fnSetChangeInfo(\''+rowData.CODE+'\', \'NOTE\', \''+rowData.NOTE+'\', this.value)" class="puddSetup '+(selGroup == "PURCHASE_GOAL" ? "ri" : "ac")+'" type="text" value="' + rowData.NOTE + '" pudd-style="height:100%;width:100%;"/>';
+							}
+						}
+					});
+			colArray.push({
+				field : "ORDER_NUM"
+					,	title : "정렬"
+					,	width : 50
+					,	content : {
+							template : function( rowData ) {
+								return '<input onkeyup="fnSetChangeInfo(\''+rowData.CODE+'\', \'ORDER_NUM\', \''+rowData.ORDER_NUM.toString() +'\', this.value)" class="puddSetup ac" type="text" value="' + rowData.ORDER_NUM.toString() + '" pudd-style="height:100%;width:100%;" onKeyup="this.value=this.value.replace(/[^0-9]/g,\'\');" />';
+							}
+						}
+					});	
+			colArray.push({
+				field : "USE_YN"
+					,	title : "사용여부"
+					,	width : 50
+					,	content : {
+							template : function( rowData ) {
+								return '<select style="width:50px;text-align:center;" onchange="fnSetChangeInfo(\''+rowData.CODE+'\', \'USE_YN\', \''+rowData.USE_YN+'\', this.value)"><option value="Y"' + (rowData.USE_YN == "Y" ? ' selected ' : '') + '>Y</option><option value="N"' + (rowData.USE_YN == "N" ? ' selected ' : '') + '>N</option></select>';
+							}
+						}
+					});				
 			
 			Pudd("#grid2").puddGrid({
 				dataSource : dataSource
@@ -203,62 +296,20 @@
 				,	backgroundLayerAttributes : { style : "background-color:#fff;filter:alpha(opacity=0);opacity:0;width:100%;height:100%;position:fixed;top:0px; left:0px;" }
 			}	
 			
-			,	columns : [
-					{
-						field : "gridCheckBox"		// grid 내포 checkbox 사용할 경우 고유값 전달
-					,	width : 34
-					,	editControl : {
-							type : "checkbox"
-						,	basicUse : true
-						}
-					},				
-					{
-						field : "CODE"
-					,	title : "코드"
-					,	width : 50
-					},
-					{
-						field : "NAME"
-					,	title : "코드명"
-					,	width : 90
-					,	content : {
-							template : function( rowData ) {
-								return '<input onkeyup="fnSetChangeInfo(\''+rowData.CODE+'\', \'NAME\', \''+rowData.NAME+'\', this.value)" class="puddSetup ac" type="text" value="' + rowData.NAME + '" pudd-style="height:100%;width:100%;"/>';
-							}
-						}
-					},
-					{
-						field : "NOTE"
-					,	title : "비고"
-					,	width : 70
-					,	content : {
-							template : function( rowData ) {
-								return '<input onkeyup="fnSetChangeInfo(\''+rowData.CODE+'\', \'NOTE\', \''+rowData.NOTE+'\', this.value)" class="puddSetup ac" type="text" value="' + rowData.NOTE + '" pudd-style="height:100%;width:100%;"/>';
-							}
-						}
-					},	
-					{
-						field : "ORDER_NUM"
-					,	title : "정렬"
-					,	width : 50
-					,	content : {
-							template : function( rowData ) {
-								return '<input onkeyup="fnSetChangeInfo(\''+rowData.CODE+'\', \'ORDER_NUM\', \''+rowData.ORDER_NUM.toString() +'\', this.value)" class="puddSetup ac" type="text" value="' + rowData.ORDER_NUM.toString() + '" pudd-style="height:100%;width:100%;" onKeyup="this.value=this.value.replace(/[^0-9]/g,\'\');" />';
-							}
-						}
-					},
-					{
-						field : "USE_YN"
-					,	title : "사용여부"
-					,	width : 50
-					,	content : {
-							template : function( rowData ) {
-								return '<select style="width:50px;text-align:center;" onchange="fnSetChangeInfo(\''+rowData.CODE+'\', \'USE_YN\', \''+rowData.USE_YN+'\', this.value)"><option value="Y"' + (rowData.USE_YN == "Y" ? ' selected ' : '') + '>Y</option><option value="N"' + (rowData.USE_YN == "N" ? ' selected ' : '') + '>N</option></select>';
-							}
-						}
-					}					
-				]
+			,	columns : colArray
+			
+			,	loadCallback : function( headerTable, contentTable, footerTable, gridObj ) {
+				
+					if(selGroup == "PURCHASE_GOAL"){
+						$("[name=goalAmt]").maskMoney({
+							precision : 0,
+							allowNegative: false
+						});
+					}			
+		
+				}			
 			});	
+	
 		}	
 		
 		
@@ -525,6 +576,21 @@
 			
 		}
 		
+		
+		function yearSelInut(){
+			
+			var thisYear = parseInt(new Date().getFullYear());
+			
+	    	for(var i=-10; i < 11; i++) {
+	    		$("#purchaseGoalYear").append("<option value='"+(thisYear+i)+"'>"+(thisYear+i) + " 년도"+"</option>");
+	    	}		
+	    	
+	    	$("#purchaseGoalYear").val(thisYear);
+			
+		}
+		
+	
+		
 	</script>
 </head>
 
@@ -551,11 +617,16 @@
 	
 					<td class="twinbox_td">
 						<div class="btn_div mt0">
+							<div class="left_div">
+								<div id="yearSelect" style="display:none;" class="controll_btn p0">
+									<select id="purchaseGoalYear" onchange="BindCodeGrid()"></select>								
+								</div>
+							</div>						
 							<div class="right_div">
-								<div style="display:none;" id="codeEditBtn" class="controll_btn p0">
-									<input onclick="insertLayerPop();" type="button" class="puddSetup" value="추가" />
-									<input onclick="fnDel();" type="button" class="puddSetup" value="삭제" />
-									<input onclick="fnSaveColInfo();" id="adminSaveBtn" style="background:#03a9f4;color:#fff;display:none;" type="button" class="puddSetup" value="저장" />
+								<div class="controll_btn p0">
+									<input name="codeEditBtn" onclick="insertLayerPop();" type="button" class="puddSetup" value="추가" />
+									<input name="codeEditBtn" onclick="fnDel();" type="button" class="puddSetup" value="삭제" />
+									<input id="adminSaveBtn" onclick="fnSaveColInfo();"  style="background:#03a9f4;color:#fff;display:none;" type="button" class="puddSetup" value="저장" />
 								</div>
 							</div>
 						</div>

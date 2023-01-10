@@ -1501,3 +1501,8 @@ ALTER TABLE cust_sto.t_purchase_budget_info ADD txt_open_amt varchar(20) CHARACT
 ALTER TABLE cust_sto.t_purchase_budget_info ADD txt_cons_balance_amt varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '집행액(작성시점)';
 ALTER TABLE cust_sto.t_purchase_budget_info ADD txt_apply_amt varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '품의액(작성시점)';
 ALTER TABLE cust_sto.t_purchase_budget_info ADD txt_balance_amt varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '예산잔액(작성시점)';
+
+
+insert IGNORE INTO cust_sto.t_purchase_code_group
+(`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
+VALUES('PURCHASE_GOAL', 'cm', '[공통]구매실적목표', 'Y', 0, '');

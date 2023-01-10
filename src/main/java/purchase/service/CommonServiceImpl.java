@@ -44,7 +44,35 @@ public class CommonServiceImpl implements CommonService {
 		
 		for (Map<String, Object> map : changeInfoList) {
 			map.put("GROUP", params.get("GROUP"));
-			commonServiceDAO.UpdateCommonCode(map);
+			
+			if(params.get("GROUP").equals("PURCHASE_GOAL")) {
+				
+				map.put("group", params.get("GROUP"));
+				map.put("code", map.get("CODE"));
+				
+				Map<String, Object> oriMap = commonServiceDAO.SelectPurchaseDetailCodeInfo(map);
+				
+				if(oriMap != null) {
+					commonServiceDAO.UpdateCommonCode(map);	
+				}else {
+					
+					Map<String, Object> insertParam = new HashMap<String,Object>();
+					insertParam.put("GROUP", params.get("GROUP"));
+					insertParam.put("NAME", "");
+					insertParam.put("USE_YN", "Y");
+					insertParam.put("ORDER_NUM", "0");
+					insertParam.put("NOTE", "0");
+					insertParam.put("LINK", "");
+					insertParam.putAll(map);
+					
+					commonServiceDAO.InsertCodeInfo(insertParam);
+					
+				}
+				
+			}else {
+				commonServiceDAO.UpdateCommonCode(map);	
+			}
+			
 		}
 		
 		return params;

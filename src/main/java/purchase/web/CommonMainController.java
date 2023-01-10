@@ -365,7 +365,8 @@ public class CommonMainController {
         mv.setViewName("/purchase/content/CommonAttachFormEditor");
 
         return mv;
-    }          
+    }    
+    
 
     @RequestMapping("/purchase/admin/SelectCodeGroupList.do")
     public ModelAndView SelectCodeGroupList(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
@@ -513,6 +514,6 @@ public class CommonMainController {
 		paginationInfo.setPageSize(pageSize);
 		paginationInfo.setCurrentPageNo(page);
 		return paginationInfo;
-	}	 
+	}
 
 }
