@@ -310,7 +310,7 @@ public class PurchaseMainController {
 		Map<String, Object> contractInfo = purchaseServiceDAO.SelectPurchaseDetail(params);
 		
 		if(contractInfo != null) {
-			
+			params.put("consMode", "Y");
 			params.put("outProcessCode", "Purchase01");
 			result.put("conclusionBudgetList", commonServiceDAO.SelectBudgetList(params));
 			result.put("conclusionTradeList", commonServiceDAO.SelectTradeList(params));
@@ -361,6 +361,67 @@ public class PurchaseMainController {
 		return mv;
 	}    
     
+	
+    @RequestMapping("/purchase/{authLevel}/ResolutionList.do")
+    public ModelAndView ResolutionList(@PathVariable String authLevel, @RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        mv.addObject("authLevel", authLevel);
+        
+        try {
+            LoginVO loginVo = CommonConvert.CommonGetEmpVO();  
+            
+            //메뉴접근 권한체크
+            if(!commonServiceDAO.CheckAuthFromMenuInfo(loginVo, request.getServletPath())) {
+            	//권한없음
+            	mv.setViewName( commonExPath.ERRORPAGEPATH + commonExPath.CMERRORCHECKAUTH );
+            	return mv;
+            }
+        	
+        	String toDate = DateUtil.getCurrentDate("yyyy-MM-dd");
+        	String fromDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", -3);
+        	toDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", 12);
+        	mv.addObject("fromDate", fromDate);
+        	mv.addObject("toDate", toDate);        
+            
+            mv.setViewName("/purchase/content/ResolutionList");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExpInfo.ProcessLog(e.getLocalizedMessage());
+            mv.addObject("errMsg", e.getMessage());
+            mv.setViewName(CommonMapper.GetExError());
+            logger.error(e);
+        }
+        return mv;
+    } 
     
+    
+    @RequestMapping("/purchase/{authLevel}/SelectResolutionList.do")
+    @ResponseBody
+    public ModelAndView SelectResolutionList(@PathVariable String authLevel, @RequestParam Map<String, Object> paramMap, HttpServletRequest request) throws Exception {
+    	
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo = getPaginationInfo(paramMap);
+		
+		LoginVO loginVO = CommonConvert.CommonGetEmpVO();
+		paramMap.put("loginvo", loginVO);
+		paramMap.put("authLevel", authLevel);
+		
+		Map<String,Object> resultMap = null;
+		try {
+			resultMap = purchaseServiceDAO.SelectResolutionList(paramMap, paginationInfo);
+		} catch (Exception e) {
+			resultMap = new HashMap<String,Object>();
+			e.printStackTrace();
+			logger.error(e);
+		}
+	 
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("jsonView");
+		mv.addAllObjects(resultMap);	// data.result
+		return mv;    	
+    
+    } 	    
 
 }

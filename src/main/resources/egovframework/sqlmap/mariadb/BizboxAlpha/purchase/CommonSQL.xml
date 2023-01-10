@@ -418,32 +418,40 @@
 	<select	id="CommonSQL.SelectBudgetList" parameterClass="HashMap" resultClass="HashMap">
 		
 		select
-		seq,
-		outProcessCode,	
-		erp_budget_seq,	
-		erp_budget_name,
-		erp_budget_div_seq,
-		erp_budget_div_name,
-		erp_bgt1_seq,
-		erp_bgt1_name,
-		erp_bgt2_seq,
-		erp_bgt2_name,
-		erp_bgt3_seq,
-		erp_bgt3_name,
-		erp_bgt4_seq,
-		erp_bgt4_name,
-		pjt_seq,
-		pjt_name,
-		bottom_seq,
-		bottom_name,
-		FORMAT(amt,0) as amt,
-		ifnull(txt_open_amt,'') as txt_open_amt,
-		ifnull(txt_cons_balance_amt,'') as txt_cons_balance_amt,
-		ifnull(txt_apply_amt,'') as txt_apply_amt,
-		ifnull(txt_balance_amt,'') as txt_balance_amt,
-		created_dt,
-		created_by 
-		from cust_sto.t_purchase_budget_info where seq = '$seq$' and outProcessCode = '$outProcessCode$'
+		a.seq,
+		a.outProcessCode,	
+		a.erp_budget_seq,	
+		a.erp_budget_name,
+		a.erp_budget_div_seq,
+		a.erp_budget_div_name,
+		a.erp_bgt1_seq,
+		a.erp_bgt1_name,
+		a.erp_bgt2_seq,
+		a.erp_bgt2_name,
+		a.erp_bgt3_seq,
+		a.erp_bgt3_name,
+		a.erp_bgt4_seq,
+		a.erp_bgt4_name,
+		a.pjt_seq,
+		a.pjt_name,
+		a.bottom_seq,
+		a.bottom_name,
+		FORMAT(a.amt,0) as amt,
+		ifnull(a.txt_open_amt,'') as txt_open_amt,
+		ifnull(a.txt_cons_balance_amt,'') as txt_cons_balance_amt,
+		ifnull(a.txt_apply_amt,'') as txt_apply_amt,
+		ifnull(a.txt_balance_amt,'') as txt_balance_amt,
+		<isNotEmpty property="consMode">
+		c.budget_seq as conffer_budget_seq,
+		</isNotEmpty>		
+		a.created_dt,
+		a.created_by 
+		from cust_sto.t_purchase_budget_info a 
+		<isNotEmpty property="consMode">
+		join t_exnp_consdoc b on a.outProcessCode = b.out_process_interface_id and a.seq = b.out_process_interface_m_id
+		join t_exnp_consbudget c on b.cons_doc_seq = c.cons_doc_seq and a.erp_budget_seq = c.erp_budget_seq
+		</isNotEmpty>		
+		where a.seq = '$seq$' and a.outProcessCode = '$outProcessCode$' 
 
 	</select>	
 	
