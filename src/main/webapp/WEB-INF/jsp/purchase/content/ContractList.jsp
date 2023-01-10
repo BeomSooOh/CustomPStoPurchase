@@ -373,7 +373,7 @@
 			,	content : {
 				template : function(rowData) {
 						
-						const arr = rowData.public_info.split("▦");
+						const arr = (rowData.public_info||"").split("▦");
 						const arr1 = [];
 						const public_info = [];
 						
