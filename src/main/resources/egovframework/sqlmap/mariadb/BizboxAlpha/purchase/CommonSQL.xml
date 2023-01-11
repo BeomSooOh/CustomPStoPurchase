@@ -654,6 +654,68 @@
 		order by ORDER_NUM
 		</isNotEqual>			
 		LIMIT $startNum$ ,  $endNum$	
-	</select>						
+	</select>
+	
+	<select	id="CommonSQL.SelectPurchaseResGreenInfo" parameterClass="HashMap" resultClass="HashMap">
+	
+		SELECT 
+		res_doc_seq, 
+		ifnull(item_green_cert_type,'') as item_green_cert_type, 
+		ifnull(item_green_class,'') as item_green_class, 
+		created_dt, created_by
+		FROM cust_sto.t_purchase_res_green_info
+		where res_doc_seq = '$resDocSeq$'
+		limit 1;
 		
+	</select>
+	
+	<insert	id="CommonSQL.InsertPurchaseResGreenInfo" parameterClass="HashMap" >
+		
+		INSERT INTO cust_sto.t_purchase_res_green_info
+		(res_doc_seq, item_green_cert_type, item_green_class, created_dt, created_by)
+		VALUES('$res_doc_seq$', '$item_green_cert_type$', '$item_green_class$', NOW(), '$created_by$');
+
+	</insert>	
+	
+	<delete	id="CommonSQL.DeletePurchaseResGreenInfo" parameterClass="HashMap" >
+		
+		delete from cust_sto.t_purchase_res_green_info where res_doc_seq = '$res_doc_seq$';
+
+	</delete>
+	
+
+	<select	id="CommonSQL.SelectPurchaseResHopeInfoList" parameterClass="HashMap" resultClass="HashMap">
+		
+		select
+		a.res_doc_seq
+		,a.tr_seq
+		,a.tr_name
+		,a.ceo_name 
+		,ifnull(b.hope_company_info,'') as hope_company_info
+		,ifnull(b.hope_attach_info,'') as hope_attach_info
+		from $DB_NEOS$t_exnp_restrade a
+		left join cust_sto.t_purchase_res_hope_info b on a.res_doc_seq = b.res_doc_seq  and a.tr_seq = b.tr_seq 
+		where a.res_doc_seq = '$resDocSeq$'	
+		
+	</select>
+	
+	<insert	id="CommonSQL.InsertPurchaseResHopeInfo" parameterClass="HashMap" >
+		
+		INSERT INTO cust_sto.t_purchase_res_hope_info
+		(res_doc_seq, tr_seq, hope_attach_info, hope_company_info, created_dt, created_by)
+		VALUES('$res_doc_seq$', '$tr_seq$', '$hope_attach_info$', '$hope_company_info$', NOW(), '$created_by$');
+
+	</insert>	
+	
+	<delete	id="CommonSQL.DeletePurchaseResHopeInfo" parameterClass="HashMap" >
+		
+		delete from cust_sto.t_purchase_res_hope_info 
+		where
+		res_doc_seq = '$res_doc_seq$'
+		<isNotEmpty property="tr_seq">
+		and tr_seq = '$tr_seq$'
+		</isNotEmpty>		
+
+	</delete>
+	
 </sqlMap>

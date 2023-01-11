@@ -404,9 +404,14 @@ public class PurchaseMainController {
 		PaginationInfo paginationInfo = new PaginationInfo();
 		paginationInfo = getPaginationInfo(paramMap);
 		
-		LoginVO loginVO = CommonConvert.CommonGetEmpVO();
-		paramMap.put("loginvo", loginVO);
-		paramMap.put("authLevel", authLevel);
+        /* 변수 설정 */
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+        paramMap.put("groupSeq", loginVo.getGroupSeq());
+        paramMap.put("compSeq", loginVo.getOrganId());
+        paramMap.put("deptSeq", loginVo.getOrgnztId());
+        paramMap.put("empSeq", loginVo.getUniqId());
+		
+        paramMap.put("authLevel", authLevel);		
 		
 		Map<String,Object> resultMap = null;
 		try {

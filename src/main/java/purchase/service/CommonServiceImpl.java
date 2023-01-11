@@ -360,5 +360,29 @@ public class CommonServiceImpl implements CommonService {
 		
 	}	
 	
+	public void saveGreenInfo ( Map<String, Object> params ) {
+		commonServiceDAO.DeletePurchaseResGreenInfo(params);
+		commonServiceDAO.InsertPurchaseResGreenInfo(params);
+	}
+	
+	public void saveHopeInfo ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException {
+		commonServiceDAO.DeletePurchaseResHopeInfo(params);
+		
+		//변경정보 리스트화
+		String jsonStr = (String)params.get("res_hope_info_list");
+		ObjectMapper mapper = new ObjectMapper();
+		List<Map<String, Object>> changeInfoList = new ArrayList<Map<String, Object>>();
+		changeInfoList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
+		
+		for (Map<String, Object> map : changeInfoList) {
+			map.put("GROUP", params.get("GROUP"));
+			map.put("created_by", params.get("created_by"));
+			map.put("res_doc_seq", params.get("res_doc_seq"));
+			commonServiceDAO.InsertPurchaseResHopeInfo(map);
+		}
+		
+		
+	}
+	
 }
 

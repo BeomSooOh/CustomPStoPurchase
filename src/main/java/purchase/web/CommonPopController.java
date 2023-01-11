@@ -98,7 +98,33 @@ public class CommonPopController {
                 //코드도움 데이터 조회
                 List<Map<String, Object>> codeList = commonServiceDAO.SelectPurchaseDetailCodeList(params);            	
                 mv.addObject("codeList", codeList);
+                
+            }else if(layerName.equals("greenStateSetLayer")) {
+            	
+            	params.put("res_doc_seq", params.get("resDocSeq"));
+            	Map<String, Object> greenStateSetInfo = commonServiceDAO.SelectPurchaseResGreenInfo(params);
+            	mv.addObject("greenStateSetInfo", greenStateSetInfo);
+            	
+            	params.put("group", "greenCertType");
+                List<Map<String, Object>> greenCertTypeCode = commonServiceDAO.SelectPurchaseDetailCodeList(params);
+                mv.addObject("greenCertTypeCode", greenCertTypeCode);
+                
+            	params.put("group", "greenClass");
+                List<Map<String, Object>> greenClassCode = commonServiceDAO.SelectPurchaseDetailCodeList(params);
+                mv.addObject("greenClassCode", greenClassCode);
+                
+            }else if(layerName.equals("hopeStateSetLayer")) {
+            	
+            	params.put("res_doc_seq", params.get("resDocSeq"));
+            	List<Map<String, Object>> hopeStateSetInfoList = commonServiceDAO.SelectPurchaseResHopeInfoList(params);
+            	mv.addObject("hopeStateSetInfoList", hopeStateSetInfoList);            	
+            	
+            	params.put("group", "hopeCompany");
+                List<Map<String, Object>> hopeCompanyCode = commonServiceDAO.SelectPurchaseDetailCodeList(params);
+                mv.addObject("hopeCompanyCode", hopeCompanyCode);            	
+            	
             }
+            
 
         } catch (Exception e) {
             e.printStackTrace();

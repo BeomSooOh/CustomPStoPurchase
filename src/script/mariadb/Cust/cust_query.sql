@@ -1506,3 +1506,23 @@ ALTER TABLE cust_sto.t_purchase_budget_info ADD txt_balance_amt varchar(20) CHAR
 insert IGNORE INTO cust_sto.t_purchase_code_group
 (`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
 VALUES('PURCHASE_GOAL', 'cm', '[공통]구매실적목표', 'Y', 0, '');
+
+
+CREATE table if not exists cust_sto.`t_purchase_res_green_info` (
+  `res_doc_seq` bigint(32) NOT NULL COMMENT '결의 문서 키',
+  `item_green_cert_type` varchar(50) DEFAULT NULL COMMENT '녹색제품인증구분',
+  `item_green_class` varchar(50) DEFAULT NULL COMMENT '녹색제품분류',
+  `created_dt` datetime DEFAULT NULL COMMENT '생성일자',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '생성자',
+  PRIMARY KEY (`res_doc_seq`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='기타결의녹색제품실적연계정보';
+
+CREATE table if not exists cust_sto.`t_purchase_res_hope_info` (
+  `res_doc_seq` bigint(32) NOT NULL COMMENT '결의 문서 키',
+  `tr_seq` varchar(50) NOT NULL COMMENT '코드',
+  `hope_attach_info` varchar(200) DEFAULT NULL COMMENT '희망기업확인서정보',
+  `hope_company_info` varchar(200) DEFAULT NULL COMMENT '희망기업선택정보',
+  `created_dt` datetime DEFAULT NULL COMMENT '생성일자',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '생성자',
+  PRIMARY KEY (`res_doc_seq`,`tr_seq`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='기타결의희망구매실적연계정보';

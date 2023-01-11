@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +27,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import bizbox.orgchart.service.vo.LoginVO;
 import cmm.util.CommonUtil;
@@ -515,5 +519,130 @@ public class CommonMainController {
 		paginationInfo.setCurrentPageNo(page);
 		return paginationInfo;
 	}
+	
 
+    @RequestMapping("/purchase/greenHopeInfo.do")
+    public ModelAndView greenHopeInfo(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        
+        /* 변수 설정 */
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("compSeq", loginVo.getOrganId());
+		params.put("deptSeq", loginVo.getOrgnztId());
+		params.put("empSeq", loginVo.getUniqId());
+        
+		Map<String,Object> resGreenInfo = commonServiceDAO.SelectPurchaseResGreenInfo(params);
+		mv.addObject("resGreenInfo", resGreenInfo);
+		
+		List<Map<String, Object>> resHopeInfoList = commonServiceDAO.SelectPurchaseResHopeInfoList(params);
+		mv.addObject("resHopeInfoList", resHopeInfoList);
+        
+        mv.setViewName("jsonView");
+
+        return mv;
+    }
+    
+    @RequestMapping("/purchase/saveGreenInfo.do")
+    public ModelAndView saveGreenInfo(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        
+        /* 변수 설정 */
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("created_by", loginVo.getUniqId());
+		
+		commonService.saveGreenInfo(params);
+        
+		mv.addObject("resultCode", "SUCCESS");
+        mv.setViewName("jsonView");
+
+        return mv;
+    }    
+    
+    @RequestMapping("/purchase/selectGreenInfo.do")
+    public ModelAndView selectGreenInfo(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        
+        /* 변수 설정 */
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		
+		mv.addObject("resultData", commonServiceDAO.SelectPurchaseResGreenInfo(params));
+		mv.addObject("resultCode", "SUCCESS");
+        mv.setViewName("jsonView");
+
+        return mv;
+    }
+    
+    @RequestMapping("/purchase/deleteGreenInfo.do")
+    public ModelAndView deleteGreenInfo(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        
+        /* 변수 설정 */
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		
+		commonServiceDAO.DeletePurchaseResGreenInfo(params);
+		mv.addObject("resultCode", "SUCCESS");
+        mv.setViewName("jsonView");
+
+        return mv;
+    }
+    
+    
+    @RequestMapping("/purchase/saveHopeInfo.do")
+    public ModelAndView saveHopeInfo(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        
+        /* 변수 설정 */
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("created_by", loginVo.getUniqId());
+		
+		commonService.saveHopeInfo(params);
+        
+		mv.addObject("resultCode", "SUCCESS");
+        mv.setViewName("jsonView");
+
+        return mv;
+    }    
+    
+    @RequestMapping("/purchase/selectHopeInfo.do")
+    public ModelAndView selectHopeInfo(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        
+        /* 변수 설정 */
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		
+		mv.addObject("resultData", commonServiceDAO.SelectPurchaseResHopeInfoList(params));
+		mv.addObject("resultCode", "SUCCESS");
+        mv.setViewName("jsonView");
+
+        return mv;
+    }
+    
+    @RequestMapping("/purchase/deleteHopeInfo.do")
+    public ModelAndView deleteHopeInfo(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        
+        /* 변수 설정 */
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+		params.put("groupSeq", loginVo.getGroupSeq());
+		
+		commonServiceDAO.DeletePurchaseResHopeInfo(params);
+		mv.addObject("resultCode", "SUCCESS");
+        mv.setViewName("jsonView");
+
+        return mv;
+    }    
+    
 }

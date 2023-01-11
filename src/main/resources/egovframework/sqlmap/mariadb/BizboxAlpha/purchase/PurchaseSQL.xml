@@ -3,441 +3,441 @@
 
 <sqlMap namespace="PurchaseSQL">
 
-	<select	id="PurchaseSQL.getGroupInfo" parameterClass="HashMap" resultClass="HashMap">
-		select * from $DB_NEOS$t_co_group
-	</select>
-	
-	
-	<select	id="PurchaseSQL.SelectPurchaseList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
-		
-		SELECT 
-		count(*)		
-		FROM cust_sto.t_purchase_purchase a
-		join cust_sto.t_purchase_item_info item on a.seq = item.seq
-		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
-		left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'		
-		where 
-		1=1
-		<isNotEmpty property="searchFromDate">
-		and  item.item_deadline <![CDATA[ >= ]]> '$searchFromDate$'
-		</isNotEmpty>
-		<isNotEmpty property="searchToDate">
-		and  item.item_deadline <![CDATA[ <= ]]> '$searchToDate$'
-		</isNotEmpty>
-		<isNotEmpty property="itemName">
-		and  item.item_name like concat('%', '$itemName$', '%')
-		</isNotEmpty>
-		<isNotEmpty property="itemUseLocation">
-		and  item.item_use_location like concat('%', '$itemUseLocation$', '%')
-		</isNotEmpty>		
-		<isNotEmpty property="writeDeptName">
-		and  cdm.dept_name like concat('%', '$writeDeptName$', '%')
-		</isNotEmpty>
-		<isNotEmpty property="writeEmpName">
-		and  cem.emp_name like concat('%', '$writeEmpName$', '%')
-		</isNotEmpty>
-		
-		<isEqual property="authLevel" compareValue="dept">
-		and (a.write_dept_seq = '$deptSeq$')   
-		</isEqual>		
-		<isEqual property="authLevel" compareValue="user">
-		and (
-				(a.write_emp_seq = '$empSeq$')
-				or a.public_info like '%|$empSeq$|u%'
-			)   
-		</isEqual>
-	
-	</select>	
-	
-	
-	<select	id="PurchaseSQL.SelectPurchaseList" parameterClass="HashMap" resultClass="HashMap">
-		
-		SELECT 
-		a.seq, 
-		a.manage_no, 
-		a.write_comp_seq, 
-		a.write_dept_seq, ifnull(dm.dept_name,'') as write_dept_name,
-		ifnull(d.standard_code,'') as operation_dept_code,
-		a.write_emp_seq, ifnull(em.emp_name,'') as write_emp_name, 
-		a.write_dt,
-		ifnull(a.title, '') as title,
-		ifnull(a.doc_sts,'') as doc_sts,
-		ifnull(a.approkey_purchase,'') as approkey_purchase, 
-		ifnull(a.approkey_check,'') as approkey_check, 
-		ifnull(a.purchase_method,'') as purchase_method,
-		ifnull(a.purchase_type,'') as purchase_type,
-		ifnull(a.pay_type_info,'') as pay_type_info,
-		ifnull(a.public_info,'') as public_info,
-		FORMAT(a.purchase_amt, 0) as purchase_amt,
-		a.purchase_amt_kor,
-		a.created_dt, 
-		a.created_by, 
-		a.modify_dt, 
-		a.modify_by,
-		
-		item.item_idn_no, 
-		item.item_div_no, 
-		item.item_name,
-		FORMAT(item.item_amt, 0) as item_amt,
-		FORMAT(item.item_fee_amt, 0) as item_fee_amt,
-		FORMAT(item.item_total_amt, 0) as item_total_amt, 
-		item.item_total_amt_text, 
-		item.item_cnt, 
-		item.item_deadline, 
-		item.item_unit, 
-		item.item_contry, 
-		item.item_pickup_location, 
-		
-		cust_sto.fn_get_purchase_code_text('acquisitionReason', item.item_acquisition_reason) as item_acquisition_reason, 
-		cust_sto.fn_get_purchase_code_text('inventory', item.item_inventory_cd) as item_inventory_cd, 
-		cust_sto.fn_get_purchase_code_text('useLocation', item.item_use_location) as item_use_location, 
-		cust_sto.fn_get_purchase_code_text('greenCertType', item.item_green_cert_type) as item_green_cert_type, 
-		cust_sto.fn_get_purchase_code_text('nonGreenReason', item.item_non_green_reason) as item_non_green_reason, 
-		cust_sto.fn_get_purchase_code_text('greenClass', item.item_green_class) as item_green_class, 
-		cust_sto.fn_get_purchase_code_text('foreignType', item.item_foreign_type) as item_foreign_type, 
-		
-		ifnull(df.c_dikeycode,'') AS C_DIKEYCODE,
+ <select id="PurchaseSQL.getGroupInfo" parameterClass="HashMap" resultClass="HashMap">
+  select * from $DB_NEOS$t_co_group
+ </select>
+ 
+ 
+ <select id="PurchaseSQL.SelectPurchaseList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
+  
+  SELECT 
+  count(*)  
+  FROM cust_sto.t_purchase_purchase a
+  join cust_sto.t_purchase_item_info item on a.seq = item.seq
+  left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
+  left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'  
+  where 
+  1=1
+  <isNotEmpty property="searchFromDate">
+  and  item.item_deadline <![CDATA[ >= ]]> '$searchFromDate$'
+  </isNotEmpty>
+  <isNotEmpty property="searchToDate">
+  and  item.item_deadline <![CDATA[ <= ]]> '$searchToDate$'
+  </isNotEmpty>
+  <isNotEmpty property="itemName">
+  and  item.item_name like concat('%', '$itemName$', '%')
+  </isNotEmpty>
+  <isNotEmpty property="itemUseLocation">
+  and  item.item_use_location like concat('%', '$itemUseLocation$', '%')
+  </isNotEmpty>  
+  <isNotEmpty property="writeDeptName">
+  and  cdm.dept_name like concat('%', '$writeDeptName$', '%')
+  </isNotEmpty>
+  <isNotEmpty property="writeEmpName">
+  and  cem.emp_name like concat('%', '$writeEmpName$', '%')
+  </isNotEmpty>
+  
+  <isEqual property="authLevel" compareValue="dept">
+  and (a.write_dept_seq = '$deptSeq$')   
+  </isEqual>  
+  <isEqual property="authLevel" compareValue="user">
+  and (
+    (a.write_emp_seq = '$empSeq$')
+    or a.public_info like '%|$empSeq$|u%'
+   )   
+  </isEqual>
+ 
+ </select> 
+ 
+ 
+ <select id="PurchaseSQL.SelectPurchaseList" parameterClass="HashMap" resultClass="HashMap">
+  
+  SELECT 
+  a.seq, 
+  a.manage_no, 
+  a.write_comp_seq, 
+  a.write_dept_seq, ifnull(dm.dept_name,'') as write_dept_name,
+  ifnull(d.standard_code,'') as operation_dept_code,
+  a.write_emp_seq, ifnull(em.emp_name,'') as write_emp_name, 
+  a.write_dt,
+  ifnull(a.title, '') as title,
+  ifnull(a.doc_sts,'') as doc_sts,
+  ifnull(a.approkey_purchase,'') as approkey_purchase, 
+  ifnull(a.approkey_check,'') as approkey_check, 
+  ifnull(a.purchase_method,'') as purchase_method,
+  ifnull(a.purchase_type,'') as purchase_type,
+  ifnull(a.pay_type_info,'') as pay_type_info,
+  ifnull(a.public_info,'') as public_info,
+  FORMAT(a.purchase_amt, 0) as purchase_amt,
+  a.purchase_amt_kor,
+  a.created_dt, 
+  a.created_by, 
+  a.modify_dt, 
+  a.modify_by,
+  
+  item.item_idn_no, 
+  item.item_div_no, 
+  item.item_name,
+  FORMAT(item.item_amt, 0) as item_amt,
+  FORMAT(item.item_fee_amt, 0) as item_fee_amt,
+  FORMAT(item.item_total_amt, 0) as item_total_amt, 
+  item.item_total_amt_text, 
+  item.item_cnt, 
+  item.item_deadline, 
+  item.item_unit, 
+  item.item_contry, 
+  item.item_pickup_location, 
+  
+  cust_sto.fn_get_purchase_code_text('acquisitionReason', item.item_acquisition_reason) as item_acquisition_reason, 
+  cust_sto.fn_get_purchase_code_text('inventory', item.item_inventory_cd) as item_inventory_cd, 
+  cust_sto.fn_get_purchase_code_text('useLocation', item.item_use_location) as item_use_location, 
+  cust_sto.fn_get_purchase_code_text('greenCertType', item.item_green_cert_type) as item_green_cert_type, 
+  cust_sto.fn_get_purchase_code_text('nonGreenReason', item.item_non_green_reason) as item_non_green_reason, 
+  cust_sto.fn_get_purchase_code_text('greenClass', item.item_green_class) as item_green_class, 
+  cust_sto.fn_get_purchase_code_text('foreignType', item.item_foreign_type) as item_foreign_type, 
+  
+  ifnull(df.c_dikeycode,'') AS C_DIKEYCODE,
         IF(IFNULL(df.c_distatus, '008') = '009', '008', IFNULL(df.c_distatus, '008')) AS C_DISTATUS,
         case when df.c_dikeycode is null then '' else
         (CONCAT($DB_NEOS$GET_CODE_DETAIL_INFO('0', 'COM109', IF(IFNULL(df.c_distatus, '008') = '009', '008', IFNULL(df.c_distatus, '008')) , 'kr') 
         , CASE WHEN IFNULL(df.c_dilastuserkey, '') = '' THEN '' ELSE IFNULL(CONCAT('(', $DB_NEOS$FN_GetMultiname('kr', 'emp',df.c_dilastuserkey), ')'),'') END )) end AS DOCSTSNAME,
         
-		case when ifnull(a.purchase_amt,0) != 0 then 
-		ifnull((
-		select format(ifnull(sum(aaa.res_amt),0),0) from cust_sto.t_purchase_payment_doc_info aaa
-		join $DB_NEOS$t_exnp_resdoc bbb on aaa.res_doc_seq  = bbb.res_doc_seq and IFNULL(bbb.doc_seq, '') != '' and IFNULL(bbb.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
-		where aaa.outProcessCode = 'PURCHASE' and aaa.seq = a.seq
-		),'0') else '' end as total_pay_amt,	
-		
-		ifnull((select
-		concat(case pdi.pay_type when 'A' then '선금 ' when 'B' then '중도금 ' else '잔금 ' end, pdi.pay_cnt, '차')
-		from cust_sto.t_purchase_payment_doc_info pdi
-		join $DB_NEOS$t_exnp_resdoc er2 on pdi.res_doc_seq = er2.res_doc_seq and IFNULL(er2.doc_seq, '') != '' and IFNULL(er2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
-		where pdi.seq = a.seq and pdi.outProcessCode = 'PURCHASE'
-		order by pdi.pay_type desc, pdi.pay_cnt desc
-		limit 1),'') as pay_cnt,		        
-		
-		ifnull(a.purchase_attach_info,'') as purchase_attach_info
-		FROM cust_sto.t_purchase_purchase a
-		join cust_sto.t_purchase_item_info item on a.seq = item.seq
-		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
-		left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'		
-		left join $DB_NEOS$t_co_dept d on a.write_dept_seq = d.dept_seq
-		left join $DB_NEOS$t_exnp_consdoc con on out_process_interface_id = 'Purchase01' and a.seq = con.out_process_interface_m_id
-		left join $DB_NEOS$A_DRAFTINFO df on con.doc_seq = df.c_dikeycode 
-		
-		where 
-		1=1
-		<isNotEmpty property="searchFromDate">
-		and  item.item_deadline <![CDATA[ >= ]]> '$searchFromDate$'
-		</isNotEmpty>
-		<isNotEmpty property="searchToDate">
-		and  item.item_deadline <![CDATA[ <= ]]> '$searchToDate$'
-		</isNotEmpty>
-		<isNotEmpty property="itemName">
-		and  item.item_name like concat('%', '$itemName$', '%')
-		</isNotEmpty>
-		<isNotEmpty property="itemUseLocation">
-		and  item.item_use_location like concat('%', '$itemUseLocation$', '%')
-		</isNotEmpty>		
-		<isNotEmpty property="writeDeptName">
-		and  cdm.dept_name like concat('%', '$writeDeptName$', '%')
-		</isNotEmpty>
-		<isNotEmpty property="writeEmpName">
-		and  cem.emp_name like concat('%', '$writeEmpName$', '%')
-		</isNotEmpty>	
-		
-		<isEqual property="authLevel" compareValue="dept">
-		and (a.write_dept_seq = '$deptSeq$')   
-		</isEqual>		
-		<isEqual property="authLevel" compareValue="user">
-		and (
-				(a.write_emp_seq = '$empSeq$')
-				or a.public_info like '%|$empSeq$|u%'
-			)   
-		</isEqual>
-		
-		order by a.seq desc
-		LIMIT $startNum$ ,  $endNum$
-		
-	</select>		
-	
-	
-	<select	id="PurchaseSQL.SelectPurchaseDetail" parameterClass="HashMap" resultClass="HashMap">
-		
-		SELECT 
-		a.seq, 
-		a.manage_no, 
-		a.write_comp_seq, 
-		a.write_dept_seq, ifnull(dm.dept_name,'') as write_dept_name, 
-		a.write_emp_seq, ifnull(em.emp_name,'') as write_emp_name, 
-		a.write_dt,
-		ifnull(a.title, '') as title,
-		ifnull(a.doc_sts,'') as doc_sts,
-		ifnull(a.approkey_purchase,'') as approkey_purchase, 
-		ifnull(a.approkey_check,'') as approkey_check, 
-		ifnull(a.purchase_method,'') as purchase_method,
-		ifnull(a.purchase_type,'') as purchase_type,
-		ifnull(a.pay_type_info,'') as pay_type_info,
-		ifnull(a.public_info,'') as public_info,
-		FORMAT(a.purchase_amt, 0) as purchase_amt,
-		a.purchase_amt_kor,
-		
-		ifnull(a.c_write_comp_seq,'') as c_write_comp_seq,
-		ifnull(a.c_write_dept_seq,'') as c_write_dept_seq,
-		ifnull(a.c_write_emp_seq,'') as c_write_emp_seq,
-		ifnull(a.c_write_dt,'') as c_write_dt,
-		ifnull(a.check_location,'') as check_location,
-		ifnull(a.release_dt,'') as release_dt,
-		
-		a.created_dt, 
-		a.created_by, 
-		a.modify_dt, 
-		a.modify_by
-		FROM cust_sto.t_purchase_purchase a
-		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
-		left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'
-		
-		where a.seq = $seq$
-		limit 1;
-	</select>		
-	
-	
-	<insert	id="PurchaseSQL.InsertPurchase" parameterClass="HashMap" >
-	
-		INSERT INTO cust_sto.t_purchase_purchase
-		(
-		manage_no, 
-		write_comp_seq, 
-		write_dept_seq, 
-		write_emp_seq, 
-		write_dt,	
-		
-		title, 
-		purchase_method, 
-		purchase_type, 
-		pay_type_info,
-		public_info,	
-		purchase_amt,	
-		purchase_amt_kor,	
-		item_info_html, 
-		 
-		created_dt, 
-		created_by, 
-		modify_dt, 
-		modify_by
-		
-		)
-		VALUES(
-		'', 
-		'$write_comp_seq$', 
-		'$write_dept_seq$', 
-		'$write_emp_seq$', 
-		'$write_dt$',		 
+  case when ifnull(a.purchase_amt,0) != 0 then 
+  ifnull((
+  select format(ifnull(sum(aaa.res_amt),0),0) from cust_sto.t_purchase_payment_doc_info aaa
+  join $DB_NEOS$t_exnp_resdoc bbb on aaa.res_doc_seq  = bbb.res_doc_seq and IFNULL(bbb.doc_seq, '') != '' and IFNULL(bbb.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+  where aaa.outProcessCode = 'PURCHASE' and aaa.seq = a.seq
+  ),'0') else '' end as total_pay_amt, 
+  
+  ifnull((select
+  concat(case pdi.pay_type when 'A' then '선금 ' when 'B' then '중도금 ' else '잔금 ' end, pdi.pay_cnt, '차')
+  from cust_sto.t_purchase_payment_doc_info pdi
+  join $DB_NEOS$t_exnp_resdoc er2 on pdi.res_doc_seq = er2.res_doc_seq and IFNULL(er2.doc_seq, '') != '' and IFNULL(er2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+  where pdi.seq = a.seq and pdi.outProcessCode = 'PURCHASE'
+  order by pdi.pay_type desc, pdi.pay_cnt desc
+  limit 1),'') as pay_cnt,          
+  
+  ifnull(a.purchase_attach_info,'') as purchase_attach_info
+  FROM cust_sto.t_purchase_purchase a
+  join cust_sto.t_purchase_item_info item on a.seq = item.seq
+  left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
+  left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'  
+  left join $DB_NEOS$t_co_dept d on a.write_dept_seq = d.dept_seq
+  left join $DB_NEOS$t_exnp_consdoc con on out_process_interface_id = 'Purchase01' and a.seq = con.out_process_interface_m_id
+  left join $DB_NEOS$A_DRAFTINFO df on con.doc_seq = df.c_dikeycode 
+  
+  where 
+  1=1
+  <isNotEmpty property="searchFromDate">
+  and  item.item_deadline <![CDATA[ >= ]]> '$searchFromDate$'
+  </isNotEmpty>
+  <isNotEmpty property="searchToDate">
+  and  item.item_deadline <![CDATA[ <= ]]> '$searchToDate$'
+  </isNotEmpty>
+  <isNotEmpty property="itemName">
+  and  item.item_name like concat('%', '$itemName$', '%')
+  </isNotEmpty>
+  <isNotEmpty property="itemUseLocation">
+  and  item.item_use_location like concat('%', '$itemUseLocation$', '%')
+  </isNotEmpty>  
+  <isNotEmpty property="writeDeptName">
+  and  cdm.dept_name like concat('%', '$writeDeptName$', '%')
+  </isNotEmpty>
+  <isNotEmpty property="writeEmpName">
+  and  cem.emp_name like concat('%', '$writeEmpName$', '%')
+  </isNotEmpty> 
+  
+  <isEqual property="authLevel" compareValue="dept">
+  and (a.write_dept_seq = '$deptSeq$')   
+  </isEqual>  
+  <isEqual property="authLevel" compareValue="user">
+  and (
+    (a.write_emp_seq = '$empSeq$')
+    or a.public_info like '%|$empSeq$|u%'
+   )   
+  </isEqual>
+  
+  order by a.seq desc
+  LIMIT $startNum$ ,  $endNum$
+  
+ </select>  
+ 
+ 
+ <select id="PurchaseSQL.SelectPurchaseDetail" parameterClass="HashMap" resultClass="HashMap">
+  
+  SELECT 
+  a.seq, 
+  a.manage_no, 
+  a.write_comp_seq, 
+  a.write_dept_seq, ifnull(dm.dept_name,'') as write_dept_name, 
+  a.write_emp_seq, ifnull(em.emp_name,'') as write_emp_name, 
+  a.write_dt,
+  ifnull(a.title, '') as title,
+  ifnull(a.doc_sts,'') as doc_sts,
+  ifnull(a.approkey_purchase,'') as approkey_purchase, 
+  ifnull(a.approkey_check,'') as approkey_check, 
+  ifnull(a.purchase_method,'') as purchase_method,
+  ifnull(a.purchase_type,'') as purchase_type,
+  ifnull(a.pay_type_info,'') as pay_type_info,
+  ifnull(a.public_info,'') as public_info,
+  FORMAT(a.purchase_amt, 0) as purchase_amt,
+  a.purchase_amt_kor,
+  
+  ifnull(a.c_write_comp_seq,'') as c_write_comp_seq,
+  ifnull(a.c_write_dept_seq,'') as c_write_dept_seq,
+  ifnull(a.c_write_emp_seq,'') as c_write_emp_seq,
+  ifnull(a.c_write_dt,'') as c_write_dt,
+  ifnull(a.check_location,'') as check_location,
+  ifnull(a.release_dt,'') as release_dt,
+  
+  a.created_dt, 
+  a.created_by, 
+  a.modify_dt, 
+  a.modify_by
+  FROM cust_sto.t_purchase_purchase a
+  left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
+  left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'
+  
+  where a.seq = $seq$
+  limit 1;
+ </select>  
+ 
+ 
+ <insert id="PurchaseSQL.InsertPurchase" parameterClass="HashMap" >
+ 
+  INSERT INTO cust_sto.t_purchase_purchase
+  (
+  manage_no, 
+  write_comp_seq, 
+  write_dept_seq, 
+  write_emp_seq, 
+  write_dt, 
+  
+  title, 
+  purchase_method, 
+  purchase_type, 
+  pay_type_info,
+  public_info, 
+  purchase_amt, 
+  purchase_amt_kor, 
+  item_info_html, 
+   
+  created_dt, 
+  created_by, 
+  modify_dt, 
+  modify_by
+  
+  )
+  VALUES(
+  '', 
+  '$write_comp_seq$', 
+  '$write_dept_seq$', 
+  '$write_emp_seq$', 
+  '$write_dt$',   
 
-		'$title$', 
-		'$purchase_method$', 
-		'$purchase_type$', 
-		'$pay_type_info$',
-		'$public_info$', 
-		'$purchase_amt$', 
-		'$purchase_amt_kor$',
-		'$item_info_html$', 
-			
-		now(), 
-		'$created_by$', 
-		null, 
-		null
-		);
-		
-		<selectKey keyProperty="seq" resultClass="int">
-			SELECT LAST_INSERT_ID();
-		</selectKey>	
+  '$title$', 
+  '$purchase_method$', 
+  '$purchase_type$', 
+  '$pay_type_info$',
+  '$public_info$', 
+  '$purchase_amt$', 
+  '$purchase_amt_kor$',
+  '$item_info_html$', 
+   
+  now(), 
+  '$created_by$', 
+  null, 
+  null
+  );
+  
+  <selectKey keyProperty="seq" resultClass="int">
+   SELECT LAST_INSERT_ID();
+  </selectKey> 
 
-	</insert>	
-	
-	
-	<update	id="PurchaseSQL.UpdatePurchase" parameterClass="HashMap" >
-		UPDATE cust_sto.t_purchase_purchase
-		SET
-		write_comp_seq='$write_comp_seq$', 
-		write_dept_seq='$write_dept_seq$', 
-		write_emp_seq='$write_emp_seq$', 
-		write_dt='$write_dt$',		 
-		
-		title='$title$',
-		purchase_method='$purchase_method$',
-		purchase_type='$purchase_type$',
-		pay_type_info='$pay_type_info$',
-		public_info='$public_info$',
-		purchase_amt='$purchase_amt$',
-		purchase_amt_kor='$purchase_amt_kor$',
-		item_info_html=#item_info_html#, 
-		
-		modify_dt=now(), 
-		modify_by='$created_by$'
-		
-		WHERE seq='$seq$'; 
-	</update>		
-	
-	
-	<update	id="PurchaseSQL.UpdatePurchaseAttachInfo" parameterClass="HashMap" >
-		UPDATE cust_sto.t_purchase_purchase
-		SET
-		purchase_attach_info='$purchase_attach_info$'
-		WHERE seq='$seq$'; 
-	</update>	
-	
-	
-	<delete	id="PurchaseSQL.DeleteItemInfo" parameterClass="HashMap" >
-		
-		delete from cust_sto.t_purchase_item_info where seq = '$seq$' and outProcessCode = '$outProcessCode$';
+ </insert> 
+ 
+ 
+ <update id="PurchaseSQL.UpdatePurchase" parameterClass="HashMap" >
+  UPDATE cust_sto.t_purchase_purchase
+  SET
+  write_comp_seq='$write_comp_seq$', 
+  write_dept_seq='$write_dept_seq$', 
+  write_emp_seq='$write_emp_seq$', 
+  write_dt='$write_dt$',   
+  
+  title='$title$',
+  purchase_method='$purchase_method$',
+  purchase_type='$purchase_type$',
+  pay_type_info='$pay_type_info$',
+  public_info='$public_info$',
+  purchase_amt='$purchase_amt$',
+  purchase_amt_kor='$purchase_amt_kor$',
+  item_info_html=#item_info_html#, 
+  
+  modify_dt=now(), 
+  modify_by='$created_by$'
+  
+  WHERE seq='$seq$'; 
+ </update>  
+ 
+ 
+ <update id="PurchaseSQL.UpdatePurchaseAttachInfo" parameterClass="HashMap" >
+  UPDATE cust_sto.t_purchase_purchase
+  SET
+  purchase_attach_info='$purchase_attach_info$'
+  WHERE seq='$seq$'; 
+ </update> 
+ 
+ 
+ <delete id="PurchaseSQL.DeleteItemInfo" parameterClass="HashMap" >
+  
+  delete from cust_sto.t_purchase_item_info where seq = '$seq$' and outProcessCode = '$outProcessCode$';
 
-	</delete>	
-	
-	<insert	id="PurchaseSQL.InsertItemInfo" parameterClass="HashMap" >
+ </delete> 
+ 
+ <insert id="PurchaseSQL.InsertItemInfo" parameterClass="HashMap" >
 
-		INSERT INTO cust_sto.t_purchase_item_info
-		(
-		seq, 
-		outProcessCode, 
-		item_tr_seq,
-		item_idn_no, 
-		item_div_no, 
-		item_name, 
-		item_amt, 
-		item_fee_amt, 
-		item_total_amt, 
-		item_total_amt_text, 
-		item_cnt, 
-		item_deadline, 
-		item_acquisition_reason, 
-		item_inventory_cd, 
-		item_unit, 
-		item_use_location, 
-		item_contry, 
-		item_pickup_location, 
-		item_green_cert_type, 
-		item_non_green_reason, 
-		item_green_class, 
-		item_foreign_type, 
-		created_dt, 
-		created_by
-		)
-		VALUES(
-		'$seq$', 
-		'$outProcessCode$',
-		'$item_tr_seq$',
-		'$item_idn_no$',
-		'$item_div_no$',
-		'$item_name$',
-		'$item_amt$',
-		'$item_fee_amt$',
-		'$item_total_amt$',
-		'$item_total_amt_text$',
-		'$item_cnt$',
-		'$item_deadline$',
-		'$item_acquisition_reason$',
-		'$item_inventory_cd$',
-		'$item_unit$',
-		'$item_use_location$',
-		'$item_contry$',
-		'$item_pickup_location$',
-		'$item_green_cert_type$',
-		'$item_non_green_reason$',
-		'$item_green_class$',
-		'$item_foreign_type$',
-		now(), 
-		'$created_by$'
-		);
+  INSERT INTO cust_sto.t_purchase_item_info
+  (
+  seq, 
+  outProcessCode, 
+  item_tr_seq,
+  item_idn_no, 
+  item_div_no, 
+  item_name, 
+  item_amt, 
+  item_fee_amt, 
+  item_total_amt, 
+  item_total_amt_text, 
+  item_cnt, 
+  item_deadline, 
+  item_acquisition_reason, 
+  item_inventory_cd, 
+  item_unit, 
+  item_use_location, 
+  item_contry, 
+  item_pickup_location, 
+  item_green_cert_type, 
+  item_non_green_reason, 
+  item_green_class, 
+  item_foreign_type, 
+  created_dt, 
+  created_by
+  )
+  VALUES(
+  '$seq$', 
+  '$outProcessCode$',
+  '$item_tr_seq$',
+  '$item_idn_no$',
+  '$item_div_no$',
+  '$item_name$',
+  '$item_amt$',
+  '$item_fee_amt$',
+  '$item_total_amt$',
+  '$item_total_amt_text$',
+  '$item_cnt$',
+  '$item_deadline$',
+  '$item_acquisition_reason$',
+  '$item_inventory_cd$',
+  '$item_unit$',
+  '$item_use_location$',
+  '$item_contry$',
+  '$item_pickup_location$',
+  '$item_green_cert_type$',
+  '$item_non_green_reason$',
+  '$item_green_class$',
+  '$item_foreign_type$',
+  now(), 
+  '$created_by$'
+  );
 
-	</insert>	
-	
-	
-	<select	id="PurchaseSQL.SelectItemList" parameterClass="HashMap" resultClass="HashMap">
-		
-		SELECT 
-		seq, 
-		outProcessCode, 
-		item_tr_seq,
-		item_idn_no, 
-		item_div_no, 
-		item_name,
-		FORMAT(item_amt, 0) as item_amt,
-		FORMAT(item_fee_amt, 0) as item_fee_amt,
-		FORMAT(item_total_amt, 0) as item_total_amt, 
-		item_total_amt_text, 
-		item_cnt, 
-		ifnull(item_check_cnt,'') as item_check_cnt, 
-		item_deadline, 
-		item_acquisition_reason, 
-		item_inventory_cd, 
-		item_unit, 
-		item_use_location, 
-		item_contry, 
-		item_pickup_location, 
-		item_green_cert_type, 
-		item_non_green_reason, 
-		item_green_class, 
-		item_foreign_type, 
-		created_dt, 
-		created_by
-		FROM cust_sto.t_purchase_item_info 
-		where seq='$seq$' and outProcessCode = '$outProcessCode$';
+ </insert> 
+ 
+ 
+ <select id="PurchaseSQL.SelectItemList" parameterClass="HashMap" resultClass="HashMap">
+  
+  SELECT 
+  seq, 
+  outProcessCode, 
+  item_tr_seq,
+  item_idn_no, 
+  item_div_no, 
+  item_name,
+  FORMAT(item_amt, 0) as item_amt,
+  FORMAT(item_fee_amt, 0) as item_fee_amt,
+  FORMAT(item_total_amt, 0) as item_total_amt, 
+  item_total_amt_text, 
+  item_cnt, 
+  ifnull(item_check_cnt,'') as item_check_cnt, 
+  item_deadline, 
+  item_acquisition_reason, 
+  item_inventory_cd, 
+  item_unit, 
+  item_use_location, 
+  item_contry, 
+  item_pickup_location, 
+  item_green_cert_type, 
+  item_non_green_reason, 
+  item_green_class, 
+  item_foreign_type, 
+  created_dt, 
+  created_by
+  FROM cust_sto.t_purchase_item_info 
+  where seq='$seq$' and outProcessCode = '$outProcessCode$';
 
-	</select>	
-	
-	
-	<update	id="PurchaseSQL.UpdatePurchaseCheck" parameterClass="HashMap" >
-		UPDATE cust_sto.t_purchase_purchase
-		SET
-		c_write_comp_seq='$c_write_comp_seq$', 
-		c_write_dept_seq='$c_write_dept_seq$', 
-		c_write_emp_seq='$c_write_emp_seq$', 
-		c_write_dt='$c_write_dt$',
-		check_location='$check_location$',
-		release_dt='$release_dt$',
-		check_info_html=#check_info_html#,
-				
-		modify_dt=now(), 
-		modify_by='$created_by$'
-		
-		WHERE seq='$seq$'; 
-	</update>		
-	
-	<update	id="PurchaseSQL.UpdateItemCheckCnt" parameterClass="HashMap" >
-		UPDATE cust_sto.t_purchase_item_info
-		SET
-		item_check_cnt='$item_check_cnt$'
-		WHERE seq='$seq$' and item_idn_no='$item_idn_no$'; 
-	</update>	
-		
-	
-	<select	id="PurchaseSQL.SelectNewManageNo" parameterClass="HashMap" resultClass="HashMap">
-	
-		select concat(
-		'STOP', DATE_FORMAT(NOW(), '%y%m%d'), '-', LPAD( ifnull( (select max(substr(manage_no, 12)) from cust_sto.t_purchase_purchase where manage_no like concat(
-		'STOP',DATE_FORMAT(NOW(), '%y%m%d'),'-%')) , '0') + 1 , 3, '0')) as new_manage_no;
-		
-	</select>
-	
-	
-	
-	<select	id="PurchaseSQL.SelectPurchasePaymentList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
-	
-		SELECT   COUNT(*)
+ </select> 
+ 
+ 
+ <update id="PurchaseSQL.UpdatePurchaseCheck" parameterClass="HashMap" >
+  UPDATE cust_sto.t_purchase_purchase
+  SET
+  c_write_comp_seq='$c_write_comp_seq$', 
+  c_write_dept_seq='$c_write_dept_seq$', 
+  c_write_emp_seq='$c_write_emp_seq$', 
+  c_write_dt='$c_write_dt$',
+  check_location='$check_location$',
+  release_dt='$release_dt$',
+  check_info_html=#check_info_html#,
+    
+  modify_dt=now(), 
+  modify_by='$created_by$'
+  
+  WHERE seq='$seq$'; 
+ </update>  
+ 
+ <update id="PurchaseSQL.UpdateItemCheckCnt" parameterClass="HashMap" >
+  UPDATE cust_sto.t_purchase_item_info
+  SET
+  item_check_cnt='$item_check_cnt$'
+  WHERE seq='$seq$' and item_idn_no='$item_idn_no$'; 
+ </update> 
+  
+ 
+ <select id="PurchaseSQL.SelectNewManageNo" parameterClass="HashMap" resultClass="HashMap">
+ 
+  select concat(
+  'STOP', DATE_FORMAT(NOW(), '%y%m%d'), '-', LPAD( ifnull( (select max(substr(manage_no, 12)) from cust_sto.t_purchase_purchase where manage_no like concat(
+  'STOP',DATE_FORMAT(NOW(), '%y%m%d'),'-%')) , '0') + 1 , 3, '0')) as new_manage_no;
+  
+ </select>
+ 
+ 
+ 
+ <select id="PurchaseSQL.SelectPurchasePaymentList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
+ 
+  SELECT   COUNT(*)
         FROM $DB_NEOS$A_DRAFTINFO df
         INNER JOIN $DB_NEOS$A_RECORDINFO ri ON df.C_DIKEYCODE  = ri.c_dikeycode 
         INNER JOIN $DB_NEOS$A_DOCINFO di ON df.c_dikeycode  = di.c_dikeycode
         INNER JOIN cust_sto.t_purchase_payment_doc_info pdi ON df.c_dikeycode  = pdi.res_doc_seq
         where
         pdi.seq = '$seq$' and pdi.outProcessCode = 'PURCHASE'
-        and df.c_diwriteday BETWEEN '$fromDate$' AND '$toDate$'		
-		
-	</select>	
-	
-	<select	id="PurchaseSQL.SelectPurchasePaymentList" parameterClass="HashMap" resultClass="HashMap">
-		
+        and df.c_diwriteday BETWEEN '$fromDate$' AND '$toDate$'  
+  
+ </select> 
+ 
+ <select id="PurchaseSQL.SelectPurchasePaymentList" parameterClass="HashMap" resultClass="HashMap">
+  
         SELECT    CTE.C_DIKEYCODE AS C_DIKEYCODE
              ,    CTE.C_DIORGCODE AS C_DIORGCODE
              ,    DATE_FORMAT(CTE.C_DIWRITEDAY,'%Y-%m-%d')  AS C_DIWRITEDAY
@@ -486,12 +486,12 @@
                    ,   concat(pdi.pay_cnt, '차') as P_PAYCNT
                    ,   concat(format(pdi.res_amt,0), ' 원') as P_RESAMT
                    ,   concat(format(
-						(select
-						ifnull(pc.purchase_amt - sum(a.res_amt), pc.purchase_amt) 
-						from cust_sto.t_purchase_payment_doc_info a
-						join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and IFNULL(b.doc_seq, '') != '' and IFNULL(b.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
-						where a.outProcessCode = pdi.outProcessCode and a.seq = pdi.seq and cast(a.res_doc_seq as unsigned) <![CDATA[ <= ]]> cast(pdi.res_doc_seq as unsigned)
-						),0), ' 원') as P_REMAINAMT             
+      (select
+      ifnull(pc.purchase_amt - sum(a.res_amt), pc.purchase_amt) 
+      from cust_sto.t_purchase_payment_doc_info a
+      join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and IFNULL(b.doc_seq, '') != '' and IFNULL(b.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+      where a.outProcessCode = pdi.outProcessCode and a.seq = pdi.seq and cast(a.res_doc_seq as unsigned) <![CDATA[ <= ]]> cast(pdi.res_doc_seq as unsigned)
+      ),0), ' 원') as P_REMAINAMT             
                          
               FROM $DB_NEOS$A_DRAFTINFO df
               INNER JOIN $DB_NEOS$A_RECORDINFO ri ON df.C_DIKEYCODE  = ri.c_dikeycode 
@@ -507,164 +507,239 @@
 
          ) CTE
          ORDER BY c_diwriteday DESC, c_diwritetime DESC, c_dikeycode DESC  
-		 LIMIT $startNum$ ,  $endNum$
-		
-	</select>	
-	
-	
-	<select	id="PurchaseSQL.SelectPurchasePaymentAmt" parameterClass="HashMap" resultClass="HashMap">
+   LIMIT $startNum$ ,  $endNum$
+  
+ </select> 
+ 
+ 
+ <select id="PurchaseSQL.SelectPurchasePaymentAmt" parameterClass="HashMap" resultClass="HashMap">
 
-		select 
-		ifnull(pc.purchase_amt,0) as contract_amt
-		,ifnull((
-		select sum(a.res_amt)  from cust_sto.t_purchase_payment_doc_info a
-		join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq  = b.res_doc_seq and IFNULL(b.doc_seq, '') != '' and IFNULL(b.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
-		where a.outProcessCode = 'PURCHASE' and a.seq = pc.seq
-		),0) as res_amt_total
-		from cust_sto.t_purchase_purchase pc
-		where pc.seq = '$seq$'
-	
-	</select>
-	
-	
-	<select	id="PurchaseSQL.SelectPurchasePaymentDocInfo" parameterClass="HashMap" resultClass="HashMap">
+  select 
+  ifnull(pc.purchase_amt,0) as contract_amt
+  ,ifnull((
+  select sum(a.res_amt)  from cust_sto.t_purchase_payment_doc_info a
+  join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq  = b.res_doc_seq and IFNULL(b.doc_seq, '') != '' and IFNULL(b.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+  where a.outProcessCode = 'PURCHASE' and a.seq = pc.seq
+  ),0) as res_amt_total
+  from cust_sto.t_purchase_purchase pc
+  where pc.seq = '$seq$'
+ 
+ </select>
+ 
+ 
+ <select id="PurchaseSQL.SelectPurchasePaymentDocInfo" parameterClass="HashMap" resultClass="HashMap">
 
-		select *  from cust_sto.t_purchase_payment_doc_info where res_doc_seq = '$resDocSeq$'
-	
-	</select>
-	
-	
-	<select	id="PurchaseSQL.SelectPurchasePaymentNextDocInfo" parameterClass="HashMap" resultClass="HashMap">
+  select *  from cust_sto.t_purchase_payment_doc_info where res_doc_seq = '$resDocSeq$'
+ 
+ </select>
+ 
+ 
+ <select id="PurchaseSQL.SelectPurchasePaymentNextDocInfo" parameterClass="HashMap" resultClass="HashMap">
 
-		select
-		pdi.seq, pdi.outProcessCode, pdi.res_doc_seq, pdi.pay_type, pdi.pay_cnt + 1 as pay_cnt, pdi.res_amt, pdi.remain_amt, pdi.created_dt, pdi.created_by
-		from cust_sto.t_purchase_payment_doc_info pdi
-		join $DB_NEOS$t_exnp_resdoc er1 on pdi.outProcessCode = er1.out_process_interface_id  and pdi.seq = er1.out_process_interface_m_id and er1.res_doc_seq = '$resDocSeq$'
-		join $DB_NEOS$t_exnp_resdoc er2 on pdi.res_doc_seq = er2.res_doc_seq and IFNULL(er2.doc_seq, '') != '' and IFNULL(er2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
-		order by pdi.pay_type desc, pdi.pay_cnt desc
-		limit 1;
-	
-	</select>			
-	
-	
-	<select	id="PurchaseSQL.SelectPurchasePaymentDocInfoCheck" parameterClass="HashMap" resultClass="HashMap">
+  select
+  pdi.seq, pdi.outProcessCode, pdi.res_doc_seq, pdi.pay_type, pdi.pay_cnt + 1 as pay_cnt, pdi.res_amt, pdi.remain_amt, pdi.created_dt, pdi.created_by
+  from cust_sto.t_purchase_payment_doc_info pdi
+  join $DB_NEOS$t_exnp_resdoc er1 on pdi.outProcessCode = er1.out_process_interface_id  and pdi.seq = er1.out_process_interface_m_id and er1.res_doc_seq = '$resDocSeq$'
+  join $DB_NEOS$t_exnp_resdoc er2 on pdi.res_doc_seq = er2.res_doc_seq and IFNULL(er2.doc_seq, '') != '' and IFNULL(er2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+  order by pdi.pay_type desc, pdi.pay_cnt desc
+  limit 1;
+ 
+ </select>   
+ 
+ 
+ <select id="PurchaseSQL.SelectPurchasePaymentDocInfoCheck" parameterClass="HashMap" resultClass="HashMap">
 
-		select
-		(
-			select case when count(*) > 0 then 'Y' else 'N' end 
-			from $DB_NEOS$t_exnp_resdoc a
-			join cust_sto.t_purchase_payment_doc_info b on a.res_doc_seq = '$resDocSeq$' and a.out_process_interface_id = b.outProcessCode and a.out_process_interface_m_id = b.seq and a.res_doc_seq != b.res_doc_seq and b.pay_type = '$payType$' and b.pay_cnt = '$payCnt$'
-			join $DB_NEOS$t_exnp_resdoc c on b.res_doc_seq = c.res_doc_seq and IFNULL(c.doc_seq, '') != '' and IFNULL(c.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )		
-		) as FAIL_DUPLICATE,
-		(
-			select
-			case when pc.purchase_amt - ifnull(sum(pdi.res_amt),0) - $tryAmt$ <![CDATA[ < ]]> 0 then 'Y' else 'N' end
-			from cust_sto.t_purchase_t_purchase pc
-			join $DB_NEOS$t_exnp_resdoc a on pc.seq = a.out_process_interface_m_id and a.out_process_interface_id = 'PURCHASE' and a.res_doc_seq = '$resDocSeq$'
-			left join $DB_NEOS$t_exnp_resdoc b on a.out_process_interface_id = b.out_process_interface_id and a.out_process_interface_m_id =b.out_process_interface_m_id and IFNULL(b.doc_seq, '') != '' and IFNULL(b.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
-			left join cust_sto.t_purchase_payment_doc_info pdi on pdi.res_doc_seq = b.res_doc_seq 		
-		) as FAIL_RES_AMT_OVER
-	
-	</select>		
-	
-	
-	<select	id="PurchaseSQL.SelectPurchaseConsDocInfo" parameterClass="HashMap" resultClass="HashMap">
+  select
+  (
+   select case when count(*) > 0 then 'Y' else 'N' end 
+   from $DB_NEOS$t_exnp_resdoc a
+   join cust_sto.t_purchase_payment_doc_info b on a.res_doc_seq = '$resDocSeq$' and a.out_process_interface_id = b.outProcessCode and a.out_process_interface_m_id = b.seq and a.res_doc_seq != b.res_doc_seq and b.pay_type = '$payType$' and b.pay_cnt = '$payCnt$'
+   join $DB_NEOS$t_exnp_resdoc c on b.res_doc_seq = c.res_doc_seq and IFNULL(c.doc_seq, '') != '' and IFNULL(c.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )  
+  ) as FAIL_DUPLICATE,
+  (
+   select
+   case when pc.purchase_amt - ifnull(sum(pdi.res_amt),0) - $tryAmt$ <![CDATA[ < ]]> 0 then 'Y' else 'N' end
+   from cust_sto.t_purchase_t_purchase pc
+   join $DB_NEOS$t_exnp_resdoc a on pc.seq = a.out_process_interface_m_id and a.out_process_interface_id = 'PURCHASE' and a.res_doc_seq = '$resDocSeq$'
+   left join $DB_NEOS$t_exnp_resdoc b on a.out_process_interface_id = b.out_process_interface_id and a.out_process_interface_m_id =b.out_process_interface_m_id and IFNULL(b.doc_seq, '') != '' and IFNULL(b.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+   left join cust_sto.t_purchase_payment_doc_info pdi on pdi.res_doc_seq = b.res_doc_seq   
+  ) as FAIL_RES_AMT_OVER
+ 
+ </select>  
+ 
+ 
+ <select id="PurchaseSQL.SelectPurchaseConsDocInfo" parameterClass="HashMap" resultClass="HashMap">
 
-		select
-		b.cons_doc_seq , b.cons_seq 
-		from $DB_NEOS$t_exnp_consdoc a
-		join $DB_NEOS$t_exnp_conshead b on a.cons_doc_seq =b.cons_doc_seq 
-		where a.out_process_interface_id = 'Purchase01' and a.out_process_interface_m_id = '$seq$' limit 1;		
-	
-	</select>	
-	
-	
-	
-	<select	id="PurchaseSQL.SelectResolutionList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
-	
-		SELECT   COUNT(*)
-        FROM $DB_NEOS$A_DRAFTINFO df
-        INNER JOIN $DB_NEOS$A_RECORDINFO ri ON df.C_DIKEYCODE  = ri.c_dikeycode 
-        INNER JOIN $DB_NEOS$A_DOCINFO di ON df.c_dikeycode  = di.c_dikeycode
-        INNER JOIN cust_sto.t_purchase_payment_doc_info pdi ON df.c_dikeycode  = pdi.res_doc_seq
-        where
-        pdi.outProcessCode = 'PURCHASE'
-        and df.c_diwriteday BETWEEN '$fromDate$' AND '$toDate$'		
-		
-	</select>	
-	
-	<select	id="PurchaseSQL.SelectResolutionList" parameterClass="HashMap" resultClass="HashMap">
-		
-        SELECT    CTE.C_DIKEYCODE AS C_DIKEYCODE
-             ,    CTE.C_DIORGCODE AS C_DIORGCODE
-             ,    DATE_FORMAT(CTE.C_DIWRITEDAY,'%Y-%m-%d')  AS C_DIWRITEDAY
-             ,    CTE.C_DIWRITETIME AS C_DIWRITETIME
-             ,    IF(IFNULL(CTE.c_distatus, '008') = '009', '008', IFNULL(CTE.c_distatus, '008')) AS C_DISTATUS
-             ,    CONCAT($DB_NEOS$GET_CODE_DETAIL_INFO('0', 'COM109', IF(IFNULL(CTE.c_distatus, '008') = '009', '008', IFNULL(CTE.c_distatus, '008')) , 'kr') 
-                          , CASE WHEN IFNULL(c_dilastuserkey, '') = '' THEN '' ELSE IFNULL(CONCAT('(', $DB_NEOS$FN_GetMultiname('kr', 'emp',c_dilastuserkey), ')'),'') END ) AS DOCSTSNAME
-             ,    CTE.c_didoctype AS DOCTYPE_CODE
-             ,    CTE.c_dititle AS C_DITITLE
-             ,    CASE WHEN IF(IFNULL(CTE.c_distatus, '008') = '009', '008', IFNULL(CTE.c_distatus, '008')) = '008' THEN '000' ELSE C_DIDOCGRADE END AS C_DIDOCGRADE
-             ,    CTE.C_DIUSERKEY AS C_DIUSERKEY
-             ,    CTE.C_DIPROPERTY AS C_DIPROPERTY
-             ,    CTE.C_TIKEYCODE AS C_TIKEYCODE
-             ,    IFNULL(D_C_DIFLAG, '0') AS C_DIFLAG
-             ,    CTE.C_DIDOCFLAG AS C_DIDOCFLAG
-             ,    $DB_NEOS$GET_CODE_DETAIL_INFO('0', 'COM103', CTE.C_DIDOCFLAG , 'kr') AS C_DIDOCFLAGNAME
-             ,    $DB_NEOS$GET_CODE_DETAIL_Info('0', 'COM102', IFNULL(CTE.D_C_DIFLAG, '0') , 'kr') AS C_DIFLAGNAME
-             ,    IFNULL(CTE.c_disecretgrade,'000') AS C_DISECRETGRADE
-             ,    ((SELECT COUNT(*)  FROM $DB_NEOS$A_KYULJAELINEINFO WHERE C_DIKEYCODE = CTE.C_DIKEYCODE AND C_KLUSERTYPE  = '128') + (SELECT COUNT(*)  FROM $DB_NEOS$A_doc_audit_info WHERE C_DIKEYCODE = CTE.C_DIKEYCODE)) AS AUDITCOUNT
-             ,    IFNULL(( SELECT 'Y' FROM $DB_NEOS$A_KYULJAELINEINFO WHERE C_DIKEYCODE = CTE.C_DIKEYCODE AND C_KLUSERTYPE > '001' AND C_KLSTATUS IS NULL LIMIT 1 ), 'N') MIDDLE_APPROVALYN
-             ,    C_RIDOCFULLNUM   AS C_RIDOCFULLNUM
-             ,    C_RIDELETEOPT    AS C_RIDELETEOPT
-             ,    CASE WHEN IFNULL(C_RIDOCNUM, '') = '' THEN '-' ELSE DATE_FORMAT(C_RIREGDATE,'%Y-%m-%d') END AS C_RIREGDATE
-             ,    P_PAYTYPE AS P_PAYTYPE
-             ,    P_PAYCNT AS P_PAYCNT
-             ,    P_RESAMT AS P_RESAMT
-             ,    P_REMAINAMT AS P_REMAINAMT                 
-             
-        FROM  ( 
-        
-              SELECT 
-                       df.*
-                   ,   ri.C_RIDOCNUM
-                   ,   di.c_tikeycode
-                   ,   di.C_DIFILETYPE
-                   ,   di.c_dititle
-                   ,   di.c_disecretgrade
-                   ,   di.c_dipublic
-                   ,   di.c_digrade
-                   ,   di.c_didocflag
-                   ,   di.c_diflag AS D_C_DIFLAG
-                   ,   C_RIDOCFULLNUM
-                   ,   C_RIDELETEOPT
-                   ,   C_RIREGDATE
-                   ,   case pdi.pay_type when 'A' then '선금' when 'B' then '중도금' when 'C' then '잔금' else '' end as P_PAYTYPE
-                   ,   concat(pdi.pay_cnt, '차') as P_PAYCNT
-                   ,   concat(format(pdi.res_amt,0), ' 원') as P_RESAMT
-                   ,   concat(format(
-						(select
-						ifnull(pc.purchase_amt - sum(a.res_amt), pc.purchase_amt) 
-						from cust_sto.t_purchase_payment_doc_info a
-						join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and IFNULL(b.doc_seq, '') != '' and IFNULL(b.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
-						where a.outProcessCode = pdi.outProcessCode and a.seq = pdi.seq and cast(a.res_doc_seq as unsigned) <![CDATA[ <= ]]> cast(pdi.res_doc_seq as unsigned)
-						),0), ' 원') as P_REMAINAMT             
-                         
-              FROM $DB_NEOS$A_DRAFTINFO df
-              INNER JOIN $DB_NEOS$A_RECORDINFO ri ON df.C_DIKEYCODE  = ri.c_dikeycode 
-              INNER JOIN $DB_NEOS$A_DOCINFO di ON df.c_dikeycode  = di.c_dikeycode
-              INNER JOIN $DB_NEOS$t_exnp_resdoc er ON df.c_dikeycode  = er.doc_seq
-              
-              INNER JOIN cust_sto.t_purchase_payment_doc_info pdi ON er.res_doc_seq  = pdi.res_doc_seq and pdi.outProcessCode = 'PURCHASE'
-              INNER JOIN cust_sto.t_purchase_purchase pc on pdi.seq = pc.seq
-              
-              where
-			  df.c_diwriteday BETWEEN '$fromDate$' AND '$toDate$'
+  select
+  b.cons_doc_seq , b.cons_seq 
+  from $DB_NEOS$t_exnp_consdoc a
+  join $DB_NEOS$t_exnp_conshead b on a.cons_doc_seq =b.cons_doc_seq 
+  where a.out_process_interface_id = 'Purchase01' and a.out_process_interface_m_id = '$seq$' limit 1;  
+ 
+ </select> 
+ 
+ 
+ 
+ <select id="PurchaseSQL.SelectResolutionList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
+ 
+  SELECT
+  count(*) 
+  FROM $DB_NEOS$t_exnp_resdoc d
+  INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
+  INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
+  WHERE d.doc_seq IS NOT NULL
+  <isNotEmpty property="docStatus">
+   AND IFNULL(doc_status, '008') IN ($docStatus$)
+  </isNotEmpty>
+  <isEmpty property="docStatus">
+   AND doc_status in ( '001', '002', '003', '005', '006', '007', '008', '009' )
+  </isEmpty>
 
-         ) CTE
-         ORDER BY c_diwriteday DESC, c_diwritetime DESC, c_dikeycode DESC  
-		 LIMIT $startNum$ ,  $endNum$
-		
-	</select>	
-		
+  <isNotEmpty property="frDt">
+   <isNotEmpty property="toDt">
+   AND LEFT(i.c_diwriteday,8) BETWEEN #frDt# AND #toDt#
+   </isNotEmpty>
+  </isNotEmpty>
+
+  <isNotEmpty property="confferReturnYN">
+   AND conffer_return_yn = #confferReturnYN#
+  </isNotEmpty>
+
+  <isNotEmpty property="docTitle">
+   AND c_riaftertitle LIKE CONCAT('%', IFNULL(#docTitle#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="docNo">
+   AND c_ridocfullnum LIKE CONCAT('%', IFNULL(#docNo#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="empName">
+   AND d.emp_name LIKE CONCAT('%', IFNULL(#empName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="deptName">
+   AND d.dept_name LIKE CONCAT('%', IFNULL(#deptName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="sendEmpName">
+   AND d.send_emp_name LIKE CONCAT('%', IFNULL(#sendEmpName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="erpSendYN">
+   AND d.erp_send_yn = #erpSendYN#
+  </isNotEmpty>
+  
+	<isEqual property="authLevel" compareValue="dept">
+	and d.dept_seq = '$deptSeq$'   
+	</isEqual>		
+	<isEqual property="authLevel" compareValue="user">
+	and d.emp_seq = '$empSeq$'   
+	</isEqual>  
+  
+ </select> 
+ 
+ <select id="PurchaseSQL.SelectResolutionList" parameterClass="HashMap" resultClass="HashMap">
+  
+  SELECT
+   d.res_doc_seq AS 'resDocSeq'
+   , d.doc_seq AS 'docSeq'
+   , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
+   , d.doc_status  AS 'docStatus'
+   , i.c_diwriteday AS 'docDate'
+   , d.resdoc_note AS 'consdocNote'
+   , d.resdoc_note AS 'resdocNote'
+   , d.expend_date AS 'expendDate'
+   , d.comp_name AS 'compName'
+   , d.dept_name AS 'deptName'
+   , d.emp_name AS 'empName'
+   , d.send_emp_seq AS 'sendEmpSeq'
+   , d.send_date  AS 'sendDate'
+   , d.send_emp_name AS 'sendName'
+   , r.c_riaftertitle AS 'docTitle'
+   , amt.resDocAmt  AS 'resDocAmt'
+   , amt.resDocTaxAmt AS 'resDocTaxAmt'
+   , amt.resDocStdAmt AS 'resDocStdAmt'
+   , d.erp_send_yn AS 'erpSendYN'
+   , d.save_yn  AS 'saveYn'
+   , 'EA'   AS 'eaType'
+   , ifnull((select group_concat(distinct tr_name) from $DB_NEOS$t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(tr_name,'') != ''),'') as 'trName'
+  FROM $DB_NEOS$t_exnp_resdoc d
+  INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
+  INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
+  INNER JOIN (
+   SELECT
+    res_doc_seq
+    , SUM( (CASE IFNULL(ctl_fg_code, '1')
+    WHEN '0' THEN  ( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
+    ELSE  IFNULL(budget_amt, 0) /* emptyStr or '1' */
+    END)
+    ) AS resDocAmt
+    , SUM(IFNULL(budget_tax_amt, 0)) AS resDocTaxAmt
+    , SUM(IFNULL(budget_std_amt, 0)) AS resDocStdAmt
+   FROM $DB_NEOS$t_exnp_resbudget
+   GROUP BY res_doc_seq
+  ) amt
+  ON d.res_doc_seq = amt.res_doc_seq
+   INNER JOIN $DB_NEOS$erpgwlink gwlink
+         ON   gwlink.appr_dikey = d.doc_seq
+  WHERE d.doc_seq IS NOT NULL
+  <isNotEmpty property="docStatus">
+   AND IFNULL(doc_status, '008') IN ($docStatus$)
+  </isNotEmpty>
+  <isEmpty property="docStatus">
+   AND doc_status in ( '001', '002', '003', '005', '006', '007', '008', '009' )
+  </isEmpty>
+
+  <isNotEmpty property="frDt">
+   <isNotEmpty property="toDt">
+   AND LEFT(i.c_diwriteday,8) BETWEEN #frDt# AND #toDt#
+   </isNotEmpty>
+  </isNotEmpty>
+
+  <isNotEmpty property="confferReturnYN">
+   AND conffer_return_yn = #confferReturnYN#
+  </isNotEmpty>
+
+  <isNotEmpty property="docTitle">
+   AND c_riaftertitle LIKE CONCAT('%', IFNULL(#docTitle#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="docNo">
+   AND c_ridocfullnum LIKE CONCAT('%', IFNULL(#docNo#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="empName">
+   AND d.emp_name LIKE CONCAT('%', IFNULL(#empName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="deptName">
+   AND d.dept_name LIKE CONCAT('%', IFNULL(#deptName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="sendEmpName">
+   AND d.send_emp_name LIKE CONCAT('%', IFNULL(#sendEmpName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="erpSendYN">
+   AND d.erp_send_yn = #erpSendYN#
+  </isNotEmpty>
+  
+	<isEqual property="authLevel" compareValue="dept">
+	and d.dept_seq = '$deptSeq$'   
+	</isEqual>		
+	<isEqual property="authLevel" compareValue="user">
+	and d.emp_seq = '$empSeq$'   
+	</isEqual>
+  
+  ORDER BY expend_date DESC 
+  LIMIT $startNum$ ,  $endNum$
+  
+ </select> 
+ 
+ 
+ 
+ 
+ 
+ 
+
 </sqlMap>

@@ -244,5 +244,45 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 	
 	public Map<String, Object> SelectCodeList (Map<String, Object> paramMap, PaginationInfo paginationInfo) {
 		return super.listOfPaging2(paramMap, paginationInfo, "CommonSQL.SelectCodeList");
+	}
+	
+
+	@SuppressWarnings ( "unchecked" )
+	public Map<String, Object> SelectPurchaseResGreenInfo ( Map<String, Object> params ) {
+		return (Map<String, Object>) select( "CommonSQL.SelectPurchaseResGreenInfo", params );
 	}		
+	
+	public void InsertPurchaseResGreenInfo ( Map<String, Object> params ) {
+		
+		insert( "CommonSQL.InsertPurchaseResGreenInfo", params );
+		
+	}
+	
+	public void DeletePurchaseResGreenInfo ( Map<String, Object> params ) {
+		
+		delete( "CommonSQL.DeletePurchaseResGreenInfo", params );
+		
+	}
+	
+	
+	@SuppressWarnings ( "unchecked" )
+	public List<Map<String, Object>> SelectPurchaseResHopeInfoList ( Map<String, Object> params ) {
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
+		result = (List<Map<String, Object>>) list( "CommonSQL.SelectPurchaseResHopeInfoList", params );
+		return result;
+	}		
+	
+	public void InsertPurchaseResHopeInfo ( Map<String, Object> params ) {
+		
+		insert( "CommonSQL.InsertPurchaseResHopeInfo", params );
+		
+	}
+	
+	public void DeletePurchaseResHopeInfo ( Map<String, Object> params ) {
+		
+		delete( "CommonSQL.DeletePurchaseResHopeInfo", params );
+		
+	}	
+	
+	
 }

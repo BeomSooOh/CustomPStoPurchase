@@ -80,26 +80,26 @@
 				,	dataType : "json"
 				,   parameterMapping : function( data ) {
 					
-					data.searchFromDate = $("#searchFromDate").val(); ;
-					data.searchToDate = $("#searchToDate").val();
+					data.frDt = $("#txtFromDate").val().replace(/-/g, '');
+					data.toDt = $("#txtToDate").val().replace(/-/g, '');
 					
-					data.title = $("#title").val();
-					data.docSts = $("#docSts").val();
-					data.docNo = $("#docNo").val();
-					data.trName = $("#trName").val();
+					data.docTitle = $("#txtDoctitle").val();
+					data.docStatus = $("#selDocStatus").val();
+					data.docNo = $("#txtDocNo").val();
+					data.txtTrName = $("#txtTrName").val();
 					
 					<c:if test="${authLevel!='admin'}">
-					data.writeDeptName = "";
+					data.deptName = "";
 					</c:if>
 					<c:if test="${authLevel=='admin'}">
-					data.writeDeptName = $("#writeDeptName").val();
+					data.deptName = $("#txtDeptName").val();
 					</c:if>							
 					
 					<c:if test="${authLevel!='user'}">
-					data.writeEmpName = $("#writeEmpName").val();
+					data.empName = $("#txtEmpName").val();
 					</c:if>
 					<c:if test="${authLevel=='user'}">
-					data.writeEmpName = "";
+					data.empName = "";
 					</c:if>					
 					
 					return data;
@@ -159,36 +159,63 @@
 		}		
 		
 		,	columns : [
-	 	    {  field : "C_RIDOCFULLNUM",	title : "문서번호",	width : 130}
-			,	{  field : "C_DITITLE"
+	 	    {  field : "docNo",	title : "문서번호",	width : 130
+	 	    
+	 	    }
+			,	{  field : "docTitle"
 				,	title : "결의제목" 
 				,   width : 200
-				,	content : {	
-					   template : TextOverFlowApp
-					,  attributes : { style : "text-align:left;padding-left:5px;" }
-				    }				
-			    }
-			,   {  field : "C_DIWRITEDAY",	title : "기안일자",	width : 90}
-			,   {  field : "P_RESAMT",	title : "결의금액",	width : 130
 				   , content : {
 						template : function( rowData ) {
+							return "<a href=\"javascript:titleOnClickApp('" + rowData.docSeq + "');\">" + rowData.docTitle +"</a>";
+						}
+					}				
+			    }
+			,   {  field : "",	title : "기안일자",	width : 90
+				   , content : {
+						template : function( rowData ) {
+							return rowData.docDate.substring(0,4) + "-" + rowData.docDate.substring(4,6) + "-" + rowData.docDate.substring(6,8);
+						}
+					}				
+			}
+			
+	 	   ,{  field : "deptName",	title : "기안부서",	width : 130}			
+	 	   ,{  field : "empName",	title : "기안자",	width : 80}
+			
+			,   {  field : "resDocAmt",	title : "결의금액",	width : 100
+				   , content : {
+					   attributes : { class : "ri" },
+						template : function( rowData ) {
 							
-							if(rowData.C_DISTATUS == "007"){
-								return 	'<text style="color:red;text-decoration: line-through;">' + rowData.P_RESAMT + '</text>';
+							if(rowData.docStatus == "007"){
+								return 	'<text style="color:red;text-decoration: line-through;">' + (rowData.resDocAmt + "").replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '</text>';
 							}else{
-								return 	rowData.P_RESAMT;
+								return 	(rowData.resDocAmt + "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 							}
 						}
 					}
 			
 				}
-			,   {  field : "",	title : "업체명",	width : 130}
-			,   {  field : "DOCSTSNAME",	title : "결재상태",	width : 120}
+			,   {  field : "trName",	title : "업체명",	width : 150}
+			,   {  field : "docStatus",	title : "결재상태",	width : 120
+				   , content : {
+						template : function( rowData ) {
+							return fnGetDocStatusLabel(rowData.docStatus);
+						}
+					}				
+			}
 			
-			,   {  field : "",	title : "전송여부",	width : 120}
-			,   {  field : "",	title : "전송자",	width : 120}
+			,   {  field : "erpSendYN",	title : "전송여부",	width : 120
+				   , content : {
+						template : function( rowData ) {
+							return rowData.erpSendYN == "Y" ? "전송완료" : "-";
+						}
+					}				
 			
-			,	{  field : "C_DIKEYCODE"
+			}
+			,   {  field : "sendName",	title : "전송자",	width : 120}
+			
+			,	{  field : ""
 				,	title : "결재선보기"
 				,	width : 80
 				,	content : {	
@@ -202,52 +229,69 @@
 		
 	} 	
 	
+	function titleOnClickApp(c_dikeyCode, c_miseqnum, c_diseqnum, c_rideleteopt, c_tifogmgb, c_distatus){
+		
+		if(c_rideleteopt =='d'){
+			fnPuddDiaLog("warning", NeosUtil.getMessage("TX000009232","삭제된 문서는 열수 없습니다"));
+			return;
+		}
+		var obj = {
+				diSeqNum  : c_diseqnum,
+				miSeqNum  : c_miseqnum,
+				diKeyCode : c_dikeyCode,
+				tiFormGb  : c_tifogmgb,
+				diStatus  : c_distatus,
+				socketList : 'Y'
+			};
+		var param = NeosUtil.makeParam(obj);
+		neosPopup("POP_DOCVIEW", param);
+	}	
+	
+	
+	function fnGetDocStatusLabel(value){
+		/** 비영리 전자결재 상태 코드 **/ 
+	    if(value == '000'){
+	    	return '기안대기';
+	    }else if(value == '001'){
+	    	return '임시저장';
+	    }else if(value == '002'){
+	    	return '결재중';
+	    }else if(value == '003'){
+	    	return '협조중';
+	    }else if(value == '004'){
+	    	return '결재보류';
+	    }else if(value == '005'){
+	    	return '문서회수';
+	    }else if(value == '006'){
+	    	return '다중부서접수중';
+	    }else if(value == '007'){
+	    	return '기안반려';
+	    }else if(value == '008'){
+	    	return '결재완료';
+	    }else if(value == '009'){
+	    	return '발송요구';
+	    }else if(value == '101'){
+	    	return '감사중';
+	    }else if(value == '102'){
+	    	return '감사대기';
+	    }else if(value == '108'){
+	    	return '감사완료';
+	    }else if(value == '998'){
+	    	return '심사취소';
+	    }else if(value == '999'){
+	    	return '결재중';
+	    }else if(value == 'd'){
+	    	return '삭제';
+	    }
+	  
+	}	
+	
 	
 	//결재선보기 
 	function openPopApprovalLinePudd(e){
-		var diKeyCode = e.C_DIKEYCODE ;
-		var param = "diKeyCode="+diKeyCode;
-
+		var param = "diKeyCode="+e.docSeq;
 		return '<span class="ico-blank" onClick="neosPopup(\'POP_APPLINE\', \''+param+'\');"></span>';
 	} 
-	
-	function TextOverFlowApp(e){
-		
-		var C_RIDELETEOPT = "";
-		if(!ncCom_Empty(e.C_RIDELETEOPT)){
-			C_RIDELETEOPT = e.C_RIDELETEOPT;
-		}
-		
-		var c_dititle = e.C_DITITLE.replace(/</gi, "&lt;").replace(/>/gi, "&gt;"); 
-			
-		var title = "<span onClick='titleOnClickApp(\"" + e.C_DIKEYCODE +"\", \"" + e.C_MISEQNUM +"\", \"" + e.C_DISEQNUM +"\" , \"" + e.C_RIDELETEOPT +"\", \"" + e.C_TIFORMGB +"\", \"" + e.C_DISTATUS +"\")' style='cursor:pointer; ' >";
-		if(e.AUDITCOUNT > 0){
-			  title += "<img src='/ea/Images/ico/ico_gamsa.png' title='"+ NeosUtil.getMessage("TX000020865","감사문서") +"'/> ";
-		}
-		if(e.C_DISECRETGRADE == "009"){
-			  title += "<img src='"+_g_contextPath_ +"/Images/ico/ico_security.png' title='"+ NeosUtil.getMessage("TX000008484","보안문서") +"'/> ";
-		}
-		if(e.C_DIDOCGRADE == "002"){
-			  title += "<img src='"+_g_contextPath_ +"/Images/ico/ico_emergency.png' title='"+ NeosUtil.getMessage("TX000009230","긴급문서") +"'/> ";
-		}
-		
-		if(e.SUBAPPROV == "Y"){
-			  title += "<img src='"+_g_contextPath_ +"/Images/ico/ico_proxy.png' title='"+ NeosUtil.getMessage("TX000002949","대결") +"'/> ";
-		}
-		if(e.DOCCOUNT > 1){
-			  title += "<img src='"+_g_contextPath_ +"/Images/ico/ico_draft.png' title='"+ NeosUtil.getMessage("TX000021117","일괄기안") +"'/> ";
-		}
-		
-	    if(C_RIDELETEOPT == "d"){
-	    	title += "<a href=\"javascript:;\" class=\"text_red\">" + c_dititle +"</a>";
-	    }else{
-	    	title += "<a href=\"javascript:;\">" + c_dititle +"</a>";
-	    }
-		
-		title +="</span>";
-		
-		return  title ;
-	}	
 	
 	function fnDownload(e){
 		this.location.href = "${pageContext.request.contextPath}/fileDownloadProc.do?fileId=" + $(e).attr("fileid");
@@ -255,119 +299,106 @@
 	
 	function fnSetBtn(rowData){
 		
-		if(targetSeq == rowData.seq){
-			return;
-		}
-		
 		var reqParam = {};
-		reqParam.seq = rowData.seq;
+		reqParam.resDocSeq = rowData.resDocSeq;
 		
 		$.ajax({
 			type : 'post',
-			url : '<c:url value="/purchase/PurchaseInfo.do" />',
+			url : '<c:url value="/purchase/greenHopeInfo.do" />',
 			datatype : 'json',
 			data : reqParam,
 			async : true,
 			success : function(result) {
 				
-				console.log("seq > " + result.resultData.seq);
-				console.log("doc_sts > " + result.resultData.doc_sts);
-				console.log("approkey_purchase > " + result.resultData.approkey_purchase);
-				console.log("approkey_check > " + result.resultData.approkey_check);
+				var greenState = "C";
+				var greenDelState = "";
+				var hopeState = "C";
+				var hopeDelState = "";
 				
-				var purchaseState = "";
-				var checkState = "";		
-				var paymentState = "";
-			
-				//입찰
-				purchaseState = "V";
-				
-				if(result.resultData.approkey_check != ""){
-					
-					checkState = "V";		
-					
-					if(result.resultData.doc_sts == "90"){
-						
-						paymentState = "C";
-						
-					}
-					
-				}else if(result.resultData.approkey_purchase != ""){
-					
-					if(result.resultData.doc_sts == "90"){
-						checkState = "C";	
-					}
-					
-				}else{
-					purchaseState = "C";
+				if(result.resGreenInfo != null){
+					greenState = "V";
+					greenDelState = "V";
 				}
-					
+				
+				if(result.resHopeInfoList > 0){
+					hopeState = "V";
+					hopeDelState = "V";
+				}				
 				
 				var btnList = [];
 				
-				if(purchaseState != ""){
-					
-					var btnStyle = purchaseState == "C" ? "submit" : "cancel";
-					var btnName = purchaseState == "C" ? "구매품의신청" : "구매품의조회";					
-				
+				if(greenState != ""){
+					var btnStyle = greenState == "C" ? "submit" : "cancel";
+					var btnName = "녹색제품실적연계";					
 					var btnInfo = {
 							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
 						,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
 						,	value : btnName
 						,	clickCallback : function( puddActionBar ) {
-								fnCallBtn('purchaseView', result.resultData.seq);
+								fnCallBtn('greenState', rowData.resDocSeq);
 								
 								$('.iframe_wrap').attr('onclick','').unbind('click');
 								puddActionBar.showActionBar( false );
 								targetSeq = "";
 							}
 					};
-						
 					btnList.push(btnInfo);			
-					
-				}		
-				
-				if(checkState != ""){
-					
-					var btnStyle = checkState == "C" ? "submit" : "cancel";
-					var btnName = checkState == "C" ? "물품검수" : "물품검수";
-				
-					var btnInfo = {
-							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
-						,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
-						,	value : btnName
-						,	clickCallback : function( puddActionBar ) {
-								fnPurchaseStatePop('btnCheck');
-								
-								$('.iframe_wrap').attr('onclick','').unbind('click');
-								puddActionBar.showActionBar( false );
-								targetSeq = "";
-							}
-					};
-						
-					btnList.push(btnInfo);			
-					
 				}
 				
-				if(paymentState != ""){
-					
-					var btnStyle = "submit";
-					var btnName = "대금지급";
-					
+				if(greenDelState != ""){
+					var btnStyle = greenDelState == "C" ? "submit" : "cancel";
+					var btnName = "녹색제품실적삭제";					
 					var btnInfo = {
-						attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
-					,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
-					,	value : btnName
-					,	clickCallback : function( puddActionBar ) {
-							fnPurchaseStatePop('btnPayment');
-							
-							$('.iframe_wrap').attr('onclick','').unbind('click');
-							puddActionBar.showActionBar( false );
-							targetSeq = "";
-						}
-					}
+							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
+						,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
+						,	value : btnName
+						,	clickCallback : function( puddActionBar ) {
+								fnCallBtn('greenDelState', rowData.resDocSeq);
+								
+								$('.iframe_wrap').attr('onclick','').unbind('click');
+								puddActionBar.showActionBar( false );
+								targetSeq = "";
+							}
+					};
 					btnList.push(btnInfo);			
-				}	
+				}				
+			
+				if(hopeState != ""){
+					var btnStyle = hopeState == "C" ? "submit" : "cancel";
+					var btnName = "희망구매실적연계";					
+					var btnInfo = {
+							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
+						,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
+						,	value : btnName
+						,	clickCallback : function( puddActionBar ) {
+								fnCallBtn('hopeState', rowData.resDocSeq);
+								
+								$('.iframe_wrap').attr('onclick','').unbind('click');
+								puddActionBar.showActionBar( false );
+								targetSeq = "";
+							}
+					};
+					btnList.push(btnInfo);			
+				}
+				
+				if(hopeDelState != ""){
+					var btnStyle = hopeDelState == "C" ? "submit" : "cancel";
+					var btnName = "희망구매실적삭제";					
+					var btnInfo = {
+							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
+						,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
+						,	value : btnName
+						,	clickCallback : function( puddActionBar ) {
+								fnCallBtn('hopeDelState', rowData.resDocSeq);
+								
+								$('.iframe_wrap').attr('onclick','').unbind('click');
+								puddActionBar.showActionBar( false );
+								targetSeq = "";
+							}
+					};
+					btnList.push(btnInfo);			
+				}					
+				
 				
 				//닫기버튼
 				var btnCancel = {
@@ -387,15 +418,13 @@
 					height	: 100
 				,	message : {
 							type : "html"		// text, html
-						,	content : '<span style="display: inline-block;padding: 10px 0 0 20px;font-size: 14px;color: #ffffff;">[ ' + (result.resultData.c_title ? result.resultData.c_title : result.resultData.title) + ' ]</span></br><span style="display: inline-block;padding: 10px 0 0 20px;font-size: 14px;color: #c2c2c2;">상세조회 항목을 선택해 주세요</span>'				
+						,	content : '<span style="display: inline-block;padding: 10px 0 0 20px;font-size: 14px;color: #ffffff;">[ ' + rowData.docTitle + ' ]</span></br><span style="display: inline-block;padding: 10px 0 0 20px;font-size: 14px;color: #c2c2c2;">상세조회 항목을 선택해 주세요</span>'				
 					}
 				
 				,	buttons : btnList	
 				
 				});
 				
-				targetSeq = result.resultData.seq;
-
 				$(".iframe_wrap").on("click", function(e){
 					
 					if($("#grid1").find(e.target).length == 0){
@@ -415,85 +444,70 @@
 	
 	var puddActionBar_;
 	
-	function fnCallBtn(callId, seq, sub_seq){
-		
-		if(callId == "newPurchase"){
-			
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/PurchaseCreatePop.do",  "PurchaseCreatePop", 1200, 800, 1, 1) ;
-			
-		}else if(callId == "purchaseView"){
-			
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/PurchaseCreatePop.do?seq=" + seq,  "purchaseViewPop", 1200, 800, 1, 1) ;
-			
-		}else if(callId == "btnCheck"){
-			
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/PurchaseCheckPop.do?seq=" + (seq != null ? seq : targetSeq),  "PurchaseCheckViewPop", 1200, 800, 1, 1) ;
-			
-		}else if(callId == "btnPayment"){
-			
-			if('${resFormSeq}' != ''){
-				openWindow2("${pageContext.request.contextPath}/purchase/pop/PurchasePaymentPop.do?formSeq=${resFormSeq}&seq=" + (seq != null ? seq : targetSeq),  "PurchasePaymentViewPop", 1350, 800, 1, 1) ;	
-			}else{
-				msgSnackbar("warning", "대금지급 지출결의 양식코드 미설정");
-			}
-			
+	var dialogEl;
+	
+	function fnCallBtn(callId, resDocSeq){
+
+		if(callId == "greenDelState" || callId == "hopeDelState"){
+			confirmAlert(350, 100, 'question', '삭제하시겠습니까?', '삭제', 'fnInsertProc("'+callId+'", "'+resDocSeq+'")', '취소', '');
 		}else {
-			msgSnackbar("warning", "개발중입니다.");
+
+			// puddDialog 함수
+			dialogEl = Pudd.puddDialog({
+				width : callId == "greenState" ? 500 : 800
+			,	height : callId == "greenState" ? 150 : 200
+			 
+			,	modal : true			// 기본값 true
+			,	draggable : false		// 기본값 true
+			,	resize : false			// 기본값 false
+			 
+			,	header : {
+		 		title : callId == "greenState" ? "녹색제품 실적연계" : "희망구매 실적연계"
+			,	closeButton : true	// 기본값 true
+			,	closeCallback : function( puddDlg ) {
+					// close 버튼은 내부에서 showDialog( false ) 실행함 - 즉, 닫기 처리는 내부에서 진행됨
+					// 추가적인 작업 내용이 있는 경우 이곳에서 처리
+				}
+			}
+			 
+			,	body : {
+					iframe : true
+				,	url : "${pageContext.request.contextPath}/purchase/layer/"+callId+"SetLayer.do?resDocSeq=" + resDocSeq
+				,	iframeAttribute : {
+					id : "dlgFrame"
+				}				
+			}
+			 
+				// dialog 하단을 사용할 경우 설정할 부분
+			,	footer : {
+			
+					buttons : [
+						{
+							attributes : {}// control 부모 객체 속성 설정
+						,	controlAttributes : { id : "btnConfirm", class : "submit" }// control 자체 객체 속성 설정
+						,	value : "저장"
+						,	clickCallback : function( puddDlg ) {
+								var iframeTag = document.getElementById( "dlgFrame" );
+								iframeTag.contentWindow.saveProc();
+							}
+						},
+						{
+							attributes : { style : "margin-left:5px;" }// control 부모 객체 속성 설정
+						,	controlAttributes : { id : "btnCancel" }// control 자체 객체 속성 설정
+						,	value : "취소"
+						,	clickCallback : function( puddDlg ) {
+								puddDlg.showDialog( false );
+							}
+						}
+					]
+				}
+			});				
 		}
 		
 	}
 	
-	function fnPurchaseStatePop(btnType, seq){
+	function fnDelGreenHopeInfo(type, resDocSeq){
 		
-		var reqParam = {};
-		
-		if(seq){
-			reqParam.seq = seq;
-		}else{
-			reqParam.seq = targetSeq;	
-		}
-		
-		var resultState = false;
-		
-		$.ajax({
-			type : 'post',
-			url : '<c:url value="/purchase/PurchaseInfo.do" />',
-			datatype : 'json',
-			data : reqParam,
-			async : false,
-			success : function(result) {
-				
-				console.log("seq > " + result.resultData.seq);
-				console.log("doc_sts > " + result.resultData.doc_sts);
-				console.log("approkey_purchase > " + result.resultData.approkey_purchase);
-				console.log("approkey_check > " + result.resultData.approkey_check);
-				
-				if(result.resultData.approkey_check != ""){
-					
-					if(btnType == "btnCheck" || (btnType == "btnPayment" && result.resultData.doc_sts == "90")){
-						resultState = true;
-					}					
-					
-				}else if(result.resultData.approkey_purchase != ""){
-					
-					if(btnType == "btnCheck" && result.resultData.doc_sts == "90"){
-						resultState = true;
-					}
-					
-				}
-				
-				if(resultState){
-					fnCallBtn(btnType, seq);
-					
-				}else{
-					msgSnackbar("warning", "이전 단계의 기안 신청이 완료되지 않았습니다.");
-				}
-				
-			},
-			error : function(result) {
-				msgSnackbar("error", "데이터 요청에 실패했습니다.");
-			}
-		});		
 	}
 	
 	
@@ -746,49 +760,45 @@
 
 <!-- 상세검색 -->
 <div class="top_box">
-
 	<dl>
 		<dt class="ar">기안일자</dt>
 		<dd>
-			<input type="text" id="searchFromDate" value="${fromDate}" class="puddSetup" pudd-type="datepicker"/> ~
-			<input type="text" id="searchToDate" value="${toDate}" class="puddSetup" pudd-type="datepicker"/>
+			<input type="text" id="txtFromDate" value="${fromDate}" class="puddSetup" pudd-type="datepicker"/> ~
+			<input type="text" id="txtToDate" value="${toDate}" class="puddSetup" pudd-type="datepicker"/>
 		</dd>
 		
 		<dt class="ar" style="width:40px;">제목</dt>
-		<dd><input type="text" id=title" pudd-style="width:120px;" class="puddSetup" placeHolder="제목 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+		<dd><input type="text" id="txtDoctitle" pudd-style="width:120px;" class="puddSetup" placeHolder="제목 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		
 		<dt class="ar" style="width:60px;">결재상태</dt>
 		<dd>
-			<select type="select" id=docSts" onchange="BindGrid();" class="puddSetup" pudd-style="width:100%;">
-				<option value="">전체</option>
-				<c:forEach var="items" items="${docStsCode}">
-					<option value="${items.CODE}">${items.NAME}</option>
-				</c:forEach>							
+			<select type="select" id="selDocStatus" onchange="BindGrid();" class="puddSetup" pudd-style="width:100%;">
+				<option value="" selected="selected">전체</option>
+				<option value="'001', '10'">임시저장</option>
+				<option value="'002', '003', '005', '006', '20', '30', '40', '50', '60', '70', '80'">진행중</option>
+				<option value="'008', '009', '90' ">결재완료</option>
+				<option value="'007', '100', '110'">기안반려</option>				
 			</select>		
 		</dd>
 		
 		<dt class="ar" style="width:60px;">문서번호</dt>
-		<dd><input type="text" id=docNo" pudd-style="width:120px;" class="puddSetup" placeHolder="문서번호 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
-
+		<dd><input type="text" id="txtDocNo" pudd-style="width:120px;" class="puddSetup" placeHolder="문서번호 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		
 		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="BindGrid();" /></dd>
 	</dl>
 	
 	<dl class="next2">
-	
 		<dt class="ar" style="width:40px;">업체명</dt>
-		<dd><input type="text" id="trName" pudd-style="width:130px;" class="puddSetup" placeHolder="업체명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+		<dd><input type="text" id="txtTrName" pudd-style="width:130px;" class="puddSetup" placeHolder="업체명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 	
-		<dt class="ar" style="width:60px;">부서명</dt>
-		<dd><input type="text" id="writeDeptName" pudd-style="width:120px;" class="puddSetup" placeHolder="부서명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+		<dt class="ar" style="width:60px;">사용부서</dt>
+		<dd><input type="text" id="txtDeptName" pudd-style="width:120px;" class="puddSetup" placeHolder="부서명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		
 		<c:if test="${authLevel!='user'}">
-		<dt class="ar" style="width:60px;">사원명</dt>
-		<dd><input type="text" id="writeEmpName" pudd-style="width:90px;" class="puddSetup" placeHolder="사원명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+		<dt class="ar" style="width:60px;">사용자</dt>
+		<dd><input type="text" id="txtEmpName" pudd-style="width:90px;" class="puddSetup" placeHolder="사원명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		</c:if>
-	
 	</dl>	
-	
 </div>
 
 <div class="sub_contents_wrap posi_re">
