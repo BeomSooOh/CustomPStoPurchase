@@ -918,7 +918,7 @@
 				if(planState != ""){
 					
 					var btnStyle = planState == "C" ? "submit" : "cancel";
-					var btnName = planState == "C" ? "계약입찰발주계획등록" : "계약입찰발주계획조회";					
+					var btnName = planState == "C" ? "입찰발주 의뢰" : "입찰발주 조회";					
 				
 					var btnInfo = {
 							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
