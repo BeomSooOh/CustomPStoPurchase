@@ -166,7 +166,7 @@
 					,	type : 'post'
 					,	dataType : "json"
 					,   parameterMapping : function( data ) {
-						data.purchaseGoalYear = $("#purchaseGoalYear").val();
+						data.purchaseGoalYear = $("#purchaseGoalYear").val() + $("#selectedDeptSeq").val();
 						data.GROUP = selGroup;
 						return data;
 					}
@@ -589,7 +589,32 @@
 			
 		}
 		
-	
+		function selectOrgchart(){
+			 
+			 var pop = window.open("", "cmmOrgPop", "width=799,height=769,scrollbars=no");
+				$("#callback").val("callbackSel");
+				frmPop.target = "cmmOrgPop";
+				frmPop.method = "post";
+				frmPop.action = "/gw/systemx/orgChart.do";
+				frmPop.submit();
+				pop.focus();
+		}	
+		
+		function callbackSel(data){
+			
+			if(data.returnObj.length > 0){
+				$("#selectedItems").val(data.returnObj[0].superKey);
+				$("#selectedDeptSeq").val(data.returnObj[0].deptSeq);
+				$("#deptName").val(data.returnObj[0].deptName);				
+			}else{
+				$("#selectedItems").val("");
+				$("#selectedDeptSeq").val("");
+				$("#deptName").val("");
+			}
+			
+			BindCodeGrid();
+
+		 }		
 		
 	</script>
 </head>
@@ -617,11 +642,17 @@
 	
 					<td class="twinbox_td">
 						<div class="btn_div mt0">
-							<div class="left_div">
-								<div id="yearSelect" style="display:none;" class="controll_btn p0">
-									<select id="purchaseGoalYear" onchange="BindCodeGrid()"></select>								
+							<div id="yearSelect" style="display:none;" >
+								<div class="top_box">
+								<dl class="next2">
+									<dt class="ar" style="width:60px;">적용년도</dt>
+									<dd><select id="purchaseGoalYear" onchange="BindCodeGrid()"></select></dd>
+									<dt class="ar" style="width:60px;">적용부서</dt>
+									<dd><input readonly type="text" id="deptName" pudd-style="width:120px;" class="puddSetup" placeHolder="미선택시 전체목표" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+									<dd><input type="button" class="puddSetup submit" id="searchButton" value="선택" onclick="selectOrgchart();" /></dd>
+								</dl>
 								</div>
-							</div>						
+							</div>								
 							<div class="right_div">
 								<div class="controll_btn p0">
 									<input name="codeEditBtn" onclick="insertLayerPop();" type="button" class="puddSetup" value="추가" />
@@ -639,8 +670,17 @@
 			
 			
 	</div><!-- //sub_contents_wrap -->
-
-
-
+	<input type="hidden" id="selectedDeptSeq" value="" />
+	<form id="frmPop" name="frmPop"> 
+			<input type="hidden" name="selectedItems" id="selectedItems" value="" />
+			<input type="hidden" name="popUrlStr" id="txt_popup_url" value="/gw/systemx/orgChart.do" />
+			<input type="hidden" name="selectMode" id="selectMode" value="d" />
+			<input type="hidden" name="selectItem" value="s" />
+			<input type="hidden" name="callback" id="callback" value="" />
+			<input type="hidden" name="compSeq" value="" />
+			<input type="hidden" name="callbackUrl" value="/gw/html/common/callback/cmmOrgPopCallback.jsp"/>
+			<input type="hidden" name="empUniqYn" value="N" />
+			<input type="hidden" name="empUniqGroup" value="ALL" />
+	</form>
 </body>
 </html>
