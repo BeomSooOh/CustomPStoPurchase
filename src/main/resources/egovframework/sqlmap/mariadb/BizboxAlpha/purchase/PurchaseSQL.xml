@@ -587,7 +587,7 @@
   FROM $DB_NEOS$t_exnp_resdoc d
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
-  WHERE d.doc_seq IS NOT NULL
+  WHERE d.doc_seq IS NOT NULL and ifnull(d.out_process_interface_id,'') not in ('CONCLUSION','PURCHASE')
   <isNotEmpty property="docStatus">
    AND IFNULL(doc_status, '008') IN ($docStatus$)
   </isNotEmpty>
@@ -682,7 +682,7 @@
   ON d.res_doc_seq = amt.res_doc_seq
    INNER JOIN $DB_NEOS$erpgwlink gwlink
          ON   gwlink.appr_dikey = d.doc_seq
-  WHERE d.doc_seq IS NOT NULL
+  WHERE d.doc_seq IS NOT NULL and ifnull(d.out_process_interface_id,'') not in ('CONCLUSION','PURCHASE')
   <isNotEmpty property="docStatus">
    AND IFNULL(doc_status, '008') IN ($docStatus$)
   </isNotEmpty>

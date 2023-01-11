@@ -51,6 +51,7 @@
 				data : insertDataObject,
 				async : true,
 				success : function(result) {
+					window.parent.msgSnackbar("success", "저장완료");
 					window.parent.dialogEl.showDialog( false );		
 				},
 				error : function(result) {
@@ -76,7 +77,9 @@
 					<td>
 						<select type="select" id="item_green_cert_type" class="puddSetup" pudd-style="width:100%;">
 							<c:forEach var="items" items="${greenCertTypeCode}">
+								<c:if test="${ items.CODE != '' }">
 								<option value="${items.CODE}" <c:if test="${ items.CODE == greenStateSetInfo.item_green_cert_type }">selected</c:if> >${items.NAME}</option>
+								</c:if>
 							</c:forEach>							
 						</select>					
 					</td>
@@ -86,7 +89,9 @@
 					<td>
 						<select type="select" id="item_green_class" class="puddSetup" pudd-style="width:100%;">
 							<c:forEach var="items" items="${greenClassCode}">
+								<c:if test="${ items.CODE != '' }">
 								<option value="${items.CODE}" <c:if test="${ items.CODE == greenStateSetInfo.item_green_class }">selected</c:if> >${items.NAME}</option>
+								</c:if>
 							</c:forEach>							
 						</select>					
 					</td>					

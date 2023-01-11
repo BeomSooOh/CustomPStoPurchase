@@ -320,9 +320,15 @@
 					greenDelState = "V";
 				}
 				
-				if(result.resHopeInfoList > 0){
-					hopeState = "V";
-					hopeDelState = "V";
+				if(result.resHopeInfoList.length > 0){
+					
+					if(result.resHopeInfoList[0].hope_company_info != ""){
+						hopeState = "V";
+						hopeDelState = "V";
+					}
+					
+				}else{
+					hopeState = "";
 				}				
 				
 				var btnList = [];
@@ -449,7 +455,7 @@
 	function fnCallBtn(callId, resDocSeq){
 
 		if(callId == "greenDelState" || callId == "hopeDelState"){
-			confirmAlert(350, 100, 'question', '삭제하시겠습니까?', '삭제', 'fnInsertProc("'+callId+'", "'+resDocSeq+'")', '취소', '');
+			confirmAlert(350, 100, 'question', '삭제하시겠습니까?', '삭제', 'fnDeleteProc("'+callId+'", "'+resDocSeq+'")', '취소', '');
 		}else {
 
 			// puddDialog 함수
@@ -506,7 +512,25 @@
 		
 	}
 	
-	function fnDelGreenHopeInfo(type, resDocSeq){
+	function fnDeleteProc(callId, resDocSeq){
+		
+		var reqParam = {};
+		reqParam.res_doc_seq = resDocSeq;
+		
+		$.ajax({
+			type : 'post',
+			url : "/CustomPStoPurchase/purchase/" + (callId == "greenDelState" ? "deleteGreenInfo.do" : "deleteHopeInfo.do"),
+			datatype : 'json',
+			data : reqParam,
+			async : true,
+			success : function(result) {
+				msgSnackbar("success", "삭제완료");
+			},
+			error : function(result) {
+				msgSnackbar("error", "데이터 요청에 실패했습니다.");
+			}
+		});			
+		
 		
 	}
 	
@@ -529,7 +553,7 @@
     		}
     	,	progressStartCallback : function( progressBarObj ) {
      
-    			excelDownloadProcess( "구매현황.xlsx", progressBarObj );
+    			excelDownloadProcess( "결의현황.xlsx", progressBarObj );
     		}
     	});
     }	
@@ -543,26 +567,34 @@
      
     	,	request : {
      
-    			url : '<c:url value="/purchase/${authLevel}/SelectPurchaseList.do" />'
+    			url : '<c:url value="/purchase/${authLevel}/SelectResolutionList.do" />'
     		,	type : 'post'
     		,	dataType : "json"
      
     		,	parameterMapping : function( data ) {
     			
-					data.searchFromDate = $("#searchFromDate").val(); ;
-					data.searchToDate = $("#searchToDate").val();
-					data.itemName = $("#itemName").val();
-					data.itemUseLocation = $("#itemUseLocation").val();
-					data.writeDeptName = $("#writeDeptName").val();
+					data.frDt = $("#txtFromDate").val().replace(/-/g, '');
+					data.toDt = $("#txtToDate").val().replace(/-/g, '');
+					
+					data.docTitle = $("#txtDoctitle").val();
+					data.docStatus = $("#selDocStatus").val();
+					data.docNo = $("#txtDocNo").val();
+					data.txtTrName = $("#txtTrName").val();
+					
+					<c:if test="${authLevel!='admin'}">
+					data.deptName = "";
+					</c:if>
+					<c:if test="${authLevel=='admin'}">
+					data.deptName = $("#txtDeptName").val();
+					</c:if>							
 					
 					<c:if test="${authLevel!='user'}">
-					data.writeEmpName = $("#writeEmpName").val();
+					data.empName = $("#txtEmpName").val();
 					</c:if>
 					<c:if test="${authLevel=='user'}">
-					data.writeEmpName = "";
-					</c:if>		    			
- 
-	 				return data ;
+					data.empName = "";
+					</c:if>	
+					
     			}
     		}
      
@@ -636,7 +668,7 @@
     	var periodStyle = excel.addStyle({
     		font: "맑은 고딕 11 #333333 B"
     	})
-    	var period = "취득일자: " + $("#searchFromDate").val() + "~" + $("#searchToDate").val() + " / 총 " + totalCount + "건"; 
+    	var period = "기안일자: " + $("#txtFromDate").val() + "~" + $("#txtToDate").val() + " / 총 " + totalCount + "건"; 
     	excel.set(0, 0, 0, period, periodStyle);
     	
     	var formatHeader = excel.addStyle ({
@@ -647,7 +679,7 @@
     	});
 		    	
     	var headerRow = 2;
-    	var headerCol = 25;
+    	var headerCol = 10;
     	
     	for(var i=1; i < headerRow; i++) {
     		for(var j=0; j < headerCol; j++) {
@@ -655,39 +687,25 @@
     		}
     	}
     	
-    	excel.set(0, 0, 1, "연번");
-    	excel.set(0, 1, 1, "구매번호");
-    	excel.set(0, 2, 1, "물품식별번호");
-    	excel.set(0, 3, 1, "물품분류번호");
-    	excel.set(0, 4, 1, "품명");    	
-    	excel.set(0, 5, 1, "취득단가");
-    	excel.set(0, 6, 1, "취득수량");
-    	excel.set(0, 7, 1, "금액");
-    	excel.set(0, 8, 1, "취득수수료");
-    	excel.set(0, 9, 1, "단위코드");
-    	excel.set(0, 10, 1, "운영부서");
-    	excel.set(0, 11, 1, "운영부서코드");
-    	excel.set(0, 12, 1, "물품대장코드");
-    	excel.set(0, 13, 1, "물품담당자");
-    	excel.set(0, 14, 1, "물품사용위치");
-    	excel.set(0, 15, 1, "국내외구분");
-    	excel.set(0, 16, 1, "국가코드");    	
-    	excel.set(0, 17, 1, "취득사유코드");    	
-    	excel.set(0, 18, 1, "품의명");   
-    	excel.set(0, 19, 1, "품의결재상태");
-    	excel.set(0, 20, 1, "물품검수여부");
-    	excel.set(0, 21, 1, "대금지급회차");
-    	excel.set(0, 22, 1, "대금지급금액");    	
-    	excel.set(0, 23, 1, "대금지급완료여부");    	
-    	excel.set(0, 24, 1, "붙임문서");     
+    	excel.set(0, 0, 1, "문서번호");
+    	excel.set(0, 1, 1, "결의제목");
+    	excel.set(0, 2, 1, "기안일자");
+    	excel.set(0, 3, 1, "기안부서");
+    	excel.set(0, 4, 1, "기안자");    	
+    	excel.set(0, 5, 1, "결의금액");
+    	excel.set(0, 6, 1, "업체명");
+    	excel.set(0, 7, 1, "결재상태");
+    	excel.set(0, 8, 1, "전송여부");
+    	excel.set(0, 9, 1, "전송자");
     	
     	// sheet번호, column, value(width)
-    	for( var i = 0; i < 25; i++ ) {
+    	for( var i = 0; i < 10; i++ ) {
     		excel.setColumnWidth( 0, i, 20 );
     	}    	
 		
+    	excel.setColumnWidth( 0, 1, 50 );
     	/*
-    	excel.setColumnWidth( 0, 5, 50 );
+    	
     	excel.setColumnWidth( 0, 9, 50 );
     	excel.setColumnWidth( 0, 13, 25 );
     	excel.setColumnWidth( 0, 20, 25 );
@@ -699,55 +717,23 @@
     		align : "C"
     	});
     	
+    	var formatCellR = excel.addStyle ({
+    		align : "R"
+    	});    	
+    	
     	// header row 이후부터 출력
     	for( var i = 0; i < totalCount; i++ ) {
     		var rowNo = i + 2;
-    		excel.set( 0, 0, rowNo, dataPage[ i ][ "seq" ], formatCell );
-    		excel.set( 0, 1, rowNo, dataPage[ i ][ "manage_no" ], formatCell );
-    		excel.set( 0, 2, rowNo, dataPage[ i ][ "item_idn_no" ], formatCell );
-    		excel.set( 0, 3, rowNo, dataPage[ i ][ "item_div_no" ], formatCell );
-    		excel.set( 0, 4, rowNo, dataPage[ i ][ "item_name" ], formatCell );
-    		excel.set( 0, 5, rowNo, dataPage[ i ][ "item_amt" ], formatCell );
-    		excel.set( 0, 6, rowNo, dataPage[ i ][ "item_cnt" ], formatCell );
-    		excel.set( 0, 7, rowNo, dataPage[ i ][ "item_total_amt" ], formatCell );
-    		excel.set( 0, 8, rowNo, dataPage[ i ][ "item_fee_amt" ], formatCell );
-    		excel.set( 0, 9, rowNo, dataPage[ i ][ "item_unit" ], formatCell );
-    		excel.set( 0, 10, rowNo, dataPage[ i ][ "write_dept_name" ], formatCell );
-    		excel.set( 0, 11, rowNo, dataPage[ i ][ "operation_dept_code" ], formatCell );
-    		excel.set( 0, 12, rowNo, dataPage[ i ][ "item_inventory_cd" ], formatCell );
-    		excel.set( 0, 13, rowNo, dataPage[ i ][ "write_emp_name" ], formatCell );
-    		excel.set( 0, 14, rowNo, dataPage[ i ][ "item_use_location" ], formatCell );
-    		excel.set( 0, 15, rowNo, dataPage[ i ][ "item_foreign_type" ], formatCell );
-    		excel.set( 0, 16, rowNo, dataPage[ i ][ "item_contry" ], formatCell );
-    		excel.set( 0, 17, rowNo, dataPage[ i ][ "item_acquisition_reason" ], formatCell );
-    		excel.set( 0, 18, rowNo, dataPage[ i ][ "title" ], formatCell );
-    		excel.set( 0, 19, rowNo, dataPage[ i ][ "DOCSTSNAME" ], formatCell );
-    		
-			if(dataPage[ i ][ "approkey_check" ] != ""){
-				
-				if(dataPage[ i ][ "doc_sts" ] == "90"){
-					excel.set( 0, 20, rowNo, "검수완료", formatCell );
-				}else if(rdataPage[ i ][ "doc_sts" ] == "20"){
-					excel.set( 0, 20, rowNo, "검수진행중", formatCell );
-				}
-					
-			}    		
-    		
-    		excel.set( 0, 21, rowNo, dataPage[ i ][ "pay_cnt" ], formatCell );
-    		
-			if(dataPage[ i ][ "total_pay_amt" ] != "0"){
-				excel.set( 0, 22, rowNo, dataPage[ i ][ "total_pay_amt" ] + " 원", formatCell );				
-			}    		
-    		
-			
-			if(!(parseInt(dataPage[ i ][ "purchase_amt" ].replace(/,/g, '')) > parseInt(dataPage[ i ][ "total_pay_amt" ].replace(/,/g, '')))){
-				excel.set( 0, 23, rowNo, "완료", formatCell );
-			}		
-			
-			if(dataPage[ i ][ "purchase_attach_info" ] != ""){
-				excel.set( 0, 24, rowNo, "등록", formatCell );
-			}				
-    		
+    		excel.set( 0, 0, rowNo, dataPage[ i ][ "docNo" ], formatCell );
+    		excel.set( 0, 1, rowNo, dataPage[ i ][ "docTitle" ], formatCell );
+    		excel.set( 0, 2, rowNo, dataPage[ i ][ "docDate" ].substring(0,4) + "-" + dataPage[ i ][ "docDate" ].substring(4,6) + "-" + dataPage[ i ][ "docDate" ].substring(6,8), formatCell );
+    		excel.set( 0, 3, rowNo, dataPage[ i ][ "deptName" ], formatCell );
+    		excel.set( 0, 4, rowNo, dataPage[ i ][ "empName" ], formatCell );
+    		excel.set( 0, 5, rowNo, (dataPage[ i ][ "resDocAmt" ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), formatCellR );
+    		excel.set( 0, 6, rowNo, dataPage[ i ][ "trName" ], formatCell );
+    		excel.set( 0, 7, rowNo, fnGetDocStatusLabel(dataPage[ i ][ "docStatus" ]), formatCell );
+    		excel.set( 0, 8, rowNo, (dataPage[ i ][ "erpSendYN" ] == "Y" ? "전송완료" : ""), formatCell );
+    		excel.set( 0, 9, rowNo, dataPage[ i ][ "sendName" ] == null ? "" : dataPage[ i ][ "sendName" ], formatCell );
     	}
      
     	excel.generate( fileName, saveCallback, stepCallback );

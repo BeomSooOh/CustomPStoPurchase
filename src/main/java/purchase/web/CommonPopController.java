@@ -134,7 +134,26 @@ public class CommonPopController {
             logger.error(e);
         }
         return mv;
-    }     
+    }    
+    
+    
+    @RequestMapping("/purchase/pop/CodeSelectPop.do")
+    public ModelAndView CommonPopView(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        try {
+        	
+        	mv.addAllObjects(params);
+        	
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExpInfo.ProcessLog(e.getLocalizedMessage());
+            mv.addObject("errMsg", e.getMessage());
+            mv.setViewName(CommonMapper.GetExError());
+            logger.error(e);
+        }
+        return mv;
+    }       
     
     
 	@RequestMapping("/purchase/ApprCreate.do")
