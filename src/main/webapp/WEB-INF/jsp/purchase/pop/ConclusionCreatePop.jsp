@@ -37,8 +37,10 @@
 	
 		var commonParam = {};
 		var commonElement;
-		
+		var saveData; 
 		var optionSet = {};
+		
+		 
 		
 		var ERP_GISU = ${erpGisu}
 		optionSet.erpGisu = ERP_GISU[0];	
@@ -110,6 +112,12 @@
 		</c:forEach>
 		
 		$(document).ready(function() {
+
+			$('#txtOpenAmt1').text(fnGetCurrencyCode("${contractDetailInfo.open_amt}"));
+			$('#txtConsBalanceAmt1').text(fnGetCurrencyCode("${contractDetailInfo.consbalance_amt}"));
+			$('#txtApplyAmt1').text(fnGetCurrencyCode("${contractDetailInfo.resApply_amt}"));
+			$('#txtBalanceAmt1').text(fnGetCurrencyCode("${contractDetailInfo.balance_amt}"));
+			
 			
 			//기존설정항목 세팅
 			setDynamicPuddInfoTable("amtInfoList", "${contractDetailInfo.contract_amt_info}");
@@ -181,7 +189,6 @@
 			$(cloneData).find("[name=pjt_name]").val("${items.pjt_name}");
 			$(cloneData).find("[name=bottom_seq]").val("${items.bottom_seq}");
 			$(cloneData).find("[name=bottom_name]").val("${items.bottom_name}");
-
 			
 			$('[name="budgetList"]').append(cloneData);
 			
@@ -230,11 +237,13 @@
 			$(cloneData).find("[name=pm_hp]").val("${items.pm_hp}");
 			$(cloneData).find("[name=pm_name]").val("${items.pm_name}");
 			
+			
+			
 			$('[name="tradeList"]').append(cloneData);
 			
 			</c:forEach>			
 			</c:if>			
-			
+		
 		}
 		
 		
@@ -712,8 +721,15 @@
 		}
 		
 		function fnSaveProc(type){
+			
 
 			insertDataObject.reqType = type;
+			
+ 			/* insertDataObject.open_amt = fnGetCurrencyCode(saveData.openAmt); */
+ 			insertDataObject.open_amt = saveData.openAmt;
+ 			insertDataObject.consbalance_amt = saveData.consBalanceAmt;
+ 			insertDataObject.resApply_amt = saveData.resApplyAmt;
+ 			insertDataObject.balance_amt = saveData.balanceAmt;
 			
 			<c:if test="${contractType == '01'}">
 			insertDataObject.outProcessCode = "Conclusion01-1";
@@ -806,6 +822,7 @@
 			
 			var selectedItems = "";
 			 
+			
 			$.each(Pudd( "#publicInfo" ).getPuddObject().getData(), function( key, val ) {
 				selectedItems += (key == 0 ? "" : ",") + val.value;
 			});				 
@@ -1143,6 +1160,7 @@
 					$(commonElement).find("[name=depositor]").val( param.depositor || "" );
 					$(commonElement).find("[name=tr_fg]").val( param.trFg || "" );
 					$(commonElement).find("[name=tr_fg_name]").val( param.trFgName || "" );
+					
 				
 				//회계단위	
 				}else if(param.code == "div"){
@@ -1268,11 +1286,18 @@
 					data : commonParam,
 					success : function(result) {
 
-						var data = result.result.aData;
+/* 						var data = result.result.aData;
 						$('#txtOpenAmt').text(fnGetCurrencyCode(data.openAmt));
 						$('#txtConsBalanceAmt').text(fnGetCurrencyCode(data.consBalanceAmt));
 						$('#txtApplyAmt').text(fnGetCurrencyCode(data.resApplyAmt));
-						$('#txtBalanceAmt').text(fnGetCurrencyCode(data.balanceAmt));
+						$('#txtBalanceAmt').text(fnGetCurrencyCode(data.balanceAmt)); */
+						
+						
+						saveData = result.result.aData;
+						$('#txtOpenAmt').text(fnGetCurrencyCode(saveData.openAmt));
+						$('#txtConsBalanceAmt').text(fnGetCurrencyCode(saveData.consBalanceAmt));
+						$('#txtApplyAmt').text(fnGetCurrencyCode(saveData.resApplyAmt));
+						$('#txtBalanceAmt').text(fnGetCurrencyCode(saveData.balanceAmt));
 
 					},
 					/*   - error :  */
@@ -1729,7 +1754,7 @@
 					<td><input  tbval="Y" name="pm_name" type="text" pudd-style="width:100%;" class="puddSetup ac" value="" requiredNot="true" /></td>
 					<td><input  tbval="Y" name="pm_hp" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
 					<td><input  tbval="Y" name="pm_email" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
-				</tr>				
+				</tr>
 			</table>
 		</div>
 
@@ -1909,6 +1934,7 @@
 					<td id="bgt4Name" objCheckFor="checkVal('text()', this, '세', '', '')"></td>
 				</tr>				
 				<tr>
+		 			<%-- <c:if test="${btnSaveYn == 'Y'}">  --%>
 					<th>예산액</th>
 					<td class="ri pr10" id="txtOpenAmt"></td>
 					<th>집행액</th>
@@ -1917,6 +1943,18 @@
 					<td class="ri pr10" id="txtApplyAmt"></td>
 					<th>예산잔액</th>
 					<td class="ri pr10" id="txtBalanceAmt"></td>
+					<%-- </c:if> --%>
+					
+	<%-- 				<c:if test="${btnSaveYn == 'N'}">
+					<th>예산액</th>
+					<td class="ri pr10" id="txtOpenAmt1"></td>
+					<th>집행액</th>
+					<td class="ri pr10" id="txtConsBalanceAmt1"></td>
+					<th>품의액</th>
+					<td class="ri pr10" id="txtApplyAmt1"></td>
+					<th>예산잔액</th>
+					<td class="ri pr10" id="txtBalanceAmt1"></td>
+					</c:if>  --%>
 				</tr>
 			</table>
 		</div>			

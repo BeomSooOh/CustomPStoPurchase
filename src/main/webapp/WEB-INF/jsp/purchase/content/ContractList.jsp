@@ -63,7 +63,6 @@
 		
 	}
 	
-	
 	function fnSaveProc(){
 		
 		var insertDataObject = {};
@@ -216,13 +215,22 @@
 				title : "기본정보"
 			,	columns : [
 				{
+					field : "no"
+				,	title : "연번"
+				,	width : 70
+				,	content : {
+						attributes : { class : "ci" }
+				}
+			}
+/* 				,{
 						field : "seq"
 					,	title : "연번"
 					,	width : 70
 					,	content : {
 							attributes : { class : "ci" }
 					}
-				}					
+				} */
+				
 			,	{
 						field : "manage_no"
 					,	title : "관리번호"
@@ -252,6 +260,22 @@
 						}
 					}				
 					
+				},	{
+		 			field : "manage_no" 
+		 				,	title : "회계년도"
+		 				,	width : 130
+		 				,	content : {	
+		 					template : function(rowData) {
+		 						if (rowData.manage_no == "" ){
+		 							return "";
+		 						} else {
+		 						var manage_no = rowData.manage_no;
+		 						var manage = (rowData.manage_no).split('-');
+		 						var manage_no = manage[1];
+		 						return manage_no;
+		 						}
+		 					}
+		 				}	
 				}
 			,	{
 						field : "target_type_name"
@@ -262,8 +286,13 @@
 					field : "contract_type_text"
 				,	title : "입찰/수의"
 				,	width : 100
-				}				
-			,	{
+			}
+/* 			,{
+				 field : "" 
+						,	title : "계약방법"
+						,	width : 100
+			} */
+			,{
 						field : "title"
 					,	title : "계약명"
 					,	width : 250
@@ -283,7 +312,14 @@
 							attributes : { class : "ri" }
 					}
 				}
-			,	{
+			,{
+				field : "joint_contract_method_text"
+					,	title : "공동계약방법"
+					,	width : 120
+					}
+					
+					,	
+			{
 						field : "contract_start_dt"
 					,	title : "계약시작일"
 					,	width : 150	
@@ -304,6 +340,41 @@
 					,	title : "계약종료일"
 					,	width : 100							
 				}
+			,	{
+				field : "construction_dt"
+			,	title : "착공일자"
+			,	width : 150	
+			,	content : {		
+				template : function(rowData) {
+					
+					<c:choose><c:when test="${authLevel=='admin'}">
+					return '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'construction_dt\', \''+rowData.construction_dt+'\', this.value)" type="text" value="' + rowData.construction_dt + '" class="puddSetup" pudd-type="datepicker"/>';
+					
+					
+					</c:when><c:otherwise>
+					return rowData.construction_dt;
+					</c:otherwise></c:choose>
+					
+				}
+			}					
+		} ,	{
+				field : "completion_dt"
+			,	title : "준공일자"
+			,	width : 150	
+			,	content : {		
+				template : function(rowData) {
+					
+					<c:choose><c:when test="${authLevel=='admin'}">
+					return '<input onchange="fnSetChangeInfo(\''+rowData.seq+'\', \'completion_dt\', \''+rowData.completion_dt+'\', this.value)" type="text" value="' + rowData.completion_dt + '" class="puddSetup" pudd-type="datepicker"/>';
+					</c:when><c:otherwise>
+					return rowData.completion_dt;
+					</c:otherwise></c:choose>
+					
+				}
+			}					
+		}
+			
+			
 				]
 			}
 			,	{
@@ -323,7 +394,73 @@
 						field : "ceo_name"
 					,	title : "대표자명"
 					,	width : 100							
+				},{
+					field : ""
+						,	title : "장단기"
+						,	width : 100	
+						,	content : {		
+							template : function(rowData) {
+								
+								if(rowData.contract_term == "01" || rowData.contract_form3 == "01"){
+									return "단년도";
+								}
+								else if(rowData.contract_term == "02" ){
+										return "다년도";
+								}
+								else if(rowData.contract_form3 == "02"){
+									return "장기계속";
+							}
+								else if(rowData.contract_term == "03" || rowData.contract_form3 == "03"){
+											return "계속비";
+								}else{
+									return "";
+								}
+
+							}
+						}
+					}
+			,	{
+				field : ""
+			,	title : "금액확정"
+			,	width : 100	
+			,	content : {		
+				template : function(rowData) {
+					
+					if(rowData.contract_form1 == "01" || rowData.c_contract_form1 == "01"){
+						return "확정계약";
+					}
+					else if(rowData.contract_form1 == "02" || rowData.c_contract_form1 == "02" ){
+							return "사후원가검토조건부계약";
+					}
+					else if(rowData.contract_form1 == "03" || rowData.c_contract_form1 == "03"){
+								return "개산계약";
+					}else{
+						return "";
+					}
+
 				}
+			}
+		}
+			,	{
+				field : ""
+			,	title : "금액산정"
+			,	width : 100	
+			,	content : {		
+				template : function(rowData) {
+					
+					if(rowData.contract_form2 == "01" || rowData.c_contract_form2 == "01"){
+						return "총액계약";
+					}
+					else if(rowData.contract_form2 == "02" || rowData.c_contract_form2 == "02"){
+							return "단가계약";
+					}
+					else{
+						return "";
+					}
+
+				}
+			}
+		}
 			,	{
 						field : "hope_company_info"
 					,	title : "희망기업여부"
@@ -335,6 +472,14 @@
 				title : "발주정보"
 			,	columns : [
 				{
+					field : "std_amt"
+				,	title : "추정가격"
+				,	width : 100		
+				,	content : {
+					attributes : { class : "ri" }
+				}
+				},
+				{
 						field : "amt"
 					,	title : "발주금액"
 					,	width : 100
@@ -342,7 +487,31 @@
 							attributes : { class : "ri" }
 					}
 				}
-			,	{
+				,{
+						field : "result_amt"
+					,	title : "낙찰가격"
+					,	width : 100
+					,	content : {
+							attributes : { class : "ri" }
+					}
+				},{
+					field : ""
+						,	title : "낙찰율"
+						,	width : 100
+						,	content : {		
+							template : function(rowData) {
+								var succrate_amt = 0;
+								if (rowData.result_amt != 0 && rowData.amt != 0){
+									var result_amt = parseInt(rowData.result_amt.replace(/,/g, ''));
+									var amt = parseInt(rowData.amt.replace(/,/g, ''));
+									return (result_amt/amt*100).toFixed(1) + " %";
+								} else {
+									return succrate_amt + "%";
+								}
+								
+							}
+						}
+				},{
 						field : "compete_type_text"
 					,	title : "경쟁방식"
 					,	width : 100							
@@ -366,13 +535,20 @@
 						field : "dept_name"
 					,	title : "기안자부서"
 					,	width : 120
-			}
+			} 
+/* 			,	{
+						field : ""
+					,	title : "계약담당자"
+					,	width : 120
+			} */
 			,	{
 				field : ""
 			,	title : "담당자"
 			,	width : 120
 			,	content : {
 				template : function(rowData) {
+						
+					if(rowData.public_info != ""){
 						const arr = (rowData.public_info||"").split("▦");
 						const arr1 = [];
 						const public_info = [];
@@ -380,14 +556,15 @@
 						for(var i=1; i<arr.length; i+=3){
 							const arr1 = arr[i].split("(");
 							for(var j=0; j<arr1.length; j+=2){
-/* 								if (i % 2 == 0) { */
 									public_info.push(arr1[j]); 
-								  /* } */
-							}
-								}
+									}
+								}		 
 						return public_info;
+					} else {
+						return rowData.public_info
+					}
 				}
-			}
+				}
 			}
 				]
 			}
@@ -570,7 +747,12 @@
 						field : "change_etc"
 					,	title : "기타변경"
 					,	width : 100							
-				}			
+				}
+			,	{
+				field : "change_reason"
+			,	title : "변경사유"
+			,	width : 100							
+		}
 				]
 			}
 			,	{
@@ -599,7 +781,41 @@
 					,	content : {
 							attributes : { class : "ri" }
 					}						
-				}	
+				}
+ 			,	{
+				field : ""
+			,	title : "집행액"
+			,	width : 100
+			,	content : {
+				attributes : { class : "ri" },
+				template : function(rowData) {
+					var pay_amt_a = rowData.pay_amt_a;
+					var pay_amt_b = rowData.pay_amt_b;
+					var pay_amt_c = rowData.pay_amt_c;
+					
+					
+					if((pay_amt_a != "" && pay_amt_a != "0") || (pay_amt_b != "" && pay_amt_b != "0") || (pay_amt_c != "" && pay_amt_c != "0") ){
+						 pay_amt_a = parseInt(rowData.pay_amt_a.replace(/,/g, ''));
+						 pay_amt_b = parseInt(rowData.pay_amt_b.replace(/,/g, ''));
+						 pay_amt_c = parseInt(rowData.pay_amt_c.replace(/,/g, ''));
+						 
+						 var sum_pay_amt = pay_amt_a + pay_amt_b + + pay_amt_c;
+						 
+						return sum_pay_amt.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+						
+					}
+					else if (pay_amt_a == "0" || pay_amt_a == "0" || pay_amt_a == "0"){
+						 pay_amt_a = parseInt(rowData.pay_amt_a);
+						 pay_amt_b = parseInt(rowData.pay_amt_b);
+						 pay_amt_c = parseInt(rowData.pay_amt_c);
+						 
+						 return (pay_amt_a+pay_amt_b+pay_amt_c);
+					}else {
+						return "";
+					}
+				}
+			}						
+		} 
 			,	{
 						field : "remain_amt"
 					,	title : "잔액"

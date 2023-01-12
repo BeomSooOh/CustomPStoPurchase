@@ -1,3 +1,16 @@
+var commonCodeSelectInfo = {};
+
+function commonCodeSelectPop(group, codeName, appendType, targetEl, multiYn, ){
+	
+	commonCodeSelectInfo.group = group;
+	commonCodeSelectInfo.codeName = codeName;
+	commonCodeSelectInfo.appendType = appendType;
+	commonCodeSelectInfo.targetEl = targetEl;
+	commonCodeSelectInfo.multiYn = multiYn;
+	
+	openWindow2("/CustomPStoPurchase/purchase/pop/CodeSelectPop.do?multiYn=" + multiYn + "&group=" + group,  "commonCodeSelectPop", 370, 450, 1, 1) ;
+}
+
 function chkChar(obj){
     var RegExp = /[\{\}\[\]\/?.,;:|\)*`!^\-_+┼<>@\#$%&\'\"\\\(\=]/gi;	//정규식 구문
     if (RegExp.test(obj.value)) {

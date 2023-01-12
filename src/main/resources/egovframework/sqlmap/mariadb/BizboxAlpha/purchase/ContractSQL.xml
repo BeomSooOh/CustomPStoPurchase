@@ -42,8 +42,8 @@
 	</select>
 		
 	<select	id="ContractSQL.SelectContractList" parameterClass="HashMap" resultClass="HashMap">
-		
-		SELECT 
+		SELECT   
+		@rownum := @rownum + 1 AS no,
 		a.seq, 
 		a.manage_no, 
 		a.contract_no,
@@ -69,7 +69,7 @@
 		ifnull(FORMAT(ifnull(a.contract_amt, 0), 0),'') as contract_amt,
 		ifnull(FORMAT(ifnull(a.contract_amt, a.amt), 0),'') as dis_amt,
 		a.amt_kor,
-		FORMAT(a.std_amt, 0) as std_amt,
+		ifnull(FORMAT(ifnull(a.std_amt, 0), 0),'') as std_amt,
 		FORMAT(a.tax_amt, 0) as tax_amt,		
 		a.base_law, 
 		cust_sto.fn_get_purchase_code_text('baseLaw', a.base_law) as base_law_name,
@@ -162,17 +162,32 @@
 		ifnull(a.approkey_conclusion,'') as approkey_conclusion,
 		ifnull(a.approkey_change,'') as approkey_change,
 		
-		a.public_info as public_info
+		a.public_info as public_info,
+		a.contract_term as contract_term,
+		ifnull(FORMAT(ifnull(a.result_amt, 0), 0),'') as result_amt,
+		ifnull(pcc_temp.change_reason,'') as change_reason,
 		
+		ifnull(a.construction_dt,'') as construction_dt, 
+		ifnull(a.completion_dt,'') as completion_dt,
+		a.open_amt as open_amt,
+		a.consbalance_amt as consbalance_amt,
+		a.resApply_amt as resApply_amt,
+		a.balance_amt as balance_amt
 		
 		FROM cust_sto.t_purchase_contract a
-		left join cust_sto.t_purchase_conclusion_change cc on a.approkey_change = concat('Conclu02_', cc.seq, '_', cc.change_seq)
+		inner join (SELECT @rownum:=0) tmp
+		left join cust_sto.t_purchase_conclusion_change cc on a.approkey_change = concat('Conclu02_', cc.seq, '_', cc.change_seq)  
+		left join cust_sto.t_purchase_conclusion_change pcc_temp on a.seq = pcc_temp.seq and ifnull(pcc_temp.doc_sts,'') = ''
 		left join cust_sto.t_purchase_trade_info trade on a.seq = trade.seq and trade.tr_idx = '0' and trade.outProcessCode like '%Conclusion01%'
 		left join $DB_NEOS$t_co_dept_multi cdm on ifnull(a.c_write_dept_seq,a.write_dept_seq) = cdm.dept_seq and cdm.lang_code = 'kr'
 		left join $DB_NEOS$t_co_emp_multi cem on ifnull(a.c_write_emp_seq,a.write_emp_seq) = cem.emp_seq and cem.lang_code = 'kr'		
 		
 		where 
+		
 		1=1
+		
+		 
+		 
 		<isNotEmpty property="searchFromDate">
 		and  ifnull(a.c_contract_end_dt, a.contract_end_dt) <![CDATA[ >= ]]> '$searchFromDate$'
 		</isNotEmpty>
@@ -195,9 +210,10 @@
 		<isEqual property="authLevel" compareValue="user">
 		and (
 				(a.write_emp_seq = '$empSeq$' or a.c_write_emp_seq = '$empSeq$')
-				or a.public_info like '%|$empSeq$|u%'
+				or a.public_info like '%|$empSeq$|u%' 
 			)   
 		</isEqual>
+		
 		
 		order by a.seq desc
 		LIMIT $startNum$ ,  $endNum$
@@ -254,6 +270,7 @@
 		a.modify_dt, 
 		a.modify_by,
 		
+		
 		ifnull(a.doc_sts,'') as doc_sts,
 		ifnull(pcc.doc_sts,'') as doc_sts_change, 
 		ifnull(a.approkey_plan,'') as approkey_plan, 
@@ -293,7 +310,15 @@
 		
 		ifnull(a.notice_start_dt,'') as notice_start_dt,
 		ifnull(a.notice_end_dt,'') as notice_end_dt,
-		ifnull(a.public_info,'') as public_info
+		ifnull(a.public_info,'') as public_info,
+		
+		ifnull(a.construction_dt,'') as construction_dt, 
+		ifnull(a.completion_dt,'') as completion_dt,
+		a.open_amt as open_amt,
+		a.consbalance_amt as consbalance_amt,
+		a.resApply_amt as resApply_amt,
+		a.balance_amt as balance_amt
+		
 		
 		FROM cust_sto.t_purchase_contract a
 		left join cust_sto.t_purchase_conclusion_change pcc on a.approkey_change = concat('Conclu02_', pcc.seq, '_', pcc.change_seq)
@@ -374,7 +399,9 @@
 		created_dt, 
 		created_by, 
 		modify_dt, 
-		modify_by
+		modify_by,
+		construction_dt,
+		completion_dt
 		
 		)
 		VALUES(
@@ -414,7 +441,9 @@
 		now(), 
 		'$created_by$', 
 		null, 
-		null
+		null,
+		'$construction_dt$',
+		'$completion_dt$'
 		);
 		
 		<selectKey keyProperty="seq" resultClass="int">
@@ -464,7 +493,12 @@
 		created_dt, 
 		created_by, 
 		modify_dt, 
-		modify_by
+		modify_by,
+		
+		open_amt,
+		consbalance_amt,
+		resApply_amt,
+		balance_amt
 		
 		)
 		VALUES(
@@ -504,7 +538,13 @@
 		now(), 
 		'$created_by$', 
 		null, 
-		null
+		null,
+		
+		'$open_amt$',
+		'$consbalance_amt$',
+		'$resApply_amt$',
+		'$balance_amt$'		
+		
 		);
 		
 		<selectKey keyProperty="seq" resultClass="int">
@@ -591,7 +631,10 @@
 		rebid_yn='$rebid_yn$', 
 		eorder_use_yn='$eorder_use_yn$', 
 		modify_dt=now(), 
-		modify_by='$created_by$'
+		modify_by='$created_by$',
+		construction_dt='$construction_dt$',
+		completion_dt='$completion_dt$'
+
 		
 		WHERE seq='$seq$'; 
 	</update>
@@ -635,6 +678,13 @@
 		<isNotEmpty property="submit_attach_info">
 		 ,submit_attach_info='$submit_attach_info$'
 		</isNotEmpty>	
+		<isNotEmpty property="construction_dt">
+		,construction_dt='$construction_dt$' 
+		</isNotEmpty>
+		<isNotEmpty property="completion_dt">
+		,completion_dt='$completion_dt$' 
+		</isNotEmpty>
+		
 		
 		WHERE seq='$seq$'; 
 	</update>
@@ -674,7 +724,12 @@
 		contract_amt_info='$contract_amt_info$',			
 		contract_amt_kor='$contract_amt_kor$',
 		modify_dt=now(), 
-		modify_by='$created_by$'
+		modify_by='$created_by$',
+				
+		open_amt='$open_amt$',
+		consbalance_amt='$consbalance_amt$',
+		resApply_amt='$resApply_amt$',
+		balance_amt='$balance_amt$'
 		
 		WHERE seq='$seq$'; 
 	</update>	

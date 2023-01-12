@@ -640,7 +640,10 @@
 		</isEqual>
 		<isNotEqual property="GROUP" compareValue="PURCHASE_GOAL">
 		`GROUP` = '$GROUP$'
-		</isNotEqual>			
+		</isNotEqual>
+		<isNotEmpty property="SEARCH">
+		and (code like '%$SEARCH$%' or name like '%$SEARCH$%')
+		</isNotEmpty>					
 	
 	</select>
 		
@@ -669,7 +672,11 @@
 		ifnull(ORDER_NUM,'') as ORDER_NUM,	
 		ifnull(NOTE,'') as NOTE,	
 		ifnull(LINK,'') as LINK
-		from cust_sto.t_purchase_code_detail where `GROUP` = '$GROUP$'
+		from cust_sto.t_purchase_code_detail 
+		where `GROUP` = '$GROUP$'
+		<isNotEmpty property="SEARCH">
+		and (code like '%$SEARCH$%' or name like '%$SEARCH$%')
+		</isNotEmpty>				
 		order by ORDER_NUM
 		</isNotEqual>			
 		LIMIT $startNum$ ,  $endNum$	
@@ -705,7 +712,7 @@
 
 	<select	id="CommonSQL.SelectPurchaseResHopeInfoList" parameterClass="HashMap" resultClass="HashMap">
 		
-		select
+		select distinct
 		a.res_doc_seq
 		,a.tr_seq
 		,a.tr_name
