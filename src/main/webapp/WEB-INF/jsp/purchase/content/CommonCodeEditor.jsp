@@ -603,7 +603,7 @@
 		function callbackSel(data){
 			
 			if(data.returnObj.length > 0){
-				$("#selectedItems").val(data.returnObj[0].superKey);
+				//$("#selectedItems").val(data.returnObj[0].superKey);
 				$("#selectedDeptSeq").val(data.returnObj[0].deptSeq);
 				$("#deptName").val(data.returnObj[0].deptName);				
 			}else{
