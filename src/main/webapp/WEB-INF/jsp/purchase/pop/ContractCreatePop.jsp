@@ -12,7 +12,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>계약입찰 발주계획 등록</title>
+    <title>입찰발주 의뢰</title>
 
     <!--css-->
     <link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/pudd.css' />">
@@ -579,7 +579,7 @@
 <body>
 <div class="pop_wrap" style="min-width:998px;"> <!-- 팝업창사이즈 가로 : 1000px -->
 	<div class="pop_sign_head posi_re">
-		<h1>계약입찰 발주계획 등록</h1>
+		<h1>입찰발주 의뢰</h1>
 		<div class="psh_btnbox">
 			<div class="psh_right">
 				<div class="btn_cen mt8">
