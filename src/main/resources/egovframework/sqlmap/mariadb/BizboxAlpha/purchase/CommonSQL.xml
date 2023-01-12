@@ -124,16 +124,16 @@
 		ifnull(a.re_notice_end_dt,'') as re_notice_end_dt,		
 				
 		ifnull((select concat(
-		substr(pbi.erp_bgt1_name, 5),case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
-		substr(pbi.erp_bgt2_name, 5),case when pbi.erp_bgt3_name = '' then '' else ' / ' end ,
-		substr(pbi.erp_bgt3_name, 5),case when pbi.erp_bgt4_name = '' then '' else ' / ' end ,
-		substr(pbi.erp_bgt4_name, 5)) from cust_sto.t_purchase_budget_info pbi where pbi.outProcessCode = 'Contract02' and pbi.seq = a.seq limit 1),'') as meet_budget_name,
+		pbi.erp_bgt1_name,case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
+		pbi.erp_bgt2_name,case when pbi.erp_bgt3_name = '' then '' else ' / ' end ,
+		pbi.erp_bgt3_name,case when pbi.erp_bgt4_name = '' then '' else ' / ' end ,
+		pbi.erp_bgt4_name) from cust_sto.t_purchase_budget_info pbi where pbi.outProcessCode = 'Contract02' and pbi.seq = a.seq limit 1),'') as meet_budget_name,
 		
 		ifnull((select concat(
-		substr(pbi.erp_bgt1_name, 5),case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
-		substr(pbi.erp_bgt2_name, 5),case when pbi.erp_bgt3_name = '' then '' else ' / ' end ,
-		substr(pbi.erp_bgt3_name, 5),case when pbi.erp_bgt4_name = '' then '' else ' / ' end ,
-		substr(pbi.erp_bgt4_name, 5)) from cust_sto.t_purchase_budget_info pbi where pbi.outProcessCode like '%Conclusion01%' and pbi.seq = a.seq limit 1),'') as conclusion_budget_name,		
+		pbi.erp_bgt1_name,case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
+		pbi.erp_bgt2_name,case when pbi.erp_bgt3_name = '' then '' else ' / ' end ,
+		pbi.erp_bgt3_name,case when pbi.erp_bgt4_name = '' then '' else ' / ' end ,
+		pbi.erp_bgt4_name) from cust_sto.t_purchase_budget_info pbi where pbi.outProcessCode like '%Conclusion01%' and pbi.seq = a.seq limit 1),'') as conclusion_budget_name,		
 		
 		ifnull(a.result_judges_info_html,'') as result_judges_info_html,
 		ifnull(a.result_score_info_html,'') as result_score_info_html,
@@ -212,13 +212,14 @@
 		dm.dept_name as write_dept_name,
 		em.emp_name as write_emp_name,
 		a.write_dt,
+		a.c_write_dt,
 		
 		a.created_dt, 
 		a.created_by, 
 		a.modify_dt, 
 		a.modify_by,
 		
-		cust_sto.fn_get_purchase_code_text('purchaseMethod',a.purchase_method) as purchase_method, 
+		ifnull(a.purchase_method,'') as purchase_method, 
 		cust_sto.fn_get_purchase_code_text('purchaseType',a.purchase_type) as purchase_type, 
 		cust_sto.fn_get_purchase_code_text('payType',a.pay_type_info) as pay_type, 
 		
@@ -232,12 +233,30 @@
 		FORMAT(a.purchase_amt, 0) as purchase_amt,			
 		a.purchase_amt_kor,
 		a.item_info_html,
-		ifnull(a.check_info_html,'') as check_info_html
+		ifnull(a.check_info_html,'') as check_info_html,
+		
+		ifnull(item0.item_total_cnt,'0') as item_total_cnt,
+		ifnull(item0.tr_name,'') as tr_name,
+		ifnull(item0.item_deadline,'') as item_deadline,
+		ifnull(item0.item_pickup_location,'') as item_pickup_location,
+		ifnull(item0.item_name,'') as item_name,
+		cust_sto.fn_get_purchase_code_text('useLocation',item0.item_use_location) as item_use_location, 
+		
+		ifnull((select concat(
+		pbi.erp_bgt1_name,case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
+		pbi.erp_bgt2_name,case when pbi.erp_bgt3_name = '' then '' else ' / ' end ,
+		pbi.erp_bgt3_name,case when pbi.erp_bgt4_name = '' then '' else ' / ' end ,
+		pbi.erp_bgt4_name) from cust_sto.t_purchase_budget_info pbi where pbi.outProcessCode like '%Purchase01%' and pbi.seq = a.seq limit 1),'') as purchase_budget_name	
 		
 		FROM cust_sto.t_purchase_purchase a
+		left join (
+			select ifnull(sum(item_cnt),0) as item_total_cnt, item.item_name, item.item_use_location, item.seq, trade.tr_name, item.item_deadline, item.item_pickup_location from cust_sto.t_purchase_item_info item
+			join cust_sto.t_purchase_trade_info trade on item.seq =trade.seq and item.item_tr_seq =trade.tr_seq 
+			where item.seq = '$seq$'
+		) item0 on a.seq = item0.seq		
 		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
 		left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'
-		where a.seq = $seq$
+		where a.seq = '$seq$'
 		
 	</select>	
 	

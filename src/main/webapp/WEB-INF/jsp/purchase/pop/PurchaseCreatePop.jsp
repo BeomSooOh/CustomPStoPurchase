@@ -1248,6 +1248,7 @@
 		insertDataObject.seq = thisSeq;
 		
 		var itemAmtTotal = 0;
+		var itemFeeTotal = 0;
 		
 		$.each($("[name=itemList] [name=addData] [name=item_total_amt]"), function( idx, obj ) {
 			if($(obj).val() != "" && $(obj).val() != "0"){
@@ -1257,6 +1258,12 @@
 		
 		insertDataObject.purchase_amt = itemAmtTotal;
 		insertDataObject.purchase_amt_kor = viewKorean(itemAmtTotal.toString());
+		
+		$.each($("[name=itemList] [name=addData] [name=item_fee_amt]"), function( idx, obj ) {
+			if($(obj).val() != "" && $(obj).val() != "0"){
+				itemFeeTotal += parseInt($(obj).val().replace(/,/g, ''));
+			}
+		});					
 		
 		//품품정보 html
 		$('[name=itemObjListHtml]').find("[displaynone]").removeAttr("displaynone");
@@ -1268,9 +1275,14 @@
 		});			
 		
 		var cloneData = $('[name=itemObjListHtml]').clone();
+		
+		$(cloneData).find("[name=itemList]").append("<tr><td bgcolor='#f1f1f1' colspan='4'>조달구매수수료/이용수수료(단가계약, 계약금액의 000%)</td><td colspan='2'>"+itemFeeTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+" 원</td></tr>");
+		$(cloneData).find("[name=itemList]").append("<tr><td bgcolor='#f1f1f1' colspan='4'>총계 (VAT 포함 )</td><td colspan='2'>"+itemAmtTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+" 원</td></tr>");
+		
 		$(cloneData).find("[displaynone]").remove();
 		$(cloneData).find("[removehtml=Y]").remove();
 		$(cloneData).find("[name=dataBase]").remove();
+		
 		$(cloneData).find("[name=itemList]").attr("border", "1").attr("width", "100%").css("width", "100%");
 		$(cloneData).find("th").attr("align", "center").attr("bgcolor", "#f1f1f1").attr("height", "25");
 		$(cloneData).find("td").attr("align", "center").attr("height", "20");
@@ -2043,8 +2055,8 @@
 					<th class="ac" removehtml="Y">물품분류번호</th>
 					<th class="ac">물품식별번호</th>
 					<th class="ac">품명</th>
-					<th class="ac">조달단가</th>
 					<th class="ac">구매수량</th>
+					<th class="ac">조달단가</th>
 					<th class="ac">소계</th>
 					<th class="ac" removehtml="Y">납품기한</th>
 					<th class="ac" removehtml="Y">수령장소</th>					
@@ -2076,8 +2088,8 @@
 						</div>
 					</td>
 					<td><input ${disabled} tbval="Y" name="item_name" tbname="품명" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
-					<td htmlalign="right"><input ${disabled} tbval="Y" name="item_amt" tbname="조달단가" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> <span removehtml="Y">원</span></td>
 					<td><input ${disabled} tbval="Y" name="item_cnt" tbname="구매수량" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="1" /></td>
+					<td htmlalign="right"><input ${disabled} tbval="Y" name="item_amt" tbname="조달단가" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> <span removehtml="Y">원</span></td>
 					<td htmlalign="right" tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
 					<input tbval="Y" name="item_total_amt" amountInput="Y" type="hidden" value="0" requiredNot="true" />
 					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_deadline" tbname="납품기한" value="" readonly style="text-align: center;height: 22px;border: ridge;width: 90px;" /></td>
@@ -2163,8 +2175,8 @@
 						</div>
 					</td>
 					<td><input ${disabled} tbval="Y" name="item_name" tbname="품명" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
-					<td htmlalign="right"><input ${disabled} tbval="Y" name="item_amt" tbname="조달단가" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> <span removehtml="Y">원</span></td>
 					<td><input ${disabled} tbval="Y" name="item_cnt" tbname="구매수량" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="1" /></td>
+					<td htmlalign="right"><input ${disabled} tbval="Y" name="item_amt" tbname="조달단가" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> <span removehtml="Y">원</span></td>
 					<td htmlalign="right" tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
 					<input tbval="Y" name="item_total_amt" amountInput="Y" type="hidden" value="0" requiredNot="true" />
 					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_deadline" tbname="납품기한" value="" readonly style="text-align: center;height: 22px;border: ridge;width: 90px;" /></td>
@@ -2231,7 +2243,7 @@
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
 						</select>
-					</td>														
+					</td>													
 				</tr>				
 			</table>
 		</div>

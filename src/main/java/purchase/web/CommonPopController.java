@@ -333,6 +333,8 @@ public class CommonPopController {
 					
 				    ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFilePath));
 				    
+				    boolean zipFileCheck = false;
+				    
 					for (Map<String, Object> attachinfo : attachList) {
 						
 						String file_id = attachinfo.get("file_id").toString();
@@ -341,22 +343,27 @@ public class CommonPopController {
 						
 						File srcDir = new File(oriPath);
 						
-						File oriFile = srcDir.listFiles()[0];
+						if(srcDir.exists()) {
+							File oriFile = srcDir.listFiles()[0];
+							
+							FileInputStream in = new FileInputStream(oriFile);
+							ZipEntry ze = new ZipEntry(oriFile.getName());
+							out.putNextEntry(ze);
+					        int len;
+					        while ((len = in.read(buf)) > 0) {
+					            out.write(buf, 0, len);
+					        }
+					          
+					        out.closeEntry();
+					        in.close();
+					        
+					        zipFileCheck = true;
+						}
 						
-						FileInputStream in = new FileInputStream(oriFile);
-						ZipEntry ze = new ZipEntry(oriFile.getName());
-						out.putNextEntry(ze);
-				        int len;
-				        while ((len = in.read(buf)) > 0) {
-				            out.write(buf, 0, len);
-				        }
-				          
-				        out.closeEntry();
-				        in.close();
 					}				    
 					out.close();
 					
-					params.put("purchase_attach_info", params.get("approKey").toString() + "▦.zip▦" + zipFileId);
+					params.put("purchase_attach_info", zipFileCheck ? (params.get("approKey").toString() + "▦.zip▦" + zipFileId) : "");
 					purchaseServiceDAO.UpdatePurchaseAttachInfo(params);
 					
 				}
