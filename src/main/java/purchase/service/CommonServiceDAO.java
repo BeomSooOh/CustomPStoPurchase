@@ -14,6 +14,13 @@ import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 
 @Repository("CommonServiceDAO")
 public class CommonServiceDAO extends EgovComAbstractDAO {
+	
+	@SuppressWarnings ( "unchecked" )
+	public List<Map<String, Object>> SelectOverallHopeAmtInfo ( Map<String, Object> params ) {
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
+		result = (List<Map<String, Object>>) list( "CommonSQL.SelectOverallHopeAmtInfo", params );
+		return result;
+	}	
  
 	@SuppressWarnings ( "unchecked" )
 	public Map<String, Object> GetGroupInfo ( Map<String, Object> params ) {
@@ -170,7 +177,8 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
 		result = (List<Map<String, Object>>) list( "CommonSQL.SelectBudgetList", params );
 		return result;
-	}	
+	}
+	
 	
 	public void DeleteTradeInfo ( Map<String, Object> params ) {
 		

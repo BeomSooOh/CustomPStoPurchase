@@ -744,4 +744,76 @@
 
 	</delete>
 	
+	
+	<select	id="CommonSQL.SelectOverallHopeAmtInfo" parameterClass="HashMap" resultClass="HashMap">
+		
+		select 
+		name,
+		goal_amt,
+		format((conclusion_amt + purchase_amt + etc_res_amt),0) as current_amt,
+		(conclusion_cnt + purchase_cnt + etc_res_cnt) as current_cnt	
+		from
+		(
+			select
+			code0.name,
+			-- 목표금액
+			ifnull(code1.NOTE,'-') as goal_amt,	
+			
+			-- 계약금액/카운트
+			ifnull((select
+			sum(c.trade_amt)
+			from cust_sto.t_purchase_contract a
+			join $DB_NEOS$t_exnp_resdoc b on a.seq = b.out_process_interface_m_id and b.out_process_interface_id = 'CONCLUSION' and b.doc_status = '008'
+			join $DB_NEOS$t_exnp_restrade c on b.res_doc_seq = c.res_doc_seq 
+			where b.erp_expend_year = '$year$' and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')),0) as conclusion_amt,
+			(select count(distinct a.seq)
+			from cust_sto.t_purchase_contract a
+			join $DB_NEOS$t_exnp_resdoc b on a.seq = b.out_process_interface_m_id and b.out_process_interface_id = 'CONCLUSION' and b.doc_status = '008'
+			join $DB_NEOS$t_exnp_restrade c on b.res_doc_seq = c.res_doc_seq 
+			where b.erp_expend_year = '$year$' and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')) as conclusion_cnt,	
+				
+			-- 물품구매금액/카운트
+			ifnull((select
+			sum(d.trade_amt)
+			from cust_sto.t_purchase_purchase a
+			join $DB_NEOS$t_exnp_resdoc b on a.seq  = b.out_process_interface_m_id and b.out_process_interface_id = 'PURCHASE' and b.doc_status = '008'
+			join cust_sto.t_purchase_trade_info c on a.seq = c.seq
+			join $DB_NEOS$t_exnp_restrade d on b.res_doc_seq = d.res_doc_seq and c.tr_seq = d.tr_seq  
+			where b.erp_expend_year = '$year$' and concat('▦',c.hope_company_info) like concat('%▦', code0.code, '▦%')),0) as purchase_amt,
+			(select count(distinct a.seq)
+			from cust_sto.t_purchase_purchase a
+			join $DB_NEOS$t_exnp_resdoc b on a.seq  = b.out_process_interface_m_id and b.out_process_interface_id = 'PURCHASE' and b.doc_status = '008'
+			join cust_sto.t_purchase_trade_info c on a.seq = c.seq
+			join $DB_NEOS$t_exnp_restrade d on b.res_doc_seq = d.res_doc_seq and c.tr_seq = d.tr_seq  
+			where b.erp_expend_year = '$year$' and concat('▦',c.hope_company_info) like concat('%▦', code0.code, '▦%')) as purchase_cnt,		
+			
+			-- 기타결의금액/카운트
+			ifnull((select
+			sum(c.trade_amt)
+			from cust_sto.t_purchase_res_hope_info a
+			join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and b.doc_status = '008'
+			join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq  
+			where b.erp_expend_year = '$year$' and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')),0) as etc_res_amt,		
+			(select	count(distinct a.res_doc_seq )
+			from cust_sto.t_purchase_res_hope_info a
+			join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and b.doc_status = '008'
+			join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq  
+			where b.erp_expend_year = '$year$' and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')) as etc_res_cnt,
+			
+			ifnull(code1.ORDER_NUM,code0.ORDER_NUM) as order_num
+			from cust_sto.t_purchase_code_detail code0
+			left join cust_sto.t_purchase_code_detail code1 on code1.`GROUP` = 'PURCHASE_GOAL'
+			<isEqual property="authLevel" compareValue="admin">
+			and concat(code0.CODE, '_$year$') = code1.CODE and code1.USE_YN = 'Y'
+			</isEqual>
+			<isEqual property="authLevel" compareValue="dept">
+			and concat(code0.CODE, '_$year$$deptSeq$') = code1.CODE and code1.USE_YN = 'Y'
+			</isEqual>
+			
+			where code0.`GROUP` = 'hopeCompany' and code0.CODE != '00'
+		) result_data
+		order by order_num
+
+	</select>		
+	
 </sqlMap>

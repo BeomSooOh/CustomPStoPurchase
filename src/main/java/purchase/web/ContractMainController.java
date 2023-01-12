@@ -67,7 +67,8 @@ public class ContractMainController {
     private ContractServiceDAO contractServiceDAO;    	   
 
     @Resource(name = "CommonServiceDAO")
-    private CommonServiceDAO commonServiceDAO;    	       
+    private CommonServiceDAO commonServiceDAO;    	  
+    
     
     @RequestMapping("/purchase/{authLevel}/ContractList.do")
     public ModelAndView ContractList(@PathVariable String authLevel, @RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
