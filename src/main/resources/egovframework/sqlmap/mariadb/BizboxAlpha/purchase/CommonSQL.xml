@@ -124,16 +124,16 @@
 		ifnull(a.re_notice_end_dt,'') as re_notice_end_dt,		
 				
 		ifnull((select concat(
-		pbi.erp_bgt1_name,case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
-		pbi.erp_bgt2_name,case when pbi.erp_bgt3_name = '' then '' else ' / ' end ,
-		pbi.erp_bgt3_name,case when pbi.erp_bgt4_name = '' then '' else ' / ' end ,
-		pbi.erp_bgt4_name) from cust_sto.t_purchase_budget_info pbi where pbi.outProcessCode = 'Contract02' and pbi.seq = a.seq limit 1),'') as meet_budget_name,
+		substr(pbi.pjt_name, 5),case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
+		substr(pbi.erp_bgt2_name, 5),case when pbi.erp_bgt3_name = '' then '' else ' / ' end ,
+		substr(pbi.erp_bgt3_name, 5),case when pbi.erp_bgt4_name = '' then '' else ' / ' end ,
+		substr(pbi.erp_bgt4_name, 5)) from cust_sto.t_purchase_budget_info pbi where pbi.outProcessCode = 'Contract02' and pbi.seq = a.seq limit 1),'') as meet_budget_name,
 		
 		ifnull((select concat(
-		pbi.erp_bgt1_name,case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
-		pbi.erp_bgt2_name,case when pbi.erp_bgt3_name = '' then '' else ' / ' end ,
-		pbi.erp_bgt3_name,case when pbi.erp_bgt4_name = '' then '' else ' / ' end ,
-		pbi.erp_bgt4_name) from cust_sto.t_purchase_budget_info pbi where pbi.outProcessCode like '%Conclusion01%' and pbi.seq = a.seq limit 1),'') as conclusion_budget_name,		
+		substr(pbi.pjt_name, 5),case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
+		substr(pbi.erp_bgt2_name, 5),case when pbi.erp_bgt3_name = '' then '' else ' / ' end ,
+		substr(pbi.erp_bgt3_name, 5),case when pbi.erp_bgt4_name = '' then '' else ' / ' end ,
+		substr(pbi.erp_bgt4_name, 5)) from cust_sto.t_purchase_budget_info pbi where pbi.outProcessCode like '%Conclusion01%' and pbi.seq = a.seq limit 1),'') as conclusion_budget_name,				
 		
 		ifnull(a.result_judges_info_html,'') as result_judges_info_html,
 		ifnull(a.result_score_info_html,'') as result_score_info_html,
@@ -243,7 +243,7 @@
 		cust_sto.fn_get_purchase_code_text('useLocation',item0.item_use_location) as item_use_location, 
 		
 		ifnull((select concat(
-		pbi.erp_bgt1_name,case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
+		pbi.pjt_name,case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
 		pbi.erp_bgt2_name,case when pbi.erp_bgt3_name = '' then '' else ' / ' end ,
 		pbi.erp_bgt3_name,case when pbi.erp_bgt4_name = '' then '' else ' / ' end ,
 		pbi.erp_bgt4_name) from cust_sto.t_purchase_budget_info pbi where pbi.outProcessCode like '%Purchase01%' and pbi.seq = a.seq limit 1),'') as purchase_budget_name	

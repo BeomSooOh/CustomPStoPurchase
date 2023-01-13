@@ -5,13 +5,14 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="validator" uri="http://www.springmodules.org/tags/commons-validator"%>
+<jsp:useBean id="currentTime" class="java.util.Date" />
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>제안서 평가회의 등록</title>
+    <title>제안서 평가위원회 개최</title>
 
     <!--css-->
     <link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/pudd.css' />">
@@ -1083,7 +1084,7 @@
 <body>
 <div class="pop_wrap" style="min-width:998px;"> <!-- 팝업창사이즈 가로 : 1000px -->
 	<div class="pop_sign_head posi_re">
-		<h1>제안서 평가회의 등록</h1>
+		<h1>제안서 평가위원회 개최</h1>
 		<div class="psh_btnbox">
 			<div class="psh_right">
 				<div class="btn_cen mt8">
