@@ -765,12 +765,26 @@
 			from cust_sto.t_purchase_contract a
 			join $DB_NEOS$t_exnp_resdoc b on a.seq = b.out_process_interface_m_id and b.out_process_interface_id = 'CONCLUSION' and b.doc_status = '008'
 			join $DB_NEOS$t_exnp_restrade c on b.res_doc_seq = c.res_doc_seq 
-			where b.erp_expend_year = '$year$' and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')),0) as conclusion_amt,
+			<isEqual property="authLevel" compareValue="dept">
+			left join neos.t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			</isEqual>				
+			where b.erp_expend_year = '$year$' 
+			<isEqual property="authLevel" compareValue="dept">
+			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+			</isEqual>			
+			and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')),0) as conclusion_amt,
 			(select count(distinct a.seq)
 			from cust_sto.t_purchase_contract a
 			join $DB_NEOS$t_exnp_resdoc b on a.seq = b.out_process_interface_m_id and b.out_process_interface_id = 'CONCLUSION' and b.doc_status = '008'
 			join $DB_NEOS$t_exnp_restrade c on b.res_doc_seq = c.res_doc_seq 
-			where b.erp_expend_year = '$year$' and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')) as conclusion_cnt,	
+			<isEqual property="authLevel" compareValue="dept">
+			left join neos.t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			</isEqual>			
+			where b.erp_expend_year = '$year$'
+			<isEqual property="authLevel" compareValue="dept">
+			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+			</isEqual>			
+			and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')) as conclusion_cnt,	
 				
 			-- 물품구매금액/카운트
 			ifnull((select
@@ -778,27 +792,55 @@
 			from cust_sto.t_purchase_purchase a
 			join $DB_NEOS$t_exnp_resdoc b on a.seq  = b.out_process_interface_m_id and b.out_process_interface_id = 'PURCHASE' and b.doc_status = '008'
 			join cust_sto.t_purchase_trade_info c on a.seq = c.seq
-			join $DB_NEOS$t_exnp_restrade d on b.res_doc_seq = d.res_doc_seq and c.tr_seq = d.tr_seq  
-			where b.erp_expend_year = '$year$' and concat('▦',c.hope_company_info) like concat('%▦', code0.code, '▦%')),0) as purchase_amt,
+			join $DB_NEOS$t_exnp_restrade d on b.res_doc_seq = d.res_doc_seq and c.tr_seq = d.tr_seq
+			<isEqual property="authLevel" compareValue="dept">
+			left join neos.t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			</isEqual>			  
+			where b.erp_expend_year = '$year$'
+			<isEqual property="authLevel" compareValue="dept">
+			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+			</isEqual>				 
+			and concat('▦',c.hope_company_info) like concat('%▦', code0.code, '▦%')),0) as purchase_amt,
 			(select count(distinct a.seq)
 			from cust_sto.t_purchase_purchase a
 			join $DB_NEOS$t_exnp_resdoc b on a.seq  = b.out_process_interface_m_id and b.out_process_interface_id = 'PURCHASE' and b.doc_status = '008'
 			join cust_sto.t_purchase_trade_info c on a.seq = c.seq
-			join $DB_NEOS$t_exnp_restrade d on b.res_doc_seq = d.res_doc_seq and c.tr_seq = d.tr_seq  
-			where b.erp_expend_year = '$year$' and concat('▦',c.hope_company_info) like concat('%▦', code0.code, '▦%')) as purchase_cnt,		
+			join $DB_NEOS$t_exnp_restrade d on b.res_doc_seq = d.res_doc_seq and c.tr_seq = d.tr_seq
+			<isEqual property="authLevel" compareValue="dept">
+			left join neos.t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			</isEqual>			  
+			where b.erp_expend_year = '$year$'
+			<isEqual property="authLevel" compareValue="dept">
+			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+			</isEqual>				 
+			and concat('▦',c.hope_company_info) like concat('%▦', code0.code, '▦%')) as purchase_cnt,		
 			
 			-- 기타결의금액/카운트
 			ifnull((select
 			sum(c.trade_amt)
 			from cust_sto.t_purchase_res_hope_info a
 			join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and b.doc_status = '008'
-			join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq  
-			where b.erp_expend_year = '$year$' and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')),0) as etc_res_amt,		
+			join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq
+			<isEqual property="authLevel" compareValue="dept">
+			left join neos.t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			</isEqual>			  
+			where b.erp_expend_year = '$year$'
+			<isEqual property="authLevel" compareValue="dept">
+			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+			</isEqual>				 
+			and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')),0) as etc_res_amt,		
 			(select	count(distinct a.res_doc_seq )
 			from cust_sto.t_purchase_res_hope_info a
 			join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and b.doc_status = '008'
-			join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq  
-			where b.erp_expend_year = '$year$' and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')) as etc_res_cnt,
+			join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq
+			<isEqual property="authLevel" compareValue="dept">
+			left join neos.t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			</isEqual>			  
+			where b.erp_expend_year = '$year$'
+			<isEqual property="authLevel" compareValue="dept">
+			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+			</isEqual>				 
+			and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')) as etc_res_cnt,
 			
 			ifnull(code1.ORDER_NUM,code0.ORDER_NUM) as order_num
 			from cust_sto.t_purchase_code_detail code0
@@ -813,6 +855,42 @@
 			where code0.`GROUP` = 'hopeCompany' and code0.CODE != '00'
 		) result_data
 		order by order_num
+
+	</select>		
+	
+	
+	<select	id="CommonSQL.SelectDeptHopeAmtInfo" parameterClass="HashMap" resultClass="HashMap">
+
+			select
+			d.dept_seq
+			,dm.dept_name
+			<isEqual property="amtType" compareValue="cons">
+			    <iterate property="hopeCompanyCode" open="" close="" conjunction="">
+				,ifnull((select sum(a.item_total_amt)
+				from cust_sto.t_purchase_item_info a
+				join cust_sto.t_purchase_trade_info b on a.seq = b.seq and a.item_tr_seq = b.tr_seq and a.outProcessCode = b.outProcessCode 
+				join neos.t_exnp_consdoc c on a.seq = c.out_process_interface_m_id and c.out_process_interface_id = 'Purchase01' and c.doc_status = '90'
+				where concat('▦',b.hope_company_info) like '%▦$hopeCompanyCode[].CODE$▦%'
+				and c.dept_seq = d.dept_seq and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'),0) as 'code_$hopeCompanyCode[].CODE$'   
+			    </iterate>
+		    </isEqual>
+			<isEqual property="amtType" compareValue="res">
+			    <iterate property="hopeCompanyCode" open="" close="" conjunction="">
+				,ifnull((select sum(a.item_total_amt)
+				from cust_sto.t_purchase_item_info a
+				join cust_sto.t_purchase_trade_info b on a.seq = b.seq and a.item_tr_seq = b.tr_seq and a.outProcessCode = b.outProcessCode 
+				join neos.t_exnp_consdoc c on a.seq = c.out_process_interface_m_id and c.out_process_interface_id = 'Purchase01' and c.doc_status = '90'
+				where concat('▦',b.hope_company_info) like '%▦$hopeCompanyCode[].CODE$▦%'
+				and c.dept_seq = d.dept_seq and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'),0) as 'code_$hopeCompanyCode[].CODE$'   
+			    </iterate>
+		    </isEqual>		    
+			from neos.t_co_dept d
+			join neos.t_co_dept_multi dm on d.dept_seq = dm.dept_seq
+			where d.use_yn = 'Y'
+			<isEqual property="authLevel" compareValue="dept">
+			and (concat('|',d.`path`,'|') like concat('%|','$deptSeq$','|%'))
+			</isEqual>			 
+			order by d.path
 
 	</select>		
 	

@@ -9,6 +9,10 @@
 		SELECT 
 		count(*)		
 		FROM cust_sto.t_purchase_contract a
+		<isEqual property="authLevel" compareValue="dept">
+		left join neos.t_co_dept wdept on a.write_dept_seq = wdept.dept_seq 
+		left join neos.t_co_dept cwdept on a.c_write_dept_seq = cwdept.dept_seq
+		</isEqual>
 		left join $DB_NEOS$t_co_dept_multi cdm on ifnull(a.c_write_dept_seq,a.write_dept_seq) = cdm.dept_seq and cdm.lang_code = 'kr'
 		left join $DB_NEOS$t_co_emp_multi cem on ifnull(a.c_write_emp_seq,a.write_emp_seq) = cem.emp_seq and cem.lang_code = 'kr'		
 		where 
@@ -30,7 +34,7 @@
 		</isNotEmpty>
 		
 		<isEqual property="authLevel" compareValue="dept">
-		and (a.write_dept_seq = '$deptSeq$' or a.c_write_dept_seq = '$deptSeq$')   
+		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%') or concat('|',cwdept.`path`,'|') like concat('%|','$deptSeq$','|%')) 
 		</isEqual>		
 		<isEqual property="authLevel" compareValue="user">
 		and (
@@ -175,6 +179,10 @@
 		a.balance_amt as balance_amt
 		
 		FROM cust_sto.t_purchase_contract a
+		<isEqual property="authLevel" compareValue="dept">
+		left join neos.t_co_dept wdept on a.write_dept_seq = wdept.dept_seq 
+		left join neos.t_co_dept cwdept on a.c_write_dept_seq = cwdept.dept_seq 	
+		</isEqual>		
 		inner join (SELECT @rownum:=0) tmp
 		left join cust_sto.t_purchase_conclusion_change cc on a.approkey_change = concat('Conclu02_', cc.seq, '_', cc.change_seq)  
 		left join cust_sto.t_purchase_conclusion_change pcc_temp on a.seq = pcc_temp.seq and ifnull(pcc_temp.doc_sts,'') = ''
@@ -182,12 +190,7 @@
 		left join $DB_NEOS$t_co_dept_multi cdm on ifnull(a.c_write_dept_seq,a.write_dept_seq) = cdm.dept_seq and cdm.lang_code = 'kr'
 		left join $DB_NEOS$t_co_emp_multi cem on ifnull(a.c_write_emp_seq,a.write_emp_seq) = cem.emp_seq and cem.lang_code = 'kr'		
 		
-		where 
-		
-		1=1
-		
-		 
-		 
+		where 1=1
 		<isNotEmpty property="searchFromDate">
 		and  ifnull(a.c_contract_end_dt, a.contract_end_dt) <![CDATA[ >= ]]> '$searchFromDate$'
 		</isNotEmpty>
@@ -205,7 +208,7 @@
 		</isNotEmpty>	
 		
 		<isEqual property="authLevel" compareValue="dept">
-		and (a.write_dept_seq = '$deptSeq$' or a.c_write_dept_seq = '$deptSeq$')   
+		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%') or concat('|',cwdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 		</isEqual>		
 		<isEqual property="authLevel" compareValue="user">
 		and (

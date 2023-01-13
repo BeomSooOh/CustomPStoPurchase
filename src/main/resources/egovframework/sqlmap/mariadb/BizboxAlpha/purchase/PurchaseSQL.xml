@@ -13,6 +13,9 @@
   SELECT 
   count(*)  
   FROM cust_sto.t_purchase_purchase a
+  <isEqual property="authLevel" compareValue="dept">
+  left join neos.t_co_dept wdept on a.write_dept_seq = wdept.dept_seq 
+  </isEqual>	  
   join cust_sto.t_purchase_item_info item on a.seq = item.seq
   left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
   left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'  
@@ -38,7 +41,7 @@
   </isNotEmpty>
   
   <isEqual property="authLevel" compareValue="dept">
-  and (a.write_dept_seq = '$deptSeq$')   
+  and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%')) 
   </isEqual>  
   <isEqual property="authLevel" compareValue="user">
   and (
@@ -119,6 +122,9 @@
   
   ifnull(a.purchase_attach_info,'') as purchase_attach_info
   FROM cust_sto.t_purchase_purchase a
+  <isEqual property="authLevel" compareValue="dept">
+  left join neos.t_co_dept wdept on a.write_dept_seq = wdept.dept_seq 
+  </isEqual>  
   join cust_sto.t_purchase_item_info item on a.seq = item.seq
   left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
   left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'  
@@ -148,7 +154,7 @@
   </isNotEmpty> 
   
   <isEqual property="authLevel" compareValue="dept">
-  and (a.write_dept_seq = '$deptSeq$')   
+  and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%')) 
   </isEqual>  
   <isEqual property="authLevel" compareValue="user">
   and (
@@ -585,6 +591,9 @@
   SELECT
   count(*) 
   FROM $DB_NEOS$t_exnp_resdoc d
+  <isEqual property="authLevel" compareValue="dept">
+  left join neos.t_co_dept wdept on d.dept_seq = wdept.dept_seq 
+  </isEqual>  
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
   WHERE d.doc_seq IS NOT NULL and ifnull(d.out_process_interface_id,'') not in ('CONCLUSION','PURCHASE')
@@ -629,12 +638,12 @@
    AND d.erp_send_yn = #erpSendYN#
   </isNotEmpty>
   
-	<isEqual property="authLevel" compareValue="dept">
-	and d.dept_seq = '$deptSeq$'   
-	</isEqual>		
-	<isEqual property="authLevel" compareValue="user">
-	and d.emp_seq = '$empSeq$'   
-	</isEqual>  
+  <isEqual property="authLevel" compareValue="dept">
+  and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))   
+  </isEqual>		
+  <isEqual property="authLevel" compareValue="user">
+  and d.emp_seq = '$empSeq$'   
+  </isEqual>  
   
  </select> 
  
@@ -664,6 +673,9 @@
    , 'EA'   AS 'eaType'
    , ifnull((select group_concat(distinct tr_name) from $DB_NEOS$t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(tr_name,'') != ''),'') as 'trName'
   FROM $DB_NEOS$t_exnp_resdoc d
+  <isEqual property="authLevel" compareValue="dept">
+  left join neos.t_co_dept wdept on d.dept_seq = wdept.dept_seq 
+  </isEqual>  
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
   INNER JOIN (
@@ -725,7 +737,7 @@
   </isNotEmpty>
   
 	<isEqual property="authLevel" compareValue="dept">
-	and d.dept_seq = '$deptSeq$'   
+	and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 	</isEqual>		
 	<isEqual property="authLevel" compareValue="user">
 	and d.emp_seq = '$empSeq$'   
