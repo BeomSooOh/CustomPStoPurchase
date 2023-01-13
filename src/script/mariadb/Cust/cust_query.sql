@@ -1446,18 +1446,12 @@ INSERT IGNORE INTO cust_sto.t_purchase_code_detail
 (`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
 VALUES('nonGreenReason', '01', '품목에 녹색제품 없음', 'Y', 2, NULL, NULL, NULL);
 
-
 INSERT IGNORE INTO cust_sto.t_purchase_code_group
 (`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
-VALUES('greenClass', 'cm', '[구매]녹색제품분류', 'Y', 25, '');
-INSERT IGNORE INTO cust_sto.t_purchase_code_detail
-(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
-VALUES('greenClass', '', '--', 'Y', 1, NULL, NULL, NULL);
+VALUES('greenClass', 'cm', '[구매]제품분류', 'Y', 25, '');
 INSERT IGNORE INTO cust_sto.t_purchase_code_detail
 (`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
 VALUES('greenClass', '01', '필기구 및 필기구 소모품', 'Y', 2, NULL, NULL, NULL);
-
-
 
 CREATE table if not exists cust_sto.`t_purchase_item_info` (
   `seq` int(11) NOT NULL COMMENT '물품구매 시퀀스',

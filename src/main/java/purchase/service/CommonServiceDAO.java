@@ -28,6 +28,13 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		result = (List<Map<String, Object>>) list( "CommonSQL.SelectDeptHopeAmtInfo", params );
 		return result;
 	}	
+	
+	@SuppressWarnings ( "unchecked" )
+	public List<Map<String, Object>> SelectGreenAmtInfo ( Map<String, Object> params ) {
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
+		result = (List<Map<String, Object>>) list( "CommonSQL.SelectGreenAmtInfo", params );
+		return result;
+	}	
  
 	@SuppressWarnings ( "unchecked" )
 	public Map<String, Object> GetGroupInfo ( Map<String, Object> params ) {

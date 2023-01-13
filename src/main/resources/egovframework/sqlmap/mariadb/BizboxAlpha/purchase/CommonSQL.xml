@@ -766,7 +766,7 @@
 			join $DB_NEOS$t_exnp_resdoc b on a.seq = b.out_process_interface_m_id and b.out_process_interface_id = 'CONCLUSION' and b.doc_status = '008'
 			join $DB_NEOS$t_exnp_restrade c on b.res_doc_seq = c.res_doc_seq 
 			<isEqual property="authLevel" compareValue="dept">
-			left join neos.t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
 			</isEqual>				
 			where b.erp_expend_year = '$year$' 
 			<isEqual property="authLevel" compareValue="dept">
@@ -778,7 +778,7 @@
 			join $DB_NEOS$t_exnp_resdoc b on a.seq = b.out_process_interface_m_id and b.out_process_interface_id = 'CONCLUSION' and b.doc_status = '008'
 			join $DB_NEOS$t_exnp_restrade c on b.res_doc_seq = c.res_doc_seq 
 			<isEqual property="authLevel" compareValue="dept">
-			left join neos.t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
 			</isEqual>			
 			where b.erp_expend_year = '$year$'
 			<isEqual property="authLevel" compareValue="dept">
@@ -794,7 +794,7 @@
 			join cust_sto.t_purchase_trade_info c on a.seq = c.seq
 			join $DB_NEOS$t_exnp_restrade d on b.res_doc_seq = d.res_doc_seq and c.tr_seq = d.tr_seq
 			<isEqual property="authLevel" compareValue="dept">
-			left join neos.t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
 			</isEqual>			  
 			where b.erp_expend_year = '$year$'
 			<isEqual property="authLevel" compareValue="dept">
@@ -807,7 +807,7 @@
 			join cust_sto.t_purchase_trade_info c on a.seq = c.seq
 			join $DB_NEOS$t_exnp_restrade d on b.res_doc_seq = d.res_doc_seq and c.tr_seq = d.tr_seq
 			<isEqual property="authLevel" compareValue="dept">
-			left join neos.t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
 			</isEqual>			  
 			where b.erp_expend_year = '$year$'
 			<isEqual property="authLevel" compareValue="dept">
@@ -822,7 +822,7 @@
 			join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and b.doc_status = '008'
 			join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq
 			<isEqual property="authLevel" compareValue="dept">
-			left join neos.t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
 			</isEqual>			  
 			where b.erp_expend_year = '$year$'
 			<isEqual property="authLevel" compareValue="dept">
@@ -834,7 +834,7 @@
 			join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and b.doc_status = '008'
 			join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq
 			<isEqual property="authLevel" compareValue="dept">
-			left join neos.t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
 			</isEqual>			  
 			where b.erp_expend_year = '$year$'
 			<isEqual property="authLevel" compareValue="dept">
@@ -869,28 +869,111 @@
 				,ifnull((select sum(a.item_total_amt)
 				from cust_sto.t_purchase_item_info a
 				join cust_sto.t_purchase_trade_info b on a.seq = b.seq and a.item_tr_seq = b.tr_seq and a.outProcessCode = b.outProcessCode 
-				join neos.t_exnp_consdoc c on a.seq = c.out_process_interface_m_id and c.out_process_interface_id = 'Purchase01' and c.doc_status = '90'
+				join $DB_NEOS$t_exnp_consdoc c on a.seq = c.out_process_interface_m_id and c.out_process_interface_id = 'Purchase01' and c.doc_status = '90'
 				where concat('▦',b.hope_company_info) like '%▦$hopeCompanyCode[].CODE$▦%'
 				and c.dept_seq = d.dept_seq and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'),0) as 'code_$hopeCompanyCode[].CODE$'   
 			    </iterate>
 		    </isEqual>
 			<isEqual property="amtType" compareValue="res">
 			    <iterate property="hopeCompanyCode" open="" close="" conjunction="">
-				,ifnull((select sum(a.item_total_amt)
-				from cust_sto.t_purchase_item_info a
-				join cust_sto.t_purchase_trade_info b on a.seq = b.seq and a.item_tr_seq = b.tr_seq and a.outProcessCode = b.outProcessCode 
-				join neos.t_exnp_consdoc c on a.seq = c.out_process_interface_m_id and c.out_process_interface_id = 'Purchase01' and c.doc_status = '90'
-				where concat('▦',b.hope_company_info) like '%▦$hopeCompanyCode[].CODE$▦%'
-				and c.dept_seq = d.dept_seq and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'),0) as 'code_$hopeCompanyCode[].CODE$'   
+				,ifnull((
+				-- 계약금액/카운트
+				ifnull((select
+				sum(c.trade_amt)
+				from cust_sto.t_purchase_contract a
+				join $DB_NEOS$t_exnp_resdoc b on a.seq = b.out_process_interface_m_id and b.out_process_interface_id = 'CONCLUSION' and b.doc_status = '008'
+				join $DB_NEOS$t_exnp_restrade c on b.res_doc_seq = c.res_doc_seq 
+				where b.dept_seq = d.dept_seq and DATE_FORMAT(b.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$' and concat('▦',a.hope_company_info) like '%▦$hopeCompanyCode[].CODE$▦%'),0)
+				+
+				-- 물품구매금액
+				ifnull((select
+				sum(dd.trade_amt)
+				from cust_sto.t_purchase_purchase a
+				join $DB_NEOS$t_exnp_resdoc b on a.seq  = b.out_process_interface_m_id and b.out_process_interface_id = 'PURCHASE' and b.doc_status = '008'
+				join cust_sto.t_purchase_trade_info c on a.seq = c.seq
+				join $DB_NEOS$t_exnp_restrade dd on b.res_doc_seq = dd.res_doc_seq and c.tr_seq = dd.tr_seq
+				where b.dept_seq = d.dept_seq and DATE_FORMAT(b.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$' and concat('▦',c.hope_company_info) like '%▦$hopeCompanyCode[].CODE$▦%'),0)
+				+
+				-- 기타결의금액
+				ifnull((select
+				sum(c.trade_amt)
+				from cust_sto.t_purchase_res_hope_info a
+				join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and b.doc_status = '008'
+				join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq
+				where b.dept_seq = d.dept_seq and DATE_FORMAT(b.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$' and concat('▦',a.hope_company_info) like '%▦$hopeCompanyCode[].CODE$▦%'),0)		
+				),0) as 'code_$hopeCompanyCode[].CODE$'			    
 			    </iterate>
 		    </isEqual>		    
-			from neos.t_co_dept d
-			join neos.t_co_dept_multi dm on d.dept_seq = dm.dept_seq
+			from $DB_NEOS$t_co_dept d
+			join $DB_NEOS$t_co_dept_multi dm on d.dept_seq = dm.dept_seq
 			where d.use_yn = 'Y'
 			<isEqual property="authLevel" compareValue="dept">
 			and (concat('|',d.`path`,'|') like concat('%|','$deptSeq$','|%'))
 			</isEqual>			 
 			order by d.path
+
+	</select>	
+	
+	
+	<select	id="CommonSQL.SelectGreenAmtInfo" parameterClass="HashMap" resultClass="HashMap">
+		
+		select
+		code0.code
+		,code0.name as code_name
+		
+		,ifnull((select sum(a.item_total_amt)
+		from cust_sto.t_purchase_item_info a
+		join cust_sto.t_purchase_trade_info b on a.seq = b.seq and a.item_tr_seq = b.tr_seq and a.outProcessCode = b.outProcessCode  
+		join neos.t_exnp_consdoc c on a.seq = c.out_process_interface_m_id and c.out_process_interface_id = 'Purchase01' and c.doc_status = '90'
+		<isEqual property="authLevel" compareValue="dept">
+		left join $DB_NEOS$t_co_dept wdept on c.dept_seq = wdept.dept_seq 
+		</isEqual>			
+		where a.item_green_class = code0.code and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'
+		<isEqual property="authLevel" compareValue="dept">
+		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+		</isEqual>		
+		),0) as all_amt
+		,ifnull((select count(distinct c.cons_doc_seq)
+		from cust_sto.t_purchase_item_info a
+		join cust_sto.t_purchase_trade_info b on a.seq = b.seq and a.item_tr_seq = b.tr_seq and a.outProcessCode = b.outProcessCode  
+		join neos.t_exnp_consdoc c on a.seq = c.out_process_interface_m_id and c.out_process_interface_id = 'Purchase01' and c.doc_status = '90'
+		<isEqual property="authLevel" compareValue="dept">
+		left join $DB_NEOS$t_co_dept wdept on c.dept_seq = wdept.dept_seq 
+		</isEqual>			
+		where a.item_green_class = code0.code and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'
+		<isEqual property="authLevel" compareValue="dept">
+		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+		</isEqual>		
+		),0) as all_cnt
+		
+		,ifnull((select sum(a.item_total_amt)
+		from cust_sto.t_purchase_item_info a
+		join cust_sto.t_purchase_trade_info b on a.seq = b.seq and a.item_tr_seq = b.tr_seq and a.outProcessCode = b.outProcessCode and a.item_green_cert_type != '' 
+		join neos.t_exnp_consdoc c on a.seq = c.out_process_interface_m_id and c.out_process_interface_id = 'Purchase01' and c.doc_status = '90'
+		<isEqual property="authLevel" compareValue="dept">
+		left join $DB_NEOS$t_co_dept wdept on c.dept_seq = wdept.dept_seq 
+		</isEqual>			
+		where a.item_green_class = code0.code and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'
+		<isEqual property="authLevel" compareValue="dept">
+		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+		</isEqual>		
+		),0) as green_amt
+		,ifnull((select count(distinct c.cons_doc_seq)
+		from cust_sto.t_purchase_item_info a
+		join cust_sto.t_purchase_trade_info b on a.seq = b.seq and a.item_tr_seq = b.tr_seq and a.outProcessCode = b.outProcessCode and a.item_green_cert_type != '' 
+		join neos.t_exnp_consdoc c on a.seq = c.out_process_interface_m_id and c.out_process_interface_id = 'Purchase01' and c.doc_status = '90'
+		<isEqual property="authLevel" compareValue="dept">
+		left join $DB_NEOS$t_co_dept wdept on c.dept_seq = wdept.dept_seq 
+		</isEqual>			
+		where a.item_green_class = code0.code and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'
+		<isEqual property="authLevel" compareValue="dept">
+		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+		</isEqual>					
+		),0) as green_cnt
+		
+		from cust_sto.t_purchase_code_detail code0
+		where code0.`GROUP` = 'greenClass' and code0.USE_YN = 'Y' and code0.code != ''
+		order by code0.ORDER_NUM
 
 	</select>		
 	

@@ -36,7 +36,6 @@
 		
 	});
 	
-	var hopeCompanyCode = [];
 	var resultData = [];
 	
 	function BindGrid(){
@@ -49,30 +48,13 @@
 
 		$.ajax({
 			type : 'post',
-			url : '<c:url value="/purchase/${authLevel}/${amtType}/SelectDeptHopeAmtInfo.do" />',
+			url : '<c:url value="/purchase/${authLevel}/SelectGreenAmtInfo.do" />',
 			datatype : 'json',
 			data : reqParam,
 			async : true,
 			success : function(result) {
 				
-				hopeCompanyCode = result.hopeCompanyCode;
 				resultData = result.resultData;
-				
-				$("[imsi]").remove();
-				
-				var trTotal = {};
-				trTotal.dept_name = "합계";
-				trTotal.total_amt = 0;
-				
-				$.each(hopeCompanyCode, function( key, val ) {
-					
-					$("[name=trCol]").append("<col imsi />");
-					$("[name=trHeader]").append("<th imsi >"+val.NAME+"</th>");
-					$("[name=dataBase]").append("<td imsi class='ri' name='code_"+val.CODE+"'></td>");
-				
-					trTotal["code_" + val.CODE] = 0;
-					
-				});				
 				
 				if(resultData.length > 0){
 					
@@ -80,39 +62,16 @@
 
 						var cloneData = $('[name=dataBase]').clone();
 						
-						var total_amt = 0;
-						
-						$.each(Object.keys(val), function( idx, key ) {
-							
-							$(cloneData).find("[name="+key+"]").text((val[key] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-							
-							if(key.includes("code_")){
-								total_amt += val[key];
-								
-								trTotal[key] += val[key];
-								trTotal.total_amt += val[key];
-							}
-							
-						});	
-						
-						val.total_amt = total_amt;
-						
-						$(cloneData).find("[name=total_amt]").text((total_amt + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+						$(cloneData).find("[name=code_name]").text(val.code_name);
+						$(cloneData).find("[name=all_cnt]").text(val.all_cnt);
+						$(cloneData).find("[name=all_amt]").text(val.all_amt);
+						$(cloneData).find("[name=green_cnt]").text(val.green_cnt);
+						$(cloneData).find("[name=green_amt]").text(val.green_amt);
 						$(cloneData).show().attr("name", "addData");
 						$('[name=dataBase]').before(cloneData);						
 						
-					});							
-					
-					var cloneData = $('[name=dataBase]').clone();
-					$.each(Object.keys(trTotal), function( idx, key ) {
-						$(cloneData).find("[name="+key+"]").text((trTotal[key] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-					});	
-					
-					$(cloneData).addClass("total");
-					$(cloneData).show().attr("name", "addData");
-					$('[name=dataBase]').before(cloneData);						
-					
-					resultData.push(trTotal);
+					});						
+				
 					
 				}else{
 					msgSnackbar("error", "실적 데이터가 존재하지 않습니다.");	
@@ -196,26 +155,28 @@
     		align : "C C",
     	});
 		    	
-    	var headerRow = 2;
-    	var headerCol = hopeCompanyCode.length+2;
+    	var headerRow = 4;
+    	var headerCol = 5;
     	
     	for(var i=1; i < headerRow; i++) {
     		for(var j=0; j < headerCol; j++) {
     			excel.set(0, j, i, null, formatHeader);
     		}
     	}
-    	
-		for(var j=0; j < headerCol; j++) {
-			excel.set(0, j, totalCount, null, formatHeader);
-		}    	
 		
-    	excel.set(0, 0, 1, "구분");
-    	excel.set(0, 1, 1, "총계");
+    	excel.set(0, 0, 1, "제품분류");
+    	excel.mergeCell(0, 0, 1, 0, 3);
+    	excel.set(0, 1, 1, "녹색제품 구매계획");
+    	excel.mergeCell(0, 1, 1, 4, 1);
+    	excel.set(0, 1, 2, "총구매");
+    	excel.mergeCell(0, 1, 2, 2, 2);
+    	excel.set(0, 3, 2, "녹색구매");
+    	excel.mergeCell(0, 3, 2, 4, 2);
     	
-    	//동적 바인딩 영역
-		$.each(hopeCompanyCode, function( idx, val ) {
-			excel.set(0, idx+2, 1, val.NAME);	
-		});		    	
+    	excel.set(0, 1, 3, "수량");
+    	excel.set(0, 2, 3, "금액");
+    	excel.set(0, 3, 3, "수량");
+    	excel.set(0, 4, 3, "금액");
     	
     	// sheet번호, column, value(width)
     	for( var i = 0; i < headerCol; i++ ) {
@@ -235,14 +196,13 @@
     	
     	// header row 이후부터 출력
     	for( var i = 0; i < totalCount; i++ ) {
-    		var rowNo = i + 2;
-    		excel.set( 0, 0, rowNo, dataPage[ i ][ "dept_name" ], rowNo == (totalCount+1) ? formatHeader : formatCell );
-    		excel.set( 0, 1, rowNo, (dataPage[ i ][ "total_amt" ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), rowNo == (totalCount+1) ? formatHeader : formatCellR );
-			
-    		//동적 바인딩 영역
-    		$.each(hopeCompanyCode, function( idx, val ) {
-    			excel.set( 0, idx+2, rowNo, (dataPage[ i ][ "code_" + val.CODE ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), rowNo == (totalCount+1) ? formatHeader : formatCellR );	
-    		});    		
+    		
+    		var rowNo = i + 4;
+    		excel.set( 0, 0, rowNo, dataPage[ i ][ "code_name" ], formatCell );
+    		excel.set( 0, 1, rowNo, (dataPage[ i ][ "all_cnt" ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), formatCellR );
+    		excel.set( 0, 2, rowNo, (dataPage[ i ][ "all_amt" ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), formatCellR );
+    		excel.set( 0, 3, rowNo, (dataPage[ i ][ "green_cnt" ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), formatCellR );
+    		excel.set( 0, 4, rowNo, (dataPage[ i ][ "green_amt" ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), formatCellR );
     		
     	}
      
@@ -277,20 +237,36 @@
 			<!-- 테이블 -->
 			<div class="com_ta4">
 				<table>
-					<colgroup name="trCol">
-						<col width="200px"/>
-						<col width="100px"/>
+					<colgroup>
+						<col width="40%"/>
+						<col width="15%"/>
+						<col width="15%"/>
+						<col width="15%"/>
+						<col width="15%"/>
 					</colgroup>
-					<tr name="trHeader">
-						<th>구분</th>
-						<th>총계</th>
+					<tr>
+						<th rowspan="3">제품분류</th>
+						<th colspan="4">녹색제품 구매계획</th>
+					</tr>
+                    <tr>
+						<th colspan="2">총구매</th>
+                        <th colspan="2">녹색구매</th>
+					</tr>
+                    <tr>
+						<th>수량</th>
+                        <th>금액</th>
+                        <th>수량</th>
+                        <th>금액</th>
 					</tr>
 					<tr name="dataBase" style="display:none;">
-						<td name="dept_name"></td>
-						<td class="ri" name="total_amt"></td>
+						<td name="code_name"></td>
+						<td class="ri" name="all_cnt"></td>
+						<td class="ri" name="all_amt"></td>
+						<td class="ri" name="green_cnt"></td>
+						<td class="ri" name="green_amt"></td>
 					</tr>					
 				</table>
-			</div>
+			</div>			
 		</div>
 	</div>
 	<input style="display:none;" id="file_upload" type="file" />

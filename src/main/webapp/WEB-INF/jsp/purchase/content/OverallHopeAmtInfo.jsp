@@ -135,16 +135,7 @@
 			}
 		});			
 		
-		
-		
-		
-		
-		
-		
 	} 	
-	
-
-	
 	
 	
 	
@@ -245,13 +236,6 @@
     	}    	
 		
     	excel.setColumnWidth( 0, 0, 30 );
-    	/*
-    	excel.setColumnWidth( 0, 9, 50 );
-    	excel.setColumnWidth( 0, 13, 25 );
-    	excel.setColumnWidth( 0, 20, 25 );
-    	excel.setColumnWidth( 0, 21, 25 );
-    	excel.setColumnWidth( 0, 24, 25 );
-    	*/
     	
     	var formatCell = excel.addStyle ({
     		align : "C"

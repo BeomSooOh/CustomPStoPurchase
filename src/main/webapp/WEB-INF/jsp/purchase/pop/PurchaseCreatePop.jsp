@@ -2069,7 +2069,7 @@
 					<th class="ac" removehtml="Y">취득사유코드</th>
 					<th class="ac" removehtml="Y">녹색제품인증구분</th>
 					<th class="ac" removehtml="Y">녹색제품미구매사유</th>
-					<th class="ac" removehtml="Y">녹색제품분류</th>
+					<th class="ac" removehtml="Y">제품분류</th>
 				</tr>
 				<tr name="dataBase" style="display:none;">
 					<c:if test="${disabledYn == 'N'}"> 
@@ -2151,7 +2151,7 @@
 						</select>
 					</td>
 					<td removehtml="Y">
-						<select ${disabled} tbval="Y" name="item_green_class" tbname="녹색제품분류" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() == ''" style="text-align: center;">
+						<select ${disabled} tbval="Y" name="item_green_class" tbname="제품분류" style="text-align: center;">
 							<c:forEach var="items" items="${greenClassCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
@@ -2238,7 +2238,7 @@
 						</select>
 					</td>
 					<td removehtml="Y">
-						<select ${disabled} tbval="Y" name="item_green_class" tbname="녹색제품분류" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() == ''" style="text-align: center;">
+						<select ${disabled} tbval="Y" name="item_green_class" tbname="제품분류" style="text-align: center;">
 							<c:forEach var="items" items="${greenClassCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>

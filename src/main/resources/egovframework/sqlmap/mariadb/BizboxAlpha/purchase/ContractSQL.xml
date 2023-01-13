@@ -10,8 +10,8 @@
 		count(*)		
 		FROM cust_sto.t_purchase_contract a
 		<isEqual property="authLevel" compareValue="dept">
-		left join neos.t_co_dept wdept on a.write_dept_seq = wdept.dept_seq 
-		left join neos.t_co_dept cwdept on a.c_write_dept_seq = cwdept.dept_seq
+		left join $DB_NEOS$t_co_dept wdept on a.write_dept_seq = wdept.dept_seq 
+		left join $DB_NEOS$t_co_dept cwdept on a.c_write_dept_seq = cwdept.dept_seq
 		</isEqual>
 		left join $DB_NEOS$t_co_dept_multi cdm on ifnull(a.c_write_dept_seq,a.write_dept_seq) = cdm.dept_seq and cdm.lang_code = 'kr'
 		left join $DB_NEOS$t_co_emp_multi cem on ifnull(a.c_write_emp_seq,a.write_emp_seq) = cem.emp_seq and cem.lang_code = 'kr'		
@@ -180,8 +180,8 @@
 		
 		FROM cust_sto.t_purchase_contract a
 		<isEqual property="authLevel" compareValue="dept">
-		left join neos.t_co_dept wdept on a.write_dept_seq = wdept.dept_seq 
-		left join neos.t_co_dept cwdept on a.c_write_dept_seq = cwdept.dept_seq 	
+		left join $DB_NEOS$t_co_dept wdept on a.write_dept_seq = wdept.dept_seq 
+		left join $DB_NEOS$t_co_dept cwdept on a.c_write_dept_seq = cwdept.dept_seq 	
 		</isEqual>		
 		inner join (SELECT @rownum:=0) tmp
 		left join cust_sto.t_purchase_conclusion_change cc on a.approkey_change = concat('Conclu02_', cc.seq, '_', cc.change_seq)  
@@ -907,8 +907,8 @@
 		select
 		pdi.seq, pdi.outProcessCode, pdi.res_doc_seq, pdi.pay_type, pdi.pay_cnt + 1 as pay_cnt, pdi.res_amt, pdi.remain_amt, pdi.created_dt, pdi.created_by
 		from cust_sto.t_purchase_payment_doc_info pdi
-		join neos.t_exnp_resdoc er1 on pdi.outProcessCode = er1.out_process_interface_id  and pdi.seq = er1.out_process_interface_m_id and er1.res_doc_seq = '$resDocSeq$'
-		join neos.t_exnp_resdoc er2 on pdi.res_doc_seq = er2.res_doc_seq and IFNULL(er2.doc_seq, '') != '' and IFNULL(er2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+		join $DB_NEOS$t_exnp_resdoc er1 on pdi.outProcessCode = er1.out_process_interface_id  and pdi.seq = er1.out_process_interface_m_id and er1.res_doc_seq = '$resDocSeq$'
+		join $DB_NEOS$t_exnp_resdoc er2 on pdi.res_doc_seq = er2.res_doc_seq and IFNULL(er2.doc_seq, '') != '' and IFNULL(er2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
 		order by pdi.pay_type desc, pdi.pay_cnt desc
 		limit 1;
 	
