@@ -137,6 +137,8 @@
 		
 		ifnull(a.result_judges_info_html,'') as result_judges_info_html,
 		ifnull(a.result_score_info_html,'') as result_score_info_html,
+		ifnull(a.result_amt_info_html,'') as result_amt_info_html,
+		ifnull(a.result_c_amt_info_html,'') as result_c_amt_info_html,
 
 		ifnull(pti.tr_name,'') as tr_name,
 		ifnull(pti.ceo_name,'') as ceo_name,

@@ -190,7 +190,12 @@
 		left join $DB_NEOS$t_co_dept_multi cdm on ifnull(a.c_write_dept_seq,a.write_dept_seq) = cdm.dept_seq and cdm.lang_code = 'kr'
 		left join $DB_NEOS$t_co_emp_multi cem on ifnull(a.c_write_emp_seq,a.write_emp_seq) = cem.emp_seq and cem.lang_code = 'kr'		
 		
-		where 1=1
+		where 
+		
+		1=1
+		
+		 
+		 
 		<isNotEmpty property="searchFromDate">
 		and  ifnull(a.c_contract_end_dt, a.contract_end_dt) <![CDATA[ >= ]]> '$searchFromDate$'
 		</isNotEmpty>
@@ -320,7 +325,9 @@
 		a.open_amt as open_amt,
 		a.consbalance_amt as consbalance_amt,
 		a.resApply_amt as resApply_amt,
-		a.balance_amt as balance_amt
+		a.balance_amt as balance_amt,
+		a.result_amt_info_html,
+		a.result_amt_info_html
 		
 		
 		FROM cust_sto.t_purchase_contract a
@@ -501,7 +508,8 @@
 		open_amt,
 		consbalance_amt,
 		resApply_amt,
-		balance_amt
+		balance_amt,
+		result_amt_info_html
 		
 		)
 		VALUES(
@@ -546,7 +554,9 @@
 		'$open_amt$',
 		'$consbalance_amt$',
 		'$resApply_amt$',
-		'$balance_amt$'		
+		'$balance_amt$',
+		'$result_amt_info_html$'
+				
 		
 		);
 		
@@ -732,7 +742,9 @@
 		open_amt='$open_amt$',
 		consbalance_amt='$consbalance_amt$',
 		resApply_amt='$resApply_amt$',
-		balance_amt='$balance_amt$'
+		balance_amt='$balance_amt$',
+		result_amt_info_html='$result_amt_info_html$'
+		
 		
 		WHERE seq='$seq$'; 
 	</update>	
@@ -764,7 +776,8 @@
 		meet_place='$meet_place$', 
 		meet_method_pt='$meet_method_pt$', 
 		meet_method_qa='$meet_method_qa$', 
-		meet_amt_spent='$meet_amt_spent$', 
+		meet_amt_spent='$meet_amt_spent$',
+		result_c_amt_info_html='$result_c_amt_info_html$', 
 		modify_dt=now(), 
 		modify_by='$created_by$'
 		
@@ -907,8 +920,8 @@
 		select
 		pdi.seq, pdi.outProcessCode, pdi.res_doc_seq, pdi.pay_type, pdi.pay_cnt + 1 as pay_cnt, pdi.res_amt, pdi.remain_amt, pdi.created_dt, pdi.created_by
 		from cust_sto.t_purchase_payment_doc_info pdi
-		join $DB_NEOS$t_exnp_resdoc er1 on pdi.outProcessCode = er1.out_process_interface_id  and pdi.seq = er1.out_process_interface_m_id and er1.res_doc_seq = '$resDocSeq$'
-		join $DB_NEOS$t_exnp_resdoc er2 on pdi.res_doc_seq = er2.res_doc_seq and IFNULL(er2.doc_seq, '') != '' and IFNULL(er2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
+		join neos.t_exnp_resdoc er1 on pdi.outProcessCode = er1.out_process_interface_id  and pdi.seq = er1.out_process_interface_m_id and er1.res_doc_seq = '$resDocSeq$'
+		join neos.t_exnp_resdoc er2 on pdi.res_doc_seq = er2.res_doc_seq and IFNULL(er2.doc_seq, '') != '' and IFNULL(er2.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
 		order by pdi.pay_type desc, pdi.pay_cnt desc
 		limit 1;
 	

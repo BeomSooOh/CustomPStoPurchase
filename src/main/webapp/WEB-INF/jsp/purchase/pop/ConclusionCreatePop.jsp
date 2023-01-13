@@ -125,6 +125,7 @@
 			setDynamicSetInfoFile("hopeAttachList", "${contractDetailInfo.hope_attach_info}");
 			setDynamicSetInfoBudget();
 			setDynamicSetInfoTrade();
+			setDynamicSetInfoAmt(); 
 			
 			amountInputSet();
 			amountKoreanSet();		
@@ -159,16 +160,64 @@
 			
 		}
 		
+		// 예산정보html
+		function setDynamicSetInfoAmt(){
+			
+		/* 	<c:if test="${budgetList.size() > 0 }">	
+			var cloneData;
+			var i = 1;
+			<c:forEach var="items" items="${budgetList}" varStatus="status">
+			
+			cloneData = $('#resultAmtListHtml tr:first').clone();
+			$("#bgtAmtnum").text("i");
+			$("#bgtAmt1Name").text("${items.erp_bgt1_name}");
+			$("#bgtAmt2Name").text("${items.erp_bgt2_name}");
+			$("#bgtAmt3Name").text("${items.erp_bgt3_name}");
+			$("#txtbgtAmt").text("${items.amt}");
+			
+			$("#txtbgtOpenAmt").text("${items.txt_open_amt}");
+			$("#txtbgtConsBalanceAmt").text("${items.txt_cons_balance_amt}");
+			$("#txtbgtApplyAmt").text("${items.txt_apply_amt}");
+			$("#txtbgtBalanceAmt").text("${items.txt_balance_amt}");
+			
+		
+			
+			$('#resultAmtListHtml').append(cloneData);
+			
+			
+			</c:forEach>		
+			</c:if>			
+ */			
+ 			$("#resultAmtListHtml tbody").empty();
+ 			$.each($("table[name='budgetList'] tr[name='addData']"), function(index, tr){
+ 				var $clone = $("#resultAmtListHtml tfoot tr").clone();
+ 				$clone.find("td.bgtAmtnum").html("<span style='font-family:굴림;font-size:10px'>" + parseInt(index + 1) + "</span>");
+ 				$clone.find("td.bgtAmt1Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='pjt_name']").val() + "</span>");
+ 				$clone.find("td.bgtAmt2Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='erp_bgt2_name']").val() + "</span>");
+ 				$clone.find("td.bgtAmt3Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='erp_bgt3_name']").val() + "</span>");
+ 				$clone.find("td.txtbgtAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_open_amt']").val() + "</span>"); 
+ 				$clone.find("td.txtbgtOpenAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_open_amt']").val() + "</span>");
+ 				$clone.find("td.txtbgtConsBalanceAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_cons_balance_amt']").val() + "</span>");
+ 				$clone.find("td.txtbgtApplyAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_apply_amt']").val() + "</span>");
+ 				$clone.find("td.txtbgtBalanceAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_balance_amt']").val() + "</span>");
+ 				$("#resultAmtListHtml tbody").append($clone);
+ 			});
+ 			
+		}
+		
+		
+		
 		function setDynamicSetInfoBudget(targetName, value){
 			
 			<c:if test="${budgetList.size() > 0 }">
 			$("[name=budgetList] [name=addData]").remove();
 			var cloneData;
-			
+		
 			<c:forEach var="items" items="${budgetList}" varStatus="status">
 			
 			cloneData = $('[name="budgetList"] [name=dataBase]').clone();
 			$(cloneData).show().attr("name", "addData");
+			
 			
 			$(cloneData).find("[name=erp_budget_seq]").val("${items.erp_budget_seq}");
 			$(cloneData).find("[name=erp_budget_name]").val("${items.erp_budget_name}");
@@ -189,6 +238,16 @@
 			$(cloneData).find("[name=pjt_name]").val("${items.pjt_name}");
 			$(cloneData).find("[name=bottom_seq]").val("${items.bottom_seq}");
 			$(cloneData).find("[name=bottom_name]").val("${items.bottom_name}");
+			$(cloneData).find("[name=amt]").val("${items.amt}");
+			
+			
+			$(cloneData).find("[name=txt_open_amt]").val("${items.txt_open_amt}");
+			$(cloneData).find("[name=txt_cons_balance_amt]").val("${items.txt_cons_balance_amt}");
+			$(cloneData).find("[name=txt_apply_amt]").val("${items.txt_apply_amt}");
+			$(cloneData).find("[name=txt_balance_amt]").val("${items.txt_balance_amt}");
+			
+			
+			/* $(cloneData1).find("[name=amt1]").val("${items.amt}"); */
 			
 			$('[name="budgetList"]').append(cloneData);
 			
@@ -724,6 +783,26 @@
 			
 
 			insertDataObject.reqType = type;
+			
+			
+			
+			var resultAmtListHtml = "";
+			$('[name=resultAmtListHtmlre] tfoot').remove();
+			$('[name=resultAmtListHtmlre]').find("[displaynone]").removeAttr("displaynone");
+			/* $('[name=resultAmtListHtmlre]').find(":hidden").attr("displaynone", "Y"); */
+			
+			var cloneData = $('[name=resultAmtListHtmlre]').clone();
+			
+			
+			//input 요소 텍스트화
+			$.each($(cloneData).find("input"), function( idx, obj ) {
+				$(obj).replaceWith($(obj).val());
+			});
+			
+			resultAmtListHtml = $(cloneData)[0].outerHTML;
+			insertDataObject.result_amt_info_html = resultAmtListHtml;
+			
+			
 			
  			/* insertDataObject.open_amt = fnGetCurrencyCode(saveData.openAmt); */
  			insertDataObject.open_amt = saveData.openAmt;
@@ -1263,20 +1342,23 @@
 				$('#bgtSeq').val(commonParam.erpBudgetSeq);
 				
 				if($(commonElement).find("[name=erp_bgt1_seq]").val() != ""){
-					$('#bgt1Name').text($(commonElement).find("[name=erp_bgt1_name]").val() + " (" + $(commonElement).find("[name=erp_bgt1_seq]").val() + ")");	
+					$('#bgt1Name').text($(commonElement).find("[name=erp_bgt1_name]").val() + " (" + $(commonElement).find("[name=erp_bgt1_seq]").val() + ")");
+					
 				}
 				
 				if($(commonElement).find("[name=erp_bgt2_seq]").val() != ""){
-					$('#bgt2Name').text($(commonElement).find("[name=erp_bgt2_name]").val() + " (" + $(commonElement).find("[name=erp_bgt2_seq]").val() + ")");	
+					$('#bgt2Name').text($(commonElement).find("[name=erp_bgt2_name]").val() + " (" + $(commonElement).find("[name=erp_bgt2_seq]").val() + ")");
+					
 				}
 				
 				if($(commonElement).find("[name=erp_bgt3_seq]").val() != ""){
-					$('#bgt3Name').text($(commonElement).find("[name=erp_bgt3_name]").val() + " (" + $(commonElement).find("[name=erp_bgt3_seq]").val() + ")");	
+					$('#bgt3Name').text($(commonElement).find("[name=erp_bgt3_name]").val() + " (" + $(commonElement).find("[name=erp_bgt3_seq]").val() + ")");
+					
 				}
 				
 				if($(commonElement).find("[name=erp_bgt4_seq]").val() != ""){
 					$('#bgt4Name').text($(commonElement).find("[name=erp_bgt4_name]").val() + " (" + $(commonElement).find("[name=erp_bgt4_seq]").val() + ")");	
-				}				
+				}
 				
 				$.ajax({
 					type : 'post',
@@ -1298,6 +1380,17 @@
 						$('#txtConsBalanceAmt').text(fnGetCurrencyCode(saveData.consBalanceAmt));
 						$('#txtApplyAmt').text(fnGetCurrencyCode(saveData.resApplyAmt));
 						$('#txtBalanceAmt').text(fnGetCurrencyCode(saveData.balanceAmt));
+						
+						
+/*  						$('#bgtOpen').text(fnGetCurrencyCode(saveData.openAmt));
+						$('#bgtConsBalance').text(fnGetCurrencyCode(saveData.consBalanceAmt));
+						$('#bgtApply').text(fnGetCurrencyCode(saveData.resApplyAmt));
+						$('#bgtBalance').text(fnGetCurrencyCode(saveData.balanceAmt));  */
+						
+						$(commonElement).find("[name=txt_open_amt]").val(fnGetCurrencyCode(saveData.openAmt));
+						$(commonElement).find("[name=txt_cons_balance_amt]").val(fnGetCurrencyCode(saveData.consBalanceAmt));
+						$(commonElement).find("[name=txt_apply_amt]").val(fnGetCurrencyCode(saveData.resApplyAmt));
+						$(commonElement).find("[name=txt_balance_amt]").val(fnGetCurrencyCode(saveData.balanceAmt));
 
 					},
 					/*   - error :  */
@@ -1604,7 +1697,7 @@
 					</td>
 				</tr>
 				<tr>
-					<th><%-- <img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> --%> 희망기업여부</th>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 희망기업여부</th>
 					<td>
 						<div class="multi_sel" style="width:calc( 100% - 58px);">
 							<ul name="hopeCompanyList" objKey="hope_company_info" objCheckFor="checkVal('ul', 'hopeCompanyList', '희망기업여부', 'mustAlert', '')" class="multibox" style="width:100%;">							
@@ -1623,7 +1716,7 @@
 						</div>
 						</c:if>
 					</td>
-					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 희망기업확인서</th>
+					<th><%-- <img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> --%> 희망기업확인서</th>
 					<td class="file_add">	
 						<ul objKey="hope_attach_info" objCheckFor="checkVal('file', 'hopeAttachList', '희망기업확인서', 'mustAlert', '')" class="file_list_box fl" name="hopeAttachList">
 							<li name="attachBase" style="display:none;">
@@ -1787,6 +1880,7 @@
 					<th class="ac">프로젝트</th>
 					<th class="ac">하위사업</th>
 					<th class="ac">예산과목</th>
+					<th class="ac">금액</th>
 				</tr>
 				<tr name="dataBase" onclick="fnSetBudgetAmtInfo(this);" style="display:none;">
 					<c:if test="${disabledYn == 'N'}"> 
@@ -1826,7 +1920,7 @@
 					</td>
 					<td>
 						<div class="posi_re">
-							<input tbval="Y" name="amt" type="hidden" value="0" requiredNot="true" />
+							<input tbval="Y" name="amt" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="erp_bgt1_seq" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="erp_bgt2_seq" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="erp_bgt3_seq" type="hidden" value="" requiredNot="true" />
@@ -1839,12 +1933,23 @@
 						
 							<input tbval="Y" name="erp_budget_seq" type="hidden" value="" />
 							<input tbval="Y" name="erp_budget_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
+							
+							<input tbval="Y" name="txt_open_amt" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="txt_cons_balance_amt" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="txt_apply_amt" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="txt_balance_amt" type="hidden" value="" requiredNot="true" />
+							
 
 							<c:if test="${disabledYn == 'N'}"> 
 							<a href="#n" onclick="fnCommonCode_trName('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
 						</div>
 					</td>
+					<td>
+						<div class="posi_re">
+							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" />							
+						</div>
+					</td>	
 				</tr>
 				
 				<tr name="addData" onclick="fnSetBudgetAmtInfo(this);">
@@ -1899,11 +2004,23 @@
 							<input tbval="Y" name="erp_budget_seq" type="hidden" value="" />
 							<input tbval="Y" name="erp_budget_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
 							
+							
+							<input tbval="Y" name="txt_open_amt" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="txt_cons_balance_amt" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="txt_apply_amt" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="txt_balance_amt" type="hidden" value="" requiredNot="true" />
+							
+							
 							<c:if test="${disabledYn == 'N'}"> 
 							<a href="#n" ${disabled} onclick="fnCommonCode_trName('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
 						</div>
 					</td>
+					<td>
+						<div class="posi_re">
+							<input ${disabled} tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" />							
+						</div>
+					</td>	
 				</tr>				
 				
 			</table>
@@ -1911,7 +2028,7 @@
 
 		<!-- 테이블 -->
 		<div class="com_ta6 mt10">
-			<table>
+			<table name="amtgetList">
 				<colgroup>
 					<col width=""/>
 					<col width=""/>
@@ -1925,24 +2042,24 @@
 				<tr>
 					<input id="bgtSeq" type="hidden" value="" />
 					<th>관</th>
-					<td id="bgt1Name" objCheckFor="checkVal('text()', this, '관', '', '')"></td>
+					<td id="bgt1Name" name="bgt1Name" objCheckFor="checkVal('text()', this, '관', '', '')"></td>
 					<th>항</th>
-					<td id="bgt2Name" objCheckFor="checkVal('text()', this, '항', '', '')"></td>
+					<td id="bgt2Name" name="bgt2Name" objCheckFor="checkVal('text()', this, '항', '', '')"></td>
 					<th>목</th>
-					<td id="bgt3Name" objCheckFor="checkVal('text()', this, '목', '', '')"></td>
+					<td id="bgt3Name" name="bgt3Name" objCheckFor="checkVal('text()', this, '목', '', '')"></td>
 					<th>세</th>
-					<td id="bgt4Name" objCheckFor="checkVal('text()', this, '세', '', '')"></td>
+					<td id="bgt4Name" name="bgt4Name" objCheckFor="checkVal('text()', this, '세', '', '')"></td>
 				</tr>				
 				<tr>
 		 			<%-- <c:if test="${btnSaveYn == 'Y'}">  --%>
 					<th>예산액</th>
-					<td class="ri pr10" id="txtOpenAmt"></td>
+					<td class="ri pr10" id="txtOpenAmt" name="txtOpenAmt"></td>
 					<th>집행액</th>
-					<td class="ri pr10" id="txtConsBalanceAmt"></td>
+					<td class="ri pr10" id="txtConsBalanceAmt" name="txtConsBalanceAmt"></td>
 					<th>품의액</th>
-					<td class="ri pr10" id="txtApplyAmt"></td>
+					<td class="ri pr10" id="txtApplyAmt" name="txtApplyAmt"></td>
 					<th>예산잔액</th>
-					<td class="ri pr10" id="txtBalanceAmt"></td>
+					<td class="ri pr10" id="txtBalanceAmt" name="txtBalanceAmt"></td>
 					<%-- </c:if> --%>
 					
 	<%-- 				<c:if test="${btnSaveYn == 'N'}">
@@ -1958,7 +2075,65 @@
 				</tr>
 			</table>
 		</div>			
-		
+		<!-- 그리드 테이블 -->
+		<!-- <div class="com_ta6 mt10"> -->
+		<div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" style="display:none;">
+		<!-- <div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" > -->
+			<table id="resultAmtListHtml" name="resultAmtListHtml" border="1" width="80%" >
+				<colgroup>
+					<col width=""/>	
+					<col width=""/>			
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+				</colgroup>
+				<thead>
+				<tr>			
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">구분</span></th>	
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">사업명</span></th>
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">항</span></th>
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">목</span></th>
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">예산액</span></th>
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">기 집행액</span></th>
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">기 품의액</span></th>
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">금회 품의액</span></th>
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">예산잔액</span></th>
+				</tr>	
+				</thead>
+				<tbody>
+				<tr name="amtDatabase">			
+					<!-- <td><input   value="" />구분</td> -->
+					<td align="center" height="20" class="bgtAmtnum"></td>
+					<td align="center" height="20" class="bgtAmt1Name" ></td>
+					<td align="center" height="20" class="bgtAmt2Name" ></td>
+					<td align="center" height="20" class="bgtAmt3Name" ></td>
+					<td align="center" height="20" class="txtbgtAmt"></td>
+					<td align="center" height="20" class="txtbgtOpenAmt"></td>
+					<td align="center" height="20" class="txtbgtConsBalanceAmt"></td>
+					<td align="center" height="20" class="txtbgtApplyAmt"></td>
+					<td align="center" height="20" class="txtbgtBalanceAmt"></td>
+				</tr>
+				</tbody>	
+				<tfoot style="display:none">
+				<tr name="amtDatabase">			
+					<!-- <td><input   value="" />구분</td> -->
+					<td align="center" height="20" class="bgtAmtnum"></td>
+					<td align="center" height="20" class="bgtAmt1Name" ></td>
+					<td align="center" height="20" class="bgtAmt2Name" ></td>
+					<td align="center" height="20" class="bgtAmt3Name" ></td>
+					<td align="center" height="20" class="txtbgtAmt"></td>
+					<td align="center" height="20" class="txtbgtOpenAmt"></td>
+					<td align="center" height="20" class="txtbgtConsBalanceAmt"></td>
+					<td align="center" height="20" class="txtbgtApplyAmt"></td>
+					<td align="center" height="20" class="txtbgtBalanceAmt"></td>
+				</tr>
+				</tfoot>
+			</table>
+		</div>
 		
 	</div><!-- //pop_con -->
 </div><!-- //pop_wrap -->
