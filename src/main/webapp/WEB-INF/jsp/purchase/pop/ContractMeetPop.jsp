@@ -110,9 +110,9 @@
  				$clone.find("td.bgtAmt2Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='erp_bgt2_name']").val() + "</span>");
  				$clone.find("td.bgtAmt3Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='erp_bgt3_name']").val() + "</span>");
  				$clone.find("td.txtbgtAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_open_amt']").val() + "</span>"); 
- 				$clone.find("td.txtbgtOpenAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_open_amt']").val() + "</span>");
- 				$clone.find("td.txtbgtConsBalanceAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_cons_balance_amt']").val() + "</span>");
- 				$clone.find("td.txtbgtApplyAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_apply_amt']").val() + "</span>");
+ 				$clone.find("td.txtbgtOpenAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_cons_balance_amt']").val() + "</span>");
+ 				$clone.find("td.txtbgtConsBalanceAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_apply_amt']").val() + "</span>");
+ 				$clone.find("td.txtbgtApplyAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_pay_amt']").val() + "</span>");
  				$clone.find("td.txtbgtBalanceAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_balance_amt']").val() + "</span>");
  				$("#resultAmtListHtml tbody").append($clone);
  			});
@@ -156,6 +156,7 @@
 			$(cloneData).find("[name=txt_open_amt]").val("${items.txt_open_amt}");
 			$(cloneData).find("[name=txt_cons_balance_amt]").val("${items.txt_cons_balance_amt}");
 			$(cloneData).find("[name=txt_apply_amt]").val("${items.txt_apply_amt}");
+			$(cloneData).find("[name=txt_pay_amt]").val("${items.amt}");
 			$(cloneData).find("[name=txt_balance_amt]").val("${items.txt_balance_amt}");
 			
 			
@@ -1361,6 +1362,7 @@
 							<input tbval="Y" name="txt_open_amt" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="txt_cons_balance_amt" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="txt_apply_amt" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="txt_pay_amt" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="txt_balance_amt" type="hidden" value="" requiredNot="true" />
 							
 
@@ -1430,6 +1432,7 @@
 							<input tbval="Y" name="txt_open_amt" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="txt_cons_balance_amt" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="txt_apply_amt" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="txt_pay_amt" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="txt_balance_amt" type="hidden" value="" requiredNot="true" />
 							
 							
@@ -1487,9 +1490,8 @@
 		
 		<!-- 그리드 테이블 -->
 		<!-- <div class="com_ta6 mt10"> -->
-		<!-- <div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" style="display:none;"> -->
-		<div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" >
-			<table id="resultAmtListHtml" name="resultAmtListHtml" border="1" width="80%" >
+		<div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" style="display:none;">
+			<table id="resultAmtListHtml" name="resultAmtListHtml" border="1" width="100%" >
 				<colgroup>
 					<col width=""/>	
 					<col width=""/>			
@@ -1503,7 +1505,7 @@
 				</colgroup>
 				<thead>
 				<tr>			
-					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">구분</span></th>	
+					<th align="center" bgcolor="#f1f1f1" height="25" width="40"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">구분</span></th>	
 					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">사업명</span></th>
 					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">항</span></th>
 					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">목</span></th>
