@@ -124,13 +124,13 @@
 		ifnull(a.re_notice_end_dt,'') as re_notice_end_dt,		
 				
 		ifnull((select concat(
-		substr(pbi.pjt_name, 5),case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
+		pbi.pjt_name,case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
 		substr(pbi.erp_bgt2_name, 5),case when pbi.erp_bgt3_name = '' then '' else ' / ' end ,
 		substr(pbi.erp_bgt3_name, 5),case when pbi.erp_bgt4_name = '' then '' else ' / ' end ,
 		substr(pbi.erp_bgt4_name, 5)) from cust_sto.t_purchase_budget_info pbi where pbi.outProcessCode = 'Contract02' and pbi.seq = a.seq limit 1),'') as meet_budget_name,
 		
 		ifnull((select concat(
-		substr(pbi.pjt_name, 5),case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
+		pbi.pjt_name,case when pbi.erp_bgt2_name = '' then '' else ' / ' end ,
 		substr(pbi.erp_bgt2_name, 5),case when pbi.erp_bgt3_name = '' then '' else ' / ' end ,
 		substr(pbi.erp_bgt3_name, 5),case when pbi.erp_bgt4_name = '' then '' else ' / ' end ,
 		substr(pbi.erp_bgt4_name, 5)) from cust_sto.t_purchase_budget_info pbi where pbi.outProcessCode like '%Conclusion01%' and pbi.seq = a.seq limit 1),'') as conclusion_budget_name,				
