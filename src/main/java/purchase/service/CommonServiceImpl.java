@@ -147,7 +147,7 @@ public class CommonServiceImpl implements CommonService {
 			params.put("approkeyResult", params.get("approKey"));
 			params.put("seq", params.get("approKey").toString().split("_")[1]);
 			
-		}else if(params.get("processId").equals("Conclu01")) {
+		}else if(params.get("processId").toString().contains("Conclu01")) {
 			params.put("approkeyConclusion", params.get("approKey"));
 			params.put("seq", params.get("approKey").toString().split("_")[1]);
 		}else if(params.get("processId").equals("Conclu02")) {
@@ -187,7 +187,7 @@ public class CommonServiceImpl implements CommonService {
 			params.put("docSts", "90");
 			
 			//신규입찰발주, 1인수의계약체결, 구매품의 시 진행상태값 초기화
-			if(params.get("processId").equals("Conclu01")) {
+			if(params.get("processId").toString().contains("Conclu01")) {
 				Map<String, Object> contractInfo = contractServiceDAO.SelectContractDetail(params);
 				
 				params.put("approkeyConclusion", "");
@@ -212,7 +212,7 @@ public class CommonServiceImpl implements CommonService {
 				params.put("approkeyCheck", "");
 			}			
 			
-		}else if(params.get("docSts").equals("90") && (params.get("processId").equals("Contract01") || params.get("processId").equals("Conclu01"))) {
+		}else if(params.get("docSts").equals("90") && (params.get("processId").equals("Contract01") || params.get("processId").toString().contains("Conclu01"))) {
 			//종결 시 관리번호 등록			
 			Map<String, Object> newManageNo = commonServiceDAO.SelectNewManageNo(params);
 			

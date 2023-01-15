@@ -175,7 +175,7 @@ public class CommonPopController {
 		if(params.get("outProcessCode").equals("Contract01") || 
 				params.get("outProcessCode").equals("Contract02")  || 
 				params.get("outProcessCode").equals("Contract03") || 
-				params.get("outProcessCode").equals("Conclu01") || 
+				params.get("outProcessCode").toString().contains("Conclu01") ||
 				params.get("outProcessCode").equals("Conclu02") ||
 				params.get("outProcessCode").equals("Purchase01") ||
 				params.get("outProcessCode").equals("Purchase02")
@@ -185,7 +185,7 @@ public class CommonPopController {
 			apprFormData = commonServiceDAO.SelectApprFormData(params);
 			params.put("group", "contentsForm");
 			
-			if(params.get("outProcessCode").equals("Conclu01") || params.get("outProcessCode").equals("Conclu02")) {
+			if(params.get("outProcessCode").equals("Conclu02")) {
 				params.put("code", params.get("outProcessCode").toString() + "-" + apprFormData.get("contract_type").toString());
 			}else {
 				params.put("code", params.get("outProcessCode"));	
@@ -196,41 +196,6 @@ public class CommonPopController {
 			if(formInfo != null) {
 				
 				FORM_HTML = formInfo.get("FORM_HTML").toString();
-				
-				//전자수의 1인수의 시 수의계약요청사유서 추가 
-				if(params.get("outProcessCode").equals("Conclu01") && apprFormData.get("contract_type").equals("02")) {
-					
-					params.put("group", "contentsForm");
-					params.put("code", "Conclu01-2");
-					formInfo = commonServiceDAO.SelectPurchaseDetailCodeInfo(params);
-					
-					if(formInfo != null) {
-						FORM_HTML += formInfo.get("FORM_HTML").toString();
-					}
-					
-				}
-				
-				//입찰, 계약체결 시 청렴계약이행서약서 추가
-				if(params.get("outProcessCode").equals("Contract01") || params.get("outProcessCode").equals("Conclu01")) {
-					params.put("group", "contentsForm");
-					params.put("code", "Contract01-1");
-					formInfo = commonServiceDAO.SelectPurchaseDetailCodeInfo(params);
-					
-					if(formInfo != null) {
-						FORM_HTML += formInfo.get("FORM_HTML").toString();
-					}					
-				}
-				
-				//계약체결 시 안전보건관리준수서약서 추가
-				if(params.get("outProcessCode").equals("Conclu01")) {
-					params.put("group", "contentsForm");
-					params.put("code", "Conclu01-3");
-					formInfo = commonServiceDAO.SelectPurchaseDetailCodeInfo(params);
-					
-					if(formInfo != null) {
-						FORM_HTML += formInfo.get("FORM_HTML").toString();
-					}					
-				}				
 				
 				for( String strKey : apprFormData.keySet() ){
 					String strValue = apprFormData.get(strKey) != null ? apprFormData.get(strKey).toString() : "";
@@ -264,7 +229,7 @@ public class CommonPopController {
 			}else if(params.get("outProcessCode").equals("Contract03")) {
 				params.put("detailUrl", request.getContextPath() + "/purchase/pop/ContractResultPop.do?seq=" + params.get("seq").toString());
 				params.put("subjectStr", apprFormData.get("title").toString() + " 우선협상대상자 선정결과 보고");
-			}else if(params.get("outProcessCode").equals("Conclu01")) {
+			}else if(params.get("outProcessCode").toString().contains("Conclu01")) {
 				params.put("detailUrl", request.getContextPath() + "/purchase/pop/ConclusionCreatePop.do?seq=" + params.get("seq").toString());
 				params.put("subjectStr", apprFormData.get("title").toString() + " 계약체결");
 				
