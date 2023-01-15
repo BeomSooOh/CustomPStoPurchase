@@ -1463,7 +1463,7 @@
 					if(result.resultData.change_seq_temp != ""){
 						fnCallBtn("btnConclusionChange", result.resultData.seq, result.resultData.change_seq_temp);
 						return;							
-					}else if(result.resultData.doc_sts_change == "10"){
+					}else if(result.resultData.doc_sts_change == "10" || result.resultData.doc_sts_change == "20"){
 						fnCallBtn("btnConclusionChange", result.resultData.seq, result.resultData.change_seq);
 						return;							
 					}else if(result.resultData.approkey_conclusion != "" && result.resultData.doc_sts == "90") {
