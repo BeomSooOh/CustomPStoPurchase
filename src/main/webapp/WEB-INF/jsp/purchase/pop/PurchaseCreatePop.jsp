@@ -1320,9 +1320,10 @@
 				if(result.resultCode == "success"){
 					
 					thisSeq = result.resultData.seq;
+					openerRefreshList();
 					
 					if(type == 1){
-						openerRefreshList();				
+										
 						msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");							
 					}else{
 						

@@ -607,8 +607,10 @@
 					
 					if(result.resultCode == "success"){
 						
+						openerRefreshList();
+						
 						if(type == 1){
-							openerRefreshList();				
+										
 							msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");							
 						}else{
 							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=${seq}&change_seq=" + result.resultData.seq,  "ApprCreatePop", 1000, 729, 1, 1) ;
