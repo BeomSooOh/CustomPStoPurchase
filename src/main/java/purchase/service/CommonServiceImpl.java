@@ -183,20 +183,48 @@ public class CommonServiceImpl implements CommonService {
 			params.put("seq", params.get("approKey").toString().split("_")[1]);
 		}
 		
-		//종결 시 관리번호 등록
-		if(params.get("docSts").equals("90") && (params.get("processId").equals("Contract01") || params.get("processId").equals("Conclu01"))) {
+		//회수|삭제 시 doc_sts, approkey 초기화
+		if(params.get("docSts").equals("100") || params.get("docSts").equals("999")) {
 			
+			//결재상태값 전단계 완료상태로
+			params.put("docSts", "90");
+			
+			//신규입찰발주, 1인수의계약체결, 구매품의 시 진행상태값 초기화
+			if(params.get("processId").equals("Conclu01")) {
+				Map<String, Object> contractInfo = contractServiceDAO.SelectContractDetail(params);
+				
+				params.put("approkeyConclusion", "");
+				
+				if(contractInfo != null && contractInfo.get("contract_type").equals("02")) {
+					//수의계약시 진행상태값 삭제
+					params.put("docSts", "");
+				}
+				
+			}else if(params.get("processId").equals("Contract01") || params.get("processId").equals("Purchase01")) {
+				params.put("approkeyPlan", "");
+				params.put("approkeyPurchase", "");
+				params.put("docSts", "");
+			}else if(params.get("processId").equals("Contract02")) {
+				params.put("approkeyMeet", "");
+			}else if(params.get("processId").equals("Contract03")) {
+				params.put("approkeyResult", "");
+			}else if(params.get("processId").equals("Conclu02")) {
+				params.put("approkeyChange", "");
+				params.put("docSts", "");
+			}else if(params.get("processId").equals("Purchase02")) {
+				params.put("approkeyCheck", "");
+			}			
+			
+		}else if(params.get("docSts").equals("90") && (params.get("processId").equals("Contract01") || params.get("processId").equals("Conclu01"))) {
+			//종결 시 관리번호 등록			
 			Map<String, Object> newManageNo = commonServiceDAO.SelectNewManageNo(params);
 			
 			if(newManageNo != null) {
 				params.put("newManageNo", newManageNo.get("new_manage_no"));
 			}
-			
 		}
 		
-		
 		commonServiceDAO.UpdateAppr(params);
-		
 		
 		if(params.get("processId").equals("Contract01") && params.get("docSts").equals("90")) {
 			

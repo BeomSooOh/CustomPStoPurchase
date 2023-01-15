@@ -278,23 +278,23 @@
 			SET
 			doc_sts='$docSts$'
 			<isNotEmpty property="newManageNo">
-			,manage_no='$newManageNo$'
+			,manage_no=case when ifnull(manage_no,'') = '' then '$newManageNo$' else manage_no end
 			</isNotEmpty>			
-			<isNotEmpty property="approkeyPlan">
+			<isNotNull property="approkeyPlan">
 			,approkey_plan='$approkeyPlan$'
-			</isNotEmpty>	
-			<isNotEmpty property="approkeyMeet">
+			</isNotNull>	
+			<isNotNull property="approkeyMeet">
 			,approkey_meet='$approkeyMeet$'
-			</isNotEmpty>
-			<isNotEmpty property="approkeyResult">
+			</isNotNull>
+			<isNotNull property="approkeyResult">
 			,approkey_result='$approkeyResult$'
-			</isNotEmpty>
-			<isNotEmpty property="approkeyConclusion">
+			</isNotNull>
+			<isNotNull property="approkeyConclusion">
 			,approkey_conclusion='$approkeyConclusion$'
-			</isNotEmpty>
-			<isNotEmpty property="approkeyChange">
+			</isNotNull>
+			<isNotNull property="approkeyChange">
 			,approkey_change='$approkeyChange$'
-			</isNotEmpty>
+			</isNotNull>
 			
 			WHERE seq='$seq$';		  
 		</isNull>
@@ -325,14 +325,14 @@
 		SET
 		doc_sts='$docSts$'
 		<isNotEmpty property="newManageNo">
-		,manage_no='$newManageNo$'
+		,manage_no=case when ifnull(manage_no,'') = '' then '$newManageNo$' else manage_no end
 		</isNotEmpty>			
-		<isNotEmpty property="approkeyPurchase">
+		<isNotNull property="approkeyPurchase">
 		,approkey_purchase='$approkeyPurchase$'
-		</isNotEmpty>	
-		<isNotEmpty property="approkeyCheck">
+		</isNotNull>	
+		<isNotNull property="approkeyCheck">
 		,approkey_check='$approkeyCheck$'
-		</isNotEmpty>
+		</isNotNull>
 		
 		WHERE seq='$seq$';		  
 	
