@@ -176,7 +176,6 @@ public class CommonServiceImpl implements CommonService {
 			}			
 			
 		}else if(params.get("processId").equals("Purchase02")) {
-			
 			params.put("approkeyCheck", params.get("approKey"));
 			params.put("seq", params.get("approKey").toString().split("_")[1]);
 		}
