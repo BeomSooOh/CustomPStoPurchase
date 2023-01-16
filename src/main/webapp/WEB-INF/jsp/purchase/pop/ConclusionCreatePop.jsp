@@ -739,6 +739,26 @@
 				insertDataObject.budget_list_info = JSON.stringify(insertDataObject.budgetObjList);
 				insertDataObject.trade_list_info = JSON.stringify(insertDataObject.tradeObjList);
 				
+  				var meetAmtSpent = 0;
+				var totalAmt = 0;
+				var remainAmt = 0;
+				
+ 				if($("[name=amtInfoList] [name=addData] [amounttype=amt]").val() != "" && $("[name=amtInfoList] [name=addData] [amounttype=amt]").val() != "0"){
+					meetAmtSpent = parseInt($("[name=amtInfoList] [name=addData] [amounttype=amt]").val().replace(/,/g, ''));
+				} 
+				
+				$.each($("[name=budgetList] [name=addData] [name=amt]"), function( idx, obj ) {
+					if($(obj).val() != "" && $(obj).val() != "0"){
+						totalAmt += parseInt($(obj).val().replace(/,/g, ''));
+					}
+				});	
+				
+				if(meetAmtSpent != totalAmt){
+					msgSnackbar("warning", "지출금액과 신청금액이 일치하지 않습니다.");
+					return;
+				} 
+				
+				
 				//계약총금액 조회
 				insertDataObject.contract_amt = 0;
 				
