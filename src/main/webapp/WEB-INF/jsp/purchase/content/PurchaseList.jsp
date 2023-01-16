@@ -875,7 +875,7 @@
 		<dd><input type="text" id="writeDeptName" pudd-style="width:120px;" class="puddSetup" placeHolder="부서명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		
 		<c:if test="${authLevel!='user'}">
-		<dt class="ar" style="width:60px;">물품담당자</dt>
+		<dt class="ar" style="width:70px;">물품담당자</dt>
 		<dd><input type="text" id="writeEmpName" pudd-style="width:90px;" class="puddSetup" placeHolder="사원명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		</c:if>
 		
