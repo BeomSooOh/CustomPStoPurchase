@@ -260,6 +260,7 @@ public class ContractPopController {
             List<Map<String, Object>> contractType = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> contractLaw = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> privateReason = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> payType = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> hopeCompany = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> jointContractMethod = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> contractForm1 = new ArrayList<Map<String, Object>>();
@@ -284,6 +285,8 @@ public class ContractPopController {
         				contractTerm.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("contractYear")) {
         				contractYear.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("payType")) {
+        				payType.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("contractType")) {
         				contractType.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("contractForm1")) {
@@ -404,6 +407,7 @@ public class ContractPopController {
             
             mv.addObject("budgetTypeCode", budgetType);
             mv.addObject("targetTypeCode", targetType);
+            mv.addObject("payTypeCode", payType);
             mv.addObject("contractTermCode", contractTerm);
             mv.addObject("contractYearCode", contractYear);
             mv.addObject("contractTypeCode", contractType);

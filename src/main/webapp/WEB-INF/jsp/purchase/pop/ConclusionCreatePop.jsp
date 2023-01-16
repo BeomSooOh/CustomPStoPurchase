@@ -111,7 +111,9 @@
 			$('#txtBalanceAmt1').text(fnGetCurrencyCode("${contractDetailInfo.balance_amt}"));
 			
 			
+			
 			//기존설정항목 세팅
+			setDynamicPuddInfo("c_pay_type_info", "checkbox", "${contractDetailInfo.c_pay_type_info}");
 			setDynamicPuddInfoTable("amtInfoList", "${contractDetailInfo.contract_amt_info}");
 			setDynamicSetInfoUl("hopeCompanyList", "${contractDetailInfo.hope_company_info}");
 			setDynamicSetInfoFile("hopeAttachList", "${contractDetailInfo.hope_attach_info}");
@@ -1689,6 +1691,23 @@
 						<input name="privateReason_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.private_reason.indexOf('etc▦') == -1 ) }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.private_reason.indexOf('etc▦') > -1 }">${(contractDetailInfo.private_reason).substring(4)}</c:if>" />
 					</td>
 				</tr>
+				<tr>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 결제방법</th>
+					<td colspan="3" objKey="c_pay_type_info" objCheckFor="checkVal('checkbox', 'payType', '결제방법', 'mustAlert', '|etc|')" >
+						<c:forEach var="items" items="${payTypeCode}">
+							<c:choose>
+								<c:when test="${items.CODE == 'etc'}">
+									<input ${disabled} type="checkbox" onclick="fnChangeEtc(this);" name="payType"  value="${items.CODE}" class="puddSetup" pudd-label="${items.NAME}" />
+									<input ${disabled} type="text" style="display:none;" name="payType_${items.CODE}" pudd-style="width:300px;" class="puddSetup" value="" />
+								</c:when>
+								<c:otherwise>
+									<input ${disabled} type="checkbox" name="payType"  value="${items.CODE}" class="puddSetup" pudd-label="${items.NAME}" />
+								</c:otherwise>
+							</c:choose>						
+						</c:forEach>					
+					</td>					
+				</tr>
+				
 				<tr>
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 희망기업여부</th>
 					<td>
