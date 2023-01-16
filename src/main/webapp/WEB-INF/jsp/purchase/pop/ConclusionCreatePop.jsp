@@ -68,20 +68,12 @@
 		commonParam.confferBudgetSeq = "-1";
 		commonParam.consSeq = "-1";
 		commonParam.resSeq = "-1";
-		commonParam.selectedBudgetSeqs = "";		
+		commonParam.selectedBudgetSeqs = "";
 
-
-		<c:if test="${contractType == '01'}">
-		var outProcessCode = "Conclu01_2";
-		</c:if>
-		<c:if test="${contractType == '02'}"> 
-		var outProcessCode = "Conclu01";
-		</c:if>
-
+		var outProcessCode = "Conclu01-${contractType}";
 		var disabledYn = "${disabledYn}";
-		
+
 		var insertDataObject = {};
-		
 		var attachFormList = [];
 		var attachFileNew = [];
 		var attachFileDel = [];		
@@ -832,9 +824,8 @@
 					
 					if(result.resultCode == "success"){
 						
-						openerRefreshList();
-						
 						if(type == 1){
+							openerRefreshList();				
 							msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");							
 						}else{
 							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?useYn=Y&outProcessCode="+outProcessCode+"&seq=" + result.resultData.seq,  "ApprCreatePop", 1000, 729, 1, 1) ;
@@ -2079,7 +2070,7 @@
 		</div>			
 		<!-- 그리드 테이블 -->
 		<!-- <div class="com_ta6 mt10"> -->
-		<div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" style="display:none;">>
+		<div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" style="display:none;">
 		<!-- <div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" > -->
 			<table id="resultAmtListHtml" name="resultAmtListHtml" border="1" width="100%" >
 				<colgroup>

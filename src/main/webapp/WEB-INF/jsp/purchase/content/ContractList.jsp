@@ -287,11 +287,26 @@
 				,	title : "입찰/수의"
 				,	width : 100
 			}
-/* 			,{
+ 			,{
 				 field : "" 
 						,	title : "계약방법"
 						,	width : 100
-			} */
+						,	content : {		
+							template : function(rowData) {
+								if (rowData.contract_type == "01" && rowData.noti_type == "01"){
+									return rowData.compete_type_text;
+								}
+								else if (rowData.contract_type == "01" && rowData.noti_type == "02"){
+									return "2인견적";
+								}
+								else if (rowData.contract_type == "02"){
+									return "1인견적";
+								} else {
+									return "";
+								}
+							}
+					}
+			} 
 			,{
 						field : "title"
 					,	title : "계약명"
@@ -536,11 +551,24 @@
 					,	title : "기안자부서"
 					,	width : 120
 			} 
-/* 			,	{
-						field : ""
+ 			,	{
+						field : "c_klempname"
 					,	title : "계약담당자"
 					,	width : 120
-			} */
+					,	content : {
+						template : function(rowData) {
+								
+						if(rowData.c_klempname != ""){
+							const c_klempname = (rowData.c_klempname||"").split("▦▦▦");
+								
+							return c_klempname[0];
+						} else {
+							return "";
+						}
+					}
+				}
+ 			}
+			
 			,	{
 				field : ""
 			,	title : "담당자"
