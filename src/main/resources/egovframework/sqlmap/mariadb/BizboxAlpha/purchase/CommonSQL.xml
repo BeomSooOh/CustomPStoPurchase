@@ -221,7 +221,7 @@
 		a.modify_dt, 
 		a.modify_by,
 		
-		ifnull(a.purchase_method,'') as purchase_method, 
+		cust_sto.fn_get_purchase_code_text('purchaseMethod',a.purchase_method) as purchase_method,  
 		cust_sto.fn_get_purchase_code_text('purchaseType',a.purchase_type) as purchase_type, 
 		cust_sto.fn_get_purchase_code_text('payType',a.pay_type_info) as pay_type, 
 		
@@ -240,7 +240,7 @@
 		ifnull(item0.item_total_cnt,'0') as item_total_cnt,
 		ifnull(item0.tr_name,'') as tr_name,
 		ifnull(item0.item_deadline,'') as item_deadline,
-		ifnull(item0.item_pickup_location,'') as item_pickup_location,
+		cust_sto.fn_get_purchase_code_text('useLocation',item0.item_pickup_location) as item_pickup_location, 
 		ifnull(item0.item_name,'') as item_name,
 		cust_sto.fn_get_purchase_code_text('useLocation',item0.item_use_location) as item_use_location, 
 		

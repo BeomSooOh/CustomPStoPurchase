@@ -125,6 +125,7 @@
 		//기존설정항목 세팅
 		<c:if test="${viewType == 'U'}">
 		setDynamicPuddInfo("pay_type_info", "checkbox", "${purchaseDetailInfo.pay_type_info}");
+		setDynamicPuddInfo("purchase_method", "radio", "${purchaseDetailInfo.purchase_method}");
 		setDynamicSetInfoBudget();
 		setDynamicSetInfoTrade();
 		setDynamicSetInfoItem();
@@ -1835,8 +1836,20 @@
 				</tr>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 구매방법</th>
-					<td><input ${disabled} objKey="purchase_method" objCheckFor="checkVal('text', this, '구매방법', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U' }">${purchaseDetailInfo.purchase_method}</c:if>" /></td>
-					<th>결재방법</th>
+					<td objKey="purchase_method" objCheckFor="checkVal('radio', 'purchaseMethod', '구매방법', '', '|etc|')">
+						<c:forEach var="items" items="${purchaseMethod}" varStatus="status">
+							<c:choose>
+								<c:when test="${items.CODE == 'etc'}">
+									<input ${disabled} type="radio" onclick="fnChangeEtc(this)" name="purchaseMethod" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}" />	
+									<input ${disabled} type="text" name="purchaseMethod_${items.CODE}" pudd-style="width:150px;" class="puddSetup" value="" style="display:none;" />								
+								</c:when>								
+								<c:otherwise>
+									<input ${disabled} type="radio" onclick="fnChangeEtc(this)" name="purchaseMethod" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}" <c:if test="${status.index == 0}">checked</c:if> />
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>					
+					</td>
+					<th>결제방법</th>
 					<td objKey="pay_type_info" objCheckFor="checkVal('checkbox', 'payType', '결제방법', 'mustAlert', '|etc|')" >
 						<c:forEach var="items" items="${payTypeCode}">
 							<c:choose>
@@ -2094,7 +2107,13 @@
 					<td htmlalign="right" tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
 					<input tbval="Y" name="item_total_amt" amountInput="Y" type="hidden" value="0" requiredNot="true" />
 					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_deadline" tbname="납품기한" value="" readonly style="text-align: center;height: 22px;border: ridge;width: 90px;" /></td>
-					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_pickup_location" tbname="수령장소" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_pickup_location" tbname="사용위치" >
+							<c:forEach var="items" items="${useLocationCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>	
+						</select>
+					</td>
 					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_fee_amt" tbname="취득수수료" amountInput="Y" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
 					<td class="le" removehtml="Y">
 						<input tbval="Y" name="item_unit" tbname="단위" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" readonly codetarget />

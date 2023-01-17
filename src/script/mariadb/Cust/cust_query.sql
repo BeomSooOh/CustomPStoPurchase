@@ -1522,3 +1522,17 @@ CREATE table if not exists cust_sto.`t_purchase_res_hope_info` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='기타결의희망구매실적연계정보';
 
 ----------------- 운영서버에 여기까지 반영 -------------------
+
+insert ignore INTO cust_sto.t_purchase_code_group
+(`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
+VALUES('purchaseMethod', 'cm', '[구매]구매방법', 'Y', 26, '');
+
+INSERT ignore INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('purchaseMethod', '01', '조달', 'Y', 1, NULL, NULL, NULL);
+INSERT ignore INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('purchaseMethod', '02', '일반지출', 'Y', 2, NULL, NULL, NULL);
+INSERT ignore INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('purchaseMethod', 'etc', '기타', 'Y', 3, NULL, NULL, NULL);

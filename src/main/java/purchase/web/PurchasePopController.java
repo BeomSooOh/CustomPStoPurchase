@@ -261,6 +261,7 @@ public class PurchasePopController {
             List<Map<String, Object>> greenCertType = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> nonGreenReason = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> greenClass = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> purchaseMethod = new ArrayList<Map<String, Object>>();
             
             if(codeList != null && codeList.size() > 0) {
             	
@@ -312,6 +313,8 @@ public class PurchasePopController {
         				nonGreenReason.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("greenClass")) {
         				greenClass.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("purchaseMethod")) {
+        				purchaseMethod.add(codeinfo);
         			}
         		}            	
             }
@@ -397,6 +400,7 @@ public class PurchasePopController {
             mv.addObject("greenCertTypeCode", greenCertType);
             mv.addObject("nonGreenReasonCode", nonGreenReason);
             mv.addObject("greenClassCode", greenClass);
+            mv.addObject("purchaseMethod", purchaseMethod);
             
             mv.addObject("seq", params.get("seq"));
             
