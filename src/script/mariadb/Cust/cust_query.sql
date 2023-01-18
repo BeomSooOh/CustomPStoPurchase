@@ -1536,3 +1536,59 @@ VALUES('purchaseMethod', '02', '일반지출', 'Y', 2, NULL, NULL, NULL);
 INSERT ignore INTO cust_sto.t_purchase_code_detail
 (`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
 VALUES('purchaseMethod', 'etc', '기타', 'Y', 3, NULL, NULL, NULL);
+
+INSERT ignore INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('purchaseType', '00', '비품(정수관리대상)', 'Y', 1, NULL, NULL, NULL);
+
+INSERT ignore INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('purchaseType', '01', '비품(정수관리비대상)', 'Y', 2, NULL, NULL, NULL);
+
+INSERT ignore INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('purchaseType', '02', '소모품', 'Y', 3, NULL, NULL, NULL);
+
+update cust_sto.t_purchase_code_detail set name='비품(정수관리비대상)안내문구' where code='ManualPop01';
+
+INSERT ignore INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('contentsForm', 'ManualPop00', '비품(정수관리대상)안내문구', 'Y', 5, NULL, NULL, '<br />
+<br />
+<br />
+<table cellspacing="0" cellpadding="1" style="border-collapse:collapse;width:46%;margin:0px;table-layout:fixed;overflow-wrap:break-word;word-break:normal;" mapping_key="">
+	<colgroup>
+	<col style="width:376px;" />
+	<col style="width:376px;" />
+	</colgroup>
+	<tbody>
+		<tr style="height:83px;">
+			<td style="width:749px;height:80px;border:1px solid rgb(0, 0, 0);" colspan="2">
+				<p style="font-family:돋움체;font-size:10pt;color:rgb(0, 0, 0);margin-top:0px;margin-bottom:0px;line-height:1.2;text-align:center;"><b><span style="font-size:18pt;">비품</span></b></p>
+			</td>
+		</tr>
+		<tr style="height:75px;">
+			<td style="width:373px;height:72px;border:1px solid rgb(0, 0, 0);">
+				<p style="text-align:center;font-family:돋움체;font-size:10pt;color:rgb(0, 0, 0);margin-top:0px;margin-bottom:0px;line-height:1.2;"><b style="font-size:13pt;">정수관리 대상</b></p>
+			</td>
+			<td style="width:373px;height:72px;border:1px solid rgb(0, 0, 0);">
+				<p style="text-align:center;font-family:돋움체;font-size:10pt;color:rgb(0, 0, 0);margin-top:0px;margin-bottom:0px;line-height:1.2;"><b style="font-size:13pt;">정수관리 비대상</b></p>
+			</td>
+		</tr>
+		<tr style="height:179px;">
+			<td style="width:373px;height:176px;border:1px solid rgb(0, 0, 0);">
+				<p style="text-align:center;font-family:돋움체;font-size:10pt;color:rgb(0, 0, 0);margin-top:0px;margin-bottom:0px;line-height:1.2;"><b style="font-size:11pt;">서울관광재단 정수관리 대상품 10종</b></p>
+				<p style="text-align:center;font-family:돋움체;font-size:10pt;color:rgb(0, 0, 0);margin-top:0px;margin-bottom:0px;line-height:1.2;"><b style="font-size:13pt;"><span style="color:rgb(6, 17, 242);font-size:11pt;">[물품관리 사무처리규정] 제 23조 주요물품의정수책정기준</span></b></p>
+			</td>
+			<td style="width:373px;height:176px;border:1px solid rgb(0, 0, 0);">
+				<p style="text-align:center;font-family:돋움체;font-size:10pt;color:rgb(0, 0, 0);margin-top:0px;margin-bottom:0px;line-height:1.2;"><b style="font-size:11pt;">50만원 이상의 물품 중 정수관리대상 물품에 속하지 않은 물품</b></p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<p style="font-family:돋움체;font-size:10pt;color:rgb(0, 0, 0);margin-top:0px;margin-bottom:0px;line-height:1.2;"><br /></p>
+');
+
+
+ALTER TABLE cust_sto.t_purchase_item_info ADD item_fee_total_amt decimal(19,2) NULL COMMENT '취득금액';
+ALTER TABLE cust_sto.t_purchase_item_info ADD item_fee_total_amt_text varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '취득금액';

@@ -193,6 +193,8 @@
 		$(cloneData).find("[name=item_cnt]").val("${items.item_cnt}");
 		$(cloneData).find("[name=item_total_amt_text]").text("${items.item_total_amt_text}");
 		$(cloneData).find("[name=item_total_amt]").val("${items.item_total_amt}");
+		$(cloneData).find("[name=item_fee_total_amt_text]").text("${items.item_fee_total_amt_text}");
+		$(cloneData).find("[name=item_fee_total_amt]").val("${items.item_fee_total_amt}");		
 		$(cloneData).find("[name=item_unit]").val("${items.item_unit}");
 		$(cloneData).find("[name=item_pickup_location]").val("${items.item_pickup_location}");
 		$(cloneData).find("[name=item_fee_amt]").val("${items.item_fee_amt}");
@@ -746,8 +748,8 @@
 
 		Pudd.puddDialog({
 		 
-			width : type == "shopping" ? 1200 : 400
-		,	height : type == "shopping" ? 600 : 500
+			width : type == "shopping" ? 1150 : 400
+		,	height : type == "shopping" ? 400 : 500
 		 
 		,	modal : true			// 기본값 true
 		,	draggable : false		// 기본값 true
@@ -755,7 +757,7 @@
 		 
 		,	header : {
 	 		title : title
-		,	closeButton : false	// 기본값 true
+		,	closeButton : type == "shopping" ? true : false
 		,	closeCallback : function( puddDlg ) {
 				// close 버튼은 내부에서 showDialog( false ) 실행함 - 즉, 닫기 처리는 내부에서 진행됨
 				// 추가적인 작업 내용이 있는 경우 이곳에서 처리
@@ -834,8 +836,11 @@
 				$(target).find("[name=item_name]").val(selectedList[0].prdctClsfcNoNm);
 				$(target).find("[name=item_amt]").val(selectedList[0].cntrctPrceAmt.replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 				$(target).find("[name=item_cnt]").val("1");
+				
 				$(target).find("[name=item_total_amt_text]").text(selectedList[0].cntrctPrceAmt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " 원");
+				$(target).find("[name=item_fee_total_amt_text]").text(selectedList[0].cntrctPrceAmt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " 원");
 				$(target).find("[name=item_total_amt]").val(selectedList[0].cntrctPrceAmt);
+				$(target).find("[name=item_fee_total_amt]").val(selectedList[0].cntrctPrceAmt);
 				
 				$(target).find("[name=item_unit]").val(selectedList[0].prdctUnit);
 			}
@@ -853,9 +858,13 @@
 
 		var item_amt = $(el).find("[name=item_amt]").val() == "" ? "0" : $(el).find("[name=item_amt]").val().replace(/,/g, '');
 		var item_cnt = $(el).find("[name=item_cnt]").val() == "" ? "0" : $(el).find("[name=item_cnt]").val();
+		var item_fee_amt = $(el).find("[name=item_fee_amt]").val() == "" ? "0" : $(el).find("[name=item_fee_amt]").val().replace(/,/g, '');
 		
 		$(el).find("[name=item_total_amt_text]").text((parseInt(item_amt)*parseInt(item_cnt)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " 원");
 		$(el).find("[name=item_total_amt]").val((parseInt(item_amt)*parseInt(item_cnt)));
+		
+		$(el).find("[name=item_fee_total_amt_text]").text(((parseInt(item_amt)*parseInt(item_cnt)) + parseInt(item_fee_amt)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " 원");
+		$(el).find("[name=item_fee_total_amt]").val((parseInt(item_amt)*parseInt(item_cnt)) + parseInt(item_fee_amt));		
 	}
 	
 	function fnSearchFile(e){
@@ -1819,7 +1828,8 @@
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 유형선택</th>
 					<td objKey="purchase_type" objCheckFor="checkVal('radio', 'purchaseType', '유형선택', '', '')" >
-						<input ${disabled} onclick="fnNoticePop('ManualPop01', '비품')" type="radio" name="purchaseType" class="puddSetup" pudd-label="비품" value="01" <c:if test="${ (viewType == 'I') || (viewType == 'U' && purchaseDetailInfo.purchase_type == '01') }">checked</c:if> />
+						<input ${disabled} onclick="fnNoticePop('ManualPop00', '비품(정수관리대상)')" type="radio" name="purchaseType" class="puddSetup" pudd-label="비품(정수관리대상)" value="00" <c:if test="${ (viewType == 'I') || (viewType == 'U' && purchaseDetailInfo.purchase_type == '00') }">checked</c:if> />
+						<input ${disabled} onclick="fnNoticePop('ManualPop01', '비품(정수관리비대상)')" type="radio" name="purchaseType" class="puddSetup" pudd-label="비품(정수관리비대상)" value="01" <c:if test="${ viewType == 'U' && purchaseDetailInfo.purchase_type == '01' }">checked</c:if> />
 						<input ${disabled} onclick="fnNoticePop('ManualPop02', '소모품')" type="radio" name="purchaseType" class="puddSetup" pudd-label="소모품" value="02" <c:if test="${ viewType == 'U' && purchaseDetailInfo.purchase_type == '02' }">checked</c:if> />
 					</td>	
 					<th>담당자</th>
@@ -1926,7 +1936,7 @@
 									<td tbval="Y" name="tr_reg_number" requiredNot="true" class="cen"></td>
 									<td name="hope_company_info_td">
 										<div class="multi_sel" style="width:calc( 100% - 58px);">
-											<ul tbval="Y" tbType="ul" name="hope_company_info" class="multibox" style="width:100%;">							
+											<ul tbval="Y" tbname="희망기업여부" tbType="ul" name="hope_company_info" class="multibox" style="width:100%;">							
 												<li name="dataBase" addCode="" style="display:none;">
 													<span name="addName"></span>
 													<c:if test="${disabledYn == 'N'}"> 
@@ -1937,12 +1947,12 @@
 										</div>
 										<c:if test="${disabledYn == 'N'}"> 
 										<div class="controll_btn p0 pt4">	
-											<button id="" onclick="commonCodeSelectLayer('hopeCompany', '희망기업여부', 'ul', $(this).closest('td'), 'Y')">선택</button>
+											<button onclick="commonCodeSelectLayer('hopeCompany', '희망기업여부', 'ul', $(this).closest('td'), 'Y')">선택</button>
 										</div>
 										</c:if>
 									</td>									
 									<td class="file_add">	
-										<ul tbval="Y" tbType="file" name="hope_attach_info" requiredNot="$(this).closest('tr').find('[name=hope_company_info] [addcode=00]').length > 0" class="file_list_box fl">
+										<ul tbval="Y" tbType="file" tbname="희망기업확인서" name="hope_attach_info" requiredNot="$(this).closest('tr').find('[name=hope_company_info] [addcode=00]').length > 0" class="file_list_box fl">
 											<li name="attachBase" style="display:none;">
 												<img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" class="fl" alt="">
 												<a href="javascript:;" name="attachFileName" onClick="fnDownload(this)" class="fl ellipsis pl5" style="max-width: 250px;"></a>
@@ -1984,7 +1994,7 @@
 									<td tbval="Y" name="tr_reg_number" requiredNot="true" class="cen"></td>
 									<td name="hope_company_info_td">
 										<div class="multi_sel" style="width:calc( 100% - 58px);">
-											<ul tbval="Y" tbType="ul" name="hope_company_info" class="multibox" style="width:100%;">							
+											<ul tbval="Y" tbType="ul" tbname="희망기업여부" name="hope_company_info" class="multibox" style="width:100%;">							
 												<li name="dataBase" addCode="" style="display:none;">
 													<span name="addName"></span>
 													<c:if test="${disabledYn == 'N'}"> 
@@ -1995,12 +2005,12 @@
 										</div>
 										<c:if test="${disabledYn == 'N'}"> 
 										<div class="controll_btn p0 pt4">	
-											<button id="" onclick="commonCodeSelectLayer('hopeCompany', '희망기업여부', 'ul', $(this).closest('td'), 'Y')">선택</button>
+											<button onclick="commonCodeSelectLayer('hopeCompany', '희망기업여부', 'ul', $(this).closest('td'), 'Y')">선택</button>
 										</div>
 										</c:if>
 									</td>									
 									<td class="file_add">	
-										<ul tbval="Y" tbType="file" name="hope_attach_info" requiredNot="$(this).closest('tr').find('[name=hope_company_info] [addcode=00]').length > 0" class="file_list_box fl">
+										<ul tbval="Y" tbType="file" tbname="희망기업확인서" name="hope_attach_info" requiredNot="$(this).closest('tr').find('[name=hope_company_info] [addcode=00]').length > 0" class="file_list_box fl">
 											<li name="attachBase" style="display:none;">
 												<img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_clip02.png" class="fl" alt="">
 												<a href="javascript:;" name="attachFileName" onClick="fnDownload(this)" class="fl ellipsis pl5" style="max-width: 250px;"></a>
@@ -2075,6 +2085,7 @@
 					<th class="ac" removehtml="Y">납품기한</th>
 					<th class="ac" removehtml="Y">수령장소</th>					
 					<th class="ac" removehtml="Y">취득수수료</th>
+					<th class="ac" removehtml="Y">총계</th>
 					<th class="ac" removehtml="Y">단위</th>
 					<th class="ac" removehtml="Y">물품대장코드</th>
 					<th class="ac" removehtml="Y">사용위치</th>
@@ -2106,7 +2117,7 @@
 					<td htmlalign="right"><input ${disabled} tbval="Y" name="item_amt" tbname="조달단가" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> <span removehtml="Y">원</span></td>
 					<td htmlalign="right" tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
 					<input tbval="Y" name="item_total_amt" amountInput="Y" type="hidden" value="0" requiredNot="true" />
-					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_deadline" tbname="납품기한" value="" readonly style="text-align: center;height: 22px;border: ridge;width: 90px;" /></td>
+					<td removehtml="Y"><input ${disabled} tbval="Y" placeholder="년-월-일" name="item_deadline" tbname="납품기한" value="" readonly style="text-align: center;height: 22px;border: ridge;width: 90px;" /></td>
 					<td removehtml="Y">
 						<select ${disabled} tbval="Y" name="item_pickup_location" tbname="사용위치" >
 							<c:forEach var="items" items="${useLocationCode}">
@@ -2114,7 +2125,9 @@
 							</c:forEach>	
 						</select>
 					</td>
-					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_fee_amt" tbname="취득수수료" amountInput="Y" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
+					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_fee_amt" tbname="취득수수료" amountInput="Y" onkeyup="fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
+					<td removehtml="Y" htmlalign="right" tbval="Y" name="item_fee_total_amt_text" tbtype="innerText" class="ri">0 원</td>
+					<input tbval="Y" name="item_fee_total_amt" amountInput="Y" type="hidden" value="0" requiredNot="true" />					
 					<td class="le" removehtml="Y">
 						<input tbval="Y" name="item_unit" tbname="단위" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" readonly codetarget />
 						<c:if test="${disabledYn == 'N'}"> 
@@ -2199,9 +2212,17 @@
 					<td htmlalign="right"><input ${disabled} tbval="Y" name="item_amt" tbname="조달단가" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> <span removehtml="Y">원</span></td>
 					<td htmlalign="right" tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
 					<input tbval="Y" name="item_total_amt" amountInput="Y" type="hidden" value="0" requiredNot="true" />
-					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_deadline" tbname="납품기한" value="" readonly style="text-align: center;height: 22px;border: ridge;width: 90px;" /></td>
-					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_pickup_location" tbname="수령장소" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
-					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_fee_amt" tbname="취득수수료" amountInput="Y" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
+					<td removehtml="Y"><input ${disabled} tbval="Y" placeholder="년-월-일" name="item_deadline" tbname="납품기한" value="" readonly style="text-align: center;height: 22px;border: ridge;width: 90px;" /></td>
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_pickup_location" tbname="사용위치" >
+							<c:forEach var="items" items="${useLocationCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>	
+						</select>
+					</td>					
+					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_fee_amt" tbname="취득수수료" amountInput="Y" onkeyup="fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
+					<td removehtml="Y" htmlalign="right" tbval="Y" name="item_fee_total_amt_text" tbtype="innerText" class="ri">0 원</td>
+					<input tbval="Y" name="item_fee_total_amt" amountInput="Y" type="hidden" value="0" requiredNot="true" />						
 					<td class="le" removehtml="Y">
 						<input tbval="Y" name="item_unit" tbname="단위" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" readonly codetarget />
 						<c:if test="${disabledYn == 'N'}"> 
