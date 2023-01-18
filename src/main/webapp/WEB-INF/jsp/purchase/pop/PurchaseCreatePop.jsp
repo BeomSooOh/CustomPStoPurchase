@@ -1790,6 +1790,10 @@
 		<div class="psh_btnbox">
 			<div class="psh_right">
 				<div class="btn_cen mt8">
+				
+					<c:if test="${btnAdminEditYn == 'Y'}">
+					<input type="button" class="psh_btn" onclick="fnCallBtn('save')" value="저장" />
+					</c:if>
 					<c:if test="${btnSaveYn == 'Y'}">
 					<input type="button" class="psh_btn" onclick="fnCallBtn('save')" value="임시저장" />
 					</c:if>

@@ -567,7 +567,7 @@
 			
 		}else if(callId == "purchaseView"){
 			
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/PurchaseCreatePop.do?seq=" + seq,  "purchaseViewPop", 1200, 800, 1, 1) ;
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/PurchaseCreatePop.do?authLevel=${authLevel}&seq=" + seq,  "purchaseViewPop", 1200, 800, 1, 1) ;
 			
 		}else if(callId == "btnCheck"){
 			
