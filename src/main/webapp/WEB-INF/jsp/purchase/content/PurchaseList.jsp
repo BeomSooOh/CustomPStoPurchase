@@ -780,7 +780,7 @@
     	});
 		    	
     	var headerRow = 2;
-    	var headerCol = 25;
+    	var headerCol = 29;
     	
     	for(var i=1; i < headerRow; i++) {
     		for(var j=0; j < headerCol; j++) {
@@ -813,9 +813,13 @@
     	excel.set(0, 22, 1, "대금지급금액");    	
     	excel.set(0, 23, 1, "대금지급완료여부");    	
     	excel.set(0, 24, 1, "붙임문서");     
+    	excel.set(0, 25, 1, "사용위치");
+    	excel.set(0, 26, 1, "제품분류");    	
+    	excel.set(0, 27, 1, "녹색제품 인증구분");    	
+    	excel.set(0, 28, 1, "희망기업여부");      	
     	
     	// sheet번호, column, value(width)
-    	for( var i = 0; i < 25; i++ ) {
+    	for( var i = 0; i < 29; i++ ) {
     		excel.setColumnWidth( 0, i, 20 );
     	}    	
 		
@@ -879,7 +883,12 @@
 			
 			if(dataPage[ i ][ "purchase_attach_info" ] != ""){
 				excel.set( 0, 24, rowNo, "등록", formatCell );
-			}				
+			}
+			
+			excel.set( 0, 25, rowNo, dataPage[ i ][ "item_use_location" ], formatCell );
+			excel.set( 0, 26, rowNo, dataPage[ i ][ "item_green_class" ], formatCell );
+			excel.set( 0, 27, rowNo, dataPage[ i ][ "item_green_cert_type" ], formatCell );
+			excel.set( 0, 28, rowNo, dataPage[ i ][ "hope_company_info" ], formatCell );
     		
     	}
      
