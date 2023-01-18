@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -103,6 +104,38 @@ public class PurchaseMainController {
             if(resFormSeq != null) {
             	mv.addObject("resFormSeq", resFormSeq.get("LINK"));	
             }
+            
+            params.put("group", "");
+            params.put("code", ""); 
+            params.put("codeNotEmpty", "Y"); 
+            List<Map<String, Object>> codeList = commonServiceDAO.SelectPurchaseDetailCodeList(params);            
+            
+            List<Map<String, Object>> greenCertType = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> greenClass = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> hopeCompany = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> useLocation = new ArrayList<Map<String, Object>>();
+            
+            
+            if(codeList != null && codeList.size() > 0) {
+            	
+        		for (Map<String, Object> codeinfo : codeList) {
+        			
+        			if(codeinfo.get("GROUP").equals("greenCertType")) {
+        				greenCertType.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("greenClass")) {
+        				greenClass.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("hopeCompany")) {
+        				hopeCompany.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("useLocation")) {
+        				useLocation.add(codeinfo);
+        			}
+        		}            	
+            }           
+            
+            mv.addObject("greenCertType", greenCertType);	
+            mv.addObject("greenClass", greenClass);	
+            mv.addObject("hopeCompany", hopeCompany);	
+            mv.addObject("useLocation", useLocation);	
             
             mv.setViewName("/purchase/content/PurchaseList");
 
