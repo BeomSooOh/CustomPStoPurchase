@@ -257,7 +257,7 @@
 					{
 						field : "rgstDt"
 					,	title : "등록일시"
-					,	width : 55
+					,	width : 60
 					,	content : {
 							template : function( rowData ) {
 								if(rowData.rgstDt.length == 8){

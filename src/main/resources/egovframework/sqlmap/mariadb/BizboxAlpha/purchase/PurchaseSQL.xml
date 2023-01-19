@@ -17,6 +17,7 @@
   left join $DB_NEOS$t_co_dept wdept on a.write_dept_seq = wdept.dept_seq 
   </isEqual>	  
   join cust_sto.t_purchase_item_info item on a.seq = item.seq
+  join cust_sto.t_purchase_trade_info trade on item.seq = trade.seq and trade.outProcessCode = 'Purchase01' and item.item_tr_seq = trade.tr_seq  
   left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
   left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'  
   where 
@@ -30,9 +31,20 @@
   <isNotEmpty property="itemName">
   and  item.item_name like concat('%', '$itemName$', '%')
   </isNotEmpty>
+  
   <isNotEmpty property="itemUseLocation">
-  and  item.item_use_location like concat('%', '$itemUseLocation$', '%')
-  </isNotEmpty>  
+  and  item.item_use_location = '$itemUseLocation$'
+  </isNotEmpty>
+  <isNotEmpty property="itemGreenClass">
+  and  item.item_green_class = '$itemGreenClass$'
+  </isNotEmpty>
+  <isNotEmpty property="itemGreenCertType">
+  and  item.item_green_cert_type = '$itemGreenCertType$'
+  </isNotEmpty>
+  <isNotEmpty property="itemHopeCompany">
+  and concat('▦',trade.hope_company_info) like '%▦$itemHopeCompany$▦%'
+  </isNotEmpty>      
+    
   <isNotEmpty property="writeDeptName">
   and  cdm.dept_name like concat('%', '$writeDeptName$', '%')
   </isNotEmpty>
@@ -85,6 +97,8 @@
   FORMAT(item.item_fee_amt, 0) as item_fee_amt,
   FORMAT(item.item_total_amt, 0) as item_total_amt, 
   item.item_total_amt_text, 
+  FORMAT(item.item_sub_total_amt, 0) as item_fee_total_amt, 
+  item.item_sub_total_amt_text,   
   item.item_cnt, 
   item.item_deadline, 
   item.item_unit, 
@@ -98,6 +112,7 @@
   cust_sto.fn_get_purchase_code_text('nonGreenReason', item.item_non_green_reason) as item_non_green_reason, 
   cust_sto.fn_get_purchase_code_text('greenClass', item.item_green_class) as item_green_class, 
   cust_sto.fn_get_purchase_code_text('foreignType', item.item_foreign_type) as item_foreign_type, 
+  cust_sto.fn_get_purchase_code_text('hopeCompany', trade.hope_company_info) as hope_company_info,   
   
   ifnull(df.c_dikeycode,'') AS C_DIKEYCODE,
         IF(IFNULL(df.c_distatus, '008') = '009', '008', IFNULL(df.c_distatus, '008')) AS C_DISTATUS,
@@ -126,6 +141,7 @@
   left join $DB_NEOS$t_co_dept wdept on a.write_dept_seq = wdept.dept_seq 
   </isEqual>  
   join cust_sto.t_purchase_item_info item on a.seq = item.seq
+  join cust_sto.t_purchase_trade_info trade on item.seq = trade.seq and trade.outProcessCode = 'Purchase01' and item.item_tr_seq = trade.tr_seq  
   left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
   left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'  
   left join $DB_NEOS$t_co_dept d on a.write_dept_seq = d.dept_seq
@@ -143,9 +159,20 @@
   <isNotEmpty property="itemName">
   and  item.item_name like concat('%', '$itemName$', '%')
   </isNotEmpty>
+  
   <isNotEmpty property="itemUseLocation">
-  and  item.item_use_location like concat('%', '$itemUseLocation$', '%')
-  </isNotEmpty>  
+  and  item.item_use_location = '$itemUseLocation$'
+  </isNotEmpty>
+  <isNotEmpty property="itemGreenClass">
+  and  item.item_green_class = '$itemGreenClass$'
+  </isNotEmpty>
+  <isNotEmpty property="itemGreenCertType">
+  and  item.item_green_cert_type = '$itemGreenCertType$'
+  </isNotEmpty>
+  <isNotEmpty property="itemHopeCompany">
+  and concat('▦',trade.hope_company_info) like '%▦$itemHopeCompany$▦%'
+  </isNotEmpty>   
+  
   <isNotEmpty property="writeDeptName">
   and  cdm.dept_name like concat('%', '$writeDeptName$', '%')
   </isNotEmpty>
@@ -315,6 +342,8 @@
   item_fee_amt, 
   item_total_amt, 
   item_total_amt_text, 
+  item_sub_total_amt, 
+  item_sub_total_amt_text,   
   item_cnt, 
   item_deadline, 
   item_acquisition_reason, 
@@ -341,6 +370,8 @@
   '$item_fee_amt$',
   '$item_total_amt$',
   '$item_total_amt_text$',
+  '$item_sub_total_amt$',
+  '$item_sub_total_amt_text$',  
   '$item_cnt$',
   '$item_deadline$',
   '$item_acquisition_reason$',
@@ -373,6 +404,8 @@
   FORMAT(item_fee_amt, 0) as item_fee_amt,
   FORMAT(item_total_amt, 0) as item_total_amt, 
   item_total_amt_text, 
+  FORMAT(item_sub_total_amt, 0) as item_fee_total_amt, 
+  item_sub_total_amt_text,   
   item_cnt, 
   ifnull(item_check_cnt,'') as item_check_cnt, 
   item_deadline, 

@@ -84,6 +84,10 @@
 					data.searchToDate = $("#searchToDate").val();
 					data.itemName = $("#itemName").val();
 					data.itemUseLocation = $("#itemUseLocation").val();
+					data.itemGreenClass = $("#itemGreenClass").val();
+					data.itemGreenCertType = $("#itemGreenCertType").val();
+					data.itemHopeCompany = $("#itemHopeCompany").val();
+					
 					data.writeDeptName = $("#writeDeptName").val();
 					
 					<c:if test="${authLevel!='user'}">
@@ -91,7 +95,9 @@
 					</c:if>
 					<c:if test="${authLevel=='user'}">
 					data.writeEmpName = "";
-					</c:if>					
+					</c:if>
+					
+
 					
 					return data;
 				}
@@ -356,7 +362,28 @@
 						}							
 					}
 				}			
+			}
+			,	{
+				field : "item_use_location"
+			,	title : "사용위치"
+			,	width : 150							
 			}			
+			,	{
+				field : "item_green_class"
+			,	title : "제품분류"
+			,	width : 150							
+			}			
+			,	{
+				field : "item_green_cert_type"
+			,	title : "녹색제품 인증구분"
+			,	width : 150							
+			}
+
+			,	{
+				field : "hope_company_info"
+			,	title : "희망기업여부"
+			,	width : 150							
+			}	
 			
 			]
 	});	
@@ -540,7 +567,7 @@
 			
 		}else if(callId == "purchaseView"){
 			
-			openWindow2("${pageContext.request.contextPath}/purchase/pop/PurchaseCreatePop.do?seq=" + seq,  "purchaseViewPop", 1200, 800, 1, 1) ;
+			openWindow2("${pageContext.request.contextPath}/purchase/pop/PurchaseCreatePop.do?authLevel=${authLevel}&seq=" + seq,  "purchaseViewPop", 1200, 800, 1, 1) ;
 			
 		}else if(callId == "btnCheck"){
 			
@@ -656,8 +683,11 @@
 					data.searchToDate = $("#searchToDate").val();
 					data.itemName = $("#itemName").val();
 					data.itemUseLocation = $("#itemUseLocation").val();
-					data.writeDeptName = $("#writeDeptName").val();
+					data.itemGreenClass = $("#itemGreenClass").val();
+					data.itemGreenCertType = $("#itemGreenCertType").val();
+					data.itemHopeCompany = $("#itemHopeCompany").val();
 					
+					data.writeDeptName = $("#writeDeptName").val();
 					<c:if test="${authLevel!='user'}">
 					data.writeEmpName = $("#writeEmpName").val();
 					</c:if>
@@ -750,7 +780,7 @@
     	});
 		    	
     	var headerRow = 2;
-    	var headerCol = 25;
+    	var headerCol = 29;
     	
     	for(var i=1; i < headerRow; i++) {
     		for(var j=0; j < headerCol; j++) {
@@ -783,9 +813,13 @@
     	excel.set(0, 22, 1, "대금지급금액");    	
     	excel.set(0, 23, 1, "대금지급완료여부");    	
     	excel.set(0, 24, 1, "붙임문서");     
+    	excel.set(0, 25, 1, "사용위치");
+    	excel.set(0, 26, 1, "제품분류");    	
+    	excel.set(0, 27, 1, "녹색제품 인증구분");    	
+    	excel.set(0, 28, 1, "희망기업여부");      	
     	
     	// sheet번호, column, value(width)
-    	for( var i = 0; i < 25; i++ ) {
+    	for( var i = 0; i < 29; i++ ) {
     		excel.setColumnWidth( 0, i, 20 );
     	}    	
 		
@@ -849,7 +883,12 @@
 			
 			if(dataPage[ i ][ "purchase_attach_info" ] != ""){
 				excel.set( 0, 24, rowNo, "등록", formatCell );
-			}				
+			}
+			
+			excel.set( 0, 25, rowNo, dataPage[ i ][ "item_use_location" ], formatCell );
+			excel.set( 0, 26, rowNo, dataPage[ i ][ "item_green_class" ], formatCell );
+			excel.set( 0, 27, rowNo, dataPage[ i ][ "item_green_cert_type" ], formatCell );
+			excel.set( 0, 28, rowNo, dataPage[ i ][ "hope_company_info" ], formatCell );
     		
     	}
      
@@ -879,17 +918,53 @@
 		<dd><input type="text" id="writeEmpName" pudd-style="width:90px;" class="puddSetup" placeHolder="사원명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		</c:if>
 		
+		<dt class="ar" style="width:60px;">품목명</dt>
+		<dd><input type="text" id="itemName" pudd-style="width:120px;" class="puddSetup" placeHolder="품목명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+		
 		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="BindGrid();" /></dd>
 	</dl>
 	
 	<dl class="next2">
 	
-		<dt class="ar" style="width:40px;">품목명</dt>
-		<dd><input type="text" id="itemName" pudd-style="width:120px;" class="puddSetup" placeHolder="품목명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
-		
 		<dt class="ar" style="width:60px;">사용위치</dt>
-		<dd><input type="text" id="itemUseLocation" pudd-style="width:120px;" class="puddSetup" placeHolder="사용위치 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
-	
+		<dd>
+			<select id="itemUseLocation" onchange="BindGrid();" style="text-align: center;">
+				<option value="">전체</option>
+				<c:forEach var="items" items="${useLocation}">
+				<option value="${items.CODE}">${items.NAME}</option>
+				</c:forEach>
+			</select>			
+		</dd>
+				
+		<dt class="ar" style="width:60px;">제품분류</dt>
+		<dd>
+			<select id="itemGreenClass" onchange="BindGrid();" style="text-align: center;">
+				<option value="">전체</option>
+				<c:forEach var="items" items="${greenClass}">
+				<option value="${items.CODE}">${items.NAME}</option>
+				</c:forEach>
+			</select>			
+		</dd>
+				
+		<dt class="ar" style="width:90px;">녹색제품 인증구분</dt>
+		<dd>
+			<select id="itemGreenCertType" onchange="BindGrid();" style="text-align: center;">
+				<option value="">전체</option>
+				<c:forEach var="items" items="${greenCertType}">
+				<option value="${items.CODE}">${items.NAME}</option>
+				</c:forEach>
+			</select>			
+		</dd>
+		
+		<dt class="ar" style="width:65px;">희망기업여부</dt>
+		<dd>
+			<select id="itemHopeCompany" onchange="BindGrid();" style="text-align: center;">
+				<option value="">전체</option>
+				<c:forEach var="items" items="${hopeCompany}">
+				<option value="${items.CODE}">${items.NAME}</option>
+				</c:forEach>
+			</select>			
+		</dd>			
 	</dl>	
 	
 </div>

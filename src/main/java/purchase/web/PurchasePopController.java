@@ -334,6 +334,15 @@ public class PurchasePopController {
             				mv.addObject("btnApprYn", "N");
             				mv.addObject("disabledYn", "Y");
             				mv.addObject("disabled", "disabled");
+            				
+            				if(params.get("authLevel") != null && params.get("authLevel").equals("admin")) {
+            					
+            					if(commonServiceDAO.CheckAuthFromMenuInfo(loginVo, "/purchase/admin/PurchaseList.do")) {
+                					mv.addObject("btnAdminEditYn", "Y");
+                					mv.addObject("disabled", "");
+                					mv.addObject("disabledYn", "N");
+            					}
+            				}
             			}
             		}
             		

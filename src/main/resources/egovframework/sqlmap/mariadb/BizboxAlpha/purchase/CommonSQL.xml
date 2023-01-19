@@ -40,7 +40,10 @@
 		</isNotEmpty>
 		<isNotEmpty property="code">
 		and `CODE`='$code$'
-		</isNotEmpty>		
+		</isNotEmpty>	
+		<isNotEmpty property="codeNotEmpty">
+		and `CODE`!=''
+		</isNotEmpty>				
 		order by `GROUP`, ORDER_NUM
 	</select>
 	
