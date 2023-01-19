@@ -424,6 +424,32 @@ public class ContractMainController {
 		return mv;
 	}	
 	
+    
+    @RequestMapping(value="/purchase/deleteContractList.do", method={RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public ModelAndView deleteContractList(@RequestParam Map<String,Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("created_by", loginVo.getUniqId());
+		
+		contractService.deleteContractList(params);
+				
+		mv.addObject("resultData", params);
+		
+		if (params.get("resultCode") == "success" ) {
+			mv.addObject("resultCode", "success");
+		} else {
+			mv.addObject("resultCode", "error");
+		}
+	
+		mv.setViewName("jsonView");
+		return mv;
+	} 
+    
 		
 	
 }

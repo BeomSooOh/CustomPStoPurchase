@@ -114,5 +114,11 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 		
 	}	
 	
+	public void deleteContractList ( Map<String, Object> params ) {
+		
+		delete( "ContractSQL.deleteContractList", params );
+		
+	}
+	
 	
 }

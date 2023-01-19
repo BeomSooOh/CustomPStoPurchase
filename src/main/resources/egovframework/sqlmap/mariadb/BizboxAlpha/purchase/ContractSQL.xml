@@ -960,6 +960,10 @@
 	
 	</select>	
 	
+	<delete id="ContractSQL.deleteContractList" parameterClass="HashMap">
+			delete from cust_sto.t_purchase_contract where seq = '$seq$' and doc_sts is null
+	</delete>
+	
 	
 		
 </sqlMap>

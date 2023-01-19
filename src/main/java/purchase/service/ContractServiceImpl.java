@@ -296,7 +296,39 @@ public class ContractServiceImpl implements ContractService {
 		
 		return params;
 		
+	}
+	
+	public Map<String, Object> deleteContractList ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
+		
+		String jsonStr = (String)params.get("change_info_list");
+		ObjectMapper mapper = new ObjectMapper();
+		List<Map<String, Object>> changeInfoList = new ArrayList<Map<String, Object>>();
+		changeInfoList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
+		
+		Map<String, Object> contractInfo;
+		
+		for (Map<String, Object> map : changeInfoList) {
+		
+			contractInfo = contractServiceDAO.SelectContractDetail(map);
+			
+			String doc_sts =  (String) contractInfo.get("doc_sts"); 
+			
+			if (!contractInfo.get("doc_sts").equals("")) {
+				params.put("resultCode", "error");
+				return params;	
+			} 
+		}
+		for (Map<String, Object> map : changeInfoList) {
+			
+			contractInfo = contractServiceDAO.SelectContractDetail(map);
+			
+			contractServiceDAO.deleteContractList(map);
+			params.put("resultCode", "success");	
+		}
+		
+		return params;
 	}	
+	
 	
 }
 

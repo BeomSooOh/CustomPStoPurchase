@@ -32,6 +32,7 @@
 
 	var targetSeq = "";
 	var uploadPer = 0;
+	var selGroup;
 	
 	$(document).ready(function() {
 		
@@ -215,6 +216,14 @@
 				title : "기본정보"
 			,	columns : [
 				{
+					field : "gridCheckBox",
+					width : 34,
+					editControl : {
+						type : "checkbox",
+						basicUse : true
+					}
+				},
+				{
 					field : "no"
 				,	title : "연번"
 				,	width : 70
@@ -222,14 +231,14 @@
 						attributes : { class : "ci" }
 				}
 			}
-/* 				,{
+/*  				,{
 						field : "seq"
 					,	title : "연번"
 					,	width : 70
 					,	content : {
 							attributes : { class : "ci" }
 					}
-				} */
+				}  */
 				
 			,	{
 						field : "manage_no"
@@ -918,8 +927,9 @@
 				]
 			}
 		]
-	});	
 		
+
+	});	
 		
 	} 	
 	
@@ -1662,6 +1672,67 @@
     }    
     
     
+    var delParam = {};
+	
+	function fnDel(){
+		
+		var dataCheckedRow = Pudd( "#grid1" ).getPuddObject().getGridCheckedRowData( "gridCheckBox" );
+		
+	    if(dataCheckedRow && dataCheckedRow.length == 0) {
+	    	msgSnackbar("error", "삭제할 데이터를 선택해 주세요.");
+			return;
+		}
+		
+	    var selectedList = [];
+	    
+	    $.each(dataCheckedRow, function (i, t) {
+	    	
+	    	var selectedInfo = {};
+			selectedInfo.seq = t.seq;
+			selectedList.push(selectedInfo);
+	    	
+	    });
+	    
+		delParam = {};
+		delParam.seq = selGroup;
+		delParam.change_info_list = JSON.stringify(selectedList);		
+		
+		confirmAlert(350, 100, 'question', '삭제하시겠습니까?', '삭제', 'fnDelProc()', '취소', '');			
+
+	}		
+	
+	function fnDelProc(){
+		
+		$.ajax({
+			type : 'post',
+			url : '<c:url value="/purchase/deleteContractList.do" />',
+    		datatype:"json",
+            data: delParam ,
+			async : false,
+			success : function(result) {
+				
+				if(result.resultCode == "success"){
+					
+					msgSnackbar("success", "요청하신 삭제건 처리가 완료되었습니다.");
+					BindGrid();
+					
+				}else{
+					
+					msgSnackbar("error", "결제완료또는 결제중인 데이터가 있습니다");
+					
+				}
+				
+			},
+			error : function(result) {
+				msgSnackbar("error", "삭제 실패했습니다.");
+			}
+		});		
+		
+	}
+    
+    
+    
+    
     function generateExcelDownload( dataPage, fileName, saveCallback, stepCallback ) {
         
     	var excel = new JExcel("맑은 고딕 11 #333333");
@@ -1866,9 +1937,12 @@
 				<c:if test="${authLevel=='admin'}">
 				<input id="adminSaveBtn" style="display:none;width:70px;background:rgb(0 0 0);color:#fff;" type="button" onclick="fnCallBtn('btnSave');" class="puddSetup" value="저장" />
 				</c:if>
+				<c:if test="${authLevel=='admin'}">
+				<input type="button" onclick="fnDel();" class="puddSetup" value="삭제" />
+				</c:if>
 				<input type="button" onclick="excelDown();" class="puddSetup" value="엑셀다운로드" />
 			</div>
-		</div>		
+		</div>
 	</div>
 	
 	<div class="dal_Box_">
