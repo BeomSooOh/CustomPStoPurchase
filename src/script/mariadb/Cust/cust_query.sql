@@ -1590,5 +1590,5 @@ VALUES('contentsForm', 'ManualPop00', '비품(정수관리대상)안내문구', 
 ');
 
 
-ALTER TABLE cust_sto.t_purchase_item_info ADD item_fee_total_amt decimal(19,2) NULL COMMENT '취득금액';
-ALTER TABLE cust_sto.t_purchase_item_info ADD item_fee_total_amt_text varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '취득금액';
+ALTER TABLE cust_sto.t_purchase_item_info ADD item_sub_total_amt decimal(19,2) NULL COMMENT '소계금액';
+ALTER TABLE cust_sto.t_purchase_item_info ADD item_sub_total_amt_text varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '소계금액';
