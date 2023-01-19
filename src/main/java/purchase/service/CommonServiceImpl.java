@@ -150,6 +150,13 @@ public class CommonServiceImpl implements CommonService {
 		}else if(params.get("processId").toString().contains("Conclu01")) {
 			params.put("approkeyConclusion", params.get("approKey"));
 			params.put("seq", params.get("approKey").toString().split("_")[1]);
+			
+			//계약체결 품의데이터 상태값 업데이트
+			params.put("out_process_interface_id", "Conclu01");
+			params.put("out_process_interface_m_id", params.get("seq"));
+			params.put("out_process_interface_d_id", "DUPLICATE_TEMP");
+			commonServiceDAO.UpdateConsDocSts(params);
+			
 		}else if(params.get("processId").equals("Conclu02")) {
 			params.put("approkeyChange", params.get("approKey"));
 			params.put("seq", params.get("approKey").toString().split("_")[1]);
