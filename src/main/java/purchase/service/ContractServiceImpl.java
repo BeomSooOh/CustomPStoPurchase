@@ -325,7 +325,6 @@ public class ContractServiceImpl implements ContractService {
 			contractServiceDAO.deleteContractList(map);
 			params.put("resultCode", "success");	
 		}
-		
 		return params;
 	}	
 	

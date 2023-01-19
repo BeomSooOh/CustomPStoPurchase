@@ -445,7 +445,6 @@ public class ContractMainController {
 		} else {
 			mv.addObject("resultCode", "error");
 		}
-	
 		mv.setViewName("jsonView");
 		return mv;
 	} 
