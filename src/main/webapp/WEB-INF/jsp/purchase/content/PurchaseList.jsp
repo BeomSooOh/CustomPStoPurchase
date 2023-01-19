@@ -910,15 +910,15 @@
 			<input type="text" id="searchToDate" value="${toDate}" class="puddSetup" pudd-type="datepicker"/>
 		</dd>
 		
-		<dt class="ar" style="width:60px;">운영부서</dt>
+		<dt class="ar">운영부서</dt>
 		<dd><input type="text" id="writeDeptName" pudd-style="width:120px;" class="puddSetup" placeHolder="부서명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		
 		<c:if test="${authLevel!='user'}">
-		<dt class="ar" style="width:70px;">물품담당자</dt>
+		<dt class="ar">물품담당자</dt>
 		<dd><input type="text" id="writeEmpName" pudd-style="width:90px;" class="puddSetup" placeHolder="사원명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		</c:if>
 		
-		<dt class="ar" style="width:60px;">품목명</dt>
+		<dt class="ar">품목명</dt>
 		<dd><input type="text" id="itemName" pudd-style="width:120px;" class="puddSetup" placeHolder="품목명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		
 		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="BindGrid();" /></dd>
@@ -936,7 +936,7 @@
 			</select>			
 		</dd>
 				
-		<dt class="ar" style="width:60px;">제품분류</dt>
+		<dt class="ar">제품분류</dt>
 		<dd>
 			<select id="itemGreenClass" onchange="BindGrid();" style="text-align: center;">
 				<option value="">전체</option>
@@ -946,7 +946,7 @@
 			</select>			
 		</dd>
 				
-		<dt class="ar" style="width:90px;">녹색제품 인증구분</dt>
+		<dt class="ar">녹색제품 인증구분</dt>
 		<dd>
 			<select id="itemGreenCertType" onchange="BindGrid();" style="text-align: center;">
 				<option value="">전체</option>
@@ -956,7 +956,7 @@
 			</select>			
 		</dd>
 		
-		<dt class="ar" style="width:65px;">희망기업여부</dt>
+		<dt class="ar">희망기업여부</dt>
 		<dd>
 			<select id="itemHopeCompany" onchange="BindGrid();" style="text-align: center;">
 				<option value="">전체</option>
