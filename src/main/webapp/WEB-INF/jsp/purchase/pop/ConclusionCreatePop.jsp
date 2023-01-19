@@ -1703,7 +1703,13 @@
 				<tr <c:if test="${contractType == '01'}">style="display:none;"</c:if>>
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 수의계약사유</th>
 					<td colspan="3">
+					<c:if test="${contractType == '01'}">
+						<select ${disabled} type="select" name="privateReason" onchange="fnChangeEtc(this);" objKey="private_reason" objCheckFor="checkVal('select', ' ' , '수의계약사유', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
+					</c:if>
+					<c:if test="${contractType == '02'}">
 						<select ${disabled} type="select" name="privateReason" onchange="fnChangeEtc(this);" objKey="private_reason" objCheckFor="checkVal('select', this, '수의계약사유', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
+					</c:if>
+					
 							<c:forEach var="items" items="${privateReasonCode}">
 								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && (items.CODE == contractDetailInfo.private_reason || (items.CODE == 'etc' && contractDetailInfo.private_reason.indexOf('etc▦') > -1))}">selected</c:if> >${items.NAME}</option>
 							</c:forEach>							
