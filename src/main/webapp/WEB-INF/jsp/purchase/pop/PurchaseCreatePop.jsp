@@ -861,7 +861,7 @@
 		var item_fee_amt = $(el).find("[name=item_fee_amt]").val() == "" ? "0" : $(el).find("[name=item_fee_amt]").val().replace(/,/g, '');
 		
 		$(el).find("[name=item_total_amt_text]").text(((parseInt(item_amt)*parseInt(item_cnt)) + parseInt(item_fee_amt)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " 원");
-		$(el).find("[name=item_total_amt_text]").val((parseInt(item_amt)*parseInt(item_cnt)) + parseInt(item_fee_amt));
+		$(el).find("[name=item_total_amt]").val((parseInt(item_amt)*parseInt(item_cnt)) + parseInt(item_fee_amt));
 		
 		$(el).find("[name=item_sub_total_amt_text]").text((parseInt(item_amt)*parseInt(item_cnt)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " 원");
 		$(el).find("[name=item_sub_total_amt]").val((parseInt(item_amt)*parseInt(item_cnt)));		
