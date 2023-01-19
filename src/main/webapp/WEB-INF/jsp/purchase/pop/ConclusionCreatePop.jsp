@@ -22,8 +22,6 @@
 	<link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/re_pudd.css' />">
 	<link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/animate.css' />">
 	
-	<jsp:include page="/WEB-INF/jsp/common/cmmJunctionCodePop.jsp" flush="false" />	
-	
     <!--js-->
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/pudd/pudd-1.1.200.min.js' />"></script>
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/jquery-1.9.1.min.js' />"></script>
@@ -32,18 +30,23 @@
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/common.js' />"></script>
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script>  
     <script type="text/javascript" src="<c:url value='/js/jquery.maskMoney.js' />"></script>  
+    
+	<jsp:include page="/WEB-INF/jsp/common/cmmJunctionCodePop.jsp" flush="false" />		
+	<jsp:include page="/WEB-INF/jsp/expend/np/user/include/UserOptionMap.jsp" flush="false" />	
+	<jsp:include page="/WEB-INF/jsp/expend/np/user/include/NpUserResPop.jsp" flush="false" />	    
 
 	<script type="text/javascript">
 	
+		/* 예산관련 변수 시작 */
+		var consDocSeq = "";
+		var consSeq = "";
+		var thisSeq = "${seq}";
+		
+		var eaBaseInfo = ${eaBaseInfo};
 		var commonParam = {};
-		var commonElement;
+		var commonElement;		
 		var saveData; 
-		var optionSet = {};
-		
-		 
-		
-		var ERP_GISU = ${erpGisu}
-		optionSet.erpGisu = ERP_GISU[0];	
+
 		commonParam.callback = 'fnCommonCode_callback';
 		commonParam.widthSize = "628";
 		commonParam.heightSize = "546";
@@ -846,12 +849,13 @@
 					
 					if(result.resultCode == "success"){
 						
+						thisSeq = result.resultData.seq;
+						openerRefreshList();
+						
 						if(type == 1){
-							openerRefreshList();				
 							msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");							
 						}else{
-							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?useYn=Y&outProcessCode="+outProcessCode+"&seq=" + result.resultData.seq,  "ApprCreatePop", 1000, 729, 1, 1) ;
-							self.close();
+							fnPaymentCreate();
 						}
 						
 					}else{
@@ -865,6 +869,290 @@
 			});
 			
 		}
+		
+		var conclusionbudgetList = [];
+		var conclusionRemainAmt = 0;			
+		
+		function fnPaymentCreate(){
+
+			//기존 품의(임시)데이터 삭제
+			parameter = {};
+			parameter.out_process_interface_id = "Conclu01";
+			parameter.out_process_interface_m_id = thisSeq;
+			parameter.out_process_interface_d_id = "DUPLICATE_TEMP";			
+			
+			$.ajax({
+				type : 'post',
+				url : '<c:url value="/DelConsTemp.do" />',
+	    		datatype:"json",
+	            data: parameter ,
+				async : false,
+				success : function(result) {
+					
+					if(result.resultCode == "SUCCESS"){
+						conclusionbudgetList = insertDataObject.budgetObjList;
+						conclusionRemainAmt = insertDataObject.contract_amt;
+						fnConsDocInsert();
+					}else{
+						msgSnackbar("error", "품의데이터 초기화 오류");	
+					}
+					
+				},
+				error : function(result) {
+					msgSnackbar("error", "품의데이터 초기화 오류");
+				}
+			});			
+				
+		}			
+		
+		function fnConsDocInsert() {
+			/* [ parameter ] */
+			parameter = {};
+
+			parameter.resNote = ''; /* 결의문서 적요 */
+			parameter.erpCompSeq = ''; /* ERP 회사 코드 */
+			parameter.erpDivSeq = ''; /* ERP 사업장 명칭 */
+			parameter.erpDivName = ''; /* ERP 사업장 명칭 */
+			parameter.erpDeptSeq = ''; /* ERP 부서 코드 */
+			parameter.erpEmpSeq = ''; /* ERP 사원 코드 */
+			parameter.erpGisu = ''; /* ERP 기수 */
+			parameter.erpExpendYear = ''; /* ERP 회계 연도 */
+			parameter.compSeq = ''; /* GW 회사 코드 */
+			parameter.compName = ''; /* GW 회사 명칭 */
+			parameter.deptSeq = ''; /* GW 부서 코드 */
+			parameter.deptName = ''; /* GW 부서 명칭 */
+			parameter.empSeq = ''; /* GW 사용자 코드 */
+			parameter.empName = ''; /* GW 사용자 명칭 */
+			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetErpEmpInfo()))); /* ERP 사용자 정보 저장 */
+			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetGwEmpInfo()))); /* GW 사용자 정보 저장 */
+			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetErpGisuInfo()))); /* ERP 기수 정보 저장 */
+
+			/* 외부연동 ( 전용개발 또는 내부 개발 항목 - 근태 등 ) */
+			parameter.outProcessInterfaceId = "Conclu01";
+			parameter.outProcessInterfaceMId = thisSeq;
+			parameter.outProcessInterfaceDId = "DUPLICATE_TEMP";
+			
+			$.ajax({
+				type : 'post',
+				url : '${pageContext.request.contextPath}/ex/np/user/cons/ConsDocInsert.do',
+				datatype : 'json',
+				async : false,
+				/*   - data : resNote(결의문서 적요), erpCompSeq(ERP 회사 코드), erpDivSeq(ERP 회계단위 코드), erpDivName(ERP 회계단위 명칭), erpDeptSeq(ERP 부서 코드), erpEmpSeq(ERP 사원 코드), erpGisu(ERP 기수), erpExpendYear(ERP 회계 연도), compSeq(GW 회사 코드), compName(GW 회사 명칭), deptSeq(GW 부서 코드), deptName(GW 부서 명칭), empSeq(GW 사용자 코드), empName(GW 사용자 명칭) */
+				data : Option.Common.GetSaveParam(parameter),
+				success : function(result) {
+					/* 결의 정보 저장 */
+					var aData = Option.Common.GetResult(result, 'aData');
+					optionSet.consDocInfo = aData;
+					
+					if (aData) {
+						
+						consDocSeq = aData.consDocSeq;
+						
+						$.each(conclusionbudgetList, function( idx, conclusionbudgetInfo ) {
+							fnConsInsert(idx);
+						});
+						
+					} else {
+						resDocSeq = '';
+						msgSnackbar("error", "품의서 연동데이터(ConsDoc) 생성 실패");
+					}
+				},
+				error : function(result) {
+					msgSnackbar("error", "품의서 연동데이터(ConsHead) 생성 실패");
+				}
+			});
+			return;
+		}			
+		
+		
+		function fnConsInsert(idx) {
+			
+			parameter.consDocSeq = consDocSeq; /* [*]품의문서 키 */
+			parameter.docuFgCode = '1'; /* [*]결의구분코드 */
+			parameter.docuFgName = '지출품의서'; /* [*]결의구분명칭 */
+
+			parameter.btrSeq = ''; /* [*]입출금계좌코드 */
+			parameter.btrName = ''; /* [*]입출금계좌명칭 */
+			parameter.btrNb = ''; /* [*]입출금계좌 */
+			
+			parameter.erpDivSeq = ''; /* ERP 회계단위코드 */
+			parameter.erpDivName = ''; /* ERP 회계단위명칭 */
+			parameter.erpMgtSeq = conclusionbudgetList[idx].pjt_seq; /* [*]부서/프로젝트 코드 */
+			parameter.erpMgtName = conclusionbudgetList[idx].pjt_name; /* [*]부서/프로젝트 명칭 */
+			parameter.bottomSeq = conclusionbudgetList[idx].bottom_seq; /* [*]하위사업코드 */
+			parameter.bottomName = conclusionbudgetList[idx].bottom_name; /* [*]하위사업명칭 */
+			parameter.consDate = '${toDate}';
+			parameter.causeDate = '';
+			parameter.inspectDate = '';
+			parameter.signDate = '';
+			parameter.pjtToDate = '';
+			parameter.pjtFromDate = '';
+			
+			parameter.erpGisu = '';
+			parameter.gisu = (Option.Common.iCUBE() ? optionSet.erpGisu.gisu : '0');
+			parameter.erpGisuFromDate = (Option.Common.iCUBE() ? optionSet.erpGisu.fromDate : '');
+			parameter.erpGisuToDate = (Option.Common.iCUBE() ? optionSet.erpGisu.toDate : '');
+			parameter.erpYear = ((parameter.consDate || '').length >= 4 ? parameter.consDate.substring(0, 4) : '')
+
+			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetErpEmpInfo()))); /* ERP 사용자 정보 저장 */
+			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetGwEmpInfo()))); /* GW 사용자 정보 저장 */
+			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetErpGisuInfo()))); /* ERP 기수 정보 저장 */
+
+			$.ajax({
+				type : 'post',
+				url : '${pageContext.request.contextPath}/ex/np/user/cons/ConsHeadInsert.do',
+				datatype : 'json',
+				async : false,
+				data : Option.Common.GetSaveParam(parameter),
+				success : function(result) {
+
+					var aData = Option.Common.GetResult(result, 'aData');
+					var resultCode = Option.Common.GetResultCode(result);
+
+					if (resultCode === 'SUCCESS') {
+						consSeq = aData.consSeq;
+						
+						fnBudgetInsert(idx);
+						
+					}  else if(resultCode == 'GISU_CLOSE'){
+						msgSnackbar("error", "기수 마감되어 품의서를 입력할 수 없습니다.");
+					} else {
+						msgSnackbar("error", "품의서 연동데이터(ConsHead) 생성 실패");
+					}
+				},
+				error : function(result) {
+					msgSnackbar("error", "품의서 연동데이터(ConsHead) 생성 실패");
+				}
+			});
+
+			return;
+		}		
+		
+		
+		
+		function fnBudgetInsert(idx) {
+
+			parameter.consDocSeq = consDocSeq; /* [*]품의문서 키 */
+			parameter.consSeq = consSeq; /* [*]품의문서 키 */
+
+			
+			parameter.erpBudgetDivSeq = conclusionbudgetList[idx].erp_budget_div_seq;
+			parameter.erpBudgetDivName = conclusionbudgetList[idx].erp_budget_div_name;		
+			
+			parameter.erpBudgetSeq = conclusionbudgetList[idx].erp_budget_seq; /* [*]ERP 예산과목 코드 (예산단위 코드) */
+			parameter.erpBudgetName = conclusionbudgetList[idx].erp_budget_name; /* [*]ERP 예산과목 명칭 (예산단위 명칭) */
+			
+			parameter.erpMgtSeq = conclusionbudgetList[idx].pjt_seq; /* [*]부서/프로젝트 코드 */
+			parameter.erpMgtName = conclusionbudgetList[idx].pjt_name; /* [*]부서/프로젝트 명칭 */
+			parameter.bottomSeq = conclusionbudgetList[idx].bottom_seq; /* [*]하위사업코드 */
+			parameter.bottomName = conclusionbudgetList[idx].bottom_name; /* [*]하위사업명칭 */		
+			
+			parameter.erpBgt1Name = conclusionbudgetList[idx].erp_bgt1_name; /* [*]관 명칭 */
+			parameter.erpBgt1Seq = conclusionbudgetList[idx].erp_bgt1_seq; /* [*]관 코드 */
+			parameter.erpBgt2Name = conclusionbudgetList[idx].erp_bgt2_name; /* [*]항 명칭 */
+			parameter.erpBgt2Seq = conclusionbudgetList[idx].erp_bgt2_seq; /* [*]항 코드 */
+			parameter.erpBgt3Name = conclusionbudgetList[idx].erp_bgt3_name; /* [*]목 명칭 */
+			parameter.erpBgt3Seq = conclusionbudgetList[idx].erp_bgt3_seq; /* [*]목 코드 */
+			parameter.erpBgt4Name = conclusionbudgetList[idx].erp_bgt4_name; /* [*]세 명칭 */
+			parameter.erpBgt4Seq = conclusionbudgetList[idx].erp_bgt4_seq; /* [*]세 코드 */
+			
+			parameter.erpOpenAmt = '0'; /* [*]ERP 예산 편성 금액 */
+			parameter.erpApplyAmt = '0'; /* [*]ERP 집행액 */
+			parameter.erpLeftAmt = '0'; /* [*]ERP 잔액 */
+			parameter.budgetAmt = '0'; /* [*]총금액 */
+			
+			parameter.expendDate = parameter.consDate.replace(/-/g, '');
+
+			/* 부가세 통제 여부 체크 */
+			if (optionSet.erpEmpInfo.vatControl == '1'){
+				parameter.ctlFgCode = '1';
+				parameter.ctlFgName = 'I_IN_TAX_Y';
+			}else {
+				parameter.ctlFgCode = '0';
+				parameter.ctlFgName = 'I_IN_TAX_N';
+			}
+			
+			//예산잔액 조회
+			$.ajax({
+				type : 'post',
+				url : '<c:url value="/ex/np/user/res/resBudgetInfoSelect.do" />',
+				datatype : 'json',
+				async : false,
+				data : parameter,
+				success : function(result) {
+					var data = result.result.aData;
+					
+					conclusionbudgetList[idx].balanceAmt = Math.floor(data.balanceAmt/10)*10;
+					conclusionbudgetList[idx].erpOpenAmt = data.openAmt;
+					conclusionbudgetList[idx].erpApplyAmt = data.applyAmt;
+					conclusionbudgetList[idx].erpLeftAmt = data.erpLeftAmt;
+					
+					var reqAmt = parseInt(conclusionbudgetList[idx].amt.replace(/,/g, ''));
+					
+					if(reqAmt <= conclusionbudgetList[idx].balanceAmt){
+						parameter.budgetAmt = reqAmt; /* [*]금액 */
+						conclusionRemainAmt -= reqAmt;
+					}else{
+						parameter.budgetAmt = conclusionbudgetList[idx].balanceAmt; /* [*]금액 */
+						
+						conclusionRemainAmt -= conclusionbudgetList[idx].balanceAmt;
+					}					
+					
+					parameter.erpOpenAmt = conclusionbudgetList[idx].erpOpenAmt;
+					parameter.erpApplyAmt = conclusionbudgetList[idx].erpApplyAmt;
+					parameter.erpLeftAmt = conclusionbudgetList[idx].erpLeftAmt;
+				},
+				/*   - error :  */
+				error : function(result) {
+					msgSnackbar("error", "예산정보 조회 중 오류 발생");
+					return;
+				}
+			});				
+
+			$.ajax({
+				type : 'post',
+				url : '${pageContext.request.contextPath}/ex/np/user/cons/ConsBudgetInsert.do',
+				datatype : 'json',
+				async : false,
+				data : Option.Common.GetSaveParam(parameter),
+				extendParam : {
+					consSeq : parameter.consSeq,
+					budgetSeq : parameter.budgetSeq,
+					budgetAmt : parameter.budgetAmt
+				},
+
+				success : function(result) {
+
+					var aData = Option.Common.GetResult(result, 'aData');
+					var resultCode = Option.Common.GetResultCode(result);
+
+					if (resultCode === 'SUCCESS') {
+						
+						if(conclusionbudgetList.length-2 < idx){
+							
+							if(conclusionRemainAmt > 0){
+								msgSnackbar("error", "품의금액이 예산잔액을 초과합니다.");
+							}else{
+								openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?useYn=Y&outProcessCode="+outProcessCode+"&seq=" + thisSeq,  "ApprCreatePop", 1000, 729, 1, 1) ;
+								self.close();								
+							}
+
+						}
+						
+					} else if (resultCode === 'EXCEED') {
+						msgSnackbar("error", "${CL.ex_exceedMesage}");
+					} else {
+						msgSnackbar("error", "품의서 연동데이터(ConsBudget) 생성 실패");
+					}
+				},
+				error : function(result) {
+					msgSnackbar("error", "품의서 연동데이터(ConsBudget) 생성 실패");
+				}
+			});
+
+			return;
+		}		
+		
 		
 		function openerRefreshList(){
 			if(opener != null && typeof opener.BindGrid != "undefined"){

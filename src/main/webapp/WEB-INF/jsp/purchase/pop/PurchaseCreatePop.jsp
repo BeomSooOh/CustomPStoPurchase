@@ -1501,7 +1501,7 @@
 				
 				if(result.resultCode == "SUCCESS"){
 					conclusionbudgetList = insertDataObject.budgetObjList;
-					conclusionRemainAmt = parseInt(insertDataObject.meet_amt_spent);
+					conclusionRemainAmt = insertDataObject.purchase_amt;
 					fnConsDocInsert();
 				}else{
 					msgSnackbar("error", "품의데이터 초기화 오류");	

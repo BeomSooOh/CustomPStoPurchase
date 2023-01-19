@@ -1592,3 +1592,7 @@ VALUES('contentsForm', 'ManualPop00', '비품(정수관리대상)안내문구', 
 
 ALTER TABLE cust_sto.t_purchase_item_info ADD item_sub_total_amt decimal(19,2) NULL COMMENT '소계금액';
 ALTER TABLE cust_sto.t_purchase_item_info ADD item_sub_total_amt_text varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '소계금액';
+
+INSERT INTO cust_sto.t_purchase_code_detail
+(`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
+VALUES('resFormSeq', 'Conclu01', '계약품의양식코드', 'Y', 4, NULL, '321', NULL);

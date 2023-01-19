@@ -354,6 +354,7 @@ public class ContractMainController {
 			result.put("conclusionBudgetList", commonServiceDAO.SelectBudgetList(params));
 			result.put("conclusionTradeList", commonServiceDAO.SelectTradeList(params));
 			result.put("conclusionPaymentAmt", contractServiceDAO.SelectConclusionPaymentAmt(params));
+			result.put("consDocInfo", contractServiceDAO.SelectConclusionConsDocInfo(params));
 			
 		}
 		

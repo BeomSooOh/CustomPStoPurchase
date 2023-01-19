@@ -39,6 +39,9 @@
 	var resSeq = "";
 	var budgetSeq = "";
 	
+	var confferSeq = "";
+	var confferDocSeq = "";	
+	
 	var parameter = {};
 	
 	var eaBaseInfo = ${eaBaseInfo};
@@ -279,12 +282,19 @@
 						&& result.resultData.conclusionTradeList != null 
 						&& result.resultData.conclusionTradeList.length > 0
 						&& result.resultData.conclusionBudgetList != null 
-						&& result.resultData.conclusionBudgetList.length > 0){
+						&& result.resultData.conclusionBudgetList.length > 0
+						&& result.resultData.consDocInfo != null
+						){
 					
 					conclusionPaymentAmt = result.resultData.conclusionPaymentAmt;
 					
 					console.log("contract_amt > " + conclusionPaymentAmt.contract_amt);
 					console.log("res_amt_total > " + conclusionPaymentAmt.res_amt_total);
+					console.log("conffer_seq > " + result.resultData.consDocInfo.cons_seq);
+					console.log("conffer_doc_seq > " + result.resultData.consDocInfo.cons_doc_seq);		
+					
+					confferSeq = result.resultData.consDocInfo.cons_seq;
+					confferDocSeq = result.resultData.consDocInfo.cons_doc_seq;					
 					
 					if(conclusionPaymentAmt.res_amt_total < conclusionPaymentAmt.contract_amt){
 						
@@ -315,6 +325,9 @@
 	function fnResDocInsert() {
 		/* [ parameter ] */
 		parameter = {};
+		
+		parameter.confferSeq = confferSeq;
+		parameter.confferDocSeq = confferDocSeq;		
 
 		parameter.resNote = ''; /* 결의문서 적요 */
 		parameter.erpCompSeq = ''; /* ERP 회사 코드 */
@@ -457,11 +470,10 @@
 		parameter.erpBudgetDivSeq = conclusionBudgetList[idx].erp_budget_div_seq;
 		parameter.erpBudgetDivName = conclusionBudgetList[idx].erp_budget_div_name;		
 		
+		parameter.confferBudgetSeq = conclusionBudgetList[idx].conffer_budget_seq;
+		
 		parameter.erpBudgetSeq = conclusionBudgetList[idx].erp_budget_seq; /* [*]ERP 예산과목 코드 (예산단위 코드) */
 		parameter.erpBudgetName = conclusionBudgetList[idx].erp_budget_name; /* [*]ERP 예산과목 명칭 (예산단위 명칭) */
-		
-		//parameter.erpFiacctName = '도서인쇄비'; /* [*]ERP 회계계정 코드 */
-		//parameter.erpFiacctSeq = '82600'; /* [*]ERP 회계계정 명칭 */
 		
 		parameter.erpBgt1Name = conclusionBudgetList[idx].erp_bgt1_name; /* [*]관 명칭 */
 		parameter.erpBgt1Seq = conclusionBudgetList[idx].erp_bgt1_seq; /* [*]관 코드 */

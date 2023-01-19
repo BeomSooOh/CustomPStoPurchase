@@ -966,5 +966,16 @@
 	</delete>
 	
 	
+	 <select id="ContractSQL.SelectConclusionConsDocInfo" parameterClass="HashMap" resultClass="HashMap">
+	
+	  select
+	  b.cons_doc_seq , b.cons_seq 
+	  from $DB_NEOS$t_exnp_consdoc a
+	  join $DB_NEOS$t_exnp_conshead b on a.cons_doc_seq =b.cons_doc_seq 
+	  where a.out_process_interface_id = 'Conclu01' and a.out_process_interface_m_id = '$seq$' limit 1;  
+	 
+	 </select> 	
+		
+	
 		
 </sqlMap>

@@ -121,5 +121,12 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 		
 	}
 	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> SelectConclusionConsDocInfo ( Map<String, Object> params ) {
+		
+		return (Map<String, Object>) select( "ContractSQL.SelectConclusionConsDocInfo", params );
+		
+	}	
+	
 	
 }

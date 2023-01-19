@@ -240,6 +240,140 @@ public class ContractPopController {
             /* 변수 설정 */
             LoginVO loginVo = CommonConvert.CommonGetEmpVO();
             
+            params.put("groupSeq", loginVo.getGroupSeq());
+            params.put("useYn", "Y");
+            params.put("group", "resFormSeq");
+            params.put("code", "Conclu01");
+            List<Map<String, Object>> consFormSeq = commonServiceDAO.SelectPurchaseDetailCodeList(params);
+            
+            if(consFormSeq.size() > 0) {
+            	String formSeq = consFormSeq.get(0).get("LINK").toString();
+            	params.put("formSeq", formSeq);
+            	mv.addObject("consFormSeq", formSeq);	
+            }              
+            
+			/* [예외 검증] ERP 연결정보 조회 */
+			ConnectionVO conVo = cmInfo.CommonGetConnectionInfo( CommonConvert.CommonGetStr( loginVo.getCompSeq( ) ) );
+			/* [예외 검증] ERP 연동 확인 */
+			if ( conVo.getErpCompSeq( ) == null || conVo.getErpCompSeq( ).isEmpty( ) ) {
+				throw new NotFoundConnectionException( "ERP 연동 설정을 확인하세요." );
+			}
+			/* [예외 검증] ERP 타입 확인 / iCUBE G20 */
+			if ( CommonConvert.CommonGetStr(conVo.getErpTypeCode( )).equals( "iCUBE" ) && conVo.getG20YN( ).equals( "N" ) ) {
+				throw new CheckICUBEG20TypeException( "iCUBE G20 설정확인이 필요함." );
+			}
+			/* [예외 검증] ERP 사번 매핑 확인 */
+			if ( loginVo.getErpEmpCd( ) == null || loginVo.getErpEmpCd( ).isEmpty( ) ) {
+				throw new NotFoundERPEmpCdException( "ERP 사번 매핑이 진행되지 않음." );
+			}
+
+			/* interface 연동 파라미터 확인 */
+			if (!params.containsKey("outProcessInterfaceId")) { params.put("outProcessInterfaceId", ""); }
+			mv.addObject("outProcessInterfaceId", params.get("outProcessInterfaceId"));
+			if (!params.containsKey("outProcessInterfaceMId")) { params.put("outProcessInterfaceMId", ""); }
+			mv.addObject("outProcessInterfaceMId", params.get("outProcessInterfaceMId"));
+			if (!params.containsKey("outProcessInterfaceDId")) { params.put("outProcessInterfaceDId", ""); }
+			mv.addObject("outProcessInterfaceDId", params.get("outProcessInterfaceDId"));
+			/* 파라미터 재정의 */
+			params.put( "compSeq", loginVo.getCompSeq( ) );
+			params.put( "erpCompSeq", conVo.getErpCompSeq( ) );
+
+			/* 외부 데이터 연동 코드 확인
+			 * 외부(2차) 데이터 연동 팝업인 경우 전자결재 양식 기본 값으로 조회
+			 * */
+			ArrayList<Map<String, Object>> eaFormInfo = (ArrayList<Map<String, Object>>) serviceOption.selectEaBaseData( params, conVo ).getAaData( );
+			mv.addObject( "eaBaseInfo", CommonConvert.CommonGetListMapToJson( eaFormInfo ) );
+			
+			if ( eaFormInfo.get( 0 ) != null ) {
+				if ( eaFormInfo.get( 0 ).get( "formDTp" ).toString( ).indexOf( "EXNPCON" ) > -1 ) {
+					params.put( "formDTp", "CON" );
+				}
+				else if ( eaFormInfo.get( 0 ).get( "formDTp" ).toString( ).indexOf( "EXNPRES" ) > -1 ) {
+					params.put( "formDTp", "RES" );
+				}
+				if ( eaFormInfo.get( 0 ).get( "formDTp" ).toString( ).indexOf( "TRIPCONS" ) > -1 ) {
+					params.put( "formDTp", "TRIPCON" );
+				}
+				else if ( eaFormInfo.get( 0 ).get( "formDTp" ).toString( ).indexOf( "TRIPRES" ) > -1 ) {
+					params.put( "formDTp", "TRIPRES" );
+				}
+			}
+
+			/* 사용자 기본 옵션 조회 - ERP 커넥션 정보 */
+			Map<String, Object> conInfoTemp = CommonConvert.CommonGetObjectToMap( conVo );
+			Map<String, Object> conInfo = new HashMap<>( );
+			conInfo.put( "erpCompName", conInfoTemp.get( "erpCompName" ).toString( ) );
+			conInfo.put( "erpCompSeq", conInfoTemp.get( "erpCompSeq" ).toString( ) );
+			conInfo.put( "erpTypeCode", conInfoTemp.get( "erpTypeCode" ).toString( ) );
+			conInfo.put( "g20YN", conInfoTemp.get( "g20YN" ).toString( ) );
+			mv.addObject( "conVo", CommonConvert.CommonGetMapToJSONObj( conInfo ) );
+			/* 명칭설정 기능 정의 */
+			String pCompSeq = CommonConvert.CommonGetStr( loginVo.getCompSeq( ) );
+			String plangCode = CommonConvert.CommonGetStr( loginVo.getLangCode( ) );
+			String pGroupSeq = CommonConvert.CommonGetStr( loginVo.getGroupSeq( ) );
+			CustomLabelVO vo = cmInfo.CommonGetCustomLabelInfo( pCompSeq, plangCode, pGroupSeq );
+			mv.addObject( "CL", vo.getData( ) );
+			/* 사용자 기본 옵션 조회 - 로그인 정보 조회 */
+			mv.addObject( "loginVo", CommonConvert.CommonGetMapToJSONObj( getPublicLoginVo(loginVo) ) );
+			/* 사용자 기본 옵션 조회 - ERP 옵션 정보 조회 */
+			if(conVo.getErpTypeCode().equals("ERPiU")){
+				List<Map<String, Object>> erpOption = new ArrayList<Map<String, Object>>();
+				erpOption = serviceOption.selectERPOption( params, conVo ).getAaData( );
+				JSONArray jr = new JSONArray();
+				for (Map<String, Object> map : erpOption) {
+					jr.add(CommonConvert.CommonGetMapToJSONObj(map));
+				}
+				mv.addObject("erp_optionSet", jr);
+			} else {
+				mv.addObject( "erp_optionSet", CommonConvert.CommonGetListMapToJson( serviceOption.selectERPOption( params, conVo ).getAaData( ) ) );
+			}
+			/* 사용자 기본 옵션 조회 - GW 옵션 정보 조회 */
+			ResultVO gwOption = serviceOption.selectGWOption( params, conVo );
+			if(!gwOption.getResultCode( ).equals( commonCode.SUCCESS )){
+				throw new Exception(gwOption.getResultName( ));
+			}
+			/* 사용자 기본 옵션 조회 - GW 기본설정 정보  */
+			mv.addObject( "gw_optionSet", CommonConvert.CommonGetListMapToJson( gwOption.getAaData( ) ) );
+			/* 사용자 기본 옵션 조회 - GW 커스터마이징 정보  */
+			mv.addObject( "gw_customOptionSet", CommonConvert.CommonGetMapToJSONStr( gwOption.getaData( ) ) );
+			/* 사용자 기본 옵션 조회 - GW 커스터마이징 코드 등록 */
+			if(!gwOption.getaData( ).isEmpty( )){
+				String code = gwOption.getaData( ).get( "commonCode" ).toString( );
+				String [] options = code.split( "\\|" );
+				for(String option : options){
+					if(option.indexOf( "EXNP_CUST_" ) > -1){
+						mv.addObject( option, true);
+					}
+				}
+			}
+
+			/* 사용자 기본 옵션 조회 - ERP 기본정보 조회 */
+			mv.addObject( "erpBaseInfo", CommonConvert.CommonGetListMapToJson( serviceOption.selectERPBaseData( params, conVo ).getAaData( ) ) );
+			/* 결의서 기본 옵션 조회 - ERP 기본정보 조회 */
+			if ( CommonConvert.CommonGetStr(conVo.getErpTypeCode( )).equals( commonCode.ICUBE ) ) {
+				HashMap<String, Object> procParams = new HashMap<>( );
+				procParams.put( "procType", "absdocuInfo" );
+				procParams.put( "erpCompSeq", loginVo.getErpCoCd( ) );
+				mv.addObject( "erpAbsDocu", CommonConvert.CommonGetListMapToJson( procService.getProcResult( procParams ).getAaData( ) ) );
+			}
+			else {
+				mv.addObject( "erpAbsDocu", CommonConvert.CommonGetListMapToJson( new ArrayList( ) ) );
+			}
+			/* ERP 기수 정보 조회 */
+			HashMap<String, Object> procParams = new HashMap<>( );
+			DateFormat dateFormat = new SimpleDateFormat( "yyyyMMdd", Locale.getDefault() );
+			Calendar cal = Calendar.getInstance( );
+			procParams.put( "procType", "commonGisuInfo" );
+			procParams.put( "erpCompSeq", loginVo.getErpCoCd( ) );
+			procParams.put( "baseDate", dateFormat.format( cal.getTime( ) ) );
+			procParams.put( "erpType", "iCUBE");
+			mv.addObject( "erpGisu", CommonConvert.CommonGetListMapToJson( procService.getProcResult( procParams ).getAaData( ) ) );              
+            
+        	String toDate = DateUtil.getCurrentDate("yyyy-MM-dd");
+        	String fromDate = DateUtil.getFormattedDateAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", -10, 0, 0);
+        	mv.addObject("fromDate", fromDate);
+        	mv.addObject("toDate", toDate);   
+            
             mv.addObject("contractType", "02"); //수의계약 기본
             mv.addObject("viewType", "I");
             mv.addObject("disabledYn", "N");
@@ -311,16 +445,6 @@ public class ContractPopController {
         			
         		}            	
             }
-            
-			HashMap<String, Object> procParams = new HashMap<>( );
-			DateFormat dateFormat = new SimpleDateFormat( "yyyyMMdd", Locale.getDefault() );
-			Calendar cal = Calendar.getInstance( );
-			procParams.put( "procType", "commonGisuInfo" );
-			procParams.put( "erpCompSeq", loginVo.getErpCoCd( ) );
-			procParams.put( "baseDate", dateFormat.format( cal.getTime( ) ) );
-			procParams.put( "erpType", "iCUBE");
-			mv.addObject( "erpGisu", CommonConvert.CommonGetListMapToJson( procService.getProcResult( procParams ).getAaData( ) ) );            
-            
             
             //기존 작성정보 조회
             if(params.get("seq") != null && !params.get("seq").equals("")) {
@@ -419,8 +543,6 @@ public class ContractPopController {
             mv.addObject("contractForm2Code", contractForm2);
             
             mv.addObject("option", option);
-            
-            mv.addObject("loginVo", loginVo);
             
             mv.setViewName("/purchase/pop/ConclusionCreatePop");
 
