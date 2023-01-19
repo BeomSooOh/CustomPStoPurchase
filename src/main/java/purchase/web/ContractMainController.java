@@ -344,13 +344,14 @@ public class ContractMainController {
 		if(contractInfo != null) {
 			
 			result.put("contractInfo", contractInfo);
-			
+			params.put("consMode", "Y");
 			if(contractInfo.get("contract_type").equals("01")) {
 				params.put("outProcessCode", "Conclusion01-1");
 			}else {
 				params.put("outProcessCode", "Conclusion01-2");
 			}
 			
+			params.put("consOutProcessCode", "Conclu01");
 			result.put("conclusionBudgetList", commonServiceDAO.SelectBudgetList(params));
 			result.put("conclusionTradeList", commonServiceDAO.SelectTradeList(params));
 			result.put("conclusionPaymentAmt", contractServiceDAO.SelectConclusionPaymentAmt(params));

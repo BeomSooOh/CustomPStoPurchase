@@ -465,14 +465,17 @@
 		ifnull(a.txt_cons_balance_amt,'') as txt_cons_balance_amt,
 		ifnull(a.txt_apply_amt,'') as txt_apply_amt,
 		ifnull(a.txt_balance_amt,'') as txt_balance_amt,
+		<isNull property="consMode">
+		'' as conffer_budget_seq,
+		</isNull>		
 		<isNotEmpty property="consMode">
 		c.budget_seq as conffer_budget_seq,
-		</isNotEmpty>		
+		</isNotEmpty>
 		a.created_dt,
 		a.created_by 
 		from cust_sto.t_purchase_budget_info a 
 		<isNotEmpty property="consMode">
-		join t_exnp_consdoc b on a.outProcessCode = b.out_process_interface_id and a.seq = b.out_process_interface_m_id
+		join t_exnp_consdoc b on b.out_process_interface_id = '$consOutProcessCode$' and a.seq = b.out_process_interface_m_id
 		join t_exnp_consbudget c on b.cons_doc_seq = c.cons_doc_seq and a.erp_budget_seq = c.erp_budget_seq
 		</isNotEmpty>		
 		where a.seq = '$seq$' and a.outProcessCode = '$outProcessCode$' 

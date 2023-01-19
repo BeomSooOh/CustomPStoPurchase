@@ -345,6 +345,7 @@ public class PurchaseMainController {
 		if(contractInfo != null) {
 			params.put("consMode", "Y");
 			params.put("outProcessCode", "Purchase01");
+			params.put("consOutProcessCode", "Purchase01");
 			result.put("conclusionBudgetList", commonServiceDAO.SelectBudgetList(params));
 			result.put("conclusionTradeList", commonServiceDAO.SelectTradeList(params));
 			result.put("conclusionPaymentAmt", purchaseServiceDAO.SelectPurchasePaymentAmt(params));
