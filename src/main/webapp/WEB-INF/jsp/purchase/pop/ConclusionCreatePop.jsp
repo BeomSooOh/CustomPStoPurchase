@@ -233,6 +233,9 @@
 			
 			$(cloneData).find("[name=pjt_seq]").val("${items.pjt_seq}");
 			$(cloneData).find("[name=pjt_name]").val("${items.pjt_name}");
+			$(cloneData).find("[name=pjt_at_tr_name]").val("${items.pjt_at_tr_name}");
+			$(cloneData).find("[name=pjt_bank_number]").val("${items.pjt_bank_number}");
+			
 			$(cloneData).find("[name=bottom_seq]").val("${items.bottom_seq}");
 			$(cloneData).find("[name=bottom_name]").val("${items.bottom_name}");
 			$(cloneData).find("[name=amt]").val("${items.amt}");
@@ -1553,6 +1556,8 @@
 				}else if(param.code == "project"){
 					$(commonElement).find("[name=pjt_seq]").val( param.pjtSeq || "" );
 					$(commonElement).find("[name=pjt_name]").val( param.pjtName || "" );
+					$(commonElement).find("[name=pjt_at_tr_name]").val( param.atTrName || "" );
+					$(commonElement).find("[name=pjt_bank_number]").val( param.bankNumber || "" );
 					
 				//하위사업	
 				}else if(param.code == "bottom"){
@@ -2225,7 +2230,9 @@
 					<td>
 						<div class="posi_re">
 							<input tbval="Y" name="pjt_seq" type="hidden" value="" />
-							<input tbval="Y" name="pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
+							<input tbval="Y" name="pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
+							<input tbval="Y" name="pjt_at_tr_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="pjt_bank_number" type="hidden" value="" requiredNot="true"/>															
 
 							<c:if test="${disabledYn == 'N'}">
 							<a href="#n" onclick="fnCommonCode_trName('project', this)" class="btn_search" style="margin-left: -25px;"></a>
@@ -2297,7 +2304,9 @@
 						<div class="posi_re">
 							<input tbval="Y" name="pjt_seq" type="hidden" value="" />
 							<input tbval="Y" name="pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
-							
+							<input tbval="Y" name="pjt_at_tr_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="pjt_bank_number" type="hidden" value="" requiredNot="true"/>	
+														
 							<c:if test="${disabledYn == 'N'}"> 
 							<a href="#n" onclick="fnCommonCode_trName('project', this)" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>

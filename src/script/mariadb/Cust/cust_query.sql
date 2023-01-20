@@ -1596,3 +1596,6 @@ VALUES('resFormSeq', 'Conclu01', '계약품의양식코드', 'Y', 4, NULL, '215'
 
 
 ----------------- 운영서버에 여기까지 반영 -------------------
+
+ALTER TABLE cust_sto.t_purchase_budget_info ADD pjt_at_tr_name varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '입출금계좌명칭';
+ALTER TABLE cust_sto.t_purchase_budget_info ADD pjt_bank_number varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '입출금계좌';

@@ -397,8 +397,8 @@
 		parameter.expendDate = '${toDate}'; /* [*]결의일자(발의일자) */
 		
 		parameter.btrSeq = ''; /* [*]입출금계좌코드 */
-		parameter.btrName = ''; /* [*]입출금계좌명칭 */
-		parameter.btrNb = ''; /* [*]입출금계좌 */
+		parameter.btrName = conclusionBudgetList[idx].pjt_at_tr_name; /* [*]입출금계좌명칭 */
+		parameter.btrNb = conclusionBudgetList[idx].pjt_bank_number; /* [*]입출금계좌 */
 		
 		parameter.erpDivSeq = ''; /* ERP 회계단위코드 */
 		parameter.erpDivName = ''; /* ERP 회계단위명칭 */

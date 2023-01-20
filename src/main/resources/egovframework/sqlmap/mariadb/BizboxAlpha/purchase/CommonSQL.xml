@@ -421,7 +421,7 @@
 	<insert	id="CommonSQL.InsertBudgetInfo" parameterClass="HashMap" >
 		
 		INSERT INTO cust_sto.t_purchase_budget_info
-		(seq, outProcessCode, erp_budget_seq, erp_budget_name, erp_budget_div_seq, erp_budget_div_name, erp_bgt1_seq, erp_bgt2_seq, erp_bgt3_seq, erp_bgt4_seq, erp_bgt1_name, erp_bgt2_name, erp_bgt3_name, erp_bgt4_name, pjt_seq, pjt_name, bottom_seq, bottom_name, amt, created_dt, created_by
+		(seq, outProcessCode, erp_budget_seq, erp_budget_name, erp_budget_div_seq, erp_budget_div_name, erp_bgt1_seq, erp_bgt2_seq, erp_bgt3_seq, erp_bgt4_seq, erp_bgt1_name, erp_bgt2_name, erp_bgt3_name, erp_bgt4_name, pjt_seq, pjt_name, pjt_at_tr_name, pjt_bank_number, bottom_seq, bottom_name, amt, created_dt, created_by
 		<isNotEmpty property="txt_open_amt">
 		,txt_open_amt
 		,txt_cons_balance_amt
@@ -429,7 +429,7 @@
 		,txt_balance_amt
 		</isNotEmpty>			
 		)
-		VALUES('$seq$', '$outProcessCode$', '$erp_budget_seq$', '$erp_budget_name$', '$erp_budget_div_seq$', '$erp_budget_div_name$', '$erp_bgt1_seq$', '$erp_bgt2_seq$', '$erp_bgt3_seq$', '$erp_bgt4_seq$', '$erp_bgt1_name$', '$erp_bgt2_name$', '$erp_bgt3_name$', '$erp_bgt4_name$', '$pjt_seq$', '$pjt_name$', '$bottom_seq$', '$bottom_name$', '$amt$', now(), '$created_by$'
+		VALUES('$seq$', '$outProcessCode$', '$erp_budget_seq$', '$erp_budget_name$', '$erp_budget_div_seq$', '$erp_budget_div_name$', '$erp_bgt1_seq$', '$erp_bgt2_seq$', '$erp_bgt3_seq$', '$erp_bgt4_seq$', '$erp_bgt1_name$', '$erp_bgt2_name$', '$erp_bgt3_name$', '$erp_bgt4_name$', '$pjt_seq$', '$pjt_name$', '$pjt_at_tr_name$', '$pjt_bank_number$', '$bottom_seq$', '$bottom_name$', '$amt$', now(), '$created_by$'
 		<isNotEmpty property="txt_open_amt">
 		,'$txt_open_amt$'
 		,'$txt_cons_balance_amt$'
@@ -459,6 +459,8 @@
 		a.erp_bgt4_name,
 		a.pjt_seq,
 		a.pjt_name,
+		a.pjt_at_tr_name,
+		a.pjt_bank_number,		
 		a.bottom_seq,
 		a.bottom_name,
 		FORMAT(a.amt,0) as amt,
