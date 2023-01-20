@@ -178,6 +178,7 @@
 		a.resApply_amt as resApply_amt,
 		a.balance_amt as balance_amt
 		
+		
 		FROM cust_sto.t_purchase_contract a
 		<isEqual property="authLevel" compareValue="dept">
 		left join $DB_NEOS$t_co_dept wdept on a.write_dept_seq = wdept.dept_seq 

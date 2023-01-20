@@ -74,6 +74,7 @@
 		,'-',YEAR(now()),'-%')) , '0') + 1 , 3, '0')) as new_manage_no
 		from cust_sto.t_purchase_contract target where target.manage_no = '' and seq = '$seq$';	
 		
+		
 	</select>		
 	
 	<select	id="CommonSQL.SelectApprFormDataContract" parameterClass="HashMap" resultClass="HashMap">
