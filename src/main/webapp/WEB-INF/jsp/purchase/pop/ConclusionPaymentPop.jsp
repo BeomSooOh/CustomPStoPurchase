@@ -495,8 +495,8 @@
 		parameter.erpBgacctSeq = ''; /* [*]예산 계정 코드 */
 		parameter.erpBgacctName = ''; /* [*]예산 계정 명칭 */
 		
-		parameter.setFgCode = '4'; /* [*]결제수단 코드 */
-		parameter.setFgName = '신용카드'; /* [*]결제수단 명칭 */
+		parameter.setFgCode = '3'; /* [*]결제수단 코드 */
+		parameter.setFgName = '외상'; /* [*]결제수단 명칭 */
 		parameter.vatFgCode = '1'; /* [*]과세구분 코드 */
 		parameter.vatFgName = '과세'; /* [*]과세구분 명칭 */
 		parameter.trFgCode = '1'; /* [*]채주유형 코드 */
