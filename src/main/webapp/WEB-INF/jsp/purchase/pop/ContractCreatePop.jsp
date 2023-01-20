@@ -641,7 +641,7 @@
 					</td>
 				</tr>
 				<tr>
-					<th>담당자</th>
+					<th>업무관련자</th>
 					<td objKey="public_info" objCheckFor="getPublicInfo()" >
 						<div id="publicInfo" style="min-width:200px;"></div>
 						<c:if test="${disabledYn == 'N'}">

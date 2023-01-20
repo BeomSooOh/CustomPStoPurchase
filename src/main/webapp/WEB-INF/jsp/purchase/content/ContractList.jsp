@@ -215,6 +215,7 @@
 				{
 				title : "기본정보"
 			,	columns : [
+				<c:if test="${authLevel=='admin'}">
 				{
 					field : "gridCheckBox",
 					width : 34,
@@ -223,6 +224,7 @@
 						basicUse : true
 					}
 				},
+				</c:if>
 				{
 					field : "no"
 				,	title : "연번"
@@ -580,7 +582,7 @@
 			
 			,	{
 				field : ""
-			,	title : "담당자"
+			,	title : "업무관련자"
 			,	width : 120
 			,	content : {
 				template : function(rowData) {
@@ -927,6 +929,7 @@
 				]
 			}
 		]
+		
 
 	});	
 		
