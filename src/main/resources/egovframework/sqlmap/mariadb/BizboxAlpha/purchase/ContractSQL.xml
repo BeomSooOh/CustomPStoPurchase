@@ -176,12 +176,7 @@
 		a.open_amt as open_amt,
 		a.consbalance_amt as consbalance_amt,
 		a.resApply_amt as resApply_amt,
-		a.balance_amt as balance_amt,
-		a.result_amt_info_html as result_amt_info_html,
-		a.result_c_amt_info_html as result_c_amt_info_html,
-		jae.c_kldeptname as c_kldeptname,
-		jae.c_klempname as c_klempname,
-		jae.c_klpositionname as c_klpositionname
+		a.balance_amt as balance_amt
 		
 		FROM cust_sto.t_purchase_contract a
 		<isEqual property="authLevel" compareValue="dept">
@@ -189,8 +184,6 @@
 		left join $DB_NEOS$t_co_dept cwdept on a.c_write_dept_seq = cwdept.dept_seq 	
 		</isEqual>		
 		inner join (SELECT @rownum:=0) tmp
-		left join $DB_NEOS$erpgwlink pgw on  a.approkey_conclusion = pgw.docx_numb    and pgw.docx_numb != '' and pgw.docx_numb is not null
-		left join $DB_NEOS$a_kyuljaelineinfo jae on pgw.appr_dikey = jae.c_dikeycode  and   jae.c_klseqnum = '0000000002'
 		left join cust_sto.t_purchase_conclusion_change cc on a.approkey_change = concat('Conclu02_', cc.seq, '_', cc.change_seq)  
 		left join cust_sto.t_purchase_conclusion_change pcc_temp on a.seq = pcc_temp.seq and ifnull(pcc_temp.doc_sts,'') = ''
 		left join cust_sto.t_purchase_trade_info trade on a.seq = trade.seq and trade.tr_idx = '0' and trade.outProcessCode like '%Conclusion01%'

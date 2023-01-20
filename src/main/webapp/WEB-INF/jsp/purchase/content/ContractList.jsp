@@ -562,7 +562,7 @@
 					,	title : "기안자부서"
 					,	width : 120
 			} 
- 			,	{
+/*  			,	{
 						field : "c_klempname"
 					,	title : "계약담당자"
 					,	width : 120
@@ -578,7 +578,7 @@
 						}
 					}
 				}
- 			}
+ 			} */
 			
 			,	{
 				field : ""
