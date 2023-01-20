@@ -1521,8 +1521,6 @@ CREATE table if not exists cust_sto.`t_purchase_res_hope_info` (
   PRIMARY KEY (`res_doc_seq`,`tr_seq`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='기타결의희망구매실적연계정보';
 
------------------ 운영서버에 여기까지 반영 -------------------
-
 insert ignore INTO cust_sto.t_purchase_code_group
 (`GROUP`, `TYPE`, NAME, USE_YN, ORDER_NUM, NOTE)
 VALUES('purchaseMethod', 'cm', '[구매]구매방법', 'Y', 26, '');
@@ -1595,3 +1593,6 @@ ALTER TABLE cust_sto.t_purchase_item_info ADD item_sub_total_amt_text varchar(50
 INSERT INTO cust_sto.t_purchase_code_detail
 (`GROUP`, CODE, NAME, USE_YN, ORDER_NUM, NOTE, LINK, FORM_HTML)
 VALUES('resFormSeq', 'Conclu01', '계약품의양식코드', 'Y', 4, NULL, '215', NULL);
+
+
+----------------- 운영서버에 여기까지 반영 -------------------
