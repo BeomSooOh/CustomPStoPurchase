@@ -1130,12 +1130,15 @@
 						
 						if(conclusionbudgetList.length-2 < idx){
 							
-							if(conclusionRemainAmt > 0){
+							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?useYn=Y&outProcessCode="+outProcessCode+"&seq=" + thisSeq,  "ApprCreatePop", 1000, 729, 1, 1) ;
+							self.close();	
+							
+/* 							if(conclusionRemainAmt > 0){
 								msgSnackbar("error", "품의금액이 예산잔액을 초과합니다.");
 							}else{
 								openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?useYn=Y&outProcessCode="+outProcessCode+"&seq=" + thisSeq,  "ApprCreatePop", 1000, 729, 1, 1) ;
 								self.close();								
-							}
+							} */
 
 						}
 						
