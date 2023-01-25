@@ -70,7 +70,7 @@
 		select concat(
 		(case when target.contract_type = '01' then target.budget_type else target.c_budget_type end)
 		, '-', YEAR(now()), '-', LPAD( ifnull( (select max(substr(manage_no, 9)) from cust_sto.t_purchase_contract where manage_no like concat(
-		(case when target.contract_type = '01' then target.budget_type else target.c_budget_type end)
+		(case when target.contract_type = '01' then 'B4' end)
 		,'-',YEAR(now()),'-%')) , '0') + 1 , 3, '0')) as new_manage_no
 		from cust_sto.t_purchase_contract target where target.manage_no = '' and seq = '$seq$';	
 		
