@@ -329,10 +329,24 @@
 		a.resApply_amt as resApply_amt,
 		a.balance_amt as balance_amt,
 		a.result_amt_info_html,
-		a.result_amt_info_html
-		
+		a.result_amt_info_html,
+		ifnull(pgw1.appr_dikey,'') as appr_dikey_plan,
+		ifnull(pgw1.appr_status,'') as appr_status_plan,
+		ifnull(pgw2.appr_dikey,'') as appr_dikey_meet,
+		ifnull(pgw2.appr_status,'') as appr_status_meet,
+		ifnull(pgw3.appr_dikey,'') as appr_dikey_result,
+		ifnull(pgw3.appr_status,'') as appr_status_result,
+        ifnull(pgw4.appr_dikey,'') as appr_dikey_conclusion,
+		ifnull(pgw4.appr_status,'') as appr_status_conclusion,
+		ifnull(pgw5.appr_dikey,'') as appr_dikey_change,
+		ifnull(pgw5.appr_status,'') as appr_status_change
 		
 		FROM cust_sto.t_purchase_contract a
+		left join $DB_NEOS$erpgwlink pgw1 on  a.approkey_plan = pgw1.docx_numb and pgw1.docx_numb != '' and pgw1.docx_numb is not null
+        left join $DB_NEOS$erpgwlink pgw2 on  a.approkey_meet = pgw2.docx_numb and pgw2.docx_numb != '' and pgw2.docx_numb is not null
+        left join $DB_NEOS$erpgwlink pgw3 on  a.approkey_result = pgw3.docx_numb and pgw3.docx_numb != '' and pgw3.docx_numb is not null
+        left join $DB_NEOS$erpgwlink pgw4 on  a.approkey_conclusion = pgw4.docx_numb and pgw4.docx_numb != '' and pgw4.docx_numb is not null
+        left join $DB_NEOS$erpgwlink pgw5 on  a.approkey_change = pgw5.docx_numb and pgw5.docx_numb != '' and pgw5.docx_numb is not null
 		left join cust_sto.t_purchase_conclusion_change pcc on a.approkey_change = concat('Conclu02_', pcc.seq, '_', pcc.change_seq)
 		left join cust_sto.t_purchase_conclusion_change pcc_temp on a.seq = pcc_temp.seq and ifnull(pcc_temp.doc_sts,'') = ''
 		left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
@@ -956,7 +970,7 @@
 	
 	
 	<delete id="ContractSQL.deleteContractList" parameterClass="HashMap">
-			delete from cust_sto.t_purchase_contract where seq = '$seq$' and doc_sts is null
+			delete from cust_sto.t_purchase_contract where seq = '$seq$' and (doc_sts is null  or doc_sts = '')
 	</delete>
 	
 	

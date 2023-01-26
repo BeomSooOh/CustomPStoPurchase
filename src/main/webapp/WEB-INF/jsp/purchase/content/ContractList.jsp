@@ -80,7 +80,8 @@
 				if(result.resultCode == "success"){
 					
 					msgSnackbar("success", "요청하신 변경건 처리가 완료되었습니다.");
-					BindGrid();
+					/* BindGrid(); */
+					gridReload();
 					changeInfoList = [];
 					
 				}else{
@@ -128,6 +129,14 @@
 			$("#adminSaveBtn").hide();
 		}
 		
+	}
+	
+	function gridReload(){
+		var grid = Pudd("#grid1").getPuddObject();
+		if (!grid) return;
+		/* grid.page( 1 ); */
+		grid.refresh();
+
 	}
 	
 	function BindGrid(){
@@ -579,7 +588,6 @@
 					}
 				}
  			} */
-			
 			
 			,	{
 				field : ""

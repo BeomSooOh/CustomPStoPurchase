@@ -28,7 +28,8 @@
 	<script type="text/javascript" src="<c:url value='/customStyle/Scripts/jqueryui/jquery-ui.min.js' />"></script>
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/common.js' />"></script>
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script>  
-    <script type="text/javascript" src="<c:url value='/js/jquery.maskMoney.js' />"></script>  
+    <script type="text/javascript" src="<c:url value='/js/jquery.maskMoney.js' />"></script>
+    <script type="text/javascript" src="<c:url value='/js/neos/NeosUtil.js' />"></script>  
 	
 	<script type="text/javascript">
 	
@@ -374,7 +375,8 @@
 		
 		function openerRefreshList(){
 			if(opener != null && typeof opener.BindGrid != "undefined"){
-				opener.BindGrid();
+				/* opener.BindGrid(); */
+				opener.gridReload();
 			}	
 		}
 		
@@ -572,7 +574,33 @@
 			}
 		}		
 		
-
+		/*품의서 보기*/
+		function titleOnClickApp(c_dikeyCode, c_miseqnum, c_diseqnum, c_rideleteopt, c_tifogmgb, c_distatus) {
+		
+			if(c_dikeyCode ==''){
+				fnPuddDiaLog("warning", NeosUtil.getMessage("TX000009232","문서가 존재하지 않습니다"));
+				return;
+			}
+			
+			var obj = {
+					diSeqNum  : c_diseqnum,
+					miSeqNum  : c_miseqnum,
+					diKeyCode : c_dikeyCode,
+					tiFormGb  : c_tifogmgb,
+					diStatus  : c_distatus,
+					isApp  : 'Y',
+					mod  : 'V',
+					userSe  : 'MASTER',
+					multiViewYN  : 'N',
+					MANAGE_VIEW  : 'Y',
+					RIGHT_VIEW  : 'Y',
+					socketList : 'Y'
+				};
+			var param = NeosUtil.makeParam(obj);
+			neosPopup("POP_DOCVIEW", param); 
+		}
+		
+		
 		
 	</script>
 </head>
@@ -587,7 +615,13 @@
 					<c:if test="${btnSaveYn == 'Y'}">
 					<input type="button" class="psh_btn" onclick="fnCallBtn('save')" value="임시저장" />
 					</c:if>
+					<c:if test="${btnApprYn == 'Y'}">
 					<input type="button" class="psh_btn" onclick="fnCallBtn('attach')" value="첨부파일" />
+					</c:if>
+					<c:if test="${btnApprYn == 'N'}">
+					<input type="button" class="psh_btn" onclick="titleOnClickApp('${contractDetailInfo.appr_dikey_plan}','','','','0','${contractDetailInfo.appr_status_plan}')" value="품의서보기" /> 
+					<!-- <input type="button" class="psh_btn" onclick="titleOnClickApp('4183','','','','0','008')" value="품의서보기" /> --> 
+					</c:if>
 					<c:if test="${btnApprYn == 'Y'}">
 					<input type="button" class="psh_btn" onclick="fnCallBtn('appr')" value="결재작성" />
 					</c:if>					

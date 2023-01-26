@@ -30,6 +30,8 @@
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/common.js' />"></script>
     <script type="text/javascript" src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script>  
     <script type="text/javascript" src="<c:url value='/js/jquery.maskMoney.js' />"></script>  
+    <script type="text/javascript" src="<c:url value='/js/neos/NeosUtil.js' />"></script>
+    
     
 	<jsp:include page="/WEB-INF/jsp/common/cmmJunctionCodePop.jsp" flush="false" />		
 	<jsp:include page="/WEB-INF/jsp/expend/np/user/include/UserOptionMap.jsp" flush="false" />	
@@ -1162,7 +1164,8 @@
 		
 		function openerRefreshList(){
 			if(opener != null && typeof opener.BindGrid != "undefined"){
-				opener.BindGrid();
+				/* opener.BindGrid(); */
+				opener.gridReload();
 			}	
 		}
 		
@@ -1772,7 +1775,36 @@
 				callbackFunction : callback,
 				dummy : JSON.stringify(data)
 			});
-		}			
+		}
+		
+		
+		/*품의서 보기*/
+		function titleOnClickApp(c_dikeyCode, c_miseqnum, c_diseqnum, c_rideleteopt, c_tifogmgb, c_distatus) {
+			
+ 			if(c_dikeyCode ==''){
+				fnPuddDiaLog("warning", NeosUtil.getMessage("TX000009232","문서가 존재하지 않습니다"));
+				return;
+			}
+			
+			var obj = {
+					diSeqNum  : c_diseqnum,
+					miSeqNum  : c_miseqnum,
+					diKeyCode : c_dikeyCode,
+					tiFormGb  : c_tifogmgb,
+					diStatus  : c_distatus,
+					isApp  : 'Y',
+					mod  : 'V',
+					userSe  : 'MASTER',
+					multiViewYN  : 'N',
+					MANAGE_VIEW  : 'Y',
+					RIGHT_VIEW  : 'Y',
+					socketList : 'Y'
+				};
+			var param = NeosUtil.makeParam(obj);
+			neosPopup("POP_DOCVIEW", param);  
+
+			
+		}
 		
 	</script>
 </head>
@@ -1787,7 +1819,12 @@
 					<c:if test="${btnSaveYn == 'Y'}">
 					<input type="button" class="psh_btn" onclick="fnCallBtn('save')" value="임시저장" />
 					</c:if>
+					<c:if test="${btnApprYn == 'Y'}">
 					<input type="button" class="psh_btn" onclick="fnCallBtn('attach')" value="첨부파일" />
+					</c:if>
+					<c:if test="${btnApprYn == 'N'}">
+					<input type="button" class="psh_btn" onclick="titleOnClickApp('${contractDetailInfo.appr_dikey_conclusion}','','','','0','${contractDetailInfo.appr_status_conclusion}')" value="품의서보기" /> 
+					</c:if>
 					<c:if test="${btnApprYn == 'Y'}">
 					<input type="button" class="psh_btn" onclick="fnCallBtn('appr')" value="결재작성" />
 					</c:if>					
@@ -1985,17 +2022,6 @@
 						</c:forEach>						
 					</td>						
 				</tr>				
-				<tr>
-					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 계약법령</th>
-					<td colspan="3">
-						<select ${disabled} type="select" name="contractLaw" onchange="Pudd( '[objkey=private_reason]' ).getPuddObject().setSelectedIndex($(this).val());fnChangeEtc(this);fnChangeEtc($('[name=privateReason]'));" objKey="contract_law" objCheckFor="checkVal('select', this, '계약법령', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
-							<c:forEach var="items" items="${contractLawCode}">
-								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && (items.CODE == contractDetailInfo.contract_law || (items.CODE == 'etc' && contractDetailInfo.contract_law.indexOf('etc▦') > -1))}">selected</c:if> >${items.NAME}</option>
-							</c:forEach>							
-						</select>					
-						<input name="contractLaw_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.contract_law.indexOf('etc▦') == -1 ) }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.contract_law.indexOf('etc▦') > -1 }">${(contractDetailInfo.contract_law).substring(4)}</c:if>" />
-					</td>
-				</tr>
 				<tr <c:if test="${contractType == '01'}">style="display:none;"</c:if>>
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 수의계약사유</th>
 					<td colspan="3">
@@ -2003,14 +2029,27 @@
 						<select ${disabled} type="select" name="privateReason" onchange="fnChangeEtc(this);" objKey="private_reason" objCheckFor="checkVal('select', ' ' , '수의계약사유', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
 					</c:if>
 					<c:if test="${contractType == '02'}">
-						<select ${disabled} type="select" name="privateReason" onchange="fnChangeEtc(this);" objKey="private_reason" objCheckFor="checkVal('select', this, '수의계약사유', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
+					<%-- <select ${disabled} type="select" name="privateReason" onchange="fnChangeEtc(this);" objKey="private_reason" objCheckFor="checkVal('select', this, '수의계약사유', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;"> --%>
+					<select ${disabled} type="select" name="privateReason" onchange="Pudd( '[objkey=contract_law]' ).getPuddObject().setSelectedIndex($(this).val());fnChangeEtc(this);fnChangeEtc($('[name=contractLaw]'));" objKey="private_reason" objCheckFor="checkVal('select', this, '수의계약사유', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
+						
 					</c:if>
-					
 							<c:forEach var="items" items="${privateReasonCode}">
 								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && (items.CODE == contractDetailInfo.private_reason || (items.CODE == 'etc' && contractDetailInfo.private_reason.indexOf('etc▦') > -1))}">selected</c:if> >${items.NAME}</option>
 							</c:forEach>							
 						</select>		
 						<input name="privateReason_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.private_reason.indexOf('etc▦') == -1 ) }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.private_reason.indexOf('etc▦') > -1 }">${(contractDetailInfo.private_reason).substring(4)}</c:if>" />
+					</td>
+				</tr>			
+				<tr>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 계약법령</th>
+					<td colspan="3">
+						<select ${disabled} type="select" name="contractLaw" onchange="fnChangeEtc(this);" objKey="contract_law" objCheckFor="checkVal('select', this, '계약법령', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
+						<%-- <select ${disabled} type="select" name="contractLaw" onchange="Pudd( '[objkey=private_reason]' ).getPuddObject().setSelectedIndex($(this).val());fnChangeEtc(this);fnChangeEtc($('[name=privateReason]'));" objKey="contract_law" objCheckFor="checkVal('select', this, '계약법령', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;"> --%>
+							<c:forEach var="items" items="${contractLawCode}">
+								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && (items.CODE == contractDetailInfo.contract_law || (items.CODE == 'etc' && contractDetailInfo.contract_law.indexOf('etc▦') > -1))}">selected</c:if> >${items.NAME}</option>
+							</c:forEach>							
+						</select>					
+						<input name="contractLaw_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.contract_law.indexOf('etc▦') == -1 ) }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.contract_law.indexOf('etc▦') > -1 }">${(contractDetailInfo.contract_law).substring(4)}</c:if>" />
 					</td>
 				</tr>
 				<tr>
@@ -2086,7 +2125,7 @@
 					</c:if>				
 					<col width="200"/>
 					<col width="120"/>
-					<col width="80"/>
+					<col width="100"/>
 					<col width=""/>
 					<col width="100"/>
 					<col width="150"/>
@@ -2094,7 +2133,7 @@
 				</colgroup>
 				<tr>
 					<c:if test="${disabledYn == 'N'}"> 
-					<th class="cen">
+					<th class="cen" >
 						<input type="button" onclick="fnSectorAdd('tradeList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 					</th>
 					</c:if>				
@@ -2130,15 +2169,10 @@
 							<a href="#n" onclick="fnCommonCode_trName('tr', this)" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
 						</div>
-					</td>
-<!-- 					<td tbval="Y" name="tr_reg_number"  requiredNot="true" class="cen" ></td>
-					<td tbval="Y" name="ceo_name" requiredNot="true" class="cen" ></td>
-					<td tbval="Y" name="addr"  requiredNot="true" ></td> -->  
-					
+					</td>					
 					<td><input  tbval="Y" name="tr_reg_number" type="text" style="border: none; pudd-style="width:100%;" class="cen" value="" requiredNot="true" readonly/></td>
-					<td><input  tbval="Y" name="ceo_name" type="text" style="border: none; pudd-style="width:100%;" class="cen" value="" requiredNot="true" readonly/></td>
-					<td tbval="Y" name="addr"  requiredNot="true"><input  tbval="Y" name="addr" type="hidden" style="border: none; pudd-style="width:100%;" value="" requiredNot="true" readonly/></td> 
-					
+					<td><input  tbval="Y" name="ceo_name" type="text" class="puddSetup ac" pudd-style="width:100%;" class="cen" value="" requiredNot="true" /></td>
+					<td><textarea cols="170" rows="2"  tbval="Y" name="addr" type="text" class="puddSetup" pudd-style="width:100%;" value="" requiredNot="true"></textarea></td> 
 					<td><input  tbval="Y" name="pm_name" type="text" pudd-style="width:100%;" class="puddSetup ac" value="" requiredNot="true" /></td>
 					<td><input  tbval="Y" name="pm_hp" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
 					<td><input  tbval="Y" name="pm_email" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
@@ -2146,7 +2180,7 @@
 				<tr name="addData">
 					<c:if test="${disabledYn == 'N'}"> 
 					<td>
-						<input type="button" onclick="fnSectorDel(this, 'tradeList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+						<input  type="button" onclick="fnSectorDel(this, 'tradeList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
 					</td>
 					</c:if>				
 					<td>
@@ -2166,19 +2200,13 @@
 							<a href="#n" onclick="fnCommonCode_trName('tr', this)" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
 						</div>
-					</td>
-					<!-- <td tbval="Y" name="tr_reg_number"  requiredNot="true" class="cen" ></td>
-					<td tbval="Y" name="ceo_name" requiredNot="true" class="cen" ></td>
-					<td tbval="Y" name="addr"  requiredNot="true" ></td> -->
-					
+					</td>					
 					<td><input  tbval="Y" name="tr_reg_number" type="text" style="border: none; pudd-style="width:100%;" class="cen" value="" requiredNot="true" readonly/></td>
-					<td><input  tbval="Y" name="ceo_name" type="text" style="border: none; pudd-style="width:100%;" class="cen" value="" requiredNot="true" readonly/></td>
-					
-					<td tbval="Y" name="addr"  requiredNot="true" ><input  tbval="Y" name="addr" type="hidden" style="border: none; pudd-style="width:100%;" value="" requiredNot="true" readonly/></td>
-					
-					<td><input  tbval="Y" name="pm_name" type="text" pudd-style="width:100%;" class="puddSetup ac" value="" requiredNot="true" /></td>
-					<td><input  tbval="Y" name="pm_hp" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
-					<td><input  tbval="Y" name="pm_email" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
+					<td><input ${disabled} tbval="Y" name="ceo_name" type="text" class="puddSetup ac" pudd-style="width:100%;" class="cen" value="" requiredNot="true" /></td>
+					<td><textarea ${disabled} cols="170" rows="2"  tbval="Y" name="addr" type="text" class="puddSetup" pudd-style="width:100%;" value="" requiredNot="true"></textarea></td>
+					<td><input ${disabled} tbval="Y" name="pm_name" type="text" pudd-style="width:100%;" class="puddSetup ac" value="" requiredNot="true" /></td>
+					<td><input ${disabled} tbval="Y" name="pm_hp" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
+					<td><input ${disabled} tbval="Y" name="pm_email" type="text" pudd-style="width:100%;" class="puddSetup" value="" requiredNot="true" /></td>
 				</tr>
 			</table>
 		</div>
