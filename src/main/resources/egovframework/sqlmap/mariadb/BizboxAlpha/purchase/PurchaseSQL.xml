@@ -627,9 +627,24 @@
   <isEqual property="authLevel" compareValue="dept">
   left join $DB_NEOS$t_co_dept wdept on d.dept_seq = wdept.dept_seq 
   </isEqual>  
+  
+  left join cust_sto.t_purchase_res_green_info green on d.res_doc_seq = green.res_doc_seq
+  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq
+    
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
   WHERE d.doc_seq IS NOT NULL and ifnull(d.out_process_interface_id,'') not in ('CONCLUSION','PURCHASE')
+  
+  <isNotEmpty property="itemGreenClass">
+  and  green.item_green_class = '$itemGreenClass$'
+  </isNotEmpty>
+  <isNotEmpty property="itemGreenCertType">
+  and  green.item_green_cert_type = '$itemGreenCertType$'
+  </isNotEmpty>
+  <isNotEmpty property="itemHopeCompany">
+  and concat('▦',hope.hope_company_info) like '%▦$itemHopeCompany$▦%'
+  </isNotEmpty>   
+    
   <isNotEmpty property="docStatus">
    AND IFNULL(doc_status, '008') IN ($docStatus$)
   </isNotEmpty>
@@ -705,10 +720,17 @@
    , d.save_yn  AS 'saveYn'
    , 'EA'   AS 'eaType'
    , ifnull((select group_concat(distinct tr_name) from $DB_NEOS$t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(tr_name,'') != ''),'') as 'trName'
+   , cust_sto.fn_get_purchase_code_text('greenClass', green.item_green_class) as item_green_class
+   , cust_sto.fn_get_purchase_code_text('greenCertType', green.item_green_cert_type) as item_green_cert_type
+   , cust_sto.fn_get_purchase_code_text('hopeCompany', hope.hope_company_info) as hope_company_info
+   
   FROM $DB_NEOS$t_exnp_resdoc d
   <isEqual property="authLevel" compareValue="dept">
   left join $DB_NEOS$t_co_dept wdept on d.dept_seq = wdept.dept_seq 
-  </isEqual>  
+  </isEqual>
+  left join cust_sto.t_purchase_res_green_info green on d.res_doc_seq = green.res_doc_seq
+  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq
+  	  
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
   INNER JOIN (
@@ -728,6 +750,17 @@
    INNER JOIN $DB_NEOS$erpgwlink gwlink
          ON   gwlink.appr_dikey = d.doc_seq
   WHERE d.doc_seq IS NOT NULL and ifnull(d.out_process_interface_id,'') not in ('CONCLUSION','PURCHASE')
+  
+  <isNotEmpty property="itemGreenClass">
+  and  green.item_green_class = '$itemGreenClass$'
+  </isNotEmpty>
+  <isNotEmpty property="itemGreenCertType">
+  and  green.item_green_cert_type = '$itemGreenCertType$'
+  </isNotEmpty>
+  <isNotEmpty property="itemHopeCompany">
+  and concat('▦',hope.hope_company_info) like '%▦$itemHopeCompany$▦%'
+  </isNotEmpty>   
+  
   <isNotEmpty property="docStatus">
    AND IFNULL(doc_status, '008') IN ($docStatus$)
   </isNotEmpty>

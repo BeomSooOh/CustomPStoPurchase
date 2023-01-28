@@ -88,6 +88,10 @@
 					data.docNo = $("#txtDocNo").val();
 					data.txtTrName = $("#txtTrName").val();
 					
+					data.itemGreenClass = $("#itemGreenClass").val();
+					data.itemGreenCertType = $("#itemGreenCertType").val();
+					data.itemHopeCompany = $("#itemHopeCompany").val();					
+					
 					<c:if test="${authLevel!='admin'}">
 					data.deptName = "";
 					</c:if>
@@ -222,6 +226,23 @@
 					   template : openPopApprovalLinePudd
 				    }				
 			    }
+			
+			,	{
+				field : "item_green_class"
+			,	title : "제품분류"
+			,	width : 150							
+			}			
+			,	{
+				field : "item_green_cert_type"
+			,	title : "녹색제품 인증구분"
+			,	width : 150							
+			}
+
+			,	{
+				field : "hope_company_info"
+			,	title : "희망기업여부"
+			,	width : 150							
+			}				
 		
 		]
 	});	
@@ -525,6 +546,7 @@
 			async : true,
 			success : function(result) {
 				msgSnackbar("success", "삭제완료");
+				BindGrid();
 			},
 			error : function(result) {
 				msgSnackbar("error", "데이터 요청에 실패했습니다.");
@@ -580,6 +602,10 @@
 					data.docStatus = $("#selDocStatus").val();
 					data.docNo = $("#txtDocNo").val();
 					data.txtTrName = $("#txtTrName").val();
+					
+					data.itemGreenClass = $("#itemGreenClass").val();
+					data.itemGreenCertType = $("#itemGreenCertType").val();
+					data.itemHopeCompany = $("#itemHopeCompany").val();					
 					
 					<c:if test="${authLevel!='admin'}">
 					data.deptName = "";
@@ -753,10 +779,10 @@
 			<input type="text" id="txtToDate" value="${toDate}" class="puddSetup" pudd-type="datepicker"/>
 		</dd>
 		
-		<dt class="ar" style="width:40px;">제목</dt>
+		<dt class="ar">제목</dt>
 		<dd><input type="text" id="txtDoctitle" pudd-style="width:120px;" class="puddSetup" placeHolder="제목 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		
-		<dt class="ar" style="width:60px;">결재상태</dt>
+		<dt class="ar">결재상태</dt>
 		<dd>
 			<select type="select" id="selDocStatus" onchange="BindGrid();" class="puddSetup" pudd-style="width:100%;">
 				<option value="" selected="selected">전체</option>
@@ -767,24 +793,57 @@
 			</select>		
 		</dd>
 		
-		<dt class="ar" style="width:60px;">문서번호</dt>
+		<dt class="ar">문서번호</dt>
 		<dd><input type="text" id="txtDocNo" pudd-style="width:120px;" class="puddSetup" placeHolder="문서번호 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		
 		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="BindGrid();" /></dd>
 	</dl>
 	
 	<dl class="next2">
-		<dt class="ar" style="width:40px;">업체명</dt>
-		<dd><input type="text" id="txtTrName" pudd-style="width:130px;" class="puddSetup" placeHolder="업체명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+		<dt class="ar">제품분류</dt>
+		<dd>
+			<select id="itemGreenClass" onchange="BindGrid();" style="text-align: center;">
+				<option value="">전체</option>
+				<c:forEach var="items" items="${greenClass}">
+				<option value="${items.CODE}">${items.NAME}</option>
+				</c:forEach>
+			</select>
+		</dd>
+				
+		<dt class="ar">녹색제품 인증구분</dt>
+		<dd>
+			<select id="itemGreenCertType" onchange="BindGrid();" style="text-align: center;">
+				<option value="">전체</option>
+				<c:forEach var="items" items="${greenCertType}">
+				<option value="${items.CODE}">${items.NAME}</option>
+				</c:forEach>
+			</select>			
+		</dd>
+		
+		<dt class="ar">희망기업여부</dt>
+		<dd>
+			<select id="itemHopeCompany" onchange="BindGrid();" style="text-align: center;">
+				<option value="">전체</option>
+				<c:forEach var="items" items="${hopeCompany}">
+				<option value="${items.CODE}">${items.NAME}</option>
+				</c:forEach>
+			</select>			
+		</dd>		
+	</dl>	
 	
-		<dt class="ar" style="width:60px;">사용부서</dt>
-		<dd><input type="text" id="txtDeptName" pudd-style="width:120px;" class="puddSetup" placeHolder="부서명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+	<dl class="next2">
+		<dt class="ar" style="width:40px;">업체명</dt>
+		<dd><input type="text" id="txtTrName" pudd-style="width:70px;" class="puddSetup" placeHolder="업체명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+	
+		<dt class="ar">사용부서</dt>
+		<dd><input type="text" id="txtDeptName" pudd-style="width:70px;" class="puddSetup" placeHolder="부서명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		
 		<c:if test="${authLevel!='user'}">
-		<dt class="ar" style="width:60px;">사용자</dt>
-		<dd><input type="text" id="txtEmpName" pudd-style="width:90px;" class="puddSetup" placeHolder="사원명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+		<dt class="ar">사용자</dt>
+		<dd><input type="text" id="txtEmpName" pudd-style="width:70px;" class="puddSetup" placeHolder="사원명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		</c:if>
 	</dl>	
+	
 </div>
 
 <div class="sub_contents_wrap posi_re">

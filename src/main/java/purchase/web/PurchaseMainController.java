@@ -416,8 +416,35 @@ public class PurchaseMainController {
         	String fromDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", -3);
         	toDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", 12);
         	mv.addObject("fromDate", fromDate);
-        	mv.addObject("toDate", toDate);        
+        	mv.addObject("toDate", toDate);    
+        	
+            params.put("group", "");
+            params.put("code", ""); 
+            params.put("codeNotEmpty", "Y"); 
+            List<Map<String, Object>> codeList = commonServiceDAO.SelectPurchaseDetailCodeList(params);            
             
+            List<Map<String, Object>> greenCertType = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> greenClass = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> hopeCompany = new ArrayList<Map<String, Object>>();
+            
+            if(codeList != null && codeList.size() > 0) {
+            	
+        		for (Map<String, Object> codeinfo : codeList) {
+        			
+        			if(codeinfo.get("GROUP").equals("greenCertType")) {
+        				greenCertType.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("greenClass")) {
+        				greenClass.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("hopeCompany")) {
+        				hopeCompany.add(codeinfo);
+        			}
+        		}            	
+            }           
+
+            mv.addObject("greenCertType", greenCertType);	
+            mv.addObject("greenClass", greenClass);	
+            mv.addObject("hopeCompany", hopeCompany);	
+        	
             mv.setViewName("/purchase/content/ResolutionList");
 
         } catch (Exception e) {
