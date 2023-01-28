@@ -705,7 +705,7 @@
     	});
 		    	
     	var headerRow = 2;
-    	var headerCol = 10;
+    	var headerCol = 13;
     	
     	for(var i=1; i < headerRow; i++) {
     		for(var j=0; j < headerCol; j++) {
@@ -723,6 +723,9 @@
     	excel.set(0, 7, 1, "결재상태");
     	excel.set(0, 8, 1, "전송여부");
     	excel.set(0, 9, 1, "전송자");
+    	excel.set(0, 10, 1, "제품분류");
+    	excel.set(0, 11, 1, "녹색제품 인증구분");
+    	excel.set(0, 12, 1, "희망기업여부");
     	
     	// sheet번호, column, value(width)
     	for( var i = 0; i < 10; i++ ) {
@@ -730,6 +733,10 @@
     	}    	
 		
     	excel.setColumnWidth( 0, 1, 50 );
+    	
+    	excel.setColumnWidth( 0, 10, 50 );
+    	excel.setColumnWidth( 0, 11, 50 );
+    	excel.setColumnWidth( 0, 12, 50 );
     	/*
     	
     	excel.setColumnWidth( 0, 9, 50 );
@@ -760,6 +767,9 @@
     		excel.set( 0, 7, rowNo, fnGetDocStatusLabel(dataPage[ i ][ "docStatus" ]), formatCell );
     		excel.set( 0, 8, rowNo, (dataPage[ i ][ "erpSendYN" ] == "Y" ? "전송완료" : ""), formatCell );
     		excel.set( 0, 9, rowNo, dataPage[ i ][ "sendName" ] == null ? "" : dataPage[ i ][ "sendName" ], formatCell );
+    		excel.set( 0, 10, rowNo, dataPage[ i ][ "item_green_class" ], formatCell );
+    		excel.set( 0, 11, rowNo, dataPage[ i ][ "item_green_cert_type" ], formatCell );
+    		excel.set( 0, 12, rowNo, dataPage[ i ][ "hope_company_info" ], formatCell );
     	}
      
     	excel.generate( fileName, saveCallback, stepCallback );
