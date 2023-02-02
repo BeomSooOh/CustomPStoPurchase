@@ -188,8 +188,13 @@
 			</c:if>			
  */			
  			$("#resultAmtListHtml tbody").empty();
- 			$.each($("table[name='budgetList'] tr[name='addData']"), function(index, tr){
+ 			$.each($("table[name='budgetList'] tr[name='addData']"), function(index, tr){			
  				var $clone = $("#resultAmtListHtml tfoot tr").clone();
+ 				var tr_amt = $(tr).find("input[name='amt']").val();
+ 				var t_amt = parseInt(tr_amt.replace(/,/g, ''));
+ 				var balance_amt = $(tr).find("input[name='txt_balance_amt']").val();
+ 				var t_balance_amt = parseInt(balance_amt.replace(/,/g, ''));
+ 				var txtbgtBalanceAmt1 = t_balance_amt - t_amt; 
  				$clone.find("td.bgtAmtnum").html("<span style='font-family:굴림;font-size:10px'>" + parseInt(index + 1) + "</span>");
  				$clone.find("td.bgtAmt1Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='pjt_name']").val() + "</span>");
  				$clone.find("td.bgtAmt2Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='erp_bgt2_name']").val() + "</span>");
@@ -197,8 +202,9 @@
  				$clone.find("td.txtbgtAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_open_amt']").val() + "</span>"); 
  				$clone.find("td.txtbgtOpenAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_cons_balance_amt']").val() + "</span>");
  				$clone.find("td.txtbgtConsBalanceAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_apply_amt']").val() + "</span>");
- 				$clone.find("td.txtbgtApplyAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_pay_amt']").val() + "</span>");
- 				$clone.find("td.txtbgtBalanceAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_balance_amt']").val() + "</span>");
+ 				$clone.find("td.txtbgtApplyAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='amt']").val() + "</span>"); 
+ 				/* $clone.find("td.txtbgtApplyAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_pay_amt']").val() + "</span>"); */
+ 				$clone.find("td.txtbgtBalanceAmt").html("<span style='font-family:굴림;font-size:10px'>" + fnGetCurrencyCode(txtbgtBalanceAmt1) + "</span>");
  				$("#resultAmtListHtml tbody").append($clone);
  			});
  			
@@ -807,6 +813,7 @@
 
 			insertDataObject.reqType = type;
 			
+			setDynamicSetInfoAmt();
 			
 			
 			var resultAmtListHtml = "";
@@ -2355,7 +2362,7 @@
 					</td>
 					<td>
 						<div class="posi_re">
-							<input tbval="Y" name="amt" type="hidden" value="0" requiredNot="true" />
+							<!-- <input tbval="Y" name="amt" type="hidden" value="0" requiredNot="true" /> -->
 							<input tbval="Y" name="erp_bgt1_seq" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="erp_bgt2_seq" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="erp_bgt3_seq" type="hidden" value="" requiredNot="true" />
@@ -2422,7 +2429,7 @@
 					<td class="ri pr10" id="txtOpenAmt" name="txtOpenAmt"></td>
 					<th>집행액</th>
 					<td class="ri pr10" id="txtConsBalanceAmt" name="txtConsBalanceAmt"></td>
-					<th>품의액</th>
+					<th>기품의액</th>
 					<td class="ri pr10" id="txtApplyAmt" name="txtApplyAmt"></td>
 					<th>예산잔액</th>
 					<td class="ri pr10" id="txtBalanceAmt" name="txtBalanceAmt"></td>

@@ -3215,6 +3215,12 @@
 			reqParam.payCnt = $('#payCnt').val();
 			reqParam.tryAmt = 0;
 			
+			if (reqParam.payType == ''){
+				alert('지급구분을 선택하여 주십시오.');
+				return;
+			}
+			
+			
 			$.each($('#resTbl').dzt('getValueAll'), function( idx, resDocInfo ) {
 				reqParam.tryAmt += parseInt(resDocInfo.amt.replaceAll(",",""));
 			});				
@@ -11123,6 +11129,7 @@
 				<dt class="fwn">지급구분 :</dt>
 				<dd class="mt15 fwb" style="margin-right:0px;text-align:center;">			
 					<select id="payType" style="width:auto;min-width:70px;height: 23px;">
+						<option value=""></option>
 						<option value="A">선금</option>
 						<option value="B">중도금</option>
 						<option value="C">잔금</option>

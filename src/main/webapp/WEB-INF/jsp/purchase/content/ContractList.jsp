@@ -440,7 +440,7 @@
 									return "단년도";
 								}
 								else if(rowData.contract_term == "02" ){
-										return "다년도";
+										return "장기계속";
 								}
 								else if(rowData.contract_form3 == "02"){
 									return "장기계속";
@@ -1725,7 +1725,8 @@
 				if(result.resultCode == "success"){
 					
 					msgSnackbar("success", "요청하신 삭제건 처리가 완료되었습니다.");
-					BindGrid();
+					/* BindGrid(); */
+					gridReload();
 					
 				}else{
 					
@@ -1917,8 +1918,10 @@
 	<dl>
 		<dt class="ar" style="width:60px;">계약기간</dt>
 		<dd>
-			<input type="text" id="searchFromDate" value="${fromDate}" class="puddSetup" pudd-type="datepicker"/> ~
-			<input type="text" id="searchToDate" value="${toDate}" class="puddSetup" pudd-type="datepicker"/>
+			<input type="text" id="searchFromDate" value="2023-01-01" class="puddSetup" pudd-type="datepicker"/> ~
+			<input type="text" id="searchToDate" value="2026-12-31" class="puddSetup" pudd-type="datepicker"/>
+<%-- 		<input type="text" id="searchFromDate" value="${fromDate}" class="puddSetup" pudd-type="datepicker"/> ~
+			<input type="text" id="searchToDate" value="${toDate}" class="puddSetup" pudd-type="datepicker"/> --%>
 		</dd>
 		<dt class="ar" style="width:40px;">계약명</dt>
 		<dd><input type="text" id="contractTitle" pudd-style="width:120px;" class="puddSetup" placeHolder="공고명 입력" value="" /></dd>
