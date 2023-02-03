@@ -1034,7 +1034,8 @@
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 낙찰가격</th>
 					<td colspan="3">
 						<input ${disabled} objKey="result_amt" objCheckFor="checkVal('text', this, '낙찰가격', 'mustAlert', 'parseToInt')" id="resultAmt" type="text" pudd-style="width:150px;" class="puddSetup ar" value="${contractDetailInfo.result_amt}" maxlength="15"/> 원 
-						<span id="resultAmt_han"></span>		
+						<span id="resultAmt_han"></span>
+						/ VAT 포함		
 					</td>
 				</tr>
 			</table>

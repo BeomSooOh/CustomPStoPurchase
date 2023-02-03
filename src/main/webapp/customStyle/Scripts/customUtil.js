@@ -12,7 +12,7 @@ function commonCodeSelectPop(group, codeName, appendType, targetEl, multiYn, ){
 }
 
 function chkChar(obj){
-    var RegExp = /[\{\}\[\]\/?.,;:|\)*`!^\-_+┼<>@\#$%&\'\"\\\(\=]/gi;	//정규식 구문
+    var RegExp = /[\{\}\[\]\/?;:|\*`!^\_+┼<>@\#$%&\'\"\\\\=]/gi;	//정규식 구문
     if (RegExp.test(obj.value)) {
       // 특수문자 모두 제거    
       obj.value = obj.value.replace(RegExp , '');
