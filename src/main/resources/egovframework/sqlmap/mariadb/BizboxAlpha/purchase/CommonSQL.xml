@@ -544,7 +544,8 @@
 	
 		update $DB_NEOS$t_exnp_consdoc 
 		set
-		doc_status = null
+		doc_seq = null
+		, doc_status = null
 		, out_process_interface_id = concat(out_process_interface_id, '_DEL')
 		, out_process_interface_m_id = concat(out_process_interface_m_id, '_DEL')
 		, out_process_interface_d_id = 'DUPLICATE_DEL'

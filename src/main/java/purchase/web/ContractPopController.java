@@ -106,6 +106,7 @@ public class ContractPopController {
             List<Map<String, Object>> budgetType = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> targetType = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> baseLaw = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> baseLawReason = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> payType = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> competeType = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> restrictArea = new ArrayList<Map<String, Object>>();
@@ -116,6 +117,7 @@ public class ContractPopController {
             List<Map<String, Object>> sectorGroup = new ArrayList<Map<String, Object>>();
             
             List<Map<String, Object>> attachForm_Contract01 = new ArrayList<Map<String, Object>>();
+            
             
             
             if(codeList != null && codeList.size() > 0) {
@@ -130,6 +132,8 @@ public class ContractPopController {
         				targetType.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("baseLaw")) {
         				baseLaw.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("baseLawReason")) {
+        				baseLawReason.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("payType")) {
         				payType.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("competeType")) {
@@ -207,6 +211,7 @@ public class ContractPopController {
             mv.addObject("budgetTypeCode", budgetType);
             mv.addObject("targetTypeCode", targetType);
             mv.addObject("baseLawCode", baseLaw);
+            mv.addObject("baseLawReasonCode", baseLawReason);
             mv.addObject("payTypeCode", payType);
             mv.addObject("competeTypeCode", competeType);
             mv.addObject("restrictAreaCode", restrictArea);

@@ -1876,18 +1876,20 @@
 					</td>
 				</tr>				
 				<tr>
-					<th>예산종류</th>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 예산종류</th>
 					<td objKey="c_budget_type" objCheckFor="checkVal('radio', 'budgetType', '예산종류', '', '')" >
 						<c:forEach var="items" items="${budgetTypeCode}" varStatus="status">
-						<input ${disabled} type="radio" name="budgetType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}" <c:if test="${ (viewType == 'I' && status.index == 0) || (viewType == 'U' && items.CODE == contractDetailInfo.c_budget_type)   }">checked</c:if> />
+						<%-- <input ${disabled} type="radio" name="budgetType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}" <c:if test="${ (viewType == 'I' && status.index == 0) || (viewType == 'U' && items.CODE == contractDetailInfo.c_budget_type)   }">checked</c:if> /> --%>
+						<input ${disabled} type="radio" name="budgetType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}" <c:if test="${ (viewType == 'U' && items.CODE == contractDetailInfo.c_budget_type)   }">checked</c:if> />
 						</c:forEach>
 					</td>
 				</tr>
 				<tr>
-					<th>목적물종류</th>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 목적물종류</th>
 					<td objKey="c_target_type" objCheckFor="checkVal('radio', 'targetType', '목적물종류', '', '')" >
 						<c:forEach var="items" items="${targetTypeCode}" varStatus="status">
-						<input ${disabled} type="radio" name="targetType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}"  <c:if test="${ (viewType == 'I' && status.index == 0) || (viewType == 'U' && items.CODE == contractDetailInfo.c_target_type)   }">checked</c:if> />
+						<%-- <input ${disabled} type="radio" name="targetType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}"  <c:if test="${ (viewType == 'I' && status.index == 0) || (viewType == 'U' && items.CODE == contractDetailInfo.c_target_type)   }">checked</c:if> /> --%>
+						<input ${disabled} type="radio" name="targetType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}"  <c:if test="${ (viewType == 'U' && items.CODE == contractDetailInfo.c_target_type)   }">checked</c:if> />
 						</c:forEach>						
 					</td>
 				</tr>

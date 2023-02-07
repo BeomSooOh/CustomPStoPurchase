@@ -129,4 +129,35 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 	}	
 	
 	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> SelectConsDocInfo ( Map<String, Object> params ) {
+		
+		return (Map<String, Object>) select( "ContractSQL.SelectConsDocInfo", params );
+		
+	}
+	
+	public void deleteConsHead ( Map<String, Object> params ) {
+		
+		delete( "ContractSQL.deleteConsHead", params );
+		
+	}
+	
+	public void deleteConsBudget ( Map<String, Object> params ) {
+		
+		delete( "ContractSQL.deleteConsBudget", params );
+		
+	}
+	
+	public void deleteConsDoc ( Map<String, Object> params ) {
+		
+		delete( "ContractSQL.deleteConsDoc", params );
+		
+	}
+	
+	public void deleteBudgetInfo ( Map<String, Object> params ) {
+		
+		delete( "ContractSQL.deleteBudgetInfo", params );
+		
+	}
+	
 }

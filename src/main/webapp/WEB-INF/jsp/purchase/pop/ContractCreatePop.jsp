@@ -659,18 +659,20 @@
 					</td>
 				</tr>
 				<tr>
-					<th>예산종류</th>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 예산종류</th>
 					<td objKey="budget_type" objCheckFor="checkVal('radio', 'budgetType', '예산종류', '', '')" >
 						<c:forEach var="items" items="${budgetTypeCode}" varStatus="status">
-						<input ${disabled} type="radio" name="budgetType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}" <c:if test="${ (viewType == 'I' && status.index == 0) || (viewType == 'U' && items.CODE == contractDetailInfo.budget_type)   }">checked</c:if> />
+						<%-- <input ${disabled} type="radio" id="budgetType" name="budgetType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}" <c:if test="${ (viewType == 'I' && status.index == 0) || (viewType == 'U' && items.CODE == contractDetailInfo.budget_type)   }">checked</c:if> /> --%>
+						<input ${disabled} type="radio" id="budgetType" name="budgetType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}" <c:if test="${ (viewType == 'U' && items.CODE == contractDetailInfo.budget_type)   }">checked</c:if> /> 
 						</c:forEach>
 					</td>
 				</tr>
 				<tr>
-					<th>목적물종류</th>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 목적물종류</th>
 					<td objKey="target_type" objCheckFor="checkVal('radio', 'targetType', '목적물종류', '', '')" >
 						<c:forEach var="items" items="${targetTypeCode}" varStatus="status">
-						<input ${disabled} type="radio" name="targetType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}"  <c:if test="${ (viewType == 'I' && status.index == 0) || (viewType == 'U' && items.CODE == contractDetailInfo.target_type)   }">checked</c:if> />
+						<%-- <input ${disabled} type="radio" name="targetType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}"  <c:if test="${ (viewType == 'I' && status.index == 0) || (viewType == 'U' && items.CODE == contractDetailInfo.target_type)   }">checked</c:if> /> --%>
+						<input ${disabled} type="radio" name="targetType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}"  <c:if test="${ (viewType == 'U' && items.CODE == contractDetailInfo.target_type)   }">checked</c:if> />
 						</c:forEach>						
 					</td>
 				</tr>
@@ -722,17 +724,38 @@
 					<td>
 						<input ${disabled} objKey="tax_amt" objCheckFor="checkVal('text', this, '부가가치세', 'mustAlert', 'parseToInt')" id="taxAmt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.tax_amt}</c:if>" maxlength="15" /> 원 
 						<span id="taxAmt_han"></span>
-					</td>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 근거법령</th>
-					<td>
-						<select ${disabled} type="select" name="baseLaw" onchange="fnChangeEtc(this)" objKey="base_law" objCheckFor="checkVal('select', this, '근거법령', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:100%;">
+					</td>									
+				</tr>
+				
+								
+				<tr>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 근거법령사유</th>
+					<td colspan="3">
+						<select ${disabled} type="select" name="baseLawReason" onchange="Pudd( '[objkey=base_law]' ).getPuddObject().setSelectedIndex($(this).val());fnChangeEtc(this);fnChangeEtc($('[name=baseLaw]'));" objKey="baselaw_reason" objCheckFor="checkVal('select', this, '근거법령사유', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
+							<c:forEach var="items" items="${baseLawReasonCode}">
+								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && (items.CODE == contractDetailInfo.baselaw_reason || (items.CODE == 'etc' && contractDetailInfo.baselaw_reason.indexOf('etc▦') > -1))}">selected</c:if> >${items.NAME}</option>
+							</c:forEach>							
+						</select>
+						<input name="baseLawReason_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.baselaw_reason.indexOf('etc▦') == -1 ) }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.baselaw_reason.indexOf('etc▦') > -1 }">${(contractDetailInfo.baselaw_reason).substring(4)}</c:if>" />						
+					</td>	
+				</tr>
+				
+				<tr>
+					<th>
+					<img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 근거법령</th>
+					<td colspan="3">
+						<select ${disabled} type="select" name="baseLaw" onchange="fnChangeEtc(this)" objKey="base_law" objCheckFor="checkVal('select', this, '근거법령', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
 							<c:forEach var="items" items="${baseLawCode}">
 								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && (items.CODE == contractDetailInfo.base_law || (items.CODE == 'etc' && contractDetailInfo.base_law.indexOf('etc▦') > -1))}">selected</c:if> >${items.NAME}</option>
 							</c:forEach>							
 						</select>
 						<input name="baseLaw_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.base_law.indexOf('etc▦') == -1 ) }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.base_law.indexOf('etc▦') > -1 }">${(contractDetailInfo.base_law).substring(4)}</c:if>" />						
-					</td>					
+					</td>	
 				</tr>
+
+				
+				
+				
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 결제방법</th>
 					<td colspan="3" objKey="pay_type_info" objCheckFor="checkVal('checkbox', 'payType', '결제방법', 'mustAlert', '|etc|')" >

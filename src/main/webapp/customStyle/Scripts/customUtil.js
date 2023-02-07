@@ -181,11 +181,11 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 	}else if(type == "radio"){
 		returnVal = $("[name='"+elementFor+"']:checked").val();
 		
-		if(subValueFor.indexOf(returnVal) > -1){
+		if(subValueFor.indexOf(returnVal) > -1 || returnVal == undefined){
 			
 			var subValueForValue = $("input[name='"+elementFor+ "_" + returnVal +"']").val();
 			
-			if(subValueForValue == ""){
+			if(subValueForValue == "" || subValueForValue == undefined ){
 				
 				console.log("필수값 누락 objName > " + objName + " > " + returnVal);
 				

@@ -306,6 +306,8 @@ public class ContractServiceImpl implements ContractService {
 		changeInfoList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
 		
 		Map<String, Object> contractInfo;
+		Map<String, Object> consDocInfo;
+		
 		
 		for (Map<String, Object> map : changeInfoList) {
 		
@@ -322,7 +324,18 @@ public class ContractServiceImpl implements ContractService {
 			
 			contractInfo = contractServiceDAO.SelectContractDetail(map);
 			
-			contractServiceDAO.deleteContractList(map);
+			consDocInfo = contractServiceDAO.SelectConsDocInfo(map);
+			
+			contractServiceDAO.deleteConsDoc(map);
+			
+			contractServiceDAO.deleteConsHead(consDocInfo);
+			
+			contractServiceDAO.deleteConsBudget(consDocInfo);
+			
+			contractServiceDAO.deleteContractList(map); 
+			
+			contractServiceDAO.deleteBudgetInfo(map);
+			
 			params.put("resultCode", "success");	
 		}
 		return params;

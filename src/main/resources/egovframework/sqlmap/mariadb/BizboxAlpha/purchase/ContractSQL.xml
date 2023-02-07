@@ -176,8 +176,8 @@
 		a.open_amt as open_amt,
 		a.consbalance_amt as consbalance_amt,
 		a.resApply_amt as resApply_amt,
-		a.balance_amt as balance_amt
-		
+		a.balance_amt as balance_amt,
+		a.baselaw_reason
 		
 		FROM cust_sto.t_purchase_contract a
 		<isEqual property="authLevel" compareValue="dept">
@@ -339,7 +339,8 @@
         ifnull(pgw4.appr_dikey,'') as appr_dikey_conclusion,
 		ifnull(pgw4.appr_status,'') as appr_status_conclusion,
 		ifnull(pgw5.appr_dikey,'') as appr_dikey_change,
-		ifnull(pgw5.appr_status,'') as appr_status_change
+		ifnull(pgw5.appr_status,'') as appr_status_change,
+		a.baselaw_reason
 		
 		FROM cust_sto.t_purchase_contract a
 		left join $DB_NEOS$erpgwlink pgw1 on  a.approkey_plan = pgw1.docx_numb and pgw1.docx_numb != '' and pgw1.docx_numb is not null
@@ -427,7 +428,8 @@
 		modify_dt, 
 		modify_by,
 		construction_dt,
-		completion_dt
+		completion_dt,
+		baselaw_reason
 		
 		)
 		VALUES(
@@ -469,7 +471,8 @@
 		null, 
 		null,
 		'$construction_dt$',
-		'$completion_dt$'
+		'$completion_dt$',
+		'$baselaw_reason$'
 		);
 		
 		<selectKey keyProperty="seq" resultClass="int">
@@ -665,7 +668,9 @@
 		modify_dt=now(), 
 		modify_by='$created_by$',
 		construction_dt='$construction_dt$',
-		completion_dt='$completion_dt$'
+		completion_dt='$completion_dt$',
+		baselaw_reason='$baselaw_reason$'
+		
 
 		
 		WHERE seq='$seq$'; 
@@ -983,7 +988,36 @@
 	  where a.out_process_interface_id = 'Conclu01' and a.out_process_interface_m_id = '$seq$' limit 1;  
 	 
 	 </select> 	
-		
+	 
+	 <select id="ContractSQL.SelectConsDocInfo" parameterClass="HashMap" resultClass="HashMap">
+	
+	  select
+	  cons_doc_seq,
+	  doc_seq,
+	  doc_status,
+	  out_process_interface_id,
+	  out_process_interface_m_id,
+	  out_process_interface_d_id
+	  from $DB_NEOS$t_exnp_consdoc 
+	  where out_process_interface_m_id = '$seq$'  
+	 
+	 </select> 	
+	 
+	<delete id="ContractSQL.deleteConsHead" parameterClass="HashMap">
+			delete from $DB_NEOS$t_exnp_conshead where cons_doc_seq = '$cons_doc_seq$'
+	</delete>
+	
+	<delete id="ContractSQL.deleteConsBudget" parameterClass="HashMap">
+			delete from $DB_NEOS$t_exnp_consbudget where cons_doc_seq = '$cons_doc_seq$'
+	</delete>
+		 
+	<delete id="ContractSQL.deleteConsDoc" parameterClass="HashMap">
+			delete from $DB_NEOS$t_exnp_consdoc where out_process_interface_m_id = '$seq$'
+	</delete>
+	
+	<delete id="ContractSQL.deleteBudgetInfo" parameterClass="HashMap">
+			delete from cust_sto.t_purchase_budget_info where seq = '$seq$'
+	</delete>
 	
 		
 </sqlMap>

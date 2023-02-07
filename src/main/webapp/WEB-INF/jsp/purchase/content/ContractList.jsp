@@ -1730,7 +1730,7 @@
 					
 				}else{
 					
-					msgSnackbar("error", "결제완료또는 결제중인 데이터가 있습니다");
+					msgSnackbar("error", "결재완료 또는 결재중인 데이터가 있습니다");
 					
 				}
 				
