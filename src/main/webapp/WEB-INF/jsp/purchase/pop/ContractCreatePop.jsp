@@ -729,9 +729,9 @@
 				
 								
 				<tr>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 근거법령사유</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 입찰계약사유</th>
 					<td colspan="3">
-						<select ${disabled} type="select" name="baseLawReason" onchange="Pudd( '[objkey=base_law]' ).getPuddObject().setSelectedIndex($(this).val());fnChangeEtc(this);fnChangeEtc($('[name=baseLaw]'));" objKey="baselaw_reason" objCheckFor="checkVal('select', this, '근거법령사유', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
+						<select ${disabled} type="select" name="baseLawReason" onchange="Pudd( '[objkey=base_law]' ).getPuddObject().setSelectedIndex($(this).val());fnChangeEtc(this);fnChangeEtc($('[name=baseLaw]'));" objKey="baselaw_reason" objCheckFor="checkVal('select', this, '입찰계약사유', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
 							<c:forEach var="items" items="${baseLawReasonCode}">
 								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && (items.CODE == contractDetailInfo.baselaw_reason || (items.CODE == 'etc' && contractDetailInfo.baselaw_reason.indexOf('etc▦') > -1))}">selected</c:if> >${items.NAME}</option>
 							</c:forEach>							
