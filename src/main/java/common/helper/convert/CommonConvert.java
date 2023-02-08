@@ -475,6 +475,7 @@ public class CommonConvert {
             // loginVo.setErpEmpCd("admin");
             // loginVo.setErpCoCd("3585");
             // loginVo.setEaType("eap");
+        	
 
             /* 생보부동산신탁 */
             // loginVo = new LoginVO();
