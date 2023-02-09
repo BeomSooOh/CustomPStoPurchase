@@ -454,7 +454,7 @@
 					
 				});
 				
-	            for (var x = 5; x > itemNo; x--) {
+	            for (var x = 10; x > itemNo; x--) {
 					$("[itemNo="+x+"]").hide();
 					$("[itemTarget=target_"+x+"]").attr("use_yn", "N");
 	            }				
@@ -916,7 +916,7 @@
 								<tr>
 									<c:if test="${disabledYn == 'N'}">
 									<th class="ac">
-										<input type="button" onclick="fnSectorAdd('nomineeList', 'nomineeAddBase', 5)" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+										<input type="button" onclick="fnSectorAdd('nomineeList', 'nomineeAddBase', 10)" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 									</th>
 									</c:if>
 									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 거래처명</th>
@@ -964,6 +964,11 @@
 									<col itemNo="3" width=""/>
 									<col itemNo="4" width=""/>
 									<col itemNo="5" width=""/>
+									<col itemNo="6" width=""/>
+									<col itemNo="7" width=""/>
+									<col itemNo="8" width=""/>
+									<col itemNo="9" width=""/>
+									<col itemNo="10" width=""/>
 								</colgroup>
 								<tr>
 									<c:if test="${disabledYn == 'N'}">
@@ -981,6 +986,12 @@
 									<th itemNo="3" itemTarget="target_3" use_yn = "N" class="ac">-</th>
 									<th itemNo="4" itemTarget="target_4" use_yn = "N" class="ac">-</th>
 									<th itemNo="5" itemTarget="target_5" use_yn = "N" class="ac">-</th>
+									<th itemNo="6" itemTarget="target_6" use_yn = "N" class="ac">-</th>
+									<th itemNo="7" itemTarget="target_7" use_yn = "N" class="ac">-</th>
+									<th itemNo="8" itemTarget="target_8" use_yn = "N" class="ac">-</th>
+									<th itemNo="9" itemTarget="target_9" use_yn = "N" class="ac">-</th>
+									<th itemNo="10" itemTarget="target_10" use_yn = "N" class="ac">-</th>
+									
 								</tr>
 
 								<tr name="scoreInfoAddBase" style="display:none;">
@@ -1004,6 +1015,11 @@
 									<td itemNo="3"><input ${disabled} itemScore="3" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ac" value="" /></td>
 									<td itemNo="4"><input ${disabled} itemScore="4" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ac" value="" /></td>
 									<td itemNo="5"><input ${disabled} itemScore="5" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ac" value="" /></td>
+									<td itemNo="6"><input ${disabled} itemScore="6" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ac" value="" /></td>
+									<td itemNo="7"><input ${disabled} itemScore="7" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ac" value="" /></td>
+									<td itemNo="8"><input ${disabled} itemScore="8" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ac" value="" /></td>
+									<td itemNo="9"><input ${disabled} itemScore="9" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ac" value="" /></td>
+									<td itemNo="10"><input ${disabled} itemScore="10" inputDecimal="Y" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup ac" value="" /></td>
 								</tr>
 								
 								<tr name="totalTr">
@@ -1015,6 +1031,11 @@
 									<td itemNo="3" itemTotal="3" class="cen"></td>
 									<td itemNo="4" itemTotal="4" class="cen"></td>
 									<td itemNo="5" itemTotal="5" class="cen"></td>
+									<td itemNo="6" itemTotal="6" class="cen"></td>
+									<td itemNo="7" itemTotal="7" class="cen"></td>
+									<td itemNo="8" itemTotal="8" class="cen"></td>
+									<td itemNo="9" itemTotal="9" class="cen"></td>
+									<td itemNo="10" itemTotal="10" class="cen"></td>
 								</tr>
 								<tr name="rankTr">
 									<td colspanHtml="2" colspan="<c:if test="${disabledYn == 'N'}">3</c:if><c:if test="${disabledYn == 'Y'}">2</c:if>">우선협상순위</td>
@@ -1025,6 +1046,11 @@
 									<td itemNo="3" itemRank="3" class="cen"></td>
 									<td itemNo="4" itemRank="4" class="cen"></td>
 									<td itemNo="5" itemRank="5" class="cen"></td>
+									<td itemNo="6" itemRank="6" class="cen"></td>
+									<td itemNo="7" itemRank="7" class="cen"></td>
+									<td itemNo="8" itemRank="8" class="cen"></td>
+									<td itemNo="9" itemRank="9" class="cen"></td>
+									<td itemNo="10" itemRank="10" class="cen"></td>
 								</tr>
 							</table>
 						</div>
@@ -1045,3 +1071,4 @@
 
 </body>
 </html>
+
