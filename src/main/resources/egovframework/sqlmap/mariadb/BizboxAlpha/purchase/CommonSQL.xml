@@ -598,14 +598,7 @@
 	
 		update $DB_NEOS$t_exnp_consdoc 
 		set
-        doc_status = '$docSts$'
-		<isNotEmpty property="docId">
-		, doc_seq = '$docId$'
-		</isNotEmpty>
-		<isNotEmpty property="docNum">
-		, doc_no = '$docNum$'
-		</isNotEmpty>
-		, out_process_interface_id = 'Conclu01'				          
+		 out_process_interface_id = 'Conclu01'
 		where
 		out_process_interface_id = '$out_process_interface_id$'
 		and out_process_interface_m_id = '$out_process_interface_m_id$'

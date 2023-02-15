@@ -161,6 +161,20 @@ public class CommonServiceImpl implements CommonService {
 			params.put("approkeyChange", params.get("approKey"));
 			params.put("seq", params.get("approKey").toString().split("_")[1]);
 			params.put("change_seq", params.get("approKey").toString().split("_")[2]);
+
+			//변경계약체결 품의데이터 상태값 업데이트
+			params.put("out_process_interface_id", "Conclu02");
+			params.put("out_process_interface_m_id", params.get("seq"));
+			params.put("out_process_interface_d_id", "DUPLICATE_TEMP");
+			
+			if(params.get("docSts").equals("90")) {
+				commonServiceDAO.UpdateConsDocSts(params);
+				commonServiceDAO.ChangeConsDocSts(params);
+			} else {
+				commonServiceDAO.UpdateConsDocSts(params);
+			}
+			
+			
 		}else if(params.get("processId").equals("Purchase01")) {
 			
 			params.put("approkeyPurchase", params.get("approKey"));
@@ -261,7 +275,7 @@ public class CommonServiceImpl implements CommonService {
 			commonServiceDAO.DelConsTemp(params);
 			
 			params.put("out_process_interface_id", "Conclu02");
-			commonServiceDAO.ChangeConsDocSts(params);
+			
 			commonServiceDAO.UpdateApprChange(params);
 			
 			} else {
