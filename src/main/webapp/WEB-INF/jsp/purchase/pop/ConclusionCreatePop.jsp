@@ -1585,28 +1585,28 @@
 						return;
 					}
 					
-					$(commonElement).find("[name=erp_budget_seq]").val( param.erpBudgetSeq || "" );
-					$(commonElement).find("[name=erp_budget_name]").val( param.erpBudgetName || "" );
+					$(commonElement).find("[name=erp_budget_seq]").val( param.BGT_CD || "" );
+					$(commonElement).find("[name=erp_budget_name]").val( param.BGT_NM || "" );
 					
 					if(param.erpBgt1Seq != ""){
-						$(commonElement).find("[name=erp_bgt1_seq]").val( param.erpBgt1Seq );
-						$(commonElement).find("[name=erp_bgt1_name]").val( param.erpBgt1Name );	
+						$(commonElement).find("[name=erp_bgt1_seq]").val( param.BGT01_CD );
+						$(commonElement).find("[name=erp_bgt1_name]").val( param.BGT01_NM );	
 					}else{
 						$(commonElement).find("[name=erp_bgt1_seq]").val("");
 						$(commonElement).find("[name=erp_bgt1_name]").val("");
 					}
 					
 					if(param.erpBgt2Seq != ""){
-						$(commonElement).find("[name=erp_bgt2_seq]").val( param.erpBgt2Seq );
-						$(commonElement).find("[name=erp_bgt2_name]").val( param.erpBgt2Name );	
+						$(commonElement).find("[name=erp_bgt2_seq]").val( param.BGT02_CD );
+						$(commonElement).find("[name=erp_bgt2_name]").val( param.BGT02_NM );	
 					}else{
 						$(commonElement).find("[name=erp_bgt1_seq]").val("");
 						$(commonElement).find("[name=erp_bgt2_name]").val("");
 					}
 					
 					if(param.erpBgt3Seq != ""){
-						$(commonElement).find("[name=erp_bgt3_seq]").val( param.erpBgt3Seq );
-						$(commonElement).find("[name=erp_bgt3_name]").val( param.erpBgt3Name );	
+						$(commonElement).find("[name=erp_bgt3_seq]").val( param.BGT03_CD );
+						$(commonElement).find("[name=erp_bgt3_name]").val( param.BGT03_NM );	
 					}else{
 						$(commonElement).find("[name=erp_bgt3_seq]").val("");
 						$(commonElement).find("[name=erp_bgt3_name]").val("");
@@ -2031,25 +2031,55 @@
 						</c:forEach>						
 					</td>						
 				</tr>				
-				<tr <c:if test="${contractType == '01'}">style="display:none;"</c:if>>
-					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 수의계약사유</th>
+				<tr>
+				
+				<c:if test="${contractType == '01'}">
+				<tr>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약사유</th>
 					<td colspan="3">
-					<c:if test="${contractType == '01'}">
-						<select ${disabled} type="select" name="privateReason" onchange="fnChangeEtc(this);" objKey="private_reason" objCheckFor="checkVal('select', ' ' , '수의계약사유', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
-					</c:if>
-					<c:if test="${contractType == '02'}">
+						<select ${disabled} type="select" name="bidLawReason" onchange="Pudd( '[objkey=bid_law]' ).getPuddObject().setSelectedIndex($(this).val());fnChangeEtc(this);fnChangeEtc($('[name=bidLaw]'));" objKey="bidlaw_reason" objCheckFor="checkVal('select', this, '계약사유', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
+							<c:forEach var="items" items="${bidLawReasonCode}">
+								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && (items.CODE == contractDetailInfo.bidlaw_reason || (items.CODE == 'etc' && contractDetailInfo.bidlaw_reason.indexOf('etc▦') > -1))}">selected</c:if> >${items.NAME}</option>
+							</c:forEach>							
+						</select>
+						<input name="bidLawReason_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.bidlaw_reason.indexOf('etc▦') == -1 ) }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.bidlaw_reason.indexOf('etc▦') > -1 }">${(contractDetailInfo.bidlaw_reason).substring(4)}</c:if>" />						
+					</td>	
+				</tr>
+				</c:if>
+				
+				
+				<c:if test="${contractType == '02'}">
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 수의계약사유</th>
+
+					<td colspan="3">
 					<%-- <select ${disabled} type="select" name="privateReason" onchange="fnChangeEtc(this);" objKey="private_reason" objCheckFor="checkVal('select', this, '수의계약사유', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;"> --%>
 					<select ${disabled} type="select" name="privateReason" onchange="Pudd( '[objkey=contract_law]' ).getPuddObject().setSelectedIndex($(this).val());fnChangeEtc(this);fnChangeEtc($('[name=contractLaw]'));" objKey="private_reason" objCheckFor="checkVal('select', this, '수의계약사유', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
-						
-					</c:if>
 							<c:forEach var="items" items="${privateReasonCode}">
 								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && (items.CODE == contractDetailInfo.private_reason || (items.CODE == 'etc' && contractDetailInfo.private_reason.indexOf('etc▦') > -1))}">selected</c:if> >${items.NAME}</option>
 							</c:forEach>							
 						</select>		
 						<input name="privateReason_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.private_reason.indexOf('etc▦') == -1 ) }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.private_reason.indexOf('etc▦') > -1 }">${(contractDetailInfo.private_reason).substring(4)}</c:if>" />
 					</td>
+				</c:if>
+				
 				</tr>			
 				<tr>
+				
+				<c:if test="${contractType == '01'}">
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 계약법령</th>
+					<td colspan="3">
+						<select ${disabled} type="select" name="bidLaw" onchange="fnChangeEtc(this);" objKey="bid_law" objCheckFor="checkVal('select', this, '계약법령', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
+							<c:forEach var="items" items="${bidLawCode}">
+								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && (items.CODE == contractDetailInfo.bid_law || (items.CODE == 'etc' && contractDetailInfo.bid_law.indexOf('etc▦') > -1))}">selected</c:if> >${items.NAME}</option>
+							</c:forEach>							
+						</select>					
+						<input name="bidLaw_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.bid_law.indexOf('etc▦') == -1 ) }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.bid_law.indexOf('etc▦') > -1 }">${(contractDetailInfo.bid_law).substring(4)}</c:if>" />
+					</td>
+				</c:if>
+				
+				
+				
+				<c:if test="${contractType == '02'}">
 					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 계약법령</th>
 					<td colspan="3">
 						<select ${disabled} type="select" name="contractLaw" onchange="fnChangeEtc(this);" objKey="contract_law" objCheckFor="checkVal('select', this, '계약법령', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
@@ -2060,6 +2090,8 @@
 						</select>					
 						<input name="contractLaw_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.contract_law.indexOf('etc▦') == -1 ) }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.contract_law.indexOf('etc▦') > -1 }">${(contractDetailInfo.contract_law).substring(4)}</c:if>" />
 					</td>
+				</c:if>
+				
 				</tr>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 결제방법</th>

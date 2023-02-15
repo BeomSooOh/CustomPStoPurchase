@@ -476,6 +476,13 @@ public class CommonMainController {
     	
 		commonService.DelConsTemp(params);	
 		
+//		params.put("processId", "Conclu02");
+//		params.put("approKey", "Conclu02_227_32");
+//		params.put("docSts", "90");
+//		params.put("seq", params.get("out_process_interface_m_id"));
+//		commonService.UpdateAppr(params);
+		
+		
 		mv.addObject("resultCode", "SUCCESS");	
 		mv.setViewName("jsonView");    	
     	

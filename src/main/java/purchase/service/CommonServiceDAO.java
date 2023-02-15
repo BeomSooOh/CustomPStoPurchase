@@ -140,6 +140,12 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		
 		update( "CommonSQL.UpdateApprChange", params );
 		
+	}
+	
+	public void ChangeBudgetInfo ( Map<String, Object> params ) {
+		
+		update( "CommonSQL.ChangeBudgetInfo", params );
+		
 	}	
 	
 	public void SaveFormInfo ( Map<String, Object> params ) {
@@ -238,6 +244,12 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 	public void UpdateConsDocSts ( Map<String, Object> params ) {
 		
 		update( "CommonSQL.UpdateConsDocSts", params );
+		
+	}	
+	
+	public void ChangeConsDocSts ( Map<String, Object> params ) {
+		
+		update( "CommonSQL.ChangeConsDocSts", params );
 		
 	}	
 	

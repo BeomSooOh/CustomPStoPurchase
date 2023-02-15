@@ -248,9 +248,30 @@ public class ContractServiceImpl implements ContractService {
 			contractServiceDAO.UpdateConclusionChange(params);	
 		}
 		
-		//첨부파일정보 저장
-		String jsonStr = (String)params.get("attch_file_info");
+		
+		
+		//예산정보 저장
+		String jsonStr = (String)params.get("budget_list_info");
 		ObjectMapper mapper = new ObjectMapper();
+		
+		@SuppressWarnings("unused")
+		List<Map<String, Object>> budgetList = new ArrayList<Map<String, Object>>();
+		budgetList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
+		
+		if(params.get("viewType").equals("U")) {
+			commonServiceDAO.DeleteBudgetInfo(params);	
+		}
+		
+		for (Map<String, Object> map : budgetList) {
+			map.put("seq", params.get("seq"));
+			map.put("outProcessCode", params.get("outProcessCode"));
+			map.put("created_by", params.get("created_by"));
+			commonServiceDAO.InsertBudgetInfo(map);
+		}	
+		
+		//첨부파일정보 저장
+		jsonStr = (String)params.get("attch_file_info");
+		mapper = new ObjectMapper();
 		List<Map<String, Object>> attachList = new ArrayList<Map<String, Object>>();
 		attachList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
 		
