@@ -21,5 +21,7 @@ public interface ContractService {
 	
 	public Map<String, Object> deleteContractList ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
 	
+	public Map<String, Object> modifyContractList ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
+	
 	
 }

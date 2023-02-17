@@ -3216,7 +3216,7 @@
 			reqParam.tryAmt = 0;
 			
 			if (reqParam.payType == ''){
-				alert('지급구분을 선택하여 주십시오.');
+				alert('대금종류를 선택하여 주십시오.');
 				return;
 			}
 			
@@ -11126,7 +11126,7 @@
 		<div class="top_box gray_box">
 			<dl>
 			
-				<dt class="fwn">지급구분 :</dt>
+				<dt class="mt0 fwb"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 대금종류 :</dt>
 				<dd class="mt15 fwb" style="margin-right:0px;text-align:center;">			
 					<select id="payType" style="width:auto;min-width:70px;height: 23px;">
 						<option value=""></option>

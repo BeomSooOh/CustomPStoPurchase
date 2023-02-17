@@ -1683,6 +1683,66 @@
     }    
     
     
+    var modifyParam = {};
+	
+	function fnModify(){
+		
+		var dataCheckedRow = Pudd( "#grid1" ).getPuddObject().getGridCheckedRowData( "gridCheckBox" );
+		
+	    if(dataCheckedRow && dataCheckedRow.length == 0) {
+	    	msgSnackbar("error", "품의환원 할 데이터를 선택해 주세요.");
+			return;
+		}
+		
+	    var selectedList = [];
+	    
+	    $.each(dataCheckedRow, function (i, t) {
+	    	
+	    	var selectedInfo = {};
+			selectedInfo.seq = t.seq;
+			selectedList.push(selectedInfo);
+	    	
+	    });
+	    
+	    modifyParam = {};
+	    modifyParam.seq = selGroup;
+	    modifyParam.change_info_list = JSON.stringify(selectedList);		
+		
+		confirmAlert(350, 100, 'question', '품의환원 하시겠습니까?', '확인', 'fnModifyProc()', '취소', '');			
+
+	}	
+    
+	
+	function fnModifyProc(){
+		
+		$.ajax({
+			type : 'post',
+			url : '<c:url value="/purchase/modifyContractList.do" />',
+    		datatype:"json",
+            data: modifyParam ,
+			async : false,
+			success : function(result) {
+				
+				if(result.resultCode == "success"){
+					
+					msgSnackbar("success", "요청하신 품의 환원건 처리가 완료되었습니다.");
+					gridReload();
+					
+				}else{
+					msgSnackbar("error", "결재 완료되지 않은 데이터가 있습니다.");
+					
+				}	
+			},
+			error : function(result) {
+				msgSnackbar("error", "품의 환원을 실패했습니다.");
+			}
+		});		
+		
+	}
+	
+    
+    
+    
     var delParam = {};
 	
 	function fnDel(){
@@ -1948,6 +2008,9 @@
 		</div>
 		<div class="right_div">
 			<div id="" class="controll_btn p0">
+				<c:if test="${authLevel=='admin'}">
+				<input type="button" onclick="fnModify();" class="puddSetup" value="품의환원" />
+				</c:if>
 				<c:if test="${authLevel=='admin'}">
 				<input id="adminSaveBtn" style="display:none;width:70px;background:rgb(0 0 0);color:#fff;" type="button" onclick="fnCallBtn('btnSave');" class="puddSetup" value="저장" />
 				</c:if>

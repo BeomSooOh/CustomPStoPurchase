@@ -363,5 +363,88 @@ public class ContractServiceImpl implements ContractService {
 	}	
 	
 	
+	
+	public Map<String, Object> modifyContractList ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
+		
+		String jsonStr = (String)params.get("change_info_list");
+		ObjectMapper mapper = new ObjectMapper();
+		List<Map<String, Object>> changeInfoList = new ArrayList<Map<String, Object>>();
+		changeInfoList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
+		
+		Map<String, Object> contractInfo;
+		Map<String, Object> consDocInfo;	
+		
+		for (Map<String, Object> map : changeInfoList) {
+		
+			contractInfo = contractServiceDAO.SelectContractDetail(map);
+			
+			String doc_sts =  (String) contractInfo.get("doc_sts"); 
+			String contract_type =  (String) contractInfo.get("contract_type");
+			map.put("created_by", params.get("created_by"));
+			
+			if (!contractInfo.get("doc_sts").equals("90")) {
+				
+				map.put("resultCode", "error");
+				return params;
+				
+			} else {
+				
+				if (contractInfo.get("contract_type").equals("01") && contractInfo.get("approkey_conclusion").equals("") && contractInfo.get("approkey_result").equals("")) {
+					
+					map.put("approkey", contractInfo.get("approkey_plan"));
+					
+					if (map.get("approkey").equals("")) {
+						map.put("resultCode", "error");
+						return params;
+					} else {
+
+						map.put("approkey_plan", contractInfo.get("approkey_plan"));
+						contractServiceDAO.UpdateModify(map);
+						contractServiceDAO.deleteErpgwlink(map);
+					}
+					
+				} else if (contractInfo.get("contract_type").equals("01") && !contractInfo.get("approkey_conclusion").equals(""))  {
+					
+					map.put("approkey", contractInfo.get("approkey_conclusion"));
+					
+					if (map.get("approkey").equals("")) {
+						map.put("resultCode", "error");
+						return params;
+						
+					} else {
+					map.put("doc_sts", "90");
+					map.put("approkey_conclusion", contractInfo.get("approkey_conclusion"));
+					
+					contractServiceDAO.UpdateModify(map);
+					contractServiceDAO.deleteErpgwlink(map);
+					}
+					
+				} else if (contractInfo.get("contract_type").equals("02")) {
+
+					map.put("approkey", contractInfo.get("approkey_conclusion"));
+					
+					if (map.get("approkey").equals("")) {
+						map.put("resultCode", "error");
+						return params;
+						
+					} else {
+
+						map.put("approkey_conclusion", contractInfo.get("approkey_conclusion"));
+						contractServiceDAO.UpdateModify(map);
+						contractServiceDAO.deleteErpgwlink(map);
+					}
+
+				}
+				else {
+					params.put("resultCode", "error");
+					return params;	
+				}				
+			}
+		}
+		params.put("resultCode", "success");
+		return params;
+	}	
+	
+	
 }
 

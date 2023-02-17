@@ -79,6 +79,14 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 		
 	}
 	
+	
+	public void UpdateModify ( Map<String, Object> params ) {
+		
+		update( "ContractSQL.UpdateModify", params );
+		
+	}
+	
+	
 	public Map<String, Object> SelectConclusionPaymentList (Map<String, Object> paramMap, PaginationInfo paginationInfo) {
 		
 		return super.listOfPaging2(paramMap, paginationInfo, "ContractSQL.SelectConclusionPaymentList");
@@ -157,6 +165,12 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 	public void deleteBudgetInfo ( Map<String, Object> params ) {
 		
 		delete( "ContractSQL.deleteBudgetInfo", params );
+		
+	}
+	
+	public void deleteErpgwlink ( Map<String, Object> params ) {
+		
+		delete( "ContractSQL.deleteErpgwlink", params );
 		
 	}
 	

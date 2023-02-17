@@ -957,12 +957,13 @@
 				insertDataObject.budget_list_info = JSON.stringify(insertDataObject.budgetObjList);
 				
 				
-  				var meetAmtSpent = 0;
+  				var changeAmtSpent = 0;
 				var totalAmt = 0;
-				var remainAmt = 0;
+				var beforeAmt = 0;
+				var beforeAmtSpent = "${contractDetailInfo.contract_amt_info}".split('▦');
 				
  				if($("[name=amtInfoList] [name=addData] [amounttype=amt]").val() != "" && $("[name=amtInfoList] [name=addData] [amounttype=amt]").val() != "0"){
-					meetAmtSpent = parseInt($("[name=amtInfoList] [name=addData] [amounttype=amt]").val().replace(/,/g, ''));
+ 					changeAmtSpent = parseInt($("[name=amtInfoList] [name=addData] [amounttype=amt]").val().replace(/,/g, ''));
 				} 
 				
 				$.each($("[name=budgetList] [name=addData] [name=amt]"), function( idx, obj ) {
@@ -970,12 +971,15 @@
 						totalAmt += parseInt($(obj).val().replace(/,/g, ''));
 					}
 				});	
-				
-/* 				if(meetAmtSpent != totalAmt){
-					msgSnackbar("warning", "지출금액과 신청금액이 일치하지 않습니다.");
-					return;
-				}  */
-				
+					
+				if (totalAmt > 0){
+					beforeAmt = parseInt(beforeAmtSpent[1].replace(/,/g, '')); 
+					if(totalAmt != beforeAmt){
+						msgSnackbar("warning", "지출금액과 신청금액이 일치하지 않습니다.");
+						return;
+					} 
+					
+				}			
 				
 				
 				
@@ -1055,7 +1059,7 @@
 			
 			setDynamicSetInfoAmt();
 			
-			
+			var budgetObjList = insertDataObject.budgetObjList;
 			var resultAmtListHtml = "";
 			$('[name=resultAmtListHtmlre] tfoot').remove();
 			$('[name=resultAmtListHtmlre]').find("[displaynone]").removeAttr("displaynone");
@@ -1070,7 +1074,19 @@
 			});
 			
 			resultAmtListHtml = $(cloneData)[0].outerHTML;
-			insertDataObject.change_result_amt_info_html = resultAmtListHtml;
+			
+			if(insertDataObject.budgetObjList.length < 1){
+				
+				insertDataObject.change_result_amt_info_html = "";
+				
+			} else {
+				
+				insertDataObject.change_result_amt_info_html = resultAmtListHtml;
+				
+			}
+			
+			
+			
 			
 			
 			
@@ -2373,8 +2389,8 @@
 		
 				<!-- 그리드 테이블 -->
 		<!-- <div class="com_ta6 mt10"> -->
-		<!-- <div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" style="display:none;"> -->
-		<div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" >
+		<div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" style="display:none;">
+		<!-- <div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" > -->
 			<table id="resultAmtListHtml" name="resultAmtListHtml" border="1" width="100%" >
 				<colgroup>
 					<col width=""/>	

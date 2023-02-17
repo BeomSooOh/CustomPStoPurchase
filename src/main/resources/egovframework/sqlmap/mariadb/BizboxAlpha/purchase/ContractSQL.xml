@@ -838,6 +838,28 @@
 		WHERE seq='$seq$'; 
 	</update>
 	
+	
+	<update	id="ContractSQL.UpdateModify" parameterClass="HashMap" >
+		UPDATE cust_sto.t_purchase_contract
+		SET
+		modify_dt=now(), 
+		modify_by='$created_by$'
+		<isNotEmpty property="approkey_plan">
+		,approkey_plan = null 
+		</isNotEmpty>
+		<isNotEmpty property="approkey_conclusion">
+		,approkey_conclusion = null 
+		</isNotEmpty>
+		<isEmpty property="doc_sts">
+		,doc_sts = null 
+		</isEmpty>	
+
+		WHERE seq = '$seq$'; 
+	</update>
+	
+
+	
+	
 	<select	id="ContractSQL.SelectConclusionPaymentList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
 	
 		SELECT   COUNT(*)
@@ -1026,6 +1048,10 @@
 	
 	<delete id="ContractSQL.deleteBudgetInfo" parameterClass="HashMap">
 			delete from cust_sto.t_purchase_budget_info where seq = '$seq$'
+	</delete>
+	
+	<delete id="ContractSQL.deleteErpgwlink" parameterClass="HashMap">
+			delete from $DB_NEOS$erpgwlink where docx_numb = '$approkey$'
 	</delete>
 	
 		
