@@ -685,6 +685,8 @@
 				var meetAmtSpent = 0;
 				var totalAmt = 0;
 				var remainAmt = 0;
+				var budgetObjListSpent = new Array();
+				budgetObjListSpent = insertDataObject.budgetObjList
 				
 				if($("#meetAmtSpent").val() != "" && $("#meetAmtSpent").val() != "0"){
 					meetAmtSpent = parseInt($("#meetAmtSpent").val().replace(/,/g, ''));
@@ -700,6 +702,19 @@
 					msgSnackbar("warning", "지출금액과 신청금액이 일치하지 않습니다.");
 					return;
 				}
+				
+				for(var i = 0; i < budgetObjListSpent.length; i++){
+					 var txt_pay_amt = parseInt((budgetObjListSpent[i].amt).replace(/,/g, ''));
+					 var txt_balance_amt = parseInt((budgetObjListSpent[i].txt_balance_amt).replace(/,/g, ''));
+					
+					if (txt_pay_amt > txt_balance_amt){
+						msgSnackbar("warning", "금액이 예산잔액을 초과합니다.");
+						return;
+					}
+					
+				}
+				
+				
 				
 				if(type == 0){
 					confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc(1)', '취소', '');	

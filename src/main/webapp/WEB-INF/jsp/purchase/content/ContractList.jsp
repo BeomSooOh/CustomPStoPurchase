@@ -439,12 +439,9 @@
 								if(rowData.contract_term == "01" || rowData.contract_form3 == "01"){
 									return "단년도";
 								}
-								else if(rowData.contract_term == "02" ){
+								else if(rowData.contract_term == "02" || rowData.contract_form3 == "02" ){
 										return "장기계속";
 								}
-								else if(rowData.contract_form3 == "02"){
-									return "장기계속";
-							}
 								else if(rowData.contract_term == "03" || rowData.contract_form3 == "03"){
 											return "계속비";
 								}else{
@@ -1827,7 +1824,7 @@
     	});
 		    	
     	var headerRow = 3;
-    	var headerCol = 37;
+    	var headerCol = 51;
     	
     	for(var i=1; i < headerRow; i++) {
     		for(var j=0; j < headerCol; j++) {
@@ -1836,65 +1833,79 @@
     	}
     	
     	excel.set(0, 0, 1, "기본정보");
-    	excel.mergeCell(0, 0, 1, 9, 1);
+    	excel.mergeCell(0, 0, 1, 14, 1);
     	excel.set(0, 0, 2, "연번");
     	excel.set(0, 1, 2, "관리번호");
     	excel.set(0, 2, 2, "계약번호");
-    	excel.set(0, 3, 2, "계약목적물");
-    	excel.set(0, 4, 2, "입찰/수의");    	
-    	excel.set(0, 5, 2, "계약명");
-    	excel.set(0, 6, 2, "계약금액");
-    	excel.set(0, 7, 2, "계약시작일");
-    	excel.set(0, 8, 2, "계약종료일");
-    	excel.set(0, 9, 2, "근거법령");
+    	excel.set(0, 3, 2, "회계년도"); 
+    	excel.set(0, 4, 2, "계약목적물");
+    	excel.set(0, 5, 2, "입찰/수의");
+    	excel.set(0, 6, 2, "계약방법"); 
+    	excel.set(0, 7, 2, "계약명");
+    	excel.set(0, 8, 2, "계약금액");
+    	excel.set(0, 9, 2, "공동계약방법");
+    	excel.set(0, 10, 2, "계약시작일");
+    	excel.set(0, 11, 2, "계약종료일");
+    	excel.set(0, 12, 2, "착공일자"); 
+    	excel.set(0, 13, 2, "준공일자");
+    	excel.set(0, 14, 2, "근거법령");
     	
-    	excel.set(0, 10, 1, "계약상대자정보");
-    	excel.mergeCell(0, 10, 1, 13, 1);
-    	excel.set(0, 10, 2, "계약상대자");
-    	excel.set(0, 11, 2, "사업자등록번호");
-    	excel.set(0, 12, 2, "대표자명");
-    	excel.set(0, 13, 2, "희망기업여부");
+    	excel.set(0, 15, 1, "계약상대자정보");
+    	excel.mergeCell(0, 15, 1, 21, 1);
+    	excel.set(0, 15, 2, "계약상대자");
+    	excel.set(0, 16, 2, "사업자등록번호");
+    	excel.set(0, 17, 2, "대표자명");
+    	excel.set(0, 18, 2, "장단기");
+    	excel.set(0, 19, 2, "금액확정");
+    	excel.set(0, 20, 2, "금액산정");
+    	excel.set(0, 21, 2, "희망기업여부");
     	
-    	excel.set(0, 14, 1, "발주정보");
-    	excel.mergeCell(0, 14, 1, 18, 1);
-    	excel.set(0, 14, 2, "발주금액");
-    	excel.set(0, 15, 2, "경쟁방식");
-    	excel.set(0, 16, 2, "낙찰자결정방법");    	
-    	excel.set(0, 17, 2, "기안자");    	
-    	excel.set(0, 18, 2, "기안자부서");   
+    	excel.set(0, 22, 1, "발주정보");
+    	excel.mergeCell(0, 22, 1, 30, 1);
+    	excel.set(0, 22, 2, "추정가격");
+    	excel.set(0, 23, 2, "발주금액");
+    	excel.set(0, 24, 2, "낙찰가격");
+    	excel.set(0, 25, 2, "낙찰율"); 
+    	excel.set(0, 26, 2, "경쟁방식");
+    	excel.set(0, 27, 2, "낙찰자결정방법");    	
+    	excel.set(0, 28, 2, "기안자");    	
+    	excel.set(0, 29, 2, "기안자부서");
+    	excel.set(0, 30, 2, "업무관련자"); 
     	
-    	excel.set(0, 19, 1, "입찰정보");
-    	excel.mergeCell(0, 19, 1, 24, 1);
-    	excel.set(0, 19, 2, "사전규격공개기간");
-    	excel.set(0, 20, 2, "본 공고기간");
-    	excel.set(0, 21, 2, "재 공고기간");
-    	excel.set(0, 22, 2, "공고기간 확정");    	
-    	excel.set(0, 23, 2, "투찰자수");    	
-    	excel.set(0, 24, 2, "제안서평가일");     
+    	excel.set(0, 31, 1, "입찰정보");
+    	excel.mergeCell(0, 31, 1, 36, 1);
+    	excel.set(0, 31, 2, "사전규격공개기간");
+    	excel.set(0, 32, 2, "본 공고기간");
+    	excel.set(0, 33, 2, "재 공고기간");
+    	excel.set(0, 34, 2, "공고기간 확정");    	
+    	excel.set(0, 35, 2, "투찰자수");    	
+    	excel.set(0, 36, 2, "제안서평가일");     
+   
+    	excel.set(0, 37, 1, "변경계약정보");
+    	excel.mergeCell(0, 37, 1, 42, 1);
+    	excel.set(0, 37, 2, "변경계약일");
+    	excel.set(0, 38, 2, "과업내용변경");
+    	excel.set(0, 39, 2, "계약기간변경");
+    	excel.set(0, 40, 2, "계약금액변경");    	
+    	excel.set(0, 41, 2, "기타변경");
+    	excel.set(0, 42, 2, "변경사유"); 
     	
-    	excel.set(0, 25, 1, "변경계약정보");
-    	excel.mergeCell(0, 25, 1, 29, 1);
-    	excel.set(0, 25, 2, "변경계약일");
-    	excel.set(0, 26, 2, "과업내용변경");
-    	excel.set(0, 27, 2, "계약기간변경");
-    	excel.set(0, 28, 2, "계약금액변경");    	
-    	excel.set(0, 29, 2, "기타변경");    	
+    	excel.set(0, 43, 1, "대금지급정보");
+    	excel.mergeCell(0, 43, 1, 48, 1);
+    	excel.set(0, 43, 2, "선금액");
+    	excel.set(0, 44, 2, "기성금합산");
+    	excel.set(0, 45, 2, "준공금");
+    	excel.set(0, 46, 2, "집행액"); //
+    	excel.set(0, 47, 2, "잔액");    	
+    	excel.set(0, 48, 2, "준공율");    	
     	
-    	excel.set(0, 30, 1, "대금지급정보");
-    	excel.mergeCell(0, 30, 1, 34, 1);
-    	excel.set(0, 30, 2, "선금액");
-    	excel.set(0, 31, 2, "기성금합산");
-    	excel.set(0, 32, 2, "준공금");
-    	excel.set(0, 33, 2, "잔액");    	
-    	excel.set(0, 34, 2, "준공율");    	
-    	
-    	excel.set(0, 35, 1, "자료");
-    	excel.mergeCell(0, 35, 1, 36, 1);
-    	excel.set(0, 35, 2, "계약서");
-    	excel.set(0, 36, 2, "계약제출서류");
+    	excel.set(0, 49, 1, "자료");
+    	excel.mergeCell(0, 49, 1, 50, 1);
+    	excel.set(0, 49, 2, "계약서");
+    	excel.set(0, 50, 2, "계약제출서류");
     	
     	// sheet번호, column, value(width)
-    	for( var i = 0; i < 37; i++ ) {
+    	for( var i = 0; i < 51; i++ ) {
     		excel.setColumnWidth( 0, i, 20 );
     	}    	
     	
@@ -1913,54 +1924,172 @@
     	// header row 이후부터 출력
     	for( var i = 0; i < totalCount; i++ ) {
     		var rowNo = i + 3;
-    		excel.set( 0, 0, rowNo, dataPage[ i ][ "seq" ], formatCell );
+    		excel.set( 0, 0, rowNo, dataPage[ i ][ "no" ], formatCell );
     		excel.set( 0, 1, rowNo, dataPage[ i ][ "manage_no" ], formatCell );
     		excel.set( 0, 2, rowNo, dataPage[ i ][ "contract_no" ], formatCell );
-    		excel.set( 0, 3, rowNo, dataPage[ i ][ "target_type_name" ], formatCell );
-    		excel.set( 0, 4, rowNo, dataPage[ i ][ "contract_type_text" ], formatCell );
-    		excel.set( 0, 5, rowNo, dataPage[ i ][ "title" ], formatCell );
-    		excel.set( 0, 6, rowNo, dataPage[ i ][ "contract_amt" ], formatCell );
-    		excel.set( 0, 7, rowNo, dataPage[ i ][ "contract_start_dt" ], formatCell );
-    		excel.set( 0, 8, rowNo, dataPage[ i ][ "contract_end_dt" ], formatCell );
-    		excel.set( 0, 9, rowNo, dataPage[ i ][ "base_law_name" ], formatCell );
-    		excel.set( 0, 10, rowNo, dataPage[ i ][ "tr_name" ], formatCell );
-    		excel.set( 0, 11, rowNo, dataPage[ i ][ "tr_reg_number" ], formatCell );
-    		excel.set( 0, 12, rowNo, dataPage[ i ][ "ceo_name" ], formatCell );
-    		excel.set( 0, 13, rowNo, dataPage[ i ][ "hope_company_info" ], formatCell );
-    		excel.set( 0, 14, rowNo, dataPage[ i ][ "amt" ], formatCell );
-    		excel.set( 0, 15, rowNo, dataPage[ i ][ "compete_type_text" ], formatCell );
-    		excel.set( 0, 16, rowNo, dataPage[ i ][ "decision_type_text" ], formatCell );
-    		excel.set( 0, 17, rowNo, dataPage[ i ][ "emp_name" ], formatCell );
-    		excel.set( 0, 18, rowNo, dataPage[ i ][ "dept_name" ], formatCell );
-    		excel.set( 0, 19, rowNo, dataPage[ i ][ "pre_notice_end_dt" ], formatCell );
-    		excel.set( 0, 20, rowNo, dataPage[ i ][ "notice_start_dt" ] != "" && dataPage[ i ][ "notice_end_dt" ] != "" ? (dataPage[ i ][ "notice_start_dt" ] + "~" + dataPage[ i ][ "notice_end_dt" ]) : "", formatCell );
-    		excel.set( 0, 21, rowNo, dataPage[ i ][ "re_notice_start_dt" ] != "" && dataPage[ i ][ "re_notice_end_dt" ] != "" ? (dataPage[ i ][ "re_notice_start_dt" ] + "~" + dataPage[ i ][ "re_notice_end_dt" ]) : "", formatCell );
-    		excel.set( 0, 22, rowNo, dataPage[ i ][ "notice_start_dt" ] != "" && dataPage[ i ][ "notice_end_dt" ] != "" ? "확정" : "", formatCell );
-    		excel.set( 0, 23, rowNo, dataPage[ i ][ "bidder_cnt" ], formatCell );
-    		excel.set( 0, 24, rowNo, dataPage[ i ][ "meet_dt" ], formatCell );
-    		excel.set( 0, 25, rowNo, dataPage[ i ][ "contract_change_dt" ], formatCell );
-    		excel.set( 0, 26, rowNo, dataPage[ i ][ "work_info_after" ], formatCell );
-    		excel.set( 0, 27, rowNo, dataPage[ i ][ "contract_end_dt_after" ], formatCell );
-    		excel.set( 0, 28, rowNo, dataPage[ i ][ "contract_amt_after" ] != "" && dataPage[ i ][ "contract_amt_after" ] != "0" ? dataPage[ i ][ "contract_amt_after" ] : "", formatCell );
-    		excel.set( 0, 29, rowNo, dataPage[ i ][ "change_etc" ], formatCell );
-    		excel.set( 0, 30, rowNo, dataPage[ i ][ "pay_amt_a" ], formatCell );
-    		excel.set( 0, 31, rowNo, dataPage[ i ][ "pay_amt_b" ], formatCell );
-    		excel.set( 0, 32, rowNo, dataPage[ i ][ "pay_amt_c" ], formatCell );
-    		excel.set( 0, 33, rowNo, dataPage[ i ][ "remain_amt" ], formatCell );
+    		
+			if(dataPage[ i ][ "manage_no" ] != ""){
+				var manage = dataPage[ i ][ "manage_no" ].split('-');
+				var manage_yaer = manage[1]
+				excel.set( 0, 3, rowNo, manage_yaer, formatCell ); // 회계년도
+			}   
+			
+    		excel.set( 0, 4, rowNo, dataPage[ i ][ "target_type_name" ], formatCell );
+    		excel.set( 0, 5, rowNo, dataPage[ i ][ "contract_type_text" ], formatCell );
+    			
+			if(dataPage[ i ][ "contract_type" ] != "" || dataPage[ i ][ "noti_type" ] != "" || dataPage[ i ][ "compete_type_text" ] != "" ){ // 계약방법 구분
+				
+				if(dataPage[ i ][ "contract_type" ] == "01" && dataPage[ i ][ "noti_type" ] == "01"){
+					excel.set( 0, 6, rowNo, dataPage[ i ][ "compete_type_text" ], formatCell ); 
+				} else if (dataPage[ i ][ "contract_type" ] == "01" && dataPage[ i ][ "noti_type" ] == "02") {
+					excel.set( 0, 6, rowNo, "2인견적",formatCell ); 
+				} else if (dataPage[ i ][ "contract_type" ] == "02") {
+					excel.set( 0, 6, rowNo, "1인견적", formatCell ); 
+				} else {
+					excel.set( 0, 6, rowNo, "", formatCell ); 
+				}	
+			}   
+
+    		excel.set( 0, 7, rowNo, dataPage[ i ][ "title" ], formatCell );
+    		excel.set( 0, 8, rowNo, dataPage[ i ][ "contract_amt" ], formatCell );
+    		excel.set( 0, 9, rowNo, dataPage[ i ][ "joint_contract_method_text" ], formatCell ); // 공동계약방법
+    		excel.set( 0, 10, rowNo, dataPage[ i ][ "contract_start_dt" ], formatCell );
+    		excel.set( 0, 11, rowNo, dataPage[ i ][ "contract_end_dt" ], formatCell );
+    		excel.set( 0, 12, rowNo, dataPage[ i ][ "construction_dt" ], formatCell ); // 착공일자
+    		excel.set( 0, 13, rowNo, dataPage[ i ][ "completion_dt" ], formatCell ); // 준공일자
+    		excel.set( 0, 14, rowNo, dataPage[ i ][ "base_law_name" ], formatCell );
+    		excel.set( 0, 15, rowNo, dataPage[ i ][ "tr_name" ], formatCell );
+    		excel.set( 0, 16, rowNo, dataPage[ i ][ "tr_reg_number" ], formatCell );
+    		excel.set( 0, 17, rowNo, dataPage[ i ][ "ceo_name" ], formatCell );
+    		
+    		if(dataPage[ i ][ "contract_term" ] != "" || dataPage[ i ][ "contract_form3" ] != ""){	// 장단기 구분
+    		
+				if(dataPage[ i ][ "contract_term" ] == "01" || dataPage[ i ][ "contract_form3" ] == "01"){
+					excel.set( 0, 18, rowNo, "단년도", formatCell ); 
+				} else if (dataPage[ i ][ "contract_term" ] == "02" || dataPage[ i ][ "contract_form3" ] == "02") {
+					excel.set( 0, 18, rowNo, "장기계속",formatCell ); 
+				} else if (dataPage[ i ][ "contract_term" ] == "03" || dataPage[ i ][ "contract_form3" ] == "03") {
+					excel.set( 0, 18, rowNo, "계속비", formatCell ); 
+				} else {
+					excel.set( 0, 18, rowNo, "", formatCell );
+				}
+			}
+    		
+    		if(dataPage[ i ][ "contract_form1" ] != "" || dataPage[ i ][ "c_contract_form1" ] != ""){	// 금액확정 구분
+        		
+				if(dataPage[ i ][ "contract_form1" ] == "01" || dataPage[ i ][ "c_contract_form1" ] == "01"){
+					excel.set( 0, 19, rowNo, "확정계약", formatCell ); 
+				} else if (dataPage[ i ][ "contract_form1" ] == "02" || dataPage[ i ][ "c_contract_form1" ] == "02") {
+					excel.set( 0, 19, rowNo, "사후원가검토조건부계약",formatCell ); 
+				} else if (dataPage[ i ][ "contract_form1" ] == "03" || dataPage[ i ][ "c_contract_form1" ] == "03") {
+					excel.set( 0, 19, rowNo, "개산계약", formatCell ); 
+				} else {
+					excel.set( 0, 19, rowNo, "", formatCell );
+				}
+			}
+    			
+    		if(dataPage[ i ][ "contract_form2" ] != "" || dataPage[ i ][ "c_contract_form2" ] != ""){	// 금액산정 구분
+        		
+				if(dataPage[ i ][ "contract_form2" ] == "01" || dataPage[ i ][ "c_contract_form2" ] == "01"){
+					excel.set( 0, 20, rowNo, "총액계약", formatCell ); 
+				} else if (dataPage[ i ][ "contract_form2" ] == "02" || dataPage[ i ][ "c_contract_form2" ] == "02") {
+					excel.set( 0, 20, rowNo, "단가계약",formatCell ); 
+				}  else {
+		    		excel.set( 0, 20, rowNo, "", formatCell ); 
+				}
+			}
+    		excel.set( 0, 21, rowNo, dataPage[ i ][ "hope_company_info" ], formatCell );
+    		excel.set( 0, 22, rowNo, dataPage[ i ][ "std_amt" ], formatCell ); // 추정가격
+    		excel.set( 0, 23, rowNo, dataPage[ i ][ "amt" ], formatCell );
+    		excel.set( 0, 24, rowNo, dataPage[ i ][ "result_amt" ], formatCell ); // 낙찰가격
+    		
+    		if(dataPage[ i ][ "amt" ] != "" &&  dataPage[ i ][ "contract_amt" ] != ""){  // 낙찰율 	
+				var succrate_amt = 0;
+				if(dataPage[ i ][ "amt" ] != 0 &&  dataPage[ i ][ "contract_amt" ] != 0){ 
+					var result_amt = parseInt(dataPage[ i ][ "contract_amt" ].replace(/,/g, ''));
+					var amt = parseInt(dataPage[ i ][ "amt" ].replace(/,/g, ''));
+						excel.set( 0, 25, rowNo, (result_amt/amt*100).toFixed(1) + "%", formatCell );
+						}  	else {
+					excel.set( 0, 25, rowNo, succrate_amt + "%", formatCell );
+				}
+    		}
+    		
+    		excel.set( 0, 26, rowNo, dataPage[ i ][ "compete_type_text" ], formatCell );
+    		excel.set( 0, 27, rowNo, dataPage[ i ][ "decision_type_text" ], formatCell );
+    		excel.set( 0, 28, rowNo, dataPage[ i ][ "emp_name" ], formatCell );
+    		excel.set( 0, 29, rowNo, dataPage[ i ][ "dept_name" ], formatCell );
+    		
+     		if(dataPage[ i ][ "public_info" ] != ""){  // 업무관련자 구분
+				const arr  = (dataPage[ i ][ "public_info" ]||"").split("▦");
+    			const arr1 = [];
+    			const public_info = [];
+					for(var e=1; e<arr.length; e+=3){
+						const arr1 = arr[e].split("(");
+						for(var j=0; j<arr1.length; j+=2){
+							public_info.push(arr1[j]); 
+							}
+						}
+					excel.set( 0, 30, rowNo, public_info, formatCell ); 
+				} else {
+					excel.set( 0, 30, rowNo, dataPage[ i ][ "public_info" ], formatCell );	
+				} 
+    		
+    		excel.set( 0, 31, rowNo, dataPage[ i ][ "pre_notice_end_dt" ], formatCell );
+    		excel.set( 0, 32, rowNo, dataPage[ i ][ "notice_start_dt" ] != "" && dataPage[ i ][ "notice_end_dt" ] != "" ? (dataPage[ i ][ "notice_start_dt" ] + "~" + dataPage[ i ][ "notice_end_dt" ]) : "", formatCell );
+    		excel.set( 0, 33, rowNo, dataPage[ i ][ "re_notice_start_dt" ] != "" && dataPage[ i ][ "re_notice_end_dt" ] != "" ? (dataPage[ i ][ "re_notice_start_dt" ] + "~" + dataPage[ i ][ "re_notice_end_dt" ]) : "", formatCell );
+    		excel.set( 0, 34, rowNo, dataPage[ i ][ "notice_start_dt" ] != "" && dataPage[ i ][ "notice_end_dt" ] != "" ? "확정" : "", formatCell );
+    		excel.set( 0, 35, rowNo, dataPage[ i ][ "bidder_cnt" ], formatCell );
+    		excel.set( 0, 36, rowNo, dataPage[ i ][ "meet_dt" ], formatCell );
+    		excel.set( 0, 37, rowNo, dataPage[ i ][ "contract_change_dt" ], formatCell );
+    		excel.set( 0, 38, rowNo, dataPage[ i ][ "work_info_after" ], formatCell );
+    		excel.set( 0, 39, rowNo, dataPage[ i ][ "contract_end_dt_after" ], formatCell );
+    		excel.set( 0, 40, rowNo, dataPage[ i ][ "contract_amt_after" ] != "" && dataPage[ i ][ "contract_amt_after" ] != "0" ? dataPage[ i ][ "contract_amt_after" ] : "", formatCell );
+    		excel.set( 0, 41, rowNo, dataPage[ i ][ "change_etc" ], formatCell );
+    		excel.set( 0, 42, rowNo, dataPage[ i ][ "change_reason" ], formatCell ); // 변경사유 
+    		excel.set( 0, 43, rowNo, dataPage[ i ][ "pay_amt_a" ], formatCell );
+    		excel.set( 0, 44, rowNo, dataPage[ i ][ "pay_amt_b" ], formatCell );
+    		excel.set( 0, 45, rowNo, dataPage[ i ][ "pay_amt_c" ], formatCell );
+    		
+    		
+			if(dataPage[ i ][ "pay_amt_a" ] != "" || dataPage[ i ][ "pay_amt_b" ] != ""  || dataPage[ i ][ "pay_amt_c" ] != "" ){
+					var sum_pay_amt = 0;
+				
+					if(dataPage[ i ][ "pay_amt_a" ] != "0" || dataPage[ i ][ "pay_amt_b" ] != "0"  || dataPage[ i ][ "pay_amt_c" ] != "0"){
+						pay_amt_a = parseInt(dataPage[ i ][ "pay_amt_a" ].replace(/,/g, ''));
+					 	pay_amt_b = parseInt(dataPage[ i ][ "pay_amt_b" ].replace(/,/g, ''));
+					 	pay_amt_c = parseInt(dataPage[ i ][ "pay_amt_c" ].replace(/,/g, ''));
+					 	 
+					 	sum_pay_amt = pay_amt_a + pay_amt_b + + pay_amt_c;
+					 
+					 excel.set( 0, 46, rowNo, sum_pay_amt.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','), formatCell ); // 집행액 계산
+					} else if (dataPage[ i ][ "pay_amt_a" ] == "0" || dataPage[ i ][ "pay_amt_b" ] == "0"  || dataPage[ i ][ "pay_amt_c" ] == "0") {
+						pay_amt_a = parseInt(dataPage[ i ][ "pay_amt_a" ]);
+					 	pay_amt_b = parseInt(dataPage[ i ][ "pay_amt_b" ]);
+					 	pay_amt_c = parseInt(dataPage[ i ][ "pay_amt_c" ]);
+					 	
+					 	sum_pay_amt = pay_amt_a + pay_amt_b + + pay_amt_c;
+					 excel.set( 0, 46, rowNo, sum_pay_amt, formatCell ); // 집행액 계산
+					} else {
+					excel.set( 0, 46, rowNo, "", formatCell ); // 집행액 계산
+					}	
+			}   
+			
+    		excel.set( 0, 47, rowNo, dataPage[ i ][ "remain_amt" ], formatCell );
     		
 			if(dataPage[ i ][ "remain_amt" ] != ""){
 				var amt = parseInt(dataPage[ i ][ "contract_amt" ].replace(/,/g, ''));
 				var remain_amt = parseInt(dataPage[ i ][ "remain_amt" ].replace(/,/g, ''));
-				excel.set( 0, 34, rowNo, ((amt-remain_amt)/amt*100).toFixed(1) + " %", formatCell );
+				excel.set( 0, 48, rowNo, ((amt-remain_amt)/amt*100).toFixed(1) + " %", formatCell );
 				
 			}   		
 			
+			
 			if(dataPage[ i ][ "contract_attach_info" ] != ""){
-				excel.set( 0, 35, rowNo, "등록", formatCell );	
+				excel.set( 0, 49, rowNo, "등록", formatCell );	
 			}
 			
 			if(dataPage[ i ][ "submit_attach_info" ] != ""){
-				excel.set( 0, 36, rowNo, "등록", formatCell );
+				excel.set( 0, 50, rowNo, "등록", formatCell );
 			}			
     		
     	}
