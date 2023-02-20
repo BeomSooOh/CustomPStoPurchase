@@ -715,7 +715,6 @@
 				}
 				
 				
-				
 				if(type == 0){
 					confirmAlert(350, 100, 'question', '저장하시겠습니까?', '저장', 'fnSaveProc(1)', '취소', '');	
 				}else if(type == 1){

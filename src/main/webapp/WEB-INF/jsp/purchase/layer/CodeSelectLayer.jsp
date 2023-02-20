@@ -92,7 +92,6 @@
 			 
 			//,	scrollable : true
 			,	height : 300
- 
 			,	pageable : {
 					buttonCount : 10
 				,	pageList : [ 10, 20, 30, 40, 50 ]
