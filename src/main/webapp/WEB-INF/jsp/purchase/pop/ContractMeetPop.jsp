@@ -703,6 +703,7 @@
 					return;
 				}
 				
+				
 				for(var i = 0; i < budgetObjListSpent.length; i++){
 					 var txt_pay_amt = parseInt((budgetObjListSpent[i].amt).replace(/,/g, ''));
 					 var txt_balance_amt = parseInt((budgetObjListSpent[i].txt_balance_amt).replace(/,/g, ''));

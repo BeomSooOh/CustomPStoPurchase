@@ -443,7 +443,7 @@
 										return "장기계속";
 								}
 								else if(rowData.contract_term == "03" || rowData.contract_form3 == "03"){
-											return "계속비";
+										return "계속비";
 								}else{
 									return "";
 								}
