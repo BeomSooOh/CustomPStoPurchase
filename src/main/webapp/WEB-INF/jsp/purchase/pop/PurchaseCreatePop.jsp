@@ -135,6 +135,22 @@
 		
 	});	
 	
+	
+	function chageYnSelect(value){
+			
+		var pos = $("#item_green_cert_type option").index($("#item_green_cert_type option:selected"));
+		
+		/* if (value == 'Y'){ */
+			
+			$("#item_green_cert_type").removeAttr("disabled");
+			/* $("#item_green_cert_yn option:eq(1)").attr("selected", "selected"); */
+		
+		/* } */
+	   
+		
+	}
+	
+	
 	function setDynamicPuddInfo(objKey, type, value){
 		
 		if(value != ""){
@@ -194,7 +210,7 @@
 		$(cloneData).find("[name=item_total_amt_text]").text("${items.item_total_amt_text}");
 		$(cloneData).find("[name=item_total_amt]").val("${items.item_total_amt}");
 		$(cloneData).find("[name=item_sub_total_amt_text]").text("${items.item_sub_total_amt_text}");
-		$(cloneData).find("[name=item_sub_total_amt]").val("${items.item_sub_total_amt}");		
+		$(cloneData).find("[name=item_sub_total_amt]").val("${items.item_fee_total_amt}");		
 		$(cloneData).find("[name=item_unit]").val("${items.item_unit}");
 		$(cloneData).find("[name=item_pickup_location]").val("${items.item_pickup_location}");
 		$(cloneData).find("[name=item_fee_amt]").val("${items.item_fee_amt}");
@@ -206,6 +222,7 @@
 		$(cloneData).find("[name=item_green_cert_type]").val("${items.item_green_cert_type}");
 		$(cloneData).find("[name=item_non_green_reason]").val("${items.item_non_green_reason}");
 		$(cloneData).find("[name=item_green_class]").val("${items.item_green_class}");
+		$(cloneData).find("[name=item_green_cert_yn]").val("${items.item_green_cert_yn}");
 		
 		$(cloneData).find("[name=item_deadline]").val("${items.item_deadline}");
 		
@@ -1830,9 +1847,10 @@
 			<table>
 				<colgroup>
 					<col width="130"/>
-					<col width="369"/>
+					<col width="450"/>
 					<col width="130"/>
 					<col width="369"/>
+					
 				</colgroup>
 				<tr>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 유형선택</th>
@@ -1840,6 +1858,7 @@
 						<input ${disabled} onclick="fnNoticePop('ManualPop00', '비품(정수관리대상)')" type="radio" name="purchaseType" class="puddSetup" pudd-label="비품(정수관리대상)" value="00" <c:if test="${ (viewType == 'I') || (viewType == 'U' && purchaseDetailInfo.purchase_type == '00') }">checked</c:if> />
 						<input ${disabled} onclick="fnNoticePop('ManualPop01', '비품(정수관리비대상)')" type="radio" name="purchaseType" class="puddSetup" pudd-label="비품(정수관리비대상)" value="01" <c:if test="${ viewType == 'U' && purchaseDetailInfo.purchase_type == '01' }">checked</c:if> />
 						<input ${disabled} onclick="fnNoticePop('ManualPop02', '소모품')" type="radio" name="purchaseType" class="puddSetup" pudd-label="소모품" value="02" <c:if test="${ viewType == 'U' && purchaseDetailInfo.purchase_type == '02' }">checked</c:if> />
+						<input ${disabled} onclick="fnNoticePop('ManualPop03', '소프트웨어')" type="radio" name="purchaseType" class="puddSetup" pudd-label="소프트웨어" value="03" <c:if test="${ viewType == 'U' && purchaseDetailInfo.purchase_type == '03' }">checked</c:if> />
 					</td>	
 					<th>담당자</th>
 					<td objKey="public_info" objCheckFor="getPublicInfo()" >
@@ -2048,8 +2067,26 @@
 				<p class="tit_p mt5 mb0">물품규격</p>
 			</div>
 			<div class="right_div">	
-				<a href="#n" onclick="window.open('https://www.g2b.go.kr/pt/menu/selectSubFrame.do?menuId=000508&framesrc=/pt/menu/frameGonggong.do?url=https://www.g2b.go.kr:8073/cm/procmntfee/fwdDmgdPurchaseFeeDtl.do','mgjCode','width=1050, height=670, scrollbars=yes');" class="fr pt5 pb5 text_blue"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="16px" height="16px" /> 수수료계산(나라장터)</a>
-			</div>			
+				<span class="pr10"><a href="#n" onclick="window.open('https://www.g2b.go.kr/pt/menu/selectSubFrame.do?menuId=000508&framesrc=/pt/menu/frameGonggong.do?url=https://www.g2b.go.kr:8073/cm/procmntfee/fwdDmgdPurchaseFeeDtl.do','mgjCode','width=1050, height=670, scrollbars=yes');" class="fr pt5 pb5 text_blue"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="16px" height="16px" /> 수수료계산(나라장터)</a></span>
+			</div>
+			<div class="right_div">	
+				<span class="pr10"><a href="#n" onclick="window.open('https://www.g2b.go.kr/pt/menu/selectSubFrame.do?menuId=000508&framesrc=/pt/menu/frameGonggong.do?url=https://www.g2b.go.kr:8092/sm/ma/mn/SMMAMnF.do','mgjCode','width=1050, height=670, scrollbars=yes');" class="fr pt5 pb5 text_blue"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="16px" height="16px" /> 나라장터 종합쇼핑몰</a></span>
+			</div>
+			<div class="right_div">	
+				<span class="pr10"><a href="#n" onclick="window.open('https://www.g2b.go.kr/pt/menu/selectSubFrame.do?menuId=000508&framesrc=/pt/menu/frameGonggong.do?url=https://www.g2b.go.kr:8321/index.jsp','mgjCode','width=1050, height=670, scrollbars=yes');" class="fr pt5 pb5 text_blue"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="16px" height="16px" /> 벤처나라</a></span>
+			</div>	
+			<div class="right_div">	
+				<span class="pr10"><a href="#n" onclick="window.open('https://www.g2b.go.kr/pt/menu/selectSubFrame.do?menuId=000508&framesrc=/pt/menu/frameGonggong.do?url=https://www.g2b.go.kr:8914/portal/intro.do','mgjCode','width=1050, height=670, scrollbars=yes');" class="fr pt5 pb5 text_blue"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="16px" height="16px" /> 혁신장터</a></span>
+			</div>
+			<div class="right_div">	
+				<span class="pr10"><a href="#n" onclick="window.open('https://www.g2b.go.kr/pt/menu/selectSubFrame.do?menuId=000508&framesrc=/pt/menu/frameGonggong.do?url=https://www.g2b.go.kr:8058/index.jsp','mgjCode','width=1050, height=670, scrollbars=yes');" class="fr pt5 pb5 text_blue"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="16px" height="16px" /> 디지털 서비스몰</a></span>
+			</div>
+			<div class="right_div">	
+				<span class="pr10"><a href="#n" onclick="window.open('https://www.g2b.go.kr/pt/menu/selectSubFrame.do?menuId=000508&framesrc=/pt/menu/frameGonggong.do?url=https://www.g2b.go.kr:8092/nd/ma/mn/NDMAMnDtl.do','mgjCode','width=1050, height=670, scrollbars=yes');" class="fr pt5 pb5 text_blue"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="16px" height="16px" /> 국방사용물자쇼핑몰</a></span>
+			</div>
+			<div class="right_div">	
+				<span class="pr10"><a href="#n" onclick="window.open('https://www.g2b.go.kr/pt/menu/selectSubFrame.do?menuId=000508&framesrc=/pt/menu/frameGonggong.do?url=https://www.g2b.go.kr:8056/mk/user/dminsttAgr.do','mgjCode','width=1050, height=670, scrollbars=yes');" class="fr pt5 pb5 text_blue"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="16px" height="16px" /> 이음장터</a></span>
+			</div>	
 		</div>
 		
 		<div class="com_ta4 ova_sc" name="itemObjListHtml">
@@ -2072,6 +2109,7 @@
 					<col width="200" removehtml="Y"/>
 					<col width="200" removehtml="Y"/>
 					<col width="130" removehtml="Y"/>
+					<col width="130" removehtml="Y"/> 
 					<col width="250" removehtml="Y"/>
 					<col width="200" removehtml="Y"/>
 					<col width="200" removehtml="Y"/>
@@ -2101,7 +2139,8 @@
 					<th class="ac" removehtml="Y">국내외구분</th>
 					<th class="ac" removehtml="Y">국가코드</th>
 					<th class="ac" removehtml="Y">취득사유코드</th>
-					<th class="ac" removehtml="Y">녹색제품인증구분</th>
+					<th class="ac" removehtml="Y">녹색제품여부</th>
+					<th class="ac" removehtml="Y">녹색제품인증구분</th> 
 					<th class="ac" removehtml="Y">녹색제품미구매사유</th>
 					<th class="ac" removehtml="Y">제품분류</th>
 				</tr>
@@ -2177,9 +2216,15 @@
 							</c:forEach>
 						</select>
 					</td>
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" type="select" id = "item_green_cert_yn" name="item_green_cert_yn" onchange="chageYnSelect(this.value)" tbname="녹색제품여부" requiredNot="true" style="text-align: center;">
+							<option value="Y">Y</option>
+							<option value="N">N</option>
+						</select>
+					</td>
 					
 					<td removehtml="Y">
-						<select ${disabled} tbval="Y" name="item_green_cert_type" tbname="녹색제품인증구분" requiredNot="true" style="text-align: center;">
+						<select ${disabled} tbval="Y" id = "item_green_cert_type" name="item_green_cert_type" tbname="녹색제품인증구분" requiredNot="true" style="text-align: center;" disabled>
 							<c:forEach var="items" items="${greenCertTypeCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
@@ -2272,7 +2317,12 @@
 							</c:forEach>
 						</select>
 					</td>
-					
+					<td removehtml="Y">
+						<select ${disabled} tbval="Y" name="item_green_cert_yn" tbname="녹색제품여부" requiredNot="true" style="text-align: center;">
+							<option value="Y">Y</option>
+							<option value="N">N</option>
+						</select>
+					</td>
 					<td removehtml="Y">
 						<select ${disabled} tbval="Y" name="item_green_cert_type" tbname="녹색제품인증구분" requiredNot="true" style="text-align: center;">
 							<c:forEach var="items" items="${greenCertTypeCode}">

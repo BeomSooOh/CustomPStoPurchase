@@ -2059,7 +2059,7 @@
 								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && (items.CODE == contractDetailInfo.bidlaw_reason || (items.CODE == 'etc' && contractDetailInfo.bidlaw_reason.indexOf('etc▦') > -1))}">selected</c:if> >${items.NAME}</option>
 							</c:forEach>							
 						</select>
-						<input name="bidLawReason_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.bidlaw_reason.indexOf('etc▦') == -1 ) }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.bidlaw_reason.indexOf('etc▦') > -1 }">${(contractDetailInfo.bidlaw_reason).substring(4)}</c:if>" />						
+						<input name="bidLawReason_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.bidlaw_reason.indexOf('etc▦') == -1 ) || contractDetailInfo.bidlaw_reason == null }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.bidlaw_reason.indexOf('etc▦') > -1 }">${(contractDetailInfo.bidlaw_reason).substring(4)}</c:if>" />						
 					</td>	
 				</tr>
 				</c:if>
@@ -2090,7 +2090,7 @@
 								<option value="${items.CODE}" <c:if test="${ viewType == 'U' && (items.CODE == contractDetailInfo.bid_law || (items.CODE == 'etc' && contractDetailInfo.bid_law.indexOf('etc▦') > -1))}">selected</c:if> >${items.NAME}</option>
 							</c:forEach>							
 						</select>					
-						<input name="bidLaw_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.bid_law.indexOf('etc▦') == -1 ) }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.bid_law.indexOf('etc▦') > -1 }">${(contractDetailInfo.bid_law).substring(4)}</c:if>" />
+						<input name="bidLaw_etc" style="<c:if test="${ viewType == 'I' || (viewType == 'U' && contractDetailInfo.bid_law.indexOf('etc▦') == -1 ) || contractDetailInfo.bid_law == null }">display:none;</c:if>width:100%;" type="text" value="<c:if test="${ viewType == 'U' && contractDetailInfo.bid_law.indexOf('etc▦') > -1 }">${(contractDetailInfo.bid_law).substring(4)}</c:if>" />
 					</td>
 				</c:if>
 				

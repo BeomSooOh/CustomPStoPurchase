@@ -357,7 +357,8 @@
   item_green_class, 
   item_foreign_type, 
   created_dt, 
-  created_by
+  created_by,
+  item_green_cert_yn
   )
   VALUES(
   '$seq$', 
@@ -385,7 +386,8 @@
   '$item_green_class$',
   '$item_foreign_type$',
   now(), 
-  '$created_by$'
+  '$created_by$',
+  '$item_green_cert_yn$'
   );
 
  </insert> 
@@ -420,7 +422,8 @@
   item_green_class, 
   item_foreign_type, 
   created_dt, 
-  created_by
+  created_by,
+  item_green_cert_yn
   FROM cust_sto.t_purchase_item_info 
   where seq='$seq$' and outProcessCode = '$outProcessCode$';
 
@@ -439,7 +442,8 @@
   check_info_html=#check_info_html#,
     
   modify_dt=now(), 
-  modify_by='$created_by$'
+  modify_by='$created_by$',
+  item_green_cert_yn = '$item_green_cert_yn$'
   
   WHERE seq='$seq$'; 
  </update>  
