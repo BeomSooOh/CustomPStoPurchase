@@ -66,10 +66,18 @@
 	
 		$(document).ready(function() {
 			
-			$('#amt, #stdAmt, #taxAmt').maskMoney({
-				precision : 0,
-				allowNegative: false
-			});
+			if ($('#amt').val() == null || $('#amt').val() == "" ){
+				
+	 			$('#amt').val(0);
+				$('#stdAmt').val(0);
+				$('#taxAmt').val(0); 
+				
+			}
+				
+				$('#amt, #stdAmt, #taxAmt').maskMoney({
+					precision : 0,
+					allowNegative: false
+				});
 			
 			$('#amt').keyup(function() {
 				var amtInt = $('#amt').val().replace(/,/g, '');

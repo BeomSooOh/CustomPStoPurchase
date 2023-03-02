@@ -556,7 +556,15 @@
 	</update>
 	
 	
+		<select	id="CommonSQL.SelConsTemp" parameterClass="HashMap" resultClass="HashMap">
 		
+		select * 
+		from $DB_NEOS$t_exnp_consdoc 
+		where
+		out_process_interface_id = '$out_process_interface_id$'
+		and out_process_interface_m_id = '$out_process_interface_m_id$'
+		and out_process_interface_d_id = '$out_process_interface_d_id$';
+	</select>
 		
 	<update	id="CommonSQL.DelConsTemp" parameterClass="HashMap" >
 	

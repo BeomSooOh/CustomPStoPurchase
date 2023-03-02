@@ -78,7 +78,9 @@
 		a.base_law, 
 		cust_sto.fn_get_purchase_code_text('baseLaw', a.base_law) as base_law_name,
 		a.contract_law, 
-		cust_sto.fn_get_purchase_code_text('contractLaw', a.contract_law) as contract_law_name,		
+		cust_sto.fn_get_purchase_code_text('contractLaw', a.contract_law) as contract_law_name,
+		a.private_reason,
+        cust_sto.fn_get_purchase_code_text('privateReason', a.private_reason) as private_reason_name,		
 		a.pay_type_info, 
 		a.work_info, 
 		a.emergency_yn, 
@@ -101,6 +103,8 @@
 		ifnull(trade.tr_name, '') as tr_name,		
 		ifnull(trade.tr_reg_number, '') as tr_reg_number,		
 		ifnull(trade.ceo_name, '') as ceo_name,	
+		ifnull(trade.addr, '') as addr,	
+        ifnull(trade.pm_name, '') as pm_name,
 		cust_sto.fn_get_purchase_code_text('hopeCompany', a.hope_company_info) as hope_company_info,
 		cust_sto.fn_get_purchase_code_text('contractType', a.contract_type) as contract_type_text,
 		ifnull(a.joint_contract_method, '') as joint_contract_method,
@@ -180,7 +184,8 @@
 		a.bid_law,
 		cust_sto.fn_get_purchase_code_text('bidlaw', a.bid_law) as bid_law_name,	
 		a.bidlaw_reason,
-		cust_sto.fn_get_purchase_code_text('bidlawreason', a.bidlaw_reason) as bidlaw_reason_name	
+		cust_sto.fn_get_purchase_code_text('bidlawreason', a.bidlaw_reason) as bidlaw_reason_name,
+		ifnull(group_concat(trade.tr_name order by trade.tr_idx), '') as tr_name_group			
 		
 		FROM cust_sto.t_purchase_contract a
 		<isEqual property="authLevel" compareValue="dept">
@@ -190,7 +195,7 @@
 		inner join (SELECT @rownum:=0) tmp
 		left join cust_sto.t_purchase_conclusion_change cc on a.approkey_change = concat('Conclu02_', cc.seq, '_', cc.change_seq)  
 		left join cust_sto.t_purchase_conclusion_change pcc_temp on a.seq = pcc_temp.seq and ifnull(pcc_temp.doc_sts,'') = ''
-		left join cust_sto.t_purchase_trade_info trade on a.seq = trade.seq and trade.tr_idx = '0' and trade.outProcessCode like '%Conclusion01%'
+		left join cust_sto.t_purchase_trade_info trade on a.seq = trade.seq  and trade.outProcessCode like '%Conclusion01%'
 		left join $DB_NEOS$t_co_dept_multi cdm on ifnull(a.c_write_dept_seq,a.write_dept_seq) = cdm.dept_seq and cdm.lang_code = 'kr'
 		left join $DB_NEOS$t_co_emp_multi cem on ifnull(a.c_write_emp_seq,a.write_emp_seq) = cem.emp_seq and cem.lang_code = 'kr'		
 		
@@ -226,7 +231,7 @@
 			)   
 		</isEqual>
 		
-		
+		group by a.seq
 		order by a.seq desc
 		LIMIT $startNum$ ,  $endNum$
 		

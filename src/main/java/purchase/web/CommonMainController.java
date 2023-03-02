@@ -490,6 +490,22 @@ public class CommonMainController {
     }    
 
     
+    @RequestMapping("/SelConsTemp.do")
+    public ModelAndView SellConsTemp(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+    	ModelAndView mv = new ModelAndView();
+    	
+		Map<String, Object> resultData = commonServiceDAO.SelConsTemp(params);
+		
+		mv.addObject("resultData", resultData);
+		mv.addObject("resultCode", "SUCCESS");	
+		mv.setViewName("jsonView");    	
+    	
+		return mv;
+    }  
+    
+    
+    
     @RequestMapping("/purchase/admin/FormEditor.do")
     public ModelAndView FormEditor(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
     	

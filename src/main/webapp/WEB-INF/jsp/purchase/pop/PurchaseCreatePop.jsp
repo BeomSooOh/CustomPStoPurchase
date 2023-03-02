@@ -110,7 +110,7 @@
 	</c:forEach>
 	
 	$(document).ready(function() {
-		
+
 		$('[amountInput=Y]').maskMoney({
 			precision : 0,
 			allowNegative: false
@@ -132,23 +132,35 @@
 		</c:if>
 		
 		datePickerInit();
+
 		
-	});	
+	});
+	 
 	
-	
-	function chageYnSelect(value){
-			
-		var pos = $("#item_green_cert_type option").index($("#item_green_cert_type option:selected"));
-		
-		/* if (value == 'Y'){ */
-			
-			$("#item_green_cert_type").removeAttr("disabled");
-			/* $("#item_green_cert_yn option:eq(1)").attr("selected", "selected"); */
-		
-		/* } */
-	   
-		
-	}
+ 	function chageYnSelect(obj){
+					
+		 if ($(obj).val() == "Y"){
+			 
+			 $(obj).closest("tr").find("[name=item_green_cert_type]").removeAttr("disabled");
+			 $(obj).closest("tr").find("[name=item_non_green_reason]").attr("disabled","disabled");
+			 
+			 var change_reason =  $(obj).closest("tr").find("[name=item_non_green_reason]");
+			 			 		 
+			 change_reason.find("option:selected").prop("selected", false);
+			 change_reason.find("option:first").prop("selected", "selected");
+
+			 
+		 } else {
+			 
+			 $(obj).closest("tr").find("[name=item_non_green_reason]").removeAttr("disabled");
+			 $(obj).closest("tr").find("[name=item_green_cert_type]").attr("disabled","disabled");
+			 
+			 var change_type = $(obj).closest("tr").find("[name=item_green_cert_type]");
+			 
+			 change_type.find("option:selected").prop("selected", false);
+			 change_type.find("option:first").prop("selected", "selected");
+		 }		
+	} 
 	
 	
 	function setDynamicPuddInfo(objKey, type, value){
@@ -227,6 +239,8 @@
 		$(cloneData).find("[name=item_deadline]").val("${items.item_deadline}");
 		
 		$('[name="itemList"]').append(cloneData);
+		
+		chageYnSelect($(cloneData).find("[name=item_green_cert_yn]"));
 		
 		</c:forEach>			
 		</c:if>			
@@ -2217,21 +2231,22 @@
 						</select>
 					</td>
 					<td removehtml="Y">
-						<select ${disabled} tbval="Y" type="select" id = "item_green_cert_yn" name="item_green_cert_yn" onchange="chageYnSelect(this.value)" tbname="녹색제품여부" requiredNot="true" style="text-align: center;">
+						<select ${disabled} tbval="Y" type="select" id = "item_green_cert_yn" name="item_green_cert_yn" onchange="chageYnSelect(this)" tbname="녹색제품여부" requiredNot="true" style="text-align: center;"> 
+						
 							<option value="Y">Y</option>
 							<option value="N">N</option>
 						</select>
 					</td>
 					
 					<td removehtml="Y">
-						<select ${disabled} tbval="Y" id = "item_green_cert_type" name="item_green_cert_type" tbname="녹색제품인증구분" requiredNot="true" style="text-align: center;" disabled>
+						<select ${disabled} tbval="Y" id = "item_green_cert_type" name="item_green_cert_type" tbname="녹색제품인증구분" requiredNot="true" style="text-align: center;" >
 							<c:forEach var="items" items="${greenCertTypeCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
 						</select>
 					</td>
 					<td removehtml="Y">
-						<select ${disabled} tbval="Y" name="item_non_green_reason" tbname="녹색제품미구매사유" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() != ''" style="text-align: center;">
+						<select ${disabled} tbval="Y" name="item_non_green_reason" tbname="녹색제품미구매사유" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() != ''" style="text-align: center;" disabled>
 							<c:forEach var="items" items="${nonGreenReasonCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
@@ -2318,20 +2333,20 @@
 						</select>
 					</td>
 					<td removehtml="Y">
-						<select ${disabled} tbval="Y" name="item_green_cert_yn" tbname="녹색제품여부" requiredNot="true" style="text-align: center;">
+						<select ${disabled} tbval="Y" type="select" id = "item_green_cert_yn" name="item_green_cert_yn" onchange="chageYnSelect(this)" tbname="녹색제품여부" requiredNot="true" style="text-align: center;">
 							<option value="Y">Y</option>
 							<option value="N">N</option>
 						</select>
 					</td>
 					<td removehtml="Y">
-						<select ${disabled} tbval="Y" name="item_green_cert_type" tbname="녹색제품인증구분" requiredNot="true" style="text-align: center;">
+						<select ${disabled} tbval="Y" name="item_green_cert_type" tbname="녹색제품인증구분" requiredNot="true" style="text-align: center;" >
 							<c:forEach var="items" items="${greenCertTypeCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
 						</select>
 					</td>
 					<td removehtml="Y">
-						<select ${disabled} tbval="Y" name="item_non_green_reason" tbname="녹색제품미구매사유" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() != ''" style="text-align: center;">
+						<select ${disabled} tbval="Y" name="item_non_green_reason" tbname="녹색제품미구매사유" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() != ''" style="text-align: center;" disabled>
 							<c:forEach var="items" items="${nonGreenReasonCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>

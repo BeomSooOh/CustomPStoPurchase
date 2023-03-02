@@ -37,6 +37,15 @@
 		/* expend/np/user/NpUserConsSQL.xml - NpUserConsA.insertConsDoc */
 		/* 품의 문서 신규 생성 */
 		INSERT INTO $DB_NEOS$t_exnp_consdoc (
+		<isNotEmpty property="doc_seq">
+			 `doc_seq`,
+		</isNotEmpty>
+		<isNotEmpty property="doc_no">
+			 `doc_no`,
+		</isNotEmpty>
+		<isNotEmpty property="doc_status">
+		  	`doc_status`,
+		</isNotEmpty>
 			`consdoc_note`, 
 			`expend_date`, 
 			`erp_comp_seq`, 
@@ -58,6 +67,15 @@
 			`out_process_interface_d_id`
 		)
 		VALUES	(
+		<isNotEmpty property="doc_seq">
+			 #doc_seq#,
+		</isNotEmpty>
+		<isNotEmpty property="doc_no">
+			 #doc_no#,
+		</isNotEmpty>
+		<isNotEmpty property="doc_status">
+			 #doc_status#,
+		</isNotEmpty>
 			#consdocNote#, 
 			NOW(), 
 			#erpCompSeq#, 

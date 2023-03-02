@@ -162,7 +162,15 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 		returnVal = $(elementFor).val();
 		
 		if(subValueFor == "parseToInt"){
-			returnVal = returnVal.replace(/,/g, "")
+			
+			if(valOption == "notWon" && returnVal == ""){
+				returnVal = "0";
+			} else {
+			
+				returnVal = returnVal.replace(/,/g, "")
+			}
+			
+			
 		}else if(subValueFor == "|etc|" && $(elementFor).val() == "etc"){
 			
 			var subValueForValue = $("[name='"+$(elementFor).attr("name")+ "_etc']").val();

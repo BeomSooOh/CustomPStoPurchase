@@ -107,6 +107,12 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		return (Map<String, Object>) select( "CommonSQL.SelectPurchaseDetailCodeInfo", params );
 	}
 	
+	
+	@SuppressWarnings ( "unchecked" )
+	public Map<String, Object> SelConsTemp ( Map<String, Object> params ) {
+		return (Map<String, Object>) select( "CommonSQL.SelConsTemp", params );
+	}
+	
 	public void InsertCodeInfo ( Map<String, Object> params ) {
 		
 		insert( "CommonSQL.InsertCodeInfo", params );

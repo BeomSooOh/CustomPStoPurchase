@@ -48,7 +48,9 @@
 		var commonParam = {};
 		var commonElement;		
 		var saveData; 
-
+		var reqType;
+		
+		
 		commonParam.callback = 'fnCommonCode_callback';
 		commonParam.widthSize = "628";
 		commonParam.heightSize = "546";
@@ -109,7 +111,7 @@
 		</c:forEach>
 		
 		$(document).ready(function() {
-
+			
 			$('#txtOpenAmt1').text(fnGetCurrencyCode("${contractDetailInfo.open_amt}"));
 			$('#txtConsBalanceAmt1').text(fnGetCurrencyCode("${contractDetailInfo.consbalance_amt}"));
 			$('#txtApplyAmt1').text(fnGetCurrencyCode("${contractDetailInfo.resApply_amt}"));
@@ -880,12 +882,14 @@
 						
 						thisSeq = result.resultData.seq;
 						openerRefreshList();
+						reqType = type;
 						
-						if(type == 1){
-							msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");							
+/* 					if(type == 1){		
+						msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");		
 						}else{
-							fnPaymentCreate();
-						}
+							fnPaymentCreate();	
+						}  */
+						fnPaymentCreate();	
 						
 					}else{
 						msgSnackbar("error", "등록에 실패했습니다.");	
@@ -900,7 +904,10 @@
 		}
 		
 		var conclusionbudgetList = [];
-		var conclusionRemainAmt = 0;			
+		var conclusionRemainAmt = 0;
+		var cons_doc_no ;
+		var cons_doc_seq;
+		var cons_doc_status;
 		
 		function fnPaymentCreate(){
 
@@ -908,7 +915,41 @@
 			parameter = {};
 			parameter.out_process_interface_id = "Conclu01";
 			parameter.out_process_interface_m_id = thisSeq;
-			parameter.out_process_interface_d_id = "DUPLICATE_TEMP";			
+			parameter.out_process_interface_d_id = "DUPLICATE_TEMP";	
+			
+			
+			$.ajax({
+				type : 'post',
+				url : '<c:url value="/SelConsTemp.do" />',
+	    		datatype:"json",
+	            data: parameter ,
+				async : false,
+				success : function(result) {
+					
+					if(result.resultCode == "SUCCESS"){
+						if (result.resultData != null){
+							if(result.resultData.doc_status == "90"){
+								
+								cons_doc_no = result.resultData.doc_no  ;
+								cons_doc_seq = result.resultData.doc_seq;
+								cons_doc_status = result.resultData.doc_status;
+								
+							} 
+						}
+						
+			
+					}else{
+						msgSnackbar("error", "품의데이터 초기화 오류");	
+					}
+					
+				},
+				error : function(result) {
+					msgSnackbar("error", "품의데이터 초기화 오류");
+				}
+			});	
+			
+			
+			
 			
 			$.ajax({
 				type : 'post',
@@ -960,6 +1001,9 @@
 			parameter.outProcessInterfaceId = "Conclu01";
 			parameter.outProcessInterfaceMId = thisSeq;
 			parameter.outProcessInterfaceDId = "DUPLICATE_TEMP";
+			parameter.doc_no  = cons_doc_no;
+			parameter.doc_seq = cons_doc_seq;
+			parameter.doc_status = cons_doc_status;
 			
 			$.ajax({
 				type : 'post',
@@ -1159,8 +1203,16 @@
 						
 						if(conclusionbudgetList.length-2 < idx){
 							
+							if(reqType == 1){
+								
+								msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");
+								
+							} else {
+							
 							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?useYn=Y&outProcessCode="+outProcessCode+"&seq=" + thisSeq,  "ApprCreatePop", 1000, 729, 1, 1) ;
 							self.close();	
+							
+							}
 							
 /* 							if(conclusionRemainAmt > 0){
 								msgSnackbar("error", "품의금액이 예산잔액을 초과합니다.");
@@ -2171,12 +2223,12 @@
 		<!-- 계약대상 -->
 		<div class="btn_div mt25">
 			<div class="left_div">	
-				<p class="tit_p mt5 mb0">계약대상</p>
+				<p class="tit_p mt5 mb0">계약상대자</p>
 			</div>
 		</div>
 				
 		<div class="com_ta mt10">
-			<table name="tradeList" objKey="tradeObjList" objCheckFor="checkVal('obj', 'tradeList', '계약대상', 'mustAlert', '')">
+			<table name="tradeList" objKey="tradeObjList" objCheckFor="checkVal('obj', 'tradeList', '계약상대자', 'mustAlert', '')">
 				<colgroup>
 					<c:if test="${disabledYn == 'N'}"> 
 					<col width="50"/>

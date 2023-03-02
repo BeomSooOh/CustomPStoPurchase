@@ -42,6 +42,7 @@ import common.vo.common.ConnectionVO;
 import common.vo.common.CustomLabelVO;
 import common.vo.common.ResultVO;
 import common.vo.common.CommonInterface.commonCode;
+import common.vo.common.CommonMapInterface.commonExPath;
 import expend.np.user.option.BNpUserOptionService;
 import neos.cmm.util.DateUtil;
 import net.sf.json.JSONArray;
@@ -85,7 +86,9 @@ public class ContractPopController {
     @RequestMapping("/purchase/pop/ContractCreatePop.do")
     public ModelAndView ContractCreatePop(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
     	
-        ModelAndView mv = new ModelAndView();
+      	
+        ModelAndView mv = new ModelAndView();   
+        
         try {
             /* 변수 설정 */
             LoginVO loginVo = CommonConvert.CommonGetEmpVO();
@@ -169,6 +172,12 @@ public class ContractPopController {
             				mv.addObject("btnApprYn", "N");
             				mv.addObject("disabledYn", "Y");
             				mv.addObject("disabled", "disabled");
+            				
+            				if(params.get("authLevel") != null && params.get("authLevel").equals("admin")) {
+                					mv.addObject("btnSaveYn", "Y");
+                					mv.addObject("disabled", "");
+                					mv.addObject("disabledYn", "N");
+            				}
             			}
             		}
             		
@@ -239,7 +248,7 @@ public class ContractPopController {
         ModelAndView mv = new ModelAndView();
         try {
             /* 변수 설정 */
-            LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+            LoginVO loginVo = CommonConvert.CommonGetEmpVO();               
             
             params.put("groupSeq", loginVo.getGroupSeq());
             params.put("useYn", "Y");
@@ -469,6 +478,14 @@ public class ContractPopController {
             				mv.addObject("disabledYn", "Y");
             				mv.addObject("disabled", "disabled");
             				mv.addObject("readonly", "readonly");
+            				
+            				
+            				if(params.get("authLevel") != null && params.get("authLevel").equals("admin")) {
+                					mv.addObject("btnSaveYn", "Y");
+                					mv.addObject("disabled", "");
+                					mv.addObject("disabledYn", "N");
+            				}
+            				
             			}
             		}       
             		
@@ -1090,6 +1107,12 @@ public class ContractPopController {
         				mv.addObject("btnApprYn", "N");
         				mv.addObject("disabledYn", "Y");
         				mv.addObject("disabled", "disabled");
+        				
+        				if(params.get("authLevel") != null && params.get("authLevel").equals("admin")) {
+        					mv.addObject("btnSaveYn", "Y");
+        					mv.addObject("disabled", "");
+        					mv.addObject("disabledYn", "N");
+        				}	
         			}
         		}
         		
@@ -1321,6 +1344,12 @@ public class ContractPopController {
         				mv.addObject("btnApprYn", "N");
         				mv.addObject("disabledYn", "Y");
         				mv.addObject("disabled", "disabled");
+        				
+        				if(params.get("authLevel") != null && params.get("authLevel").equals("admin")) {
+        					mv.addObject("btnSaveYn", "Y");
+        					mv.addObject("disabled", "");
+        					mv.addObject("disabledYn", "N");
+        				}
         			}
         		}
         		
