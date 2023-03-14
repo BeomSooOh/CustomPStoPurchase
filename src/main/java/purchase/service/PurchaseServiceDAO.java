@@ -113,6 +113,19 @@ public class PurchaseServiceDAO extends EgovComAbstractDAO {
 		
 		return super.listOfPaging2(paramMap, paginationInfo, "PurchaseSQL.SelectResolutionList");
 		
+	}
+	
+	public Map<String, Object> SelectHopePurchaseList (Map<String, Object> paramMap, PaginationInfo paginationInfo) {
+		
+		return super.listOfPaging2(paramMap, paginationInfo, "PurchaseSQL.SelectHopePurchaseList");
+		
 	}	
+	
+	public Map<String, Object> SelectGreenPurchaseList (Map<String, Object> paramMap, PaginationInfo paginationInfo) {
+		
+		return super.listOfPaging2(paramMap, paginationInfo, "PurchaseSQL.SelectGreenPurchaseList");
+		
+	}
+	
 	
 }

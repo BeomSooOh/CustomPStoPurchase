@@ -488,6 +488,201 @@ public class PurchaseMainController {
 		mv.addAllObjects(resultMap);	// data.result
 		return mv;    	
     
-    } 	    
+    } 
+    
+    
+    
+    @RequestMapping("/purchase/{authLevel}/HopePurchaseList.do")
+    public ModelAndView HopePurchaseList(@PathVariable String authLevel, @RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        mv.addObject("authLevel", authLevel);
+        
+        try {
+            LoginVO loginVo = CommonConvert.CommonGetEmpVO();  
+            
+            //메뉴접근 권한체크
+            if(!commonServiceDAO.CheckAuthFromMenuInfo(loginVo, request.getServletPath())) {
+            	//권한없음
+            	mv.setViewName( commonExPath.ERRORPAGEPATH + commonExPath.CMERRORCHECKAUTH );
+            	return mv;
+            }
+        	
+        	String toDate = DateUtil.getCurrentDate("yyyy-MM-dd");
+        	String fromDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", -3);
+        	toDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", 12);
+        	mv.addObject("deptSeq", loginVo.getOrgnztId());
+        	mv.addObject("deptName", loginVo.getOrgnztNm());
+        	mv.addObject("fromDate", fromDate);
+        	mv.addObject("toDate", toDate);    
+        	
+            params.put("group", "");
+            params.put("code", ""); 
+            params.put("codeNotEmpty", "Y"); 
+            List<Map<String, Object>> codeList = commonServiceDAO.SelectPurchaseDetailCodeList(params);            
+            
+            List<Map<String, Object>> greenCertType = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> greenClass = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> hopeCompany = new ArrayList<Map<String, Object>>();
+            
+            if(codeList != null && codeList.size() > 0) {
+            	
+        		for (Map<String, Object> codeinfo : codeList) {
+        			
+        			if(codeinfo.get("GROUP").equals("greenCertType")) {
+        				greenCertType.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("greenClass")) {
+        				greenClass.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("hopeCompany")) {
+        				hopeCompany.add(codeinfo);
+        			}
+        		}            	
+            }           
 
+            mv.addObject("greenCertType", greenCertType);	
+            mv.addObject("greenClass", greenClass);	
+            mv.addObject("hopeCompany", hopeCompany);	
+        	
+            mv.setViewName("/purchase/content/HopePurchaseList");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExpInfo.ProcessLog(e.getLocalizedMessage());
+            mv.addObject("errMsg", e.getMessage());
+            mv.setViewName(CommonMapper.GetExError());
+            logger.error(e);
+        }
+        return mv;
+    } 
+    
+    
+    @RequestMapping("/purchase/{authLevel}/SelectHopePurchaseList.do")
+    @ResponseBody
+    public ModelAndView SelectHopePurchaseList(@PathVariable String authLevel, @RequestParam Map<String, Object> paramMap, HttpServletRequest request) throws Exception {
+    	
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo = getPaginationInfo(paramMap);
+		
+        /* 변수 설정 */
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+        paramMap.put("groupSeq", loginVo.getGroupSeq());
+        paramMap.put("compSeq", loginVo.getOrganId());
+ //       paramMap.put("deptSeq", loginVo.getOrgnztId());
+        paramMap.put("empSeq", loginVo.getUniqId());
+		
+        paramMap.put("authLevel", authLevel);		
+		
+		Map<String,Object> resultMap = null;
+		try {
+			resultMap = purchaseServiceDAO.SelectHopePurchaseList(paramMap, paginationInfo);
+		} catch (Exception e) {
+			resultMap = new HashMap<String,Object>();
+			e.printStackTrace();
+			logger.error(e);
+		}
+	 
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("jsonView");
+		mv.addAllObjects(resultMap);	// data.result
+		return mv;    	
+    
+    } 
+    
+    
+    
+    
+    @RequestMapping("/purchase/{authLevel}/GreenPurchaseList.do")
+    public ModelAndView GreenPurchaseList(@PathVariable String authLevel, @RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+        ModelAndView mv = new ModelAndView();
+        mv.addObject("authLevel", authLevel);
+        
+        try {
+            LoginVO loginVo = CommonConvert.CommonGetEmpVO();  
+            
+            //메뉴접근 권한체크
+            if(!commonServiceDAO.CheckAuthFromMenuInfo(loginVo, request.getServletPath())) {
+            	//권한없음
+            	mv.setViewName( commonExPath.ERRORPAGEPATH + commonExPath.CMERRORCHECKAUTH );
+            	return mv;
+            }
+        	
+        	String toDate = DateUtil.getCurrentDate("yyyy-MM-dd");
+        	String fromDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", -3);
+        	toDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", 12);
+        	mv.addObject("deptSeq", loginVo.getOrgnztId());
+        	mv.addObject("deptName", loginVo.getOrgnztNm());
+        	mv.addObject("fromDate", fromDate);
+        	mv.addObject("toDate", toDate);    
+        	
+            params.put("group", "");
+            params.put("code", ""); 
+            params.put("codeNotEmpty", "Y"); 
+            List<Map<String, Object>> codeList = commonServiceDAO.SelectPurchaseDetailCodeList(params);            
+            
+            List<Map<String, Object>> greenCertType = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> greenClass = new ArrayList<Map<String, Object>>();
+            
+            if(codeList != null && codeList.size() > 0) {
+            	
+        		for (Map<String, Object> codeinfo : codeList) {
+        			
+        			if(codeinfo.get("GROUP").equals("greenCertType")) {
+        				greenCertType.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("greenClass")) {
+        				greenClass.add(codeinfo);
+        			}
+        		}            	
+            }           
+
+            mv.addObject("greenCertType", greenCertType);	
+            mv.addObject("greenClass", greenClass);	
+
+        	
+            mv.setViewName("/purchase/content/GreenPurchaseList");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExpInfo.ProcessLog(e.getLocalizedMessage());
+            mv.addObject("errMsg", e.getMessage());
+            mv.setViewName(CommonMapper.GetExError());
+            logger.error(e);
+        }
+        return mv;
+    } 
+    
+    
+    @RequestMapping("/purchase/{authLevel}/SelectGreenPurchaseList.do")
+    @ResponseBody
+    public ModelAndView SelectGreenPurchaseList(@PathVariable String authLevel, @RequestParam Map<String, Object> paramMap, HttpServletRequest request) throws Exception {
+    	
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo = getPaginationInfo(paramMap);
+		
+        /* 변수 설정 */
+        LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+        paramMap.put("groupSeq", loginVo.getGroupSeq());
+        paramMap.put("compSeq", loginVo.getOrganId());
+ //       paramMap.put("deptSeq", loginVo.getOrgnztId());
+        paramMap.put("empSeq", loginVo.getUniqId());
+		
+        paramMap.put("authLevel", authLevel);		
+		
+		Map<String,Object> resultMap = null;
+		try {
+			resultMap = purchaseServiceDAO.SelectGreenPurchaseList(paramMap, paginationInfo);
+		} catch (Exception e) {
+			resultMap = new HashMap<String,Object>();
+			e.printStackTrace();
+			logger.error(e);
+		}
+	 
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("jsonView");
+		mv.addAllObjects(resultMap);	// data.result
+		return mv;    	
+    
+    } 
+    
+    
 }

@@ -30,6 +30,11 @@
     
 <script>
 
+	var deptSeq = "${deptSeq}";
+	var deptName = "${deptName}";
+	var authLevel = "${authLevel}";
+
+
 	$(document).ready(function() {
 		
 		BindGrid();
@@ -45,6 +50,14 @@
 		var reqParam = {};
 		reqParam.searchFromDate = $("#searchFromDate").val();
 		reqParam.searchToDate = $("#searchToDate").val();
+		
+		
+		if (authLevel == 'admin'){
+			reqParam.deptSeq = $("#selectedDeptSeq").val();
+		} else if (authLevel == 'dept'){
+			reqParam.deptSeq = $("#selectLoginDept").val();
+		}
+		
 
 		$.ajax({
 			type : 'post',
@@ -207,7 +220,35 @@
     	}
      
     	excel.generate( fileName, saveCallback, stepCallback );
-    }    
+    } 
+    
+    
+	function selectOrgchart(){
+		 
+		 var pop = window.open("", "cmmOrgPop", "width=799,height=769,scrollbars=no");
+			$("#callback").val("callbackSel");
+			frmPop.target = "cmmOrgPop";
+			frmPop.method = "post";
+			frmPop.action = "/gw/systemx/orgChart.do";
+			frmPop.submit();
+			pop.focus();
+	}	
+   
+	function callbackSel(reqParam){
+		
+		if(reqParam.returnObj.length > 0){
+			$("#selectedDeptSeq").val(reqParam.returnObj[0].deptSeq);
+			$("#deptName").val(reqParam.returnObj[0].deptName);				
+		}else{
+			$("#selectedItems").val("");
+			$("#selectedDeptSeq").val("");
+			$("#deptName").val("");
+		}
+		
+		BindGrid();
+
+	 }	
+    
 	
 </script>
 
@@ -220,6 +261,20 @@
 			<input type="text" id="searchToDate" value="${toDate}" class="puddSetup" pudd-type="datepicker"/>
 		</dd>	
 		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="BindGrid();" /></dd>
+		<c:if test="${authLevel=='admin'}">
+		<dt class="ar" style="width:30px;">부서</dt>
+		<dd><input readonly type="text" id="deptName" pudd-style="width:120px;" class="puddSetup"  value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+		<dd><input type="button" class="puddSetup submit" id="searchButton" value="선택" onclick="selectOrgchart();" /></dd>
+		</c:if>
+		<c:if test="${authLevel=='dept'}">
+		<dt class="ar" style="width:30px;">부서</dt>
+			<dd>
+			<select type="select" id="selectLoginDept" name="selectLoginDept" onchange="BindGrid()"> 
+				<option value="">전체</option>
+				<option value="${deptSeq}" >${deptName}</option>
+			</select>
+			<dd>
+		</c:if>	
 	</dl>
 </div>
 
@@ -271,6 +326,18 @@
 	</div>
 	<input style="display:none;" id="file_upload" type="file" />
 	<div id="exArea"></div>
+	<input type="hidden" id="selectedDeptSeq" value="" />
+	<form id="frmPop" name="frmPop"> 
+			<input type="hidden" name="selectedItems" id="selectedItems" value="" />
+			<input type="hidden" name="popUrlStr" id="txt_popup_url" value="/gw/systemx/orgChart.do" />
+			<input type="hidden" name="selectMode" id="selectMode" value="d" />
+			<input type="hidden" name="selectItem" value="s" />
+			<input type="hidden" name="callback" id="callback" value="" />
+			<input type="hidden" name="compSeq" value="" />
+			<input type="hidden" name="callbackUrl" value="/gw/html/common/callback/cmmOrgPopCallback.jsp"/>
+			<input type="hidden" name="empUniqYn" value="N" />
+			<input type="hidden" name="empUniqGroup" value="ALL" />
+	</form>
 	<div id="jugglingProgressBar"></div>
 	<div id="loadingProgressBar"></div>
 	<div id="circularProgressBar"></div>	

@@ -30,6 +30,10 @@
     
 <script>
 
+	var deptSeq = "${deptSeq}";
+	var deptName = "${deptName}";
+	var authLevel = "${authLevel}";
+
 	var targetSeq = "";
 	var uploadPer = 0;
 	
@@ -70,12 +74,19 @@
 	
 	function BindGrid(){
 		
+		
+/* 		if (authLevel == 'admin'){
+			reqParam.deptSeq = $("#selectedDeptSeq").val();
+		} else if (authLevel == 'dept'){
+			reqParam.deptSeq = $("#selectLoginDept").val();
+		} */
+		
 		var dataSource = new Pudd.Data.DataSource({
 				serverPaging: true
 			,	editable : true
 			,	pageSize: 10
 			,	request : {
-				    url : '<c:url value="/purchase/${authLevel}/SelectResolutionList.do" />'
+				    url : '<c:url value="/purchase/${authLevel}/SelectHopePurchaseList.do" />'
 				,	type : 'post'
 				,	dataType : "json"
 				,   parameterMapping : function( data ) {
@@ -88,16 +99,19 @@
 					data.docNo = $("#txtDocNo").val();
 					data.txtTrName = $("#txtTrName").val();
 					
-					data.itemGreenClass = $("#itemGreenClass").val();
-					data.itemGreenCertType = $("#itemGreenCertType").val();
 					data.itemHopeCompany = $("#itemHopeCompany").val();					
 					
 					<c:if test="${authLevel!='admin'}">
 					data.deptName = "";
 					</c:if>
 					<c:if test="${authLevel=='admin'}">
-					data.deptName = $("#txtDeptName").val();
-					</c:if>							
+					data.deptName = $("#deptName").val();
+					</c:if>	
+					
+					<c:if test="${authLevel=='dept'}">
+					data.deptSeq = $("#selectLoginDept").val();
+					</c:if>		
+					
 					
 					<c:if test="${authLevel!='user'}">
 					data.empName = $("#txtEmpName").val();
@@ -164,29 +178,29 @@
 		
 		,	columns : [
 			
-			{  field : "c_tiname",	title : "양식명",	width : 90}
-	 	    ,{  field : "docNo",	title : "문서번호",	width : 90
+			 {  field : "c_tiname",	title : "양식명",	width : 150}
+	 	    ,{  field : "docNo",	title : "문서번호",	width : 130
 	 	    
 	 	    }
-	 	    
 			,	{  field : "docTitle"
 				,	title : "제목" 
-				,   width : 150
+				,   width : 200
 				   , content : {
 						template : function( rowData ) {
 							return "<a href=\"javascript:titleOnClickApp('" + rowData.docSeq + "');\">" + rowData.docTitle +"</a>";
 						}
 					}				
-			    }			
-		 	,{  field : "deptName",	title : "기안부서",	width : 130}			
-		 	,{  field : "empName",	title : "기안자",	width : 80}
+			    }
+		 	   ,{  field : "deptName",	title : "기안부서",	width : 130}			
+		 	   ,{  field : "empName",	title : "기안자",	width : 80}
 			,   {  field : "",	title : "기안일자",	width : 90
 				   , content : {
 						template : function( rowData ) {
 							return rowData.docDate.substring(0,4) + "-" + rowData.docDate.substring(4,6) + "-" + rowData.docDate.substring(6,8);
 						}
 					}				
-			}, {  field : "resDocAmt",	title : "금액",	width : 100
+			}
+			,   {  field : "resDocAmt",	title : "금액",	width : 100
 				   , content : {
 					   attributes : { class : "ri" },
 						template : function( rowData ) {
@@ -200,50 +214,25 @@
 					}
 			
 				}
-			/* ,   {  field : "trName",	title : "업체명",	width : 150}
-			,   {  field : "docStatus",	title : "결재상태",	width : 120
+			,   {  field : "trName",	title : "업체명",	width : 150}
+			,   {  field : "business_nb",	title : "사업자번호",	width : 150}
+			,   {  field : "hope_company_info",	title : "희망기업",	width : 150}				
+			,   {  field : "",	title : "품의유형",	width : 100
 				   , content : {
-						template : function( rowData ) {
-							return fnGetDocStatusLabel(rowData.docStatus);
+						template : function( rowData ) {			
+							if(rowData.c_target_type == "01"){
+								return 	"용역";
+							} else if (rowData.c_target_type == "04" || rowData.out_process_interface_id == "PURCHASE"){
+								return 	"구매";	
+							} else if (rowData.c_target_type == "06") {
+								return "공사";
+							} else {
+								return "";
+							}
 						}
-					}				
-			}
+					}
 			
-			,   {  field : "erpSendYN",	title : "전송여부",	width : 120
-				   , content : {
-						template : function( rowData ) {
-							return rowData.erpSendYN == "Y" ? "전송완료" : "-";
-						}
-					}				
-			
-			}
-			,   {  field : "sendName",	title : "전송자",	width : 120}
-			
-			,	{  field : ""
-				,	title : "결재선보기"
-				,	width : 80
-				,	content : {	
-					   template : openPopApprovalLinePudd
-				    }				
-			    }
-			
-			,	{
-				field : "item_green_class"
-			,	title : "제품분류"
-			,	width : 150							
-			}			
-			,	{
-				field : "item_green_cert_type"
-			,	title : "녹색제품 인증구분"
-			,	width : 150							
-			}
-
-			,	{
-				field : "hope_company_info"
-			,	title : "희망기업여부"
-			,	width : 150							
-			}	 */			
-		
+				}
 		]
 	});	
 		
@@ -336,19 +325,10 @@
 				var hopeState = "C";
 				var hopeDelState = "";
 				
-/* 				if(result.resGreenInfo != null){
-					greenState = "V";
-					greenDelState = "V";
-				} */
-				
-				if(result.resGreenInfo.item_green_cert_type != "" && result.resGreenInfo.item_green_class != ""){
+				if(result.resGreenInfo != null){
 					greenState = "V";
 					greenDelState = "V";
 				}
-				else{
-					greenState = "C";
-				}	
-				
 				
 				if(result.resHopeInfoList.length > 0){
 					
@@ -362,42 +342,7 @@
 				}				
 				
 				var btnList = [];
-				
-				if(greenState != ""){
-					var btnStyle = greenState == "C" ? "submit" : "cancel";
-					var btnName = "녹색제품실적연계";					
-					var btnInfo = {
-							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
-						,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
-						,	value : btnName
-						,	clickCallback : function( puddActionBar ) {
-								fnCallBtn('greenState', rowData.resDocSeq);
-								
-								$('.iframe_wrap').attr('onclick','').unbind('click');
-								puddActionBar.showActionBar( false );
-								targetSeq = "";
-							}
-					};
-					btnList.push(btnInfo);			
-				}
-				
-				if(greenDelState != ""){
-					var btnStyle = greenDelState == "C" ? "submit" : "cancel";
-					var btnName = "녹색제품실적삭제";					
-					var btnInfo = {
-							attributes : { style : "margin-top:4px;margin-left:10px;width:auto;" }// control 부모 객체 속성 설정
-						,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
-						,	value : btnName
-						,	clickCallback : function( puddActionBar ) {
-								fnCallBtn('greenDelState', rowData.resDocSeq);
-								
-								$('.iframe_wrap').attr('onclick','').unbind('click');
-								puddActionBar.showActionBar( false );
-								targetSeq = "";
-							}
-					};
-					btnList.push(btnInfo);			
-				}				
+							
 			
 				if(hopeState != ""){
 					var btnStyle = hopeState == "C" ? "submit" : "cancel";
@@ -407,7 +352,7 @@
 						,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
 						,	value : btnName
 						,	clickCallback : function( puddActionBar ) {
-								fnCallBtn('hopeState', rowData.resDocSeq);
+								fnCallBtn('purhopeState', rowData.resDocSeq);
 								
 								$('.iframe_wrap').attr('onclick','').unbind('click');
 								puddActionBar.showActionBar( false );
@@ -598,7 +543,7 @@
      
     	,	request : {
      
-    			url : '<c:url value="/purchase/${authLevel}/SelectResolutionList.do" />'
+    			url : '<c:url value="/purchase/${authLevel}/SelectHopePurchaseList.do" />'
     		,	type : 'post'
     		,	dataType : "json"
      
@@ -620,7 +565,7 @@
 					data.deptName = "";
 					</c:if>
 					<c:if test="${authLevel=='admin'}">
-					data.deptName = $("#txtDeptName").val();
+					data.deptName = $("#deptName").val();
 					</c:if>							
 					
 					<c:if test="${authLevel!='user'}">
@@ -714,7 +659,7 @@
     	});
 		    	
     	var headerRow = 2;
-    	var headerCol = 7;
+    	var headerCol = 11;
     	
     	for(var i=1; i < headerRow; i++) {
     		for(var j=0; j < headerCol; j++) {
@@ -728,24 +673,20 @@
     	excel.set(0, 4, 1, "기안자");
     	excel.set(0, 5, 1, "기안일자");
     	excel.set(0, 6, 1, "금액");
-/*     	excel.set(0, 6, 1, "업체명");
-    	excel.set(0, 7, 1, "결재상태");
-    	excel.set(0, 8, 1, "전송여부");
-    	excel.set(0, 9, 1, "전송자");
-    	excel.set(0, 10, 1, "제품분류");
-    	excel.set(0, 11, 1, "녹색제품 인증구분");
-    	excel.set(0, 12, 1, "희망기업여부"); */
+    	excel.set(0, 7, 1, "업체명");
+    	excel.set(0, 8, 1, "사업자번호");
+    	excel.set(0, 9, 1, "희망기업");
+    	excel.set(0, 10, 1, "품의유형");
     	
     	// sheet번호, column, value(width)
-    	for( var i = 0; i < 7; i++ ) {
+    	for( var i = 0; i < 11; i++ ) {
     		excel.setColumnWidth( 0, i, 20 );
     	}    	
 		
-    	excel.setColumnWidth( 0, 2, 50 );
+    	excel.setColumnWidth( 0, 2, 50 );	
+    	excel.setColumnWidth( 0, 8, 50 );
+    	excel.setColumnWidth( 0, 9, 50 );
     	
-/*     	excel.setColumnWidth( 0, 10, 50 );
-    	excel.setColumnWidth( 0, 11, 50 );
-    	excel.setColumnWidth( 0, 12, 50 ); */
     	/*
     	
     	excel.setColumnWidth( 0, 9, 50 );
@@ -773,18 +714,59 @@
     		excel.set( 0, 4, rowNo, dataPage[ i ][ "empName" ], formatCell );
     		excel.set( 0, 5, rowNo, dataPage[ i ][ "docDate" ].substring(0,4) + "-" + dataPage[ i ][ "docDate" ].substring(4,6) + "-" + dataPage[ i ][ "docDate" ].substring(6,8), formatCell );
     		excel.set( 0, 6, rowNo, (dataPage[ i ][ "resDocAmt" ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), formatCellR );
-/*    		excel.set( 0, 6, rowNo, dataPage[ i ][ "trName" ], formatCell );
-     		excel.set( 0, 7, rowNo, fnGetDocStatusLabel(dataPage[ i ][ "docStatus" ]), formatCell );
-    		excel.set( 0, 8, rowNo, (dataPage[ i ][ "erpSendYN" ] == "Y" ? "전송완료" : ""), formatCell );
-    		excel.set( 0, 9, rowNo, dataPage[ i ][ "sendName" ] == null ? "" : dataPage[ i ][ "sendName" ], formatCell );
-    		excel.set( 0, 10, rowNo, dataPage[ i ][ "item_green_class" ], formatCell );
-    		excel.set( 0, 11, rowNo, dataPage[ i ][ "item_green_cert_type" ], formatCell );
-    		excel.set( 0, 12, rowNo, dataPage[ i ][ "hope_company_info" ], formatCell ); */
+    		excel.set( 0, 7, rowNo, dataPage[ i ][ "trName" ], formatCell );
+    		excel.set( 0, 8, rowNo, dataPage[ i ][ "business_nb" ], formatCell );
+    		excel.set( 0, 9, rowNo, dataPage[ i ][ "hope_company_info" ], formatCell );
+    		
+    		if (dataPage[ i ][ "c_target_type" ] != "") {
+    			if (dataPage[ i ][ "c_target_type" ] == "01"){
+    				excel.set( 0, 10, rowNo, "용역", formatCell );
+    			} else if (dataPage[ i ][ "c_target_type" ] == "04" || dataPage[ i ][ "process_interface_m_id" ] == "PURCHASE") {
+    				excel.set( 0, 10, rowNo, "구매", formatCell );
+    			} else if (dataPage[ i ][ "c_target_type" ] == "06"){
+    				excel.set( 0, 10, rowNo, "공사", formatCell );
+    			} else {
+    				excel.set( 0, 10, rowNo, "", formatCell );
+    			}
+    				
+    		}
+    		
+    		
     	}
      
     	excel.generate( fileName, saveCallback, stepCallback );
     }    
 	
+    
+    
+	function selectOrgchart(){
+		
+ 		 var pop = window.open("", "cmmOrgPop", "width=799,height=769,scrollbars=no");
+			$("#callback").val("callbackSel");
+			frmPop.target = "cmmOrgPop";
+			frmPop.method = "post";
+			frmPop.action = "/gw/systemx/orgChart.do";
+			frmPop.submit();
+			pop.focus(); 
+	}	
+  
+	function callbackSel(reqParam){
+		
+		if(reqParam.returnObj.length > 0){
+			$("#selectedDeptSeq").val(reqParam.returnObj[0].deptSeq);
+			$("#deptName").val(reqParam.returnObj[0].deptName); 
+
+		}else{
+			$("#selectedItems").val("");
+			$("#selectedDeptSeq").val("");
+			$("#deptName").val("");
+		}
+		
+		BindGrid();
+
+	 }	
+    
+    
 </script>
 
 
@@ -802,7 +784,7 @@
 		<dt class="ar">제목</dt>
 		<dd><input type="text" id="txtDoctitle" pudd-style="width:120px;" class="puddSetup" placeHolder="제목 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		
-		<dt class="ar">결재상태</dt>
+ 		<dt class="ar">결재상태</dt>
 		<dd>
 			<select type="select" id="selDocStatus" onchange="BindGrid();" class="puddSetup" pudd-style="width:100%;">
 				<option value="" selected="selected">전체</option>
@@ -819,26 +801,36 @@
 		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="BindGrid();" /></dd>
 	</dl>
 	
-<%-- 	<dl class="next2">
-		<dt class="ar">제품분류</dt>
-		<dd>
-			<select id="itemGreenClass" onchange="BindGrid();" style="text-align: center;">
+	<dl class="next2">
+
+		<dt class="ar" style="width:40px;">업체명</dt>
+		<dd><input type="text" id="txtTrName" pudd-style="width:100px;" class="puddSetup" placeHolder="업체명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+	
+	
+		<c:if test="${authLevel=='admin'}">
+		<dt class="ar" style="width:70px;">사용부서</dt>
+		<dd><input readonly type="text" id="deptName" pudd-style="width:120px;" class="puddSetup"  value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+		<dd><input type="button" class="puddSetup submit" id="searchButton" value="선택" onclick="selectOrgchart();" /></dd>
+		</c:if>
+		<c:if test="${authLevel=='dept'}">
+		<dt class="ar" style="width:70px;">사용부서</dt>
+			<dd>
+			<select type="select" id="selectLoginDept" name="selectLoginDept" onchange="BindGrid()"> 
 				<option value="">전체</option>
-				<c:forEach var="items" items="${greenClass}">
-				<option value="${items.CODE}">${items.NAME}</option>
-				</c:forEach>
+				<option value="${deptSeq}" >${deptName}</option>
 			</select>
-		</dd>
+			<dd>
+		</c:if>	
+	
+	
+		<!-- <dt class="ar">사용부서</dt>
+		<dd><input type="text" id="txtDeptName" pudd-style="width:70px;" class="puddSetup" placeHolder="부서명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd> -->
+		
+		<c:if test="${authLevel!='user'}">
+		<dt class="ar">사용자</dt>
+		<dd><input type="text" id="txtEmpName" pudd-style="width:100px;" class="puddSetup" placeHolder="사원명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
+		</c:if>
 				
-		<dt class="ar">녹색제품 인증구분</dt>
-		<dd>
-			<select id="itemGreenCertType" onchange="BindGrid();" style="text-align: center;">
-				<option value="">전체</option>
-				<c:forEach var="items" items="${greenCertType}">
-				<option value="${items.CODE}">${items.NAME}</option>
-				</c:forEach>
-			</select>			
-		</dd>
 		
 		<dt class="ar">희망기업여부</dt>
 		<dd>
@@ -849,21 +841,8 @@
 				</c:forEach>
 			</select>			
 		</dd>		
-	</dl>	 --%>
-	
-	<dl class="next2">
-		<dt class="ar" style="width:40px;">업체명</dt>
-		<dd><input type="text" id="txtTrName" pudd-style="width:70px;" class="puddSetup" placeHolder="업체명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
-	
-		<dt class="ar">사용부서</dt>
-		<dd><input type="text" id="txtDeptName" pudd-style="width:70px;" class="puddSetup" placeHolder="부서명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
-		
-		<c:if test="${authLevel!='user'}">
-		<dt class="ar">사용자</dt>
-		<dd><input type="text" id="txtEmpName" pudd-style="width:70px;" class="puddSetup" placeHolder="사원명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
-		</c:if>
 	</dl>	
-	
+
 </div>
 
 <div class="sub_contents_wrap posi_re">
@@ -890,6 +869,18 @@
 	</div>
 	<input style="display:none;" id="file_upload" type="file" />
 	<div id="exArea"></div>
+	<input type="hidden" id="selectedDeptSeq" value="" />
+	<form id="frmPop" name="frmPop"> 
+		<input type="hidden" name="selectedItems" id="selectedItems" value="" />
+		<input type="hidden" name="popUrlStr" id="txt_popup_url" value="/gw/systemx/orgChart.do" />
+		<input type="hidden" name="selectMode" id="selectMode" value="d" />
+		<input type="hidden" name="selectItem" value="s" />
+		<input type="hidden" name="callback" id="callback" value="" />
+		<input type="hidden" name="compSeq" value="" />
+		<input type="hidden" name="callbackUrl" value="/gw/html/common/callback/cmmOrgPopCallback.jsp"/>
+		<input type="hidden" name="empUniqYn" value="N" />
+		<input type="hidden" name="empUniqGroup" value="ALL" />
+	</form>
 	<div id="jugglingProgressBar"></div>
 	<div id="loadingProgressBar"></div>
 	<div id="circularProgressBar"></div>	
