@@ -87,6 +87,8 @@ public class CommonMainController {
         	String toDate = DateUtil.getCurrentDate("yyyy-MM-dd");
         	String fromDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", -3);
         	toDate = DateUtil.getFormattedDateMonthAdd(toDate, "yyyy-MM-dd", "yyyy-MM-dd", 12);
+        	mv.addObject("deptSeq", loginVo.getOrgnztId());
+        	mv.addObject("deptName", loginVo.getOrgnztNm());
         	mv.addObject("fromDate", fromDate);
         	mv.addObject("toDate", toDate);        
             
@@ -112,7 +114,7 @@ public class CommonMainController {
         LoginVO loginVo = CommonConvert.CommonGetEmpVO();
 		params.put("groupSeq", loginVo.getGroupSeq());
 		params.put("compSeq", loginVo.getOrganId());
-		params.put("deptSeq", loginVo.getOrgnztId());
+//		params.put("deptSeq", loginVo.getOrgnztId());
 		params.put("empSeq", loginVo.getUniqId());
 		
 		params.put("authLevel", authLevel);
@@ -144,6 +146,8 @@ public class CommonMainController {
         	
         	String toDate = DateUtil.getCurrentDate("yyyy-MM-dd");
         	String fromDate = DateUtil.getCurrentDate("yyyy-01-01");
+        	mv.addObject("deptSeq", loginVo.getOrgnztId());
+        	mv.addObject("deptName", loginVo.getOrgnztNm());
         	mv.addObject("fromDate", fromDate);
         	mv.addObject("toDate", toDate);        
             
@@ -169,7 +173,7 @@ public class CommonMainController {
         LoginVO loginVo = CommonConvert.CommonGetEmpVO();
 		params.put("groupSeq", loginVo.getGroupSeq());
 		params.put("compSeq", loginVo.getOrganId());
-		params.put("deptSeq", loginVo.getOrgnztId());
+//		params.put("deptSeq", loginVo.getOrgnztId());
 		params.put("empSeq", loginVo.getUniqId());
 		params.put("authLevel", authLevel);
 		params.put("amtType", amtType);
@@ -206,6 +210,8 @@ public class CommonMainController {
         	
         	String toDate = DateUtil.getCurrentDate("yyyy-MM-dd");
         	String fromDate = DateUtil.getCurrentDate("yyyy-01-01");
+        	mv.addObject("deptSeq", loginVo.getOrgnztId());
+        	mv.addObject("deptName", loginVo.getOrgnztNm());
         	mv.addObject("fromDate", fromDate);
         	mv.addObject("toDate", toDate);        
             
@@ -231,7 +237,7 @@ public class CommonMainController {
         LoginVO loginVo = CommonConvert.CommonGetEmpVO();
 		params.put("groupSeq", loginVo.getGroupSeq());
 		params.put("compSeq", loginVo.getOrganId());
-		params.put("deptSeq", loginVo.getOrgnztId());
+//		params.put("deptSeq", loginVo.getOrgnztId());
 		params.put("empSeq", loginVo.getUniqId());
 		
 		params.put("authLevel", authLevel);
