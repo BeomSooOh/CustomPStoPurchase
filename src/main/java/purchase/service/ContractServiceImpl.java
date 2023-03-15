@@ -380,6 +380,8 @@ public class ContractServiceImpl implements ContractService {
 			
 			String doc_sts =  (String) contractInfo.get("doc_sts"); 
 			String contract_type =  (String) contractInfo.get("contract_type");
+			 
+			
 			map.put("created_by", params.get("created_by"));
 			
 			if (!contractInfo.get("doc_sts").equals("90")) {
@@ -389,7 +391,7 @@ public class ContractServiceImpl implements ContractService {
 				
 			} else {
 				
-				if (contractInfo.get("contract_type").equals("01") && contractInfo.get("approkey_conclusion").equals("") && contractInfo.get("approkey_result").equals("")) {
+				if (contractInfo.get("contract_type").equals("01") && contractInfo.get("approkey_conclusion").equals("") && contractInfo.get("approkey_result").equals("") && contractInfo.get("approkey_meet").equals("")) {
 					
 					map.put("approkey", contractInfo.get("approkey_plan"));
 					
@@ -414,9 +416,10 @@ public class ContractServiceImpl implements ContractService {
 					} else {
 					map.put("doc_sts", "90");
 					map.put("approkey_conclusion", contractInfo.get("approkey_conclusion"));
-					
+					map.put("out_process_interface_id", "Conclu01");
 					contractServiceDAO.UpdateModify(map);
 					contractServiceDAO.deleteErpgwlink(map);
+					contractServiceDAO.UpdateModifyStatus(map); 
 					}
 					
 				} else if (contractInfo.get("contract_type").equals("02")) {
@@ -430,8 +433,10 @@ public class ContractServiceImpl implements ContractService {
 					} else {
 
 						map.put("approkey_conclusion", contractInfo.get("approkey_conclusion"));
+						map.put("out_process_interface_id", "Conclu01");
 						contractServiceDAO.UpdateModify(map);
 						contractServiceDAO.deleteErpgwlink(map);
+						contractServiceDAO.UpdateModifyStatus(map); 
 					}
 
 				}
@@ -444,6 +449,63 @@ public class ContractServiceImpl implements ContractService {
 		params.put("resultCode", "success");
 		return params;
 	}	
+	
+	
+	
+	public Map<String, Object> modifyApprContractList ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
+		
+		String jsonStr = (String)params.get("change_info_list");
+		ObjectMapper mapper = new ObjectMapper();
+		List<Map<String, Object>> changeInfoList = new ArrayList<Map<String, Object>>();
+		changeInfoList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
+		
+		Map<String, Object> contractInfo;
+		Map<String, Object> consDocInfo;	
+		
+		for (Map<String, Object> map : changeInfoList) {
+		
+			contractInfo = contractServiceDAO.SelectContractDetail(map);
+			
+			String doc_sts =  (String) contractInfo.get("doc_sts"); 
+			String contract_type =  (String) contractInfo.get("contract_type");
+			 
+			
+			map.put("created_by", params.get("created_by"));
+			
+			if (!contractInfo.get("doc_sts").equals("90")) {
+				
+				map.put("resultCode", "error");
+				return params;
+				
+			} else {
+				
+				if (contractInfo.get("contract_type").equals("01") && !contractInfo.get("approkey_plan").equals("") && !contractInfo.get("approkey_meet").equals("") &&  contractInfo.get("approkey_result").equals("") &&  contractInfo.get("approkey_conclusion").equals("") ) {
+					
+					map.put("approkey", contractInfo.get("approkey_meet"));
+					
+					if (map.get("approkey").equals("")) {
+						map.put("resultCode", "error");
+						return params;
+					} else {
+							
+						map.put("approkey_meet", contractInfo.get("approkey_meet"));
+						map.put("out_process_interface_id", "Contract02");
+						map.put("doc_sts", "90");
+						contractServiceDAO.UpdateModify(map);
+						contractServiceDAO.deleteErpgwlink(map);
+						contractServiceDAO.UpdateModifyStatus(map); 
+					}
+				}
+				else {
+					params.put("resultCode", "error");
+					return params;	
+				}				
+			}
+		}
+		params.put("resultCode", "success");
+		return params;
+	}	
+	
 	
 	
 }

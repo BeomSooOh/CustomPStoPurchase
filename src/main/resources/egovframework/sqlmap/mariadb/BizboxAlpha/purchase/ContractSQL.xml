@@ -855,14 +855,28 @@
 		<isNotEmpty property="approkey_conclusion">
 		,approkey_conclusion = null 
 		</isNotEmpty>
+		<isNotEmpty property="approkey_meet">
+		,approkey_meet = null 
+		</isNotEmpty>
 		<isEmpty property="doc_sts">
 		,doc_sts = null 
 		</isEmpty>	
 
 		WHERE seq = '$seq$'; 
 	</update>
-	
 
+	
+	<update	id="ContractSQL.UpdateModifyStatus" parameterClass="HashMap" >
+		UPDATE $DB_NEOS$.t_exnp_consdoc
+		SET
+		doc_seq = null, 
+		doc_no= null,
+		doc_status = null 
+
+
+		WHERE out_process_interface_id = '$out_process_interface_id$' and out_process_interface_m_id = '$seq$'; 
+	</update>
+	
 	
 	
 	<select	id="ContractSQL.SelectConclusionPaymentList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">

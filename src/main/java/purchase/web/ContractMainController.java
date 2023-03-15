@@ -477,5 +477,30 @@ public class ContractMainController {
 	} 
     
     
+    
+    @RequestMapping(value="/purchase/modifyApprContractList.do", method={RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public ModelAndView modifyApprContractList(@RequestParam Map<String,Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("created_by", loginVo.getUniqId());
+		
+		contractService.modifyApprContractList(params);
+				
+		mv.addObject("resultData", params);
+		
+		if (params.get("resultCode") == "success" ) {
+			mv.addObject("resultCode", "success");
+		} else {
+			mv.addObject("resultCode", "error");
+		}
+		mv.setViewName("jsonView");
+		return mv;
+	} 
+    
 	
 }

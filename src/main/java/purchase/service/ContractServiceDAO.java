@@ -87,6 +87,20 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 	}
 	
 	
+	public void UpdateModifyStatus ( Map<String, Object> params ) {
+		
+		update( "ContractSQL.UpdateModifyStatus", params );
+		
+	}
+	
+	public void UpdateApprModify ( Map<String, Object> params ) {
+		
+		update( "ContractSQL.UpdateApprModify", params );
+		
+	}
+	
+	
+	
 	public Map<String, Object> SelectConclusionPaymentList (Map<String, Object> paramMap, PaginationInfo paginationInfo) {
 		
 		return super.listOfPaging2(paramMap, paginationInfo, "ContractSQL.SelectConclusionPaymentList");
