@@ -371,7 +371,7 @@
 						,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
 						,	value : btnName
 						,	clickCallback : function( puddActionBar ) {
-								fnCallBtn('greenState', rowData.resDocSeq);
+								fnCallBtn('purgreenState', rowData.resDocSeq);
 								
 								$('.iframe_wrap').attr('onclick','').unbind('click');
 								puddActionBar.showActionBar( false );
@@ -407,7 +407,7 @@
 						,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
 						,	value : btnName
 						,	clickCallback : function( puddActionBar ) {
-								fnCallBtn('hopeState', rowData.resDocSeq);
+								fnCallBtn('purhopeState', rowData.resDocSeq);
 								
 								$('.iframe_wrap').attr('onclick','').unbind('click');
 								puddActionBar.showActionBar( false );

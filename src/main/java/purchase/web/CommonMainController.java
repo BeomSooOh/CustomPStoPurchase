@@ -739,7 +739,8 @@ public class CommonMainController {
 		params.put("deptSeq", loginVo.getOrgnztId());
 		params.put("empSeq", loginVo.getUniqId());
         
-		Map<String,Object> resGreenInfo = commonServiceDAO.SelectPurchaseResGreenInfo(params);
+//		Map<String,Object> resGreenInfo = commonServiceDAO.SelectPurchaseResGreenInfo(params);
+		List<Map<String, Object>> resGreenInfo = commonServiceDAO.SelectPurchaseResGreenInfo(params);
 		mv.addObject("resGreenInfo", resGreenInfo);
 		
 		List<Map<String, Object>> resHopeInfoList = commonServiceDAO.SelectPurchaseResHopeInfoList(params);
@@ -794,6 +795,13 @@ public class CommonMainController {
 		params.put("groupSeq", loginVo.getGroupSeq());
 		
 		commonServiceDAO.DeletePurchaseResGreenInfo(params);
+		
+		if(params.get("out_process_interface_id").equals("PURCHASE")) {
+		
+			commonServiceDAO.DeletePurchaseItemGreenInfo(params);
+			
+		}
+		
 		mv.addObject("resultCode", "SUCCESS");
         mv.setViewName("jsonView");
 
@@ -845,6 +853,22 @@ public class CommonMainController {
 		params.put("groupSeq", loginVo.getGroupSeq());
 		
 		commonServiceDAO.DeletePurchaseResHopeInfo(params);
+		
+		
+		if(params.get("out_process_interface_id").equals("PURCHASE")) {
+			
+			commonServiceDAO.DeletePurchaseTradeHopeInfo(params);
+			
+		}
+		
+		if(params.get("out_process_interface_id").equals("CONCLUSION")) {
+			
+			commonServiceDAO.DeletePurchaseContractHopeInfo(params);
+			
+		}
+		
+		
+		
 		mv.addObject("resultCode", "SUCCESS");
         mv.setViewName("jsonView");
 

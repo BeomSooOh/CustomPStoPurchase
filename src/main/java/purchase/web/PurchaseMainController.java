@@ -680,6 +680,7 @@ public class PurchaseMainController {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("jsonView");
 		mv.addAllObjects(resultMap);	// data.result
+		
 		return mv;    	
     
     } 

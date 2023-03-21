@@ -737,51 +737,63 @@
 	
 	<select	id="CommonSQL.SelectPurchaseResGreenInfo" parameterClass="HashMap" resultClass="HashMap">
 	
-		SELECT 
-		a.res_doc_seq, 
-		 amt.resDocAmt  AS 'resDocAmt',
-		 amt.resDocTaxAmt AS 'resDocTaxAmt',
-		 amt.resDocStdAmt AS 'resDocStdAmt',
+		SELECT distinct
+		a.res_doc_seq,
+		d.out_process_interface_m_id,
+        d.out_process_interface_id,
+        a.tr_seq ,
+        a.tr_name,
 		ifnull(b.item_green_cert_type,'') as item_green_cert_type, 
-		ifnull(b.item_green_class,'') as item_green_class, 
-		created_dt, created_by
+		ifnull(b.item_green_class,'') as item_green_class,
+		d.out_process_interface_m_id,
+		ifnull(i.item_green_cert_type,'') as p_item_green_cert_type,
+ 		ifnull(i.item_green_class,'') as p_item_green_class, 
+		b.created_dt, b.created_by
 		FROM $DB_NEOS$t_exnp_restrade a
-		left join cust_sto.t_purchase_res_green_info b on a.res_doc_seq = b.res_doc_seq 
+		left join cust_sto.t_purchase_res_green_info b on b.res_doc_seq = a.res_doc_seq and a.tr_seq = b.tr_seq 
 		left join t_exnp_resdoc d on d.res_doc_seq = a.res_doc_seq
-		INNER JOIN (
-   		SELECT
-    		res_doc_seq
-    		, SUM( (CASE IFNULL(ctl_fg_code, '1')
-    		WHEN '0' THEN  ( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
-    		ELSE  IFNULL(budget_amt, 0) /* emptyStr or '1' */
-    		END)
-    		) AS resDocAmt
-    		, SUM(IFNULL(budget_tax_amt, 0)) AS resDocTaxAmt
-    		, SUM(IFNULL(budget_std_amt, 0)) AS resDocStdAmt
-   			FROM $DB_NEOS$t_exnp_resbudget
-   			GROUP BY res_doc_seq
-  			) amt
-  			ON d.res_doc_seq = amt.res_doc_seq
-   			INNER JOIN $DB_NEOS$erpgwlink gwlink
-         		ON   gwlink.appr_dikey = d.doc_seq
+		left join cust_sto.t_purchase_item_info i on i.seq = d.out_process_interface_m_id and a.tr_seq = i.item_tr_seq
+
 		where a.res_doc_seq = '$resDocSeq$'
-		limit 1;
 		
 	</select>
 	
 	<insert	id="CommonSQL.InsertPurchaseResGreenInfo" parameterClass="HashMap" >
 		
 		INSERT INTO cust_sto.t_purchase_res_green_info
-		(res_doc_seq, item_green_cert_type, item_green_class, created_dt, created_by)
-		VALUES('$res_doc_seq$', '$item_green_cert_type$', '$item_green_class$', NOW(), '$created_by$');
+		(res_doc_seq, tr_seq, item_green_cert_type, item_green_class, created_dt, created_by)
+		VALUES('$res_doc_seq$','$tr_seq$', '$item_green_cert_type$', '$item_green_class$', NOW(), '$created_by$');
 
-	</insert>	
+	</insert>
+	
+	<update	id="CommonSQL.UpdatePurchaseItemGreenInfo" parameterClass="HashMap" >
+		
+  		UPDATE cust_sto.t_purchase_item_info
+		SET 
+		item_green_cert_type = '$item_green_cert_type$',
+		item_green_class = '$item_green_class$'
+		WHERE seq = '$out_process_interface_m_id$' and item_tr_seq = '$tr_seq$'
+
+	</update>	
+	
+		
 	
 	<delete	id="CommonSQL.DeletePurchaseResGreenInfo" parameterClass="HashMap" >
 		
 		delete from cust_sto.t_purchase_res_green_info where res_doc_seq = '$res_doc_seq$';
 
 	</delete>
+	
+	
+	<update	id="CommonSQL.DeletePurchaseItemGreenInfo" parameterClass="HashMap" >
+	
+		UPDATE cust_sto.t_purchase_item_info
+		SET 
+		item_green_cert_type = null
+		,item_green_class = null
+		WHERE seq = '$seq$'
+	
+	</update>
 	
 
 	<select	id="CommonSQL.SelectPurchaseResHopeInfoList" parameterClass="HashMap" resultClass="HashMap">
@@ -790,11 +802,7 @@
 		a.res_doc_seq
 		, IFNULL(d.out_process_interface_id, '') AS 'out_process_interface_id'
 		, IFNULL(d.out_process_interface_m_id, '') AS 'out_process_interface_m_id'
-        , IFNULL(c.hope_company_info, '') AS 'c_hope_company_info'
-        , IFNULL(c.hope_attach_info, '') AS 'c_hope_attach_info'
 		, IFNULL(c.c_target_type, '') AS 'c_target_type'
-        , IFNULL(p.hope_company_info, '') AS 'p_hope_company_info'
-        , IFNULL(p.hope_attach_info, '') AS 'p_hope_attach_info'
 		,a.tr_seq
 		,a.tr_name
 		,a.ceo_name 
@@ -804,11 +812,16 @@
 		, amt.resDocStdAmt AS 'resDocStdAmt'
 		,ifnull(b.hope_company_info,'') as hope_company_info
 		,ifnull(b.hope_attach_info,'') as hope_attach_info
+		,ifnull(c.hope_company_info,'') as c_hope_company_info
+		,ifnull(c.hope_attach_info,'') as c_hope_attach_info
+		,ifnull(p.hope_company_info,'') as p_hope_company_info
+		,ifnull(p.hope_attach_info,'') as p_hope_attach_info
 		from $DB_NEOS$t_exnp_restrade a
 		left join cust_sto.t_purchase_res_hope_info b on a.res_doc_seq = b.res_doc_seq  and a.tr_seq = b.tr_seq
 		left join t_exnp_resdoc d on d.res_doc_seq = a.res_doc_seq
 		left join cust_sto.t_purchase_contract c on c.seq = d.out_process_interface_m_id and out_process_interface_id = 'CONCLUSION'
-  		left join cust_sto.t_purchase_trade_info p on p.seq = d.out_process_interface_m_id and outProcessCode = 'Purchase01'
+		left join cust_sto.t_purchase_trade_info p on p.seq = d.out_process_interface_m_id and outProcessCode = 'Purchase01' and p.tr_seq = a.tr_seq
+  
   		INNER JOIN (
    		SELECT
     		res_doc_seq
@@ -837,7 +850,29 @@
 		(res_doc_seq, tr_seq, hope_attach_info, hope_company_info, created_dt, created_by)
 		VALUES('$res_doc_seq$', '$tr_seq$', '$hope_attach_info$', '$hope_company_info$', NOW(), '$created_by$');
 
-	</insert>	
+	</insert>
+	
+	<update	id="CommonSQL.UpdatePurchaseTradeHopeInfo" parameterClass="HashMap" >
+	
+		UPDATE cust_sto.t_purchase_trade_info
+		SET 
+		hope_attach_info = '$hope_attach_info$',
+		hope_company_info = '$hope_company_info$'
+		WHERE seq = '$out_process_interface_m_id$' and tr_seq = '$tr_seq$' and outProcessCode = 'Purchase01' 
+	
+	</update>
+	
+	<update	id="CommonSQL.UpdatePurchaseContractHopeInfo" parameterClass="HashMap" >
+	
+		UPDATE cust_sto.t_purchase_contract
+		SET 
+		hope_attach_info = '$hope_attach_info$',
+		hope_company_info = '$hope_company_info$'
+		WHERE seq = '$out_process_interface_m_id$' 
+	
+	</update>	
+		
+		
 	
 	<delete	id="CommonSQL.DeletePurchaseResHopeInfo" parameterClass="HashMap" >
 		
@@ -849,6 +884,28 @@
 		</isNotEmpty>		
 
 	</delete>
+	
+	
+	<update	id="CommonSQL.DeletePurchaseTradeHopeInfo" parameterClass="HashMap" >
+	
+		UPDATE cust_sto.t_purchase_trade_info
+		SET 
+		hope_attach_info = null
+		,hope_company_info = null
+		WHERE seq = '$seq$' and outProcessCode = 'Purchase01'
+	
+	</update>
+	
+	<update	id="CommonSQL.DeletePurchaseContractHopeInfo" parameterClass="HashMap" >
+	
+		UPDATE cust_sto.t_purchase_contract
+		SET 
+		hope_attach_info = null
+		,hope_company_info = null
+		WHERE seq = '$seq$' 
+	
+	</update>
+	
 	
 	
 	<select	id="CommonSQL.SelectOverallHopeAmtInfo" parameterClass="HashMap" resultClass="HashMap">

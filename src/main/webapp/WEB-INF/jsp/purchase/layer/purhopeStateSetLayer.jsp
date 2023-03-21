@@ -76,6 +76,9 @@
 			$(cloneData).find("[name=tr_name]").text("${items.tr_name}");
 			$(cloneData).find("[name=tr_reg_number]").text("${items.tr_reg_number}");
 			
+			$(cloneData).find("[name=out_process_interface_m_id]").text("${items.out_process_interface_m_id}");
+			$(cloneData).find("[name=out_process_interface_id]").text("${items.out_process_interface_id}");
+			
 			
 			if("${items.c_target_type}" == "01"){
 				$(cloneData).find("[name=c_target_type]").text("용역") 
@@ -102,7 +105,37 @@
 				});	
 				
 				commonCodeCallback("ul", $(cloneData).find("[name=hope_company_info_td]"), commonCodeTargetInfo);
-			}
+			} else if ("${items.c_hope_company_info}" != ""){
+				
+				commonCodeTargetInfo = [];
+				
+				$.each("${items.c_hope_company_info}".split("▦▦"), function( key, val ) {
+					var valInfo =  val.split("▦");
+					var objInfo = {};
+					objInfo.code = valInfo[0];
+					objInfo.name = valInfo[1];
+					commonCodeTargetInfo.push(objInfo);
+					
+				});	
+				
+				commonCodeCallback("ul", $(cloneData).find("[name=hope_company_info_td]"), commonCodeTargetInfo);
+				
+			} else if ("${items.p_hope_company_info}" != ""){
+				
+				commonCodeTargetInfo = [];
+				
+				$.each("${items.p_hope_company_info}".split("▦▦"), function( key, val ) {
+					var valInfo =  val.split("▦");
+					var objInfo = {};
+					objInfo.code = valInfo[0];
+					objInfo.name = valInfo[1];
+					commonCodeTargetInfo.push(objInfo);
+					
+				});	
+				
+				commonCodeCallback("ul", $(cloneData).find("[name=hope_company_info_td]"), commonCodeTargetInfo);
+				
+			} 
 			
 			if("${items.hope_attach_info}" != ""){
 				
@@ -445,7 +478,9 @@
 						</ul>
 						<span class="fr mt2"><input onclick="fnSearchFile($(this).closest('tr'))" type="button" class="puddSetup" value="파일찾기" /></span>
 					</td>
-					<!-- <td name="c_target_type" class="cen"></td> -->								
+					<!-- <td name="c_target_type" class="cen"></td> -->
+				<td tbval="Y" tbtype="innerText" name="out_process_interface_m_id" class="cen" style="display:none;"></td>
+				<td tbval="Y" tbtype="innerText" name="out_process_interface_id" class="cen"  style="display:none;"></td>								
 				</tr>				
 			</table>
 		</div>	

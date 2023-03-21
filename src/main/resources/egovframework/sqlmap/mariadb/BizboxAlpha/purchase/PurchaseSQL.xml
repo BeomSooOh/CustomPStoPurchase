@@ -634,7 +634,7 @@
     
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
-  WHERE d.doc_seq IS NOT NULL 
+  WHERE d.doc_seq IS NOT NULL  and ifnull(d.out_process_interface_id,'') not in ('CONCLUSION','PURCHASE')
    
     
   <isNotEmpty property="docStatus">
@@ -740,7 +740,7 @@
   ON d.res_doc_seq = amt.res_doc_seq
    INNER JOIN $DB_NEOS$erpgwlink gwlink
          ON   gwlink.appr_dikey = d.doc_seq
-  WHERE d.doc_seq IS NOT NULL   
+  WHERE d.doc_seq IS NOT NULL and ifnull(d.out_process_interface_id,'') not in ('CONCLUSION','PURCHASE')
   
   <isNotEmpty property="docStatus">
    AND IFNULL(doc_status, '008') IN ($docStatus$)
@@ -796,23 +796,76 @@
  </select> 
  
  <select id="PurchaseSQL.SelectHopePurchaseList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
- 
   SELECT
-  count(*) 
+  count(*)
+  from 
+  (SELECT
+   d.res_doc_seq AS 'resDocSeq'
+   , IFNULL(d.out_process_interface_id, '') AS 'out_process_interface_id'
+   , IFNULL(d.out_process_interface_m_id, '') AS 'out_process_interface_m_id'
+   , IFNULL(c.c_target_type, '') AS 'c_target_type'
+   , t.c_tiname AS 'c_tiname'
+   , d.doc_seq AS 'docSeq'
+   , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
+   , d.doc_status  AS 'docStatus'
+   , i.c_diwriteday AS 'docDate'
+   , d.resdoc_note AS 'consdocNote'
+   , d.resdoc_note AS 'resdocNote'
+   , d.expend_date AS 'expendDate'
+   , d.comp_name AS 'compName'
+   , d.dept_name AS 'deptName'
+   , d.emp_name AS 'empName'
+   , d.send_emp_seq AS 'sendEmpSeq'
+   , d.send_date  AS 'sendDate'
+   , d.send_emp_name AS 'sendName'
+   , r.c_riaftertitle AS 'docTitle'
+   , sum(distinct amt.resDocAmt)  AS 'resDocAmt'
+   , sum(distinct amt.resDocTaxAmt) AS 'resDocTaxAmt'
+   , sum(distinct amt.resDocStdAmt) AS 'resDocStdAmt'
+   , d.erp_send_yn AS 'erpSendYN'
+   , d.save_yn  AS 'saveYn'
+   , 'EA'   AS 'eaType'
+   , ifnull((select group_concat(distinct tr_name) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(tr_name,'') != ''),'') as 'trName'
+   , ifnull((select group_concat(distinct business_nb) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(business_nb,'') != ''),'') as 'business_nb'
+   , ifnull(hope.hope_company_info,'') as hope_company_info
+   , ifnull(c.hope_company_info,'') as c_hope_company_info
+   , ifnull(p.hope_company_info,'') as p_hope_company_info
+   ,expend_date
   FROM $DB_NEOS$t_exnp_resdoc d
   <isNotEmpty property="deptSeq">
   left join $DB_NEOS$t_co_dept wdept on d.dept_seq = wdept.dept_seq 
   </isNotEmpty>
   
   left join $DB_NEOS$a_templateinfo  t on t.c_tikeycode  = d.form_seq
-  left join cust_sto.t_purchase_contract p on p.seq = d.out_process_interface_m_id and out_process_interface_id = 'CONCLUSION'
+  left join $DB_NEOS$t_exnp_restrade tr on tr.res_doc_seq = d.res_doc_seq
+  left join cust_sto.t_purchase_contract c on c.seq = d.out_process_interface_m_id and out_process_interface_id = 'CONCLUSION'
+  left join cust_sto.t_purchase_trade_info p on p.seq = d.out_process_interface_m_id and outProcessCode = 'Purchase01'
   left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq
-  left join t_exnp_restrade tr on d.res_doc_seq = tr.res_doc_seq
+  
     
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
-
+  INNER JOIN (
+   SELECT
+    res_doc_seq
+    , SUM( (CASE IFNULL(ctl_fg_code, '1')
+    WHEN '0' THEN  ( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
+    ELSE  IFNULL(budget_amt, 0) /* emptyStr or '1' */
+    END)
+    ) AS resDocAmt
+    , SUM(IFNULL(budget_tax_amt, 0)) AS resDocTaxAmt
+    , SUM(IFNULL(budget_std_amt, 0)) AS resDocStdAmt
+   FROM $DB_NEOS$t_exnp_resbudget
+   GROUP BY res_doc_seq
+  ) amt
+  ON d.res_doc_seq = amt.res_doc_seq
+   INNER JOIN $DB_NEOS$erpgwlink gwlink
+         ON   gwlink.appr_dikey = d.doc_seq
   WHERE d.doc_seq IS NOT NULL	
+  
+  <isNotEmpty property="itemHopeCompany">
+  and (hope.hope_company_info like '%$itemHopeCompany$%' or c.hope_company_info like '%$itemHopeCompany$%' or p.hope_company_info like '%$itemHopeCompany$%')
+  </isNotEmpty>   
     
   <isNotEmpty property="docStatus">
    AND IFNULL(doc_status, '008') IN ($docStatus$)
@@ -865,10 +918,14 @@
   <isEqual property="authLevel" compareValue="user">
   and d.emp_seq = '$empSeq$'   
   </isEqual>  
+   
+  and out_process_interface_m_id != ''
+  group by out_process_interface_m_id
   
- </select> 
- 
- <select id="PurchaseSQL.SelectHopePurchaseList" parameterClass="HashMap" resultClass="HashMap">
+  
+  union all
+   
+    
   
   SELECT
    d.res_doc_seq AS 'resDocSeq'
@@ -896,22 +953,24 @@
    , d.erp_send_yn AS 'erpSendYN'
    , d.save_yn  AS 'saveYn'
    , 'EA'   AS 'eaType'
-   , ifnull((select group_concat(distinct tr_name) from $DB_NEOS$t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(tr_name,'') != ''),'') as 'trName'
+   , ifnull((select group_concat(distinct tr_name) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(tr_name,'') != ''),'') as 'trName'
    , ifnull((select group_concat(distinct business_nb) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(business_nb,'') != ''),'') as 'business_nb'
-   , cust_sto.fn_get_purchase_code_text('hopeCompany', hope.hope_company_info) as hope_company_info
-   , cust_sto.fn_get_purchase_code_text('hopeCompany',c.hope_company_info) as c_hope_company_info
-   , cust_sto.fn_get_purchase_code_text('hopeCompany',p.hope_company_info) as p_hope_company_info
-   
+   , ifnull(hope.hope_company_info,'') as hope_company_info
+   , ifnull(c.hope_company_info,'') as c_hope_company_info
+   , ifnull(p.hope_company_info,'') as p_hope_company_info
+   ,expend_date
   FROM $DB_NEOS$t_exnp_resdoc d
   <isNotEmpty property="deptSeq">
   left join $DB_NEOS$t_co_dept wdept on d.dept_seq = wdept.dept_seq 
   </isNotEmpty>
+  
   left join $DB_NEOS$a_templateinfo  t on t.c_tikeycode  = d.form_seq
+  left join $DB_NEOS$t_exnp_restrade tr on tr.res_doc_seq = d.res_doc_seq
   left join cust_sto.t_purchase_contract c on c.seq = d.out_process_interface_m_id and out_process_interface_id = 'CONCLUSION'
   left join cust_sto.t_purchase_trade_info p on p.seq = d.out_process_interface_m_id and outProcessCode = 'Purchase01'
   left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq
-  left join t_exnp_restrade tr on d.res_doc_seq = tr.res_doc_seq
-  	  
+  
+    
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
   INNER JOIN (
@@ -930,12 +989,135 @@
   ON d.res_doc_seq = amt.res_doc_seq
    INNER JOIN $DB_NEOS$erpgwlink gwlink
          ON   gwlink.appr_dikey = d.doc_seq
-
+  WHERE d.doc_seq IS NOT NULL	
   
+  <isNotEmpty property="itemHopeCompany">
+  and hope.hope_company_info like '%$itemHopeCompany$%'
+  </isNotEmpty>   
+    
+  <isNotEmpty property="docStatus">
+   AND IFNULL(doc_status, '008') IN ($docStatus$)
+  </isNotEmpty>
+  <isEmpty property="docStatus">
+   AND doc_status in ( '001', '002', '003', '005', '006', '007', '008', '009' )
+  </isEmpty>
+
+  <isNotEmpty property="frDt">
+   <isNotEmpty property="toDt">
+   AND LEFT(i.c_diwriteday,8) BETWEEN #frDt# AND #toDt#
+   </isNotEmpty>
+  </isNotEmpty>
+
+  <isNotEmpty property="confferReturnYN">
+   AND conffer_return_yn = #confferReturnYN#
+  </isNotEmpty>
+
+  <isNotEmpty property="docTitle">
+   AND c_riaftertitle LIKE CONCAT('%', IFNULL(#docTitle#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="docNo">
+   AND c_ridocfullnum LIKE CONCAT('%', IFNULL(#docNo#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="empName">
+   AND d.emp_name LIKE CONCAT('%', IFNULL(#empName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="deptName">
+   AND d.dept_name LIKE CONCAT('%', IFNULL(#deptName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="sendEmpName">
+   AND d.send_emp_name LIKE CONCAT('%', IFNULL(#sendEmpName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="erpSendYN">
+   AND d.erp_send_yn = #erpSendYN#
+  </isNotEmpty>
+  
+   <isNotEmpty property="txtTrName">
+   AND tr.tr_name LIKE CONCAT('%', IFNULL(#txtTrName#, ''), '%')
+  </isNotEmpty>
+  
+  <isNotEmpty property="deptSeq">
+  and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))   
+  </isNotEmpty>		
+  <isEqual property="authLevel" compareValue="user">
+  and d.emp_seq = '$empSeq$'   
+  </isEqual> 
+  
+  and out_process_interface_m_id = ''
+  ) a
+    
+ </select> 
+ 
+ <select id="PurchaseSQL.SelectHopePurchaseList" parameterClass="HashMap" resultClass="HashMap">
+  
+   SELECT
+   d.res_doc_seq AS 'resDocSeq'
+   , IFNULL(d.out_process_interface_id, '') AS 'out_process_interface_id'
+   , IFNULL(d.out_process_interface_m_id, '') AS 'out_process_interface_m_id'
+   , IFNULL(c.c_target_type, '') AS 'c_target_type'
+   , t.c_tiname AS 'c_tiname'
+   , d.doc_seq AS 'docSeq'
+   , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
+   , d.doc_status  AS 'docStatus'
+   , i.c_diwriteday AS 'docDate'
+   , d.resdoc_note AS 'consdocNote'
+   , d.resdoc_note AS 'resdocNote'
+   , d.expend_date AS 'expendDate'
+   , d.comp_name AS 'compName'
+   , d.dept_name AS 'deptName'
+   , d.emp_name AS 'empName'
+   , d.send_emp_seq AS 'sendEmpSeq'
+   , d.send_date  AS 'sendDate'
+   , d.send_emp_name AS 'sendName'
+   , r.c_riaftertitle AS 'docTitle'
+   , sum(distinct amt.resDocAmt)  AS 'resDocAmt'
+   , sum(distinct amt.resDocTaxAmt) AS 'resDocTaxAmt'
+   , sum(distinct amt.resDocStdAmt) AS 'resDocStdAmt'
+   , d.erp_send_yn AS 'erpSendYN'
+   , d.save_yn  AS 'saveYn'
+   , 'EA'   AS 'eaType'
+   , ifnull((select group_concat(distinct tr_name) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(tr_name,'') != ''),'') as 'trName'
+   , ifnull((select group_concat(distinct business_nb) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(business_nb,'') != ''),'') as 'business_nb'
+   , ifnull(hope.hope_company_info,'') as hope_company_info
+   , ifnull(c.hope_company_info,'') as c_hope_company_info
+   , ifnull(p.hope_company_info,'') as p_hope_company_info
+   ,expend_date
+  FROM $DB_NEOS$t_exnp_resdoc d
+   <isNotEmpty property="deptSeq">
+  left join $DB_NEOS$t_co_dept wdept on d.dept_seq = wdept.dept_seq 
+  </isNotEmpty>
+  left join $DB_NEOS$a_templateinfo  t on t.c_tikeycode  = d.form_seq
+  left join $DB_NEOS$t_exnp_restrade tr on tr.res_doc_seq = d.res_doc_seq
+  left join cust_sto.t_purchase_contract c on c.seq = d.out_process_interface_m_id and out_process_interface_id = 'CONCLUSION'
+  left join cust_sto.t_purchase_trade_info p on p.seq = d.out_process_interface_m_id and outProcessCode = 'Purchase01'
+  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq
+  INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
+  INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
+  INNER JOIN (
+   SELECT
+    res_doc_seq
+    , SUM( (CASE IFNULL(ctl_fg_code, '1')
+    WHEN '0' THEN  ( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
+    ELSE  IFNULL(budget_amt, 0) /* emptyStr or '1' */
+    END)
+    ) AS resDocAmt
+    , SUM(IFNULL(budget_tax_amt, 0)) AS resDocTaxAmt
+    , SUM(IFNULL(budget_std_amt, 0)) AS resDocStdAmt
+   FROM $DB_NEOS$t_exnp_resbudget
+   GROUP BY res_doc_seq
+  ) amt
+  ON d.res_doc_seq = amt.res_doc_seq
+   INNER JOIN $DB_NEOS$erpgwlink gwlink
+         ON   gwlink.appr_dikey = d.doc_seq
+         
   WHERE d.doc_seq IS NOT NULL
 
   <isNotEmpty property="itemHopeCompany">
-  and concat('▦',hope.hope_company_info) like '%▦$itemHopeCompany$▦%'
+  and (hope.hope_company_info like '%$itemHopeCompany$%' or c.hope_company_info like '%$itemHopeCompany$%' or p.hope_company_info like '%$itemHopeCompany$%')
   </isNotEmpty>   
   
   <isNotEmpty property="docStatus">
@@ -991,36 +1173,219 @@
 	<isEqual property="authLevel" compareValue="user">
 	and d.emp_seq = '$empSeq$'   
 	</isEqual>
+
+   and out_process_interface_m_id != ''
+   group by out_process_interface_m_id
   
+
+  
+   union all 
+
+
+
+   SELECT
+   d.res_doc_seq AS 'resDocSeq'
+   , IFNULL(d.out_process_interface_id, '') AS 'out_process_interface_id'
+   , IFNULL(d.out_process_interface_m_id, '') AS 'out_process_interface_m_id'
+   , IFNULL(c.c_target_type, '') AS 'c_target_type'
+   , t.c_tiname AS 'c_tiname'
+   , d.doc_seq AS 'docSeq'
+   , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
+   , d.doc_status  AS 'docStatus'
+   , i.c_diwriteday AS 'docDate'
+   , d.resdoc_note AS 'consdocNote'
+   , d.resdoc_note AS 'resdocNote'
+   , d.expend_date AS 'expendDate'
+   , d.comp_name AS 'compName'
+   , d.dept_name AS 'deptName'
+   , d.emp_name AS 'empName'
+   , d.send_emp_seq AS 'sendEmpSeq'
+   , d.send_date  AS 'sendDate'
+   , d.send_emp_name AS 'sendName'
+   , r.c_riaftertitle AS 'docTitle'
+   , amt.resDocAmt  AS 'resDocAmt'
+   , amt.resDocTaxAmt AS 'resDocTaxAmt'
+   , amt.resDocStdAmt AS 'resDocStdAmt'
+   , d.erp_send_yn AS 'erpSendYN'
+   , d.save_yn  AS 'saveYn'
+   , 'EA'   AS 'eaType'
+   , ifnull((select group_concat(distinct tr_name) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(tr_name,'') != ''),'') as 'trName'
+   , ifnull((select group_concat(distinct business_nb) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(business_nb,'') != ''),'') as 'business_nb'
+   , ifnull(hope.hope_company_info,'') as hope_company_info
+   , ifnull(c.hope_company_info,'') as c_hope_company_info
+   , ifnull(p.hope_company_info,'') as p_hope_company_info
+   ,expend_date
+  FROM $DB_NEOS$t_exnp_resdoc d
+   <isNotEmpty property="deptSeq">
+  left join $DB_NEOS$t_co_dept wdept on d.dept_seq = wdept.dept_seq 
+  </isNotEmpty>
+  left join $DB_NEOS$a_templateinfo  t on t.c_tikeycode  = d.form_seq
+  left join $DB_NEOS$t_exnp_restrade tr on tr.res_doc_seq = d.res_doc_seq
+  left join cust_sto.t_purchase_contract c on c.seq = d.out_process_interface_m_id and out_process_interface_id = 'CONCLUSION'
+  left join cust_sto.t_purchase_trade_info p on p.seq = d.out_process_interface_m_id and outProcessCode = 'Purchase01'
+  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq
+  INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
+  INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
+  INNER JOIN (
+   SELECT
+    res_doc_seq
+    , SUM( (CASE IFNULL(ctl_fg_code, '1')
+    WHEN '0' THEN  ( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
+    ELSE  IFNULL(budget_amt, 0) /* emptyStr or '1' */
+    END)
+    ) AS resDocAmt
+    , SUM(IFNULL(budget_tax_amt, 0)) AS resDocTaxAmt
+    , SUM(IFNULL(budget_std_amt, 0)) AS resDocStdAmt
+   FROM $DB_NEOS$t_exnp_resbudget
+   GROUP BY res_doc_seq
+  ) amt
+  ON d.res_doc_seq = amt.res_doc_seq
+   INNER JOIN $DB_NEOS$erpgwlink gwlink
+         ON   gwlink.appr_dikey = d.doc_seq
+  WHERE d.doc_seq IS NOT NULL
+
+  <isNotEmpty property="itemHopeCompany">
+  and hope.hope_company_info like '%$itemHopeCompany$%'
+  </isNotEmpty>   
+  
+  <isNotEmpty property="docStatus">
+   AND IFNULL(doc_status, '008') IN ($docStatus$)
+  </isNotEmpty>
+  <isEmpty property="docStatus">
+   AND doc_status in ( '001', '002', '003', '005', '006', '007', '008', '009' )
+  </isEmpty>
+
+  <isNotEmpty property="frDt">
+   <isNotEmpty property="toDt">
+   AND LEFT(i.c_diwriteday,8) BETWEEN #frDt# AND #toDt#
+   </isNotEmpty>
+  </isNotEmpty>
+
+  <isNotEmpty property="confferReturnYN">
+   AND conffer_return_yn = #confferReturnYN#
+  </isNotEmpty>
+
+  <isNotEmpty property="docTitle">
+   AND c_riaftertitle LIKE CONCAT('%', IFNULL(#docTitle#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="docNo">
+   AND c_ridocfullnum LIKE CONCAT('%', IFNULL(#docNo#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="empName">
+   AND d.emp_name LIKE CONCAT('%', IFNULL(#empName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="deptName">
+   AND d.dept_name LIKE CONCAT('%', IFNULL(#deptName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="sendEmpName">
+   AND d.send_emp_name LIKE CONCAT('%', IFNULL(#sendEmpName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="erpSendYN">
+   AND d.erp_send_yn = #erpSendYN#
+  </isNotEmpty>
+
+  <isNotEmpty property="txtTrName">
+   AND tr.tr_name LIKE CONCAT('%', IFNULL(#txtTrName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="deptSeq">
+	and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+  </isNotEmpty>
+  
+  <isEqual property="authLevel" compareValue="user">
+	and d.emp_seq = '$empSeq$'   
+  </isEqual>
+
+  and out_process_interface_m_id = ''
+
   ORDER BY expend_date DESC 
   LIMIT $startNum$ ,  $endNum$
-  
+
  </select> 
  
  
  
  <select id="PurchaseSQL.SelectGreenPurchaseList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
  
-  SELECT
+  SELECT 
   count(*) 
+  from
+  (
+  SELECT
+   d.res_doc_seq AS 'resDocSeq'
+   , t.c_tiname AS 'c_tiname'
+   , d.doc_seq AS 'docSeq'
+   , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
+   , d.doc_status  AS 'docStatus'
+   , i.c_diwriteday AS 'docDate'
+   ,d.out_process_interface_id AS 'out_process_interface_id'
+   ,d.out_process_interface_m_id AS 'out_process_interface_m_id'
+   , d.resdoc_note AS 'consdocNote'
+   , d.resdoc_note AS 'resdocNote'
+   , d.expend_date AS 'expendDate'
+   , d.comp_name AS 'compName'
+   , d.dept_name AS 'deptName'
+   , d.emp_name AS 'empName'
+   , d.send_emp_seq AS 'sendEmpSeq'
+   , d.send_date  AS 'sendDate'
+   , d.send_emp_name AS 'sendName'
+   , r.c_riaftertitle AS 'docTitle'
+   , sum(distinct amt.resDocAmt)  AS 'resDocAmt'
+   , sum(distinct amt.resDocTaxAmt) AS 'resDocTaxAmt'
+   , sum(distinct amt.resDocStdAmt) AS 'resDocStdAmt'
+   , d.erp_send_yn AS 'erpSendYN'
+   , d.save_yn  AS 'saveYn'
+   , 'EA'   AS 'eaType'
+   , IFNULL(green.item_green_class,'') as item_green_class
+   , IFNULL((SELECT NAME FROM cust_sto.t_purchase_code_detail code0 where code0.`GROUP` = 'greenClass' and code0.USE_YN = 'Y' and code0.code != '' and green.item_green_class = code0.CODE),'') as item_green_class_name
+   , IFNULL(green.item_green_cert_type,'') as item_green_cert_type
+   , IFNULL(m.item_green_class,'') as p_item_green_class
+   , IFNULL((SELECT NAME FROM cust_sto.t_purchase_code_detail code0 where code0.`GROUP` = 'greenClass' and code0.USE_YN = 'Y' and code0.code != '' and m.item_green_class = code0.CODE),'') as p_item_green_class_name
+   , IFNULL(m.item_green_cert_type,'') as p_item_green_cert_type
+   , expend_date
   FROM $DB_NEOS$t_exnp_resdoc d
   <isNotEmpty property="deptSeq">
   left join $DB_NEOS$t_co_dept wdept on d.dept_seq = wdept.dept_seq 
   </isNotEmpty>
+  
   left join $DB_NEOS$a_templateinfo  t on t.c_tikeycode  = d.form_seq
-  left join cust_sto.t_purchase_res_green_info green on d.res_doc_seq = green.res_doc_seq
-      
-    
+  left join $DB_NEOS$t_exnp_restrade res on res.res_doc_seq = d.res_doc_seq
+  left join cust_sto.t_purchase_res_green_info green on green.res_doc_seq = res.res_doc_seq  and green.tr_seq = res.tr_seq 
+  left join cust_sto.t_purchase_item_info m on m.seq = d.out_process_interface_m_id and m.item_tr_seq = res.tr_seq    
+  
+  	  
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
-  
-  WHERE d.doc_seq IS NOT NULL 
+  INNER JOIN (
+   SELECT
+    res_doc_seq
+    , SUM( (CASE IFNULL(ctl_fg_code, '1')
+    WHEN '0' THEN  ( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
+    ELSE  IFNULL(budget_amt, 0) /* emptyStr or '1' */
+    END)
+    ) AS resDocAmt
+    , SUM(IFNULL(budget_tax_amt, 0)) AS resDocTaxAmt
+    , SUM(IFNULL(budget_std_amt, 0)) AS resDocStdAmt
+   FROM $DB_NEOS$t_exnp_resbudget
+   GROUP BY res_doc_seq
+  ) amt
+  ON d.res_doc_seq = amt.res_doc_seq
+   INNER JOIN $DB_NEOS$erpgwlink gwlink
+         ON   gwlink.appr_dikey = d.doc_seq
+         
+  WHERE d.doc_seq IS NOT NULL
   
   <isNotEmpty property="itemGreenClass">
-  and  green.item_green_class = '$itemGreenClass$'
+  and  (green.item_green_class = '$itemGreenClass$' or m.item_green_class = '$itemGreenClass$')
   </isNotEmpty>
-  <isNotEmpty property="itemGreenCertType">
-  and  green.item_green_cert_type = '$itemGreenCertType$'
+  
+  <isNotEmpty property="itemGreenCertType">    
+  and (green.item_green_cert_type like '%$itemGreenCertType$%' or m.item_green_cert_type like '%$itemGreenCertType$%')
   </isNotEmpty>
     
   <isNotEmpty property="docStatus">
@@ -1071,9 +1436,12 @@
   and d.emp_seq = '$empSeq$'   
   </isEqual>  
   
- </select> 
- 
- <select id="PurchaseSQL.SelectGreenPurchaseList" parameterClass="HashMap" resultClass="HashMap">
+  and out_process_interface_m_id != ''
+  group by out_process_interface_m_id
+  
+  
+  union all 
+  
   
   SELECT
    d.res_doc_seq AS 'resDocSeq'
@@ -1082,6 +1450,8 @@
    , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
    , d.doc_status  AS 'docStatus'
    , i.c_diwriteday AS 'docDate'
+   ,d.out_process_interface_id AS 'out_process_interface_id'
+   ,d.out_process_interface_m_id AS 'out_process_interface_m_id'
    , d.resdoc_note AS 'consdocNote'
    , d.resdoc_note AS 'resdocNote'
    , d.expend_date AS 'expendDate'
@@ -1098,18 +1468,149 @@
    , d.erp_send_yn AS 'erpSendYN'
    , d.save_yn  AS 'saveYn'
    , 'EA'   AS 'eaType'
-   , cust_sto.fn_get_purchase_code_text('greenClass', green.item_green_class) as item_green_class
-   , cust_sto.fn_get_purchase_code_text('greenCertType', green.item_green_cert_type) as item_green_cert_type
-   
-   
+   , IFNULL(green.item_green_class,'') as item_green_class
+   , IFNULL((SELECT NAME FROM cust_sto.t_purchase_code_detail code0 where code0.`GROUP` = 'greenClass' and code0.USE_YN = 'Y' and code0.code != '' and green.item_green_class = code0.CODE),'') as item_green_class_name
+   , IFNULL(green.item_green_cert_type,'') as item_green_cert_type
+   , IFNULL(m.item_green_class,'') as p_item_green_class
+   , IFNULL((SELECT NAME FROM cust_sto.t_purchase_code_detail code0 where code0.`GROUP` = 'greenClass' and code0.USE_YN = 'Y' and code0.code != '' and m.item_green_class = code0.CODE),'') as p_item_green_class_name
+   , IFNULL(m.item_green_cert_type,'') as p_item_green_cert_type
+   , expend_date
   FROM $DB_NEOS$t_exnp_resdoc d
   <isNotEmpty property="deptSeq">
   left join $DB_NEOS$t_co_dept wdept on d.dept_seq = wdept.dept_seq 
   </isNotEmpty>
   
   left join $DB_NEOS$a_templateinfo  t on t.c_tikeycode  = d.form_seq
-  left join cust_sto.t_purchase_res_green_info green on d.res_doc_seq = green.res_doc_seq
+  left join $DB_NEOS$t_exnp_restrade res on res.res_doc_seq = d.res_doc_seq
+  left join cust_sto.t_purchase_res_green_info green on green.res_doc_seq = res.res_doc_seq  and green.tr_seq = res.tr_seq 
+  left join cust_sto.t_purchase_item_info m on m.seq = d.out_process_interface_m_id and m.item_tr_seq = res.tr_seq  
   
+  	  
+  INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
+  INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
+  INNER JOIN (
+   SELECT
+    res_doc_seq
+    , SUM( (CASE IFNULL(ctl_fg_code, '1')
+    WHEN '0' THEN  ( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
+    ELSE  IFNULL(budget_amt, 0) /* emptyStr or '1' */
+    END)
+    ) AS resDocAmt
+    , SUM(IFNULL(budget_tax_amt, 0)) AS resDocTaxAmt
+    , SUM(IFNULL(budget_std_amt, 0)) AS resDocStdAmt
+   FROM $DB_NEOS$t_exnp_resbudget
+   GROUP BY res_doc_seq
+  ) amt
+  ON d.res_doc_seq = amt.res_doc_seq
+   INNER JOIN $DB_NEOS$erpgwlink gwlink
+         ON   gwlink.appr_dikey = d.doc_seq
+         
+  WHERE d.doc_seq IS NOT NULL
+  
+   <isNotEmpty property="itemGreenClass">
+  and green.item_green_class = '$itemGreenClass$'
+  </isNotEmpty>
+  
+  <isNotEmpty property="itemGreenCertType">    
+  and green.item_green_cert_type like '%$itemGreenCertType$%' 
+  </isNotEmpty>
+    
+  <isNotEmpty property="docStatus">
+   AND IFNULL(doc_status, '008') IN ($docStatus$)
+  </isNotEmpty>
+  <isEmpty property="docStatus">
+   AND doc_status in ( '001', '002', '003', '005', '006', '007', '008', '009' )
+  </isEmpty>
+
+  <isNotEmpty property="frDt">
+   <isNotEmpty property="toDt">
+   AND LEFT(i.c_diwriteday,8) BETWEEN #frDt# AND #toDt#
+   </isNotEmpty>
+  </isNotEmpty>
+
+  <isNotEmpty property="confferReturnYN">
+   AND conffer_return_yn = #confferReturnYN#
+  </isNotEmpty>
+
+  <isNotEmpty property="docTitle">
+   AND c_riaftertitle LIKE CONCAT('%', IFNULL(#docTitle#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="docNo">
+   AND c_ridocfullnum LIKE CONCAT('%', IFNULL(#docNo#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="empName">
+   AND d.emp_name LIKE CONCAT('%', IFNULL(#empName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="deptName">
+   AND d.dept_name LIKE CONCAT('%', IFNULL(#deptName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="sendEmpName">
+   AND d.send_emp_name LIKE CONCAT('%', IFNULL(#sendEmpName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="erpSendYN">
+   AND d.erp_send_yn = #erpSendYN#
+  </isNotEmpty>
+  
+  <isNotEmpty property="deptSeq">
+  and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))   
+  </isNotEmpty>		
+  <isEqual property="authLevel" compareValue="user">
+  and d.emp_seq = '$empSeq$'   
+  </isEqual>  
+  
+  and out_process_interface_m_id = ''
+  ) a
+  
+ </select> 
+ 
+ <select id="PurchaseSQL.SelectGreenPurchaseList" parameterClass="HashMap" resultClass="HashMap">
+  
+  SELECT
+   d.res_doc_seq AS 'resDocSeq'
+   , t.c_tiname AS 'c_tiname'
+   , d.doc_seq AS 'docSeq'
+   , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
+   , d.doc_status  AS 'docStatus'
+   , i.c_diwriteday AS 'docDate'
+   ,d.out_process_interface_id AS 'out_process_interface_id'
+   ,d.out_process_interface_m_id AS 'out_process_interface_m_id'
+   , d.resdoc_note AS 'consdocNote'
+   , d.resdoc_note AS 'resdocNote'
+   , d.expend_date AS 'expendDate'
+   , d.comp_name AS 'compName'
+   , d.dept_name AS 'deptName'
+   , d.emp_name AS 'empName'
+   , d.send_emp_seq AS 'sendEmpSeq'
+   , d.send_date  AS 'sendDate'
+   , d.send_emp_name AS 'sendName'
+   , r.c_riaftertitle AS 'docTitle'
+   , sum(distinct amt.resDocAmt)  AS 'resDocAmt'
+   , sum(distinct amt.resDocTaxAmt) AS 'resDocTaxAmt'
+   , sum(distinct amt.resDocStdAmt) AS 'resDocStdAmt'
+   , d.erp_send_yn AS 'erpSendYN'
+   , d.save_yn  AS 'saveYn'
+   , 'EA'   AS 'eaType'
+   , IFNULL(green.item_green_class,'') as item_green_class
+   , IFNULL((SELECT NAME FROM cust_sto.t_purchase_code_detail code0 where code0.`GROUP` = 'greenClass' and code0.USE_YN = 'Y' and code0.code != '' and green.item_green_class = code0.CODE),'') as item_green_class_name
+   , IFNULL(green.item_green_cert_type,'') as item_green_cert_type
+   , IFNULL(m.item_green_class,'') as p_item_green_class
+   , IFNULL((SELECT NAME FROM cust_sto.t_purchase_code_detail code0 where code0.`GROUP` = 'greenClass' and code0.USE_YN = 'Y' and code0.code != '' and m.item_green_class = code0.CODE),'') as p_item_green_class_name
+   , IFNULL(m.item_green_cert_type,'') as p_item_green_cert_type
+   , expend_date
+  FROM $DB_NEOS$t_exnp_resdoc d
+  <isNotEmpty property="deptSeq">
+  left join $DB_NEOS$t_co_dept wdept on d.dept_seq = wdept.dept_seq 
+  </isNotEmpty>
+  
+  left join $DB_NEOS$a_templateinfo  t on t.c_tikeycode  = d.form_seq
+  left join $DB_NEOS$t_exnp_restrade res on res.res_doc_seq = d.res_doc_seq
+  left join cust_sto.t_purchase_res_green_info green on green.res_doc_seq = res.res_doc_seq  and green.tr_seq = res.tr_seq 
+  left join cust_sto.t_purchase_item_info m on m.seq = d.out_process_interface_m_id and m.item_tr_seq = res.tr_seq    
   
   	  
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
@@ -1134,12 +1635,12 @@
   WHERE d.doc_seq IS NOT NULL
   
   <isNotEmpty property="itemGreenClass">
-  and  green.item_green_class = '$itemGreenClass$'
+  and  (green.item_green_class = '$itemGreenClass$' or m.item_green_class = '$itemGreenClass$')
   </isNotEmpty>
-  <isNotEmpty property="itemGreenCertType">
-  and  green.item_green_cert_type = '$itemGreenCertType$'
+  
+  <isNotEmpty property="itemGreenCertType">    
+  and (green.item_green_cert_type like '%$itemGreenCertType$%' or m.item_green_cert_type like '%$itemGreenCertType$%')
   </isNotEmpty>
- 
   
   <isNotEmpty property="docStatus">
    AND IFNULL(doc_status, '008') IN ($docStatus$)
@@ -1188,6 +1689,135 @@
 	<isEqual property="authLevel" compareValue="user">
 	and d.emp_seq = '$empSeq$'   
 	</isEqual>
+  
+  and out_process_interface_m_id != ''
+  group by out_process_interface_m_id
+  
+  
+  union all 
+  
+  
+   SELECT
+   d.res_doc_seq AS 'resDocSeq'
+   , t.c_tiname AS 'c_tiname'
+   , d.doc_seq AS 'docSeq'
+   , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
+   , d.doc_status  AS 'docStatus'
+   , i.c_diwriteday AS 'docDate'
+   ,d.out_process_interface_id AS 'out_process_interface_id'
+   ,d.out_process_interface_m_id AS 'out_process_interface_m_id'
+   , d.resdoc_note AS 'consdocNote'
+   , d.resdoc_note AS 'resdocNote'
+   , d.expend_date AS 'expendDate'
+   , d.comp_name AS 'compName'
+   , d.dept_name AS 'deptName'
+   , d.emp_name AS 'empName'
+   , d.send_emp_seq AS 'sendEmpSeq'
+   , d.send_date  AS 'sendDate'
+   , d.send_emp_name AS 'sendName'
+   , r.c_riaftertitle AS 'docTitle'
+   , amt.resDocAmt  AS 'resDocAmt'
+   , amt.resDocTaxAmt AS 'resDocTaxAmt'
+   , amt.resDocStdAmt AS 'resDocStdAmt'
+   , d.erp_send_yn AS 'erpSendYN'
+   , d.save_yn  AS 'saveYn'
+   , 'EA'   AS 'eaType'
+   , IFNULL(green.item_green_class,'') as item_green_class
+   , IFNULL((SELECT NAME FROM cust_sto.t_purchase_code_detail code0 where code0.`GROUP` = 'greenClass' and code0.USE_YN = 'Y' and code0.code != '' and green.item_green_class = code0.CODE),'') as item_green_class_name
+   , IFNULL(green.item_green_cert_type,'') as item_green_cert_type
+   , IFNULL(m.item_green_class,'') as p_item_green_class
+   , IFNULL((SELECT NAME FROM cust_sto.t_purchase_code_detail code0 where code0.`GROUP` = 'greenClass' and code0.USE_YN = 'Y' and code0.code != '' and m.item_green_class = code0.CODE),'') as p_item_green_class_name
+   , IFNULL(m.item_green_cert_type,'') as p_item_green_cert_type
+   , expend_date
+  FROM $DB_NEOS$t_exnp_resdoc d
+  <isNotEmpty property="deptSeq">
+  left join $DB_NEOS$t_co_dept wdept on d.dept_seq = wdept.dept_seq 
+  </isNotEmpty>
+  
+  left join $DB_NEOS$a_templateinfo  t on t.c_tikeycode  = d.form_seq
+  left join $DB_NEOS$t_exnp_restrade res on res.res_doc_seq = d.res_doc_seq
+  left join cust_sto.t_purchase_res_green_info green on green.res_doc_seq = res.res_doc_seq  and green.tr_seq = res.tr_seq 
+  left join cust_sto.t_purchase_item_info m on m.seq = d.out_process_interface_m_id and m.item_tr_seq = res.tr_seq  
+  
+  	  
+  INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
+  INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
+  INNER JOIN (
+   SELECT
+    res_doc_seq
+    , SUM( (CASE IFNULL(ctl_fg_code, '1')
+    WHEN '0' THEN  ( CASE IFNULL(budget_std_amt, 0) WHEN '0' THEN budget_amt ELSE budget_std_amt END )
+    ELSE  IFNULL(budget_amt, 0) /* emptyStr or '1' */
+    END)
+    ) AS resDocAmt
+    , SUM(IFNULL(budget_tax_amt, 0)) AS resDocTaxAmt
+    , SUM(IFNULL(budget_std_amt, 0)) AS resDocStdAmt
+   FROM $DB_NEOS$t_exnp_resbudget
+   GROUP BY res_doc_seq
+  ) amt
+  ON d.res_doc_seq = amt.res_doc_seq
+   INNER JOIN $DB_NEOS$erpgwlink gwlink
+         ON   gwlink.appr_dikey = d.doc_seq
+         
+  WHERE d.doc_seq IS NOT NULL
+  
+  <isNotEmpty property="itemGreenClass">
+  and  green.item_green_class = '$itemGreenClass$' 
+  </isNotEmpty>
+  
+  <isNotEmpty property="itemGreenCertType">    
+  and green.item_green_cert_type like '%$itemGreenCertType$%' 
+  </isNotEmpty>
+  
+  <isNotEmpty property="docStatus">
+   AND IFNULL(doc_status, '008') IN ($docStatus$)
+  </isNotEmpty>
+  <isEmpty property="docStatus">
+   AND doc_status in ( '001', '002', '003', '005', '006', '007', '008', '009' )
+  </isEmpty>
+
+  <isNotEmpty property="frDt">
+   <isNotEmpty property="toDt">
+   AND LEFT(i.c_diwriteday,8) BETWEEN #frDt# AND #toDt#
+   </isNotEmpty>
+  </isNotEmpty>
+
+  <isNotEmpty property="confferReturnYN">
+   AND conffer_return_yn = #confferReturnYN#
+  </isNotEmpty>
+
+  <isNotEmpty property="docTitle">
+   AND c_riaftertitle LIKE CONCAT('%', IFNULL(#docTitle#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="docNo">
+   AND c_ridocfullnum LIKE CONCAT('%', IFNULL(#docNo#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="empName">
+   AND d.emp_name LIKE CONCAT('%', IFNULL(#empName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="deptName">
+   AND d.dept_name LIKE CONCAT('%', IFNULL(#deptName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="sendEmpName">
+   AND d.send_emp_name LIKE CONCAT('%', IFNULL(#sendEmpName#, ''), '%')
+  </isNotEmpty>
+
+  <isNotEmpty property="erpSendYN">
+   AND d.erp_send_yn = #erpSendYN#
+  </isNotEmpty>
+  
+	<isNotEmpty property="deptSeq">
+	and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+	</isNotEmpty>
+	<isEqual property="authLevel" compareValue="user">
+	and d.emp_seq = '$empSeq$'   
+	</isEqual>
+  
+  and out_process_interface_m_id = ''
   
   ORDER BY expend_date DESC 
   LIMIT $startNum$ ,  $endNum$

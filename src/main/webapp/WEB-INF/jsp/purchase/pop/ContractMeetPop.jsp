@@ -44,6 +44,7 @@
 		var eaBaseInfo = ${eaBaseInfo};
 		var commonParam = {};
 		var commonElement;
+		var reqType;
 		
 		commonParam.callback = 'fnCommonCode_callback';
 		commonParam.widthSize = "628";
@@ -77,35 +78,15 @@
 		
 		// 예산정보html
 		function setDynamicSetInfoAmt(){
-			
-		/* 	<c:if test="${budgetList.size() > 0 }">	
-			var cloneData;
-			var i = 1;
-			<c:forEach var="items" items="${budgetList}" varStatus="status">
-			
-			cloneData = $('#resultAmtListHtml tr:first').clone();
-			$("#bgtAmtnum").text("i");
-			$("#bgtAmt1Name").text("${items.erp_bgt1_name}");
-			$("#bgtAmt2Name").text("${items.erp_bgt2_name}");
-			$("#bgtAmt3Name").text("${items.erp_bgt3_name}");
-			$("#txtbgtAmt").text("${items.amt}");
-			
-			$("#txtbgtOpenAmt").text("${items.txt_open_amt}");
-			$("#txtbgtConsBalanceAmt").text("${items.txt_cons_balance_amt}");
-			$("#txtbgtApplyAmt").text("${items.txt_apply_amt}");
-			$("#txtbgtBalanceAmt").text("${items.txt_balance_amt}");
-			
-		
-			
-			$('#resultAmtListHtml').append(cloneData);
-			
-			
-			</c:forEach>		
-			</c:if>			
- */			
+					
  			$("#resultAmtListHtml tbody").empty();
  			$.each($("table[name='budgetList'] tr[name='addData']"), function(index, tr){
  				var $clone = $("#resultAmtListHtml tfoot tr").clone();
+ 				var tr_amt = $(tr).find("input[name='amt']").val();
+ 				var t_amt = parseInt(tr_amt.replace(/,/g, ''));
+ 				var balance_amt = $(tr).find("input[name='txt_balance_amt']").val();
+ 				var t_balance_amt = parseInt(balance_amt.replace(/,/g, ''));
+ 				var txtbgtBalanceAmt1 = t_balance_amt - t_amt; 
  				$clone.find("td.bgtAmtnum").html("<span style='font-family:굴림;font-size:10px'>" + parseInt(index + 1) + "</span>");
  				$clone.find("td.bgtAmt1Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='pjt_name']").val() + "</span>");
  				$clone.find("td.bgtAmt2Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='erp_bgt2_name']").val() + "</span>");
@@ -113,7 +94,8 @@
  				$clone.find("td.txtbgtAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_open_amt']").val() + "</span>"); 
  				$clone.find("td.txtbgtOpenAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_cons_balance_amt']").val() + "</span>");
  				$clone.find("td.txtbgtConsBalanceAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_apply_amt']").val() + "</span>");
- 				$clone.find("td.txtbgtApplyAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_pay_amt']").val() + "</span>");
+ 				$clone.find("td.txtbgtApplyAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='amt']").val() + "</span>");
+ 				/* $clone.find("td.txtbgtApplyAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_pay_amt']").val() + "</span>"); */
  				$clone.find("td.txtbgtBalanceAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_balance_amt']").val() + "</span>");
  				$("#resultAmtListHtml tbody").append($clone);
  			});
@@ -750,12 +732,12 @@
 			insertDataObject.seq = "${seq}"
 			insertDataObject.meet_dt = $("[name=meetDt]").parent().find("input")[1].value + " " + insertDataObject.meet_start_hh +  ":" + insertDataObject.meet_start_mm + "~" + insertDataObject.meet_end_hh + ":" + insertDataObject.meet_end_mm;
 			
+			setDynamicSetInfoAmt();
 			
 			//contract html 
 			var resultAmtListHtml = "";
 			$('[name=resultAmtListHtmlre] tfoot').remove();
 			$('[name=resultAmtListHtmlre]').find("[displaynone]").removeAttr("displaynone");
-			/* $('[name=resultAmtListHtmlre]').find(":hidden").attr("displaynone", "Y"); */
 			
 			var cloneData = $('[name=resultAmtListHtmlre]').clone();
 			
@@ -780,15 +762,18 @@
 					if(result.resultCode == "success"){
 						
 						openerRefreshList();	
+						reqType = type;
 						
-						if(type == 1){
+/* 						if(type == 1){
 										
 							msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");							
 						}else{
 							
 							fnPaymentCreate();
 
-						}
+						} */
+						
+						fnPaymentCreate();
 						
 					}else{
 						msgSnackbar("error", "등록에 실패했습니다.");	
@@ -803,7 +788,10 @@
 		}
 		
 		var conclusionbudgetList = [];
-		var conclusionRemainAmt = 0;			
+		var conclusionRemainAmt = 0;	
+		var cons_doc_no ;
+		var cons_doc_seq;
+		var cons_doc_status;
 		
 		function fnPaymentCreate(){
 
@@ -812,6 +800,40 @@
 			parameter.out_process_interface_id = outProcessCode;
 			parameter.out_process_interface_m_id = "${seq}";
 			parameter.out_process_interface_d_id = "DUPLICATE_TEMP";			
+			
+			
+			$.ajax({
+				type : 'post',
+				url : '<c:url value="/SelConsTemp.do" />',
+	    		datatype:"json",
+	            data: parameter ,
+				async : false,
+				success : function(result) {
+					
+					if(result.resultCode == "SUCCESS"){
+						if (result.resultData != null){
+							if(result.resultData.doc_status == "90"){
+								
+								cons_doc_no = result.resultData.doc_no  ;
+								cons_doc_seq = result.resultData.doc_seq;
+								cons_doc_status = result.resultData.doc_status;
+								
+							} 
+						}
+						
+			
+					}else{
+						msgSnackbar("error", "품의데이터 초기화 오류");	
+					}
+					
+				},
+				error : function(result) {
+					msgSnackbar("error", "품의데이터 초기화 오류");
+				}
+			});	
+			
+			
+			
 			
 			$.ajax({
 				type : 'post',
@@ -864,6 +886,10 @@
 			parameter.outProcessInterfaceId = outProcessCode;
 			parameter.outProcessInterfaceMId = "${seq}";
 			parameter.outProcessInterfaceDId = "DUPLICATE_TEMP";
+			parameter.doc_no  = cons_doc_no;
+			parameter.doc_seq = cons_doc_seq;
+			parameter.doc_status = cons_doc_status;
+			
 			
 			$.ajax({
 				type : 'post',
@@ -1063,12 +1089,23 @@
 						
 						if(conclusionbudgetList.length-2 < idx){
 							
-							if(conclusionRemainAmt > 0){
+							if(reqType == 1){
+								
+								msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");
+								
+							} else {
+							
+							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=${seq}",  "ApprCreatePop", 1000, 729, 1, 1) ;
+							self.close();	
+							
+							}
+							
+/* 							if(conclusionRemainAmt > 0){
 								msgSnackbar("error", "품의금액이 예산잔액을 초과합니다.");
 							}else{
 								openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=${seq}",  "ApprCreatePop", 1000, 729, 1, 1) ;
 								self.close();								
-							}
+							} */
 
 						}
 						
@@ -1542,7 +1579,8 @@
 		
 		<!-- 그리드 테이블 -->
 		<!-- <div class="com_ta6 mt10"> -->
-		<div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" style="display:none;">
+ 		<div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" style="display:none;"> 
+		<!-- <div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10"> -->
 			<table id="resultAmtListHtml" name="resultAmtListHtml" border="1" width="100%" >
 				<colgroup>
 					<col width=""/>	

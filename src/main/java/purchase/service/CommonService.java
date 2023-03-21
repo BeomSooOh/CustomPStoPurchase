@@ -25,7 +25,7 @@ public interface CommonService {
 	
 	public void DelConsTemp ( Map<String, Object> params );
 	
-	public void saveGreenInfo ( Map<String, Object> params );
+	public void saveGreenInfo ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
 	
 	public void saveHopeInfo ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException;
 	

@@ -101,8 +101,12 @@ public class CommonPopController {
                 
             }else if(layerName.equals("greenStateSetLayer")) {
             	
+//            	params.put("res_doc_seq", params.get("resDocSeq"));
+//            	Map<String, Object> greenStateSetInfo = commonServiceDAO.SelectPurchaseResGreenInfo(params);
+//            	mv.addObject("greenStateSetInfo", greenStateSetInfo);
+            	
             	params.put("res_doc_seq", params.get("resDocSeq"));
-            	Map<String, Object> greenStateSetInfo = commonServiceDAO.SelectPurchaseResGreenInfo(params);
+            	List<Map<String, Object>> greenStateSetInfo = commonServiceDAO.SelectPurchaseResGreenInfo(params);
             	mv.addObject("greenStateSetInfo", greenStateSetInfo);
             	
             	params.put("group", "greenCertType");
@@ -134,9 +138,9 @@ public class CommonPopController {
                 mv.addObject("hopeCompanyCode", hopeCompanyCode);            	
             	
             }else if(layerName.equals("purgreenStateSetLayer")) {
-            	
+    
             	params.put("res_doc_seq", params.get("resDocSeq"));
-            	Map<String, Object> greenStateSetInfo = commonServiceDAO.SelectPurchaseResGreenInfo(params);
+            	List<Map<String, Object>> greenStateSetInfo = commonServiceDAO.SelectPurchaseResGreenInfo(params);
             	mv.addObject("greenStateSetInfo", greenStateSetInfo);
             	
             	params.put("group", "greenCertType");

@@ -33,7 +33,10 @@
 	var deptSeq = "${deptSeq}";
 	var deptName = "${deptName}";
 	var authLevel = "${authLevel}";
+	var seq;
+	var out_process_interface_m_id;
 
+	
 	var targetSeq = "";
 	var uploadPer = 0;
 	
@@ -216,7 +219,59 @@
 				}
 			,   {  field : "trName",	title : "업체명",	width : 150}
 			,   {  field : "business_nb",	title : "사업자번호",	width : 150}
-			,   {  field : "hope_company_info",	title : "희망기업",	width : 150}				
+			/* ,   {  field : "hope_company_info",	title : "희망기업",	width : 150} */
+			,   {  field : "",	title : "희망기업",	width : 150
+				   , content : {
+						template : function( rowData ) {			
+							if(rowData.hope_company_info != ""){
+		
+								var objInfo = [];
+								var valArray = [];
+								
+								valArray = rowData.hope_company_info.split("▦▦");
+									for (i=0; valArray.length > i; i++ ){
+										var valInfo = [];
+ 										valInfo[i] =  valArray[i].split("▦"); 
+										objInfo.push(valInfo[i][1]); 
+									}
+	
+								return 	objInfo;							
+
+							} else if (rowData.c_hope_company_info != ""){
+								
+								var objInfo = [];
+								var valArray = [];
+								
+								valArray = rowData.c_hope_company_info.split("▦▦");
+									for (i=0; valArray.length > i; i++ ){
+										var valInfo = [];
+ 										valInfo[i] =  valArray[i].split("▦"); 
+										objInfo.push(valInfo[i][1]); 
+									}
+	
+								return 	objInfo;
+								
+							} else if (rowData.p_hope_company_info != "") {
+								
+								var objInfo = [];
+								var valArray = [];
+								
+								valArray = rowData.p_hope_company_info.split("▦▦");
+									for (i=0; valArray.length > i; i++ ){
+										var valInfo = [];
+ 										valInfo[i] =  valArray[i].split("▦"); 
+										objInfo.push(valInfo[i][1]); 
+									}
+	
+								return 	objInfo;
+
+							} else {
+								return "";
+							}
+						}
+					}
+			
+				}
 			,   {  field : "",	title : "품의유형",	width : 100
 				   , content : {
 						template : function( rowData ) {			
@@ -332,7 +387,16 @@
 				
 				if(result.resHopeInfoList.length > 0){
 					
+					out_process_interface_id = result.resHopeInfoList[0].out_process_interface_id;
+					seq = result.resHopeInfoList[0].out_process_interface_m_id;
+					
 					if(result.resHopeInfoList[0].hope_company_info != ""){
+						hopeState = "V";
+						hopeDelState = "V";
+					} else if (result.resHopeInfoList[0].c_hope_company_info != ""){
+						hopeState = "V";
+						hopeDelState = "V";
+					} else if (result.resHopeInfoList[0].p_hope_company_info != ""){
 						hopeState = "V";
 						hopeDelState = "V";
 					}
@@ -491,6 +555,8 @@
 		
 		var reqParam = {};
 		reqParam.res_doc_seq = resDocSeq;
+		reqParam.seq = seq;
+		reqParam.out_process_interface_id = out_process_interface_id;
 		
 		$.ajax({
 			type : 'post',
@@ -716,12 +782,57 @@
     		excel.set( 0, 6, rowNo, (dataPage[ i ][ "resDocAmt" ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), formatCellR );
     		excel.set( 0, 7, rowNo, dataPage[ i ][ "trName" ], formatCell );
     		excel.set( 0, 8, rowNo, dataPage[ i ][ "business_nb" ], formatCell );
-    		excel.set( 0, 9, rowNo, dataPage[ i ][ "hope_company_info" ], formatCell );
     		
-    		if (dataPage[ i ][ "c_target_type" ] != "") {
+    		
+    		if (dataPage[ i ][ "hope_company_info" ] != "" || dataPage[ i ][ "c_hope_company_info" ] != "" ||  dataPage[ i ][ "p_target_type" ] != "") {
+    		
+    		if (dataPage[ i ][ "hope_company_info" ] != "") {
+    			
+    			var objInfo = [];
+				var valArray = [];
+    			
+				valArray =  dataPage[ i ][ "hope_company_info" ].split("▦▦");
+				for (var k=0; valArray.length > k; k++ ){
+					var valInfo = [];
+						valInfo[k] =  valArray[k].split("▦"); 
+					objInfo.push(valInfo[k][1]); 
+				}
+    			excel.set( 0, 9, rowNo, objInfo , formatCell );
+    			
+    		} else if (dataPage[ i ][ "c_hope_company_info" ] != "") {
+    			
+    			var objInfo = [];
+				var valArray = [];
+    			
+				valArray =  dataPage[ i ][ "c_hope_company_info" ].split("▦▦");
+				for (var k=0; valArray.length > k; k++ ){
+					var valInfo = [];
+						valInfo[k] =  valArray[k].split("▦"); 
+					objInfo.push(valInfo[k][1]); 
+				}
+    			excel.set( 0, 9, rowNo, objInfo , formatCell );
+    			
+    		}  else if (dataPage[ i ][ "p_hope_company_info" ] != "") {
+    			
+    			var objInfo = [];
+				var valArray = [];
+    			
+				valArray =  dataPage[ i ][ "p_hope_company_info" ].split("▦▦");
+				for (var k=0; valArray.length > k; k++ ){
+					var valInfo = [];
+						valInfo[k] =  valArray[k].split("▦"); 
+					objInfo.push(valInfo[k][1]); 
+				}
+    			excel.set( 0, 9, rowNo, objInfo , formatCell );
+    		} else {
+    			excel.set( 0, 9, rowNo, "" , formatCell );
+    		}
+    	}
+    		
+    		if (dataPage[ i ][ "c_target_type" ] != "" || dataPage[ i ][ "out_process_interface_id" ] == "PURCHASE") {
     			if (dataPage[ i ][ "c_target_type" ] == "01"){
     				excel.set( 0, 10, rowNo, "용역", formatCell );
-    			} else if (dataPage[ i ][ "c_target_type" ] == "04" || dataPage[ i ][ "process_interface_m_id" ] == "PURCHASE") {
+    			} else if (dataPage[ i ][ "c_target_type" ] == "04" || dataPage[ i ][ "out_process_interface_id" ] == "PURCHASE") {
     				excel.set( 0, 10, rowNo, "구매", formatCell );
     			} else if (dataPage[ i ][ "c_target_type" ] == "06"){
     				excel.set( 0, 10, rowNo, "공사", formatCell );

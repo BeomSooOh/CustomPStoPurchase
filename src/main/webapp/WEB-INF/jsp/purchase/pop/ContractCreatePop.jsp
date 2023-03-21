@@ -740,7 +740,7 @@
 				
 				<tr>
 					<th>
-					<img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 근거법령</th>
+					<img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 입찰근거법령</th>
 					<td colspan="3">
 						<select ${disabled} type="select" name="baseLaw" onchange="fnChangeEtc(this)" objKey="base_law" objCheckFor="checkVal('select', this, '근거법령', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
 							<c:forEach var="items" items="${baseLawCode}">

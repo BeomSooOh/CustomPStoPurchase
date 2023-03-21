@@ -33,7 +33,10 @@
 	var deptSeq = "${deptSeq}";
 	var deptName = "${deptName}";
 	var authLevel = "${authLevel}";
+	var seq;
+	var out_process_interface_m_id;
 
+	
 	var targetSeq = "";
 	var uploadPer = 0;
 	
@@ -214,15 +217,60 @@
 						}
 					}
 			
-				},	{
-					field : "item_green_cert_type"
-						,	title : "녹색제품 인증구분"
-						,	width : 150							
-			},	{
-				field : "item_green_class"
-			,	title : "제품분류"
-			,	width : 150							
-			}			
+				}, {  field : "item_green_cert_type",	title : "녹색제품 인증구분",	width : 150
+					   , content : {
+						   attributes : { class : "ri" },
+							template : function( rowData ) {
+								
+								if(rowData.item_green_cert_type != ""){
+									
+									var objInfo = [];
+									var valArray = [];
+									
+									valArray = rowData.item_green_cert_type.split("▦▦");
+									for (i=0; valArray.length > i; i++ ){
+										var valInfo = [];
+ 										valInfo[i] =  valArray[i].split("▦"); 
+										objInfo.push(valInfo[i][1]); 
+									}
+	
+										return 	objInfo;			
+									
+								}else if (rowData.p_item_green_cert_type != ""){
+									
+									var objInfo = [];
+									var valArray = [];
+									
+									valArray = rowData.p_item_green_cert_type.split("▦▦");
+									for (i=0; valArray.length > i; i++ ){
+										var valInfo = [];
+ 										valInfo[i] =  valArray[i].split("▦"); 
+										objInfo.push(valInfo[i][1]); 
+									}
+	
+										return 	objInfo;
+
+								} else {
+									
+									return ""
+								}
+							}
+						}
+				
+			}	, {  field : "item_green_class",	title : "제품분류",	width : 150
+				   , content : {
+					   attributes : { class : "ri" },
+						template : function( rowData ) {
+							
+							if(rowData.item_green_class == ""){
+								return 	rowData.p_item_green_class_name
+							}else{
+								return 	rowData.item_green_class_name
+							}
+						}
+					}
+			
+		}		
 			
 		]
 	});	
@@ -317,13 +365,34 @@
 				var hopeDelState = "";
 				
 				
-				if(result.resGreenInfo.item_green_cert_type != "" && result.resGreenInfo.item_green_class != ""){
+				if(result.resGreenInfo.length > 0){
+					
+					out_process_interface_id = result.resGreenInfo[0].out_process_interface_id;
+					seq = result.resGreenInfo[0].out_process_interface_m_id;
+					
+					if(result.resGreenInfo[0].item_green_cert_type != ""  && result.resGreenInfo[0].item_green_class != ""){
+						greenState = "V";
+						greenDelState = "V";
+					}
+					
+ 					else if(result.resGreenInfo[0].p_item_green_cert_type != ""  && result.resGreenInfo[0].p_item_green_class != ""){
+						greenState = "V";
+						greenDelState = "V";
+					}
+					
+				}else{
+					greenState = "C";
+				}
+				
+				
+/* 				
+ 				if(result.resGreenInfo.item_green_cert_type != "" && result.resGreenInfo.item_green_class != ""){
 						greenState = "V";
 						greenDelState = "V";
 					}
 					else{
 						greenState = "C";
-					}				
+					} 	 */			
 				
 				var btnList = [];
 				
@@ -418,8 +487,9 @@
 
 			// puddDialog 함수
 			dialogEl = Pudd.puddDialog({
-				width : callId == "purgreenState" ? 500 : 800
-			,	height : callId == "purgreenState" ? 150 : 200
+				width :  800
+			,	height : 200
+
 			 
 			,	modal : true			// 기본값 true
 			,	draggable : false		// 기본값 true
@@ -473,7 +543,11 @@
 	function fnDeleteProc(callId, resDocSeq){
 		
 		var reqParam = {};
+		
 		reqParam.res_doc_seq = resDocSeq;
+		reqParam.seq = seq;
+		reqParam.out_process_interface_id = out_process_interface_id;
+		
 		
 		$.ajax({
 			type : 'post',
@@ -659,8 +733,8 @@
     	excel.set(0, 4, 1, "기안자");
     	excel.set(0, 5, 1, "기안일자");
     	excel.set(0, 6, 1, "금액");
-    	excel.set(0, 7, 1, "제품분류");
-    	excel.set(0, 8, 1, "녹색제품 인증구분");
+    	excel.set(0, 7, 1, "녹색제품 인증구분");
+    	excel.set(0, 8, 1, "제품분류");
     	
     	// sheet번호, column, value(width)
     	for( var i = 0; i < 9; i++ ) {
@@ -697,8 +771,54 @@
     		excel.set( 0, 4, rowNo, dataPage[ i ][ "empName" ], formatCell );
     		excel.set( 0, 5, rowNo, dataPage[ i ][ "docDate" ].substring(0,4) + "-" + dataPage[ i ][ "docDate" ].substring(4,6) + "-" + dataPage[ i ][ "docDate" ].substring(6,8), formatCell );
     		excel.set( 0, 6, rowNo, (dataPage[ i ][ "resDocAmt" ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), formatCellR );
-    		excel.set( 0, 7, rowNo, dataPage[ i ][ "item_green_class" ], formatCell );
-    		excel.set( 0, 8, rowNo, dataPage[ i ][ "item_green_cert_type" ], formatCell );
+    		
+    		
+    		if (dataPage[ i ][ "item_green_cert_type" ] != "" || dataPage[ i ][ "p_item_green_cert_type" ] != "" ) {
+        		
+        		if (dataPage[ i ][ "item_green_cert_type" ] != "") {
+        			
+        			var objInfo = [];
+    				var valArray = [];
+        			
+    				valArray =  dataPage[ i ][ "item_green_cert_type" ].split("▦▦");
+    				for (var k=0; valArray.length > k; k++ ){
+    					var valInfo = [];
+    						valInfo[k] =  valArray[k].split("▦"); 
+    					objInfo.push(valInfo[k][1]); 
+    				}
+        			excel.set( 0, 7, rowNo, objInfo , formatCell );
+        			
+        		} else if (dataPage[ i ][ "p_item_green_cert_type" ] != "") {
+        			
+        			var objInfo = [];
+    				var valArray = [];
+        			
+    				valArray =  dataPage[ i ][ "p_item_green_cert_type" ].split("▦▦");
+    				for (var k=0; valArray.length > k; k++ ){
+    					var valInfo = [];
+    						valInfo[k] =  valArray[k].split("▦"); 
+    					objInfo.push(valInfo[k][1]); 
+    				}
+        			excel.set( 0, 7, rowNo, objInfo , formatCell );
+        			
+        		}  else {
+        			excel.set( 0, 7, rowNo, "" , formatCell );
+        		}
+        	}
+    		
+    		if (dataPage[ i ][ "item_green_class" ] != "" || dataPage[ i ][ "item_green_class" ] != "" ) {
+    			
+    			if(dataPage[ i ][ "item_green_class" ] != "") {
+    				excel.set( 0, 8, rowNo, dataPage[ i ][ "item_green_class_name" ], formatCell );
+    			} else if (dataPage[ i ][ "p_item_green_class" ] != ""){
+    				excel.set( 0, 8, rowNo, dataPage[ i ][ "p_item_green_class_name" ], formatCell );
+    			} else {
+    				excel.set( 0, 8, rowNo, "", formatCell );
+    			}
+    			
+    		}
+    		
+    		
     	}
      
     	excel.generate( fileName, saveCallback, stepCallback );
@@ -794,6 +914,15 @@
 		<dd><input type="text" id="txtEmpName" pudd-style="width:100px;" class="puddSetup" placeHolder="사원명 입력" value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
 		</c:if>
 				
+		<dt class="ar">녹색제품 인증구분</dt>
+		<dd>
+			<select id="itemGreenCertType" onchange="BindGrid();" style="text-align: center;">
+				<option value="">전체</option>
+				<c:forEach var="items" items="${greenCertType}">
+				<option value="${items.CODE}">${items.NAME}</option>
+				</c:forEach>
+			</select>			
+		</dd>
 		
 		<dt class="ar">제품분류</dt>
 		<dd>
@@ -804,16 +933,8 @@
 				</c:forEach>
 			</select>
 		</dd>
-				
-		<dt class="ar">녹색제품 인증구분</dt>
-		<dd>
-			<select id="itemGreenCertType" onchange="BindGrid();" style="text-align: center;">
-				<option value="">전체</option>
-				<c:forEach var="items" items="${greenCertType}">
-				<option value="${items.CODE}">${items.NAME}</option>
-				</c:forEach>
-			</select>			
-		</dd>	
+		
+			
 	</dl>	
 
 </div>

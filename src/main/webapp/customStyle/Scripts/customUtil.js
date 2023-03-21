@@ -163,7 +163,7 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 		
 		if(subValueFor == "parseToInt"){
 			
-			if(valOption == "notWon" && returnVal == ""){
+			if(returnVal == ""){
 				returnVal = "0";
 			} else {
 			
@@ -270,7 +270,10 @@ function checkVal(type, elementFor, objName, func, subValueFor, valOption){
 				
 				if($(tableVal).val() != ""){
 					values += (values == "" ? "" : "▦") + $(tableVal).val();
-				}else{
+				}else if ($(tableVal).val() == ""){
+					values += (values == "" ? "" : "▦") + "0";
+				}
+				else{
 					
 					focusTarget = tableVal;
 					

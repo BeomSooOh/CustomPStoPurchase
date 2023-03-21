@@ -231,12 +231,32 @@
 		$(cloneData).find("[name=item_foreign_type]").val("${items.item_foreign_type}");
 		$(cloneData).find("[name=item_contry]").val("${items.item_contry}");
 		$(cloneData).find("[name=item_acquisition_reason]").val("${items.item_acquisition_reason}");
-		$(cloneData).find("[name=item_green_cert_type]").val("${items.item_green_cert_type}");
+		/* $(cloneData).find("[name=item_green_cert_type]").val("${items.item_green_cert_type}"); */
 		$(cloneData).find("[name=item_non_green_reason]").val("${items.item_non_green_reason}");
 		$(cloneData).find("[name=item_green_class]").val("${items.item_green_class}");
 		$(cloneData).find("[name=item_green_cert_yn]").val("${items.item_green_cert_yn}");
 		
 		$(cloneData).find("[name=item_deadline]").val("${items.item_deadline}");
+		
+		
+		
+		if("${items.item_green_cert_type}" != ""){
+			
+			commonCodeTargetInfo = [];
+			
+			$.each("${items.item_green_cert_type}".split("▦▦"), function( key, val ) {
+				var valInfo =  val.split("▦");
+				var objInfo = {};
+				objInfo.code = valInfo[0];
+				objInfo.name = valInfo[1];
+				commonCodeTargetInfo.push(objInfo);
+				
+			});	
+			
+			commonCodeCallback("ul", $(cloneData).find("[name=green_certifi_info_td]"), commonCodeTargetInfo);
+		}
+		
+		
 		
 		$('[name="itemList"]').append(cloneData);
 		
@@ -273,6 +293,8 @@
 		$(cloneData).find("[name=depositor]").val("${items.depositor}");
 		$(cloneData).find("[name=tr_fg]").val("${items.tr_fg}");
 		$(cloneData).find("[name=tr_fg_name]").val("${items.tr_fg_name}");
+		
+
 		
 		if("${items.hope_company_info}" != ""){
 			
@@ -2126,7 +2148,7 @@
 					<col width="130" removehtml="Y"/> 
 					<col width="250" removehtml="Y"/>
 					<col width="200" removehtml="Y"/>
-					<col width="200" removehtml="Y"/>
+					<col width="300" removehtml="Y"/>
 					<col width="200" removehtml="Y"/>
 					<col width="200" removehtml="Y"/>
 				</colgroup>
@@ -2237,14 +2259,30 @@
 							<option value="N">N</option>
 						</select>
 					</td>
-					
-					<td removehtml="Y">
+					<td removehtml="Y" name="green_certifi_info_td">
+						<div class="multi_sel" style="width:calc( 100% - 58px);">
+							<ul tbval="Y" tbname="녹색제품인증구분" tbType="ul" id = "item_green_cert_type" name="item_green_cert_type" class="multibox" style="width:100px;" requiredNot="true" >							
+								<li name="dataBase" addCode="" style="display:none;">
+									<span name="addName"></span>
+										<c:if test="${disabledYn == 'N'}"> 
+										<a href="#n" onclick="$(this).closest('li').remove();" class="close_btn"><img src="${pageContext.request.contextPath}/customStyle/Images/ico/sc_multibox_close.png" /></a>
+										</c:if>
+									</li>
+								</ul>								
+							</div>
+							<c:if test="${disabledYn == 'N'}"> 
+							<div class="controll_btn p0 pt4">	
+								<button onclick="commonCodeSelectLayer('greenCertType', '녹색제품인증구분', 'ul', $(this).closest('td'), 'Y')">선택</button>
+							</div>
+						</c:if>
+					</td>
+<%-- 					<td removehtml="Y">
 						<select ${disabled} tbval="Y" id = "item_green_cert_type" name="item_green_cert_type" tbname="녹색제품인증구분" requiredNot="true" style="text-align: center;" >
 							<c:forEach var="items" items="${greenCertTypeCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
-						</select>
-					</td>
+						</select> 
+					</td> --%>
 					<td removehtml="Y">
 						<select ${disabled} tbval="Y" name="item_non_green_reason" tbname="녹색제품미구매사유" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() != ''" style="text-align: center;" disabled>
 							<c:forEach var="items" items="${nonGreenReasonCode}">
@@ -2338,13 +2376,32 @@
 							<option value="N">N</option>
 						</select>
 					</td>
-					<td removehtml="Y">
-						<select ${disabled} tbval="Y" name="item_green_cert_type" tbname="녹색제품인증구분" requiredNot="true" style="text-align: center;" >
+					
+					<td name="green_certifi_info_td">
+						<div class="multi_sel" style="width:calc( 100% - 58px);">
+							<ul tbval="Y" tbType="ul" tbname="녹색제품인증구분" name="item_green_cert_type" class="multibox" style="width:150px;">							
+								<li name="dataBase" addCode="" style="display:none;">
+									<span name="addName"></span>
+										<c:if test="${disabledYn == 'N'}"> 
+										<a href="#n" onclick="$(this).closest('li').remove();" class="close_btn"><img src="${pageContext.request.contextPath}/customStyle/Images/ico/sc_multibox_close.png" /></a>
+										</c:if>
+								</li>
+							</ul>								
+						</div>
+						<c:if test="${disabledYn == 'N'}"> 
+							<div class="controll_btn p0 pt4">	
+								<button onclick="commonCodeSelectLayer('greenCertType', '녹색제품인증구분', 'ul', $(this).closest('td'), 'Y')">선택</button>
+							</div>
+						</c:if>
+					</td>
+					
+<%-- 					<td removehtml="Y">
+							<select ${disabled} tbval="Y" name="item_green_cert_type" tbname="녹색제품인증구분" requiredNot="true" style="text-align: center;" >
 							<c:forEach var="items" items="${greenCertTypeCode}">
 							<option value="${items.CODE}">${items.NAME}</option>
 							</c:forEach>
-						</select>
-					</td>
+						</select> 
+					</td> --%>
 					<td removehtml="Y">
 						<select ${disabled} tbval="Y" name="item_non_green_reason" tbname="녹색제품미구매사유" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() != ''" style="text-align: center;" disabled>
 							<c:forEach var="items" items="${nonGreenReasonCode}">

@@ -287,10 +287,18 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 	}
 	
 
+//	@SuppressWarnings ( "unchecked" )
+//	public Map<String, Object> SelectPurchaseResGreenInfo ( Map<String, Object> params ) {
+//		return (Map<String, Object>) select( "CommonSQL.SelectPurchaseResGreenInfo", params );
+//	}
+	
 	@SuppressWarnings ( "unchecked" )
-	public Map<String, Object> SelectPurchaseResGreenInfo ( Map<String, Object> params ) {
-		return (Map<String, Object>) select( "CommonSQL.SelectPurchaseResGreenInfo", params );
-	}		
+	public List<Map<String, Object>> SelectPurchaseResGreenInfo ( Map<String, Object> params ) {
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
+		result = (List<Map<String, Object>>) list( "CommonSQL.SelectPurchaseResGreenInfo", params );
+		return result;
+	}
+	
 	
 	public void InsertPurchaseResGreenInfo ( Map<String, Object> params ) {
 		
@@ -298,12 +306,27 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		
 	}
 	
+	
+	public void UpdatePurchaseItemGreenInfo ( Map<String, Object> params ) {
+		
+		update( "CommonSQL.UpdatePurchaseItemGreenInfo", params );
+		
+	}
+	
+	
 	public void DeletePurchaseResGreenInfo ( Map<String, Object> params ) {
 		
 		delete( "CommonSQL.DeletePurchaseResGreenInfo", params );
 		
 	}
 	
+	public void DeletePurchaseItemGreenInfo ( Map<String, Object> params ) {
+		
+		update( "CommonSQL.DeletePurchaseItemGreenInfo", params );
+		
+	}
+
+		
 	
 	@SuppressWarnings ( "unchecked" )
 	public List<Map<String, Object>> SelectPurchaseResHopeInfoList ( Map<String, Object> params ) {
@@ -318,11 +341,37 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		
 	}
 	
+	public void UpdatePurchaseContractHopeInfo ( Map<String, Object> params ) {
+		
+		update( "CommonSQL.UpdatePurchaseContractHopeInfo", params );
+		
+	}
+	
+	public void UpdatePurchaseTradeHopeInfo ( Map<String, Object> params ) {
+		
+		update( "CommonSQL.UpdatePurchaseTradeHopeInfo", params );
+		
+	}
+	
 	public void DeletePurchaseResHopeInfo ( Map<String, Object> params ) {
 		
 		delete( "CommonSQL.DeletePurchaseResHopeInfo", params );
 		
 	}	
+
+	
+	public void DeletePurchaseContractHopeInfo ( Map<String, Object> params ) {
+		
+		update( "CommonSQL.DeletePurchaseContractHopeInfo", params );
+		
+	}
+	
+	
+	public void DeletePurchaseTradeHopeInfo ( Map<String, Object> params ) {
+		
+		update( "CommonSQL.DeletePurchaseTradeHopeInfo", params );
+		
+	}
 	
 	
 }
