@@ -35,6 +35,7 @@
 	
 		var outProcessCode = "Contract01";
 		var disabledYn = "${disabledYn}";
+
 		
 		var insertDataObject = {};
 		var attachFormList = [];
@@ -610,6 +611,53 @@
 		
 		
 		
+		/*품의환원*/
+	    var modifyParam = {};
+		
+		function fnModify(){
+			
+		    var selectedList = [];
+		    
+		    var selectedInfo = {};
+			selectedInfo.seq = "${seq}";
+			selectedList.push(selectedInfo);
+		    	
+		    
+		    modifyParam = {};
+		    modifyParam.change_info_list = JSON.stringify(selectedList);		
+			
+			confirmAlert(350, 100, 'question', '품의환원 하시겠습니까?', '확인', 'fnModifyProc()', '취소', '');			
+
+		}	
+	    
+		
+		function fnModifyProc(){
+			
+			$.ajax({
+				type : 'post',
+				url : '<c:url value="/purchase/modifyContractList.do" />',
+	    		datatype:"json",
+	            data: modifyParam ,
+				async : false,
+				success : function(result) {
+					
+					if(result.resultCode == "success"){
+						
+						msgAlert("success", "품의환원이 완료되었습니다.", "self.close()");
+						
+					}else{
+						msgSnackbar("error", "환원할 수 없는 데이터가 있습니다.");
+						
+					}	
+				},
+				error : function(result) {
+					msgSnackbar("error", "품의 환원을 실패했습니다.");
+				}
+			});		
+			
+		}
+	
+		
 	</script>
 </head>
 
@@ -620,6 +668,9 @@
 		<div class="psh_btnbox">
 			<div class="psh_right">
 				<div class="btn_cen mt8">
+					<c:if test="${btnSaveYn == 'Y' && btnApprYn == 'N'}">
+					<input type="button" class="psh_btn" onclick="fnModify();"  value="품의환원" /> 
+					</c:if>
 					<c:if test="${btnSaveYn == 'Y'}">
 					<input type="button" class="psh_btn" onclick="fnCallBtn('save')" value="임시저장" />
 					</c:if>

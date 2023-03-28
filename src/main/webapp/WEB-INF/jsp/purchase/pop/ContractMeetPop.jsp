@@ -1243,6 +1243,123 @@
 			
 		}
 		
+			/*품의환원*/
+		   var ApprmodifyParam = {};
+			
+			function fnApprModify(){
+				
+			    var selectedList = [];
+			    	
+			    var selectedInfo = {};
+				selectedInfo.seq = "${seq}"; 
+				selectedList.push(selectedInfo);
+			    	
+			    
+			    modifyParam = {};
+			    modifyParam.change_info_list = JSON.stringify(selectedList);		
+				
+				confirmAlert(350, 100, 'question', '환원 하시겠습니까?', '확인', 'fnApprModifyProc()', '취소', '');			
+
+			}	
+
+			function fnApprModifyProc(){
+				
+				$.ajax({
+					type : 'post',
+					url : '<c:url value="/purchase/modifyApprContractList.do" />',
+		    		datatype:"json",
+		            data: modifyParam ,
+					async : false,
+					success : function(result) {
+						
+						if(result.resultCode == "success"){
+							
+							msgAlert("success", "품의환원이 완료되었습니다.", "self.close()");
+							
+						}else{
+							msgSnackbar("error", "환원할 수 없는 데이터가 있습니다.");
+							
+						}	
+					},
+					error : function(result) {
+						msgSnackbar("error", "품의 환원을 실패했습니다.");
+					}
+				});		
+				
+			}
+		
+			
+			
+			/*품의 반환*/
+			function fnReturn(){
+				
+			    var selectedList = [];
+			    
+			    var selectedInfo = {};
+				selectedInfo.seq = "${seq}";
+				selectedInfo.conffer_return_yn = "Y"; 
+				selectedInfo.out_process_interface_id = "Contract02"
+				selectedList.push(selectedInfo);
+			    
+			    modifyParam = {};
+			    modifyParam.change_info_list = JSON.stringify(selectedList);		
+				
+				confirmAlert(350, 100, 'question', '반환 하시겠습니까?', '확인', 'fnReturnCancelProc()', '취소', '');			
+
+			}	
+			
+			
+			
+			
+			/*품의 반환*/
+			function fnCancel(){
+				
+			    var selectedList = [];
+			    
+			    var selectedInfo = {};
+				selectedInfo.seq = "${seq}";
+				selectedInfo.conffer_return_yn = "N"; 
+				selectedInfo.out_process_interface_id = "Contract02"
+				selectedList.push(selectedInfo);
+			    	
+			    
+			    modifyParam = {};
+			    modifyParam.change_info_list = JSON.stringify(selectedList);		
+				
+				confirmAlert(350, 100, 'question', '반환취소 하시겠습니까?', '확인', 'fnReturnCancelProc()', '취소', '');			
+
+			}	
+			
+			
+			
+			function fnReturnCancelProc(){
+				
+				$.ajax({
+					type : 'post',
+					url : '<c:url value="/purchase/ReturnCancelContractList.do" />',
+		    		datatype:"json",
+		            data: modifyParam ,
+					async : false,
+					success : function(result) {
+						
+						if(result.resultCode == "success"){
+							
+							msgAlert("success", "완료되었습니다.", "self.close()");
+							
+						}else{
+							msgSnackbar("error", "반환할 수 없는 데이터가 있습니다.");
+							
+						}	
+					},
+					error : function(result) {
+						msgSnackbar("error", "실패했습니다.");
+					}
+				});		
+				
+			}
+			
+			
+			
 		
 	</script>
 </head>
@@ -1254,6 +1371,15 @@
 		<div class="psh_btnbox">
 			<div class="psh_right">
 				<div class="btn_cen mt8">
+					<c:if test="${btnApprYn == 'N'}">
+					<input type="button" class="psh_btn" onclick="fnReturn();"  value="반환" /> 
+					</c:if>
+					<c:if test="${btnApprYn == 'N'}">
+					<input type="button" class="psh_btn" onclick="fnCancel();"  value="반환취소" /> 
+					</c:if>
+					<c:if test="${btnSaveYn == 'Y' && btnApprYn == 'N'}">
+					<input type="button" class="psh_btn" onclick="fnApprModify();"  value="제안서 평가위원회 개최 환원" /> 
+					</c:if>
 					<c:if test="${btnSaveYn == 'Y'}">
 					<input type="button" class="psh_btn" onclick="fnCallBtn('save')" value="임시저장" />
 					</c:if>

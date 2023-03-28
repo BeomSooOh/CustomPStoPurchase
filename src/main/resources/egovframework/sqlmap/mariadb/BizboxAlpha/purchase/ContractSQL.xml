@@ -396,6 +396,36 @@
 	</select>	
 	
 	
+	<select	id="ContractSQL.SelectConsdocDetail" parameterClass="HashMap" resultClass="HashMap">
+	
+	  select
+	  cons_doc_seq,
+	  doc_seq,
+	  doc_no,
+	  doc_status,
+	  out_process_interface_id,
+	  out_process_interface_m_id,
+	  out_process_interface_d_id
+	  from $DB_NEOS$t_exnp_consdoc 
+	  where out_process_interface_id = '$out_process_interface_id$' and out_process_interface_m_id = '$seq$' 
+
+	
+	
+	</select>
+	
+	
+	<update	id="ContractSQL.UpdateReturnConsdoc" parameterClass="HashMap" >
+		UPDATE $DB_NEOS$.t_exnp_consdoc
+		SET
+		
+		conffer_return_yn = '$conffer_return_yn$',
+        conffer_return_name = '$conffer_return_name$',
+        conffer_return_emp_seq = '$conffer_return_emp_seq$'
+		
+		WHERE cons_doc_seq='$cons_doc_seq$' and out_process_interface_id = '$out_process_interface_id$' and out_process_interface_m_id = '$out_process_interface_m_id$'
+	</update>
+	
+	
 	<insert	id="ContractSQL.InsertContract" parameterClass="HashMap" >
 		
 		INSERT INTO cust_sto.t_purchase_contract
@@ -888,7 +918,7 @@
         INNER JOIN cust_sto.t_purchase_payment_doc_info pdi ON df.c_dikeycode  = pdi.res_doc_seq
         where
         pdi.seq = '$seq$' and pdi.outProcessCode = 'CONCLUSION'
-        and df.c_diwriteday BETWEEN '$fromDate$' AND '$toDate$'		
+        and df.c_diwriteday BETWEEN '$fromDate$' AND '$toDate$'	and df.c_distatus != 'd'	
 		
 	</select>	
 	
@@ -959,7 +989,7 @@
               
               where
               pdi.seq = '$seq$'
-              and df.c_diwriteday BETWEEN '$fromDate$' AND '$toDate$'
+              and df.c_diwriteday BETWEEN '$fromDate$' AND '$toDate$' and df.c_distatus != 'd'
 
          ) CTE
          ORDER BY c_diwriteday DESC, c_diwritetime DESC, c_dikeycode DESC  

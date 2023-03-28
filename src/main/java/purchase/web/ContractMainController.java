@@ -463,6 +463,8 @@ public class ContractMainController {
 		params.put("groupSeq", loginVo.getGroupSeq());
 		params.put("created_by", loginVo.getUniqId());
 		
+
+		
 		 contractService.modifyContractList(params);
 				
 		mv.addObject("resultData", params);
@@ -503,4 +505,37 @@ public class ContractMainController {
 	} 
     
 	
+    
+    @RequestMapping(value="/purchase/ReturnCancelContractList.do", method={RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public ModelAndView ReturnCancelContractList(@RequestParam Map<String,Object> params, HttpServletRequest request)
+			throws Exception {
+		ModelAndView mv = new ModelAndView();
+		
+		LoginVO loginVo = CommonConvert.CommonGetEmpVO();
+
+		params.put("groupSeq", loginVo.getGroupSeq());
+		params.put("created_by", loginVo.getUniqId());
+
+
+		params.put("comp_seq", loginVo.getOrganId());
+		params.put("conffer_return_emp_seq", loginVo.getUniqId());
+		params.put("deptName", loginVo.getOrgnztNm());
+		params.put("conffer_return_name", loginVo.getName());
+		
+		
+		
+		 contractService.ReturnCancelContractList(params);
+				
+		mv.addObject("resultData", params);
+		
+		if (params.get("resultCode") == "success" ) {
+			mv.addObject("resultCode", "success");
+		} else {
+			mv.addObject("resultCode", "error");
+		}
+		mv.setViewName("jsonView");
+		return mv;
+	} 
+    
 }

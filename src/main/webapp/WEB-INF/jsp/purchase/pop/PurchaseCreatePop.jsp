@@ -141,7 +141,8 @@
 					
 		 if ($(obj).val() == "Y"){
 			 
-			 $(obj).closest("tr").find("[name=item_green_cert_type]").removeAttr("disabled");
+			 $(obj).closest("tr").find("[name=item_green_cert_type_btn]").show(); 
+			 $(obj).closest("tr").find("[name=item_green_cert_type]").removeAttr("disabled"); 
 			 $(obj).closest("tr").find("[name=item_non_green_reason]").attr("disabled","disabled");
 			 
 			 var change_reason =  $(obj).closest("tr").find("[name=item_non_green_reason]");
@@ -153,7 +154,14 @@
 		 } else {
 			 
 			 $(obj).closest("tr").find("[name=item_non_green_reason]").removeAttr("disabled");
+			 $(obj).closest("tr").find("[name=item_green_cert_type_btn]").hide();
 			 $(obj).closest("tr").find("[name=item_green_cert_type]").attr("disabled","disabled");
+
+			 
+		     $(obj).closest("tr").find("[name=item_green_cert_type]").find("[name=xtest]").empty();
+			 $(obj).closest("tr").find("[name=item_green_cert_type]").find("[name=addName]").empty(); 
+
+			 
 			 
 			 var change_type = $(obj).closest("tr").find("[name=item_green_cert_type]");
 			 
@@ -2261,17 +2269,18 @@
 					</td>
 					<td removehtml="Y" name="green_certifi_info_td">
 						<div class="multi_sel" style="width:calc( 100% - 58px);">
-							<ul tbval="Y" tbname="녹색제품인증구분" tbType="ul" id = "item_green_cert_type" name="item_green_cert_type" class="multibox" style="width:100px;" requiredNot="true" >							
+							<!-- <ul tbval="Y" tbname="녹색제품인증구분" tbType="ul" id = "item_green_cert_type" name="item_green_cert_type" class="multibox" style="width:200px;" requiredNot="true" > -->
+								<ul tbval="Y" tbname="녹색제품인증구분" tbType="ul" id="item_green_cert_type" name="item_green_cert_type" class="multibox" style="width:200px;" requiredNot="true">														
 								<li name="dataBase" addCode="" style="display:none;">
 									<span name="addName"></span>
 										<c:if test="${disabledYn == 'N'}"> 
-										<a href="#n" onclick="$(this).closest('li').remove();" class="close_btn"><img src="${pageContext.request.contextPath}/customStyle/Images/ico/sc_multibox_close.png" /></a>
+										<a href="#n" name="xtest" onclick="$(this).closest('li').remove();" class="close_btn"><img src="${pageContext.request.contextPath}/customStyle/Images/ico/sc_multibox_close.png" /></a>
 										</c:if>
 									</li>
 								</ul>								
 							</div>
 							<c:if test="${disabledYn == 'N'}"> 
-							<div class="controll_btn p0 pt4">	
+							<div class="controll_btn p0 pt4" id = "item_green_cert_type_btn" name="item_green_cert_type_btn">	
 								<button onclick="commonCodeSelectLayer('greenCertType', '녹색제품인증구분', 'ul', $(this).closest('td'), 'Y')">선택</button>
 							</div>
 						</c:if>
@@ -2379,17 +2388,17 @@
 					
 					<td name="green_certifi_info_td">
 						<div class="multi_sel" style="width:calc( 100% - 58px);">
-							<ul tbval="Y" tbType="ul" tbname="녹색제품인증구분" name="item_green_cert_type" class="multibox" style="width:150px;">							
+							<ul tbval="Y" tbname="녹색제품인증구분" tbType="ul" id="item_green_cert_type" name="item_green_cert_type" class="multibox" style="width:200px;" requiredNot="true">							
 								<li name="dataBase" addCode="" style="display:none;">
 									<span name="addName"></span>
 										<c:if test="${disabledYn == 'N'}"> 
-										<a href="#n" onclick="$(this).closest('li').remove();" class="close_btn"><img src="${pageContext.request.contextPath}/customStyle/Images/ico/sc_multibox_close.png" /></a>
+										<a href="#n" name="xtest" onclick="$(this).closest('li').remove();" class="close_btn"><img src="${pageContext.request.contextPath}/customStyle/Images/ico/sc_multibox_close.png" /></a>
 										</c:if>
 								</li>
 							</ul>								
 						</div>
 						<c:if test="${disabledYn == 'N'}"> 
-							<div class="controll_btn p0 pt4">	
+							<div class="controll_btn p0 pt4" id = "item_green_cert_type_btn" name="item_green_cert_type_btn">		
 								<button onclick="commonCodeSelectLayer('greenCertType', '녹색제품인증구분', 'ul', $(this).closest('td'), 'Y')">선택</button>
 							</div>
 						</c:if>

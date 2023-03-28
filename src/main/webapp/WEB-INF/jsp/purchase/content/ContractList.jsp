@@ -2220,12 +2220,12 @@
 		</div>
 		<div class="right_div">
 			<div id="" class="controll_btn p0">
-				<c:if test="${authLevel=='admin'}">
+<%-- 			<c:if test="${authLevel=='admin'}">
 				<input type="button" onclick="fnApprModify();" class="puddSetup" value="제안서 평가위원회 개최 환원" />
 				</c:if>
 				<c:if test="${authLevel=='admin'}">
 				<input type="button" onclick="fnModify();" class="puddSetup" value="품의환원" />
-				</c:if>
+				</c:if> --%>
 				<c:if test="${authLevel=='admin'}">
 				<input id="adminSaveBtn" style="display:none;width:70px;background:rgb(0 0 0);color:#fff;" type="button" onclick="fnCallBtn('btnSave');" class="puddSetup" value="저장" />
 				</c:if>

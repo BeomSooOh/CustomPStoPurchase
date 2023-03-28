@@ -378,8 +378,8 @@ public class ContractServiceImpl implements ContractService {
 		
 			contractInfo = contractServiceDAO.SelectContractDetail(map);
 			
-			String doc_sts =  (String) contractInfo.get("doc_sts"); 
-			String contract_type =  (String) contractInfo.get("contract_type");
+//			String doc_sts =  (String) contractInfo.get("doc_sts"); 
+//			String contract_type =  (String) contractInfo.get("contract_type");
 			 
 			
 			map.put("created_by", params.get("created_by"));
@@ -466,8 +466,8 @@ public class ContractServiceImpl implements ContractService {
 		
 			contractInfo = contractServiceDAO.SelectContractDetail(map);
 			
-			String doc_sts =  (String) contractInfo.get("doc_sts"); 
-			String contract_type =  (String) contractInfo.get("contract_type");
+//			String doc_sts =  (String) contractInfo.get("doc_sts"); 
+//			String contract_type =  (String) contractInfo.get("contract_type");
 			 
 			
 			map.put("created_by", params.get("created_by"));
@@ -507,6 +507,46 @@ public class ContractServiceImpl implements ContractService {
 	}	
 	
 	
+public Map<String, Object> ReturnCancelContractList ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
 	
+	String jsonStr = (String)params.get("change_info_list");
+	ObjectMapper mapper = new ObjectMapper();
+	List<Map<String, Object>> changeInfoList = new ArrayList<Map<String, Object>>();
+	changeInfoList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
+	
+	Map<String, Object> contractInfo;
+	Map<String, Object> consDocInfo;	
+	
+	for (Map<String, Object> map : changeInfoList) {
+	
+		contractInfo = contractServiceDAO.SelectConsdocDetail(map);
+		
+		
+		if(contractInfo.get("doc_status").equals("90") || contractInfo.get("doc_status").equals("008") ) {
+			
+			map.put("cons_doc_seq",contractInfo.get("cons_doc_seq"));
+			map.put("out_process_interface_id",contractInfo.get("out_process_interface_id"));
+			map.put("out_process_interface_m_id",contractInfo.get("out_process_interface_m_id"));
+			map.put("conffer_return_name", params.get("conffer_return_name"));
+			map.put("conffer_return_emp_seq", params.get("conffer_return_emp_seq"));
+			map.put("comp_seq", params.get("comp_seq"));
+			
+			contractServiceDAO.UpdateReturnConsdoc(map);
+			params.put("resultCode", "success");
+			return params;
+			
+		} else {
+			params.put("resultCode", "error");
+			return params;	
+		}
+	}
+	
+	return params;
+
+}
+
+
+
+
 }
 

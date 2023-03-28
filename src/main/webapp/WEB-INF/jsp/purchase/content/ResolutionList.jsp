@@ -32,6 +32,8 @@
 
 	var targetSeq = "";
 	var uploadPer = 0;
+	var seq;
+	var out_process_interface_m_id;
 	
 	$(document).ready(function() {
 		
@@ -341,18 +343,38 @@
 					greenDelState = "V";
 				} */
 				
-				if(result.resGreenInfo.item_green_cert_type != "" && result.resGreenInfo.item_green_class != ""){
-					greenState = "V";
-					greenDelState = "V";
-				}
-				else{
+				if(result.resGreenInfo.length > 0){
+					
+					out_process_interface_id = result.resGreenInfo[0].out_process_interface_id;
+					seq = result.resGreenInfo[0].out_process_interface_m_id;
+					
+					if(result.resGreenInfo[0].item_green_cert_type != ""  && result.resGreenInfo[0].item_green_class != ""){
+						greenState = "V";
+						greenDelState = "V";
+					}
+					
+ 					else if(result.resGreenInfo[0].p_item_green_cert_type != ""  && result.resGreenInfo[0].p_item_green_class != ""){
+						greenState = "V";
+						greenDelState = "V";
+					}
+					
+				}else{
 					greenState = "C";
-				}	
+				}
 				
 				
 				if(result.resHopeInfoList.length > 0){
 					
+					out_process_interface_id = result.resHopeInfoList[0].out_process_interface_id;
+					seq = result.resHopeInfoList[0].out_process_interface_m_id;
+					
 					if(result.resHopeInfoList[0].hope_company_info != ""){
+						hopeState = "V";
+						hopeDelState = "V";
+					} else if (result.resHopeInfoList[0].c_hope_company_info != ""){
+						hopeState = "V";
+						hopeDelState = "V";
+					} else if (result.resHopeInfoList[0].p_hope_company_info != ""){
 						hopeState = "V";
 						hopeDelState = "V";
 					}
@@ -498,7 +520,7 @@
 			,	resize : false			// 기본값 false
 			 
 			,	header : {
-		 		title : callId == "greenState" ? "녹색제품 실적연계" : "희망구매 실적연계"
+		 		title : callId == "purgreenState" ? "녹색제품 실적연계" : "희망구매 실적연계"
 			,	closeButton : true	// 기본값 true
 			,	closeCallback : function( puddDlg ) {
 					// close 버튼은 내부에서 showDialog( false ) 실행함 - 즉, 닫기 처리는 내부에서 진행됨
@@ -546,6 +568,8 @@
 		
 		var reqParam = {};
 		reqParam.res_doc_seq = resDocSeq;
+		reqParam.seq = seq;
+		reqParam.out_process_interface_id = out_process_interface_id;
 		
 		$.ajax({
 			type : 'post',
