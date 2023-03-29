@@ -141,32 +141,24 @@
 					
 		 if ($(obj).val() == "Y"){
 			 
-			 $(obj).closest("tr").find("[name=item_green_cert_type_btn]").show(); 
-			 $(obj).closest("tr").find("[name=item_green_cert_type]").removeAttr("disabled"); 
 			 $(obj).closest("tr").find("[name=item_non_green_reason]").attr("disabled","disabled");
-			 
-			 var change_reason =  $(obj).closest("tr").find("[name=item_non_green_reason]");
-			 			 		 
+			 var change_reason =  $(obj).closest("tr").find("[name=item_non_green_reason]");			 			 		 
 			 change_reason.find("option:selected").prop("selected", false);
 			 change_reason.find("option:first").prop("selected", "selected");
-
 			 
+			 $(obj).closest("tr").find("[name=item_green_cert_type_btn]").show(); 
+
 		 } else {
 			 
 			 $(obj).closest("tr").find("[name=item_non_green_reason]").removeAttr("disabled");
-			 $(obj).closest("tr").find("[name=item_green_cert_type_btn]").hide();
-			 $(obj).closest("tr").find("[name=item_green_cert_type]").attr("disabled","disabled");
+			 
+			 /* $(obj).closest("tr").find("[name=item_green_cert_type_btn]").hide();
+			 $(obj).closest("tr").find("[name=item_green_cert_type]").find('li').empty(); 
+ 
+			 
+		  	 $(obj).closest("tr").find("[name=item_green_cert_type]").find("[name=xtest]").empty();
+			 $(obj).closest("tr").find("[name=item_green_cert_type]").find("[name=addName]").empty(); */ 
 
-			 
-		     $(obj).closest("tr").find("[name=item_green_cert_type]").find("[name=xtest]").empty();
-			 $(obj).closest("tr").find("[name=item_green_cert_type]").find("[name=addName]").empty(); 
-
-			 
-			 
-			 var change_type = $(obj).closest("tr").find("[name=item_green_cert_type]");
-			 
-			 change_type.find("option:selected").prop("selected", false);
-			 change_type.find("option:first").prop("selected", "selected");
 		 }		
 	} 
 	
@@ -2269,7 +2261,6 @@
 					</td>
 					<td removehtml="Y" name="green_certifi_info_td">
 						<div class="multi_sel" style="width:calc( 100% - 58px);">
-							<!-- <ul tbval="Y" tbname="녹색제품인증구분" tbType="ul" id = "item_green_cert_type" name="item_green_cert_type" class="multibox" style="width:200px;" requiredNot="true" > -->
 								<ul tbval="Y" tbname="녹색제품인증구분" tbType="ul" id="item_green_cert_type" name="item_green_cert_type" class="multibox" style="width:200px;" requiredNot="true">														
 								<li name="dataBase" addCode="" style="display:none;">
 									<span name="addName"></span>
@@ -2285,13 +2276,6 @@
 							</div>
 						</c:if>
 					</td>
-<%-- 					<td removehtml="Y">
-						<select ${disabled} tbval="Y" id = "item_green_cert_type" name="item_green_cert_type" tbname="녹색제품인증구분" requiredNot="true" style="text-align: center;" >
-							<c:forEach var="items" items="${greenCertTypeCode}">
-							<option value="${items.CODE}">${items.NAME}</option>
-							</c:forEach>
-						</select> 
-					</td> --%>
 					<td removehtml="Y">
 						<select ${disabled} tbval="Y" name="item_non_green_reason" tbname="녹색제품미구매사유" requiredNot="$(this).closest('tr').find('[name=item_green_cert_type]').val() != ''" style="text-align: center;" disabled>
 							<c:forEach var="items" items="${nonGreenReasonCode}">

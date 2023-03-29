@@ -50,13 +50,15 @@
 		var reqParam = {};
 		reqParam.searchFromDate = $("#searchFromDate").val();
 		reqParam.searchToDate = $("#searchToDate").val();
-		
+		reqParam.itemGreenCertType = $("#itemGreenCertType").val();
 		
 		if (authLevel == 'admin'){
 			reqParam.deptSeq = $("#selectedDeptSeq").val();
 		} else if (authLevel == 'dept'){
 			reqParam.deptSeq = $("#selectLoginDept").val();
 		}
+		
+		
 		
 
 		$.ajax({
@@ -274,7 +276,16 @@
 				<option value="${deptSeq}" >${deptName}</option>
 			</select>
 			<dd>
-		</c:if>	
+		</c:if>
+		<dt class="ar">녹색제품 인증구분</dt>
+		<dd>
+			<select id="itemGreenCertType" onchange="BindGrid();" style="text-align: center;">
+				<option value="">전체</option>
+				<c:forEach var="items" items="${greenCertType}">
+				<option value="${items.CODE}">${items.NAME}</option>
+				</c:forEach>
+			</select>			
+		</dd>
 	</dl>
 </div>
 

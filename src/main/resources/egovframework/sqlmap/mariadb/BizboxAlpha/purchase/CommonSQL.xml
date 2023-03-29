@@ -1091,6 +1091,9 @@
 		left join $DB_NEOS$t_co_dept wdept on c.dept_seq = wdept.dept_seq 
 		</isNotEmpty>
 		where a.item_green_class = code0.code and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'
+		<isNotEmpty property="itemGreenCertType">    
+  		and a.item_green_cert_type like '%$itemGreenCertType$%'
+  		</isNotEmpty>
 		<isNotEmpty property="deptSeq">
 		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 		</isNotEmpty>
@@ -1103,6 +1106,9 @@
 		left join $DB_NEOS$t_co_dept wdept on c.dept_seq = wdept.dept_seq 
 		</isNotEmpty>
 		where a.item_green_class = code0.code and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'
+		<isNotEmpty property="itemGreenCertType">    
+  		and a.item_green_cert_type like '%$itemGreenCertType$%'
+  		</isNotEmpty>
 		<isNotEmpty property="deptSeq">
 		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 		</isNotEmpty>
@@ -1116,6 +1122,9 @@
 		left join $DB_NEOS$t_co_dept wdept on c.dept_seq = wdept.dept_seq 
 		</isNotEmpty>
 		where a.item_green_class = code0.code and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'
+		<isNotEmpty property="itemGreenCertType">    
+  		and a.item_green_cert_type like '%$itemGreenCertType$%'
+  		</isNotEmpty>
 		<isNotEmpty property="deptSeq">
 		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 		</isNotEmpty>
@@ -1128,6 +1137,9 @@
 		left join $DB_NEOS$t_co_dept wdept on c.dept_seq = wdept.dept_seq 
 		</isNotEmpty>
 		where a.item_green_class = code0.code and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'
+		<isNotEmpty property="itemGreenCertType">    
+  		and a.item_green_cert_type like '%$itemGreenCertType$%'
+  		</isNotEmpty>
 		<isNotEmpty property="deptSeq">
 		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 		</isNotEmpty>

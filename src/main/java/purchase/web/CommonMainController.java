@@ -215,6 +215,29 @@ public class CommonMainController {
         	mv.addObject("fromDate", fromDate);
         	mv.addObject("toDate", toDate);        
             
+            params.put("group", "");
+            params.put("code", ""); 
+            params.put("codeNotEmpty", "Y"); 
+            List<Map<String, Object>> codeList = commonServiceDAO.SelectPurchaseDetailCodeList(params);            
+            
+            List<Map<String, Object>> greenCertType = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> greenClass = new ArrayList<Map<String, Object>>();
+            
+            if(codeList != null && codeList.size() > 0) {
+            	
+        		for (Map<String, Object> codeinfo : codeList) {
+        			
+        			if(codeinfo.get("GROUP").equals("greenCertType")) {
+        				greenCertType.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("greenClass")) {
+        				greenClass.add(codeinfo);
+        			}
+        		}            	
+            }           
+
+            mv.addObject("greenCertType", greenCertType);	
+            mv.addObject("greenClass", greenClass);	
+	
             mv.setViewName("/purchase/content/GreenAmtInfo");
 
         } catch (Exception e) {

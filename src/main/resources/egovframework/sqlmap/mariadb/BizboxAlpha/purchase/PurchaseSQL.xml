@@ -39,7 +39,7 @@
   and  item.item_green_class = '$itemGreenClass$'
   </isNotEmpty>
   <isNotEmpty property="itemGreenCertType">
-  and  item.item_green_cert_type = '$itemGreenCertType$'
+  and  item.item_green_cert_type like '%$itemGreenCertType$%'
   </isNotEmpty>
   <isNotEmpty property="itemHopeCompany">
   and concat('▦',trade.hope_company_info) like '%▦$itemHopeCompany$▦%'
@@ -167,7 +167,7 @@
   and  item.item_green_class = '$itemGreenClass$'
   </isNotEmpty>
   <isNotEmpty property="itemGreenCertType">
-  and  item.item_green_cert_type = '$itemGreenCertType$'
+  and  item.item_green_cert_type like '%$itemGreenCertType$%'
   </isNotEmpty>
   <isNotEmpty property="itemHopeCompany">
   and concat('▦',trade.hope_company_info) like '%▦$itemHopeCompany$▦%'
