@@ -415,7 +415,7 @@
 	
 	
 	<update	id="ContractSQL.UpdateReturnConsdoc" parameterClass="HashMap" >
-		UPDATE $DB_NEOS$.t_exnp_consdoc
+		UPDATE $DB_NEOS$t_exnp_consdoc
 		SET
 		
 		conffer_return_yn = '$conffer_return_yn$',
@@ -897,7 +897,7 @@
 
 	
 	<update	id="ContractSQL.UpdateModifyStatus" parameterClass="HashMap" >
-		UPDATE $DB_NEOS$.t_exnp_consdoc
+		UPDATE $DB_NEOS$t_exnp_consdoc
 		SET
 		doc_seq = null, 
 		doc_no= null,
