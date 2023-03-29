@@ -1081,8 +1081,7 @@
 		
 		select
 		code0.code
-		,code0.name as code_name
-		
+		,code0.name as code_name		
 		,ifnull((select sum(a.item_total_amt)
 		from cust_sto.t_purchase_item_info a
 		join cust_sto.t_purchase_trade_info b on a.seq = b.seq and a.item_tr_seq = b.tr_seq and a.outProcessCode = b.outProcessCode  

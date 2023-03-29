@@ -233,7 +233,8 @@ public class CommonMainController {
         				greenClass.add(codeinfo);
         			}
         		}            	
-            }           
+            }        
+            
 
             mv.addObject("greenCertType", greenCertType);	
             mv.addObject("greenClass", greenClass);	

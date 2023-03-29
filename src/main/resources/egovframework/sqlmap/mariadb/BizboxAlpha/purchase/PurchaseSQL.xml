@@ -65,6 +65,7 @@
  </select> 
  
  
+ 
  <select id="PurchaseSQL.SelectPurchaseList" parameterClass="HashMap" resultClass="HashMap">
   
   SELECT 

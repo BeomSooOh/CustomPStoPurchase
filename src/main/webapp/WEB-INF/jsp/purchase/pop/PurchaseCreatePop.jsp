@@ -158,7 +158,6 @@
 			 
 		  	 $(obj).closest("tr").find("[name=item_green_cert_type]").find("[name=xtest]").empty();
 			 $(obj).closest("tr").find("[name=item_green_cert_type]").find("[name=addName]").empty(); */ 
-
 		 }		
 	} 
 	

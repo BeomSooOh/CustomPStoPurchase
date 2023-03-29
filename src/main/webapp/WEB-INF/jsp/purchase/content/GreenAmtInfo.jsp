@@ -58,8 +58,6 @@
 			reqParam.deptSeq = $("#selectLoginDept").val();
 		}
 		
-		
-		
 
 		$.ajax({
 			type : 'post',
