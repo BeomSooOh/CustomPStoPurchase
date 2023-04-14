@@ -174,7 +174,15 @@
 					
 					allPointRate += rate;
 					
+					
 				});
+				
+				  if (Number.isInteger(allPointRate)) {
+					  allPointRate; // 정수인 경우 그대로 반환
+					  } else {
+						  allPointRate = allPointRate.toFixed(4); // 소수인 경우 4자리 이하로 자름
+				  }
+				
 				
 				$("[itemType = sumrate]").text(allPointRate);
 				
@@ -190,6 +198,13 @@
 						totalScore = totalScore + thisValue;
 						
 					});	
+					
+					  if (Number.isInteger(totalScore)) {
+						  totalScore; // 정수인 경우 그대로 반환
+						  } else {
+							  totalScore = totalScore.toFixed(4); // 소수인 경우 4자리 이하로 자름
+					  }
+					
 					
 					$("[itemTotal="+itemNo+"]").text(totalScore);
 					
@@ -258,11 +273,11 @@
 
 			});
 
-			// 소수점 둘째자리까지의 실수만 입력 허용
+			// 소수점 둘째자리까지의 실수만 입력 허용 -> 20230414 소수점 넷째자리까지로 수정 윤의진
 			$("[inputDecimal=Y]").off('input').on('input',function(e){
 
 			    var value = $(this).val();
-			    var regExp = /^\d*.?\d{0,2}$/;
+			    var regExp = /^\d*.?\d{0,4}$/;
 			    if(!regExp.test(this.value)){
 			        $(this).val(value.substring(0,value.length-1));
 			    }

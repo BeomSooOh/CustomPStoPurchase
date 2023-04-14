@@ -679,9 +679,24 @@
 		UPDATE cust_sto.t_purchase_contract
 		SET
 		public_info='$public_info$',
-		write_comp_seq='$write_comp_seq$', 
-		write_dept_seq='$write_dept_seq$', 
-		write_emp_seq='$write_emp_seq$', 
+		<isNotEmpty property="writeEmpSeq">
+		write_emp_seq='$writeEmpSeq$',  
+		</isNotEmpty>
+		<isNotEmpty property="writeDeptSeq">
+		write_dept_seq='$writeDeptSeq$', 
+		</isNotEmpty>
+		<isNotEmpty property="writeCompSeq">
+		write_comp_seq='$writeCompSeq$',
+		</isNotEmpty>
+		<isEmpty property="writeEmpSeq">
+		write_emp_seq='$write_emp_seq$',
+		</isEmpty> 
+		<isEmpty property="writeCompSeq">
+		write_comp_seq='$write_comp_seq$',
+		</isEmpty>
+		<isEmpty property="writeDeptSeq"> 
+		write_dept_seq='$write_dept_seq$',
+		</isEmpty> 
 		write_dt='$write_dt$', 
 		noti_type='$noti_type$', 
 		budget_type='$budget_type$', 
@@ -768,15 +783,29 @@
 		WHERE seq='$seq$'; 
 	</update>
 	
-			
-	
+
 	<update	id="ContractSQL.UpdateConclusion" parameterClass="HashMap" >
 		UPDATE cust_sto.t_purchase_contract
 		SET
 		public_info='$public_info$',
-		c_write_comp_seq='$c_write_comp_seq$', 
-		c_write_dept_seq='$c_write_dept_seq$', 
+		<isNotEmpty property="writeEmpSeq">
+		c_write_emp_seq='$writeEmpSeq$',  
+		</isNotEmpty>
+		<isNotEmpty property="writeDeptSeq">
+		c_write_dept_seq='$writeDeptSeq$', 
+		</isNotEmpty>
+		<isNotEmpty property="writeCompSeq">
+		c_write_comp_seq='$writeCompSeq$',
+		</isNotEmpty>
+		<isEmpty property="writeEmpSeq">
 		c_write_emp_seq='$c_write_emp_seq$', 
+		</isEmpty> 
+		<isEmpty property="writeCompSeq">
+		c_write_comp_seq='$c_write_comp_seq$', 
+		</isEmpty>
+		<isEmpty property="writeDeptSeq"> 
+		c_write_dept_seq='$c_write_dept_seq$', 
+		</isEmpty> 
 		c_write_dt='$c_write_dt$',		 
 		c_budget_type='$c_budget_type$', 
 		c_target_type='$c_target_type$', 

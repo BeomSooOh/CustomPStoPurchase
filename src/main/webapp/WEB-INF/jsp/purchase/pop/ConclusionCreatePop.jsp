@@ -132,7 +132,8 @@
 			amountKoreanSet();		
 			
 			//담당자 선택항목 세팅
-			setDynamicPublicInfo("${contractDetailInfo.public_info}");		
+			setDynamicPublicInfo("${contractDetailInfo.public_info}");
+			setDynamicPublicInfo1();
 			
 			
 			//옵션값 설정
@@ -372,7 +373,8 @@
 			
 			$('[amountInput=Y]').maskMoney({
 				precision : 0,
-				allowNegative: false
+				allowNegative: false,
+				allowZero: true
 			});
 			
 			$('[amountType=amt]').keyup(function() {
@@ -869,6 +871,12 @@
 			</c:if>			
 			
 			insertDataObject.seq = "${seq}";
+			
+			insertDataObject.writeEmpSeq = $('#writeEmpSeq').val();
+			insertDataObject.writeDeptSeq = $('#writeDeptSeq').val();
+			insertDataObject.writeCompSeq = $('#writeCompSeq').val();  
+
+			
 			
 			$.ajax({
 				type : 'post',
@@ -1374,6 +1382,124 @@
 			 });
 			 */
 		}		
+		
+		
+		function setDynamicPublicInfo1(){
+			
+			var public_list = [];
+
+			if ("${contractDetailInfo.write_emp_name}" != ""){
+				
+				var valueObj = {};
+				valueObj.value = "${contractDetailInfo.write_dept_name}";
+				valueObj.text = "${contractDetailInfo.write_emp_name}";
+				public_list.push(valueObj);
+				
+			} else {
+				
+				var valueObj = {};
+				valueObj.value = "${contractDetailInfo.c_write_dept_name}";
+				valueObj.text = "${contractDetailInfo.c_write_emp_name}";
+				public_list.push(valueObj);
+				
+			}
+			
+
+			
+			
+	
+			renderPublicInfo1(public_list);			
+			
+		}
+
+		
+		function selectOrgchart1(){
+			
+			 
+			var selectedItems = "";
+			 			 
+			 
+			 $("#selectedItems").val(selectedItems);
+			
+			
+			 var pop = window.open("", "cmmOrgPop", "width=799,height=769,scrollbars=no");
+				$("#callback").val("callbackSel1");
+				$('#frmPop').find('input[name=selectItem]').val('s');
+				frmPop.target = "cmmOrgPop";
+				frmPop.method = "post";
+				frmPop.action = "/gw/systemx/orgChart.do";
+				frmPop.submit();
+				pop.focus();
+				$('#frmPop').find('input[name=selectItem]').val('m');
+		}
+
+		
+		function getPublicInfo1(){
+			
+			var selectedItems = "";
+			 
+			$.each(Pudd( "#publicInfo1" ).getPuddObject().getData(), function( key, val ) {
+				selectedItems += (key == 0 ? "" : "▦▦") + val.value + "▦" + val.text;
+			});		
+			
+			return selectedItems;
+		 
+		}
+		
+		function callbackSel1(data){
+			
+			jsonData = data.returnObj;	
+			 
+			var orgData = [];
+			 
+			for(var i=0;i<jsonData.length; i++){
+				var data = {};
+/* 				data.value = jsonData[i].superKey;
+				data.text = jsonData[i].orgName; */
+				
+				data.value = jsonData[i].superKey;
+				data.text = jsonData[i].empName;
+
+				$('#writeEmpSeq').val(jsonData[i].empSeq);
+				$('#writeDeptSeq').val(jsonData[i].deptSeq);
+				$('#writeCompSeq').val(jsonData[i].compSeq);
+				
+				
+				
+				orgData.push(data);
+			}
+			 
+
+
+			
+			renderPublicInfo1(orgData);	
+
+		 }
+		
+		function renderPublicInfo1(publicList){
+			
+		 	 var dataSourcePublicList = new Pudd.Data.DataSource({
+			 		data : publicList
+				 });
+			   
+			 Pudd( "#publicInfo1" ).puddSelectiveInput({
+					// 수정모드인 경우 dataSource 전달, 신규는 해당없음
+					dataSource : dataSourcePublicList
+				,	dataValueField : "value"
+				,	dataTextField : "text"
+		 
+				,	writeMode : false // 기본 입력 모드
+				,	disabled : false
+				,	editButton : false
+				,	deleteButton : true
+		 
+				// 입력박스에서 내용이 없는 상태에서 backspace 입력하는 경우 이전 항목 삭제처리
+				,	backspaceDelete : false
+			 });
+		}
+		
+		
+		
 		
 		
 		
@@ -2046,6 +2172,19 @@
 				<input objKey="c_write_comp_seq" objCheckFor="checkVal('text', this, '작성부서', '', '')" type="hidden" value="${c_write_comp_seq}" />
 				<input objKey="c_write_dept_seq" objCheckFor="checkVal('text', this, '작성부서', '', '')" type="hidden" value="${c_write_dept_seq}" />
 				<input objKey="c_write_emp_seq" objCheckFor="checkVal('text', this, '작성자', 'selectOrgchart()', '')" type="hidden" value="${c_write_emp_seq}" />
+				
+				<c:if test="${btnSaveYn == 'Y' && btnApprYn == 'N'}">
+				<dt>담당자</dt>
+					<dd objKey="public_info1" objCheckFor="getPublicInfo1()" value="${contractDetailInfo.write_emp_name}" >
+						<div id="publicInfo1" style="min-width:150px;"></div>
+						<c:if test="${disabledYn == 'N'}">
+						<input onclick="selectOrgchart1()" type="button" value="선택" />
+						<input type="hidden" name="writeEmpSeq" id="writeEmpSeq" value=""/>
+						<input type="hidden" name="writeDeptSeq" id="writeDeptSeq" value=""/>
+						<input type="hidden" name="writeCompSeq" id="writeCompSeq" value=""/>
+						</c:if>	
+					</dd>
+				</c:if>
 				
 			</dl>
 		</div>

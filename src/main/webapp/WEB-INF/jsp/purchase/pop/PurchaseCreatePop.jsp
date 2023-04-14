@@ -2260,7 +2260,7 @@
 					</td>
 					<td removehtml="Y" name="green_certifi_info_td">
 						<div class="multi_sel" style="width:calc( 100% - 58px);">
-								<ul tbval="Y" tbname="녹색제품인증구분" tbType="ul" id="item_green_cert_type" name="item_green_cert_type" class="multibox" style="width:200px;" requiredNot="true">														
+								<ul tbval="Y" tbname="녹색제품인증구분" tbType="ul" id="item_green_cert_type" name="item_green_cert_type" class="multibox" style="width:200px;">														
 								<li name="dataBase" addCode="" style="display:none;">
 									<span name="addName"></span>
 										<c:if test="${disabledYn == 'N'}"> 
@@ -2369,7 +2369,7 @@
 						</select>
 					</td>
 					
-					<td name="green_certifi_info_td">
+					<td name="green_certifi_info_td" removehtml="Y">
 						<div class="multi_sel" style="width:calc( 100% - 58px);">
 							<ul tbval="Y" tbname="녹색제품인증구분" tbType="ul" id="item_green_cert_type" name="item_green_cert_type" class="multibox" style="width:200px;" requiredNot="true">							
 								<li name="dataBase" addCode="" style="display:none;">
