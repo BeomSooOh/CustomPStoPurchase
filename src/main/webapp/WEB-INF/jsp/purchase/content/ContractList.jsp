@@ -2024,7 +2024,7 @@
     		excel.set( 0, 7, rowNo, dataPage[ i ][ "title" ], formatCell );
     		excel.set( 0, 8, rowNo, dataPage[ i ][ "contract_amt" ], '0,000' );
     		excel.set( 0, 9, rowNo, dataPage[ i ][ "joint_contract_method_text" ], formatCell ); // 공동계약방법
-    		excel.set( 0, 10, rowNo, dataPage[ i ][ "contract_start_dt" ], amtformatCell );
+    		excel.set( 0, 10, rowNo, dataPage[ i ][ "contract_start_dt" ], formatCell );
     		excel.set( 0, 11, rowNo, dataPage[ i ][ "contract_end_dt" ], formatCell );
     		excel.set( 0, 12, rowNo, dataPage[ i ][ "construction_dt" ], formatCell ); // 착공일자
     		excel.set( 0, 13, rowNo, dataPage[ i ][ "completion_dt" ], formatCell ); // 준공일자
