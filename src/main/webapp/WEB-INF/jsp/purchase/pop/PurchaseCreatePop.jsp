@@ -917,12 +917,35 @@
 		var item_cnt = $(el).find("[name=item_cnt]").val() == "" ? "0" : $(el).find("[name=item_cnt]").val();
 		var item_fee_amt = $(el).find("[name=item_fee_amt]").val() == "" ? "0" : $(el).find("[name=item_fee_amt]").val().replace(/,/g, '');
 		
+		$(el).find("[name=item_fee_amt]").val((Math.round((parseInt(item_amt)*parseInt(item_cnt))*54/10000)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+		
+		item_fee_amt = $(el).find("[name=item_fee_amt]").val() == "" ? "0" : $(el).find("[name=item_fee_amt]").val().replace(/,/g, '');
+		
 		$(el).find("[name=item_total_amt_text]").text(((parseInt(item_amt)*parseInt(item_cnt)) + parseInt(item_fee_amt)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " 원");
 		$(el).find("[name=item_total_amt]").val((parseInt(item_amt)*parseInt(item_cnt)) + parseInt(item_fee_amt));
 		
 		$(el).find("[name=item_sub_total_amt_text]").text((parseInt(item_amt)*parseInt(item_cnt)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " 원");
-		$(el).find("[name=item_sub_total_amt]").val((parseInt(item_amt)*parseInt(item_cnt)));		
+		$(el).find("[name=item_sub_total_amt]").val((parseInt(item_amt)*parseInt(item_cnt)));
+
 	}
+	
+	function fnCalculatefeeAmt(el){
+		
+		var item_amt = $(el).find("[name=item_amt]").val() == "" ? "0" : $(el).find("[name=item_amt]").val().replace(/,/g, '');
+		var item_cnt = $(el).find("[name=item_cnt]").val() == "" ? "0" : $(el).find("[name=item_cnt]").val();
+		var item_fee_amt = $(el).find("[name=item_fee_amt]").val() == "" ? "0" : $(el).find("[name=item_fee_amt]").val().replace(/,/g, '');
+		
+		$(el).find("[name=item_total_amt_text]").text(((parseInt(item_amt)*parseInt(item_cnt)) + parseInt(item_fee_amt)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " 원");
+		$(el).find("[name=item_total_amt]").val((parseInt(item_amt)*parseInt(item_cnt)) + parseInt(item_fee_amt));
+		
+		$(el).find("[name=item_sub_total_amt_text]").text((parseInt(item_amt)*parseInt(item_cnt)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " 원");
+		$(el).find("[name=item_sub_total_amt]").val((parseInt(item_amt)*parseInt(item_cnt)));
+		
+	}	
+
+	
+	
+	
 	
 	function fnSearchFile(e){
 		targetElement = $(e).find('[name="hope_attach_info"]');
@@ -2197,7 +2220,7 @@
 					</td>
 					<td><input ${disabled} tbval="Y" name="item_name" tbname="품명" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
 					<td><input ${disabled} tbval="Y" name="item_cnt" tbname="구매수량" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="1" /></td>
-					<td htmlalign="right"><input ${disabled} tbval="Y" name="item_amt" tbname="조달단가" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> <span removehtml="Y">원</span></td>
+					<td htmlalign="right"><input ${disabled} tbval="Y" id="item_amt" name="item_amt" amountType="itemamt" tbname="조달단가" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> <span removehtml="Y">원</span></td>
 					<td htmlalign="right" tbval="Y" name="item_sub_total_amt_text" tbtype="innerText" class="ri">0 원</td>
 					<input tbval="Y" name="item_sub_total_amt" amountInput="Y" type="hidden" value="0" requiredNot="true" />
 					<td removehtml="Y"><input ${disabled} tbval="Y" placeholder="년-월-일" name="item_deadline" tbname="납품기한" value="" readonly style="text-align: center;height: 22px;border: ridge;width: 90px;" /></td>
@@ -2208,11 +2231,11 @@
 							</c:forEach>	
 						</select>
 					</td>
-					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_fee_amt" tbname="취득수수료" amountInput="Y" onkeyup="fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
+					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_fee_amt" tbname="취득수수료" onkeyup="fnCalculatefeeAmt($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
 					<td removehtml="Y" htmlalign="right" tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
 					<input tbval="Y" name="item_total_amt" amountInput="Y" type="hidden" value="0" requiredNot="true" />					
 					<td class="le" removehtml="Y">
-						<input tbval="Y" name="item_unit" tbname="단위" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" readonly codetarget />
+						<input tbval="Y" name="item_unit" tbname="단위" type="text" pudd-style="width:100px;" class="puddSetup ar" value="개" readonly codetarget />
 						<c:if test="${disabledYn == 'N'}"> 
 						<a href="#n" class="btn_search ml10" onclick="commonCodeSelectLayer('unit', '단위', 'text', $(this).closest('td'), 'N')"></a>
 						</c:if>	
@@ -2308,7 +2331,7 @@
 					</td>
 					<td><input ${disabled} tbval="Y" name="item_name" tbname="품명" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup" value="" /></td>
 					<td><input ${disabled} tbval="Y" name="item_cnt" tbname="구매수량" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:calc(100% - 10px);" class="puddSetup ar" value="1" /></td>
-					<td htmlalign="right"><input ${disabled} tbval="Y" name="item_amt" tbname="조달단가" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> <span removehtml="Y">원</span></td>
+					<td htmlalign="right"><input ${disabled} tbval="Y" id="item_amt" name="item_amt" amountType="itemamt" tbname="조달단가" onkeyup="fnCalculateTotal($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:calc(90% - 10px);" class="puddSetup ar" value="0" /> <span removehtml="Y">원</span></td>
 					<td htmlalign="right" tbval="Y" name="item_sub_total_amt_text" tbtype="innerText" class="ri">0 원</td>
 					<input tbval="Y" name="item_sub_total_amt" amountInput="Y" type="hidden" value="0" requiredNot="true" />
 					<td removehtml="Y"><input ${disabled} tbval="Y" placeholder="년-월-일" name="item_deadline" tbname="납품기한" value="" readonly style="text-align: center;height: 22px;border: ridge;width: 90px;" /></td>
@@ -2319,11 +2342,11 @@
 							</c:forEach>	
 						</select>
 					</td>					
-					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_fee_amt" tbname="취득수수료" amountInput="Y" onkeyup="fnCalculateTotal($(this).closest('tr'));" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
+					<td removehtml="Y"><input ${disabled} tbval="Y" name="item_fee_amt" tbname="취득수수료" onkeyup="fnCalculatefeeAmt($(this).closest('tr'));" amountInput="Y" type="text" pudd-style="width:100px;" class="puddSetup ar" value="0" /> 원</td>
 					<td removehtml="Y" htmlalign="right" tbval="Y" name="item_total_amt_text" tbtype="innerText" class="ri">0 원</td>
 					<input tbval="Y" name="item_total_amt" amountInput="Y" type="hidden" value="0" requiredNot="true" />						
 					<td class="le" removehtml="Y">
-						<input tbval="Y" name="item_unit" tbname="단위" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" readonly codetarget />
+						<input tbval="Y" name="item_unit" tbname="단위" type="text" pudd-style="width:100px;" class="puddSetup ar" value="개" readonly codetarget />
 						<c:if test="${disabledYn == 'N'}"> 
 						<a href="#n" class="btn_search ml10" onclick="commonCodeSelectLayer('unit', '단위', 'text', $(this).closest('td'), 'N')"></a>
 						</c:if>	
