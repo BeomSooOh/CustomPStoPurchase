@@ -532,6 +532,34 @@ public class CommonMainController {
 		mv.setViewName("jsonView");    	
     	
 		return mv;
+    } 
+    
+    @RequestMapping("/SelResTemp.do")
+    public ModelAndView SelResTemp(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+    	ModelAndView mv = new ModelAndView();
+		List<Map<String, Object>> resultData = commonServiceDAO.SelResTemp(params);
+	
+		mv.addObject("resultData", resultData);
+		mv.addObject("resultCode", "SUCCESS");	
+		mv.setViewName("jsonView");    	
+    	
+		return mv;
+    }  
+    
+    
+    
+    @RequestMapping("/SelConsbudget.do")
+    public ModelAndView SellConsbudget(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+    	ModelAndView mv = new ModelAndView();
+    	
+		Map<String, Object> resultData = commonServiceDAO.SelConsbudget(params);
+		
+		mv.addObject("resultData", resultData);
+		mv.setViewName("jsonView");    	
+    	
+		return mv;
     }  
     
     
