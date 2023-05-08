@@ -556,7 +556,7 @@
 	</update>
 	
 	
-		<select	id="CommonSQL.SelConsTemp" parameterClass="HashMap" resultClass="HashMap">
+	<select	id="CommonSQL.SelConsTemp" parameterClass="HashMap" resultClass="HashMap">
 		
 		select * 
 		from $DB_NEOS$t_exnp_consdoc 
@@ -565,6 +565,30 @@
 		and out_process_interface_m_id = '$out_process_interface_m_id$'
 		and out_process_interface_d_id = '$out_process_interface_d_id$';
 	</select>
+	
+	<select	id="CommonSQL.SelResTemp" parameterClass="HashMap" resultClass="HashMap">
+		
+		select *
+		from $DB_NEOS$t_exnp_resdoc 
+		where
+		out_process_interface_id = '$out_process_interface_id$'
+		and out_process_interface_m_id = '$out_process_interface_m_id$'
+		and doc_seq is not null
+        and doc_no is not null
+        and doc_status is not null
+		
+	</select>
+	
+	
+	<select	id="CommonSQL.SelConsbudget" parameterClass="HashMap" resultClass="HashMap">
+		
+		select * 
+		from $DB_NEOS$t_exnp_consbudget 
+		where
+		cons_doc_seq = '$cons_doc_seq$'
+
+	</select>
+	
 		
 	<update	id="CommonSQL.DelConsTemp" parameterClass="HashMap" >
 	

@@ -293,8 +293,8 @@
 					console.log("conffer_seq > " + result.resultData.consDocInfo.cons_seq);
 					console.log("conffer_doc_seq > " + result.resultData.consDocInfo.cons_doc_seq);		
 					
-					confferSeq = result.resultData.consDocInfo.cons_seq;
-					confferDocSeq = result.resultData.consDocInfo.cons_doc_seq;					
+					confferSeq = result.resultData.consDocInfo;
+					confferDocSeq = result.resultData.consDocInfo[0].cons_doc_seq;					
 					
 					if(conclusionPaymentAmt.res_amt_total < conclusionPaymentAmt.contract_amt){
 						
@@ -386,6 +386,8 @@
 	
 	function fnResInsert(idx) {
 
+		parameter.confferSeq = confferSeq[idx].cons_seq; /* [*]품의예산 키 */
+		
 		parameter.resDocSeq = resDocSeq; /* [*]결의문서 키 */
 		parameter.docuFgCode = '1'; /* [*]결의구분코드 */
 		parameter.docuFgName = '지출결의서'; /* [*]결의구분명칭 */
@@ -457,6 +459,8 @@
 	
 	function fnBudgetInsert(idx) {
 
+		parameter.confferSeq = confferSeq[idx].cons_seq;/* [*]품의예산 키 */
+		
 		parameter.resDocSeq = resDocSeq; /* [*]결의문서 키 */
 		parameter.resSeq = resSeq; /* [*]결의서 키 */
 		

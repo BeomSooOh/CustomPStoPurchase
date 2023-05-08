@@ -155,11 +155,18 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 		
 	}
 	
-	@SuppressWarnings("unchecked")
-	public Map<String, Object> SelectConclusionConsDocInfo ( Map<String, Object> params ) {
-		
-		return (Map<String, Object>) select( "ContractSQL.SelectConclusionConsDocInfo", params );
-		
+//	@SuppressWarnings("unchecked")
+//	public Map<String, Object> SelectConclusionConsDocInfo ( Map<String, Object> params ) {
+//		
+//		return (Map<String, Object>) select( "ContractSQL.SelectConclusionConsDocInfo", params );
+//		
+//	}
+	
+	@SuppressWarnings ( "unchecked" )
+	public List<Map<String, Object>> SelectConclusionConsDocInfo ( Map<String, Object> params ) {
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>( );
+		result = (List<Map<String, Object>>) list( "ContractSQL.SelectConclusionConsDocInfo", params );
+		return result;
 	}	
 	
 	

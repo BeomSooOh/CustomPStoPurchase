@@ -720,7 +720,7 @@
 		    modifyParam = {};
 		    modifyParam.change_info_list = JSON.stringify(selectedList);		
 			
-			confirmAlert(350, 100, 'question', '품의환원 하시겠습니까?', '확인', 'fnModifyProc()', '취소', '');			
+			confirmAlert(350, 100, 'question', '재상신 하시겠습니까?', '확인', 'fnModifyProc()', '취소', '');			
 
 		}	
 	    
@@ -737,15 +737,15 @@
 					
 					if(result.resultCode == "success"){
 						
-						msgAlert("success", "품의환원이 완료되었습니다.", "self.close()");
+						msgAlert("success", "재상신이 완료되었습니다.", "self.close()");
 						
 					}else{
-						msgSnackbar("error", "환원할 수 없는 데이터가 있습니다.");
+						msgSnackbar("error", "재상신 할 수 없는 데이터가 있습니다.");
 						
 					}	
 				},
 				error : function(result) {
-					msgSnackbar("error", "품의 환원을 실패했습니다.");
+					msgSnackbar("error", "재상신을 실패했습니다.");
 				}
 			});		
 			
@@ -763,7 +763,7 @@
 			<div class="psh_right">
 				<div class="btn_cen mt8">
 					<c:if test="${btnSaveYn == 'Y' && btnApprYn == 'N'}">
-					<input type="button" class="psh_btn" onclick="fnModify();"  value="품의환원" /> 
+					<input type="button" class="psh_btn" onclick="fnModify();"  value="재상신" /> 
 					</c:if>
 					<c:if test="${btnSaveYn == 'Y'}">
 					<input type="button" class="psh_btn" onclick="fnCallBtn('save')" value="임시저장" />
@@ -795,7 +795,7 @@
 				<input objKey="write_emp_seq" objCheckFor="checkVal('text', this, '작성자', 'selectOrgchart()', '')" type="hidden" value="${write_emp_seq}" />
 				<c:if test="${btnSaveYn == 'Y' && btnApprYn == 'N'}">
 				<dt>담당자</dt>
-					<dd objKey="public_info1" objCheckFor="getPublicInfo1()" value="${contractDetailInfo.write_emp_name}" >
+					<dd objKey="public_info1" objCheckFor="getPublicInfo1()" value="${contractDetailInfo.c_write_emp_name}" >
 						<div id="publicInfo1" style="min-width:150px;"></div>
 						<c:if test="${disabledYn == 'N'}">
 						<input onclick="selectOrgchart1()" type="button" value="선택" />

@@ -876,38 +876,63 @@
 			insertDataObject.writeDeptSeq = $('#writeDeptSeq').val();
 			insertDataObject.writeCompSeq = $('#writeCompSeq').val();  
 
-			
+			parameter = {};
+			parameter.out_process_interface_id = "CONCLUSION";
+			parameter.out_process_interface_m_id = thisSeq;
 			
 			$.ajax({
 				type : 'post',
-				url : '<c:url value="/purchase/ConclusionSaveProc.do" />',
+				url : '<c:url value="/SelResTemp.do" />',
 	    		datatype:"json",
-	            data: insertDataObject ,
+	            data: parameter ,
 				async : false,
 				success : function(result) {
 					
-					if(result.resultCode == "success"){
-						
-						thisSeq = result.resultData.seq;
-						openerRefreshList();
-						reqType = type;
-						
-/* 					if(type == 1){		
-						msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");		
-						}else{
-							fnPaymentCreate();	
-						}  */
-						fnPaymentCreate();	
-						
-					}else{
-						msgSnackbar("error", "등록에 실패했습니다.");	
-					}
-					
+						if (result.resultData.length > 0){
+
+							msgSnackbar("error", "대금지급 건이 존재하여 임시저장이 불가능합니다.");								
+							
+						} else {
+							
+							$.ajax({
+								type : 'post',
+								url : '<c:url value="/purchase/ConclusionSaveProc.do" />',
+					    		datatype:"json",
+					            data: insertDataObject ,
+								async : false,
+								success : function(result) {
+									
+									if(result.resultCode == "success"){
+										
+										thisSeq = result.resultData.seq;
+										openerRefreshList();
+										reqType = type;
+										
+				/* 					if(type == 1){		
+										msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");		
+										}else{
+											fnPaymentCreate();	
+										}  */
+										fnPaymentCreate();	
+										
+									}else{
+										msgSnackbar("error", "등록에 실패했습니다.");	
+									}
+									
+								},
+								error : function(result) {
+									msgSnackbar("error", "등록에 실패했습니다.");
+								}
+							});
+
+						}		
 				},
 				error : function(result) {
-					msgSnackbar("error", "등록에 실패했습니다.");
+					msgSnackbar("error", "대금지급 조회 오류");
 				}
-			});
+			});	
+			
+
 			
 		}
 		
@@ -1388,7 +1413,7 @@
 			
 			var public_list = [];
 
-			if ("${contractDetailInfo.write_emp_name}" != ""){
+			if ("${contractDetailInfo.write_emp_name}" != "" && "${contractDetailInfo.c_write_emp_name}" == ""){
 				
 				var valueObj = {};
 				valueObj.value = "${contractDetailInfo.write_dept_name}";
@@ -1462,16 +1487,10 @@
 
 				$('#writeEmpSeq').val(jsonData[i].empSeq);
 				$('#writeDeptSeq').val(jsonData[i].deptSeq);
-				$('#writeCompSeq').val(jsonData[i].compSeq);
-				
-				
+				$('#writeCompSeq').val(jsonData[i].compSeq);	
 				
 				orgData.push(data);
 			}
-			 
-
-
-			
 			renderPublicInfo1(orgData);	
 
 		 }
@@ -2023,7 +2042,7 @@
 		    modifyParam = {};
 		    modifyParam.change_info_list = JSON.stringify(selectedList);		
 			
-			confirmAlert(350, 100, 'question', '품의환원 하시겠습니까?', '확인', 'fnModifyProc()', '취소', '');			
+			confirmAlert(350, 100, 'question', '재상신 하시겠습니까?<br>예산을 반환여부를 확인했습니까?', '확인', 'fnModifyProc()', '취소', '');			
 
 		}	
 	    
@@ -2040,16 +2059,16 @@
 					
 					if(result.resultCode == "success"){
 							
-						msgAlert("success", "품의환원이 완료되었습니다.", "self.close()");
+						msgAlert("success", "재상신이 완료되었습니다.", "self.close()");
 
 						
 					}else{
-						msgSnackbar("error", "환원할 수 없는 데이터가 있습니다.");
+						msgSnackbar("error", "재상신 할 수 없는 데이터가 있습니다.");
 						
 					}	
 				},
 				error : function(result) {
-					msgSnackbar("error", "품의 환원을 실패했습니다.");
+					msgSnackbar("error", "재상신을 실패했습니다.");
 				}
 			});		
 			
@@ -2071,7 +2090,7 @@
 		    modifyParam = {};
 		    modifyParam.change_info_list = JSON.stringify(selectedList);		
 			
-			confirmAlert(350, 100, 'question', '반환 하시겠습니까?', '확인', 'fnReturnCancelProc()', '취소', '');			
+			confirmAlert(350, 100, 'question', '예산반환 하시겠습니까?', '확인', 'fnReturnCancelProc()', '취소', '');			
 
 		}	
 		
@@ -2093,7 +2112,7 @@
 		    modifyParam = {};
 		    modifyParam.change_info_list = JSON.stringify(selectedList);		
 			
-			confirmAlert(350, 100, 'question', '반환취소 하시겠습니까?', '확인', 'fnReturnCancelProc()', '취소', '');			
+			confirmAlert(350, 100, 'question', '예산반환취소 하시겠습니까?', '확인', 'fnReturnCancelProc()', '취소', '');			
 
 		}	
 		
@@ -2114,7 +2133,7 @@
 						msgAlert("success", "완료되었습니다.", "self.close()");
 						
 					}else{
-						msgSnackbar("error", "반환할 수 없는 데이터가 있습니다.");
+						msgSnackbar("error", "예산반환할 수 없는 데이터가 있습니다.");
 						
 					}	
 				},
@@ -2137,13 +2156,13 @@
 			<div class="psh_right">
 				<div class="btn_cen mt8">
 					<c:if test="${btnApprYn == 'N'}">
-					<input type="button" class="psh_btn" onclick="fnReturn();"  value="반환" /> 
+					<input type="button" class="psh_btn" onclick="fnReturn();"  value="예산반환" /> 
 					</c:if>
 					<c:if test="${btnApprYn == 'N'}">
-					<input type="button" class="psh_btn" onclick="fnCancel();"  value="반환취소" /> 
+					<input type="button" class="psh_btn" onclick="fnCancel();"  value="예산반환취소" /> 
 					</c:if>
 					<c:if test="${btnSaveYn == 'Y' && btnApprYn == 'N'}">
-					<input type="button" class="psh_btn" onclick="fnModify();"  value="품의환원" /> 
+					<input type="button" class="psh_btn" onclick="fnModify();"  value="재상신" /> 
 					</c:if>
 					<c:if test="${btnSaveYn == 'Y'}">
 					<input type="button" class="psh_btn" onclick="fnCallBtn('save')" value="임시저장" />
