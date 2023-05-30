@@ -129,6 +129,7 @@
 		setDynamicSetInfoBudget();
 		setDynamicSetInfoTrade();
 		setDynamicSetInfoItem();
+		setDynamicSetInfoAmt(); 
 		</c:if>
 		
 		datePickerInit();
@@ -1336,6 +1337,24 @@
 		insertDataObject.outProcessCode = outProcessCode;
 		insertDataObject.viewType = "${viewType}";
 		insertDataObject.seq = thisSeq;
+
+		setDynamicSetInfoAmt();	
+		
+		//예산정보 html
+		var resultAmtListHtml = "";
+		$('[name=resultAmtListHtmlre] tfoot').remove();
+		$('[name=resultAmtListHtmlre]').attr('style',"display:block;")
+		/* $('[name=resultAmtListHtmlre]').find("[displaynone]").removeAttr("displaynone"); */		
+		var cloneData = $('[name=resultAmtListHtmlre]').clone();
+		
+		//input 요소 텍스트화
+		$.each($(cloneData).find("input"), function( idx, obj ) {
+			$(obj).replaceWith($(obj).val());
+		});
+		
+		resultAmtListHtml = $(cloneData)[0].outerHTML;
+		insertDataObject.result_amt_info_html = resultAmtListHtml;
+		
 		
 		var itemAmtTotal = 0;
 		var itemFeeTotal = 0;
@@ -1366,7 +1385,7 @@
 		
 		var cloneData = $('[name=itemObjListHtml]').clone();
 		
-		$(cloneData).find("[name=itemList]").append("<tr><td bgcolor='#f1f1f1' colspan='4'>조달구매수수료/이용수수료(단가계약, 계약금액의 000%)</td><td colspan='2'>"+itemFeeTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+" 원</td></tr>");
+		$(cloneData).find("[name=itemList]").append("<tr><td bgcolor='#f1f1f1' colspan='4'>조달구매수수료/이용수수료(단가계약, 계약금액의 <span style='color:#0000FF'>0.54%)</span></td><td colspan='2'>"+itemFeeTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+" 원</td></tr>");
 		$(cloneData).find("[name=itemList]").append("<tr><td bgcolor='#f1f1f1' colspan='4'>총계 (VAT 포함 )</td><td colspan='2'>"+itemAmtTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+" 원</td></tr>");
 		
 		$(cloneData).find("[displaynone]").remove();
@@ -1859,6 +1878,34 @@
 		});			
 		
 	}
+	
+	
+	// 예산정보html
+	function setDynamicSetInfoAmt(){
+					
+			$("#resultAmtListHtml tbody").empty();
+			$.each($("table[name='budgetList'] tr[name='addData']"), function(index, tr){			
+				var $clone = $("#resultAmtListHtml tfoot tr").clone();
+				var tr_amt = $(tr).find("input[name='amt']").val();
+				var t_amt = parseInt(tr_amt.replace(/,/g, ''));
+				var balance_amt = $(tr).find("input[name='txt_balance_amt']").val();
+				var t_balance_amt = parseInt(balance_amt.replace(/,/g, ''));
+				var txtbgtBalanceAmt1 = t_balance_amt - t_amt; 
+				$clone.find("td.bgtAmtnum").html("<span style='font-family:굴림;font-size:10px'>" + parseInt(index + 1) + "</span>");
+				$clone.find("td.bgtAmt1Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='pjt_name']").val() + "</span>");
+				$clone.find("td.bgtAmt2Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='erp_bgt2_name']").val() + "</span>");
+				$clone.find("td.bgtAmt3Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='erp_bgt3_name']").val() + "</span>");
+				$clone.find("td.txtbgtAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_open_amt']").val() + "</span>"); 
+				$clone.find("td.txtbgtOpenAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_cons_balance_amt']").val() + "</span>");
+				$clone.find("td.txtbgtConsBalanceAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='txt_apply_amt']").val() + "</span>");
+				$clone.find("td.txtbgtApplyAmt").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='amt']").val() + "</span>"); 
+				$clone.find("td.txtbgtBalanceAmt").html("<span style='font-family:굴림;font-size:10px'>" + fnGetCurrencyCode(txtbgtBalanceAmt1) + "</span>");
+				$("#resultAmtListHtml tbody").append($clone);
+			});
+			
+	}
+	
+	
 	
 	</script>
 </head>
@@ -2645,8 +2692,64 @@
 				</tr>
 			</table>
 		</div>	
-
-
+		<!-- 그리드 테이블 -->
+		<div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" style="display:none;">
+			<table id="resultAmtListHtml" name="resultAmtListHtml" border="1" width="100%" >
+				<colgroup>
+					<col width=""/>	
+					<col width=""/>			
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+					<col width=""/>
+				</colgroup>
+				<thead>
+				<tr>			
+					<th align="center" bgcolor="#f1f1f1" height="25" width="40"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">구분</span></th>	
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">사업명</span></th>
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">항</span></th>
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">목</span></th>
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">예산액</span></th>
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">기 집행액</span></th>
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">기 품의액</span></th>
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">금회 품의액</span></th>
+					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">예산잔액</span></th>
+				</tr>	
+				</thead>
+				<tbody>
+				<tr name="amtDatabase">			
+					<!-- <td><input   value="" />구분</td> -->
+					<td align="center" height="20" class="bgtAmtnum"></td>
+					<td align="center" height="20" class="bgtAmt1Name" ></td>
+					<td align="center" height="20" class="bgtAmt2Name" ></td>
+					<td align="center" height="20" class="bgtAmt3Name" ></td>
+					<td align="center" height="20" class="txtbgtAmt"></td>
+					<td align="center" height="20" class="txtbgtOpenAmt"></td>
+					<td align="center" height="20" class="txtbgtConsBalanceAmt"></td>
+					<td align="center" height="20" class="txtbgtApplyAmt"></td>
+					<td align="center" height="20" class="txtbgtBalanceAmt"></td>
+				</tr>
+				</tbody>	
+				<tfoot style="display:none">
+				<tr name="amtDatabase">			
+					<!-- <td><input   value="" />구분</td> -->
+					<td align="center" height="20" class="bgtAmtnum"></td>
+					<td align="center" height="20" class="bgtAmt1Name" ></td>
+					<td align="center" height="20" class="bgtAmt2Name" ></td>
+					<td align="center" height="20" class="bgtAmt3Name" ></td>
+					<td align="center" height="20" class="txtbgtAmt"></td>
+					<td align="center" height="20" class="txtbgtOpenAmt"></td>
+					<td align="center" height="20" class="txtbgtConsBalanceAmt"></td>
+					<td align="center" height="20" class="txtbgtApplyAmt"></td>
+					<td align="center" height="20" class="txtbgtBalanceAmt"></td>
+				</tr>
+				</tfoot>
+			</table>
+		</div>
+		
 	</div><!-- //pop_con -->
 </div><!-- //pop_wrap -->
 

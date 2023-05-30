@@ -888,7 +888,7 @@
 				async : false,
 				success : function(result) {
 					
-						if (result.resultData.length > 0){
+						if (result.resultData.length > 0 && parameter.out_process_interface_m_id != ""){
 
 							msgSnackbar("error", "대금지급 건이 존재하여 임시저장이 불가능합니다.");								
 							
@@ -1049,6 +1049,32 @@
 					/* 결의 정보 저장 */
 					var aData = Option.Common.GetResult(result, 'aData');
 					optionSet.consDocInfo = aData;
+					
+
+					/* 담당자 데이터가 있으면 가져와서 추가 */
+					if($("#chargeEmpSeq").val() != ''){
+						parameter.deptSeq = $("#chargeDeptSeq").val(); 
+						parameter.deptName = $("#chargeDeptName").val(); 
+						parameter.empSeq = $("#chargeEmpSeq").val();
+						parameter.empName = $("#chargeEmpName").val();			
+					}
+	
+					$.ajax({
+						type : 'post',
+						url : '<c:url value="/updateDeptCons.do" />',
+			    		datatype:"json",
+			            data: parameter ,
+						async : false,
+						success : function(result) {
+	
+						},
+						error : function(result) {
+							msgSnackbar("error", "품의데이터 초기화 오류");
+						}
+					});	
+					
+					
+					
 					
 					if (aData) {
 						
@@ -2191,6 +2217,14 @@
 				<input objKey="c_write_comp_seq" objCheckFor="checkVal('text', this, '작성부서', '', '')" type="hidden" value="${c_write_comp_seq}" />
 				<input objKey="c_write_dept_seq" objCheckFor="checkVal('text', this, '작성부서', '', '')" type="hidden" value="${c_write_dept_seq}" />
 				<input objKey="c_write_emp_seq" objCheckFor="checkVal('text', this, '작성자', 'selectOrgchart()', '')" type="hidden" value="${c_write_emp_seq}" />
+				
+				
+				<input id="chargeEmpSeq" name="chargeEmpSeq" type="hidden" value="${c_write_emp_seq}" />
+				<input id="chargeEmpName" name="chargeEmpName" type="hidden" value="${createEmpName}" />
+				<input id="chargeDeptSeq" name="chargeDeptSeq" type="hidden" value="${c_write_dept_seq}" />
+				<input id="chargeDeptName" name="chargeDeptName" type="hidden" value="${createDeptName}" />
+				
+				
 				
 				<c:if test="${btnSaveYn == 'Y' && btnApprYn == 'N'}">
 				<dt>담당자</dt>

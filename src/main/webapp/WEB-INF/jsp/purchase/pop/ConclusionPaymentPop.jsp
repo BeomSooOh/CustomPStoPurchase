@@ -644,16 +644,20 @@
 			parameter.trSeq = '';
 		}
 
+		
+		if(conclusionBudgetList.length-2 < idx ){
+			fnPaymentExpendCreatePop();	
+		}
+			
 		/* int파라미터 데이터 보정 진행 */
+/*
 		parameter = fnTradeDataCurrection(parameter);
 		parameter.baNb = parameter.baNb.replace("'","");
-		/* [ ajax ] */
-		$.ajax({
+ 		$.ajax({
 			type : 'post',
 			url : '${pageContext.request.contextPath}/ex/np/user/res/ResTradeInsert.do',
 			datatype : 'json',
-			async : false,
-			/*   - data : resDocSeq, resSeq, budgetSeq, erpIsuDt, erpIsuSq, erpInSq, erpBqSq, itemNm, itemCnt, empNm, trSeq, trName, ceoName, tradeAmt, tradeStdAmt, tradeVatAmt, jiroSeq, jiroName, baNb, btrSeq, btrName, depositor, tradeNote, ctrSeq, ctrName, regDate, interfaceType, interfaceSeq, empSeq */
+			async : false,0000000000000
 			data : Option.Common.GetSaveParam(parameter),
 			extendParam : {
 				resSeq : parameter.resSeq,
@@ -662,7 +666,6 @@
 				tradeStdAmt : parameter.tradeStdAmt,
 				tradeVatAmt : parameter.tradeVatAmt
 			},
-			/*   - success :  */
 			success : function(result) {
 
 				var aData = Option.Common.GetResult(result, 'aData');
@@ -680,11 +683,11 @@
 					msgSnackbar("error", "결의서 연동데이터(ResTrade) 생성 실패");
 				}
 			},
-			/*   - error :  */
+		
 			error : function(result) {
 				msgSnackbar("error", "결의서 연동데이터(ResTrade) 생성 실패");
 			}
-		});
+		}); */
 
 		/* [ return ] */
 		return;

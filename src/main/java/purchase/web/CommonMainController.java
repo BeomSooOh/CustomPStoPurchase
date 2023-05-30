@@ -520,6 +520,18 @@ public class CommonMainController {
     }    
 
     
+    @RequestMapping("/updateDeptCons.do")
+    public ModelAndView updateDeptCons(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+    	ModelAndView mv = new ModelAndView();
+		commonService.updateDeptCons(params);	
+		mv.addObject("resultCode", "SUCCESS");	
+		mv.setViewName("jsonView");    	
+    	
+		return mv;
+    } 
+    
+    
     @RequestMapping("/SelConsTemp.do")
     public ModelAndView SellConsTemp(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
     	
