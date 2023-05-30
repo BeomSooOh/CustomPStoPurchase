@@ -242,6 +242,7 @@
 		FORMAT(a.purchase_amt, 0) as purchase_amt,			
 		a.purchase_amt_kor,
 		a.item_info_html,
+		ifnull(a.result_amt_info_html,'') as result_amt_info_html,
 		ifnull(a.check_info_html,'') as check_info_html,
 		
 		ifnull(item0.item_total_cnt,'0') as item_total_cnt,
@@ -482,7 +483,8 @@
 		from cust_sto.t_purchase_budget_info a 
 		<isNotEmpty property="consMode">
 		join t_exnp_consdoc b on b.out_process_interface_id = '$consOutProcessCode$' and a.seq = b.out_process_interface_m_id
-		join t_exnp_consbudget c on b.cons_doc_seq = c.cons_doc_seq and a.erp_budget_seq = c.erp_budget_seq
+		join t_exnp_conshead d on b.cons_doc_seq = d.cons_doc_seq and d.mgt_seq = a.pjt_seq and d.bottom_seq = a.bottom_seq
+		join t_exnp_consbudget c on b.cons_doc_seq = c.cons_doc_seq and a.erp_budget_seq = c.erp_budget_seq and d.cons_seq = c.cons_seq
 		</isNotEmpty>		
 		where a.seq = '$seq$' and a.outProcessCode = '$outProcessCode$' 
 
@@ -606,6 +608,22 @@
 		and out_process_interface_d_id = '$out_process_interface_d_id$';	
 
 	</update>
+	
+	<update	id="CommonSQL.updateDeptCons" parameterClass="HashMap" >
+	
+		update $DB_NEOS$t_exnp_consdoc 
+		set
+		dept_seq = '$deptSeq$',
+		dept_name = '$deptName$',
+		emp_seq = '$empSeq$',
+		emp_name = '$empName$'
+		where
+		out_process_interface_id = '$outProcessInterfaceId$'
+		and out_process_interface_m_id = '$outProcessInterfaceMId$'
+		and out_process_interface_d_id = '$outProcessInterfaceDId$';	
+
+	</update>
+	
 	
 	<update	id="CommonSQL.UpdateConsDocSts" parameterClass="HashMap" >
 	

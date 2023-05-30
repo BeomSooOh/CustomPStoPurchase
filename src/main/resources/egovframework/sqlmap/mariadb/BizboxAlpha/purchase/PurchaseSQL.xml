@@ -255,6 +255,7 @@
   purchase_amt, 
   purchase_amt_kor, 
   item_info_html, 
+  result_amt_info_html,
    
   created_dt, 
   created_by, 
@@ -277,7 +278,7 @@
   '$purchase_amt$', 
   '$purchase_amt_kor$',
   '$item_info_html$', 
-   
+   '$result_amt_info_html$',
   now(), 
   '$created_by$', 
   null, 
@@ -306,8 +307,8 @@
   public_info='$public_info$',
   purchase_amt='$purchase_amt$',
   purchase_amt_kor='$purchase_amt_kor$',
-  item_info_html=#item_info_html#, 
-  
+  item_info_html='$item_info_html$', 
+  result_amt_info_html='$result_amt_info_html$',
   modify_dt=now(), 
   modify_by='$created_by$'
   
