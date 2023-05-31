@@ -1515,6 +1515,12 @@
 				$('#writeDeptSeq').val(jsonData[i].deptSeq);
 				$('#writeCompSeq').val(jsonData[i].compSeq);	
 				
+				$("#chargeDeptSeq").val(jsonData[i].deptSeq); 
+				$("#chargeDeptName").val(jsonData[i].deptName); 
+				$("#chargeEmpSeq").val(jsonData[i].empSeq);
+				$("#chargeEmpName").val(jsonData[i].empName);		
+				
+				
 				orgData.push(data);
 			}
 			renderPublicInfo1(orgData);	
