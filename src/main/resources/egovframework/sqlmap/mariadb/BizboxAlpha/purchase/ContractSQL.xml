@@ -944,10 +944,13 @@
         FROM $DB_NEOS$A_DRAFTINFO df
         INNER JOIN $DB_NEOS$A_RECORDINFO ri ON df.C_DIKEYCODE  = ri.c_dikeycode 
         INNER JOIN $DB_NEOS$A_DOCINFO di ON df.c_dikeycode  = di.c_dikeycode
-        INNER JOIN cust_sto.t_purchase_payment_doc_info pdi ON df.c_dikeycode  = pdi.res_doc_seq
+        INNER JOIN $DB_NEOS$t_exnp_resdoc er ON df.c_dikeycode  = er.doc_seq
+
+		INNER JOIN cust_sto.t_purchase_payment_doc_info pdi ON er.res_doc_seq  = pdi.res_doc_seq
+        INNER JOIN cust_sto.t_purchase_contract pc on pdi.seq = pc.seq
         where
         pdi.seq = '$seq$' and pdi.outProcessCode = 'CONCLUSION'
-        and df.c_diwriteday BETWEEN '$fromDate$' AND '$toDate$'	and df.c_distatus != 'd'	
+        and df.c_distatus != 'd'	
 		
 	</select>	
 	
@@ -1018,7 +1021,7 @@
               
               where
               pdi.seq = '$seq$'
-              and df.c_diwriteday BETWEEN '$fromDate$' AND '$toDate$' and df.c_distatus != 'd'
+              and df.c_distatus != 'd'
 
          ) CTE
          ORDER BY c_diwriteday DESC, c_diwritetime DESC, c_dikeycode DESC  

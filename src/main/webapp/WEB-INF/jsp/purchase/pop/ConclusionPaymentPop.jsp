@@ -165,8 +165,8 @@
 				,   parameterMapping : function( data ) {
 					
 					data.seq = "${seq}";
-					data.fromDate = $("#searchFromDate").val(); ;
-					data.toDate = $("#searchToDate").val();
+ 					data.fromDate = $("#searchFromDate").val(); 
+					data.toDate = $("#searchToDate").val(); 
 					
 					return data;
 				}
@@ -748,7 +748,7 @@
 	<div class="pop_con" style="overflow: auto; min-height: 460px;">
 	
 					<!-- 상세검색 -->
-            		<div class="top_box">
+<%--             		<div class="top_box">
 						<dl>
 							<dt class="ar" style="width:60px;">기안일자</dt>
 							<dd>
@@ -757,7 +757,7 @@
 							</dd>							
 							<dd><input onclick="BindGrid();" type="button" class="puddSetup submit" id="searchButton" value="검색" /></dd>
 						</dl>
-					</div>
+					</div> --%>
 					
 
 					<div class="sub_contents_wrap posi_re">
