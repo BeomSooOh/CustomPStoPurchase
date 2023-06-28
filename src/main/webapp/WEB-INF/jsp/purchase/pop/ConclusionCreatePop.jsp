@@ -2176,6 +2176,53 @@
 			
 		}
 		
+		function saveEmpName(){
+			parameter = {};
+			
+			/* 담당자 데이터가 있으면 가져와서 추가 */
+			if($("#chargeEmpSeq").val() != ''){
+				parameter.deptSeq = $("#chargeDeptSeq").val(); 
+				parameter.deptName = $("#chargeDeptName").val(); 
+				parameter.empSeq = $("#chargeEmpSeq").val();
+				parameter.empName = $("#chargeEmpName").val();
+				parameter.outProcessInterfaceId = "Conclu01";
+				parameter.outProcessInterfaceMId = thisSeq;
+				parameter.outProcessInterfaceDId = "DUPLICATE_TEMP";
+			} else {
+				msgAlert("success", "담당자를 변경해주세요.");
+			}
+			confirmAlert(350, 100, 'question', '저장하시겠습니까?', '확인', 'saveEmpNameProc()', '취소', '');
+		}
+		
+		function saveEmpNameProc(){
+			
+			$.ajax({
+				type : 'post',
+				url : '<c:url value="/updateDeptCons.do" />',
+	    		datatype:"json",
+	            data: parameter ,
+				async : false,
+				success : function(result) {
+					$.ajax({
+						type : 'post',
+						url : '<c:url value="/updateCempName.do" />',
+			    		datatype:"json",
+			            data: parameter ,
+						async : false,
+						success : function(result) {
+							msgAlert("success", "저장 되었습니다.");
+						},
+						error : function(result) {
+							msgSnackbar("error", "품의데이터 초기화 오류");
+						}
+					});
+					
+				},
+				error : function(result) {
+					msgSnackbar("error", "품의데이터 초기화 오류");
+				}
+			});
+		}
 		
 	</script>
 </head>
@@ -2241,8 +2288,10 @@
 						<input type="hidden" name="writeEmpSeq" id="writeEmpSeq" value=""/>
 						<input type="hidden" name="writeDeptSeq" id="writeDeptSeq" value=""/>
 						<input type="hidden" name="writeCompSeq" id="writeCompSeq" value=""/>
+						<input onclick="saveEmpName()" type="button" value="저장" />
 						</c:if>	
 					</dd>
+					
 				</c:if>
 				
 			</dl>

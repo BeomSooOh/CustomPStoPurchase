@@ -290,8 +290,8 @@
 				 AND	IFNULL(d.doc_status, '008') IN ( '001', '002', '003', '004', '008', '009','20', '30', '90' )
 			)	d
 			ON	e.sync_id = d.interface_seq
-			WHERE	e.iss_dt	BETWEEN #issDateFrom# AND #issDateTo#	-- issDateFrom issDateTo
-			AND     e.comp_seq	= #compSeq#				-- compSeq
+			WHERE	e.iss_dt	BETWEEN #issDateFrom# AND #issDateTo#	
+			AND     e.comp_seq	= #compSeq#				
 			AND     e.send_yn = 'Y'
 			AND     e.use_yn = 'Y'
 			
@@ -303,8 +303,8 @@
 				, '1'		AS orderNum
 				, IFNULL( GROUP_CONCAT( CONCAT(iss_dt, 'Σ', iss_no, 'Σ',  (SELECT emp_name FROM $DB_NEOS$t_co_emp_multi WHERE lang_code = 'kr' AND emp_seq = a.modify_seq), 'Σ', IFNULL(iss_no2, ''), '■') ), '' )	AS superKeys
 			FROM 	$DB_NEOS$t_ex_etax_aq_tmp a
-			WHERE	iss_dt	BETWEEN #issDateFrom# AND #issDateTo#	-- issDateFrom issDateTo
-			AND     comp_seq	= #compSeq#			-- compSeq
+			WHERE	iss_dt	BETWEEN #issDateFrom# AND #issDateTo#	
+			AND     comp_seq	= #compSeq#			
 			AND     use_yn		= 'N'
 		
 			UNION
@@ -318,17 +318,17 @@
 			INNER JOIN	(
 				SELECT	etax_seq
 				FROM	$DB_NEOS$t_ex_etax_public
-				WHERE	( TYPE = 'u' AND CODE = #empSeq# )	-- empSeq
+				WHERE	( TYPE = 'u' AND CODE = #empSeq# )	
 					<isEqual property="groupSeq" compareValue="dgmt">
 					OR (TYPE = 'd' AND	concat(( select substr(path,15) From $DB_NEOS$v_org_chart where gbn_org = 'd' and seq = #deptSeq# ), '|') like concat('%', CODE, '|%') )					
 					</isEqual>
 					<isNotEqual property="groupSeq" compareValue="dgmt">
 					OR (TYPE = 'd' AND	concat(( select path From $DB_NEOS$v_org_chart where gbn_org = 'd' and seq = #deptSeq# ), '|') like concat('%', CODE, '|%') )					
 					</isNotEqual>
-					OR ( TYPE = 'c' AND CODE = #compSeq# )	-- compSeq
+					OR ( TYPE = 'c' AND CODE = #compSeq# )	
 			)	p
 			ON	e.etax_seq	= p.etax_seq
-			 AND	e.comp_seq 	= #compSeq#			-- compSeq
+			 AND	e.comp_seq 	= #compSeq#			
 			 AND	e.use_yn 	= 'Y'
 			 AND	auth_type 	= 'E'
 		
@@ -343,13 +343,13 @@
 			INNER JOIN	(
 				SELECT	etax_seq
 				FROM	$DB_NEOS$t_ex_etax_public
-				WHERE	( TYPE = 'u' AND CODE = #empSeq# )	-- empSeq
+				WHERE	( TYPE = 'u' AND CODE = #empSeq# )	
 					OR (TYPE = 'd' AND	concat(( select path From $DB_NEOS$v_org_chart where gbn_org = 'd' and seq = #deptSeq# ), '|') like concat('%', CODE, '|%') )					
 					
-					OR ( TYPE = 'c' AND CODE = #compSeq# )	-- compSeq
+					OR ( TYPE = 'c' AND CODE = #compSeq# )	
 			)	p
 			ON	e.etax_seq	= p.etax_seq
-			 AND	e.comp_seq 	= #compSeq#			-- compSeq
+			 AND	e.comp_seq 	= #compSeq#			
 			 AND	e.use_yn 	= 'Y'
 			 AND	auth_type 	= 'P'	
 			
@@ -361,8 +361,8 @@
 				, '4'		AS orderNum
 				, IFNULL( GROUP_CONCAT( CONCAT(iss_dt, 'Σ', iss_no, 'Σ',  (SELECT emp_name FROM $DB_NEOS$t_co_emp_multi WHERE lang_code = 'kr' AND emp_seq = transfer_seq), 'Σ', IFNULL(iss_no2, ''), '■') ), '' )	AS superKeys
 			FROM	$DB_NEOS$t_ex_etax_transfer
-			WHERE	comp_seq	= #compSeq# 	-- compSeq
-			 AND	receive_seq	= #empSeq#	-- emp_seq
+			WHERE	comp_seq	= #compSeq# 	
+			 AND	receive_seq	= #empSeq#	
 		
 			UNION
 			
@@ -372,8 +372,8 @@
 				, '5'		AS orderNum
 				, IFNULL( GROUP_CONCAT( CONCAT(iss_dt, 'Σ', iss_no, 'Σ',  (SELECT emp_name FROM $DB_NEOS$t_co_emp_multi WHERE lang_code = 'kr' AND emp_seq = receive_seq), 'Σ', IFNULL(iss_no2, ''), '■') ), '' )	AS superKeys
 			FROM	$DB_NEOS$t_ex_etax_transfer
-			WHERE	comp_seq	= #compSeq# 	-- compSeq
-			 AND	transfer_seq	= #empSeq#	-- emp_seq	
+			WHERE	comp_seq	= #compSeq# 	
+			 AND	transfer_seq	= #empSeq#	
 
 			UNION
 			

@@ -624,6 +624,17 @@
 
 	</update>
 	
+	<update	id="CommonSQL.updateCempName" parameterClass="HashMap" >
+	
+		update cust_sto.t_purchase_contract
+		set
+		c_write_dept_seq = '$deptSeq$',
+		c_write_emp_seq = '$empSeq$'
+
+		where seq = '$outProcessInterfaceMId$'; 	
+
+	</update>
+	
 	
 	<update	id="CommonSQL.UpdateConsDocSts" parameterClass="HashMap" >
 	

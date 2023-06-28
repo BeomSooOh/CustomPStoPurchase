@@ -163,6 +163,12 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		
 	}
 	
+	public void updateCempName ( Map<String, Object> params ) {
+		
+		update( "CommonSQL.updateCempName", params );
+		
+	}
+	
 	public void UpdateApprChange ( Map<String, Object> params ) {
 		
 		update( "CommonSQL.UpdateApprChange", params );

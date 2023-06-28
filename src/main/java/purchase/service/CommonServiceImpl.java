@@ -451,7 +451,13 @@ public class CommonServiceImpl implements CommonService {
 		
 		commonServiceDAO.updateDeptCons(params);
 		
-	}	
+	}
+	
+	public void updateCempName ( Map<String, Object> params ) {
+		
+		commonServiceDAO.updateCempName(params);
+		
+	}
 	
 	public void saveGreenInfo ( Map<String, Object> params ) throws JsonParseException, JsonMappingException, IOException{
 		commonServiceDAO.DeletePurchaseResGreenInfo(params);
