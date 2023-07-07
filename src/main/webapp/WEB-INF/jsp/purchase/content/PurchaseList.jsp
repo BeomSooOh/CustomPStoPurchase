@@ -187,8 +187,12 @@
 				,	content : {
 					attributes : { class : "le" }
 					}				
-				}				
-			,	{
+				},	{
+					field : "item_deadline"
+						,	title : "취득일자"
+						,	width : 100									
+				}
+				,	{
 					field : "item_amt"
 				,	title : "취득단가"
 				,	width : 150
@@ -780,7 +784,7 @@
     	});
 		    	
     	var headerRow = 2;
-    	var headerCol = 29;
+    	var headerCol = 30;
     	
     	for(var i=1; i < headerRow; i++) {
     		for(var j=0; j < headerCol; j++) {
@@ -792,35 +796,36 @@
     	excel.set(0, 1, 1, "구매번호");
     	excel.set(0, 2, 1, "물품식별번호");
     	excel.set(0, 3, 1, "물품분류번호");
-    	excel.set(0, 4, 1, "품명");    	
-    	excel.set(0, 5, 1, "취득단가");
-    	excel.set(0, 6, 1, "취득수량");
-    	excel.set(0, 7, 1, "금액");
-    	excel.set(0, 8, 1, "취득수수료");
-    	excel.set(0, 9, 1, "단위코드");
-    	excel.set(0, 10, 1, "운영부서");
-    	excel.set(0, 11, 1, "운영부서코드");
-    	excel.set(0, 12, 1, "물품대장코드");
-    	excel.set(0, 13, 1, "물품담당자");
-    	excel.set(0, 14, 1, "물품사용위치");
-    	excel.set(0, 15, 1, "국내외구분");
-    	excel.set(0, 16, 1, "국가코드");    	
-    	excel.set(0, 17, 1, "취득사유코드");    	
-    	excel.set(0, 18, 1, "품의명");   
-    	excel.set(0, 19, 1, "품의결재상태");
-    	excel.set(0, 20, 1, "물품검수여부");
-    	excel.set(0, 21, 1, "대금지급회차");
-    	excel.set(0, 22, 1, "대금지급금액");    	
-    	excel.set(0, 23, 1, "대금지급완료여부");    	
-    	excel.set(0, 24, 1, "붙임문서");     
-    	excel.set(0, 25, 1, "사용위치");
-    	excel.set(0, 26, 1, "제품분류");    	
-    	excel.set(0, 27, 1, "녹색제품 인증구분");    	
-    	excel.set(0, 28, 1, "희망기업여부");      	
+    	excel.set(0, 4, 1, "품명");
+    	excel.set(0, 5, 1, "취득일자");
+    	excel.set(0, 6, 1, "취득단가");
+    	excel.set(0, 7, 1, "취득수량");
+    	excel.set(0, 8, 1, "금액");
+    	excel.set(0, 9, 1, "취득수수료");
+    	excel.set(0, 10, 1, "단위코드");
+    	excel.set(0, 11, 1, "운영부서");
+    	excel.set(0, 12, 1, "운영부서코드");
+    	excel.set(0, 13, 1, "물품대장코드");
+    	excel.set(0, 14, 1, "물품담당자");
+    	excel.set(0, 15, 1, "물품사용위치");
+    	excel.set(0, 16, 1, "국내외구분");
+    	excel.set(0, 17, 1, "국가코드");    	
+    	excel.set(0, 18, 1, "취득사유코드");    	
+    	excel.set(0, 19, 1, "품의명");   
+    	excel.set(0, 20, 1, "품의결재상태");
+    	excel.set(0, 21, 1, "물품검수여부");
+    	excel.set(0, 22, 1, "대금지급회차");
+    	excel.set(0, 23, 1, "대금지급금액");    	
+    	excel.set(0, 24, 1, "대금지급완료여부");    	
+    	excel.set(0, 25, 1, "붙임문서");     
+    	excel.set(0, 26, 1, "사용위치");
+    	excel.set(0, 27, 1, "제품분류");    	
+    	excel.set(0, 28, 1, "녹색제품 인증구분");    	
+    	excel.set(0, 29, 1, "희망기업여부");      	
     	
     	// sheet번호, column, value(width)
-    	for( var i = 0; i < 29; i++ ) {
-    		excel.setColumnWidth( 0, i, 20 );
+    	for( var i = 0; i < 30; i++ ) {
+    		excel.setColumnWidth( 0, i, 21 );
     	}    	
 		
     	/*
@@ -844,51 +849,52 @@
     		excel.set( 0, 2, rowNo, dataPage[ i ][ "item_idn_no" ], formatCell );
     		excel.set( 0, 3, rowNo, dataPage[ i ][ "item_div_no" ], formatCell );
     		excel.set( 0, 4, rowNo, dataPage[ i ][ "item_name" ], formatCell );
-    		excel.set( 0, 5, rowNo, dataPage[ i ][ "item_amt" ], formatCell );
-    		excel.set( 0, 6, rowNo, dataPage[ i ][ "item_cnt" ], formatCell );
-    		excel.set( 0, 7, rowNo, dataPage[ i ][ "item_total_amt" ], formatCell );
-    		excel.set( 0, 8, rowNo, dataPage[ i ][ "item_fee_amt" ], formatCell );
-    		excel.set( 0, 9, rowNo, dataPage[ i ][ "item_unit" ], formatCell );
-    		excel.set( 0, 10, rowNo, dataPage[ i ][ "write_dept_name" ], formatCell );
-    		excel.set( 0, 11, rowNo, dataPage[ i ][ "operation_dept_code" ], formatCell );
-    		excel.set( 0, 12, rowNo, dataPage[ i ][ "item_inventory_cd" ], formatCell );
-    		excel.set( 0, 13, rowNo, dataPage[ i ][ "write_emp_name" ], formatCell );
-    		excel.set( 0, 14, rowNo, dataPage[ i ][ "item_use_location" ], formatCell );
-    		excel.set( 0, 15, rowNo, dataPage[ i ][ "item_foreign_type" ], formatCell );
-    		excel.set( 0, 16, rowNo, dataPage[ i ][ "item_contry" ], formatCell );
-    		excel.set( 0, 17, rowNo, dataPage[ i ][ "item_acquisition_reason" ], formatCell );
-    		excel.set( 0, 18, rowNo, dataPage[ i ][ "title" ], formatCell );
-    		excel.set( 0, 19, rowNo, dataPage[ i ][ "DOCSTSNAME" ], formatCell );
+    		excel.set( 0, 5, rowNo, dataPage[ i ][ "item_deadline" ], formatCell );
+    		excel.set( 0, 6, rowNo, dataPage[ i ][ "item_amt" ], formatCell );
+    		excel.set( 0, 7, rowNo, dataPage[ i ][ "item_cnt" ], formatCell );
+    		excel.set( 0, 8, rowNo, dataPage[ i ][ "item_total_amt" ], formatCell );
+    		excel.set( 0, 9, rowNo, dataPage[ i ][ "item_fee_amt" ], formatCell );
+    		excel.set( 0, 10, rowNo, dataPage[ i ][ "item_unit" ], formatCell );
+    		excel.set( 0, 11, rowNo, dataPage[ i ][ "write_dept_name" ], formatCell );
+    		excel.set( 0, 12, rowNo, dataPage[ i ][ "operation_dept_code" ], formatCell );
+    		excel.set( 0, 13, rowNo, dataPage[ i ][ "item_inventory_cd" ], formatCell );
+    		excel.set( 0, 14, rowNo, dataPage[ i ][ "write_emp_name" ], formatCell );
+    		excel.set( 0, 15, rowNo, dataPage[ i ][ "item_use_location" ], formatCell );
+    		excel.set( 0, 16, rowNo, dataPage[ i ][ "item_foreign_type" ], formatCell );
+    		excel.set( 0, 17, rowNo, dataPage[ i ][ "item_contry" ], formatCell );
+    		excel.set( 0, 18, rowNo, dataPage[ i ][ "item_acquisition_reason" ], formatCell );
+    		excel.set( 0, 19, rowNo, dataPage[ i ][ "title" ], formatCell );
+    		excel.set( 0, 20, rowNo, dataPage[ i ][ "DOCSTSNAME" ], formatCell );
     		
 			if(dataPage[ i ][ "approkey_check" ] != ""){
 				
 				if(dataPage[ i ][ "doc_sts" ] == "90"){
-					excel.set( 0, 20, rowNo, "검수완료", formatCell );
+					excel.set( 0, 21, rowNo, "검수완료", formatCell );
 				}else if(rdataPage[ i ][ "doc_sts" ] == "20"){
-					excel.set( 0, 20, rowNo, "검수진행중", formatCell );
+					excel.set( 0, 21, rowNo, "검수진행중", formatCell );
 				}
 					
 			}    		
     		
-    		excel.set( 0, 21, rowNo, dataPage[ i ][ "pay_cnt" ], formatCell );
+    		excel.set( 0, 22, rowNo, dataPage[ i ][ "pay_cnt" ], formatCell );
     		
 			if(dataPage[ i ][ "total_pay_amt" ] != "0"){
-				excel.set( 0, 22, rowNo, dataPage[ i ][ "total_pay_amt" ] + " 원", formatCell );				
+				excel.set( 0, 23, rowNo, dataPage[ i ][ "total_pay_amt" ] + " 원", formatCell );				
 			}    		
     		
 			
 			if(!(parseInt(dataPage[ i ][ "purchase_amt" ].replace(/,/g, '')) > parseInt(dataPage[ i ][ "total_pay_amt" ].replace(/,/g, '')))){
-				excel.set( 0, 23, rowNo, "완료", formatCell );
+				excel.set( 0, 24, rowNo, "완료", formatCell );
 			}		
 			
 			if(dataPage[ i ][ "purchase_attach_info" ] != ""){
-				excel.set( 0, 24, rowNo, "등록", formatCell );
+				excel.set( 0, 25, rowNo, "등록", formatCell );
 			}
 			
-			excel.set( 0, 25, rowNo, dataPage[ i ][ "item_use_location" ], formatCell );
-			excel.set( 0, 26, rowNo, dataPage[ i ][ "item_green_class" ], formatCell );
-			excel.set( 0, 27, rowNo, dataPage[ i ][ "item_green_cert_type" ], formatCell );
-			excel.set( 0, 28, rowNo, dataPage[ i ][ "hope_company_info" ], formatCell );
+			excel.set( 0, 26, rowNo, dataPage[ i ][ "item_use_location" ], formatCell );
+			excel.set( 0, 27, rowNo, dataPage[ i ][ "item_green_class" ], formatCell );
+			excel.set( 0, 28, rowNo, dataPage[ i ][ "item_green_cert_type" ], formatCell );
+			excel.set( 0, 29, rowNo, dataPage[ i ][ "hope_company_info" ], formatCell );
     		
     	}
      
