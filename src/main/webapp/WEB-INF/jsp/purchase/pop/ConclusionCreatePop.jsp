@@ -61,7 +61,8 @@
 		commonParam.frDate = optionSet.erpGisu.fromDate; /* 기수 시작일 */
 		commonParam.toDate = optionSet.erpGisu.toDate; /* 기수 종료일 */
 		
-		commonParam.erpGisuDate = commonParam.frDate.replaceAll('-','');
+		//commonParam.erpGisuDate = commonParam.frDate.replaceAll('-','');
+		commonParam.erpGisuDate = commonParam.frDate.replace(/-/g,'');
 		
 		commonParam.opt01 =  '2'; /* 1: 모든 예산과목, 2: 당기편성, 3: 프로젝트 기간 예산 */
 		commonParam.opt02 = '1'; /* 1: 모두표시, 2: 사용기한결과분 숨김 */

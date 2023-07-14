@@ -1,6 +1,6 @@
 var commonCodeSelectInfo = {};
 
-function commonCodeSelectPop(group, codeName, appendType, targetEl, multiYn, ){
+function commonCodeSelectPop(group, codeName, appendType, targetEl, multiYn){
 	
 	commonCodeSelectInfo.group = group;
 	commonCodeSelectInfo.codeName = codeName;

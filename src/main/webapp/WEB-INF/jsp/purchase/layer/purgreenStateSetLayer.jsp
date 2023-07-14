@@ -84,8 +84,15 @@
 				$(cloneData).find("[name=tr_seq]").text("${items.tr_seq}");
 				$(cloneData).find("[name=tr_name]").text("${items.tr_name}");
 				
-				$(cloneData).find("[name=out_process_interface_m_id]").text("${items.out_process_interface_m_id}");
-				$(cloneData).find("[name=out_process_interface_id]").text("${items.out_process_interface_id}");
+				if("${items.out_process_interface_m_id}" == "" || "${items.out_process_interface_m_id}" == null){
+					$(cloneData).find("[name=out_process_interface_m_id]").text("1");
+					$(cloneData).find("[name=out_process_interface_id]").text("1");
+				} else {
+					$(cloneData).find("[name=out_process_interface_m_id]").text("${items.out_process_interface_m_id}");
+					$(cloneData).find("[name=out_process_interface_id]").text("${items.out_process_interface_id}");	
+				}
+				
+				
 
 	
 			
