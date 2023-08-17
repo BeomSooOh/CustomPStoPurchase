@@ -1,45 +1,64 @@
-<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
+<%@ page language="java" contentType="text/html; charset=utf-8"
+	pageEncoding="utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="validator" uri="http://www.springmodules.org/tags/commons-validator"%>
+<%@ taglib prefix="validator"
+	uri="http://www.springmodules.org/tags/commons-validator"%>
 <jsp:useBean id="currentTime" class="java.util.Date" />
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>변경계약체결</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>변경계약체결</title>
 
-    <!--css-->
-    <link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/pudd.css' />">
-	<link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/Scripts/jqueryui/jquery-ui.css' />"/>
-    <link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/common.css' />">
-	<link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/re_pudd.css' />">
-	<link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/animate.css' />">
-	
-	<jsp:include page="/WEB-INF/jsp/common/cmmJunctionCodePop.jsp" flush="false" />	
-	
-    <!--js-->
-    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/pudd/pudd-1.1.200.min.js' />"></script>
-    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/jquery-1.9.1.min.js' />"></script>
-	<script type="text/javascript" src="<c:url value='/customStyle/Scripts/jqueryui/jquery.min.js' />"></script>
-	<script type="text/javascript" src="<c:url value='/customStyle/Scripts/jqueryui/jquery-ui.min.js' />"></script>
-    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/common.js' />"></script>
-    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script>  
-    <script type="text/javascript" src="<c:url value='/js/jquery.maskMoney.js' />"></script>
-    <script type="text/javascript" src="<c:url value='/js/neos/NeosUtil.js' />"></script>  
+<!--css-->
+<link rel="stylesheet" type="text/css"
+	href="<c:url value='/customStyle/css/pudd.css' />">
+<link rel="stylesheet" type="text/css"
+	href="<c:url value='/customStyle/Scripts/jqueryui/jquery-ui.css' />" />
+<link rel="stylesheet" type="text/css"
+	href="<c:url value='/customStyle/css/common.css' />">
+<link rel="stylesheet" type="text/css"
+	href="<c:url value='/customStyle/css/re_pudd.css' />">
+<link rel="stylesheet" type="text/css"
+	href="<c:url value='/customStyle/css/animate.css' />">
+
+<jsp:include page="/WEB-INF/jsp/common/cmmJunctionCodePop.jsp"
+	flush="false" />
+
+<!--js-->
+<script type="text/javascript"
+	src="<c:url value='/customStyle/Scripts/pudd/pudd-1.1.200.min.js' />"></script>
+<script type="text/javascript"
+	src="<c:url value='/customStyle/Scripts/jquery-1.9.1.min.js' />"></script>
+<script type="text/javascript"
+	src="<c:url value='/customStyle/Scripts/jqueryui/jquery.min.js' />"></script>
+<script type="text/javascript"
+	src="<c:url value='/customStyle/Scripts/jqueryui/jquery-ui.min.js' />"></script>
+<script type="text/javascript"
+	src="<c:url value='/customStyle/Scripts/common.js' />"></script>
+<script type="text/javascript"
+	src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script>
+<script type="text/javascript"
+	src="<c:url value='/js/jquery.maskMoney.js' />"></script>
+<script type="text/javascript"
+	src="<c:url value='/js/neos/NeosUtil.js' />"></script>
 
 
-	<jsp:include page="/WEB-INF/jsp/expend/np/user/include/UserOptionMap.jsp" flush="false" />	
-	<jsp:include page="/WEB-INF/jsp/expend/np/user/include/NpUserResPop.jsp" flush="false" /> 
+<jsp:include
+	page="/WEB-INF/jsp/expend/np/user/include/UserOptionMap.jsp"
+	flush="false" />
+<jsp:include page="/WEB-INF/jsp/expend/np/user/include/NpUserResPop.jsp"
+	flush="false" />
 
 
-	<script type="text/javascript">
+<script type="text/javascript">
 	
 	/* 예산관련 변수 시작 */
 	var consDocSeq = "";
@@ -1004,7 +1023,8 @@
 					insertDataObject.work_info_before = "";
 					insertDataObject.work_info_after = "";
 				}else{
-					insertDataObject.work_info_before = "${contractDetailInfo.c_work_info}";
+					console.log('${contractDetailInfo.c_work_info}')
+					/* insertDataObject.work_info_before = ${contractDetailInfo.c_work_info}; */
 				}
 				
 				//계약기간
@@ -1856,620 +1876,774 @@
 </head>
 
 <body>
-<div class="pop_wrap" style="min-width:998px;"> <!-- 팝업창사이즈 가로 : 1000px -->
-	<div class="pop_sign_head posi_re">
-		<h1>변경계약체결</h1>
-		<div class="psh_btnbox">
-			<div class="psh_right">
-				<div class="btn_cen mt8">
-					<c:if test="${btnSaveYn == 'Y'}">
-					<input type="button" class="psh_btn" onclick="fnCallBtn('save')" value="임시저장" />
-					</c:if>
-					<c:if test="${btnApprYn == 'Y'}">
-					<input type="button" class="psh_btn" onclick="fnCallBtn('attach')" value="첨부파일" />
-					</c:if>
-					<c:if test="${btnApprYn == 'N'}">
-					<input type="button" class="psh_btn" onclick="titleOnClickApp('${contractDetailInfo.appr_dikey_change}','','','','0','${contractDetailInfo.appr_status_change}')" value="품의서보기" /> 
-					</c:if>
-					<c:if test="${btnApprYn == 'Y'}">
-					<input type="button" class="psh_btn" onclick="fnCallBtn('appr')" value="결재작성" />
-					</c:if>					
+	<div class="pop_wrap" style="min-width: 998px;">
+		<!-- 팝업창사이즈 가로 : 1000px -->
+		<div class="pop_sign_head posi_re">
+			<h1>변경계약체결</h1>
+			<div class="psh_btnbox">
+				<div class="psh_right">
+					<div class="btn_cen mt8">
+						<c:if test="${btnSaveYn == 'Y'}">
+							<input type="button" class="psh_btn" onclick="fnCallBtn('save')"
+								value="임시저장" />
+						</c:if>
+						<c:if test="${btnApprYn == 'Y'}">
+							<input type="button" class="psh_btn"
+								onclick="fnCallBtn('attach')" value="첨부파일" />
+						</c:if>
+						<c:if test="${btnApprYn == 'N'}">
+							<input type="button" class="psh_btn"
+								onclick="titleOnClickApp('${contractDetailInfo.appr_dikey_change}','','','','0','${contractDetailInfo.appr_status_change}')"
+								value="품의서보기" />
+						</c:if>
+						<c:if test="${btnApprYn == 'Y'}">
+							<input type="button" class="psh_btn" onclick="fnCallBtn('appr')"
+								value="결재작성" />
+						</c:if>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
 
-	<div class="pop_con" style="overflow: auto; min-height: 460px;">
-	
-	
-		<!-- 기본정보 -->
-		<div class="btn_div mt0">
-			<div class="left_div">	
-				<p class="tit_p mt5 mb0">기본정보</p>
+		<div class="pop_con" style="overflow: auto; min-height: 460px;">
+
+
+			<!-- 기본정보 -->
+			<div class="btn_div mt0">
+				<div class="left_div">
+					<p class="tit_p mt5 mb0">기본정보</p>
+				</div>
 			</div>
-		</div>
-		<div class="com_ta mt10">
-			<table>
-				<colgroup>
-					<col width="160"/>
-					<col width=""/>
-				</colgroup>
-				<tr>
-					<th>계약명</th>
-					<td>${contractDetailInfo.c_title} <c:if test="${contractDetailInfo.contract_no != ''}"> (계약번호 : ${contractDetailInfo.contract_no})</c:if></td>
-				</tr>
-				<tr>
-					<th>계약기간</th>
-					<td>계약체결일  ~  ${contractDetailInfo.c_contract_end_dt}</td>
-				</tr>
-				<tr>
-					<th>계약내용</th>
-					<td>${contractDetailInfo.c_work_info}</td>
-				</tr>
-				<tr>
-					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 계약금액</th>
-					<td>
-						<div class="com_ta4">
-							<table name="amtInfoListBefore1">
-								<colgroup>
-									<col name="contractTerm_02" style="display:none;" width="130"/>
-									<col width=""/>
-									<col width=""/>
-									<col width=""/>
-								</colgroup>
-								<tr>
-									<th name="contractTerm_02" style="display:none;" class="ac">연도</th>
-									<th class="ac">계약금액</th>
-									<th class="ac">추정가격</th>
-									<th class="ac">부가가치세</th>
-								</tr>
-								<tr name="dataBase" style="display:none;">
-									<td name="contractTerm_02" style="display:none;">
-										<select name="tableVal" ${disabled} style="width: 90%;" disabled >
-											<c:forEach var="items" items="${contractYearCode}">
-												<option value="${items.CODE}">${items.NAME}</option>
-											</c:forEach>											
-										</select>
-									</td>
-									<td  class="le"><span name="tableVal"></span> 원 <span name="viewKorean"></span></td>
-									<td class="ri"><span name="tableVal"></span> 원</td>
-									<td class="ri"><span name="tableVal"></span> 원</td>
-								</tr>
-							</table>
-						</div>
-					</td>
-				</tr>
-			</table>
-		</div>
-
-
-		<!-- 변경사항 -->
-		<div class="btn_div mt25">
-			<div class="left_div">	
-				<p class="tit_p mt5 mb0">변경사항</p>
-			</div>
-		</div>
-		<div class="com_ta mt10">
-			<table>
-				<colgroup>
-					<col width="160"/>
-					<col width="338"/>
-					<col width="160"/>
-					<col width="338"/>
-				</colgroup>
-				<tr>
-					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 변경사항</th>
-					<td colspan="3" objKey="change_item_info" objCheckFor="checkVal('checkbox', 'changeItem', ' 변경사항', 'true', '|etc|')">
-					
-						<c:forEach var="items" items="${changeItemCode}">
-							<c:choose>
-								<c:when test="${items.CODE == 'etc'}">
-									<input ${disabled} type="checkbox" onclick="fnChangeEtc(this)" name="changeItem" value="${items.CODE}" class="puddSetup" pudd-label="${items.NAME}" />
-									<input ${disabled} type="text" name="changeItem_${items.CODE}" pudd-style="width:300px;" class="puddSetup" value="" style="display:none;" />
-								</c:when>
-								<c:otherwise>
-									<input ${disabled} type="checkbox" onclick="fnChangeEtc(this)" name="changeItem" value="${items.CODE}" class="puddSetup" pudd-label="${items.NAME}" />
-								</c:otherwise>
-							</c:choose>						
-						</c:forEach>					
-					</td>
-				</tr>
-				
-				<tr name="changeItem_01" <c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦01▦') < 0 ) }">style="display:none;"</c:if>>
-					<th>과업변경 (전)</th>
-					<td colspan="3">${contractDetailInfo.c_work_info}</td>
-				</tr>
-				
-				<tr name="changeItem_01" <c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦01▦') < 0 ) }">style="display:none;"</c:if>>
-					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 과업변경 (후)</th>
-					<td colspan="3"> 
-					<textarea cols="170" rows="3" objKey="work_info_after" objCheckFor="checkVal('text', this, '과업변경', '$(\'[name=changeItem][value=01]:checked\').length > 0', '')" class="puddSetup" >${contractDetailInfo.work_info_after}</textarea>
-					<%-- <input objKey="work_info_after" objCheckFor="checkVal('text', this, '과업변경', '$(\'[name=changeItem][value=01]:checked\').length > 0', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.work_info_after}" /> --%>
-					</td>
-				</tr>
-				<tr name="changeItem_02" <c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦02▦') < 0 ) }">style="display:none;"</c:if>>
-					<th>기간변경 (전)</th>
-					<td>계약체결일 ~ ${contractDetailInfo.c_contract_end_dt}</td>
-					<th>기간변경 (후)</th>
-					<td objKey="contract_end_dt_after" objCheckFor="checkVal('date', 'contractEndDtAfter', '계약기간', '$(\'[name=changeItem][value=02]:checked\').length > 0', '')">계약체결일  ~ <input type="text" name="contractEndDtAfter" value="${contractDetailInfo.contract_end_dt_after}" class="puddSetup" pudd-type="datepicker"/></td>
-				</tr>				
-				<tr name="changeItem_03" <c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦03▦') < 0 ) }">style="display:none;"</c:if>>
-					<th>금액변경 (전)</th>
-					<td colspan="3">
-						<div class="com_ta4">
-							<table name="amtInfoListBefore2">
-								<colgroup>
-									<col name="contractTerm_02" style="display:none;" width="130"/>
-									<col width=""/>
-									<col width=""/>
-									<col width=""/>
-								</colgroup>
-								<tr>
-									<th name="contractTerm_02" style="display:none;" class="ac">연도</th>
-									<th class="ac">계약금액</th>
-									<th class="ac">추정가격</th>
-									<th class="ac">부가가치세</th>
-								</tr>
-								<tr name="dataBase" style="display:none;">
-									<td name="contractTerm_02" style="display:none;">
-										<select name="tableVal" ${disabled} style="width: 90%;" disabled >
-											<c:forEach var="items" items="${contractYearCode}">
-												<option value="${items.CODE}">${items.NAME}</option>
-											</c:forEach>											
-										</select>
-									</td>
-									<td  class="le"><span name="tableVal"></span> 원 <span name="viewKorean"></span></td>
-									<td class="ri"><span name="tableVal"></span> 원</td>
-									<td class="ri"><span name="tableVal"></span> 원</td>
-								</tr>
-							</table>
-						</div>
-					</td>
-				</tr>
-				<tr name="changeItem_03" <c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦03▦') < 0 ) }">style="display:none;"</c:if>>
-					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 금액변경</th>
-					<td colspan="3">
-
-						
-						<div class="com_ta4">
-							<table name="amtInfoList" objKey="contract_amt_info_after" objCheckFor="checkVal('table', 'amtInfoList', '계약금액', '$(\'[name=changeItem][value=03]:checked\').length > 0', 'notnull')">
-								<colgroup>
-									<col name="contractTerm_02" style="display:none;" width="50"/>
-									<col name="contractTerm_02" style="display:none;" width="130"/>
-									<col width=""/>
-									<col width=""/>
-									<col width=""/>
-								</colgroup>
-								<tr>
-									<th name="contractTerm_02" style="display:none;" class="ac">
-										<input type="button" onclick="fnSectorAdd('amtInfoList', 'amtInfoAddBase')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
-									</th>
-									<th name="contractTerm_02" style="display:none;" class="ac">연도</th>
-									<th class="ac">계약금액</th>
-									<th class="ac">추정가격</th>
-									<th class="ac">부가가치세</th>
-								</tr>
-								<tr name="amtInfoAddBase" style="display:none;">
-									<td name="contractTerm_02" style="display:none;">
-										<input type="button" onclick="fnSectorDel(this, 'amtInfoList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
-									</td>
-									<td name="contractTerm_02" style="display:none;">
-										<select name="tableVal" ${disabled} style="width: 90%;">
-											<c:forEach var="items" items="${contractYearCode}">
-												<option value="${items.CODE}">${items.NAME}</option>
-											</c:forEach>											
-										</select>
-									</td>
-									<td class="le"><input amountType="amt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원 <span name="viewKorean" ></span></td>
-									<td class="ri"><input amountType="stdAmt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원</td>
-									<td class="ri"><input amountType="taxAmt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원</td>
-								</tr>								
-								<tr name="addData">
-									<td name="contractTerm_02" style="display:none;">
-										<input type="button" onclick="fnSectorDel(this, 'amtInfoList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
-									</td>
-									<td name="contractTerm_02" style="display:none;">
-										<select name="tableVal" ${disabled} style="width: 90%;">
-											<c:forEach var="items" items="${contractYearCode}">
-												<option value="${items.CODE}">${items.NAME}</option>
-											</c:forEach>											
-										</select>
-									</td>
-									<td class="le"><input amountType="amt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원 <span name="viewKorean" ></span></td>
-									<td class="ri"><input amountType="stdAmt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원</td>
-									<td class="ri"><input amountType="taxAmt" amountInput="Y" name="tableVal" type="text" pudd-style="width:100px;" class="puddSetup ar" value="" maxlength="15" /> 원</td>
-								</tr>
-							</table>
-						</div>
-					</td>
-				</tr>
-				
-				
-				
-				
-			<tr name="changeItem_04" <c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦04▦') < 0 ) }">style="display:none;"</c:if>>
-					<th>예산변경 (전)</th>
-					<td colspan="3">	
-			<!-- 예산정보 -->		
-			<div class="com_ta4">
-				<table name="ch_budgetList" objKey="ch_budgetObjList">
+			<div class="com_ta mt10">
+				<table>
 					<colgroup>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-					</colgroup>
-				<tr>
-
-					<th optionTarget="def_erp_budget_div_seq" class="ac">예산회계단위</th>
-					<th class="ac">프로젝트</th>
-					<th class="ac">하위사업</th>
-					<th class="ac">예산과목</th>
-					<th class="ac">금액</th>
-				</tr>
-				<tr name="ch_dataBase" style="display:none;">
-					<td optionTarget="def_erp_budget_div_seq">
-						<div class="posi_re">
-							<input tbval="Y" name="ch_erp_budget_div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input tbval="Y" name="ch_pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />													
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input tbval="Y" name="ch_bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />							
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input tbval="Y" name="ch_erp_budget_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input tbval="Y" name="ch_amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" readonly/>							
-						</div>
-					</td>		
-				</tr>						
-			</table>
-			
-			<table name="ch_amtgetList">
-				<colgroup>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-				</colgroup>
-				<tr name="ch_amtBase1" style="display:none;">
-					<input id="ch_bgtSeq" type="hidden" value="" />
-					<th>관</th>
-					<td id="ch_bgt1Name" name="ch_bgt1Name"></td>
-					<th>항</th>
-					<td id="ch_bgt2Name" name="ch_bgt2Name"></td>
-					<th>목</th>
-					<td id="ch_bgt3Name" name="ch_bgt3Name"></td>
-					<th>세</th>
-					<td id="ch_bgt4Name" name="ch_bgt4Name"></td>
-				</tr>				
-				<tr name="ch_amtBase2" style="display:none;">
-					<th>예산액</th>
-					<td class="ri pr10" id="ch_txtOpenAmt" name="ch_txtOpenAmt"></td>
-					<th>집행액</th>
-					<td class="ri pr10" id="ch_txtConsBalanceAmt" name="ch_txtConsBalanceAmt"></td>
-					<th>기품의액</th>
-					<td class="ri pr10" id="ch_txtApplyAmt" name="ch_txtApplyAmt"></td>
-					<th>예산잔액</th>
-					<td class="ri pr10" id="ch_txtBalanceAmt" name="ch_txtBalanceAmt"></td>
-				</tr>
-			</table>	
-		</div>				
-		</td>
-	</tr>
-	
-	
-		<tr name="changeItem_04" <c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦04▦') < 0 ) }">style="display:none;"</c:if>>
-					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 예산변경 (후)</th>
-					<td colspan="3">		
-			<div class="com_ta4">
-				<!-- <table name="budgetList" objKey="budgetObjList" objCheckFor="checkVal('obj', 'budgetList', '예산정보', 'mustAlert', '')"> -->
-				<table name="budgetList" objKey="budgetObjList" objCheckFor="checkVal('obj', 'budgetList', '예산정보', '$(\'[name=changeItem][value=04]:checked\').length > 0','notnull')">
-					<colgroup>
-						<c:if test="${disabledYn == 'N'}"> 
-						<col width="50"/>
-						</c:if>
-						<col width=""/>
-						<col width=""/>
-						<col width=""/>
-						<col width=""/>
-					</colgroup>
-				<tr>
-					<c:if test="${disabledYn == 'N'}"> 
-					<th class="ac">
-						<input type="button" onclick="fnSectorAdd1('budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
-					</th>
-					</c:if>
-					<th optionTarget="def_erp_budget_div_seq" class="ac">예산회계단위</th>
-					<th class="ac">프로젝트</th>
-					<th class="ac">하위사업</th>
-					<th class="ac">예산과목</th>
-					<th class="ac">금액</th>
-				</tr>
-				<tr name="dataBase" onclick="fnSetBudgetAmtInfo(this);" style="display:none;">
-					<c:if test="${disabledYn == 'N'}"> 
-					<td>
-						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
-					</td>
-					</c:if>
-					<td optionTarget="def_erp_budget_div_seq">
-						<div class="posi_re">
-							<input tbval="Y" name="erp_budget_div_seq" type="hidden" value="" />
-							<input tbval="Y" name="erp_budget_div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
-							
-							<c:if test="${disabledYn == 'N'}">
-							<a href="#n" onclick="fnCommonCode_trName1('div', this)" class="btn_search" style="margin-left: -25px;"></a>
-							</c:if>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input tbval="Y" name="pjt_seq" type="hidden" value="" />
-							<input tbval="Y" name="pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
-							<input tbval="Y" name="pjt_at_tr_name" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="pjt_bank_number" type="hidden" value="" requiredNot="true"/>															
-
-							<c:if test="${disabledYn == 'N'}">
-							<a href="#n" onclick="fnCommonCode_trName1('project', this)" class="btn_search" style="margin-left: -25px;"></a>
-							</c:if>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input tbval="Y" name="bottom_seq" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />							
-							
-							<c:if test="${disabledYn == 'N'}">
-							<a href="#n" onclick="fnCommonCode_trName1('bottom', this)" class="btn_search" style="margin-left: -25px;"></a>
-							</c:if>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<!-- <input tbval="Y" name="amt" type="hidden" value="" requiredNot="true" /> -->
-							<input tbval="Y" name="erp_bgt1_seq" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="erp_bgt2_seq" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="erp_bgt3_seq" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="erp_bgt4_seq" type="hidden" value="" requiredNot="true" />
-													
-							<input tbval="Y" name="erp_bgt1_name" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="erp_bgt2_name" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="erp_bgt3_name" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="erp_bgt4_name" type="hidden" value="" requiredNot="true" />
-						
-							<input tbval="Y" name="erp_budget_seq" type="hidden" value="" />
-							<input tbval="Y" name="erp_budget_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
-							
-							<input tbval="Y" name="txt_open_amt" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="txt_cons_balance_amt" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="txt_apply_amt" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="txt_balance_amt" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="txt_pay_amt" type="hidden" value="" requiredNot="true" />
-							
-
-							<c:if test="${disabledYn == 'N'}"> 
-							<a href="#n" onclick="fnCommonCode_trName1('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
-							</c:if>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" />							
-						</div>
-					</td>	
-				</tr>
-				
-				<tr name="addData" onclick="fnSetBudgetAmtInfo(this);">
-					<c:if test="${disabledYn == 'N'}"> 
-					<td>
-						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
-					</td>
-					</c:if>
-					<td optionTarget="def_erp_budget_div_seq">
-						<div class="posi_re">
-							<input tbval="Y" name="erp_budget_div_seq" type="hidden" value="" />
-							<input tbval="Y" name="erp_budget_div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
-							
-							<c:if test="${disabledYn == 'N'}"> 
-							<a href="#n" onclick="fnCommonCode_trName1('div', this)" class="btn_search" style="margin-left: -25px;"></a>
-							</c:if>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input tbval="Y" name="pjt_seq" type="hidden" value="" />
-							<input tbval="Y" name="pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
-							<input tbval="Y" name="pjt_at_tr_name" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="pjt_bank_number" type="hidden" value="" requiredNot="true"/>	
-														
-							<c:if test="${disabledYn == 'N'}"> 
-							<a href="#n" onclick="fnCommonCode_trName1('project', this)" class="btn_search" style="margin-left: -25px;"></a>
-							</c:if>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input tbval="Y" name="bottom_seq" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />							
-							
-							<c:if test="${disabledYn == 'N'}"> 
-							<a href="#n" onclick="fnCommonCode_trName1('bottom', this)" class="btn_search" style="margin-left: -25px;"></a>
-							</c:if>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<!-- <input tbval="Y" name="amt" type="hidden" value="0" requiredNot="true" /> -->
-							<input tbval="Y" name="erp_bgt1_seq" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="erp_bgt2_seq" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="erp_bgt3_seq" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="erp_bgt4_seq" type="hidden" value="" requiredNot="true" />
-													
-							<input tbval="Y" name="erp_bgt1_name" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="erp_bgt2_name" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="erp_bgt3_name" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="erp_bgt4_name" type="hidden" value="" requiredNot="true" />
-						
-							<input tbval="Y" name="erp_budget_seq" type="hidden" value="" />
-							<input tbval="Y" name="erp_budget_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
-							
-							
-							<input tbval="Y" name="txt_open_amt" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="txt_cons_balance_amt" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="txt_apply_amt" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="txt_balance_amt" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="txt_pay_amt" type="hidden" value="" requiredNot="true" />
-							
-							
-							<c:if test="${disabledYn == 'N'}"> 
-							<a href="#n" ${disabled} onclick="fnCommonCode_trName1('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
-							</c:if>
-						</div>
-					</td>
-					<td>
-						<div class="posi_re">
-							<input ${disabled} tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" />							
-						</div>
-					</td>	
-				</tr>				
-				
-			</table>
-		</div>
-
-			<!-- 테이블 -->
-			<div class="com_ta6 mt10">
-				<table name="amtgetList">
-					<colgroup>
-						<col width=""/>
-						<col width=""/>
-						<col width=""/>
-						<col width=""/>
-						<col width=""/>
-						<col width=""/>
-						<col width=""/>
-						<col width=""/>
+						<col width="160" />
+						<col width="" />
 					</colgroup>
 					<tr>
-						<input id="bgtSeq" type="hidden" value="" />
-						<th>관</th>
-						<td id="bgt1Name" name="bgt1Name" objCheckFor="checkVal('text()', this, '관', '', '')"></td>
-						<th>항</th>
-						<td id="bgt2Name" name="bgt2Name" objCheckFor="checkVal('text()', this, '항', '', '')"></td>
-						<th>목</th>
-						<td id="bgt3Name" name="bgt3Name" objCheckFor="checkVal('text()', this, '목', '', '')"></td>
-						<th>세</th>
-						<td id="bgt4Name" name="bgt4Name" objCheckFor="checkVal('text()', this, '세', '', '')"></td>
-					</tr>					
+						<th>계약명</th>
+						<td>${contractDetailInfo.c_title}<c:if
+								test="${contractDetailInfo.contract_no != ''}"> (계약번호 : ${contractDetailInfo.contract_no})</c:if></td>
+					</tr>
 					<tr>
-						<th>예산액</th>
-						<td class="ri pr10" id="txtOpenAmt" name="txtOpenAmt"></td>
-						<th>집행액</th>
-						<td class="ri pr10" id="txtConsBalanceAmt" name="txtConsBalanceAmt"></td>
-						<th>기품의액</th>
-						<td class="ri pr10" id="txtApplyAmt" name="txtApplyAmt"></td>
-						<th>예산잔액</th>
-						<td class="ri pr10" id="txtBalanceAmt" name="txtBalanceAmt"></td>
+						<th>계약기간</th>
+						<td>계약체결일 ~ ${contractDetailInfo.c_contract_end_dt}</td>
+					</tr>
+					<tr>
+						<th>계약내용</th>
+						<td>${contractDetailInfo.c_work_info}</td>
+					</tr>
+					<tr>
+						<th><img
+							src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png"
+							alt="" /> 계약금액</th>
+						<td>
+							<div class="com_ta4">
+								<table name="amtInfoListBefore1">
+									<colgroup>
+										<col name="contractTerm_02" style="display: none;" width="130" />
+										<col width="" />
+										<col width="" />
+										<col width="" />
+									</colgroup>
+									<tr>
+										<th name="contractTerm_02" style="display: none;" class="ac">연도</th>
+										<th class="ac">계약금액</th>
+										<th class="ac">추정가격</th>
+										<th class="ac">부가가치세</th>
+									</tr>
+									<tr name="dataBase" style="display: none;">
+										<td name="contractTerm_02" style="display: none;"><select
+											name="tableVal" ${disabled} style="width: 90%;" disabled>
+												<c:forEach var="items" items="${contractYearCode}">
+													<option value="${items.CODE}">${items.NAME}</option>
+												</c:forEach>
+										</select></td>
+										<td class="le"><span name="tableVal"></span> 원 <span
+											name="viewKorean"></span></td>
+										<td class="ri"><span name="tableVal"></span> 원</td>
+										<td class="ri"><span name="tableVal"></span> 원</td>
+									</tr>
+								</table>
+							</div>
+						</td>
 					</tr>
 				</table>
-			</div>			
-		</td>
-	</tr>		
-				<tr name="changeItem_etc" <c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦etc▦') < 0 ) }">style="display:none;"</c:if>>
-					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 기타변경</th>
-					<td colspan="3"><input objKey="change_etc" objCheckFor="checkVal('text', this, '기타변경', '$(\'[name=changeItem][value=etc]:checked\').length > 0', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.change_etc}" /></td>
-				</tr>
-				<tr name="changeItem_etc" <c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦etc▦') < 0 ) }">style="display:none;"</c:if>>
-					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 변경사유</th>
-					<td colspan="3"><input objKey="change_reason" objCheckFor="checkVal('text', this, '변경사유', '$(\'[name=changeItem][value=etc]:checked\').length > 0', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.change_reason}" /></td>
-				</tr>
-			</table>
-		</div>	
-		
-		
-				<!-- 그리드 테이블 -->
-		<!-- <div class="com_ta6 mt10"> -->
-		<div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" style="display:none;">
-		<!-- <div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" > -->
-			<table id="resultAmtListHtml" name="resultAmtListHtml" border="1" width="100%" >
-				<colgroup>
-					<col width=""/>	
-					<col width=""/>			
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-					<col width=""/>
-				</colgroup>
-				<thead>
-				<tr>			
-					<th align="center" bgcolor="#f1f1f1" height="25" width="40"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">구분</span></th>	
-					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">사업명</span></th>
-					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">항</span></th>
-					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">목</span></th>
-					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">예산액</span></th>
-					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">기 집행액</span></th>
-					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">기 품의액</span></th>
-					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">금회 품의액</span></th>
-					<th align="center" bgcolor="#f1f1f1" height="25"><span style="font-family:굴림;font-size:8pt;color:rgb(0, 0, 0);">예산잔액</span></th>
-				</tr>	
-				</thead>
-				<tbody>
-				<tr name="amtDatabase">			
-					<!-- <td><input   value="" />구분</td> -->
-					<td align="center" height="20" class="bgtAmtnum"></td>
-					<td align="center" height="20" class="bgtAmt1Name" ></td>
-					<td align="center" height="20" class="bgtAmt2Name" ></td>
-					<td align="center" height="20" class="bgtAmt3Name" ></td>
-					<td align="center" height="20" class="txtbgtAmt"></td>
-					<td align="center" height="20" class="txtbgtOpenAmt"></td>
-					<td align="center" height="20" class="txtbgtConsBalanceAmt"></td>
-					<td align="center" height="20" class="txtbgtApplyAmt"></td>
-					<td align="center" height="20" class="txtbgtBalanceAmt"></td>
-				</tr>
-				</tbody>	
-				<tfoot style="display:none">
-				<tr name="amtDatabase">			
-					<!-- <td><input   value="" />구분</td> -->
-					<td align="center" height="20" class="bgtAmtnum"></td>
-					<td align="center" height="20" class="bgtAmt1Name" ></td>
-					<td align="center" height="20" class="bgtAmt2Name" ></td>
-					<td align="center" height="20" class="bgtAmt3Name" ></td>
-					<td align="center" height="20" class="txtbgtAmt"></td>
-					<td align="center" height="20" class="txtbgtOpenAmt"></td>
-					<td align="center" height="20" class="txtbgtConsBalanceAmt"></td>
-					<td align="center" height="20" class="txtbgtApplyAmt"></td>
-					<td align="center" height="20" class="txtbgtBalanceAmt"></td>
-				</tr>
-				</tfoot>
-			</table>
-		</div>
-		
-		
-		
-		
-		
-		
-	</div><!-- //pop_con -->
-</div><!-- //pop_wrap -->
+			</div>
 
-<div id="exArea"></div>
+
+			<!-- 변경사항 -->
+			<div class="btn_div mt25">
+				<div class="left_div">
+					<p class="tit_p mt5 mb0">변경사항</p>
+				</div>
+			</div>
+			<div class="com_ta mt10">
+				<table>
+					<colgroup>
+						<col width="160" />
+						<col width="338" />
+						<col width="160" />
+						<col width="338" />
+					</colgroup>
+					<tr>
+						<th><img
+							src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png"
+							alt="" /> 변경사항</th>
+						<td colspan="3" objKey="change_item_info"
+							objCheckFor="checkVal('checkbox', 'changeItem', ' 변경사항', 'true', '|etc|')">
+
+							<c:forEach var="items" items="${changeItemCode}">
+								<c:choose>
+									<c:when test="${items.CODE == 'etc'}">
+										<input ${disabled} type="checkbox" onclick="fnChangeEtc(this)"
+											name="changeItem" value="${items.CODE}" class="puddSetup"
+											pudd-label="${items.NAME}" />
+										<input ${disabled} type="text" name="changeItem_${items.CODE}"
+											pudd-style="width:300px;" class="puddSetup" value=""
+											style="display: none;" />
+									</c:when>
+									<c:otherwise>
+										<input ${disabled} type="checkbox" onclick="fnChangeEtc(this)"
+											name="changeItem" value="${items.CODE}" class="puddSetup"
+											pudd-label="${items.NAME}" />
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
+						</td>
+					</tr>
+
+					<tr name="changeItem_01"
+						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦01▦') < 0 ) }">style="display:none;"</c:if>>
+						<th>과업변경 (전)</th>
+						<td colspan="3">${contractDetailInfo.c_work_info}</td>
+					</tr>
+
+					<tr name="changeItem_01"
+						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦01▦') < 0 ) }">style="display:none;"</c:if>>
+						<th><img
+							src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png"
+							alt="" /> 과업변경 (후)</th>
+						<td colspan="3"><textarea cols="170" rows="3"
+								objKey="work_info_after"
+								objCheckFor="checkVal('text', this, '과업변경', '$(\'[name=changeItem][value=01]:checked\').length > 0', '')"
+								class="puddSetup">${contractDetailInfo.work_info_after}</textarea>
+							<%-- <input objKey="work_info_after" objCheckFor="checkVal('text', this, '과업변경', '$(\'[name=changeItem][value=01]:checked\').length > 0', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.work_info_after}" /> --%>
+						</td>
+					</tr>
+					<tr name="changeItem_02"
+						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦02▦') < 0 ) }">style="display:none;"</c:if>>
+						<th>기간변경 (전)</th>
+						<td>계약체결일 ~ ${contractDetailInfo.c_contract_end_dt}</td>
+						<th>기간변경 (후)</th>
+						<td objKey="contract_end_dt_after"
+							objCheckFor="checkVal('date', 'contractEndDtAfter', '계약기간', '$(\'[name=changeItem][value=02]:checked\').length > 0', '')">계약체결일
+							~ <input type="text" name="contractEndDtAfter"
+							value="${contractDetailInfo.contract_end_dt_after}"
+							class="puddSetup" pudd-type="datepicker" />
+						</td>
+					</tr>
+					<tr name="changeItem_03"
+						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦03▦') < 0 ) }">style="display:none;"</c:if>>
+						<th>금액변경 (전)</th>
+						<td colspan="3">
+							<div class="com_ta4">
+								<table name="amtInfoListBefore2">
+									<colgroup>
+										<col name="contractTerm_02" style="display: none;" width="130" />
+										<col width="" />
+										<col width="" />
+										<col width="" />
+									</colgroup>
+									<tr>
+										<th name="contractTerm_02" style="display: none;" class="ac">연도</th>
+										<th class="ac">계약금액</th>
+										<th class="ac">추정가격</th>
+										<th class="ac">부가가치세</th>
+									</tr>
+									<tr name="dataBase" style="display: none;">
+										<td name="contractTerm_02" style="display: none;"><select
+											name="tableVal" ${disabled} style="width: 90%;" disabled>
+												<c:forEach var="items" items="${contractYearCode}">
+													<option value="${items.CODE}">${items.NAME}</option>
+												</c:forEach>
+										</select></td>
+										<td class="le"><span name="tableVal"></span> 원 <span
+											name="viewKorean"></span></td>
+										<td class="ri"><span name="tableVal"></span> 원</td>
+										<td class="ri"><span name="tableVal"></span> 원</td>
+									</tr>
+								</table>
+							</div>
+						</td>
+					</tr>
+					<tr name="changeItem_03"
+						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦03▦') < 0 ) }">style="display:none;"</c:if>>
+						<th><img
+							src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png"
+							alt="" /> 금액변경</th>
+						<td colspan="3">
+
+
+							<div class="com_ta4">
+								<table name="amtInfoList" objKey="contract_amt_info_after"
+									objCheckFor="checkVal('table', 'amtInfoList', '계약금액', '$(\'[name=changeItem][value=03]:checked\').length > 0', 'notnull')">
+									<colgroup>
+										<col name="contractTerm_02" style="display: none;" width="50" />
+										<col name="contractTerm_02" style="display: none;" width="130" />
+										<col width="" />
+										<col width="" />
+										<col width="" />
+									</colgroup>
+									<tr>
+										<th name="contractTerm_02" style="display: none;" class="ac">
+											<input type="button"
+											onclick="fnSectorAdd('amtInfoList', 'amtInfoAddBase')"
+											class="puddSetup"
+											style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center"
+											value="" />
+										</th>
+										<th name="contractTerm_02" style="display: none;" class="ac">연도</th>
+										<th class="ac">계약금액</th>
+										<th class="ac">추정가격</th>
+										<th class="ac">부가가치세</th>
+									</tr>
+									<tr name="amtInfoAddBase" style="display: none;">
+										<td name="contractTerm_02" style="display: none;"><input
+											type="button" onclick="fnSectorDel(this, 'amtInfoList')"
+											class="puddSetup"
+											style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center"
+											value="" /></td>
+										<td name="contractTerm_02" style="display: none;"><select
+											name="tableVal" ${disabled} style="width: 90%;">
+												<c:forEach var="items" items="${contractYearCode}">
+													<option value="${items.CODE}">${items.NAME}</option>
+												</c:forEach>
+										</select></td>
+										<td class="le"><input amountType="amt" amountInput="Y"
+											name="tableVal" type="text" pudd-style="width:100px;"
+											class="puddSetup ar" value="" maxlength="15" /> 원 <span
+											name="viewKorean"></span></td>
+										<td class="ri"><input amountType="stdAmt" amountInput="Y"
+											name="tableVal" type="text" pudd-style="width:100px;"
+											class="puddSetup ar" value="" maxlength="15" /> 원</td>
+										<td class="ri"><input amountType="taxAmt" amountInput="Y"
+											name="tableVal" type="text" pudd-style="width:100px;"
+											class="puddSetup ar" value="" maxlength="15" /> 원</td>
+									</tr>
+									<tr name="addData">
+										<td name="contractTerm_02" style="display: none;"><input
+											type="button" onclick="fnSectorDel(this, 'amtInfoList')"
+											class="puddSetup"
+											style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center"
+											value="" /></td>
+										<td name="contractTerm_02" style="display: none;"><select
+											name="tableVal" ${disabled} style="width: 90%;">
+												<c:forEach var="items" items="${contractYearCode}">
+													<option value="${items.CODE}">${items.NAME}</option>
+												</c:forEach>
+										</select></td>
+										<td class="le"><input amountType="amt" amountInput="Y"
+											name="tableVal" type="text" pudd-style="width:100px;"
+											class="puddSetup ar" value="" maxlength="15" /> 원 <span
+											name="viewKorean"></span></td>
+										<td class="ri"><input amountType="stdAmt" amountInput="Y"
+											name="tableVal" type="text" pudd-style="width:100px;"
+											class="puddSetup ar" value="" maxlength="15" /> 원</td>
+										<td class="ri"><input amountType="taxAmt" amountInput="Y"
+											name="tableVal" type="text" pudd-style="width:100px;"
+											class="puddSetup ar" value="" maxlength="15" /> 원</td>
+									</tr>
+								</table>
+							</div>
+						</td>
+					</tr>
+
+
+
+
+					<tr name="changeItem_04"
+						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦04▦') < 0 ) }">style="display:none;"</c:if>>
+						<th>예산변경 (전)</th>
+						<td colspan="3">
+							<!-- 예산정보 -->
+							<div class="com_ta4">
+								<table name="ch_budgetList" objKey="ch_budgetObjList">
+									<colgroup>
+										<col width="" />
+										<col width="" />
+										<col width="" />
+										<col width="" />
+									</colgroup>
+									<tr>
+
+										<th optionTarget="def_erp_budget_div_seq" class="ac">예산회계단위</th>
+										<th class="ac">프로젝트</th>
+										<th class="ac">하위사업</th>
+										<th class="ac">예산과목</th>
+										<th class="ac">금액</th>
+									</tr>
+									<tr name="ch_dataBase" style="display: none;">
+										<td optionTarget="def_erp_budget_div_seq">
+											<div class="posi_re">
+												<input tbval="Y" name="ch_erp_budget_div_name" type="text"
+													pudd-style="width:calc( 90% );" class="puddSetup pr30"
+													value="" readonly />
+											</div>
+										</td>
+										<td>
+											<div class="posi_re">
+												<input tbval="Y" name="ch_pjt_name" type="text"
+													pudd-style="width:calc( 90% );" class="puddSetup pr30"
+													value="" readonly />
+											</div>
+										</td>
+										<td>
+											<div class="posi_re">
+												<input tbval="Y" name="ch_bottom_name" type="text"
+													pudd-style="width:calc( 90% );" class="puddSetup pr30"
+													value="" requiredNot="true" readonly />
+											</div>
+										</td>
+										<td>
+											<div class="posi_re">
+												<input tbval="Y" name="ch_erp_budget_name" type="text"
+													pudd-style="width:calc( 90% );" class="puddSetup pr30"
+													value="" readonly />
+											</div>
+										</td>
+										<td>
+											<div class="posi_re">
+												<input tbval="Y" name="ch_amt" type="text"
+													pudd-style="width:calc( 90% );" class="puddSetup ar"
+													value="" amountInput="Y" readonly />
+											</div>
+										</td>
+									</tr>
+								</table>
+
+								<table name="ch_amtgetList">
+									<colgroup>
+										<col width="" />
+										<col width="" />
+										<col width="" />
+										<col width="" />
+										<col width="" />
+										<col width="" />
+										<col width="" />
+										<col width="" />
+									</colgroup>
+									<tr name="ch_amtBase1" style="display: none;">
+										<input id="ch_bgtSeq" type="hidden" value="" />
+										<th>관</th>
+										<td id="ch_bgt1Name" name="ch_bgt1Name"></td>
+										<th>항</th>
+										<td id="ch_bgt2Name" name="ch_bgt2Name"></td>
+										<th>목</th>
+										<td id="ch_bgt3Name" name="ch_bgt3Name"></td>
+										<th>세</th>
+										<td id="ch_bgt4Name" name="ch_bgt4Name"></td>
+									</tr>
+									<tr name="ch_amtBase2" style="display: none;">
+										<th>예산액</th>
+										<td class="ri pr10" id="ch_txtOpenAmt" name="ch_txtOpenAmt"></td>
+										<th>집행액</th>
+										<td class="ri pr10" id="ch_txtConsBalanceAmt"
+											name="ch_txtConsBalanceAmt"></td>
+										<th>기품의액</th>
+										<td class="ri pr10" id="ch_txtApplyAmt" name="ch_txtApplyAmt"></td>
+										<th>예산잔액</th>
+										<td class="ri pr10" id="ch_txtBalanceAmt"
+											name="ch_txtBalanceAmt"></td>
+									</tr>
+								</table>
+							</div>
+						</td>
+					</tr>
+
+
+					<tr name="changeItem_04"
+						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦04▦') < 0 ) }">style="display:none;"</c:if>>
+						<th><img
+							src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png"
+							alt="" /> 예산변경 (후)</th>
+						<td colspan="3">
+							<div class="com_ta4">
+								<!-- <table name="budgetList" objKey="budgetObjList" objCheckFor="checkVal('obj', 'budgetList', '예산정보', 'mustAlert', '')"> -->
+								<table name="budgetList" objKey="budgetObjList"
+									objCheckFor="checkVal('obj', 'budgetList', '예산정보', '$(\'[name=changeItem][value=04]:checked\').length > 0','notnull')">
+									<colgroup>
+										<c:if test="${disabledYn == 'N'}">
+											<col width="50" />
+										</c:if>
+										<col width="" />
+										<col width="" />
+										<col width="" />
+										<col width="" />
+									</colgroup>
+									<tr>
+										<c:if test="${disabledYn == 'N'}">
+											<th class="ac"><input type="button"
+												onclick="fnSectorAdd1('budgetList')" class="puddSetup"
+												style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center"
+												value="" /></th>
+										</c:if>
+										<th optionTarget="def_erp_budget_div_seq" class="ac">예산회계단위</th>
+										<th class="ac">프로젝트</th>
+										<th class="ac">하위사업</th>
+										<th class="ac">예산과목</th>
+										<th class="ac">금액</th>
+									</tr>
+									<tr name="dataBase" onclick="fnSetBudgetAmtInfo(this);"
+										style="display: none;">
+										<c:if test="${disabledYn == 'N'}">
+											<td><input type="button"
+												onclick="fnSectorDel(this, 'budgetList')" class="puddSetup"
+												style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center"
+												value="" /></td>
+										</c:if>
+										<td optionTarget="def_erp_budget_div_seq">
+											<div class="posi_re">
+												<input tbval="Y" name="erp_budget_div_seq" type="hidden"
+													value="" /> <input tbval="Y" name="erp_budget_div_name"
+													type="text" pudd-style="width:calc( 90% );"
+													class="puddSetup pr30" value="" readonly />
+
+												<c:if test="${disabledYn == 'N'}">
+													<a href="#n" onclick="fnCommonCode_trName1('div', this)"
+														class="btn_search" style="margin-left: -25px;"></a>
+												</c:if>
+											</div>
+										</td>
+										<td>
+											<div class="posi_re">
+												<input tbval="Y" name="pjt_seq" type="hidden" value="" /> <input
+													tbval="Y" name="pjt_name" type="text"
+													pudd-style="width:calc( 90% );" class="puddSetup pr30"
+													value="" readonly /> <input tbval="Y"
+													name="pjt_at_tr_name" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y"
+													name="pjt_bank_number" type="hidden" value=""
+													requiredNot="true" />
+
+												<c:if test="${disabledYn == 'N'}">
+													<a href="#n"
+														onclick="fnCommonCode_trName1('project', this)"
+														class="btn_search" style="margin-left: -25px;"></a>
+												</c:if>
+											</div>
+										</td>
+										<td>
+											<div class="posi_re">
+												<input tbval="Y" name="bottom_seq" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y" name="bottom_name"
+													type="text" pudd-style="width:calc( 90% );"
+													class="puddSetup pr30" value="" requiredNot="true" readonly />
+
+												<c:if test="${disabledYn == 'N'}">
+													<a href="#n" onclick="fnCommonCode_trName1('bottom', this)"
+														class="btn_search" style="margin-left: -25px;"></a>
+												</c:if>
+											</div>
+										</td>
+										<td>
+											<div class="posi_re">
+												<!-- <input tbval="Y" name="amt" type="hidden" value="" requiredNot="true" /> -->
+												<input tbval="Y" name="erp_bgt1_seq" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y" name="erp_bgt2_seq"
+													type="hidden" value="" requiredNot="true" /> <input
+													tbval="Y" name="erp_bgt3_seq" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y" name="erp_bgt4_seq"
+													type="hidden" value="" requiredNot="true" /> <input
+													tbval="Y" name="erp_bgt1_name" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y"
+													name="erp_bgt2_name" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y"
+													name="erp_bgt3_name" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y"
+													name="erp_bgt4_name" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y"
+													name="erp_budget_seq" type="hidden" value="" /> <input
+													tbval="Y" name="erp_budget_name" type="text"
+													pudd-style="width:calc( 90% );" class="puddSetup pr30"
+													value="" readonly /> <input tbval="Y" name="txt_open_amt"
+													type="hidden" value="" requiredNot="true" /> <input
+													tbval="Y" name="txt_cons_balance_amt" type="hidden"
+													value="" requiredNot="true" /> <input tbval="Y"
+													name="txt_apply_amt" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y"
+													name="txt_balance_amt" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y" name="txt_pay_amt"
+													type="hidden" value="" requiredNot="true" />
+
+
+												<c:if test="${disabledYn == 'N'}">
+													<a href="#n"
+														onclick="fnCommonCode_trName1('budgetlist', this)"
+														class="btn_search" style="margin-left: -25px;"></a>
+												</c:if>
+											</div>
+										</td>
+										<td>
+											<div class="posi_re">
+												<input tbval="Y" name="amt" type="text"
+													pudd-style="width:calc( 90% );" class="puddSetup ar"
+													value="" amountInput="Y" />
+											</div>
+										</td>
+									</tr>
+
+									<tr name="addData" onclick="fnSetBudgetAmtInfo(this);">
+										<c:if test="${disabledYn == 'N'}">
+											<td><input type="button"
+												onclick="fnSectorDel(this, 'budgetList')" class="puddSetup"
+												style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center"
+												value="" /></td>
+										</c:if>
+										<td optionTarget="def_erp_budget_div_seq">
+											<div class="posi_re">
+												<input tbval="Y" name="erp_budget_div_seq" type="hidden"
+													value="" /> <input tbval="Y" name="erp_budget_div_name"
+													type="text" pudd-style="width:calc( 90% );"
+													class="puddSetup pr30" value="" readonly />
+
+												<c:if test="${disabledYn == 'N'}">
+													<a href="#n" onclick="fnCommonCode_trName1('div', this)"
+														class="btn_search" style="margin-left: -25px;"></a>
+												</c:if>
+											</div>
+										</td>
+										<td>
+											<div class="posi_re">
+												<input tbval="Y" name="pjt_seq" type="hidden" value="" /> <input
+													tbval="Y" name="pjt_name" type="text"
+													pudd-style="width:calc( 90% );" class="puddSetup pr30"
+													value="" readonly /> <input tbval="Y"
+													name="pjt_at_tr_name" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y"
+													name="pjt_bank_number" type="hidden" value=""
+													requiredNot="true" />
+
+												<c:if test="${disabledYn == 'N'}">
+													<a href="#n"
+														onclick="fnCommonCode_trName1('project', this)"
+														class="btn_search" style="margin-left: -25px;"></a>
+												</c:if>
+											</div>
+										</td>
+										<td>
+											<div class="posi_re">
+												<input tbval="Y" name="bottom_seq" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y" name="bottom_name"
+													type="text" pudd-style="width:calc( 90% );"
+													class="puddSetup pr30" value="" requiredNot="true" readonly />
+
+												<c:if test="${disabledYn == 'N'}">
+													<a href="#n" onclick="fnCommonCode_trName1('bottom', this)"
+														class="btn_search" style="margin-left: -25px;"></a>
+												</c:if>
+											</div>
+										</td>
+										<td>
+											<div class="posi_re">
+												<!-- <input tbval="Y" name="amt" type="hidden" value="0" requiredNot="true" /> -->
+												<input tbval="Y" name="erp_bgt1_seq" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y" name="erp_bgt2_seq"
+													type="hidden" value="" requiredNot="true" /> <input
+													tbval="Y" name="erp_bgt3_seq" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y" name="erp_bgt4_seq"
+													type="hidden" value="" requiredNot="true" /> <input
+													tbval="Y" name="erp_bgt1_name" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y"
+													name="erp_bgt2_name" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y"
+													name="erp_bgt3_name" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y"
+													name="erp_bgt4_name" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y"
+													name="erp_budget_seq" type="hidden" value="" /> <input
+													tbval="Y" name="erp_budget_name" type="text"
+													pudd-style="width:calc( 90% );" class="puddSetup pr30"
+													value="" readonly /> <input tbval="Y" name="txt_open_amt"
+													type="hidden" value="" requiredNot="true" /> <input
+													tbval="Y" name="txt_cons_balance_amt" type="hidden"
+													value="" requiredNot="true" /> <input tbval="Y"
+													name="txt_apply_amt" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y"
+													name="txt_balance_amt" type="hidden" value=""
+													requiredNot="true" /> <input tbval="Y" name="txt_pay_amt"
+													type="hidden" value="" requiredNot="true" />
+
+
+												<c:if test="${disabledYn == 'N'}">
+													<a href="#n" ${disabled}
+														onclick="fnCommonCode_trName1('budgetlist', this)"
+														class="btn_search" style="margin-left: -25px;"></a>
+												</c:if>
+											</div>
+										</td>
+										<td>
+											<div class="posi_re">
+												<input ${disabled} tbval="Y" name="amt" type="text"
+													pudd-style="width:calc( 90% );" class="puddSetup ar"
+													value="" amountInput="Y" />
+											</div>
+										</td>
+									</tr>
+
+								</table>
+							</div> <!-- 테이블 -->
+							<div class="com_ta6 mt10">
+								<table name="amtgetList">
+									<colgroup>
+										<col width="" />
+										<col width="" />
+										<col width="" />
+										<col width="" />
+										<col width="" />
+										<col width="" />
+										<col width="" />
+										<col width="" />
+									</colgroup>
+									<tr>
+										<input id="bgtSeq" type="hidden" value="" />
+										<th>관</th>
+										<td id="bgt1Name" name="bgt1Name"
+											objCheckFor="checkVal('text()', this, '관', '', '')"></td>
+										<th>항</th>
+										<td id="bgt2Name" name="bgt2Name"
+											objCheckFor="checkVal('text()', this, '항', '', '')"></td>
+										<th>목</th>
+										<td id="bgt3Name" name="bgt3Name"
+											objCheckFor="checkVal('text()', this, '목', '', '')"></td>
+										<th>세</th>
+										<td id="bgt4Name" name="bgt4Name"
+											objCheckFor="checkVal('text()', this, '세', '', '')"></td>
+									</tr>
+									<tr>
+										<th>예산액</th>
+										<td class="ri pr10" id="txtOpenAmt" name="txtOpenAmt"></td>
+										<th>집행액</th>
+										<td class="ri pr10" id="txtConsBalanceAmt"
+											name="txtConsBalanceAmt"></td>
+										<th>기품의액</th>
+										<td class="ri pr10" id="txtApplyAmt" name="txtApplyAmt"></td>
+										<th>예산잔액</th>
+										<td class="ri pr10" id="txtBalanceAmt" name="txtBalanceAmt"></td>
+									</tr>
+								</table>
+							</div>
+						</td>
+					</tr>
+					<tr name="changeItem_etc"
+						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦etc▦') < 0 ) }">style="display:none;"</c:if>>
+						<th><img
+							src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png"
+							alt="" /> 기타변경</th>
+						<td colspan="3"><input objKey="change_etc"
+							objCheckFor="checkVal('text', this, '기타변경', '$(\'[name=changeItem][value=etc]:checked\').length > 0', '')"
+							type="text" pudd-style="width:100%;" class="puddSetup"
+							value="${contractDetailInfo.change_etc}" /></td>
+					</tr>
+					<tr name="changeItem_etc"
+						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦etc▦') < 0 ) }">style="display:none;"</c:if>>
+						<th><img
+							src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png"
+							alt="" /> 변경사유</th>
+						<td colspan="3"><input objKey="change_reason"
+							objCheckFor="checkVal('text', this, '변경사유', '$(\'[name=changeItem][value=etc]:checked\').length > 0', '')"
+							type="text" pudd-style="width:100%;" class="puddSetup"
+							value="${contractDetailInfo.change_reason}" /></td>
+					</tr>
+				</table>
+			</div>
+
+
+			<!-- 그리드 테이블 -->
+			<!-- <div class="com_ta6 mt10"> -->
+			<div id="resultAmtListHtmlre" name="resultAmtListHtmlre"
+				class="com_ta6 mt10" style="display: none;">
+				<!-- <div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" > -->
+				<table id="resultAmtListHtml" name="resultAmtListHtml" border="1"
+					width="100%">
+					<colgroup>
+						<col width="" />
+						<col width="" />
+						<col width="" />
+						<col width="" />
+						<col width="" />
+						<col width="" />
+						<col width="" />
+						<col width="" />
+						<col width="" />
+					</colgroup>
+					<thead>
+						<tr>
+							<th align="center" bgcolor="#f1f1f1" height="25" width="40"><span
+								style="font-family: 굴림; font-size: 8pt; color: rgb(0, 0, 0);">구분</span></th>
+							<th align="center" bgcolor="#f1f1f1" height="25"><span
+								style="font-family: 굴림; font-size: 8pt; color: rgb(0, 0, 0);">사업명</span></th>
+							<th align="center" bgcolor="#f1f1f1" height="25"><span
+								style="font-family: 굴림; font-size: 8pt; color: rgb(0, 0, 0);">항</span></th>
+							<th align="center" bgcolor="#f1f1f1" height="25"><span
+								style="font-family: 굴림; font-size: 8pt; color: rgb(0, 0, 0);">목</span></th>
+							<th align="center" bgcolor="#f1f1f1" height="25"><span
+								style="font-family: 굴림; font-size: 8pt; color: rgb(0, 0, 0);">예산액</span></th>
+							<th align="center" bgcolor="#f1f1f1" height="25"><span
+								style="font-family: 굴림; font-size: 8pt; color: rgb(0, 0, 0);">기
+									집행액</span></th>
+							<th align="center" bgcolor="#f1f1f1" height="25"><span
+								style="font-family: 굴림; font-size: 8pt; color: rgb(0, 0, 0);">기
+									품의액</span></th>
+							<th align="center" bgcolor="#f1f1f1" height="25"><span
+								style="font-family: 굴림; font-size: 8pt; color: rgb(0, 0, 0);">금회
+									품의액</span></th>
+							<th align="center" bgcolor="#f1f1f1" height="25"><span
+								style="font-family: 굴림; font-size: 8pt; color: rgb(0, 0, 0);">예산잔액</span></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr name="amtDatabase">
+							<!-- <td><input   value="" />구분</td> -->
+							<td align="center" height="20" class="bgtAmtnum"></td>
+							<td align="center" height="20" class="bgtAmt1Name"></td>
+							<td align="center" height="20" class="bgtAmt2Name"></td>
+							<td align="center" height="20" class="bgtAmt3Name"></td>
+							<td align="center" height="20" class="txtbgtAmt"></td>
+							<td align="center" height="20" class="txtbgtOpenAmt"></td>
+							<td align="center" height="20" class="txtbgtConsBalanceAmt"></td>
+							<td align="center" height="20" class="txtbgtApplyAmt"></td>
+							<td align="center" height="20" class="txtbgtBalanceAmt"></td>
+						</tr>
+					</tbody>
+					<tfoot style="display: none">
+						<tr name="amtDatabase">
+							<!-- <td><input   value="" />구분</td> -->
+							<td align="center" height="20" class="bgtAmtnum"></td>
+							<td align="center" height="20" class="bgtAmt1Name"></td>
+							<td align="center" height="20" class="bgtAmt2Name"></td>
+							<td align="center" height="20" class="bgtAmt3Name"></td>
+							<td align="center" height="20" class="txtbgtAmt"></td>
+							<td align="center" height="20" class="txtbgtOpenAmt"></td>
+							<td align="center" height="20" class="txtbgtConsBalanceAmt"></td>
+							<td align="center" height="20" class="txtbgtApplyAmt"></td>
+							<td align="center" height="20" class="txtbgtBalanceAmt"></td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+
+
+
+
+
+
+		</div>
+		<!-- //pop_con -->
+	</div>
+	<!-- //pop_wrap -->
+
+	<div id="exArea"></div>
 
 </body>
 </html>
