@@ -5,14 +5,15 @@
 	
 	<select	id="ContractSQL.SelectContractList_TOTALCOUNT" parameterClass="HashMap" resultClass="Integer">
 		
-		
-		SELECT 
+		select count(*) from 
+		(SELECT 
 		count(*)		
 		FROM cust_sto.t_purchase_contract a
 		<isEqual property="authLevel" compareValue="dept">
 		left join $DB_NEOS$t_co_dept wdept on a.write_dept_seq = wdept.dept_seq 
 		left join $DB_NEOS$t_co_dept cwdept on a.c_write_dept_seq = cwdept.dept_seq
 		</isEqual>
+		left join cust_sto.t_purchase_trade_info trade on a.seq = trade.seq  and trade.outProcessCode like '%Conclusion01%'
 		left join $DB_NEOS$t_co_dept_multi cdm on ifnull(a.c_write_dept_seq,a.write_dept_seq) = cdm.dept_seq and cdm.lang_code = 'kr'
 		left join $DB_NEOS$t_co_emp_multi cem on ifnull(a.c_write_emp_seq,a.write_emp_seq) = cem.emp_seq and cem.lang_code = 'kr'		
 		where 
@@ -32,6 +33,15 @@
 		<isNotEmpty property="writeEmpName">
 		and  cem.emp_name like concat('%', '$writeEmpName$', '%')
 		</isNotEmpty>
+		<isNotEmpty property="trName">
+		and  trade.tr_name like concat('%', '$trName$', '%')
+		</isNotEmpty>
+		<isNotEmpty property="targetType">
+		and  ifnull(a.c_target_type,a.target_type) = '$targetType$'
+		</isNotEmpty>
+		<isNotEmpty property="contractType">
+		and  a.contract_type = '$contractType$'
+		</isNotEmpty>
 		
 		<isEqual property="authLevel" compareValue="dept">
 		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%') or concat('|',cwdept.`path`,'|') like concat('%|','$deptSeq$','|%')) 
@@ -42,7 +52,7 @@
 				or a.public_info like '%|$empSeq$|u%'
 			)   
 		</isEqual>
-	
+		group by a.seq ) a
 	</select>
 		
 	<select	id="ContractSQL.SelectContractList" parameterClass="HashMap" resultClass="HashMap">
@@ -220,6 +230,15 @@
 		<isNotEmpty property="writeEmpName">
 		and  cem.emp_name like concat('%', '$writeEmpName$', '%')
 		</isNotEmpty>	
+		<isNotEmpty property="trName">
+		and  trade.tr_name like concat('%', '$trName$', '%')
+		</isNotEmpty>
+		<isNotEmpty property="targetType">
+		and  ifnull(a.c_target_type,a.target_type) = '$targetType$'
+		</isNotEmpty>
+		<isNotEmpty property="contractType">
+		and  a.contract_type = '$contractType$'
+		</isNotEmpty>
 		
 		<isEqual property="authLevel" compareValue="dept">
 		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%') or concat('|',cwdept.`path`,'|') like concat('%|','$deptSeq$','|%'))

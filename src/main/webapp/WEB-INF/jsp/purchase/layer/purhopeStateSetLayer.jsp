@@ -72,6 +72,7 @@
 			cloneData = $('[name="tradeList"] tr[name=dataBase]').clone();
 			$(cloneData).show().attr("name", "addData");
 			
+			$(cloneData).find("[name=trade_seq]").text("${items.trade_seq}");
 			$(cloneData).find("[name=tr_seq]").text("${items.tr_seq}");
 			$(cloneData).find("[name=tr_name]").text("${items.tr_name}");
 			$(cloneData).find("[name=tr_reg_number]").text("${items.tr_reg_number}");
@@ -455,6 +456,7 @@
 				</tr>
 				<tr name="dataBase" style="display:none;">
 					<!-- <td name="resDocAmt" class="cen"></td> -->
+					<td tbval="Y" tbtype="innerText" name="trade_seq" class="cen"  style="display:none;"></td>	
 					<td name="tr_name" class="cen"></td>
 					<!-- <td name="business_nb" class="cen"></td> -->
 				    <td tbval="Y" tbtype="innerText" name="tr_seq" class="cen"></td>

@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -97,10 +98,32 @@ public class ContractMainController {
             params.put("code", "CONCLUSION");
             List<Map<String, Object>> resFormSeq = commonServiceDAO.SelectPurchaseDetailCodeList(params);
             
-            if(resFormSeq.size() > 0) {
-            	mv.addObject("resFormSeq", resFormSeq.get(0).get("LINK"));	
+            Map<String, Object> queryParam = new HashMap<String, Object>();
+            queryParam.put("groupSeq", loginVo.getGroupSeq());
+            queryParam.put("useYn", "Y");
+            List<Map<String, Object>> codeList = commonServiceDAO.SelectPurchaseDetailCodeList(queryParam);
+            
+            List<Map<String, Object>> targetType = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> contractType = new ArrayList<Map<String, Object>>();
+            
+            if(codeList != null && codeList.size() > 0) {
+            	
+            	for (Map<String, Object> codeinfo : codeList) {
+                	if(codeinfo.get("GROUP").equals("targetType")) {
+        				targetType.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("contractType")) {
+        				contractType.add(codeinfo);
+        			}            		
+            	}
+                
             }
             
+            
+            if(resFormSeq.size() > 0) {
+            	mv.addObject("resFormSeq", resFormSeq.get(0).get("LINK"));
+            }
+            mv.addObject("contractTypeCode", contractType);
+            mv.addObject("targetTypeCode", targetType);
             mv.setViewName("/purchase/content/ContractList");
 
         } catch (Exception e) {

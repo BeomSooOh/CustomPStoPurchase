@@ -1,33 +1,49 @@
-<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
+<%@ page language="java" contentType="text/html; charset=utf-8"
+	pageEncoding="utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="validator" uri="http://www.springmodules.org/tags/commons-validator"%>
-<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="validator"
+	uri="http://www.springmodules.org/tags/commons-validator"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <jsp:useBean id="currentTime" class="java.util.Date" />
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-    <!--css-->
-    <link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/pudd.css' />">
-	<link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/Scripts/jqueryui/jquery-ui.css' />"/>
-    <link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/common.css' />">
-	<link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/re_pudd.css' />">
-	<link rel="stylesheet" type="text/css" href="<c:url value='/customStyle/css/animate.css' />">
-	    
-    <!--js-->
-    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/pudd/pudd-1.1.200.min.js' />"></script>
-    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/jquery-1.9.1.min.js' />"></script>
-	<script type="text/javascript" src="<c:url value='/customStyle/Scripts/jqueryui/jquery.min.js' />"></script>
-	<script type="text/javascript" src="<c:url value='/customStyle/Scripts/jqueryui/jquery-ui.min.js' />"></script>
-    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/common.js' />"></script>
-    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script> 
-    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/excel/jszip-3.1.5.min.js' />"></script> 
-    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/excel/FileSaver-1.2.2_1.js' />"></script> 
-    <script type="text/javascript" src="<c:url value='/customStyle/Scripts/excel/jexcel-1.0.5.js' />"></script> 
-    
+<!--css-->
+<link rel="stylesheet" type="text/css"
+	href="<c:url value='/customStyle/css/pudd.css' />">
+<link rel="stylesheet" type="text/css"
+	href="<c:url value='/customStyle/Scripts/jqueryui/jquery-ui.css' />" />
+<link rel="stylesheet" type="text/css"
+	href="<c:url value='/customStyle/css/common.css' />">
+<link rel="stylesheet" type="text/css"
+	href="<c:url value='/customStyle/css/re_pudd.css' />">
+<link rel="stylesheet" type="text/css"
+	href="<c:url value='/customStyle/css/animate.css' />">
+
+<!--js-->
+<script type="text/javascript"
+	src="<c:url value='/customStyle/Scripts/pudd/pudd-1.1.200.min.js' />"></script>
+<script type="text/javascript"
+	src="<c:url value='/customStyle/Scripts/jquery-1.9.1.min.js' />"></script>
+<script type="text/javascript"
+	src="<c:url value='/customStyle/Scripts/jqueryui/jquery.min.js' />"></script>
+<script type="text/javascript"
+	src="<c:url value='/customStyle/Scripts/jqueryui/jquery-ui.min.js' />"></script>
+<script type="text/javascript"
+	src="<c:url value='/customStyle/Scripts/common.js' />"></script>
+<script type="text/javascript"
+	src="<c:url value='/customStyle/Scripts/customUtil.js' />"></script>
+<script type="text/javascript"
+	src="<c:url value='/customStyle/Scripts/excel/jszip-3.1.5.min.js' />"></script>
+<script type="text/javascript"
+	src="<c:url value='/customStyle/Scripts/excel/FileSaver-1.2.2_1.js' />"></script>
+<script type="text/javascript"
+	src="<c:url value='/customStyle/Scripts/excel/jexcel-1.0.5.js' />"></script>
+
 <script>
 
 	var targetSeq = "";
@@ -155,6 +171,9 @@
 					data.searchToDate = $("#searchToDate").val();
 					data.contractTitle = $("#contractTitle").val();
 					data.writeDeptName = $("#writeDeptName").val();
+					data.trName = $("#trName").val();
+					data.targetType = $("#targetType option:selected").val();
+					data.contractType = $("#contractType option:selected").val();
 					
 					<c:if test="${authLevel!='user'}">
 					data.writeEmpName = $("#writeEmpName").val();
@@ -1610,6 +1629,10 @@
 	    			data.searchToDate = $("#searchToDate").val();
 	    			data.contractTitle = $("#contractTitle").val();
 	    			data.writeDeptName = $("#writeDeptName").val();
+					data.trName = $("#trName").val();
+					data.targetType = $("#targetType option:selected").val();
+					data.contractType = $("#contractType option:selected").val();
+					
 	    			<c:if test="${authLevel!='user'}">
 	    			data.writeEmpName = $("#writeEmpName").val();
 	    			</c:if>
@@ -2194,25 +2217,61 @@
 <!-- 상세검색 -->
 <div class="top_box">
 	<dl>
-		<dt class="ar" style="width:60px;">계약기간</dt>
+		<dt class="ar" style="width: 60px;">계약일</dt>
 		<dd>
-			<input type="text" id="searchFromDate" value="2023-01-01" class="puddSetup" pudd-type="datepicker"/> ~
-			<input type="text" id="searchToDate" value="2026-12-31" class="puddSetup" pudd-type="datepicker"/>
-<%-- 		<input type="text" id="searchFromDate" value="${fromDate}" class="puddSetup" pudd-type="datepicker"/> ~
+			<input type="text" id="searchFromDate" value="2023-01-01"
+				class="puddSetup" pudd-type="datepicker" /> ~ <input type="text"
+				id="searchToDate" value="2026-12-31" class="puddSetup"
+				pudd-type="datepicker" />
+			<%-- 		<input type="text" id="searchFromDate" value="${fromDate}" class="puddSetup" pudd-type="datepicker"/> ~
 			<input type="text" id="searchToDate" value="${toDate}" class="puddSetup" pudd-type="datepicker"/> --%>
 		</dd>
-		<dt class="ar" style="width:40px;">계약명</dt>
-		<dd><input type="text" id="contractTitle" pudd-style="width:120px;" class="puddSetup" placeHolder="공고명 입력" value="" /></dd>
-		<dt class="ar" style="width:40px;">부서명</dt>
-		<dd><input type="text" id="writeDeptName" pudd-style="width:120px;" class="puddSetup" placeHolder="부서명 입력" value="" /></dd>
-		
+		<dt class="ar" style="width: 70px;">계약목적물</dt>
+		<dd>
+			<select id="targetType" style="width: auto; min-width: 100px;">
+				<option value="">전체</option>
+				<c:forEach var="items" items="${targetTypeCode}">
+					<option value="${items.CODE}">${items.NAME}</option>
+				</c:forEach>
+			</select>
+		</dd>
+		<dt class="ar" style="width: 70px;">계약방법</dt>
+		<dd>
+			<select id="contractType" style="width: auto; min-width: 100px;">
+				<option value="">전체</option>
+				<c:forEach var="items" items="${contractTypeCode}">
+					<option value="${items.CODE}">${items.NAME}</option>
+				</c:forEach>
+			</select>
+		</dd>
+		<dt class="ar" style="width: 70px;">계약상대자</dt>
+		<dd>
+			<input type="text" id="trName" pudd-style="width:120px;"
+				class="puddSetup" placeHolder="계약상대자 입력" value="" />
+		</dd>
+		<dt class="ar" style="width: 40px;">계약명</dt>
+		<dd>
+			<input type="text" id="contractTitle" pudd-style="width:120px;"
+				class="puddSetup" placeHolder="공고명 입력" value="" />
+		</dd>
+		<dt class="ar" style="width: 40px;">부서명</dt>
+		<dd>
+			<input type="text" id="writeDeptName" pudd-style="width:120px;"
+				class="puddSetup" placeHolder="부서명 입력" value="" />
+		</dd>
 		<c:if test="${authLevel!='user'}">
-		<dt class="ar" style="width:40px;">사원명</dt>
-		<dd><input type="text" id="writeEmpName" pudd-style="width:90px;" class="puddSetup" placeHolder="사원명 입력" value="" /></dd>
+			<dt class="ar" style="width: 40px;">사원명</dt>
+			<dd>
+				<input type="text" id="writeEmpName" pudd-style="width:90px;"
+					class="puddSetup" placeHolder="사원명 입력" value="" />
+			</dd>
 		</c:if>
-		
-		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="BindGrid();" /></dd>
-		
+
+		<dd>
+			<input type="button" class="puddSetup submit" id="searchButton"
+				value="검색" onclick="BindGrid();" />
+		</dd>
+
 	</dl>
 </div>
 
@@ -2220,37 +2279,47 @@
 	<div class="btn_div">
 		<div class="left_div">
 			<div id="" class="controll_btn p0">
-				<input type="button" onclick="fnCallBtn('newContract');" class="puddSetup" style="background:#03a9f4;color:#fff;" value="신규입찰발주" />
-				<input type="button" onclick="fnCallBtn('newConclusion');" style="background:#03a9f4;color:#fff" class="puddSetup" value="1인수의계약체결" />
+				<input type="button" onclick="fnCallBtn('newContract');"
+					class="puddSetup" style="background: #03a9f4; color: #fff;"
+					value="신규입찰발주" /> <input type="button"
+					onclick="fnCallBtn('newConclusion');"
+					style="background: #03a9f4; color: #fff" class="puddSetup"
+					value="1인수의계약체결" />
 			</div>
 		</div>
 		<div class="right_div">
 			<div id="" class="controll_btn p0">
-<%-- 			<c:if test="${authLevel=='admin'}">
+				<%-- 			<c:if test="${authLevel=='admin'}">
 				<input type="button" onclick="fnApprModify();" class="puddSetup" value="제안서 평가위원회 개최 환원" />
 				</c:if>
 				<c:if test="${authLevel=='admin'}">
 				<input type="button" onclick="fnModify();" class="puddSetup" value="품의환원" />
 				</c:if> --%>
 				<c:if test="${authLevel=='admin'}">
-				<input id="adminSaveBtn" style="display:none;width:70px;background:rgb(0 0 0);color:#fff;" type="button" onclick="fnCallBtn('btnSave');" class="puddSetup" value="저장" />
+					<input id="adminSaveBtn"
+						style="display: none; width: 70px; background: rgb(0, 0, 0); color: #fff;"
+						type="button" onclick="fnCallBtn('btnSave');" class="puddSetup"
+						value="저장" />
 				</c:if>
 				<c:if test="${authLevel=='admin'}">
-				<input type="button" onclick="fnDel();" class="puddSetup" value="삭제" />
+					<input type="button" onclick="fnDel();" class="puddSetup"
+						value="삭제" />
 				</c:if>
-				<input type="button" onclick="excelDown();" class="puddSetup" value="엑셀다운로드" />
+				<input type="button" onclick="excelDown();" class="puddSetup"
+					value="엑셀다운로드" />
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="dal_Box_">
 		<div class="dal_BoxIn_ posi_re">
 			<div id="grid1"></div>
 		</div>
 	</div>
-	<input style="display:none;" id="file_upload" type="file" />
+	<input style="display: none;" id="file_upload" type="file" />
 	<div id="exArea"></div>
 	<div id="jugglingProgressBar"></div>
 	<div id="loadingProgressBar"></div>
-	<div id="circularProgressBar"></div>	
-</div><!-- //sub_contents_wrap -->
+	<div id="circularProgressBar"></div>
+</div>
+<!-- //sub_contents_wrap -->

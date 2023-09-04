@@ -853,6 +853,7 @@
 		
 		select distinct
 		a.res_doc_seq
+		,a.trade_seq
 		, IFNULL(d.out_process_interface_id, '') AS 'out_process_interface_id'
 		, IFNULL(d.out_process_interface_m_id, '') AS 'out_process_interface_m_id'
 		, IFNULL(c.c_target_type, '') AS 'c_target_type'
@@ -900,8 +901,8 @@
 	<insert	id="CommonSQL.InsertPurchaseResHopeInfo" parameterClass="HashMap" >
 		
 		INSERT INTO cust_sto.t_purchase_res_hope_info
-		(res_doc_seq, tr_seq, hope_attach_info, hope_company_info, created_dt, created_by)
-		VALUES('$res_doc_seq$', '$tr_seq$', '$hope_attach_info$', '$hope_company_info$', NOW(), '$created_by$');
+		(res_doc_seq, tr_seq, trade_seq ,hope_attach_info, hope_company_info, created_dt, created_by)
+		VALUES('$res_doc_seq$', '$tr_seq$', '$trade_seq$' , '$hope_attach_info$', '$hope_company_info$', NOW(), '$created_by$');
 
 	</insert>
 	
