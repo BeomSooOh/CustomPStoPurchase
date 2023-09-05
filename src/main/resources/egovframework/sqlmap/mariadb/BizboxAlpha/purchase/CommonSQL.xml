@@ -541,6 +541,7 @@
 		 	hope_company_info
 		from cust_sto.t_purchase_trade_info where seq = '$seq$' and outProcessCode = '$outProcessCode$';
 
+
 	</select>		
 	
 	<select	id="CommonSQL.SelectTradeInfo" parameterClass="HashMap" resultClass="HashMap">
