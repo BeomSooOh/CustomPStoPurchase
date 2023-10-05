@@ -245,43 +245,44 @@ public class CommonServiceImpl implements CommonService {
 		commonServiceDAO.UpdateAppr(params);
 		
 		if(params.get("processId").equals("Conclu02")) {
+			commonServiceDAO.UpdateApprChange(params);	
 			
-			Map<String, Object> apprFormData = new HashMap<String, Object>();
-			List<Map<String, Object>> budgetFormData = new ArrayList<Map<String, Object>>( );
-			
-			params.put("outProcessCode", "Conclusion02");
-			
-			apprFormData = commonServiceDAO.SelectApprFormData(params);
-			budgetFormData = commonServiceDAO.SelectBudgetList(params);
-			int budgetsize = budgetFormData.size();
-	
-			if (budgetFormData.size() > 0) {
-			
-			if (apprFormData.get("contract_type").equals("01")) {
-				params.put("outProcessCode", "Conclusion01-1");
-				commonServiceDAO.DeleteBudgetInfo(params);
-				commonServiceDAO.ChangeBudgetInfo(params);
-	
-			} else {
-				params.put("outProcessCode", "Conclusion01-2");
-				commonServiceDAO.DeleteBudgetInfo(params);
-				commonServiceDAO.ChangeBudgetInfo(params);
-			}
+//			Map<String, Object> apprFormData = new HashMap<String, Object>();
+//			List<Map<String, Object>> budgetFormData = new ArrayList<Map<String, Object>>( );
+//			
+//			params.put("outProcessCode", "Conclusion02");
+//			
+//			apprFormData = commonServiceDAO.SelectApprFormData(params);
+//			budgetFormData = commonServiceDAO.SelectBudgetList(params);
+//			int budgetsize = budgetFormData.size();
+//	
+//			if (budgetFormData.size() > 0) {
+//			
+//			if (apprFormData.get("contract_type").equals("01")) {
+//				params.put("outProcessCode", "Conclusion01-1");
+//				commonServiceDAO.DeleteBudgetInfo(params);
+//				commonServiceDAO.ChangeBudgetInfo(params);
+//	
+//			} else {
+//				params.put("outProcessCode", "Conclusion01-2");
+//				commonServiceDAO.DeleteBudgetInfo(params);
+//				commonServiceDAO.ChangeBudgetInfo(params);
+//			}
 			
 			//예산정보 변경 추가
-			params.put("out_process_interface_id", "Conclu01");
-			params.put("out_process_interface_m_id", params.get("seq"));
-			params.put("out_process_interface_d_id", "DUPLICATE_TEMP");
-			commonServiceDAO.DelConsTemp(params);
+//			params.put("out_process_interface_id", "Conclu01");
+//			params.put("out_process_interface_m_id", params.get("seq"));
+//			params.put("out_process_interface_d_id", "DUPLICATE_TEMP");
+//			commonServiceDAO.DelConsTemp(params);
+//			
+//			params.put("out_process_interface_id", "Conclu02");
+//			
+//			commonServiceDAO.UpdateApprChange(params);
 			
-			params.put("out_process_interface_id", "Conclu02");
-			
-			commonServiceDAO.UpdateApprChange(params);
-			
-			} else {
-				
-				commonServiceDAO.UpdateApprChange(params);	
-			}		
+//			} else {
+//				
+//				commonServiceDAO.UpdateApprChange(params);	
+//			}		
 			
 		}
 		
@@ -444,6 +445,12 @@ public class CommonServiceImpl implements CommonService {
 	public void DelConsTemp ( Map<String, Object> params ) {
 		
 		commonServiceDAO.DelConsTemp(params);
+		
+	}	
+	
+	public void confferReturn ( Map<String, Object> params ) {
+		
+		commonServiceDAO.confferReturn(params);
 		
 	}	
 	

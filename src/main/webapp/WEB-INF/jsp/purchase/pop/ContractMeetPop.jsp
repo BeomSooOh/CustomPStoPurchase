@@ -132,6 +132,10 @@
 			
 			$(cloneData).find("[name=pjt_seq]").val("${items.pjt_seq}");
 			$(cloneData).find("[name=pjt_name]").val("${items.pjt_name}");
+			$(cloneData).find("[name=pjt_tr_seq]").val("${items.pjt_tr_seq}");
+			$(cloneData).find("[name=pjt_at_tr_name]").val("${items.pjt_at_tr_name}");
+			$(cloneData).find("[name=pjt_bank_number]").val("${items.pjt_bank_number}");
+			
 			$(cloneData).find("[name=bottom_seq]").val("${items.bottom_seq}");
 			$(cloneData).find("[name=bottom_name]").val("${items.bottom_name}");
 			$(cloneData).find("[name=amt]").val("${items.amt}");
@@ -188,6 +192,9 @@
 				}else if(param.code == "project"){
 					$(commonElement).find("[name=pjt_seq]").val( param.pjtSeq || "" );
 					$(commonElement).find("[name=pjt_name]").val( param.pjtName || "" );
+					$(commonElement).find("[name=pjt_at_tr_name]").val( param.atTrName || "" );
+					$(commonElement).find("[name=pjt_bank_number]").val( param.bankNumber || "" );
+					$(commonElement).find("[name=pjt_tr_seq]").val( param.trSeq || "" );
 					
 				//하위사업	
 				}else if(param.code == "bottom"){
@@ -764,16 +771,14 @@
 						openerRefreshList();	
 						reqType = type;
 						
-/* 						if(type == 1){
+						if(type == 1){
 										
 							msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");							
 						}else{
 							
 							fnPaymentCreate();
 
-						} */
-						
-						fnPaymentCreate();
+						} 
 						
 					}else{
 						msgSnackbar("error", "등록에 실패했습니다.");	
@@ -930,9 +935,9 @@
 			parameter.docuFgCode = '1'; /* [*]결의구분코드 */
 			parameter.docuFgName = '지출품의서'; /* [*]결의구분명칭 */
 
-			parameter.btrSeq = ''; /* [*]입출금계좌코드 */
-			parameter.btrName = ''; /* [*]입출금계좌명칭 */
-			parameter.btrNb = ''; /* [*]입출금계좌 */
+			parameter.btrSeq = conclusionbudgetList[idx].pjt_tr_seq /* [*]입출금계좌코드 */
+			parameter.btrName = conclusionbudgetList[idx].pjt_at_tr_name /* [*]입출금계좌명칭 */
+			parameter.btrNb = conclusionbudgetList[idx].pjt_bank_number /* [*]입출금계좌 */			
 			
 			parameter.erpDivSeq = ''; /* ERP 회계단위코드 */
 			parameter.erpDivName = ''; /* ERP 회계단위명칭 */
@@ -1512,7 +1517,9 @@
 				<tr>
 					<c:if test="${disabledYn == 'N'}"> 
 					<th class="ac">
+					<c:if test="${btnApprYn == 'Y'}">
 						<input type="button" onclick="fnSectorAdd('budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+					</c:if>
 					</th>
 					</c:if>
 					<th optionTarget="def_erp_budget_div_seq" class="ac">예산회계단위</th>
@@ -1524,7 +1531,9 @@
 				<tr name="dataBase" onclick="fnSetBudgetAmtInfo(this);" style="display:none;">
 					<c:if test="${disabledYn == 'N'}"> 
 					<td>
+					<c:if test="${btnApprYn == 'Y'}">
 						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+					</c:if>
 					</td>
 					</c:if>
 					<td optionTarget="def_erp_budget_div_seq">
@@ -1532,7 +1541,7 @@
 							<input tbval="Y" name="erp_budget_div_seq" type="hidden" value="" />
 							<input tbval="Y" name="erp_budget_div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
 							
-							<c:if test="${disabledYn == 'N'}">
+							<c:if test="${disabledYn == 'N' && btnApprYn == 'Y'}">
 							<a href="#n" onclick="fnCommonCodeCustomPop('div', this)" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
 						</div>
@@ -1541,8 +1550,11 @@
 						<div class="posi_re">
 							<input tbval="Y" name="pjt_seq" type="hidden" value="" />
 							<input tbval="Y" name="pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
+							<input tbval="Y" name="pjt_at_tr_name" type="hidden" value="" requiredNot="true" />
+							<input tbval="Y" name="pjt_bank_number" type="hidden" value="" requiredNot="true"/>
+							<input tbval="Y" name="pjt_tr_seq" type="hidden" value="" requiredNot="true"/>
 
-							<c:if test="${disabledYn == 'N'}">
+							<c:if test="${disabledYn == 'N' && btnApprYn == 'Y'}">
 							<a href="#n" onclick="fnCommonCodeCustomPop('project', this)" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
 						</div>
@@ -1552,7 +1564,7 @@
 							<input tbval="Y" name="bottom_seq" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />							
 							
-							<c:if test="${disabledYn == 'N'}">
+							<c:if test="${disabledYn == 'N' && btnApprYn == 'Y'}">
 							<a href="#n" onclick="fnCommonCodeCustomPop('bottom', this)" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
 						</div>
@@ -1581,14 +1593,14 @@
 							<input tbval="Y" name="txt_balance_amt" type="hidden" value="" requiredNot="true" />
 							
 
-							<c:if test="${disabledYn == 'N'}"> 
+							<c:if test="${disabledYn == 'N' && btnApprYn == 'Y'}">
 							<a href="#n" onclick="fnCommonCodeCustomPop('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
 						</div>
 					</td>
 					<td>
 						<div class="posi_re">
-							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" />							
+							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" readonly/>
 						</div>
 					</td>					
 				</tr>

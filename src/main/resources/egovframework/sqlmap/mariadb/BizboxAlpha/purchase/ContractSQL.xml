@@ -287,8 +287,8 @@
 		a.contract_law, 
 		a.pay_type_info,
 		a.c_pay_type_info,
-		replace(replace(a.work_info, char(13), ''), char(10), '') as work_info,
-		replace(replace(a.c_work_info, char(13), ''), char(10), '') as c_work_info,  
+		a.work_info,
+		a.c_work_info,
 		a.emergency_yn, 
 		a.restrict_sector_yn, 
 		a.compete_type, 
@@ -318,6 +318,8 @@
 		ifnull(a.approkey_change,'') as approkey_change,
 		ifnull(pcc.change_seq,'') as change_seq,
 		ifnull(pcc_temp.change_seq,'') as change_seq_temp,
+		ifnull(pcc.change_result_amt_info_html,'') as change_result_amt_info_html,
+		
 		
 		ifnull(a.meet_dt,'') as meet_dt, 
 		ifnull(a.meet_place,'') as meet_place,
@@ -357,7 +359,7 @@
 		a.resApply_amt as resApply_amt,
 		a.balance_amt as balance_amt,
 		a.result_amt_info_html,
-		a.result_amt_info_html,
+		a.result_c_amt_info_html,
 		ifnull(pgw1.appr_dikey,'') as appr_dikey_plan,
 		ifnull(pgw1.appr_status,'') as appr_status_plan,
 		ifnull(pgw2.appr_dikey,'') as appr_dikey_meet,
@@ -369,7 +371,19 @@
 		ifnull(pgw5.appr_dikey,'') as appr_dikey_change,
 		ifnull(pgw5.appr_status,'') as appr_status_change,
 		a.bid_law,
-		a.bidlaw_reason
+		a.bidlaw_reason,
+		a.opening_dt,
+		ifnull(a.opening_dt_hour,'13') as opening_dt_hour,
+		ifnull(a.opening_dt_min,'30') as opening_dt_min,
+		FORMAT(a.opening_esti_amt, 0) as opening_esti_amt,
+		a.opening_bid_company_cnt,
+		a.opening_eligi_company_cnt,
+		a.opening_succ_company_name,
+		a.opening_succ_company_rank,
+		ifnull(a.opening_tender_amt,'0') as opening_tender_amt,
+		ifnull(a.opening_tender_amt_persent,'0.000') as opening_tender_amt_persent,
+		a.opening_rating_info,
+		a.opening_score_info_html
 		
 		FROM cust_sto.t_purchase_contract a
 		left join $DB_NEOS$erpgwlink pgw1 on  a.approkey_plan = pgw1.docx_numb and pgw1.docx_numb != '' and pgw1.docx_numb is not null
@@ -512,7 +526,7 @@
 		'$tax_amt$', 
 		'$base_law$', 
 		'$pay_type_info$', 
-		'$work_info$', 
+		 #work_info#, 
 		'$emergency_yn$', 
 		'$restrict_sector_yn$', 
 		'$compete_type$', 
@@ -606,7 +620,7 @@
 		'$c_title$', 
 		'$c_contract_end_dt$', 
 		'$contract_law$', 
-		'$c_work_info$', 
+		#c_work_info#, 
 		
 		'$contract_term$',
 		'$hope_attach_info$',
@@ -730,7 +744,7 @@
 		tax_amt='$tax_amt$', 
 		base_law='$base_law$', 
 		pay_type_info='$pay_type_info$', 
-		work_info='$work_info$', 
+		work_info= #work_info#, 
 		emergency_yn='$emergency_yn$', 
 		restrict_sector_yn='$restrict_sector_yn$', 
 		compete_type='$compete_type$', 
@@ -832,7 +846,7 @@
 		c_title='$c_title$', 
 		c_contract_end_dt='$c_contract_end_dt$', 
 		contract_law='$contract_law$', 
-		c_work_info='$c_work_info$',
+		c_work_info= #c_work_info#,
 		joint_contract_method='$joint_contract_method$',
 		c_contract_form1='$c_contract_form1$',
 		c_contract_form2='$c_contract_form2$', 
@@ -854,6 +868,55 @@
 		modify_dt=now(), 
 		modify_by='$created_by$',
 				
+		<isNotEmpty property="opening_con_amt"> 
+		amt = '$opening_con_amt$',
+		</isNotEmpty>
+		<isNotEmpty property="conAmt_han"> 
+		amt_kor = '$conAmt_han$' ,
+		</isNotEmpty>
+		<isNotEmpty property="opening_stdAmt"> 
+		std_amt = '$opening_stdAmt$' ,
+		</isNotEmpty>
+		<isNotEmpty property="opening_taxAmt">
+		tax_amt = '$opening_taxAmt$' ,
+		</isNotEmpty>
+		<isNotEmpty property="opening_dt">
+		opening_dt = '$opening_dt$' ,
+		</isNotEmpty>
+		<isNotEmpty property="opening_dt_hour">
+		opening_dt_hour = '$opening_dt_hour$' ,
+		</isNotEmpty>
+		<isNotEmpty property="opening_dt_min">
+		opening_dt_min = '$opening_dt_min$' ,
+		</isNotEmpty>
+		<isNotEmpty property="opening_esti_amt">
+		opening_esti_amt = '$opening_esti_amt$' ,
+		</isNotEmpty>
+		<isNotEmpty property="opening_bid_company_cnt">
+		opening_bid_company_cnt = '$opening_bid_company_cnt$' ,
+		</isNotEmpty>
+		<isNotEmpty property="opening_eligi_company_cnt">
+		opening_eligi_company_cnt = '$opening_eligi_company_cnt$' ,
+		</isNotEmpty>
+		<isNotEmpty property="opening_succ_company_name">
+		opening_succ_company_name = '$opening_succ_company_name$' ,
+		</isNotEmpty>
+		<isNotEmpty property="opening_succ_company_rank">
+		opening_succ_company_rank = '$opening_succ_company_rank$' ,
+		</isNotEmpty>
+		<isNotEmpty property="opening_tender_amt">
+		opening_tender_amt = '$opening_tender_amt$' ,
+		</isNotEmpty>
+		<isNotEmpty property="opening_tender_amt_persent">
+		opening_tender_amt_persent = '$opening_tender_amt_persent$' ,
+		</isNotEmpty>
+		<isNotEmpty property="opening_rating_info">
+		opening_rating_info = '$opening_rating_info$' ,
+		</isNotEmpty>
+		<isNotEmpty property="opening_score_info_html">
+		opening_score_info_html = #opening_score_info_html# ,
+		</isNotEmpty>		
+				
 		open_amt='$open_amt$',
 		consbalance_amt='$consbalance_amt$',
 		resApply_amt='$resApply_amt$',
@@ -861,7 +924,7 @@
 		result_amt_info_html='$result_amt_info_html$',
 		c_pay_type_info='$c_pay_type_info$',
 		bid_law='$bid_law$',
-		bidlaw_reason='$bidlaw_reason$'
+		bidlaw_reason='$bidlaw_reason$' 
 		
 		WHERE seq='$seq$'; 
 	</update>	

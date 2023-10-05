@@ -1115,6 +1115,8 @@
 				console.log("doc_sts_change > " + result.resultData.doc_sts_change);
 				console.log("change_seq > " + result.resultData.change_seq);
 				console.log("change_seq_temp > " + result.resultData.change_seq_temp);
+				console.log("noti_type > " + result.resultData.noti_type);
+				console.log("decision_type_info > " + result.resultData.decision_type_info);
 				
 				var planState = "";
 				var meetState = "";		
@@ -1122,7 +1124,8 @@
 				var conclusionState = "";
 				var changeState = "";
 				var paymentState = "";
-				
+				var proposalSkip = "N";
+
 				if(result.resultData.contract_type == "01"){
 					
 					//입찰
@@ -1130,10 +1133,14 @@
 					
 					if(result.resultData.approkey_conclusion != ""){
 						
-						meetState = "V";		
-						resultState = "V";
+						if(result.resultData.noti_type == "02" || result.resultData.decision_type_info == "02"){
+							proposalSkip = "Y";
+						}else {
+							meetState = "V";		
+							resultState = "V";
+						}
 						conclusionState = "V";				
-						
+
 						if(result.resultData.doc_sts == "90"){
 							
 							paymentState = "C";
@@ -1165,8 +1172,16 @@
 						
 					}else if(result.resultData.approkey_plan != ""){
 						
-						if(result.resultData.doc_sts == "90"){
-							meetState = "C";	
+						//전자수의공고 or 적격심사시 제안서평가위원회 생략
+						if(result.resultData.noti_type == "02" || result.resultData.decision_type_info == "02"){
+							proposalSkip = "Y";		
+							if(result.resultData.doc_sts == "90"){
+								conclusionState = "C";	
+							}
+						} else {
+							if(result.resultData.doc_sts == "90"){
+								meetState = "C";	
+							}
 						}
 						
 					}else{
@@ -1217,6 +1232,8 @@
 					
 				}		
 				
+				if(proposalSkip == "N"){
+				
 				if(meetState != ""){
 					
 					var btnStyle = meetState == "C" ? "submit" : "cancel";
@@ -1259,7 +1276,9 @@
 						
 					btnList.push(btnInfo);			
 					
-				}			
+				}	
+				
+				}
 
 				if(conclusionState != ""){
 					

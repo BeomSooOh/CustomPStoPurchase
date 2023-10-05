@@ -520,6 +520,20 @@ public class CommonMainController {
     }    
 
     
+    @RequestMapping("confferReturn.do")
+    public ModelAndView confferReturn(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
+    	
+    	ModelAndView mv = new ModelAndView();
+    	
+		commonService.confferReturn(params);	
+		
+		mv.addObject("resultCode", "SUCCESS");	
+		mv.setViewName("jsonView");    	
+    	
+		return mv;
+    } 
+    
+    
     @RequestMapping("/updateDeptCons.do")
     public ModelAndView updateDeptCons(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
     	

@@ -368,14 +368,25 @@ public class ContractMainController {
 			
 			result.put("contractInfo", contractInfo);
 			params.put("consMode", "Y");
-			if(contractInfo.get("contract_type").equals("01")) {
-				params.put("outProcessCode", "Conclusion01-1");
+			
+			
+			if (!contractInfo.get("approkey_change").equals("") && !contractInfo.get("change_result_amt_info_html").equals("")) {
+				params.put("outProcessCode", "Conclusion02");
+			}else if(contractInfo.get("contract_type").equals("01")) {
+					params.put("outProcessCode", "Conclusion01-1");
 			}else {
 				params.put("outProcessCode", "Conclusion01-2");
 			}
 			
 			params.put("consOutProcessCode", "Conclu01");
 			result.put("conclusionBudgetList", commonServiceDAO.SelectBudgetList(params));
+			
+			if(contractInfo.get("contract_type").equals("01")) {
+				params.put("outProcessCode", "Conclusion01-1");
+			}else {
+				params.put("outProcessCode", "Conclusion01-2");
+			}
+			
 			result.put("conclusionTradeList", commonServiceDAO.SelectTradeList(params));
 			result.put("conclusionPaymentAmt", contractServiceDAO.SelectConclusionPaymentAmt(params));
 			result.put("consDocInfo", contractServiceDAO.SelectConclusionConsDocInfo(params));

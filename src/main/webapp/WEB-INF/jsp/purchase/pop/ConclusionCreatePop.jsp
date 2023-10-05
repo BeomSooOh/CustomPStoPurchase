@@ -78,7 +78,19 @@
 		commonParam.resSeq = "-1";
 		commonParam.selectedBudgetSeqs = "";
 
-		var outProcessCode = "Conclu01-${contractType}";
+		// 전자수의공고 체크시
+		 if ("${contractDetailInfo.decision_type_info}" == '02'){
+			var outProcessCode = "Conclu01-4";
+			console.log("Conclu01-4")
+		}else if("${contractDetailInfo.noti_type}" == '02'){
+			var outProcessCode = "Conclu01-3";	
+			console.log("Conclu01-3")
+			//적격심사 체크시
+		} else {
+			var outProcessCode = "Conclu01-${contractType}";
+			console.log("Conclu01-${contractType}")
+		}
+
 		var disabledYn = "${disabledYn}";
 
 		var insertDataObject = {};
@@ -139,6 +151,32 @@
 			
 			//옵션값 설정
 			setCommonOption();
+			
+			
+			setDynamicPuddInfoTable1("resultJudgesList", "resultJudgesAddBase", "${contractDetailInfo.opening_rating_info}");
+			
+			inputTypeSet();
+			
+			if ($('#conAmt').val() == null || $('#conAmt').val() == "" ){
+				
+	 			$('#conAmt').val(0);
+				$('#opening_stdAmt').val(0);
+				$('#opening_taxAmt').val(0); 
+				
+			}
+				
+				$('#conAmt, #opening_stdAmt, #opening_taxAmt').maskMoney({
+					precision : 0,
+					allowNegative: false
+				});
+			
+			$('#conAmt').keyup(function() {
+				var amtInt = $('#conAmt').val().replace(/,/g, '');
+				
+				$('#opening_stdAmt').val((Math.floor(amtInt*10/11)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+				$('#opening_taxAmt').val((Math.ceil(amtInt/11)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+				
+			});
 			
 		});
 		
@@ -245,6 +283,7 @@
 			
 			$(cloneData).find("[name=pjt_seq]").val("${items.pjt_seq}");
 			$(cloneData).find("[name=pjt_name]").val("${items.pjt_name}");
+			$(cloneData).find("[name=pjt_tr_seq]").val("${items.pjt_tr_seq}");
 			$(cloneData).find("[name=pjt_at_tr_name]").val("${items.pjt_at_tr_name}");
 			$(cloneData).find("[name=pjt_bank_number]").val("${items.pjt_bank_number}");
 			
@@ -691,7 +730,7 @@
 			}
 		}		
 		
-		function fnSectorAdd(tableName, maxCnt){
+		function fnSectorAdd(tableName, baseName, maxCnt){
 			
 			var aaDataCnt = $('[name="'+tableName+'"] [name=addData]').length + 1;
 			
@@ -707,8 +746,17 @@
 			
 			amountInputSet();
 			
+			var cloneData = $('[name="'+baseName+'"]').clone();
+			$(cloneData).show().attr("name", "addData").attr("rowcnt", aaDataCnt);
+			
+			$('[name="'+baseName+'"]').before(cloneData);
+			
+			if(tableName == "resultJudgesList"){
+				inputTypeSet();	
+			}
+			
 		}
-		
+
 		function fnSectorDel(e, tableName){
 			
 			if(tableName != null && $('[name="'+tableName+'"] [name=addData]').length == 1){
@@ -717,7 +765,82 @@
 			
 			$(e).closest("tr").remove();
 			
+			if(tableName == "resultJudgesList"){
+				inputTypeSet();	
+			}
+			
 		}		
+		
+
+		function inputTypeSet(){
+			
+			var thSize = $("table[name=resultJudgesList]").find("th").size()-2;
+			
+			for(var i = 1; i <= thSize ; i++){
+			
+			if($("[name=resultJudgesList] tr[name=addData]").length > 0){
+				
+				var allPointRate = 0;
+				
+				$.each($("[name=resultJudgesList] tr[name=addData]"), function( idx, obj ) {
+					
+					var rate = $(obj).find("[itemType=rate"+i+"]").val();
+					
+					rate = rate == "" ? 0 : parseFloat(rate);
+					
+					allPointRate += rate;
+					
+					
+				});
+				
+				  if (Number.isInteger(allPointRate)) {
+					  allPointRate; // 정수인 경우 그대로 반환
+					  } else {
+						  allPointRate = allPointRate.toFixed(4); // 소수인 경우 4자리 이하로 자름
+				  }
+				
+				
+				$("[itemType = sumrate"+i+"]").text(allPointRate);
+							
+			}
+		}
+			
+			$("[inputDecimal=Y]").on('keyup',function(e){
+			
+				var thSize = $("table[name=resultJudgesList]").find("th").size()-2;
+			
+				for(var i = 1; i <= thSize ; i++){
+				
+				if($("[name=resultJudgesList] tr[name=addData]").length > 0){
+					
+					var allPointRate = 0;
+					
+					$.each($("[name=resultJudgesList] tr[name=addData]"), function( idx, obj ) {
+						
+						var rate = $(obj).find("[itemType=rate"+i+"]").val();
+						
+						rate = rate == "" ? 0 : parseFloat(rate);
+						
+						allPointRate += rate;
+						
+						
+					});
+					
+					  if (Number.isInteger(allPointRate)) {
+						  allPointRate; // 정수인 경우 그대로 반환
+						  } else {
+							  allPointRate = allPointRate.toFixed(4); // 소수인 경우 4자리 이하로 자름
+					  }
+					
+					
+					$("[itemType = sumrate"+i+"]").text(allPointRate);
+								
+				}
+			}
+
+		});	
+	} 
+		
 		
 		function fnValidationCheck(){
 			insertDataObject = {};
@@ -749,8 +872,14 @@
 			return validationCheck;
 		}
 		
-
 		function fnSave(type){
+
+			   var tenderPersent =  $("input[name=tenderPersent]").val();
+			   var pattern = /^\d*[.]\d{3}$/; 
+			   if (!pattern.test(tenderPersent) && (${contractDetailInfo.noti_type == '02' || contractDetailInfo.decision_type_info == '02'})) {
+					msgSnackbar("error", "투찰금액의 소수점 3자리를 필수 입력해주세요.");
+					return;
+			   }
 			
 			if(fnValidationCheck() == true){
 
@@ -856,6 +985,36 @@
 			
 			
 			
+			// 낙찰업체적격심사결과  html
+			var resultJudgesInfoHtml = "";
+			
+			$('[name=resultJudgesListHtml]').find("[displaynone]").removeAttr("displaynone");
+			$('[name=resultJudgesListHtml]').find(":hidden").attr("displaynone", "Y");
+			
+			var cloneData = $('[name=resultJudgesListHtml]').clone();
+			$(cloneData).find("[displaynone]").remove();
+			$(cloneData).find("[removehtml=Y]").remove();
+			$(cloneData).find("[name=resultJudgesAddBase]").remove();
+			$(cloneData).find("[name=resultJudgesList]").attr("border", "1");
+			$(cloneData).find("[name=resultJudgesList]").attr("width", "100%");
+			$(cloneData).find("[name]").removeAttr("name");
+			$(cloneData).find("th").attr("align", "center").attr("bgcolor", "#f1f1f1").attr("height", "25");
+			$(cloneData).find("td").attr("align", "center").attr("height", "20");
+			
+			//input 요소 텍스트화
+			$.each($(cloneData).find("input"), function( idx, obj ) {
+				$(obj).replaceWith($(obj).val());
+			});
+			
+			
+			if(cloneData.length > 0){
+				resultJudgesInfoHtml = $(cloneData)[0].outerHTML;
+				insertDataObject.opening_score_info_html = resultJudgesInfoHtml;				
+			}
+
+			
+			
+			
  			/* insertDataObject.open_amt = fnGetCurrencyCode(saveData.openAmt); */
  			insertDataObject.open_amt = saveData.openAmt;
  			insertDataObject.consbalance_amt = saveData.consBalanceAmt;
@@ -881,7 +1040,71 @@
 			parameter.out_process_interface_id = "CONCLUSION";
 			parameter.out_process_interface_m_id = thisSeq;
 			
+			
+			/**개찰결과 추가**/
+			if ("${contractDetailInfo.decision_type_info}" == '02' || "${contractDetailInfo.noti_type}" == '02'){
+				
+				if($('#opening_stdAmt').val() != undefined){
+					insertDataObject.opening_stdAmt = $('#opening_stdAmt').val().replace(/,/g, '');
+				}			
+				if($('#opening_taxAmt').val() != undefined){
+					insertDataObject.opening_taxAmt = $('#opening_taxAmt').val().replace(/,/g, '');
+				}
+				if($('[name=conAmt]').val() != undefined){
+					insertDataObject.opening_con_amt = $('[name=conAmt]').val().replace(/,/g, '');
+					insertDataObject.conAmt_han = viewKorean($('[name=conAmt]').val().replace(/,/g, ''));
+				}
+				
+				
+				insertDataObject.opening_dt = $('[name=openingDt]').val();
+				insertDataObject.opening_dt_hour = $('[name=openingDtHour]').val();
+				insertDataObject.opening_dt_min = $('[name=openingDtMin]').val();
+				insertDataObject.opening_esti_amt = $('[name=estiAmt]').val();
+				insertDataObject.opening_bid_company_cnt = $('[name=bidcompanyCnt]').val();
+				insertDataObject.opening_eligi_company_cnt = $('[name=eligicompanyCnt]').val();
+				insertDataObject.opening_succ_company_name = $('[name=succcompanyName]').val();
+				insertDataObject.opening_succ_company_rank = $('[name=succcompanyRank]').val();
+				
+				
+				if("${contractDetailInfo.decision_type_info}" == '02'){
+					insertDataObject.opening_tender_amt = $('[name=tenderAmt]').val();
+					insertDataObject.opening_tender_amt_persent = $('[name=tenderPersent]').val();					
+				}
+				
+			}
+			
+			
 			$.ajax({
+				type : 'post',
+				url : '<c:url value="/purchase/ConclusionSaveProc.do" />',
+	    		datatype:"json",
+	            data: insertDataObject ,
+				async : false,
+				success : function(result) {
+					
+					if(result.resultCode == "success"){
+						
+						thisSeq = result.resultData.seq;
+						openerRefreshList();
+						reqType = type;
+						
+					if(type == 1){		
+						msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");		
+						}else{
+							fnPaymentCreate();	
+						}  
+						
+					}else{
+						msgSnackbar("error", "등록에 실패했습니다.");	
+					}
+					
+				},
+				error : function(result) {
+					msgSnackbar("error", "등록에 실패했습니다.");
+				}
+			});
+			
+/* 			$.ajax({
 				type : 'post',
 				url : '<c:url value="/SelResTemp.do" />',
 	    		datatype:"json",
@@ -909,11 +1132,6 @@
 										openerRefreshList();
 										reqType = type;
 										
-				/* 					if(type == 1){		
-										msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");		
-										}else{
-											fnPaymentCreate();	
-										}  */
 										fnPaymentCreate();	
 										
 									}else{
@@ -931,7 +1149,7 @@
 				error : function(result) {
 					msgSnackbar("error", "대금지급 조회 오류");
 				}
-			});	
+			});	 */
 			
 
 			
@@ -980,10 +1198,7 @@
 				error : function(result) {
 					msgSnackbar("error", "품의데이터 초기화 오류");
 				}
-			});	
-			
-			
-			
+			});			
 			
 			$.ajax({
 				type : 'post',
@@ -1104,9 +1319,9 @@
 			parameter.docuFgCode = '1'; /* [*]결의구분코드 */
 			parameter.docuFgName = '지출품의서'; /* [*]결의구분명칭 */
 
-			parameter.btrSeq = ''; /* [*]입출금계좌코드 */
-			parameter.btrName = ''; /* [*]입출금계좌명칭 */
-			parameter.btrNb = ''; /* [*]입출금계좌 */
+			parameter.btrSeq = conclusionbudgetList[idx].pjt_tr_seq /* [*]입출금계좌코드 */
+			parameter.btrName = conclusionbudgetList[idx].pjt_at_tr_name /* [*]입출금계좌명칭 */
+			parameter.btrNb = conclusionbudgetList[idx].pjt_bank_number /* [*]입출금계좌 */
 			
 			parameter.erpDivSeq = ''; /* ERP 회계단위코드 */
 			parameter.erpDivName = ''; /* ERP 회계단위명칭 */
@@ -1625,6 +1840,33 @@
 		}	
 		
 		
+		function setDynamicPuddInfoTable1(tableName, baseName, value){
+			
+			if(value != ""){
+				
+				$("[name="+tableName+"] [name=addData]").remove();
+				
+				$.each(value.split("▦▦"), function( key, val ) {
+					
+					var valInfo =  val.split("▦");
+					
+					var cloneData = $('[name="'+baseName+'"]').clone();
+					
+					$.each($(cloneData).find("[name=tableVal]"), function( key, tableVal ) {
+						
+						$(tableVal).val(valInfo[key]);
+						
+					});				
+					
+					$(cloneData).show().attr("name", "addData").attr("rowcnt", key+1);
+					$('[name="'+baseName+'"]').before(cloneData);
+					
+				});	
+				
+			}
+		}
+		
+		
 
 		function fnSearchFile(e){
 			targetElement = $("[name=hopeAttachList]");
@@ -1818,6 +2060,7 @@
 					$(commonElement).find("[name=pjt_name]").val( param.pjtName || "" );
 					$(commonElement).find("[name=pjt_at_tr_name]").val( param.atTrName || "" );
 					$(commonElement).find("[name=pjt_bank_number]").val( param.bankNumber || "" );
+					$(commonElement).find("[name=pjt_tr_seq]").val( param.trSeq || "" );
 					
 				//하위사업	
 				}else if(param.code == "bottom"){
@@ -2593,7 +2836,150 @@
 				</tr>
 			</table>
 		</div>
+					
+	<c:if test="${contractDetailInfo.noti_type == '02' || contractDetailInfo.decision_type_info == '02'}">
+				
+		<!-- 개찰결과 -->
+			<div class="btn_div mt25">
+				<div class="left_div">	
+					<p class="tit_p mt5 mb0">개찰결과</p>
+				</div>
+			</div>
+			<div class="com_ta mt10">
+				<table>
+					<colgroup>
+						<col width="130"/>
+						<col width=""/>
+						<col width="130"/>
+						<col width=""/>
+					</colgroup>
+				<tr>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 개찰일시</th>
+					<td colspan="3" objKey="opening_dt" objCheckFor="checkVal('date', 'openingDt', '개찰일시', 'selectDate(this)', '')" >
+						<input ${disabled} name="openingDt" type="text" value="${contractDetailInfo.opening_dt}" class="puddSetup" pudd-type="datepicker"/>
+ 						<select ${disabled} name="openingDtHour"  objKey="opening_dt_hour" objCheckFor="checkVal('select', this, '', '', '')" class="selectmenu" style="width:60px; height:10px">
+							<c:forEach var="items" items="${timeCodeList}">
+							<option ${disabled} value="${items}" <c:if test="${ items == contractDetailInfo.opening_dt_hour }">selected</c:if> >${items}</option>
+							</c:forEach>							
+						</select>
+						<select ${disabled} name="openingDtMin" objKey="opening_dt_min" objCheckFor="checkVal('select', this, '', '', '')" class="selectmenu" style="width:60px">
+							<c:forEach var="items" items="${minCodeList}">
+							<option value="${items}" <c:if test="${ items == contractDetailInfo.opening_dt_min }">selected</c:if> >${items}</option>
+							</c:forEach>
+						</select> 
+					</td>
+				</tr>
+				<tr>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 기초금액</th>
+					<td class="le">
+					<input ${disabled} objKey="amt" objCheckFor="checkVal('text', this, '기초금액', 'mustAlert', '')" amountType="amt" amountInput="Y" id="conAmt" name="conAmt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="${contractDetailInfo.amt}" maxlength="15" /> 원
+					<%-- <input ${disabled} objKey="amt" objCheckFor="checkVal('text', this, '기초금액', 'mustAlert', 'parseToInt', 'notWon')" id="conAmt"  name="conAmt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="${contractDetailInfo.amt}" maxlength="15" /> 원	 --%>
+					<span objKey="amt_kor" objCheckFor="checkVal('innerText', this, '기초금액', '', '')" id="conAmt_han"></span>
+					<input type="hidden" id="opening_stdAmt" value="${contractDetailInfo.std_amt}" />
+					<input type="hidden" id="opening_taxAmt" value="${contractDetailInfo.tax_amt}" />
+					</td>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 예정가격</th>
+					<td class="le">
+					<input ${disabled} objKey="opening_esti_amt" objCheckFor="checkVal('text', this, '예정가격', 'mustAlert', '')" amountType="amt" amountInput="Y" name="estiAmt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="${contractDetailInfo.opening_esti_amt}" maxlength="15" /> 원	
+					</td>
+				</tr>
+				<tr>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 입찰업체 수</th>
+					<td>
+					<input type="text" pudd-style="width:110px;"class="puddSetup ar" name="bidcompanyCnt" value="${contractDetailInfo.opening_bid_company_cnt}" objKey="opening_bid_company_cnt" objCheckFor="checkVal('text', this, '입찰업체 수', 'mustAlert', '')" > 개
+					</td>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 적격업체 수</th>
+					<td>
+					<input type="text" pudd-style="width:110px;"class="puddSetup ar" name="eligicompanyCnt" value="${contractDetailInfo.opening_eligi_company_cnt}" objKey="opening_eligi_company_cnt" objCheckFor="checkVal('text', this, '적격업체 수', 'mustAlert', '')" > 개	
+					</td>
+				</tr>
+				<tr>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 낙찰업체</th>
+					<td colspan="3">
+					<input type="text" pudd-style="width:110px;"class="puddSetup ar" name="succcompanyName" value="${contractDetailInfo.opening_succ_company_name}" objKey="opening_succ_company_name" objCheckFor="checkVal('text', this, '낙찰업체명', 'mustAlert', '')" > 
+					 (  <input type="text" pudd-style="width:70px;"class="puddSetup ar" name="succcompanyRank" value="${contractDetailInfo.opening_succ_company_rank}" objKey="opening_succ_company_rank" objCheckFor="checkVal('text', this, '낙찰업체순위', 'mustAlert', '')" > 순위 )		
+					</td>
+				</tr>
+				<tr>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 투찰금액</th>
+					<td class="le">
+					<input ${disabled} type="text"  pudd-style="width:110px;"class="puddSetup ar"  name="tenderAmt"value="${contractDetailInfo.opening_tender_amt}" maxlength="15" objKey="opening_tender_amt" objCheckFor="checkVal('text', this, '투찰금액', 'mustAlert', '')" /> 원
+					</td>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 투찰금액</th>
+					<td>
+					<input ${disabled} type="text" pudd-style="width:110px;"class="puddSetup ar"  name="tenderPersent" value="${contractDetailInfo.opening_tender_amt_persent}" objKey="opening_tender_amt_persent" objCheckFor="checkVal('text', this, '투찰금액', 'mustAlert', '')" > %
+					</td>
+				</tr>
+				
+				
+				
+				<c:if test="${contractDetailInfo.decision_type_info == '02'}">
+				<tr>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 낙찰업체<br>적격심사<br>결과</th>
+					<td colspan="3">
+						<!-- 그리드 -->
+						<div name="resultJudgesListHtml" class="com_ta4">
+							<table name="resultJudgesList" objKey="opening_rating_info" objCheckFor="checkVal('table', 'resultJudgesList', '낙찰업체적격심사결과', 'true')">
+								<colgroup>
+									<c:if test="${disabledYn == 'N'}">
+									<col removeHtml="Y" width="30"/>
+									</c:if>
+									<col width="100"/>
+									<col width="100"/>
+									<col width="100"/>
+									<col width="100"/>
+								</colgroup>
+								<tr>
+									<c:if test="${disabledYn == 'N'}">
+									<th removeHtml="Y" class="ac">
+										<input type="button" onclick="fnSectorAdd('resultJudgesList', 'resultJudgesAddBase')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+									</th>
+									</c:if>
+									<th pudd-style="width:calc( 100% - 10px);" class="puddSetup cen">평가항목</th>
+									<th pudd-style="width:calc( 100% - 10px);" class="puddSetup cen">배점</th>
+									<th pudd-style="width:calc( 100% - 10px);" class="puddSetup cen">자기평점</th>
+									<th pudd-style="width:calc( 100% - 10px);" class="puddSetup cen">심사평점</th>
+								</tr>
+								<tr name="addData">
+									<c:if test="${disabledYn == 'N'}">
+									<td removeHtml="Y">
+										<input type="button" onclick="fnSectorDel(this, 'resultJudgesList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+									</td>
+									</c:if>
+									<td><input ${disabled}  name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup cen" value="" /></td>
+									<td><input ${disabled} itemtype="rate1" inputDecimal="Y" name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup cen" value="" /></td>
+									<td><input ${disabled} itemtype="rate2" inputDecimal="Y" name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup cen" value="" /></td>
+									<td><input ${disabled} itemtype="rate3" inputDecimal="Y" name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup cen" value="" /></td>
+								</tr>								
+								<tr name="resultJudgesAddBase" style="display:none;">
+									<c:if test="${disabledYn == 'N'}">
+									<td removeHtml="Y">
+										<input type="button" onclick="fnSectorDel(this, 'resultJudgesList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+									</td>
+									</c:if>
+									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup cen" value="" /></td>
+									<td><input ${disabled} itemtype="rate1" inputDecimal="Y" name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup cen" value="" /></td>
+									<td><input ${disabled} itemtype="rate2" inputDecimal="Y" name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup cen" value="" /></td>
+									<td><input ${disabled} itemtype="rate3" inputDecimal="Y" name="tableVal" type="text" pudd-style="width:calc( 100% - 10px);" class="puddSetup cen" value="" /></td>
+								</tr>
+																	
+								<tr name="totalTr">
+									<td removeHtml="Y"></td>
+									<td>합계</td>
+									<td itemType = "sumrate1" pudd-style="width:calc( 100% - 10px);" class="puddSetup cen">0</td>
+									<td itemType = "sumrate2" pudd-style="width:calc( 100% - 10px);" class="puddSetup cen">0</td>
+									<td itemType = "sumrate3" pudd-style="width:calc( 100% - 10px);" class="puddSetup cen">0</td>
+								</tr>								
+							</table>
+						</div>
+					</td>
+				</tr>
+				</c:if>
+				</table>
+			</div>
+		</c:if>
 
+		
 		
 		<!-- 계약대상 -->
 		<div class="btn_div mt25">
@@ -2718,7 +3104,9 @@
 				<tr>
 					<c:if test="${disabledYn == 'N'}"> 
 					<th class="ac">
+					<c:if test="${btnApprYn == 'Y'}">
 						<input type="button" onclick="fnSectorAdd('budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
+					</c:if>
 					</th>
 					</c:if>
 					<th optionTarget="def_erp_budget_div_seq" class="ac">예산회계단위</th>
@@ -2730,7 +3118,9 @@
 				<tr name="dataBase" onclick="fnSetBudgetAmtInfo(this);" style="display:none;">
 					<c:if test="${disabledYn == 'N'}"> 
 					<td>
+					<c:if test="${btnApprYn == 'Y'}">
 						<input type="button" onclick="fnSectorDel(this, 'budgetList')" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_minus01.png') no-repeat center" value="" />
+					</c:if>
 					</td>
 					</c:if>
 					<td optionTarget="def_erp_budget_div_seq">
@@ -2738,7 +3128,7 @@
 							<input tbval="Y" name="erp_budget_div_seq" type="hidden" value="" />
 							<input tbval="Y" name="erp_budget_div_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />							
 							
-							<c:if test="${disabledYn == 'N'}">
+							<c:if test="${disabledYn == 'N' && btnApprYn == 'Y'}">
 							<a href="#n" onclick="fnCommonCode_trName('div', this)" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
 						</div>
@@ -2748,9 +3138,10 @@
 							<input tbval="Y" name="pjt_seq" type="hidden" value="" />
 							<input tbval="Y" name="pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
 							<input tbval="Y" name="pjt_at_tr_name" type="hidden" value="" requiredNot="true" />
-							<input tbval="Y" name="pjt_bank_number" type="hidden" value="" requiredNot="true"/>															
+							<input tbval="Y" name="pjt_bank_number" type="hidden" value="" requiredNot="true"/>
+							<input tbval="Y" name="pjt_tr_seq" type="hidden" value="" requiredNot="true"/>															
 
-							<c:if test="${disabledYn == 'N'}">
+							<c:if test="${disabledYn == 'N' && btnApprYn == 'Y'}">
 							<a href="#n" onclick="fnCommonCode_trName('project', this)" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
 						</div>
@@ -2760,7 +3151,7 @@
 							<input tbval="Y" name="bottom_seq" type="hidden" value="" requiredNot="true" />
 							<input tbval="Y" name="bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />							
 							
-							<c:if test="${disabledYn == 'N'}">
+							<c:if test="${disabledYn == 'N' && btnApprYn == 'Y'}">
 							<a href="#n" onclick="fnCommonCode_trName('bottom', this)" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
 						</div>
@@ -2788,14 +3179,14 @@
 							<input tbval="Y" name="txt_pay_amt" type="hidden" value="" requiredNot="true" />
 							
 
-							<c:if test="${disabledYn == 'N'}"> 
+							<c:if test="${disabledYn == 'N' && btnApprYn == 'Y'}"> 
 							<a href="#n" onclick="fnCommonCode_trName('budgetlist', this)" class="btn_search" style="margin-left: -25px;"></a>
 							</c:if>
 						</div>
 					</td>
 					<td>
 						<div class="posi_re">
-							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" />							
+							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y"  />				
 						</div>
 					</td>	
 				</tr>

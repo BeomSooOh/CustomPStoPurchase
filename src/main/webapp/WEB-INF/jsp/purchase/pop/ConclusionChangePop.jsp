@@ -1023,8 +1023,8 @@
 					insertDataObject.work_info_before = "";
 					insertDataObject.work_info_after = "";
 				}else{
-					console.log('${contractDetailInfo.c_work_info}')
-					/* insertDataObject.work_info_before = ${contractDetailInfo.c_work_info}; */
+					/* insertDataObject.work_info_before = $('[name=c_work_info]').text(); */
+					insertDataObject.work_info_before = $('[name=c_work_info]').text();					
 				}
 				
 				//계약기간
@@ -1146,7 +1146,10 @@
 							msgAlert("success", "임시저장이 완료되었습니다.", "self.close()");							
 						}else{
 							
-							fnPaymentCreate();
+							
+							if (insertDataObject.budgetObjList.length > 0){
+								fnPaymentCreate();	
+							}
 							
 							openWindow2("${pageContext.request.contextPath}/purchase/ApprCreate.do?outProcessCode="+outProcessCode+"&seq=${seq}&change_seq=" + result.resultData.seq,  "ApprCreatePop", 1000, 729, 1, 1) ;
 							self.close();
@@ -1170,21 +1173,22 @@
 		
 		function fnPaymentCreate(){
 
-			//기존 품의(임시)데이터 삭제
+			//기존 품의 반환
 			parameter = {};
-			parameter.out_process_interface_id = outProcessCode;
+			parameter.out_process_interface_id = "Conclu01";
 			parameter.out_process_interface_m_id = "${seq}";
 			parameter.out_process_interface_d_id = "DUPLICATE_TEMP";			
 			
-			$.ajax({
+ 			$.ajax({
 				type : 'post',
-				url : '<c:url value="/DelConsTemp.do" />',
+				url : '<c:url value="/confferReturn.do" />',
 	    		datatype:"json",
 	            data: parameter ,
 				async : false,
 				success : function(result) {
 					
 					if(result.resultCode == "SUCCESS"){
+						parameter.out_process_interface_id = outProcessCode;
 						conclusionbudgetList = insertDataObject.budgetObjList;
 						conclusionRemainAmt = parseInt(insertDataObject.meet_amt_spent);
 						fnConsDocInsert();
@@ -1197,7 +1201,6 @@
 					msgSnackbar("error", "품의데이터 초기화 오류");
 				}
 			});			
-				
 		}		
 		
 		
@@ -1931,7 +1934,7 @@
 					</tr>
 					<tr>
 						<th>계약내용</th>
-						<td>${contractDetailInfo.c_work_info}</td>
+						<td name="c_work_info"><pre>${contractDetailInfo.c_work_info}</pre></td>
 					</tr>
 					<tr>
 						<th><img
@@ -2016,7 +2019,7 @@
 					<tr name="changeItem_01"
 						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦01▦') < 0 ) }">style="display:none;"</c:if>>
 						<th>과업변경 (전)</th>
-						<td colspan="3">${contractDetailInfo.c_work_info}</td>
+						<td colspan="3"><pre>${contractDetailInfo.c_work_info}</pre></td>
 					</tr>
 
 					<tr name="changeItem_01"
@@ -2168,7 +2171,7 @@
 						<td colspan="3">
 							<!-- 예산정보 -->
 							<div class="com_ta4">
-								<table name="ch_budgetList" objKey="ch_budgetObjList">
+								<table name="ch_budgetList" objKey="ch_budgetObjList" objCheckFor="checkVal('obj', 'ch_budgetList', '예산정보(전)', '', '')">
 									<colgroup>
 										<col width="" />
 										<col width="" />

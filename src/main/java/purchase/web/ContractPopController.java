@@ -467,8 +467,21 @@ public class ContractPopController {
             	
             	Map<String, Object> detailInfo = contractServiceDAO.SelectContractDetail(params);
             	
+                List<String> timeCodeList = new ArrayList<String>();
+                List<String> minCodeList = new ArrayList<String>();
+                
+    			for(int i=0;i<24;i++){
+    				timeCodeList.add((i < 10 ? "0" : "") + i);
+    			}            
+    			mv.addObject("timeCodeList", timeCodeList);
+    			
+    			for(int i=0;i<60;i = i+1){
+    				minCodeList.add((i < 10 ? "0" : "") + i);
+    			}
+    			mv.addObject("minCodeList", minCodeList);
+            	
             	if(detailInfo != null) {
-            		
+
             		if(!detailInfo.get("approkey_conclusion").equals("")) {
             			
             			//임시저장 버튼 표시

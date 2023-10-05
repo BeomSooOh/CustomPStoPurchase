@@ -25,6 +25,8 @@ public interface CommonService {
 	
 	public void DelConsTemp ( Map<String, Object> params );
 	
+	public void confferReturn ( Map<String, Object> params );
+	
 	public void updateDeptCons ( Map<String, Object> params );
 	
 	public void updateCempName ( Map<String, Object> params );

@@ -157,6 +157,12 @@ public class CommonServiceDAO extends EgovComAbstractDAO {
 		
 	}
 	
+	public void confferReturn ( Map<String, Object> params ) {
+		
+		update( "CommonSQL.confferReturn", params );
+		
+	}
+	
 	public void updateDeptCons ( Map<String, Object> params ) {
 		
 		update( "CommonSQL.updateDeptCons", params );
