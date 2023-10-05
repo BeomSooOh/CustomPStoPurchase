@@ -224,7 +224,7 @@
 			cloneData2 = $('[name="ch_amtgetList"] [name=ch_amtBase2]').clone();
 			
 			$(cloneData).show().attr("name", "ch_addData");
-			$(cloneData1).show().attr("name", "ch_addData");
+			$(cloneData1).show().attr("name", "ch_addData_Bgt");
 			$(cloneData2).show().attr("name", "ch_addData");
 			
 			$(cloneData).find("[name=ch_erp_budget_div_name]").val("${items.erp_budget_div_name}");
@@ -239,6 +239,11 @@
 			$(cloneData1).find("[name=ch_bgt3Name]").text("${items.erp_bgt3_name}");
 			$(cloneData1).find("[name=ch_bgt4Name]").text("${items.erp_bgt4_name}");	
 			
+			$(cloneData1).find("[name=ch_bgt1Seq]").val("${items.erp_bgt1_seq}");
+			$(cloneData1).find("[name=ch_bgt2Seq]").val("${items.erp_bgt2_seq}");
+			$(cloneData1).find("[name=ch_bgt3Seq]").val("${items.erp_bgt3_seq}");
+			$(cloneData1).find("[name=ch_bgt4Seq]").val("${items.erp_bgt4_seq}");	
+			$(cloneData1).find("[name=ch_amt]").val("${items.amt}");
 			
 			$(cloneData2).find("[name=ch_txtOpenAmt]").text("${items.txt_open_amt}");
 			$(cloneData2).find("[name=ch_txtConsBalanceAmt]").text("${items.txt_cons_balance_amt}");
@@ -994,15 +999,49 @@
 				});	
 					
 				if (totalAmt > 0){
-					beforeAmt = parseInt(beforeAmtSpent[1].replace(/,/g, '')); 
-					if(totalAmt != beforeAmt){
+					beforeAmt = parseInt(beforeAmtSpent[1].replace(/,/g, ''));
+					if($("[name=amtInfoList] [name=addData] [amounttype=amt]").val() != "" && $("[name=amtInfoList] [name=addData] [amounttype=amt]").val() != "0"){
+						if(totalAmt != changeAmtSpent){
+							msgSnackbar("warning", "변경금액과 신청금액이 일치하지 않습니다.");
+							return;							
+						}
+					}else if(totalAmt != beforeAmt){
 						msgSnackbar("warning", "지출금액과 신청금액이 일치하지 않습니다.");
 						return;
 					} 
 				}
-								
+						
 				
-				for(var i = 0; i < budgetObjListSpent.length; i++){
+				$.each($('[name="ch_amtgetList"] [name=ch_addData_Bgt]'), function( idx, obj ) {
+					var bgt1Seq = $(obj).find("[name=ch_bgt1Seq]").val();
+					var bgt2Seq = $(obj).find("[name=ch_bgt2Seq]").val();
+					var bgt3Seq = $(obj).find("[name=ch_bgt3Seq]").val();
+					var bgt4Seq = $(obj).find("[name=ch_bgt4Seq]").val();
+					var ch_amt = parseInt(($(obj).find("[name=ch_amt]").val()).replace(/,/g, ''));
+				
+					$.each(insertDataObject.budgetObjList, function( idx, obj ) {
+						
+						 var txt_pay_amt = parseInt((obj.amt).replace(/,/g, ''));
+						 var txt_balance_amt = parseInt((obj.txt_balance_amt).replace(/,/g, ''));
+						 
+						if(bgt1Seq == obj.erp_bgt1_seq && bgt2Seq == obj.erp_bgt2_seq && bgt3Seq == obj.erp_bgt3_seq && bgt4Seq == obj.erp_bgt4_seq){
+							
+							if (txt_pay_amt > txt_balance_amt + ch_amt){
+								msgSnackbar("warning", "금액이 예산잔액을 초과합니다.");
+								return;								
+							}
+							
+						} else {
+						
+							if (txt_pay_amt > txt_balance_amt){
+								msgSnackbar("warning", "금액이 예산잔액을 초과합니다.");
+								return;
+							}
+						}
+					});	
+				});
+				
+/* 				for(var i = 0; i < budgetObjListSpent.length; i++){
 					 var txt_pay_amt = parseInt((budgetObjListSpent[i].amt).replace(/,/g, ''));
 					 var txt_balance_amt = parseInt((budgetObjListSpent[i].txt_balance_amt).replace(/,/g, ''));
 					
@@ -1011,7 +1050,7 @@
 						return;
 					}
 					
-				}
+				} */
 				
 				
 				
@@ -1036,7 +1075,7 @@
 				}
 				
 				//계약금액 
-				if($('[name=changeItem][value=03]:checked').length == 0){
+				if($('[name=changeItem][value=04]:checked').length == 0){
 					insertDataObject.contract_amt_info_before = "";
 					insertDataObject.contract_amt_info_after = "";
 					insertDataObject.contract_amt_after = "0";
@@ -2046,8 +2085,9 @@
 							class="puddSetup" pudd-type="datepicker" />
 						</td>
 					</tr>
-					<tr name="changeItem_03"
-						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦03▦') < 0 ) }">style="display:none;"</c:if>>
+					
+					<tr name="changeItem_04"
+						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦04▦') < 0 ) }">style="display:none;"</c:if>>
 						<th>금액변경 (전)</th>
 						<td colspan="3">
 							<div class="com_ta4">
@@ -2080,8 +2120,9 @@
 							</div>
 						</td>
 					</tr>
-					<tr name="changeItem_03"
-						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦03▦') < 0 ) }">style="display:none;"</c:if>>
+					
+					<tr name="changeItem_04"
+						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦04▦') < 0 ) }">style="display:none;"</c:if>>
 						<th><img
 							src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png"
 							alt="" /> 금액변경</th>
@@ -2090,7 +2131,7 @@
 
 							<div class="com_ta4">
 								<table name="amtInfoList" objKey="contract_amt_info_after"
-									objCheckFor="checkVal('table', 'amtInfoList', '계약금액', '$(\'[name=changeItem][value=03]:checked\').length > 0', 'notnull')">
+									objCheckFor="checkVal('table', 'amtInfoList', '계약금액', '$(\'[name=changeItem][value=04]:checked\').length > 0', 'notnull')">
 									<colgroup>
 										<col name="contractTerm_02" style="display: none;" width="50" />
 										<col name="contractTerm_02" style="display: none;" width="130" />
@@ -2161,10 +2202,7 @@
 							</div>
 						</td>
 					</tr>
-
-
-
-
+					
 					<tr name="changeItem_04"
 						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦04▦') < 0 ) }">style="display:none;"</c:if>>
 						<th>예산변경 (전)</th>
@@ -2196,23 +2234,17 @@
 										</td>
 										<td>
 											<div class="posi_re">
-												<input tbval="Y" name="ch_pjt_name" type="text"
-													pudd-style="width:calc( 90% );" class="puddSetup pr30"
-													value="" readonly />
+												<input tbval="Y" name="ch_pjt_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
 											</div>
 										</td>
 										<td>
 											<div class="posi_re">
-												<input tbval="Y" name="ch_bottom_name" type="text"
-													pudd-style="width:calc( 90% );" class="puddSetup pr30"
-													value="" requiredNot="true" readonly />
+												<input tbval="Y" name="ch_bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />
 											</div>
 										</td>
 										<td>
 											<div class="posi_re">
-												<input tbval="Y" name="ch_erp_budget_name" type="text"
-													pudd-style="width:calc( 90% );" class="puddSetup pr30"
-													value="" readonly />
+												<input tbval="Y" name="ch_erp_budget_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" readonly />
 											</div>
 										</td>
 										<td>
@@ -2240,12 +2272,17 @@
 										<input id="ch_bgtSeq" type="hidden" value="" />
 										<th>관</th>
 										<td id="ch_bgt1Name" name="ch_bgt1Name"></td>
+										<input type="hidden"  name="ch_bgt1Seq" value=""/>
 										<th>항</th>
 										<td id="ch_bgt2Name" name="ch_bgt2Name"></td>
+										<input type="hidden"  name="ch_bgt2Seq" value=""/>
 										<th>목</th>
 										<td id="ch_bgt3Name" name="ch_bgt3Name"></td>
+										<input type="hidden"  name="ch_bgt3Seq" value=""/>
 										<th>세</th>
 										<td id="ch_bgt4Name" name="ch_bgt4Name"></td>
+										<input type="hidden"  name="ch_bgt4Seq" value=""/>
+										<input type="hidden"  name="ch_amt" value=""/>
 									</tr>
 									<tr name="ch_amtBase2" style="display: none;">
 										<th>예산액</th>

@@ -23,6 +23,8 @@
 	href="<c:url value='/customStyle/css/re_pudd.css' />">
 <link rel="stylesheet" type="text/css"
 	href="<c:url value='/customStyle/css/animate.css' />">
+	
+	
 
 <!--js-->
 <script type="text/javascript"
@@ -732,7 +734,7 @@
 							if(rowData.contract_type == "01"){
 								
 								<c:choose><c:when test="${authLevel=='admin'}">
-								return '<input onkeyup="fnSetChangeInfo(\''+rowData.seq+'\', \'bidder_cnt\', \''+rowData.bidder_cnt+'\', this.value)" type="number" style="width:50px;" class="puddSetup ac" maxlength="2" value="' + rowData.bidder_cnt + '" /> 건';
+								return '<input onkeyup="fnSetChangeInfo(\''+rowData.seq+'\', \'bidder_cnt\', \''+rowData.bidder_cnt+'\', this.value)" type="text" style="width:50px;" class="puddSetup ac" maxlength="2" value="' + rowData.bidder_cnt + '" /> 건';
 								</c:when><c:otherwise>
 								return rowData.bidder_cnt + (rowData.bidder_cnt != " 건" ? "" : ""); 
 								</c:otherwise></c:choose>								
