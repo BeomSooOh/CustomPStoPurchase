@@ -1059,7 +1059,10 @@
 				insertDataObject.opening_dt = $('[name=openingDt]').val();
 				insertDataObject.opening_dt_hour = $('[name=openingDtHour]').val();
 				insertDataObject.opening_dt_min = $('[name=openingDtMin]').val();
-				insertDataObject.opening_esti_amt = $('[name=estiAmt]').val();
+				if($('[name=estiAmt]').val() != undefined){
+					insertDataObject.opening_esti_amt = $('[name=estiAmt]').val().replace(/,/g, '');
+				}
+				
 				insertDataObject.opening_bid_company_cnt = $('[name=bidcompanyCnt]').val();
 				insertDataObject.opening_eligi_company_cnt = $('[name=eligicompanyCnt]').val();
 				insertDataObject.opening_succ_company_name = $('[name=succcompanyName]').val();
@@ -2905,7 +2908,7 @@
 					<td class="le">
 					<input ${disabled} type="text"  pudd-style="width:110px;"class="puddSetup ar"  name="tenderAmt"value="${contractDetailInfo.opening_tender_amt}" maxlength="15" objKey="opening_tender_amt" objCheckFor="checkVal('text', this, '투찰금액', 'mustAlert', '')" /> 원
 					</td>
-					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 투찰금액</th>
+					<th><img src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png" alt="" /> 투찰율</th>
 					<td>
 					<input ${disabled} type="text" pudd-style="width:110px;"class="puddSetup ar"  name="tenderPersent" value="${contractDetailInfo.opening_tender_amt_persent}" objKey="opening_tender_amt_persent" objCheckFor="checkVal('text', this, '투찰금액', 'mustAlert', '')" > %
 					</td>

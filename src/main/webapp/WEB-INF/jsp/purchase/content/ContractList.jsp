@@ -638,7 +638,7 @@
 			,	columns : [
 				{
 						field : ""
-					,	title : "사전규격공개기간"
+					,	title : "사전규격공개일"
 					,	width : 150
 					,	content : {		
 						template : function(rowData) {
@@ -1980,7 +1980,7 @@
     	
     	excel.set(0, 35, 1, "입찰정보");
     	excel.mergeCell(0, 35, 1, 40, 1);
-    	excel.set(0, 35, 2, "사전규격공개기간");
+    	excel.set(0, 35, 2, "사전규격공개일");
     	excel.set(0, 36, 2, "본 공고기간");
     	excel.set(0, 37, 2, "재 공고기간");
     	excel.set(0, 38, 2, "공고기간 확정");    	
