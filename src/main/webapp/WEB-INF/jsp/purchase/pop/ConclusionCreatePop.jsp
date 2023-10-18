@@ -909,20 +909,18 @@
 					return;
 				}
 				
-				
-				for(var i = 0; i < budgetObjListSpent.length; i++){
-					 var txt_pay_amt = parseInt((budgetObjListSpent[i].amt).replace(/,/g, ''));
-					 var txt_balance_amt = parseInt((budgetObjListSpent[i].txt_balance_amt).replace(/,/g, ''));
-					
-					if (txt_pay_amt > txt_balance_amt){
-						msgSnackbar("warning", "금액이 예산잔액을 초과합니다.");
-						return;
+				if("${btnApprYn}" == "Y"){
+					for(var i = 0; i < budgetObjListSpent.length; i++){
+						 var txt_pay_amt = parseInt((budgetObjListSpent[i].amt).replace(/,/g, ''));
+						 var txt_balance_amt = parseInt((budgetObjListSpent[i].txt_balance_amt).replace(/,/g, ''));
+						
+						if (txt_pay_amt > txt_balance_amt){
+							msgSnackbar("warning", "금액이 예산잔액을 초과합니다.");
+							return;
+						}
+						
 					}
-					
 				}
-				
-				
-				
 				
 				//계약총금액 조회
 				insertDataObject.contract_amt = 0;
@@ -3188,9 +3186,16 @@
 						</div>
 					</td>
 					<td>
+						
 						<div class="posi_re">
-							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y"  />				
+							<c:if test="${btnApprYn == 'N'}">
+							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y"  readonly/>
+							</c:if>
+							<c:if test="${btnApprYn == 'Y'}">
+							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y"  />
+							</c:if>				
 						</div>
+						
 					</td>	
 				</tr>
 				
@@ -3263,8 +3268,13 @@
 					</td>
 					<td>
 						<div class="posi_re">
-							<input ${disabled} tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y" />							
-						</div>
+							<c:if test="${btnApprYn == 'N'}">
+							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y"  readonly/>
+							</c:if>
+							<c:if test="${btnApprYn == 'Y'}">
+							<input tbval="Y" name="amt" type="text" pudd-style="width:calc( 90% );" class="puddSetup ar" value="" amountInput="Y"  />
+							</c:if>				
+						</div>	
 					</td>	
 				</tr>				
 				
