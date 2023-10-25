@@ -221,6 +221,20 @@ public class ContractMainController {
 		return mv;
 	}    
     
+    @RequestMapping("/purchase/SelectTradeAmt.do")
+    @ResponseBody
+    public ModelAndView SelectTradeAmt(@RequestParam Map<String, Object> paramMap, HttpServletRequest request) throws Exception {
+
+		Map<String,Object> resultMap = null;
+		resultMap = contractServiceDAO.SelectTradeAmt(paramMap);
+
+	 
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("jsonView");
+		mv.addAllObjects(resultMap);	// data.result
+		return mv;    	
+    } 	
+
     @RequestMapping(value="/purchase/MeetSaveProc.do", method={RequestMethod.GET, RequestMethod.POST})
 	@ResponseBody
 	public ModelAndView MeetSaveProc(@RequestParam Map<String,Object> params, HttpServletRequest request)

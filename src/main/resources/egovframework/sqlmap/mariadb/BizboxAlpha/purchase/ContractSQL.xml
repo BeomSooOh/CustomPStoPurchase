@@ -1128,6 +1128,20 @@
 	</select>
 	
 	
+	<select	id="ContractSQL.SelectTradeAmt" parameterClass="HashMap" resultClass="HashMap">
+
+	SELECT ifnull(sum(rtrade.trade_amt),0) as trade_amt FROM $DB_NEOS$t_exnp_consdoc cdoc
+		left join $DB_NEOS$t_exnp_resdoc rdoc on cdoc.cons_doc_seq = rdoc.conffer_doc_seq and rdoc.doc_status in ('008' , '90') 
+		left join $DB_NEOS$t_exnp_restrade rtrade on rdoc.res_doc_seq = rtrade.res_doc_seq
+
+		where 
+    	cdoc.out_process_interface_id = 'Conclu01'
+    	and cdoc.out_process_interface_m_id = '$seq$'
+		and cdoc.doc_status in ('008' , '90')
+	
+	</select>
+	
+	
 	<select	id="ContractSQL.SelectConclusionPaymentDocInfo" parameterClass="HashMap" resultClass="HashMap">
 
 		select *  from cust_sto.t_purchase_payment_doc_info where res_doc_seq = '$resDocSeq$'

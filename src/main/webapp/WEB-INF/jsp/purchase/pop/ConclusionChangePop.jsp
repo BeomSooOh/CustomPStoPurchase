@@ -192,7 +192,10 @@
  				var t_amt = parseInt(tr_amt.replace(/,/g, ''));
  				var balance_amt = $(tr).find("input[name='txt_balance_amt']").val();
  				var t_balance_amt = parseInt(balance_amt.replace(/,/g, ''));
- 				var txtbgtBalanceAmt1 = t_balance_amt - t_amt; 
+ 				
+ 				var trade_amt = $("[name=tradeAmt]").val(trade_amt);
+ 				
+ 				var txtbgtBalanceAmt1 = (t_balance_amt + trade_amt) - t_amt ; 
  				$clone.find("td.bgtAmtnum").html("<span style='font-family:굴림;font-size:10px'>" + parseInt(index + 1) + "</span>");
  				$clone.find("td.bgtAmt1Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='pjt_name']").val() + "</span>");
  				$clone.find("td.bgtAmt2Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='erp_bgt2_name']").val() + "</span>");
@@ -858,7 +861,7 @@
 		}
 		
 		function fnChangeEtc(e, tableName){
-			
+
 			if($(e).attr('type') == "radio" || $(e).attr('type') == "select"){
 				$('[name^="' + $(e).attr('name') + '_"]').hide();
 			}
@@ -1023,14 +1026,33 @@
 						
 						 var txt_pay_amt = parseInt((obj.amt).replace(/,/g, ''));
 						 var txt_balance_amt = parseInt((obj.txt_balance_amt).replace(/,/g, ''));
+						 var trade_amt = 0;
 						 
 						if(bgt1Seq == obj.erp_bgt1_seq && bgt2Seq == obj.erp_bgt2_seq && bgt3Seq == obj.erp_bgt3_seq && bgt4Seq == obj.erp_bgt4_seq){
 							
-							if (txt_pay_amt > txt_balance_amt + ch_amt){
-								msgSnackbar("warning", "금액이 예산잔액을 초과합니다.");
-								return;								
-							}
-							
+							params = {};
+							params.seq  = "${seq}";
+							//계약건에 대한 결의액 조회		
+							$.ajax({
+								type : 'post',
+								url : '<c:url value="/purchase/SelectTradeAmt.do" />',
+					    		datatype:"json",
+					            data: params ,
+								async : false,
+								success : function(result) {
+									trade_amt = result.trade_amt
+									$("[name=tradeAmt]").val(trade_amt);
+									
+									if (txt_pay_amt > txt_balance_amt + trade_amt){
+										msgSnackbar("warning", "금액이 예산잔액을 초과합니다.");
+										return;								
+									}
+								},
+								error : function(result) {
+									msgSnackbar("error", "등록에 실패했습니다.");
+								}
+							});
+
 						} else {
 						
 							if (txt_pay_amt > txt_balance_amt){
@@ -1266,7 +1288,7 @@
 			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetErpGisuInfo()))); /* ERP 기수 정보 저장 */
 
 			/* 외부연동 ( 전용개발 또는 내부 개발 항목 - 근태 등 ) */
-			parameter.outProcessInterfaceId = outProcessCode;
+			parameter.outProcessInterfaceId = "Conclu01";
 			parameter.outProcessInterfaceMId = "${seq}";
 			parameter.outProcessInterfaceDId = "DUPLICATE_TEMP";
 			
@@ -1933,7 +1955,7 @@
 							<input type="button" class="psh_btn"
 								onclick="fnCallBtn('attach')" value="첨부파일" />
 						</c:if>
-						<c:if test="${btnApprYn == 'N'}">
+						<c:if test="${btnApprYn == 'Y'}">
 							<input type="button" class="psh_btn"
 								onclick="titleOnClickApp('${contractDetailInfo.appr_dikey_change}','','','','0','${contractDetailInfo.appr_status_change}')"
 								value="품의서보기" />
@@ -2601,8 +2623,8 @@
 
 			<!-- 그리드 테이블 -->
 			<!-- <div class="com_ta6 mt10"> -->
-			<div id="resultAmtListHtmlre" name="resultAmtListHtmlre"
-				class="com_ta6 mt10" style="display: none;">
+			<div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" style="display: none;">
+			<input type="hidden"  name="tradeAmt" value="0"/>
 				<!-- <div id="resultAmtListHtmlre" name="resultAmtListHtmlre" class="com_ta6 mt10" > -->
 				<table id="resultAmtListHtml" name="resultAmtListHtml" border="1"
 					width="100%">

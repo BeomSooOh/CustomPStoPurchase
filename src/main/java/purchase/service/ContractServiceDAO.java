@@ -120,6 +120,13 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 	}	
 	
 	@SuppressWarnings("unchecked")
+	public Map<String, Object> SelectTradeAmt (Map<String, Object> params) {
+		
+		return (Map<String, Object>) select( "ContractSQL.SelectTradeAmt", params );
+		
+	}
+	
+	@SuppressWarnings("unchecked")
 	public Map<String, Object> SelectConclusionPaymentAmt ( Map<String, Object> params ) {
 		
 		return (Map<String, Object>) select( "ContractSQL.SelectConclusionPaymentAmt", params );
