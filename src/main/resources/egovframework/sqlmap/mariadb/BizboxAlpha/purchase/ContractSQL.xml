@@ -160,7 +160,7 @@
 		
 		case when ifnull(a.contract_amt,0) != 0 then 
 		ifnull((
-		select format(a.contract_amt - ifnull(sum(aaa.res_amt),0),0) from cust_sto.t_purchase_payment_doc_info aaa
+		select format(if(ifnull(cc.contract_amt_after,0) > 0, cc.contract_amt_after , a.contract_amt) - ifnull(sum(aaa.res_amt),0),0) from cust_sto.t_purchase_payment_doc_info aaa
 		join $DB_NEOS$t_exnp_resdoc bbb on aaa.res_doc_seq  = bbb.res_doc_seq and IFNULL(bbb.doc_seq, '') != '' and IFNULL(bbb.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
 		where aaa.outProcessCode = 'CONCLUSION' and aaa.seq = a.seq
 		),'0') else '' end as remain_amt,					

@@ -193,9 +193,11 @@
  				var balance_amt = $(tr).find("input[name='txt_balance_amt']").val();
  				var t_balance_amt = parseInt(balance_amt.replace(/,/g, ''));
  				
- 				var trade_amt = $("[name=tradeAmt]").val(trade_amt);
+ 				var trade_amt = $("[name=tradeAmt]").val();
+ 				var t_trade_amt = parseInt(trade_amt);
  				
- 				var txtbgtBalanceAmt1 = (t_balance_amt + trade_amt) - t_amt ; 
+ 				
+ 				var txtbgtBalanceAmt1 = (t_balance_amt + t_trade_amt) - t_amt ; 
  				$clone.find("td.bgtAmtnum").html("<span style='font-family:굴림;font-size:10px'>" + parseInt(index + 1) + "</span>");
  				$clone.find("td.bgtAmt1Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='pjt_name']").val() + "</span>");
  				$clone.find("td.bgtAmt2Name").html("<span style='font-family:굴림;font-size:10px'>" + $(tr).find("input[name='erp_bgt2_name']").val() + "</span>");
@@ -247,6 +249,11 @@
 			$(cloneData1).find("[name=ch_bgt3Seq]").val("${items.erp_bgt3_seq}");
 			$(cloneData1).find("[name=ch_bgt4Seq]").val("${items.erp_bgt4_seq}");	
 			$(cloneData1).find("[name=ch_amt]").val("${items.amt}");
+			
+			$(cloneData1).find("[name=ch_pjt_seq]").val("${items.pjt_seq}");
+			$(cloneData1).find("[name=ch_bottom_seq]").val("${items.bottom_seq}");
+			$(cloneData1).find("[name=ch_erp_budget_seq]").val("${items.erp_budget_seq}");
+			
 			
 			$(cloneData2).find("[name=ch_txtOpenAmt]").text("${items.txt_open_amt}");
 			$(cloneData2).find("[name=ch_txtConsBalanceAmt]").text("${items.txt_cons_balance_amt}");
@@ -983,7 +990,8 @@
 				insertDataObject.attch_file_info = JSON.stringify(attachFormList);
 				insertDataObject.budget_list_info = JSON.stringify(insertDataObject.budgetObjList);
 				
-				
+				var chbudgetYn = 'N';
+				var budgetYn = 'N';
   				var changeAmtSpent = 0;
 				var totalAmt = 0;
 				var beforeAmt = 0;
@@ -1001,7 +1009,7 @@
 					}
 				});	
 					
-				if (totalAmt > 0){
+/* 				if (totalAmt > 0){
 					beforeAmt = parseInt(beforeAmtSpent[1].replace(/,/g, ''));
 					if($("[name=amtInfoList] [name=addData] [amounttype=amt]").val() != "" && $("[name=amtInfoList] [name=addData] [amounttype=amt]").val() != "0"){
 						if(totalAmt != changeAmtSpent){
@@ -1012,14 +1020,19 @@
 						msgSnackbar("warning", "지출금액과 신청금액이 일치하지 않습니다.");
 						return;
 					} 
-				}
+				} */
 						
 				
 				$.each($('[name="ch_amtgetList"] [name=ch_addData_Bgt]'), function( idx, obj ) {
-					var bgt1Seq = $(obj).find("[name=ch_bgt1Seq]").val();
+					
+/* 					var bgt1Seq = $(obj).find("[name=ch_bgt1Seq]").val();
 					var bgt2Seq = $(obj).find("[name=ch_bgt2Seq]").val();
 					var bgt3Seq = $(obj).find("[name=ch_bgt3Seq]").val();
-					var bgt4Seq = $(obj).find("[name=ch_bgt4Seq]").val();
+					var bgt4Seq = $(obj).find("[name=ch_bgt4Seq]").val(); */
+					
+					var ch_pjt_seq = $(obj).find("[name=ch_pjt_seq]").val();
+					var ch_bottom_seq = $(obj).find("[name=ch_bottom_seq]").val();
+					var ch_erp_budget_seq = $(obj).find("[name=ch_erp_budget_seq]").val();
 					var ch_amt = parseInt(($(obj).find("[name=ch_amt]").val()).replace(/,/g, ''));
 				
 					$.each(insertDataObject.budgetObjList, function( idx, obj ) {
@@ -1028,7 +1041,7 @@
 						 var txt_balance_amt = parseInt((obj.txt_balance_amt).replace(/,/g, ''));
 						 var trade_amt = 0;
 						 
-						if(bgt1Seq == obj.erp_bgt1_seq && bgt2Seq == obj.erp_bgt2_seq && bgt3Seq == obj.erp_bgt3_seq && bgt4Seq == obj.erp_bgt4_seq){
+						if(ch_pjt_seq == obj.pjt_seq && ch_bottom_seq == obj.bottom_seq && ch_erp_budget_seq == obj.erp_budget_seq){
 							
 							params = {};
 							params.seq  = "${seq}";
@@ -1044,8 +1057,7 @@
 									$("[name=tradeAmt]").val(trade_amt);
 									
 									if (txt_pay_amt > txt_balance_amt + trade_amt){
-										msgSnackbar("warning", "금액이 예산잔액을 초과합니다.");
-										return;								
+										chbudgetYn = 'Y';
 									}
 								},
 								error : function(result) {
@@ -1053,15 +1065,27 @@
 								}
 							});
 
+
 						} else {
 						
 							if (txt_pay_amt > txt_balance_amt){
-								msgSnackbar("warning", "금액이 예산잔액을 초과합니다.");
-								return;
+								chbudgetYn = 'Y'
 							}
 						}
 					});	
 				});
+				
+				if (chbudgetYn == 'Y'){
+					msgSnackbar("warning", "금액이 예산잔액을 초과합니다.");
+					return;								
+				}
+				
+				if (budgetYn == 'Y'){
+					msgSnackbar("warning", "금액이 예산잔액을 초과합니다.");
+					return;								
+				} 
+				
+				
 				
 /* 				for(var i = 0; i < budgetObjListSpent.length; i++){
 					 var txt_pay_amt = parseInt((budgetObjListSpent[i].amt).replace(/,/g, ''));
@@ -1179,12 +1203,7 @@
 				insertDataObject.change_result_amt_info_html = resultAmtListHtml;
 				
 			}
-			
-			
-			
-			
-			
-			
+
 			insertDataObject.outProcessCode = "Conclusion02";
 			insertDataObject.viewType = "${viewType}";
 			insertDataObject.seq = "${seq}";
@@ -2261,7 +2280,7 @@
 										</td>
 										<td>
 											<div class="posi_re">
-												<input tbval="Y" name="ch_bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />
+												<input tbval="Y" name="ch_bottom_name" type="text" pudd-style="width:calc( 90% );" class="puddSetup pr30" value="" requiredNot="true" readonly />												
 											</div>
 										</td>
 										<td>
@@ -2292,6 +2311,9 @@
 									</colgroup>
 									<tr name="ch_amtBase1" style="display: none;">
 										<input id="ch_bgtSeq" type="hidden" value="" />
+										<input type="hidden"  name="ch_pjt_seq" value=""/>
+										<input type="hidden"  name="ch_bottom_seq" value=""/>
+										<input type="hidden"  name="ch_erp_budget_seq" value=""/>
 										<th>관</th>
 										<td id="ch_bgt1Name" name="ch_bgt1Name"></td>
 										<input type="hidden"  name="ch_bgt1Seq" value=""/>
