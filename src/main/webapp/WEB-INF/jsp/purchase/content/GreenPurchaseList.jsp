@@ -204,15 +204,15 @@
 						}
 					}				
 			}
-			,   {  field : "resDocAmt",	title : "금액",	width : 100
+			,   {  field : "tradeAmt",	title : "금액",	width : 100
 				   , content : {
 					   attributes : { class : "ri" },
 						template : function( rowData ) {
 							
 							if(rowData.docStatus == "007"){
-								return 	'<text style="color:red;text-decoration: line-through;">' + (rowData.resDocAmt + "").replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '</text>';
+								return 	'<text style="color:red;text-decoration: line-through;">' + (rowData.tradeAmt + "").replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '</text>';
 							}else{
-								return 	(rowData.resDocAmt + "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+								return 	(rowData.tradeAmt + "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 							}
 						}
 					}
@@ -350,6 +350,7 @@
 		
 		var reqParam = {};
 		reqParam.resDocSeq = rowData.resDocSeq;
+		reqParam.tradeSeq = rowData.tradeSeq;
 		
 		$.ajax({
 			type : 'post',
@@ -404,7 +405,7 @@
 						,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
 						,	value : btnName
 						,	clickCallback : function( puddActionBar ) {
-								fnCallBtn('purgreenState', rowData.resDocSeq);
+								fnCallBtn('purgreenState', rowData.resDocSeq, rowData.tradeSeq);
 								
 								$('.iframe_wrap').attr('onclick','').unbind('click');
 								puddActionBar.showActionBar( false );
@@ -422,7 +423,7 @@
 						,	controlAttributes : { id : "", class : btnStyle }// control 자체 객체 속성 설정
 						,	value : btnName
 						,	clickCallback : function( puddActionBar ) {
-								fnCallBtn('greenDelState', rowData.resDocSeq);
+								fnCallBtn('greenDelState', rowData.resDocSeq, rowData.tradeSeq);
 								
 								$('.iframe_wrap').attr('onclick','').unbind('click');
 								puddActionBar.showActionBar( false );
@@ -479,10 +480,10 @@
 	
 	var dialogEl;
 	
-	function fnCallBtn(callId, resDocSeq){
+	function fnCallBtn(callId, resDocSeq, tradeSeq){
 
 		if(callId == "greenDelState" || callId == "hopeDelState"){
-			confirmAlert(350, 100, 'question', '삭제하시겠습니까?', '삭제', 'fnDeleteProc("'+callId+'", "'+resDocSeq+'")', '취소', '');
+			confirmAlert(350, 100, 'question', '삭제하시겠습니까?', '삭제', 'fnDeleteProc("'+callId+'", "'+resDocSeq+'", "'+tradeSeq+'")', '취소', '');
 		}else {
 
 			// puddDialog 함수
@@ -506,7 +507,7 @@
 			 
 			,	body : {
 					iframe : true
-				,	url : "${pageContext.request.contextPath}/purchase/layer/"+callId+"SetLayer.do?resDocSeq=" + resDocSeq
+				,	url : "${pageContext.request.contextPath}/purchase/layer/"+callId+"SetLayer.do?resDocSeq=" + resDocSeq + "&tradeSeq=" + tradeSeq
 				,	iframeAttribute : {
 					id : "dlgFrame"
 				}				
@@ -540,11 +541,12 @@
 		
 	}
 	
-	function fnDeleteProc(callId, resDocSeq){
+	function fnDeleteProc(callId, resDocSeq, tradeSeq){
 		
 		var reqParam = {};
 		
 		reqParam.res_doc_seq = resDocSeq;
+		reqParam.trade_seq = tradeSeq;
 		reqParam.seq = seq;
 		reqParam.out_process_interface_id = out_process_interface_id;
 		
@@ -770,7 +772,7 @@
     		excel.set( 0, 3, rowNo, dataPage[ i ][ "deptName" ], formatCell );
     		excel.set( 0, 4, rowNo, dataPage[ i ][ "empName" ], formatCell );
     		excel.set( 0, 5, rowNo, dataPage[ i ][ "docDate" ].substring(0,4) + "-" + dataPage[ i ][ "docDate" ].substring(4,6) + "-" + dataPage[ i ][ "docDate" ].substring(6,8), formatCell );
-    		excel.set( 0, 6, rowNo, (dataPage[ i ][ "resDocAmt" ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), formatCellR );
+    		excel.set( 0, 6, rowNo, (dataPage[ i ][ "tradeAmt" ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), formatCellR );
     		
     		
     		if (dataPage[ i ][ "item_green_cert_type" ] != "" || dataPage[ i ][ "p_item_green_cert_type" ] != "" ) {

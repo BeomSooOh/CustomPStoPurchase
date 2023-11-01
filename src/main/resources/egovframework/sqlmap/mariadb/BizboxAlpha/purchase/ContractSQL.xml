@@ -141,28 +141,28 @@
 		ifnull((
 		select format(sum(aaa.res_amt),0) from cust_sto.t_purchase_payment_doc_info aaa
 		join $DB_NEOS$t_exnp_resdoc bbb on aaa.res_doc_seq  = bbb.res_doc_seq and IFNULL(bbb.doc_seq, '') != '' and IFNULL(bbb.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
-		where aaa.outProcessCode = 'CONCLUSION' and aaa.seq = a.seq and aaa.pay_type = 'A'
+		where (aaa.outProcessCode = 'CONCLUSION' or aaa.outProcessCode = 'CONCLUSION_CH') and aaa.seq = a.seq and aaa.pay_type = 'A'
 		),'0') else '' end as pay_amt_a,
 		
 		case when ifnull(a.contract_amt,0) != 0 then 
 		ifnull((
 		select format(sum(aaa.res_amt),0) from cust_sto.t_purchase_payment_doc_info aaa
 		join $DB_NEOS$t_exnp_resdoc bbb on aaa.res_doc_seq  = bbb.res_doc_seq and IFNULL(bbb.doc_seq, '') != '' and IFNULL(bbb.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
-		where aaa.outProcessCode = 'CONCLUSION' and aaa.seq = a.seq and aaa.pay_type = 'B'
+		where (aaa.outProcessCode = 'CONCLUSION' or aaa.outProcessCode = 'CONCLUSION_CH') and aaa.seq = a.seq and aaa.pay_type = 'B'
 		),'0') else '' end as pay_amt_b,
 		
 		case when ifnull(a.contract_amt,0) != 0 then 
 		ifnull((
 		select format(sum(aaa.res_amt),0) from cust_sto.t_purchase_payment_doc_info aaa
 		join $DB_NEOS$t_exnp_resdoc bbb on aaa.res_doc_seq  = bbb.res_doc_seq and IFNULL(bbb.doc_seq, '') != '' and IFNULL(bbb.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
-		where aaa.outProcessCode = 'CONCLUSION' and aaa.seq = a.seq and aaa.pay_type = 'C'
+		where (aaa.outProcessCode = 'CONCLUSION' or aaa.outProcessCode = 'CONCLUSION_CH') and aaa.seq = a.seq and aaa.pay_type = 'C'
 		),'0') else '' end as pay_amt_c,		
 		
 		case when ifnull(a.contract_amt,0) != 0 then 
 		ifnull((
 		select format(if(ifnull(cc.contract_amt_after,0) > 0, cc.contract_amt_after , a.contract_amt) - ifnull(sum(aaa.res_amt),0),0) from cust_sto.t_purchase_payment_doc_info aaa
 		join $DB_NEOS$t_exnp_resdoc bbb on aaa.res_doc_seq  = bbb.res_doc_seq and IFNULL(bbb.doc_seq, '') != '' and IFNULL(bbb.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
-		where aaa.outProcessCode = 'CONCLUSION' and aaa.seq = a.seq
+		where (aaa.outProcessCode = 'CONCLUSION' or aaa.outProcessCode = 'CONCLUSION_CH') and aaa.seq = a.seq
 		),'0') else '' end as remain_amt,					
 		
 		ifnull(a.contract_attach_info,'') as contract_attach_info,
@@ -1194,7 +1194,9 @@
 	  b.cons_doc_seq , b.cons_seq 
 	  from $DB_NEOS$t_exnp_consdoc a
 	  join $DB_NEOS$t_exnp_conshead b on a.cons_doc_seq =b.cons_doc_seq 
-	  where a.out_process_interface_id = 'Conclu01' and a.out_process_interface_m_id = '$seq$';  
+	  where 
+	  a.out_process_interface_id = '$consOutProcessCode$' 
+	  and a.out_process_interface_m_id = '$seq$';  
 	 
 	 </select> 	
 	 

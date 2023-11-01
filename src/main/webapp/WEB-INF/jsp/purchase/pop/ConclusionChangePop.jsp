@@ -1307,7 +1307,7 @@
 			parameter = JSON.parse(JSON.stringify($.extend(parameter, Option.Common.GetErpGisuInfo()))); /* ERP 기수 정보 저장 */
 
 			/* 외부연동 ( 전용개발 또는 내부 개발 항목 - 근태 등 ) */
-			parameter.outProcessInterfaceId = "Conclu01";
+			parameter.outProcessInterfaceId = outProcessCode;
 			parameter.outProcessInterfaceMId = "${seq}";
 			parameter.outProcessInterfaceDId = "DUPLICATE_TEMP";
 			

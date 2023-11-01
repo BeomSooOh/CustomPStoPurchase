@@ -661,6 +661,17 @@
 
 	</update>
 	
+	<update	id="CommonSQL.paymentChange" parameterClass="HashMap" >
+	
+		update cust_sto.t_purchase_payment_doc_info
+		set
+		outProcessCode = 'CONCLUSION_CH'
+		where
+		seq = '$out_process_interface_m_id$';
+
+	</update>
+	
+	
 	<update	id="CommonSQL.updateDeptCons" parameterClass="HashMap" >
 	
 		update $DB_NEOS$t_exnp_consdoc 
@@ -818,7 +829,7 @@
 		ifnull(b.LINK,'') as LINK
 		from cust_sto.t_purchase_code_detail a
 		left join cust_sto.t_purchase_code_detail b on b.`GROUP` = 'PURCHASE_GOAL' and concat(a.CODE, '_$purchaseGoalYear$') = b.CODE 
-		where a.`GROUP` = 'hopeCompany' and a.CODE != '00'
+		where a.`GROUP` = 'hopeCompany' and a.CODE != '00' and a.CODE != '06' and a.CODE != '07' 
 		order by ifnull(b.ORDER_NUM,a.ORDER_NUM)
 		</isEqual>
 		<isNotEqual property="GROUP" compareValue="PURCHASE_GOAL">
@@ -847,27 +858,34 @@
 		d.out_process_interface_m_id,
         d.out_process_interface_id,
         a.tr_seq ,
+        a.trade_seq,
         a.tr_name,
 		ifnull(b.item_green_cert_type,'') as item_green_cert_type, 
+		ifnull(b.item_green_attach_info,'') as item_green_attach_info,
 		ifnull(b.item_green_class,'') as item_green_class,
 		d.out_process_interface_m_id,
 		ifnull(i.item_green_cert_type,'') as p_item_green_cert_type,
  		ifnull(i.item_green_class,'') as p_item_green_class, 
 		b.created_dt, b.created_by
 		FROM $DB_NEOS$t_exnp_restrade a
-		left join cust_sto.t_purchase_res_green_info b on b.res_doc_seq = a.res_doc_seq and a.tr_seq = b.tr_seq 
+		left join cust_sto.t_purchase_res_green_info b on b.res_doc_seq = a.res_doc_seq and a.tr_seq = b.tr_seq and (case when b.trade_seq = '0' then (b.tr_seq = a.tr_seq) else (b.trade_seq = a.trade_seq) end)
 		left join t_exnp_resdoc d on d.res_doc_seq = a.res_doc_seq
 		left join cust_sto.t_purchase_item_info i on i.seq = d.out_process_interface_m_id and a.tr_seq = i.item_tr_seq
 
 		where a.res_doc_seq = '$resDocSeq$'
+		
+		<isNotEmpty property="tradeSeq">
+		and a.trade_seq = '$tradeSeq$'
+		</isNotEmpty>
+
 		
 	</select>
 	
 	<insert	id="CommonSQL.InsertPurchaseResGreenInfo" parameterClass="HashMap" >
 		
 		INSERT INTO cust_sto.t_purchase_res_green_info
-		(res_doc_seq, tr_seq, item_green_cert_type, item_green_class, created_dt, created_by)
-		VALUES('$res_doc_seq$','$tr_seq$', '$item_green_cert_type$', '$item_green_class$', NOW(), '$created_by$');
+		(res_doc_seq,trade_seq ,tr_seq, item_green_cert_type,item_green_attach_info ,item_green_class, created_dt, created_by)
+		VALUES('$res_doc_seq$', '$trade_seq$' ,'$tr_seq$', '$item_green_cert_type$', '$item_green_attach_info$','$item_green_class$', NOW(), '$created_by$');
 
 	</insert>
 	
@@ -876,7 +894,8 @@
   		UPDATE cust_sto.t_purchase_item_info
 		SET 
 		item_green_cert_type = '$item_green_cert_type$',
-		item_green_class = '$item_green_class$'
+		item_green_class = '$item_green_class$',
+		item_green_attach_info = '$item_green_attach_info$'
 		WHERE seq = '$out_process_interface_m_id$' and item_tr_seq = '$tr_seq$'
 
 	</update>	
@@ -885,7 +904,14 @@
 	
 	<delete	id="CommonSQL.DeletePurchaseResGreenInfo" parameterClass="HashMap" >
 		
-		delete from cust_sto.t_purchase_res_green_info where res_doc_seq = '$res_doc_seq$';
+		delete from cust_sto.t_purchase_res_green_info where res_doc_seq = '$res_doc_seq$'
+		<isNotEmpty property="tr_seq">
+		and tr_seq = '$tr_seq$'
+		</isNotEmpty>
+		<isNotEmpty property="trade_seq">
+		and trade_seq = '$trade_seq$'
+		</isNotEmpty>
+		;
 
 	</delete>
 	
@@ -903,7 +929,7 @@
 
 	<select	id="CommonSQL.SelectPurchaseResHopeInfoList" parameterClass="HashMap" resultClass="HashMap">
 		
-		select distinct
+		select 
 		a.res_doc_seq
 		,a.trade_seq
 		, IFNULL(d.out_process_interface_id, '') AS 'out_process_interface_id'
@@ -923,7 +949,7 @@
 		,ifnull(p.hope_company_info,'') as p_hope_company_info
 		,ifnull(p.hope_attach_info,'') as p_hope_attach_info
 		from $DB_NEOS$t_exnp_restrade a
-		left join cust_sto.t_purchase_res_hope_info b on a.res_doc_seq = b.res_doc_seq  and a.tr_seq = b.tr_seq
+		left join cust_sto.t_purchase_res_hope_info b on a.res_doc_seq = b.res_doc_seq  and a.tr_seq = b.tr_seq and a.trade_seq = b.trade_seq
 		left join t_exnp_resdoc d on d.res_doc_seq = a.res_doc_seq
 		left join cust_sto.t_purchase_contract c on c.seq = d.out_process_interface_m_id and out_process_interface_id = 'CONCLUSION'
 		left join cust_sto.t_purchase_trade_info p on p.seq = d.out_process_interface_m_id and outProcessCode = 'Purchase01' and p.tr_seq = a.tr_seq
@@ -946,6 +972,11 @@
          	ON   gwlink.appr_dikey = d.doc_seq
 		 
 		where a.res_doc_seq = '$resDocSeq$'	
+		
+		<isNotEmpty property="tradeSeq">
+		and a.trade_seq = '$tradeSeq$'
+		</isNotEmpty>
+
 		
 	</select>
 	
@@ -987,7 +1018,11 @@
 		res_doc_seq = '$res_doc_seq$'
 		<isNotEmpty property="tr_seq">
 		and tr_seq = '$tr_seq$'
-		</isNotEmpty>		
+		</isNotEmpty>
+		<isNotEmpty property="trade_seq">
+		and trade_seq = '$trade_seq$'
+		</isNotEmpty>
+				
 
 	</delete>
 	
@@ -1025,10 +1060,9 @@
 		(
 			select
 			code0.name,
-			-- 목표금액
 			ifnull(code1.NOTE,'-') as goal_amt,	
 			
-			-- 계약금액/카운트
+
 			ifnull((select
 			sum(c.trade_amt)
 			from cust_sto.t_purchase_contract a
@@ -1042,7 +1076,7 @@
 			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 			</isNotEmpty>
 			and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')),0) as conclusion_amt,
-			(select count(distinct a.seq)
+			(select count(distinct b.res_doc_seq)
 			from cust_sto.t_purchase_contract a
 			join $DB_NEOS$t_exnp_resdoc b on a.seq = b.out_process_interface_m_id and b.out_process_interface_id = 'CONCLUSION' and b.doc_status = '008'
 			join $DB_NEOS$t_exnp_restrade c on b.res_doc_seq = c.res_doc_seq 
@@ -1055,7 +1089,7 @@
 			</isNotEmpty>
 			and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')) as conclusion_cnt,	
 				
-			-- 물품구매금액/카운트
+			
 			ifnull((select
 			sum(d.trade_amt)
 			from cust_sto.t_purchase_purchase a
@@ -1070,11 +1104,11 @@
 			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 			</isNotEmpty>
 			and concat('▦',c.hope_company_info) like concat('%▦', code0.code, '▦%')),0) as purchase_amt,
-			(select count(distinct a.seq)
+			(select count(distinct b.res_doc_seq)
 			from cust_sto.t_purchase_purchase a
 			join $DB_NEOS$t_exnp_resdoc b on a.seq  = b.out_process_interface_m_id and b.out_process_interface_id = 'PURCHASE' and b.doc_status = '008'
 			join cust_sto.t_purchase_trade_info c on a.seq = c.seq
-			join $DB_NEOS$t_exnp_restrade d on b.res_doc_seq = d.res_doc_seq and c.tr_seq = d.tr_seq
+			join $DB_NEOS$t_exnp_restrade d on b.res_doc_seq = d.res_doc_seq and c.tr_seq = d.tr_seq 
 			<isNotEmpty property="deptSeq">
 			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
 			</isNotEmpty>
@@ -1084,12 +1118,12 @@
 			</isNotEmpty>
 			and concat('▦',c.hope_company_info) like concat('%▦', code0.code, '▦%')) as purchase_cnt,		
 			
-			-- 기타결의금액/카운트
+			
 			ifnull((select
 			sum(c.trade_amt)
 			from cust_sto.t_purchase_res_hope_info a
 			join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and b.doc_status = '008'
-			join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq
+			join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq and (case when a.trade_seq = '0' then (a.tr_seq = c.tr_seq) else (a.trade_seq = c.trade_seq) end)
 			<isNotEmpty property="deptSeq">
 			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
 			</isNotEmpty>
@@ -1098,10 +1132,10 @@
 			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 			</isNotEmpty>				 
 			and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')),0) as etc_res_amt,		
-			(select	count(distinct a.res_doc_seq )
+			(select	count(distinct b.res_doc_seq )
 			from cust_sto.t_purchase_res_hope_info a
 			join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and b.doc_status = '008'
-			join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq
+			join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq and (case when a.trade_seq = '0' then (a.tr_seq = c.tr_seq) else (a.trade_seq = c.trade_seq) end)
 			<isNotEmpty property="deptSeq">
 			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
 			</isNotEmpty>
@@ -1120,7 +1154,7 @@
 			<isNotEmpty property="deptSeq">
 			and concat(code0.CODE, '_$year$$deptSeq$') = code1.CODE and code1.USE_YN = 'Y'
 			</isNotEmpty>
-			where code0.`GROUP` = 'hopeCompany' and code0.CODE != '00'
+			where code0.`GROUP` = 'hopeCompany' and code0.CODE != '00' and code0.CODE != '06' and code0.CODE != '07' 
 		) result_data
 		order by order_num
 

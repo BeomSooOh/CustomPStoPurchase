@@ -409,6 +409,7 @@
 				if(fnValidationCheck() == true){
 
 					insertDataObject.res_doc_seq = "${params.resDocSeq}";
+					insertDataObject.trade_seq = "${params.tradeSeq}";
 					insertDataObject.res_hope_info_list = JSON.stringify(insertDataObject.tradeObjList);
 					
 					$.ajax({

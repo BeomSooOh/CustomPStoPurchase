@@ -451,6 +451,8 @@ public class CommonServiceImpl implements CommonService {
 	public void confferReturn ( Map<String, Object> params ) {
 		
 		commonServiceDAO.confferReturn(params);
+		commonServiceDAO.paymentChange(params);
+		
 		
 	}	
 	

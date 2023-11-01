@@ -781,9 +781,21 @@
 					}
 				}					
 			,	{
-						field : "work_info_after"
+						field : ""
 					,	title : "과업내용변경"
 					,	width : 100
+					
+					,	content : {		
+						template : function(rowData) {
+							
+							if(rowData.work_info_after != ""){
+								return "V"
+							}else{
+								return "";
+							}
+							
+						}
+					}
 				}
 			,	{
 						field : "contract_end_dt_after"

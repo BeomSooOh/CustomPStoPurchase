@@ -803,6 +803,7 @@
   from 
   (SELECT
    d.res_doc_seq AS 'resDocSeq'
+   ,tr.trade_seq AS 'tradeSeq'
    , IFNULL(d.out_process_interface_id, '') AS 'out_process_interface_id'
    , IFNULL(d.out_process_interface_m_id, '') AS 'out_process_interface_m_id'
    , IFNULL(c.c_target_type, '') AS 'c_target_type'
@@ -821,12 +822,15 @@
    , d.send_date  AS 'sendDate'
    , d.send_emp_name AS 'sendName'
    , r.c_riaftertitle AS 'docTitle'
+   , sum(distinct tr.trade_amt)  AS 'tradeAmt'
    , sum(distinct amt.resDocAmt)  AS 'resDocAmt'
    , sum(distinct amt.resDocTaxAmt) AS 'resDocTaxAmt'
    , sum(distinct amt.resDocStdAmt) AS 'resDocStdAmt'
    , d.erp_send_yn AS 'erpSendYN'
    , d.save_yn  AS 'saveYn'
    , 'EA'   AS 'eaType'
+   ,tr.tr_name AS tr_name
+   ,tr.business_nb  AS businessNb
    , ifnull((select group_concat(distinct tr_name) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(tr_name,'') != ''),'') as 'trName'
    , ifnull((select group_concat(distinct business_nb) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(business_nb,'') != ''),'') as 'business_nb'
    , ifnull(hope.hope_company_info,'') as hope_company_info
@@ -922,7 +926,7 @@
   </isEqual>  
    
   and out_process_interface_m_id != ''
-  group by out_process_interface_m_id
+  group by tradeSeq
   
   
   union all
@@ -931,6 +935,7 @@
   
   SELECT
    d.res_doc_seq AS 'resDocSeq'
+   ,tr.trade_seq AS 'tradeSeq'
    , IFNULL(d.out_process_interface_id, '') AS 'out_process_interface_id'
    , IFNULL(d.out_process_interface_m_id, '') AS 'out_process_interface_m_id'
    , IFNULL(c.c_target_type, '') AS 'c_target_type'
@@ -949,12 +954,15 @@
    , d.send_date  AS 'sendDate'
    , d.send_emp_name AS 'sendName'
    , r.c_riaftertitle AS 'docTitle'
+   , tr.trade_amt AS 'tradeAmt'
    , amt.resDocAmt  AS 'resDocAmt'
    , amt.resDocTaxAmt AS 'resDocTaxAmt'
    , amt.resDocStdAmt AS 'resDocStdAmt'
    , d.erp_send_yn AS 'erpSendYN'
    , d.save_yn  AS 'saveYn'
    , 'EA'   AS 'eaType'
+   ,tr.tr_name AS tr_name
+   ,tr.business_nb  AS businessNb
    , ifnull((select group_concat(distinct tr_name) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(tr_name,'') != ''),'') as 'trName'
    , ifnull((select group_concat(distinct business_nb) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(business_nb,'') != ''),'') as 'business_nb'
    , ifnull(hope.hope_company_info,'') as hope_company_info
@@ -970,8 +978,7 @@
   left join $DB_NEOS$t_exnp_restrade tr on tr.res_doc_seq = d.res_doc_seq
   left join cust_sto.t_purchase_contract c on c.seq = d.out_process_interface_m_id and out_process_interface_id = 'CONCLUSION'
   left join cust_sto.t_purchase_trade_info p on p.seq = d.out_process_interface_m_id and outProcessCode = 'Purchase01'
-  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq
-  
+  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq and hope.tr_seq = tr.tr_seq and (case when hope.trade_seq = '0' then (hope.tr_seq = tr.tr_seq) else (hope.trade_seq = tr.trade_seq) end)
     
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
@@ -1050,6 +1057,7 @@
   </isEqual> 
   
   and out_process_interface_m_id = ''
+
   ) a
     
  </select> 
@@ -1058,6 +1066,7 @@
   
    SELECT
    d.res_doc_seq AS 'resDocSeq'
+   ,tr.trade_seq AS 'tradeSeq'
    , IFNULL(d.out_process_interface_id, '') AS 'out_process_interface_id'
    , IFNULL(d.out_process_interface_m_id, '') AS 'out_process_interface_m_id'
    , IFNULL(c.c_target_type, '') AS 'c_target_type'
@@ -1076,12 +1085,15 @@
    , d.send_date  AS 'sendDate'
    , d.send_emp_name AS 'sendName'
    , r.c_riaftertitle AS 'docTitle'
+   , sum(distinct tr.trade_amt)  AS 'tradeAmt'
    , sum(distinct amt.resDocAmt)  AS 'resDocAmt'
    , sum(distinct amt.resDocTaxAmt) AS 'resDocTaxAmt'
    , sum(distinct amt.resDocStdAmt) AS 'resDocStdAmt'
    , d.erp_send_yn AS 'erpSendYN'
    , d.save_yn  AS 'saveYn'
    , 'EA'   AS 'eaType'
+   ,tr.tr_name AS tr_name
+   ,tr.business_nb  AS businessNb
    , ifnull((select group_concat(distinct tr_name) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(tr_name,'') != ''),'') as 'trName'
    , ifnull((select group_concat(distinct business_nb) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(business_nb,'') != ''),'') as 'business_nb'
    , ifnull(hope.hope_company_info,'') as hope_company_info
@@ -1096,7 +1108,7 @@
   left join $DB_NEOS$t_exnp_restrade tr on tr.res_doc_seq = d.res_doc_seq
   left join cust_sto.t_purchase_contract c on c.seq = d.out_process_interface_m_id and out_process_interface_id = 'CONCLUSION'
   left join cust_sto.t_purchase_trade_info p on p.seq = d.out_process_interface_m_id and outProcessCode = 'Purchase01'
-  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq
+  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq and hope.tr_seq = tr.tr_seq 
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
   INNER JOIN (
@@ -1177,7 +1189,7 @@
 	</isEqual>
 
    and out_process_interface_m_id != ''
-   group by out_process_interface_m_id
+   group by tradeSeq
   
 
   
@@ -1187,6 +1199,7 @@
 
    SELECT
    d.res_doc_seq AS 'resDocSeq'
+   ,tr.trade_seq AS 'tradeSeq'
    , IFNULL(d.out_process_interface_id, '') AS 'out_process_interface_id'
    , IFNULL(d.out_process_interface_m_id, '') AS 'out_process_interface_m_id'
    , IFNULL(c.c_target_type, '') AS 'c_target_type'
@@ -1205,12 +1218,15 @@
    , d.send_date  AS 'sendDate'
    , d.send_emp_name AS 'sendName'
    , r.c_riaftertitle AS 'docTitle'
+   ,tr.trade_amt AS 'tradeAmt'
    , amt.resDocAmt  AS 'resDocAmt'
    , amt.resDocTaxAmt AS 'resDocTaxAmt'
    , amt.resDocStdAmt AS 'resDocStdAmt'
    , d.erp_send_yn AS 'erpSendYN'
    , d.save_yn  AS 'saveYn'
    , 'EA'   AS 'eaType'
+   ,tr.tr_name AS tr_name
+   ,tr.business_nb  AS businessNb
    , ifnull((select group_concat(distinct tr_name) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(tr_name,'') != ''),'') as 'trName'
    , ifnull((select group_concat(distinct business_nb) from t_exnp_restrade where res_doc_seq = d.res_doc_seq and ifnull(tr_seq,'') != '' and ifnull(business_nb,'') != ''),'') as 'business_nb'
    , ifnull(hope.hope_company_info,'') as hope_company_info
@@ -1225,7 +1241,7 @@
   left join $DB_NEOS$t_exnp_restrade tr on tr.res_doc_seq = d.res_doc_seq
   left join cust_sto.t_purchase_contract c on c.seq = d.out_process_interface_m_id and out_process_interface_id = 'CONCLUSION'
   left join cust_sto.t_purchase_trade_info p on p.seq = d.out_process_interface_m_id and outProcessCode = 'Purchase01'
-  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq
+  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq and hope.tr_seq = tr.tr_seq and (case when hope.trade_seq = '0' then (hope.tr_seq = tr.tr_seq) else (hope.trade_seq = tr.trade_seq) end) 
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
   INNER JOIN (
@@ -1320,6 +1336,7 @@
   (
   SELECT
    d.res_doc_seq AS 'resDocSeq'
+   ,res.trade_seq AS 'tradeSeq'
    , t.c_tiname AS 'c_tiname'
    , d.doc_seq AS 'docSeq'
    , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
@@ -1337,6 +1354,9 @@
    , d.send_date  AS 'sendDate'
    , d.send_emp_name AS 'sendName'
    , r.c_riaftertitle AS 'docTitle'
+    , res.trade_amt AS 'tradeAmt' 
+ 	, res.tr_name AS tr_name
+ 	, res.business_nb  AS businessNb
    , sum(distinct amt.resDocAmt)  AS 'resDocAmt'
    , sum(distinct amt.resDocTaxAmt) AS 'resDocTaxAmt'
    , sum(distinct amt.resDocStdAmt) AS 'resDocStdAmt'
@@ -1439,7 +1459,7 @@
   </isEqual>  
   
   and out_process_interface_m_id != ''
-  group by out_process_interface_m_id
+  group by tradeSeq
   
   
   union all 
@@ -1447,6 +1467,7 @@
   
   SELECT
    d.res_doc_seq AS 'resDocSeq'
+   ,res.trade_seq AS 'tradeSeq'
    , t.c_tiname AS 'c_tiname'
    , d.doc_seq AS 'docSeq'
    , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
@@ -1464,6 +1485,9 @@
    , d.send_date  AS 'sendDate'
    , d.send_emp_name AS 'sendName'
    , r.c_riaftertitle AS 'docTitle'
+   , res.trade_amt AS 'tradeAmt' 
+   , res.tr_name AS tr_name
+   , res.business_nb  AS businessNb
    , amt.resDocAmt  AS 'resDocAmt'
    , amt.resDocTaxAmt AS 'resDocTaxAmt'
    , amt.resDocStdAmt AS 'resDocStdAmt'
@@ -1484,7 +1508,7 @@
   
   left join $DB_NEOS$a_templateinfo  t on t.c_tikeycode  = d.form_seq
   left join $DB_NEOS$t_exnp_restrade res on res.res_doc_seq = d.res_doc_seq
-  left join cust_sto.t_purchase_res_green_info green on green.res_doc_seq = res.res_doc_seq  and green.tr_seq = res.tr_seq 
+  left join cust_sto.t_purchase_res_green_info green on green.res_doc_seq = res.res_doc_seq  and green.tr_seq = res.tr_seq and (case when green.trade_seq = '0' then (green.tr_seq = res.tr_seq) else (green.trade_seq = res.trade_seq) end) 
   left join cust_sto.t_purchase_item_info m on m.seq = d.out_process_interface_m_id and m.item_tr_seq = res.tr_seq  
   
   	  
@@ -1574,6 +1598,7 @@
   
   SELECT
    d.res_doc_seq AS 'resDocSeq'
+   ,res.trade_seq AS 'tradeSeq'
    , t.c_tiname AS 'c_tiname'
    , d.doc_seq AS 'docSeq'
    , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
@@ -1591,6 +1616,9 @@
    , d.send_date  AS 'sendDate'
    , d.send_emp_name AS 'sendName'
    , r.c_riaftertitle AS 'docTitle'
+   , res.trade_amt AS 'tradeAmt' 
+   , res.tr_name AS tr_name
+   , res.business_nb  AS businessNb
    , sum(distinct amt.resDocAmt)  AS 'resDocAmt'
    , sum(distinct amt.resDocTaxAmt) AS 'resDocTaxAmt'
    , sum(distinct amt.resDocStdAmt) AS 'resDocStdAmt'
@@ -1693,7 +1721,7 @@
 	</isEqual>
   
   and out_process_interface_m_id != ''
-  group by out_process_interface_m_id
+  group by tradeSeq
   
   
   union all 
@@ -1701,6 +1729,7 @@
   
    SELECT
    d.res_doc_seq AS 'resDocSeq'
+   , res.trade_seq AS 'tradeSeq'
    , t.c_tiname AS 'c_tiname'
    , d.doc_seq AS 'docSeq'
    , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
@@ -1718,6 +1747,9 @@
    , d.send_date  AS 'sendDate'
    , d.send_emp_name AS 'sendName'
    , r.c_riaftertitle AS 'docTitle'
+   , res.trade_amt AS 'tradeAmt' 
+   , res.tr_name AS tr_name
+   , res.business_nb  AS businessNb
    , amt.resDocAmt  AS 'resDocAmt'
    , amt.resDocTaxAmt AS 'resDocTaxAmt'
    , amt.resDocStdAmt AS 'resDocStdAmt'
@@ -1738,7 +1770,7 @@
   
   left join $DB_NEOS$a_templateinfo  t on t.c_tikeycode  = d.form_seq
   left join $DB_NEOS$t_exnp_restrade res on res.res_doc_seq = d.res_doc_seq
-  left join cust_sto.t_purchase_res_green_info green on green.res_doc_seq = res.res_doc_seq  and green.tr_seq = res.tr_seq 
+  left join cust_sto.t_purchase_res_green_info green on green.res_doc_seq = res.res_doc_seq  and green.tr_seq = res.tr_seq and (case when green.trade_seq = '0' then (green.tr_seq = res.tr_seq) else (green.trade_seq = res.trade_seq) end)
   left join cust_sto.t_purchase_item_info m on m.seq = d.out_process_interface_m_id and m.item_tr_seq = res.tr_seq  
   
   	  
