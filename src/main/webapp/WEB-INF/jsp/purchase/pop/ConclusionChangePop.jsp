@@ -1268,10 +1268,31 @@
 				success : function(result) {
 					
 					if(result.resultCode == "SUCCESS"){
+						
 						parameter.out_process_interface_id = outProcessCode;
-						conclusionbudgetList = insertDataObject.budgetObjList;
-						conclusionRemainAmt = parseInt(insertDataObject.meet_amt_spent);
-						fnConsDocInsert();
+						
+						$.ajax({
+							type : 'post',
+							url : '<c:url value="/DelConsTemp.do" />',
+				    		datatype:"json",
+				            data: parameter ,
+							async : false,
+							success : function(result) {
+								
+								if(result.resultCode == "SUCCESS"){
+									conclusionbudgetList = insertDataObject.budgetObjList;
+									conclusionRemainAmt = insertDataObject.contract_amt;
+									fnConsDocInsert();
+								}else{
+									msgSnackbar("error", "품의데이터 초기화 오류");	
+								}
+								
+							},
+							error : function(result) {
+								msgSnackbar("error", "품의데이터 초기화 오류");
+							}
+						});	
+
 					}else{
 						msgSnackbar("error", "품의데이터 초기화 오류");	
 					}
