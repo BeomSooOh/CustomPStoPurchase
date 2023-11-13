@@ -45,7 +45,7 @@ public class CommonServiceImpl implements CommonService {
 		for (Map<String, Object> map : changeInfoList) {
 			map.put("GROUP", params.get("GROUP"));
 			
-			if(params.get("GROUP").equals("PURCHASE_GOAL")) {
+			if(params.get("GROUP").equals("PURCHASE_GOAL") || params.get("GROUP").equals("GREEN_GOAL")) {
 				
 				map.put("group", params.get("GROUP"));
 				map.put("code", map.get("CODE"));
@@ -509,13 +509,13 @@ public class CommonServiceImpl implements CommonService {
 			
 			commonServiceDAO.InsertPurchaseResHopeInfo(map);
 			
-			if(map.get("out_process_interface_id").equals("PURCHASE")) {
-				commonServiceDAO.UpdatePurchaseTradeHopeInfo(map);
-			}
-			
-			if(map.get("out_process_interface_id").equals("CONCLUSION")) {
-				commonServiceDAO.UpdatePurchaseContractHopeInfo(map);
-			}
+//			if(map.get("out_process_interface_id").equals("PURCHASE")) {
+//				commonServiceDAO.UpdatePurchaseTradeHopeInfo(map);
+//			}
+//			
+//			if(map.get("out_process_interface_id").equals("CONCLUSION")) {
+//				commonServiceDAO.UpdatePurchaseContractHopeInfo(map);
+//			}
 			
 			
 		}

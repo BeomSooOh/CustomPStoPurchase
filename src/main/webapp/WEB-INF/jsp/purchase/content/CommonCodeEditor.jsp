@@ -150,7 +150,7 @@
 			$("#adminSaveBtn").hide();
 			$("[name=codeEditBtn]").show();
 			
-			if(selGroup == "PURCHASE_GOAL"){
+			if(selGroup == "PURCHASE_GOAL" || selGroup == "GREEN_GOAL"){
 				$("#yearSelect").show();
 				$("[name=codeEditBtn]").hide();
 			}else{
@@ -187,7 +187,7 @@
 			
 			var colArray = [];
 			
-			if(selGroup != "PURCHASE_GOAL"){
+			if(selGroup != "PURCHASE_GOAL" && selGroup != "GREEN_GOAL"){
 				
 				colArray.push({
 					field : "gridCheckBox"		// grid 내포 checkbox 사용할 경우 고유값 전달
@@ -223,15 +223,18 @@
 			
 			colArray.push({
 				field : "NAME"
-					,	title : selGroup == "PURCHASE_GOAL" ? "희망기업구분" : "코드명"
+					// ,	title : selGroup == "PURCHASE_GOAL" ? "희망기업구분" : "코드명"
+					,	title : selGroup == "PURCHASE_GOAL" ? "희망기업구분" 
+							     : selGroup == "GREEN_GOAL" ? "녹색제품구분"
+								 : "코드명"
 					,	width : 90
 					,	content : {
 							template : function( rowData ) {
 								
-								if(selGroup == "PURCHASE_GOAL"){
+								if(selGroup == "PURCHASE_GOAL" || selGroup == "GREEN_GOAL"){
 									return rowData.NAME;
 								}else{
-									return '<input '+(selGroup == "PURCHASE_GOAL" ? "readonly" : "")+' onkeyup="fnSetChangeInfo(\''+rowData.CODE+'\', \'NAME\', \''+rowData.NAME+'\', this.value)" class="puddSetup ac" type="text" value="' + rowData.NAME + '" pudd-style="height:100%;width:100%;"/>';	
+									return '<input '+(selGroup == "PURCHASE_GOAL" ? "readonly" : selGroup == "GREEN_GOAL" ? "readonly" : "")+' onkeyup="fnSetChangeInfo(\''+rowData.CODE+'\', \'NAME\', \''+rowData.NAME+'\', this.value)" class="puddSetup ac" type="text" value="' + rowData.NAME + '" pudd-style="height:100%;width:100%;"/>';	
 								}
 								
 							}
@@ -240,11 +243,14 @@
 			
 			colArray.push({
 				field : "NOTE"
-					,	title : selGroup == "PURCHASE_GOAL" ? "목표액" : "비고"
+					// ,	title : selGroup == "PURCHASE_GOAL" ? "목표액" : "비고"
+					,	title : selGroup == "PURCHASE_GOAL" ? "목표액" 
+								 : selGroup == "GREEN_GOAL" ? "목표액"							
+								 : "비고"		
 					,	width : 70
 					,	content : {
 							template : function( rowData ) {
-								return '<input name="goalAmt" onkeyup="fnSetChangeInfo(\''+rowData.CODE+'\', \'NOTE\', \''+rowData.NOTE+'\', this.value)" class="puddSetup '+(selGroup == "PURCHASE_GOAL" ? "ri" : "ac")+'" type="text" value="' + rowData.NOTE + '" pudd-style="height:100%;width:100%;"/>';
+								return '<input name="goalAmt" onkeyup="fnSetChangeInfo(\''+rowData.CODE+'\', \'NOTE\', \''+rowData.NOTE+'\', this.value)" class="puddSetup '+(selGroup == "PURCHASE_GOAL" ? "ri" : selGroup == "GREEN_GOAL" ? "ri" : "ac")+'" type="text" value="' + rowData.NOTE + '" pudd-style="height:100%;width:100%;"/>';
 							}
 						}
 					});
@@ -300,7 +306,7 @@
 			
 			,	loadCallback : function( headerTable, contentTable, footerTable, gridObj ) {
 				
-					if(selGroup == "PURCHASE_GOAL"){
+					if(selGroup == "PURCHASE_GOAL" || selGroup == "GREEN_GOAL"){
 						$("[name=goalAmt]").maskMoney({
 							precision : 0,
 							allowNegative: false

@@ -135,7 +135,11 @@ public class CommonPopController {
             	
             	params.put("group", "hopeCompany");
                 List<Map<String, Object>> hopeCompanyCode = commonServiceDAO.SelectPurchaseDetailCodeList(params);
-                mv.addObject("hopeCompanyCode", hopeCompanyCode);            	
+                mv.addObject("hopeCompanyCode", hopeCompanyCode);  
+                
+            	params.put("group", "targetType");
+                List<Map<String, Object>> targetType = commonServiceDAO.SelectPurchaseDetailCodeList(params);
+                mv.addObject("targetTypeCode", targetType); 
             	
             }else if(layerName.equals("purgreenStateSetLayer")) {
     

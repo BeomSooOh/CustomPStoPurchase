@@ -102,7 +102,17 @@
 					data.docNo = $("#txtDocNo").val();
 					data.txtTrName = $("#txtTrName").val();
 					
-					data.itemHopeCompany = $("#itemHopeCompany").val();					
+					// data.itemHopeCompany = $("#itemHopeCompany").val();
+					
+					//희망기업 선택 데이터
+					var hopeCdList = new Array();
+					$.each($("input[name='itemHopeCompany']:checked"), (index, item) => {
+						hopeCdList.push($(item).val());
+					});
+			        var hopeCd = hopeCdList.join("|");
+			        
+			        data.itemHopeCompany = hopeCd;
+			        
 					
 					<c:if test="${authLevel!='admin'}">
 					data.deptName = "";
@@ -274,16 +284,34 @@
 				}
 			,   {  field : "",	title : "품의유형",	width : 100
 				   , content : {
-						template : function( rowData ) {			
-							if(rowData.c_target_type == "01"){
-								return 	"용역";
-							} else if (rowData.c_target_type == "04" || rowData.out_process_interface_id == "PURCHASE"){
+						template : function( rowData ) {
+							
+							if(rowData.hope_target_type != ""){
+								if(rowData.hope_target_type == "01"){
+									return 	"용역";
+								} else if (rowData.hope_target_type == "04"){
+									return 	"구매";	
+								} else if (rowData.hope_target_type == "06") {
+									return "공사";
+								} else {
+									return "";
+								}
+							}else if(rowData.c_target_type != ""){
+								if(rowData.c_target_type == "01"){
+									return 	"용역";
+								} else if (rowData.c_target_type == "04"){
+									return 	"구매";	
+								} else if (rowData.c_target_type == "06") {
+									return "공사";
+								} else {
+									return "";
+								}
+							}else if(rowData.out_process_interface_id == "PURCHASE"){
 								return 	"구매";	
-							} else if (rowData.c_target_type == "06") {
-								return "공사";
-							} else {
+							}else {
 								return "";
 							}
+
 						}
 					}
 			
@@ -627,7 +655,17 @@
 					
 					data.itemGreenClass = $("#itemGreenClass").val();
 					data.itemGreenCertType = $("#itemGreenCertType").val();
-					data.itemHopeCompany = $("#itemHopeCompany").val();					
+					
+					// data.itemHopeCompany = $("#itemHopeCompany").val();		
+					
+					//희망기업 선택 데이터
+					var hopeCdList = new Array();
+					$.each($("input[name='itemHopeCompany']:checked"), (index, item) => {
+						hopeCdList.push($(item).val());
+					});
+			        var hopeCd = hopeCdList.join("|");
+			        
+			        data.itemHopeCompany = hopeCd;
 					
 					<c:if test="${authLevel!='admin'}">
 					data.deptName = "";
@@ -831,7 +869,7 @@
     		}
     	}
     		
-    		if (dataPage[ i ][ "c_target_type" ] != "" || dataPage[ i ][ "out_process_interface_id" ] == "PURCHASE") {
+/*     		if (dataPage[ i ][ "c_target_type" ] != "" || dataPage[ i ][ "out_process_interface_id" ] == "PURCHASE") {
     			if (dataPage[ i ][ "c_target_type" ] == "01"){
     				excel.set( 0, 10, rowNo, "용역", formatCell );
     			} else if (dataPage[ i ][ "c_target_type" ] == "04" || dataPage[ i ][ "out_process_interface_id" ] == "PURCHASE") {
@@ -842,6 +880,33 @@
     				excel.set( 0, 10, rowNo, "", formatCell );
     			}
     				
+    		} */
+    		
+    		if (dataPage[ i ][ "hope_target_type" ] != "") {
+    			if (dataPage[ i ][ "hope_target_type" ] == "01"){
+    				excel.set( 0, 10, rowNo, "용역", formatCell );
+    			} else if (dataPage[ i ][ "hope_target_type" ] == "04") {
+    				excel.set( 0, 10, rowNo, "구매", formatCell );
+    			} else if (dataPage[ i ][ "hope_target_type" ] == "06"){
+    				excel.set( 0, 10, rowNo, "공사", formatCell );
+    			} else {
+    				excel.set( 0, 10, rowNo, "", formatCell );
+    			}
+    		}else if(dataPage[ i ][ "c_target_type" ] != "") {
+    			if (dataPage[ i ][ "c_target_type" ] == "01"){
+    				excel.set( 0, 10, rowNo, "용역", formatCell );
+    			} else if (dataPage[ i ][ "c_target_type" ] == "04") {
+    				excel.set( 0, 10, rowNo, "구매", formatCell );
+    			} else if (dataPage[ i ][ "c_target_type" ] == "06"){
+    				excel.set( 0, 10, rowNo, "공사", formatCell );
+    			} else {
+    				excel.set( 0, 10, rowNo, "", formatCell );
+    			}
+    			
+    		}else if(dataPage[ i ][ "out_process_interface_id" ] == "PURCHASE") {
+    			excel.set( 0, 10, rowNo, "구매", formatCell );
+    		}else {
+    			excel.set( 0, 10, rowNo, "", formatCell );
     		}
     		
     		
@@ -879,6 +944,20 @@
 
 	 }	
     
+	/** 희망기업 전체 선택/해제 **/
+	function hopeCompanyAll(e){
+		if($(e).is(":checked")){
+			$("#itemHopeCompanyAll").closest("dd").find("input[type='checkbox']").each((index, item) => {
+				Pudd(item).getPuddObject().setChecked(true)
+			});
+		}else{
+			$("#itemHopeCompanyAll").closest("dd").find("input[type='checkbox']").each((index, item) => {
+				Pudd(item).getPuddObject().setChecked(false)
+			});
+		}
+		
+	};
+	
     
 </script>
 
@@ -946,13 +1025,17 @@
 				
 		
 		<dt class="ar">희망기업여부</dt>
-		<dd>
-			<select id="itemHopeCompany" onchange="BindGrid();" style="text-align: center;">
-				<option value="">전체</option>
+		<dd style="margin-top : 19px;">
+<%-- 			<select id="itemHopeCompany" onchange="BindGrid();" style="text-align: center;">
+ 				<option value="">전체</option>
 				<c:forEach var="items" items="${hopeCompany}">
 				<option value="${items.CODE}">${items.NAME}</option>
-				</c:forEach>
-			</select>			
+				</c:forEach> 
+			</select> --%>
+			<!-- <input type="checkbox" onclick="hopeCompanyAll(this);" id="itemHopeCompanyAll" name="itemHopeCompanyAll" value="" class="puddSetup" pudd-label="전체" /> -->	 	
+			<c:forEach var="items" items="${hopeCompany}">
+			<input type="checkbox"  name="itemHopeCompany" value="${items.CODE}" class="puddSetup" pudd-label="${items.NAME}"/>
+			</c:forEach>
 		</dd>		
 	</dl>	
 

@@ -85,16 +85,23 @@
 				$(cloneData).find("[name=out_process_interface_id]").text("${items.out_process_interface_id}");	
 			}
 			
-			if("${items.c_target_type}" == "01"){
-				$(cloneData).find("[name=c_target_type]").text("용역") 
+/* 			if("${items.c_target_type}" == "01"){
+				$(cloneData).find("[name=c_target_type]").val("용역") 
 			} else if ("${items.c_target_type}" == "04" || "${items.out_process_interface_id}" == "PURCHASE") {
 				$(cloneData).find("[name=c_target_type]").text("구매")
 			} else if ("${items.c_target_type}" == "06"){
 				$(cloneData).find("[name=c_target_type]").text("공사")
 			} else {
 				$(cloneData).find("[name=c_target_type]").text("")
-			}
+			} */
 			
+			if("${items.hope_target_type}" != ""){
+				$(cloneData).find("[name=target_type]").val("${items.hope_target_type}")	
+			}else if ("${items.c_target_type}" != ""){
+				$(cloneData).find("[name=target_type]").val("${items.c_target_type}")
+			}else if ("${items.out_process_interface_id}" == "PURCHASE"){
+				$(cloneData).find("[name=target_type]").val("04")
+			}
 			
 			if("${items.hope_company_info}" != ""){
 				
@@ -439,10 +446,11 @@
 			<table name="tradeList" objKey="tradeObjList" objCheckFor="checkVal('obj', 'tradeList', '공급업체', 'mustAlert', '')">
 				<colgroup>
 					<%-- <col width="150"/> --%>
-					<col width="150"/>
+					<col width="100"/>
 					<%-- <col width="150"/> --%>
 				    <col width="100"/> 
 					<col width="250"/>
+					<col width="115"/>
 					<col width=""/>
 					<%-- <col width="100"/> --%>
 				</colgroup>
@@ -452,6 +460,7 @@
 					<!-- <th class="cen">사업자번호</th> -->
 					<th class="cen">거래처코드</th>
 					<th class="cen">희망기업여부</th>
+					<th class="cen">품의유형</th>
 					<th class="cen">희망기업확인서</th>
 					<!-- <th class="cen">품의유형</th> -->
 				</tr>
@@ -460,7 +469,7 @@
 					<td tbval="Y" tbtype="innerText" name="trade_seq" class="cen"  style="display:none;"></td>	
 					<td name="tr_name" class="cen"></td>
 					<!-- <td name="business_nb" class="cen"></td> -->
-				    <td tbval="Y" tbtype="innerText" name="tr_seq" class="cen"></td>
+				    <td tbval="Y" tbtype="innerText" name="tr_seq" requiredNot="true" class="cen"></td>
 					<td name="hope_company_info_td">
 						<div class="multi_sel" style="width:calc( 100% - 58px);">
 							<ul tbval="Y" tbname="희망기업여부" tbType="ul" name="hope_company_info" class="multibox" style="width:100%;">							
@@ -473,7 +482,14 @@
 						<div class="controll_btn p0 pt4">	
 							<button id="" onclick="commonCodeSelectPop('hopeCompany', '희망기업여부', 'ul', $(this).closest('td'), 'Y')">선택</button>
 						</div>
-					</td>									
+					</td>	
+					<td>
+						<select tbval="Y" tbname="품의유형" id="target_type" name="target_type"  style="width:100%;">
+							<c:forEach var="items" items="${targetTypeCode}">
+							<option value="${items.CODE}">${items.NAME}</option>
+							</c:forEach>						
+						</select>	
+					</td>								
 					<td class="file_add">	
 						<ul tbval="Y" tbname="희망기업확인서" tbType="file" name="hope_attach_info" requiredNot="$(this).closest('tr').find('[name=hope_company_info] [addcode=00]').length > 0" class="file_list_box fl">
 							<li name="attachBase" style="display:none;">

@@ -477,7 +477,7 @@
 				<tr name="dataBase" style="display:none;">
 				<td name="tr_name" class="cen"></td>
 				<td tbval="Y" tbtype="innerText" name="trade_seq" class="cen"  style="display:none;"></td>
-				<td tbval="Y" tbtype="innerText" name="tr_seq" class="cen"></td>
+				<td tbval="Y" tbtype="innerText" name="tr_seq" requiredNot="true" class="cen"></td>
 				<td name="green_certifi_info_td">
 						<div class="multi_sel" style="width:calc( 100% - 58px);">
 							<ul tbval="Y" tbname="녹색제품인증구분" tbType="ul" id="item_green_cert_type" name="item_green_cert_type" class="multibox" style="width:100%;">							

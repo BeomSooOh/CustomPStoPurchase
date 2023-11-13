@@ -806,9 +806,17 @@
 		where
 		<isEqual property="GROUP" compareValue="PURCHASE_GOAL">
 		`GROUP` = 'hopeCompany'
+		 AND `CODE` != '00'
+ 		 AND `CODE` != '06'
+ 		 AND `CODE` != '07'
+		</isEqual>
+		<isEqual property="GROUP" compareValue="GREEN_GOAL">
+		`GROUP` = 'greenClass'
 		</isEqual>
 		<isNotEqual property="GROUP" compareValue="PURCHASE_GOAL">
+		<isNotEqual property="GROUP" compareValue="GREEN_GOAL">
 		`GROUP` = '$GROUP$'
+		</isNotEqual>
 		</isNotEqual>
 		<isNotEmpty property="SEARCH">
 		and (code like '%$SEARCH$%' or name like '%$SEARCH$%')
@@ -832,7 +840,22 @@
 		where a.`GROUP` = 'hopeCompany' and a.CODE != '00' and a.CODE != '06' and a.CODE != '07' 
 		order by ifnull(b.ORDER_NUM,a.ORDER_NUM)
 		</isEqual>
+		<isEqual property="GROUP" compareValue="GREEN_GOAL">
+		select 
+		'GREEN_GOAL' as `GROUP`,	
+		concat(a.CODE, '_$purchaseGoalYear$') as CODE,	
+		a.NAME,	
+		ifnull(b.USE_YN,'Y') as USE_YN,	
+		ifnull(b.ORDER_NUM,'0') as ORDER_NUM,	
+		ifnull(b.NOTE,'0') as NOTE,	
+		ifnull(b.LINK,'') as LINK
+		from cust_sto.t_purchase_code_detail a
+		left join cust_sto.t_purchase_code_detail b on b.`GROUP` = 'GREEN_GOAL' and concat(a.CODE, '_$purchaseGoalYear$') = b.CODE 
+		where a.`GROUP` = 'greenClass' AND a.CODE != '' 
+		order by ifnull(b.ORDER_NUM,a.ORDER_NUM)
+		</isEqual>
 		<isNotEqual property="GROUP" compareValue="PURCHASE_GOAL">
+		<isNotEqual property="GROUP" compareValue="GREEN_GOAL">
 		select 
 		`GROUP`,	
 		CODE,	
@@ -847,7 +870,8 @@
 		and (code like '%$SEARCH$%' or name like '%$SEARCH$%')
 		</isNotEmpty>				
 		order by ORDER_NUM
-		</isNotEqual>			
+		</isNotEqual>		
+		</isNotEqual>	
 		LIMIT $startNum$ ,  $endNum$	
 	</select>
 	
@@ -935,6 +959,7 @@
 		, IFNULL(d.out_process_interface_id, '') AS 'out_process_interface_id'
 		, IFNULL(d.out_process_interface_m_id, '') AS 'out_process_interface_m_id'
 		, IFNULL(c.c_target_type, '') AS 'c_target_type'
+		, IFNULL(b.hope_target_type, '') AS 'hope_target_type'
 		,a.tr_seq
 		,a.tr_name
 		,a.ceo_name 
@@ -984,8 +1009,8 @@
 	<insert	id="CommonSQL.InsertPurchaseResHopeInfo" parameterClass="HashMap" >
 		
 		INSERT INTO cust_sto.t_purchase_res_hope_info
-		(res_doc_seq, tr_seq, trade_seq ,hope_attach_info, hope_company_info, created_dt, created_by)
-		VALUES('$res_doc_seq$', '$tr_seq$', '$trade_seq$' , '$hope_attach_info$', '$hope_company_info$', NOW(), '$created_by$');
+		(res_doc_seq, tr_seq, trade_seq, hope_target_type ,hope_attach_info, hope_company_info, created_dt, created_by)
+		VALUES('$res_doc_seq$', '$tr_seq$', '$trade_seq$' , '$target_type$' ,'$hope_attach_info$', '$hope_company_info$', NOW(), '$created_by$');
 
 	</insert>
 	
@@ -1076,7 +1101,7 @@
 			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 			</isNotEmpty>
 			and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')),0) as conclusion_amt,
-			(select count(distinct b.res_doc_seq)
+			(select count(distinct c.trade_seq)
 			from cust_sto.t_purchase_contract a
 			join $DB_NEOS$t_exnp_resdoc b on a.seq = b.out_process_interface_m_id and b.out_process_interface_id = 'CONCLUSION' and b.doc_status = '008'
 			join $DB_NEOS$t_exnp_restrade c on b.res_doc_seq = c.res_doc_seq 
@@ -1104,7 +1129,7 @@
 			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 			</isNotEmpty>
 			and concat('▦',c.hope_company_info) like concat('%▦', code0.code, '▦%')),0) as purchase_amt,
-			(select count(distinct b.res_doc_seq)
+			(select count(distinct d.trade_seq)
 			from cust_sto.t_purchase_purchase a
 			join $DB_NEOS$t_exnp_resdoc b on a.seq  = b.out_process_interface_m_id and b.out_process_interface_id = 'PURCHASE' and b.doc_status = '008'
 			join cust_sto.t_purchase_trade_info c on a.seq = c.seq
@@ -1132,7 +1157,7 @@
 			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 			</isNotEmpty>				 
 			and concat('▦',a.hope_company_info) like concat('%▦', code0.code, '▦%')),0) as etc_res_amt,		
-			(select	count(distinct b.res_doc_seq )
+			(select	count(distinct c.trade_seq )
 			from cust_sto.t_purchase_res_hope_info a
 			join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and b.doc_status = '008'
 			join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq and (case when a.trade_seq = '0' then (a.tr_seq = c.tr_seq) else (a.trade_seq = c.trade_seq) end)
@@ -1219,75 +1244,95 @@
 	
 	<select	id="CommonSQL.SelectGreenAmtInfo" parameterClass="HashMap" resultClass="HashMap">
 		
-		select
-		code0.code
-		,code0.name as code_name		
-		,ifnull((select sum(a.item_total_amt)
-		from cust_sto.t_purchase_item_info a
-		join cust_sto.t_purchase_trade_info b on a.seq = b.seq and a.item_tr_seq = b.tr_seq and a.outProcessCode = b.outProcessCode  
-		join neos.t_exnp_consdoc c on a.seq = c.out_process_interface_m_id and c.out_process_interface_id = 'Purchase01' and c.doc_status = '90'
-		<isNotEmpty property="deptSeq">
-		left join $DB_NEOS$t_co_dept wdept on c.dept_seq = wdept.dept_seq 
-		</isNotEmpty>
-		where a.item_green_class = code0.code and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'
-		<isNotEmpty property="itemGreenCertType">    
-  		and a.item_green_cert_type like '%$itemGreenCertType$%'
-  		</isNotEmpty>
-		<isNotEmpty property="deptSeq">
-		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
-		</isNotEmpty>
-		),0) as all_amt
-		,ifnull((select count(distinct c.cons_doc_seq)
-		from cust_sto.t_purchase_item_info a
-		join cust_sto.t_purchase_trade_info b on a.seq = b.seq and a.item_tr_seq = b.tr_seq and a.outProcessCode = b.outProcessCode  
-		join neos.t_exnp_consdoc c on a.seq = c.out_process_interface_m_id and c.out_process_interface_id = 'Purchase01' and c.doc_status = '90'
-		<isNotEmpty property="deptSeq">
-		left join $DB_NEOS$t_co_dept wdept on c.dept_seq = wdept.dept_seq 
-		</isNotEmpty>
-		where a.item_green_class = code0.code and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'
-		<isNotEmpty property="itemGreenCertType">    
-  		and a.item_green_cert_type like '%$itemGreenCertType$%'
-  		</isNotEmpty>
-		<isNotEmpty property="deptSeq">
-		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
-		</isNotEmpty>
-		),0) as all_cnt
 		
-		,ifnull((select sum(a.item_total_amt)
-		from cust_sto.t_purchase_item_info a
-		join cust_sto.t_purchase_trade_info b on a.seq = b.seq and a.item_tr_seq = b.tr_seq and a.outProcessCode = b.outProcessCode and a.item_green_cert_type != '' 
-		join neos.t_exnp_consdoc c on a.seq = c.out_process_interface_m_id and c.out_process_interface_id = 'Purchase01' and c.doc_status = '90'
-		<isNotEmpty property="deptSeq">
-		left join $DB_NEOS$t_co_dept wdept on c.dept_seq = wdept.dept_seq 
-		</isNotEmpty>
-		where a.item_green_class = code0.code and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'
-		<isNotEmpty property="itemGreenCertType">    
-  		and a.item_green_cert_type like '%$itemGreenCertType$%'
-  		</isNotEmpty>
-		<isNotEmpty property="deptSeq">
-		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
-		</isNotEmpty>
-		),0) as green_amt
-		,ifnull((select count(distinct c.cons_doc_seq)
-		from cust_sto.t_purchase_item_info a
-		join cust_sto.t_purchase_trade_info b on a.seq = b.seq and a.item_tr_seq = b.tr_seq and a.outProcessCode = b.outProcessCode and a.item_green_cert_type != '' 
-		join neos.t_exnp_consdoc c on a.seq = c.out_process_interface_m_id and c.out_process_interface_id = 'Purchase01' and c.doc_status = '90'
-		<isNotEmpty property="deptSeq">
-		left join $DB_NEOS$t_co_dept wdept on c.dept_seq = wdept.dept_seq 
-		</isNotEmpty>
-		where a.item_green_class = code0.code and DATE_FORMAT(c.expend_date, '%Y-%m-%d') between '$searchFromDate$' and '$searchToDate$'
-		<isNotEmpty property="itemGreenCertType">    
-  		and a.item_green_cert_type like '%$itemGreenCertType$%'
-  		</isNotEmpty>
-		<isNotEmpty property="deptSeq">
-		and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
-		</isNotEmpty>
-		),0) as green_cnt
-		
-		from cust_sto.t_purchase_code_detail code0
-		where code0.`GROUP` = 'greenClass' and code0.USE_YN = 'Y' and code0.code != ''
-		order by code0.ORDER_NUM
+		select 
+		name,
+		goal_amt,
+		format((purchase_amt + etc_res_amt),0) as current_amt,
+		(purchase_cnt + etc_res_cnt) as current_cnt	
+		from
+		(
+			select
+			code0.name,
+			ifnull(code1.NOTE,'-') as goal_amt,	
 
+						
+			ifnull((
+			select  sum(ma.trade_amt) from
+			(select
+				item_green_class,
+                trade_amt
+			from cust_sto.t_purchase_item_info  a
+            
+			join $DB_NEOS$t_exnp_resdoc b on a.seq  = b.out_process_interface_m_id and b.out_process_interface_id = 'PURCHASE' and b.doc_status = '008'
+			join $DB_NEOS$t_exnp_restrade d on b.res_doc_seq = d.res_doc_seq and a.item_tr_seq = d.tr_seq
+            
+			<isNotEmpty property="deptSeq">
+			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			</isNotEmpty>
+			where b.erp_expend_year = '$year$'
+			<isNotEmpty property="deptSeq">
+			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+			</isNotEmpty>
+			group by trade_seq) ma
+			where 1=1
+			and ma.item_green_class = code0.code
+			
+			),0) as purchase_amt,
+            
+			(select count(distinct d.trade_seq)
+			from cust_sto.t_purchase_item_info a
+			join $DB_NEOS$t_exnp_resdoc b on a.seq  = b.out_process_interface_m_id and b.out_process_interface_id = 'PURCHASE' and b.doc_status = '008'
+			join $DB_NEOS$t_exnp_restrade d on b.res_doc_seq = d.res_doc_seq and a.item_tr_seq = d.tr_seq 
+			<isNotEmpty property="deptSeq">
+			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			</isNotEmpty>
+			where b.erp_expend_year = '$year$'
+			<isNotEmpty property="deptSeq">
+			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+			</isNotEmpty>
+			and a.item_green_class = code0.code) as purchase_cnt,		
+			
+			
+			ifnull((select
+			sum(c.trade_amt)
+			from cust_sto.t_purchase_res_green_info a
+			join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and b.doc_status = '008'
+			join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq and (case when a.trade_seq = '0' then (a.tr_seq = c.tr_seq) else (a.trade_seq = c.trade_seq) end)
+			<isNotEmpty property="deptSeq">
+			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			</isNotEmpty>
+			where b.erp_expend_year = '$year$'
+			<isNotEmpty property="deptSeq">
+			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+			</isNotEmpty>				 
+			and a.item_green_class = code0.code),0) as etc_res_amt,
+            
+			(select	count(distinct c.trade_seq )
+			from cust_sto.t_purchase_res_green_info a
+			join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and b.doc_status = '008'
+			join $DB_NEOS$t_exnp_restrade c on a.res_doc_seq = c.res_doc_seq and a.tr_seq = c.tr_seq and (case when a.trade_seq = '0' then (a.tr_seq = c.tr_seq) else (a.trade_seq = c.trade_seq) end)
+			<isNotEmpty property="deptSeq">
+			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
+			</isNotEmpty>
+			where b.erp_expend_year = '$year$'
+			<isNotEmpty property="deptSeq">
+			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
+			</isNotEmpty>
+			and a.item_green_class = code0.code) as etc_res_cnt,
+			
+			ifnull(code1.ORDER_NUM,code0.ORDER_NUM) as order_num
+			from cust_sto.t_purchase_code_detail code0
+			left join cust_sto.t_purchase_code_detail code1 on code1.`GROUP` = 'GREEN_GOAL'
+			<isEmpty property="deptSeq">
+			and concat(code0.CODE, '_$year$') = code1.CODE and code1.USE_YN = 'Y'
+			</isEmpty>
+			<isNotEmpty property="deptSeq">
+			and concat(code0.CODE, '_$year$$deptSeq$') = code1.CODE and code1.USE_YN = 'Y'
+			</isNotEmpty>
+			where code0.`GROUP` = 'greenClass' and  code0.CODE != ''
+		) result_data
+		order by order_num
 	</select>		
 	
 </sqlMap>

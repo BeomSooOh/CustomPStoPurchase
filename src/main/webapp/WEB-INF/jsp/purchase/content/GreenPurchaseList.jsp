@@ -216,8 +216,10 @@
 							}
 						}
 					}
-			
-				}, {  field : "item_green_cert_type",	title : "녹색제품 인증구분",	width : 150
+				}
+			,   {  field : "tr_name",	title : "업체명",	width : 150}
+			,   {  field : "businessNb",	title : "사업자번호",	width : 150}
+			, {  field : "item_green_cert_type",	title : "녹색제품 인증구분",	width : 150
 					   , content : {
 						   attributes : { class : "ri" },
 							template : function( rowData ) {
@@ -808,7 +810,7 @@
         		}
         	}
     		
-    		if (dataPage[ i ][ "item_green_class" ] != "" || dataPage[ i ][ "item_green_class" ] != "" ) {
+    		if (dataPage[ i ][ "item_green_class" ] != "" || dataPage[ i ][ "p_item_green_class" ] != "" ) {
     			
     			if(dataPage[ i ][ "item_green_class" ] != "") {
     				excel.set( 0, 8, rowNo, dataPage[ i ][ "item_green_class_name" ], formatCell );

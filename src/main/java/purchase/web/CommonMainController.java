@@ -944,17 +944,17 @@ public class CommonMainController {
 		commonServiceDAO.DeletePurchaseResHopeInfo(params);
 		
 		
-		if(params.get("out_process_interface_id").equals("PURCHASE")) {
-			
-			commonServiceDAO.DeletePurchaseTradeHopeInfo(params);
-			
-		}
-		
-		if(params.get("out_process_interface_id").equals("CONCLUSION")) {
-			
-			commonServiceDAO.DeletePurchaseContractHopeInfo(params);
-			
-		}
+//		if(params.get("out_process_interface_id").equals("PURCHASE")) {
+//			
+//			commonServiceDAO.DeletePurchaseTradeHopeInfo(params);
+//			
+//		}
+//		
+//		if(params.get("out_process_interface_id").equals("CONCLUSION")) {
+//			
+//			commonServiceDAO.DeletePurchaseContractHopeInfo(params);
+//			
+//		}
 		
 		
 		

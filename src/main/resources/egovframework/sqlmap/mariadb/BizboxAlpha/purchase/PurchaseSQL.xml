@@ -807,6 +807,7 @@
    , IFNULL(d.out_process_interface_id, '') AS 'out_process_interface_id'
    , IFNULL(d.out_process_interface_m_id, '') AS 'out_process_interface_m_id'
    , IFNULL(c.c_target_type, '') AS 'c_target_type'
+   , IFNULL(hope.hope_target_type, '') AS 'hope_target_type'    
    , t.c_tiname AS 'c_tiname'
    , d.doc_seq AS 'docSeq'
    , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
@@ -846,7 +847,7 @@
   left join $DB_NEOS$t_exnp_restrade tr on tr.res_doc_seq = d.res_doc_seq
   left join cust_sto.t_purchase_contract c on c.seq = d.out_process_interface_m_id and out_process_interface_id = 'CONCLUSION'
   left join cust_sto.t_purchase_trade_info p on p.seq = d.out_process_interface_m_id and outProcessCode = 'Purchase01'
-  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq
+  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq and hope.tr_seq = tr.tr_seq 
   
     
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
@@ -870,7 +871,11 @@
   WHERE d.doc_seq IS NOT NULL	
   
   <isNotEmpty property="itemHopeCompany">
-  and (hope.hope_company_info like '%$itemHopeCompany$%' or c.hope_company_info like '%$itemHopeCompany$%' or p.hope_company_info like '%$itemHopeCompany$%')
+  and (case 
+		when hope.hope_company_info != '' then hope.hope_company_info REGEXP '$itemHopeCompany$' 
+        when c.hope_company_info != '' then c.hope_company_info REGEXP '$itemHopeCompany$' 
+        when p.hope_company_info != '' then p.hope_company_info REGEXP '$itemHopeCompany$' 
+        end)
   </isNotEmpty>   
     
   <isNotEmpty property="docStatus">
@@ -939,6 +944,7 @@
    , IFNULL(d.out_process_interface_id, '') AS 'out_process_interface_id'
    , IFNULL(d.out_process_interface_m_id, '') AS 'out_process_interface_m_id'
    , IFNULL(c.c_target_type, '') AS 'c_target_type'
+   , IFNULL(hope.hope_target_type, '') AS 'hope_target_type'
    , t.c_tiname AS 'c_tiname'
    , d.doc_seq AS 'docSeq'
    , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
@@ -1001,8 +1007,12 @@
   WHERE d.doc_seq IS NOT NULL	
   
   <isNotEmpty property="itemHopeCompany">
-  and hope.hope_company_info like '%$itemHopeCompany$%'
-  </isNotEmpty>   
+  and (case 
+		when hope.hope_company_info != '' then hope.hope_company_info REGEXP '$itemHopeCompany$' 
+        when c.hope_company_info != '' then c.hope_company_info REGEXP '$itemHopeCompany$' 
+        when p.hope_company_info != '' then p.hope_company_info REGEXP '$itemHopeCompany$' 
+        end)
+  </isNotEmpty>    
     
   <isNotEmpty property="docStatus">
    AND IFNULL(doc_status, '008') IN ($docStatus$)
@@ -1070,6 +1080,7 @@
    , IFNULL(d.out_process_interface_id, '') AS 'out_process_interface_id'
    , IFNULL(d.out_process_interface_m_id, '') AS 'out_process_interface_m_id'
    , IFNULL(c.c_target_type, '') AS 'c_target_type'
+   , IFNULL(hope.hope_target_type, '') AS 'hope_target_type'
    , t.c_tiname AS 'c_tiname'
    , d.doc_seq AS 'docSeq'
    , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
@@ -1131,8 +1142,12 @@
   WHERE d.doc_seq IS NOT NULL
 
   <isNotEmpty property="itemHopeCompany">
-  and (hope.hope_company_info like '%$itemHopeCompany$%' or c.hope_company_info like '%$itemHopeCompany$%' or p.hope_company_info like '%$itemHopeCompany$%')
-  </isNotEmpty>   
+  and (case 
+		when hope.hope_company_info != '' then hope.hope_company_info REGEXP '$itemHopeCompany$' 
+        when c.hope_company_info != '' then c.hope_company_info REGEXP '$itemHopeCompany$' 
+        when p.hope_company_info != '' then p.hope_company_info REGEXP '$itemHopeCompany$' 
+        end)
+  </isNotEmpty>    
   
   <isNotEmpty property="docStatus">
    AND IFNULL(doc_status, '008') IN ($docStatus$)
@@ -1203,6 +1218,7 @@
    , IFNULL(d.out_process_interface_id, '') AS 'out_process_interface_id'
    , IFNULL(d.out_process_interface_m_id, '') AS 'out_process_interface_m_id'
    , IFNULL(c.c_target_type, '') AS 'c_target_type'
+   , IFNULL(hope.hope_target_type, '') AS 'hope_target_type'
    , t.c_tiname AS 'c_tiname'
    , d.doc_seq AS 'docSeq'
    , IFNULL(r.c_ridocfullnum, '') AS 'docNo'
@@ -1263,7 +1279,11 @@
   WHERE d.doc_seq IS NOT NULL
 
   <isNotEmpty property="itemHopeCompany">
-  and hope.hope_company_info like '%$itemHopeCompany$%'
+  and (case 
+		when hope.hope_company_info != '' then hope.hope_company_info REGEXP '$itemHopeCompany$' 
+        when c.hope_company_info != '' then c.hope_company_info REGEXP '$itemHopeCompany$' 
+        when p.hope_company_info != '' then p.hope_company_info REGEXP '$itemHopeCompany$' 
+        end)
   </isNotEmpty>   
   
   <isNotEmpty property="docStatus">
