@@ -1173,6 +1173,12 @@
 		}
 		
 		function fnSaveProc(type){
+			
+			var chkList = [];
+			$("input[name=changeItem]:checked").each(function(){
+				chk = $(this).val();
+				chkList.push(chk);
+			});
 
 			insertDataObject.reqType = type;
 			
@@ -1227,7 +1233,7 @@
 						}else{
 							
 							
-							if (insertDataObject.budgetObjList.length > 0){
+							if (insertDataObject.budgetObjList.length > 0 && chkList.includes("04")){
 								fnPaymentCreate();	
 							}
 							
