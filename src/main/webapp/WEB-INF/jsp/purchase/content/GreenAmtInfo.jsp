@@ -45,7 +45,7 @@
 		
 		$("#purchaseGoalYear").val(thisYear);
 		
-	}
+	}	
 	
 
 	$(document).ready(function() {
@@ -60,20 +60,33 @@
 	
 	function BindGrid(){
 		
+		$('[name=goal_amt]').text("");
+		$('[name=all_sum_amt]').text("");
+		$('[name=attain_rate]').text("");
+		
 		$('[name=addData]').remove();
 		
 		var reqParam = {};
-		reqParam.year = $("#purchaseGoalYear").val();
-		
 		reqParam.searchFromDate = $("#searchFromDate").val();
 		reqParam.searchToDate = $("#searchToDate").val();
-		reqParam.itemGreenCertType = $("#itemGreenCertType").val();
+		reqParam.year = $("#purchaseGoalYear").val();
+		// reqParam.itemGreenCertType = $("#itemGreenCertType").val();
+		
+		//녹색제품 인증구분 선택 데이터
+		var greenCdList = new Array();
+		$.each($("input[name='itemGreenCertType']:checked"), (index, item) => {
+			greenCdList.push($(item).val());
+		});
+		var geenCd = greenCdList.join("|");
+			        
+		reqParam.itemGreenCertType = geenCd;
 		
 		if (authLevel == 'admin'){
 			reqParam.deptSeq = $("#selectedDeptSeq").val();
 		} else if (authLevel == 'dept'){
 			reqParam.deptSeq = $("#selectLoginDept").val();
 		}
+		
 
 		$.ajax({
 			type : 'post',
@@ -85,103 +98,44 @@
 				
 				resultData = result.resultData;
 				
-				var trTotal = {};
-				trTotal.name = "합계";
-				trTotal.goal_amt = 0;
-				trTotal.current_amt = 0;
-				trTotal.current_cnt = 0;
-				trTotal.attain_rate = "";
-				
 				if(resultData.length > 0){
+					
+					var goal_amt = 0;
+					var all_sum_amt = 0;
+					var attain_rate = 0;
 					
 					$.each(resultData, function( key, val ) {
 
 						var cloneData = $('[name=dataBase]').clone();
-						
-						var goal_amt = parseInt(val.goal_amt.replace(/,/g, ''));
-						var current_amt = parseInt(val.current_amt.replace(/,/g, ''));
-						var current_cnt = parseInt(val.current_cnt);
-						
-						trTotal.current_amt += current_amt;
-						trTotal.current_cnt += current_cnt;
-						
-						if(val.goal_amt == "-"){
-							val.attain_rate = "-";
-						}else{
-							trTotal.goal_amt += goal_amt;
-							val.attain_rate = (current_amt/goal_amt*100).toFixed(2) + " %";				
-						}
-						
-						$(cloneData).find("[name=name]").text(val.name);
-						$(cloneData).find("[name=goal_amt]").text(val.goal_amt);
-						$(cloneData).find("[name=current_amt]").text(val.current_amt);
-						$(cloneData).find("[name=current_cnt]").text(val.current_cnt);
-						$(cloneData).find("[name=attain_rate]").text(val.attain_rate);
-						$(cloneData).show().attr("name", "addData");
-						$('[name=dataBase]').before(cloneData);						
-						
-					});							
-					
-					trTotal.attain_rate = trTotal.goal_amt == 0 ? "-" : ((trTotal.current_amt/trTotal.goal_amt*100).toFixed(2) + " %");		
-					trTotal.goal_amt = (trTotal.goal_amt + "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-					trTotal.current_amt = (trTotal.current_amt + "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-					
-					var cloneData = $('[name=dataBase]').clone();		
-					
-					$(cloneData).find("[name=name]").text(trTotal.name);
-					$(cloneData).find("[name=goal_amt]").text(trTotal.goal_amt);
-					$(cloneData).find("[name=current_amt]").text(trTotal.current_amt);
-					$(cloneData).find("[name=current_cnt]").text(trTotal.current_cnt);
-					$(cloneData).find("[name=attain_rate]").text(trTotal.attain_rate);
-					$(cloneData).show().attr("name", "addData");
-					
-					$(cloneData).addClass("total");
-					$('[name=dataBase]').before(cloneData);						
-					
-					resultData.push(trTotal);
-					
-					
-				}else{
-					msgSnackbar("error", "실적 데이터가 존재하지 않습니다.");	
-				}
-				
-			},
-			error : function(result) {
-				msgSnackbar("error", "데이터 요청에 실패했습니다.");
-			}
-		});	
-		
-
-/* 		$.ajax({
-			type : 'post',
-			url : '<c:url value="/purchase/${authLevel}/SelectGreenAmtInfo.do" />',
-			datatype : 'json',
-			data : reqParam,
-			async : true,
-			success : function(result) {
-				
-				resultData = result.resultData;
-				
-				if(resultData.length > 0){
-					
-					$.each(resultData, function( key, val ) {
-
-						var cloneData = $('[name=dataBase]').clone();
-						
-						var all_amt = (val.all_amt + "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-						var green_amt = (val.green_amt + "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-						
 						
 						$(cloneData).find("[name=code_name]").text(val.code_name);
 						$(cloneData).find("[name=all_cnt]").text(val.all_cnt);
-						$(cloneData).find("[name=all_amt]").text(all_amt);
+						$(cloneData).find("[name=all_amt]").text(val.all_amt);
 						$(cloneData).find("[name=green_cnt]").text(val.green_cnt);
-						$(cloneData).find("[name=green_amt]").text(green_amt);
+						$(cloneData).find("[name=green_amt]").text(val.green_amt);
 						$(cloneData).show().attr("name", "addData");
-						$('[name=dataBase]').before(cloneData);						
+						$('[name=dataBase]').before(cloneData);	
 						
-					});						
-				
+						all_sum_amt += Number(val.all_amt.replace(/,/g, ""));
+						goal_amt = val.goal_amt
+						
+					});
+					
+					$('[name=goal_amt]').text(goal_amt);
+					$('[name=all_sum_amt]').text(all_sum_amt.toLocaleString());
+					
+					
+					if (Number(goal_amt.replace(/,/g, "")) > 0 ){
+						goal_amt = Number(goal_amt.replace(/,/g, ""));
+						attain_rate = ((all_sum_amt/goal_amt)*100).toFixed(2) + "%";
+					} else {
+						attain_rate = "-";
+					}
+					
+					
+					
+					$('[name=attain_rate]').text(attain_rate);
+					
 					
 				}else{
 					msgSnackbar("error", "실적 데이터가 존재하지 않습니다.");	
@@ -191,7 +145,7 @@
 			error : function(result) {
 				msgSnackbar("error", "데이터 요청에 실패했습니다.");
 			}
-		});	 */		
+		});			
 	} 	
 	
     function excelDown() {
@@ -211,7 +165,7 @@
     		,	attributes : { style : "" }
     		}
     	,	progressStartCallback : function( progressBarObj ) {
-    			excelDownloadProcess( "희망구매실적.xlsx", progressBarObj );
+    			excelDownloadProcess( "녹색구매실적.xlsx", progressBarObj );
     		}
     	});
     }	
@@ -243,7 +197,8 @@
     	}, 10);
     }    
     
-   function generateExcelDownload( dataPage, fileName, saveCallback, stepCallback ) {
+    
+    function generateExcelDownload( dataPage, fileName, saveCallback, stepCallback ) {
         
     	var excel = new JExcel("맑은 고딕 11 #333333");
     	excel.set( { sheet : 0, value : "Sheet1" } );
@@ -254,7 +209,8 @@
     	var periodStyle = excel.addStyle({
     		font: "맑은 고딕 11 #333333 B"
     	})
-    	var period = "조회년도: " + $("#purchaseGoalYear").val(); 
+    	// var period = "기준일자: " + $("#searchFromDate").val() + "~" + $("#searchToDate").val();
+    	var period = "조회년도: " + $("#purchaseGoalYear").val();
     	excel.set(0, 0, 0, period, periodStyle);
     	
     	var formatHeader = excel.addStyle ({
@@ -264,7 +220,7 @@
     		align : "C C",
     	});
 		    	
-    	var headerRow = 2;
+    	var headerRow = 6;
     	var headerCol = 5;
     	
     	for(var i=1; i < headerRow; i++) {
@@ -272,89 +228,22 @@
     			excel.set(0, j, i, null, formatHeader);
     		}
     	}
+    	excel.set(0, 0, 1, "목표금액");
+    	excel.set(0, 2, 1, "구매금액/달성률");
     	
-		for(var j=0; j < headerCol; j++) {
-			excel.set(0, j, totalCount, null, formatHeader);
-		}    	
+    	excel.set(0, 0, 3, "제품분류");
+    	excel.mergeCell(0, 0, 3, 0, 5);
+    	excel.set(0, 1, 3, "녹색제품 구매계획");
+    	excel.mergeCell(0, 1, 3, 4, 3);
+    	excel.set(0, 1, 4, "총구매");
+    	excel.mergeCell(0, 1, 4, 2, 4);
+    	excel.set(0, 3, 4, "녹색구매");
+    	excel.mergeCell(0, 3, 4, 4, 4);
     	
-    	excel.set(0, 0, 1, "구분");
-    	excel.set(0, 1, 1, "목표 금액(원)");
-    	excel.set(0, 2, 1, "현재 실적(원)");
-    	excel.set(0, 3, 1, "건수");
-    	excel.set(0, 4, 1, "달성률");    	
-    	
-    	// sheet번호, column, value(width)
-    	for( var i = 0; i < 4; i++ ) {
-    		excel.setColumnWidth( 0, i, 20 );
-    	}    	
-		
-    	excel.setColumnWidth( 0, 0, 30 );
-    	
-    	var formatCell = excel.addStyle ({
-    		align : "C"
-    	});
-    	
-    	var formatCellR = excel.addStyle ({
-    		align : "R"
-    	});    	
-    	
-    	// header row 이후부터 출력
-    	for( var i = 0; i < totalCount; i++ ) {
-    		var rowNo = i + 2;
-    		excel.set( 0, 0, rowNo, dataPage[ i ][ "name" ], rowNo == (totalCount+1) ? formatHeader : formatCell );
-    		excel.set( 0, 1, rowNo, dataPage[ i ][ "goal_amt" ], rowNo == (totalCount+1) ? formatHeader : formatCellR );
-    		excel.set( 0, 2, rowNo, dataPage[ i ][ "current_amt" ], rowNo == (totalCount+1) ? formatHeader : formatCellR );
-    		excel.set( 0, 3, rowNo, dataPage[ i ][ "current_cnt" ], rowNo == (totalCount+1) ? formatHeader : formatCell );
-    		excel.set( 0, 4, rowNo, dataPage[ i ][ "attain_rate" ], rowNo == (totalCount+1) ? formatHeader : formatCellR );
-    	}
-     
-    	excel.generate( fileName, saveCallback, stepCallback );
-    }  
-    
-    
-/*     function generateExcelDownload( dataPage, fileName, saveCallback, stepCallback ) {
-        
-    	var excel = new JExcel("맑은 고딕 11 #333333");
-    	excel.set( { sheet : 0, value : "Sheet1" } );
-     	
-		var totalCount = dataPage.length;
-		
-    	// 엑셀 상단 기간 세팅
-    	var periodStyle = excel.addStyle({
-    		font: "맑은 고딕 11 #333333 B"
-    	})
-    	var period = "기준일자: " + $("#searchFromDate").val() + "~" + $("#searchToDate").val();
-    	excel.set(0, 0, 0, period, periodStyle);
-    	
-    	var formatHeader = excel.addStyle ({
-    		border: "thin,thin,thin,thin #000000",
-    		fill: "#dedede",
-    		font: "맑은 고딕 11 #333333 B",// U : underline, B : bold, I : Italic
-    		align : "C C",
-    	});
-		    	
-    	var headerRow = 4;
-    	var headerCol = 5;
-    	
-    	for(var i=1; i < headerRow; i++) {
-    		for(var j=0; j < headerCol; j++) {
-    			excel.set(0, j, i, null, formatHeader);
-    		}
-    	}
-		
-    	excel.set(0, 0, 1, "제품분류");
-    	excel.mergeCell(0, 0, 1, 0, 3);
-    	excel.set(0, 1, 1, "녹색제품 구매계획");
-    	excel.mergeCell(0, 1, 1, 4, 1);
-    	excel.set(0, 1, 2, "총구매");
-    	excel.mergeCell(0, 1, 2, 2, 2);
-    	excel.set(0, 3, 2, "녹색구매");
-    	excel.mergeCell(0, 3, 2, 4, 2);
-    	
-    	excel.set(0, 1, 3, "수량");
-    	excel.set(0, 2, 3, "금액");
-    	excel.set(0, 3, 3, "수량");
-    	excel.set(0, 4, 3, "금액");
+    	excel.set(0, 1, 5, "수량");
+    	excel.set(0, 2, 5, "금액");
+    	excel.set(0, 3, 5, "수량");
+    	excel.set(0, 4, 5, "금액");
     	
     	// sheet번호, column, value(width)
     	for( var i = 0; i < headerCol; i++ ) {
@@ -372,20 +261,46 @@
     		align : "R"
     	});    	
     	
-    	// header row 이후부터 출력
+
+    	var all_sum_amt = 0;
+    	var goal_amt = 0;
+    	var attain_rate = 0;
     	for( var i = 0; i < totalCount; i++ ) {
+    		all_sum_amt += Number(dataPage[ i ][ "all_amt" ].replace(/,/g, ""));
+    		excel.set( 0, 1, 1, dataPage[ i ][ "goal_amt" ], formatCellR );
+        	goal_amt = Number(dataPage[ i ][ "goal_amt" ].replace(/,/g, ""));
+    	}
+    	
+    	excel.set( 0, 3, 1, all_sum_amt.toLocaleString(), formatCellR );
+    	
+    	if (goal_amt > 0 ){
+        	attain_rate = ((all_sum_amt/goal_amt)*100).toFixed(2) + "%";
+    	} else {
+    		attain_rate = "-"
+    	}
+    	
+    	excel.set( 0, 4, 1, attain_rate, formatCellR );
+    	
+    	excel.set( 0, 0, 2, "", formatCell );
+    	excel.set( 0, 1, 2, "", formatCell );
+    	excel.set( 0, 2, 2, "", formatCell );
+    	excel.set( 0, 3, 2, "", formatCell );
+    	excel.set( 0, 4, 2, "", formatCell );
+    	
+    	// header row 이후부터 출력
+		for( var i = 0; i < totalCount; i++ ) {
     		
-    		var rowNo = i + 4;
+    		var rowNo = i + 6;
     		excel.set( 0, 0, rowNo, dataPage[ i ][ "code_name" ], formatCell );
     		excel.set( 0, 1, rowNo, (dataPage[ i ][ "all_cnt" ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), formatCellR );
     		excel.set( 0, 2, rowNo, (dataPage[ i ][ "all_amt" ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), formatCellR );
     		excel.set( 0, 3, rowNo, (dataPage[ i ][ "green_cnt" ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), formatCellR );
     		excel.set( 0, 4, rowNo, (dataPage[ i ][ "green_amt" ] + "").replace(/\B(?=(\d{3})+(?!\d))/g, ","), formatCellR );
     		
-    	}
+    	} 
      
     	excel.generate( fileName, saveCallback, stepCallback );
-    }  */
+    } 
     
     
 	function selectOrgchart(){
@@ -418,76 +333,16 @@
 </script>
 
 <!-- 상세검색 -->
-
 <div class="top_box">
 	<dl>
 		<dt class="ar" style="width:60px;">조회년도</dt>
 		<dd><select id="purchaseGoalYear" onchange="BindGrid()"></select></dd>
-		<c:if test="${authLevel=='admin'}">
-		<dt class="ar" style="width:30px;">부서</dt>
-		<dd><input readonly type="text" id="deptName" pudd-style="width:120px;" class="puddSetup"  value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
-		<dd><input type="button" class="puddSetup submit" id="searchButton" value="선택" onclick="selectOrgchart();" /></dd>
-		</c:if>
-		<c:if test="${authLevel=='dept'}">
-		<dt class="ar" style="width:30px;">부서</dt>
-			<dd>
-			<select type="select" id="selectLoginDept" name="selectLoginDept" onchange="BindGrid()"> 
-				<option value="">전체</option>
-				<option value="${deptSeq}" >${deptName}</option>
-			</select>
-			<dd>
-		</c:if>	
-	</dl>
-</div>
-
-<div class="sub_contents_wrap posi_re">
-	<div class="btn_div">
-		<div class="right_div">
-			<div id="" class="controll_btn p0">
-				<input type="button" onclick="excelDown();" class="puddSetup" value="엑셀다운로드" />
-			</div>
-		</div>		
-	</div>
-	
-	<div class="dal_Box_">
-		<div class="dal_BoxIn_ posi_re">
-			<!-- 테이블 -->
-			<div class="com_ta4">
-				<table>
-					<colgroup>
-						<col width="20%"/>
-						<col width="20%"/>
-						<col width="20%"/>
-						<col width="20%"/>
-						<col width="20%"/>
-					</colgroup>
-					<tr>
-						<th>구분</th>
-						<th>목표 금액(원)</th>
-						<th>현재 실적(원)</th>
-						<th>건수</th>
-						<th>달성률</th>
-					</tr>
-					<tr name="dataBase" style="display:none;">
-						<td name="name"></td>
-						<td class="ri" name="goal_amt"></td>
-						<td class="ri" name="current_amt"></td>
-						<td class="ri" name="current_cnt"></td>
-						<td class="ri" name="attain_rate"></td>
-					</tr>					
-				</table>
-			</div>
-		</div>
-	</div>
-
-<%-- <div class="top_box">
-	<dl>
-		<dt class="ar" style="width:60px;">기준일자</dt>
-		<dd>
+<%--		<dt class="ar" style="width:60px;">기준일자</dt>
+ 		<dd>
 			<input type="text" id="searchFromDate" value="${fromDate}" class="puddSetup" pudd-type="datepicker"/> ~
 			<input type="text" id="searchToDate" value="${toDate}" class="puddSetup" pudd-type="datepicker"/>
 		</dd>	
-		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="BindGrid();" /></dd>
+		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="BindGrid();" /></dd> --%>
 		<c:if test="${authLevel=='admin'}">
 		<dt class="ar" style="width:30px;">부서</dt>
 		<dd><input readonly type="text" id="deptName" pudd-style="width:120px;" class="puddSetup"  value="" onKeyDown="javascript:if (event.keyCode == 13) { BindGrid(); }" /></dd>
@@ -502,15 +357,22 @@
 			</select>
 			<dd>
 		</c:if>
-		<dt class="ar">녹색제품 인증구분</dt>
-		<dd>
+	<dt class="ar">녹색제품 인증구분</dt>
+<%-- 		<dd>
 			<select id="itemGreenCertType" onchange="BindGrid();" style="text-align: center;">
 				<option value="">전체</option>
 				<c:forEach var="items" items="${greenCertType}">
 				<option value="${items.CODE}">${items.NAME}</option>
 				</c:forEach>
 			</select>			
+		</dd>  --%>
+		<dd style="margin-top : 19px;">
+			<c:forEach var="items" items="${greenCertType}">
+			<input type="checkbox" name="itemGreenCertType" value="${items.CODE}" class="puddSetup" pudd-label="${items.NAME}"/>
+			</c:forEach>
 		</dd>
+			
+		<dd><input type="button" class="puddSetup submit" id="searchButton" value="검색" onclick="BindGrid();" /></dd>		
 	</dl>
 </div>
 
@@ -529,12 +391,22 @@
 			<div class="com_ta4">
 				<table>
 					<colgroup>
-						<col width="40%"/>
+						<col width="15%"/>
 						<col width="15%"/>
 						<col width="15%"/>
 						<col width="15%"/>
 						<col width="15%"/>
 					</colgroup>
+					<tr>
+						<th>목표금액</th>
+						<td class="ri" name="goal_amt"></td>
+						<th>구매금액/달성률</th>
+						<td class="ri" name="all_sum_amt"></td>
+						<td class="ri" name="attain_rate"></td>
+					</tr>
+					<tr>
+						<td colspan="5"></td>
+					</tr>
 					<tr>
 						<th rowspan="3">제품분류</th>
 						<th colspan="4">녹색제품 구매계획</th>
@@ -559,7 +431,7 @@
 				</table>
 			</div>			
 		</div>
-	</div> --%>
+	</div>
 	<input style="display:none;" id="file_upload" type="file" />
 	<div id="exArea"></div>
 	<input type="hidden" id="selectedDeptSeq" value="" />

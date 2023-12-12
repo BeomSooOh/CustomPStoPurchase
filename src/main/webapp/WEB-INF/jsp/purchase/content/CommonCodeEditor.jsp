@@ -225,13 +225,17 @@
 				field : "NAME"
 					// ,	title : selGroup == "PURCHASE_GOAL" ? "희망기업구분" : "코드명"
 					,	title : selGroup == "PURCHASE_GOAL" ? "희망기업구분" 
-							     : selGroup == "GREEN_GOAL" ? "녹색제품구분"
+							     : selGroup == "GREEN_GOAL" ? "부서"
 								 : "코드명"
 					,	width : 90
 					,	content : {
 							template : function( rowData ) {
-								
-								if(selGroup == "PURCHASE_GOAL" || selGroup == "GREEN_GOAL"){
+									
+								if(selGroup == "GREEN_GOAL"){
+									var deptName;
+									$('#deptName').val() == '' ? deptName = "전체" : deptName = $('#deptName').val() 
+									return deptName;
+								}else if(selGroup == "PURCHASE_GOAL"){
 									return rowData.NAME;
 								}else{
 									return '<input '+(selGroup == "PURCHASE_GOAL" ? "readonly" : selGroup == "GREEN_GOAL" ? "readonly" : "")+' onkeyup="fnSetChangeInfo(\''+rowData.CODE+'\', \'NAME\', \''+rowData.NAME+'\', this.value)" class="puddSetup ac" type="text" value="' + rowData.NAME + '" pudd-style="height:100%;width:100%;"/>';	

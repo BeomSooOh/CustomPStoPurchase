@@ -506,6 +506,7 @@
 				<td tbval="Y" tbtype="innerText" name="out_process_interface_id" class="cen"  style="display:none;"></td>								
 				</tr>				
 			</table>
+			<p style="color:blue;margin-top:20px;" >장애인 구매실적 경우 "중소벤처기업"에서 발행한 "장애인기업 확인서"에 한하여 실적인정 가능합니다. <br> ※ 장애인 표준사업장 인증서 실적인정 불가 </p>
 		</div>	
 		<input style="display:none;" id="file_upload" type="file" />
     </div><!-- //pop_wrap -->

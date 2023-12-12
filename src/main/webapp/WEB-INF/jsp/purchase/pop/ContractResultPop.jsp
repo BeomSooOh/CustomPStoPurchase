@@ -103,6 +103,19 @@
 			
 			init();
 			
+			$(".explain").mouseover(function(){
+				var exId = $(this).attr("id");
+				var list = JSON.parse('${purchaseExplainJson}');
+				
+				$(list).each(function(idx, item){
+					if(item.CODE == exId){
+						var exNote = (item.NOTE).replaceAll("<br>",'\r\n');
+						console.log(exNote);
+						$("#" + exId).attr("title",exNote);
+					}
+				});
+			});
+			
 		});
 		
 		function init(){
@@ -872,7 +885,9 @@
 									<th class="ac">소속</th>
 									<th class="ac">성명</th>
 									<th class="ac">직위</th>
-									<th class="ac">비고</th>
+									<th class="ac">비고
+									<img class="explain" id="12" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+									</th>
 								</tr>
 								<tr name="addData">
 									<c:if test="${disabledYn == 'N'}">
@@ -916,7 +931,7 @@
 				
 				<c:if test="${contractDetailInfo.compete_type != '02'}">
 				<tr>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 평가대상(제한경쟁)</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 평가대상</th>
 					<td colspan="5">						
 						<!-- 테이블 -->
 						<div class="com_ta4">
@@ -925,8 +940,8 @@
 									<c:if test="${disabledYn == 'N'}">
 									<col width="34"/>
 									</c:if>
-									<col width=""/>
-									<col width="150"/>
+<%-- 									<col width=""/>
+									<col width="150"/> --%>
 								</colgroup>
 								<tr>
 									<c:if test="${disabledYn == 'N'}">
@@ -934,8 +949,8 @@
 										<input type="button" onclick="fnSectorAdd('nomineeList', 'nomineeAddBase', 10)" id="" class="puddSetup" style="width:20px;height:20px;background:url('${pageContext.request.contextPath}/customStyle/Images/btn/btn_plus01.png') no-repeat center" value="" />
 									</th>
 									</c:if>
-									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 거래처명</th>
-									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 사업자번호</th>
+									<th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 업체명</th>
+									<%-- <th class="ac"><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 사업자번호</th> --%>
 								</tr>
 								<tr name="addData" rowcnt="1">
 									<c:if test="${disabledYn == 'N'}">
@@ -944,7 +959,8 @@
 									</td>
 									</c:if>
 									<td><input ${disabled} onkeyup="fnNomineeNameSync(this);" name="tableVal" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
-									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
+									<%-- <td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td> --%>
+									<input ${disabled} name="tableVal" type="hidden" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" />
 								</tr>	
 								<tr name="nomineeAddBase" style="display:none;">
 									<c:if test="${disabledYn == 'N'}">
@@ -953,7 +969,8 @@
 									</td>
 									</c:if>
 									<td><input ${disabled} onkeyup="fnNomineeNameSync(this);" name="tableVal" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
-									<td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td>
+									<%-- <td><input ${disabled} name="tableVal" type="text" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" /></td> --%>
+									<input ${disabled} name="tableVal" type="hidden" pudd-style="width:calc( 100% - 20px);" class="puddSetup" value="" />
 								</tr>															
 							</table>
 						</div>
@@ -962,7 +979,9 @@
 				</c:if>
 				
 				<tr>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 제안서 평가결과</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 제안서 평가결과
+						<img class="explain" id="13" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td colspan="3">
 						<!-- 그리드 -->
 						<div name="resultScoreListHtml" class="com_ta4">
@@ -1072,7 +1091,9 @@
 					</td>
 				</tr>
 				<tr>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 낙찰가격</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" />낙찰가격(투찰가격)
+						<img class="explain" id="14" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td colspan="3">
 						<input ${disabled} objKey="result_amt" objCheckFor="checkVal('text', this, '낙찰가격', 'mustAlert', 'parseToInt')" id="resultAmt" type="text" pudd-style="width:150px;" class="puddSetup ar" value="${contractDetailInfo.result_amt}" maxlength="15"/> 원 
 						<span id="resultAmt_han"></span>

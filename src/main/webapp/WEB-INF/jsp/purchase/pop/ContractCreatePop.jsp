@@ -117,7 +117,24 @@
 			setDynamicPublicInfo("${contractDetailInfo.public_info}");
 			setDynamicPublicInfo1();
 			
-
+			
+			$(".explain").mouseover(function(){
+				var exId = $(this).attr("id");
+				var list = JSON.parse('${purchaseExplainJson}');
+				
+				$(list).each(function(idx, item){
+					if(item.CODE == exId){
+						var exNote = (item.NOTE).replaceAll("<br>",'\r\n');
+						console.log(exNote);
+						$("#" + exId).attr("title",exNote);
+					}
+				});
+			});
+			
+/* 			$(".explain").mouseleave(function(){
+				$("#01").attr("title","")
+				}); */
+			
 		});
 		
 		function attachLayerPop(){
@@ -816,7 +833,9 @@
 					<col width=""/>
 				</colgroup>
 				<tr>
-					<th>공고종류</th>
+					<th>공고종류
+					<img class="explain" id="01" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td objKey="noti_type" objCheckFor="checkVal('radio', 'notiType', '공고종류', '', '')" >
 						<c:forEach var="items" items="${notiTypeCode}" varStatus="status">
 						<input ${disabled} type="radio" onclick="fnChangeNotiType(this)" name="notiType" fnChangeEtc name="notiType" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}" <c:if test="${ (viewType == 'I' && status.index == 0) || (viewType == 'U' && items.CODE == contractDetailInfo.noti_type)   }">checked</c:if> />
@@ -842,7 +861,9 @@
 					</td>
 				</tr>
 				<tr>
-					<th>업무관련자</th>
+					<th>업무관련자
+					<img class="explain" id="02" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td objKey="public_info" objCheckFor="getPublicInfo()" >
 						<div id="publicInfo" style="min-width:200px;"></div>
 						<c:if test="${disabledYn == 'N'}">
@@ -868,17 +889,23 @@
 					<col width=""/>
 				</colgroup>
 				<tr>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 공고명</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 공고명
+					<img class="explain" id="03" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td><input ${disabled} onkeyup="chkChar(this)" objKey="title" objCheckFor="checkVal('text', this, '공고명', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.title}</c:if>" /></td>
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약기간</th>
 					<td objKey="contract_end_dt" objCheckFor="checkVal('date', 'contractEndDt', '계약기간', 'selectDate(this)', '')" >계약체결일 ~ <input ${disabled} name="contractEndDt" type="text" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.contract_end_dt}</c:if>" class="puddSetup" pudd-type="datepicker"/></td>
 				</tr>
 				<tr>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 기초금액</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 기초금액
+					<img class="explain" id="04" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td>
 						<input ${disabled} objKey="amt" objCheckFor="checkVal('text', this, '기초금액', 'mustAlert', 'parseToInt', 'notWon')" id="amt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.amt}</c:if>" maxlength="15" /> 원	<span objKey="amt_kor" objCheckFor="checkVal('innerText', this, '기초금액', '', '')" id="amt_han"></span>
 					</td>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 추정가격</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 추정가격
+					<img class="explain" id="05" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td>
 						<input ${disabled} objKey="std_amt" objCheckFor="checkVal('text', this, '추정가격', 'mustAlert', 'parseToInt')" id="stdAmt" type="text" pudd-style="width:110px;" class="puddSetup ar" value="<c:if test="${ viewType == 'U' }">${contractDetailInfo.std_amt}</c:if>" maxlength="15" /> 원 
 						<span id="stdAmt_han"></span>
@@ -897,7 +924,9 @@
 				
 				<tr>
 					<th>
-					<img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 입찰근거법령</th>
+					<img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 입찰근거법령
+					<img class="explain" id="06" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td colspan="3">
 						<select ${disabled} type="select" name="baseLaw" onchange="fnChangeEtc(this)" objKey="base_law" objCheckFor="checkVal('select', this, '근거법령', 'mustAlert', '|etc|')" class="puddSetup" pudd-style="width:auto;min-width:150px;">
 							<c:forEach var="items" items="${baseLawCode}">
@@ -956,9 +985,13 @@
 					<col width=""/>
 				</colgroup>
 				<tr>
-					<th>긴급여부</th>
+					<th>긴급여부
+					<img class="explain" id="07" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td><input ${disabled} objKey="emergency_yn" objCheckFor="checkVal('checkbox', this, '긴급여부', 'checkYn', '')" name="emergencyYn" type="checkbox"  class="puddSetup" pudd-label="긴급입찰" <c:if test="${ viewType == 'U' && contractDetailInfo.emergency_yn == 'Y' }">checked="true"</c:if> /></td>
-					<th>업종제한</th>
+					<th>업종제한
+					<img class="explain" id="08" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />					
+					</th>
 					<td objKey=restrict_sector_yn objCheckFor="checkVal('radio', 'restrictSectorYn', '업종제한', '', '')" >
 						<input ${disabled} type="radio" onclick="fnChangeEtc(this)" name="restrictSectorYn" class="puddSetup" pudd-label="제한함" value="Y" <c:if test="${ viewType == 'U' && contractDetailInfo.restrict_sector_yn == 'Y' }">checked</c:if> />
 						<input ${disabled} type="radio" onclick="fnChangeEtc(this)" name="restrictSectorYn" class="puddSetup" pudd-label="제한안함" value="N" <c:if test="${ (viewType == 'I') || (viewType == 'U' && contractDetailInfo.restrict_sector_yn == 'N') }">checked</c:if> />
@@ -975,7 +1008,9 @@
 					</td>
 				</tr>
 				<tr name="restrictSectorYn_Y" <c:if test="${ (viewType == 'I') || (viewType == 'U' && contractDetailInfo.restrict_sector_yn != 'Y') }">style="display:none;"</c:if>>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 제한업종</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 제한업종
+					<img class="explain" id="09" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td colspan="5">		
 						<a href="#n" onclick="window.open('https://www.g2b.go.kr:8070/um/co/industrialSrchPopup.do?whereAreYouFrom=portal','mgjCode','width=720, height=670, scrollbars=yes');" class="fr pt5 pb5 text_blue"><img src="<c:url value='/customStyle/Images/ico/ico_naraLink.png' />" alt="" width="16px" height="16px" /> 업종조회(나라장터)</a>				
 						<!-- 테이블 -->
@@ -1035,7 +1070,9 @@
 					</td>
 				</tr>
 				<tr name="competeType_01" <c:if test="${ viewType == 'U' && contractDetailInfo.compete_type != '01' }">style="display:none;"</c:if>>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 제한항목</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 제한항목
+					<img class="explain" id="10" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td colspan="5" objKey="restrict_area_info" objCheckFor="checkVal('checkbox', 'restrictArea', '제한항목', '$(\'[objkey=compete_type]\').val() == \'01\'', '|etc|')" >
 						<c:forEach var="items" items="${restrictAreaCode}">
 							<c:choose>
@@ -1093,7 +1130,9 @@
 					</td>
 				</tr>
 				<tr>
-					<th>낙찰자결정방식</th>
+					<th>낙찰자결정방식
+					<img class="explain" id="11" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td colspan="5" objKey="decision_type_info" objCheckFor="checkVal('radio', 'decisionType', '낙찰자결정방식', '', '|03|etc|')" >
 						<c:forEach var="items" items="${decisionTypeCode}" varStatus="status">
 							<c:choose>

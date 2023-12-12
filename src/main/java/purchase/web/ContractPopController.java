@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.gson.Gson;
+
 import bizbox.orgchart.service.vo.LoginVO;
 import cmm.util.CommonUtil;
 import common.helper.convert.CommonConvert;
@@ -119,7 +121,7 @@ public class ContractPopController {
             List<Map<String, Object>> sectorGroup = new ArrayList<Map<String, Object>>();
             
             List<Map<String, Object>> attachForm_Contract01 = new ArrayList<Map<String, Object>>();
-            
+            List<Map<String, Object>> purchaseExplain = new ArrayList<Map<String, Object>>();
             
             
             if(codeList != null && codeList.size() > 0) {
@@ -152,8 +154,9 @@ public class ContractPopController {
         				sectorGroup.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("attachForm_Contract01")) {
         				attachForm_Contract01.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("purchaseExplain")) {
+        				purchaseExplain.add(codeinfo);
         			}
-        			
         		}            	
             }
             
@@ -225,7 +228,7 @@ public class ContractPopController {
             mv.addObject("contractForm2Code", contractForm2);
             mv.addObject("contractForm3Code", contractForm3);
             mv.addObject("sectorGroupCode", sectorGroup);
-            
+            mv.addObject("purchaseExplainJson", new Gson().toJson(purchaseExplain));
             
             mv.addObject("loginVo", loginVo);
             
@@ -411,7 +414,7 @@ public class ContractPopController {
             List<Map<String, Object>> jointContractMethod = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> contractForm1 = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> contractForm2 = new ArrayList<Map<String, Object>>();
-            
+            List<Map<String, Object>> purchaseExplain = new ArrayList<Map<String, Object>>();
             
             
             List<Map<String, Object>> attachForm_Conclusion01_1 = new ArrayList<Map<String, Object>>();
@@ -457,8 +460,9 @@ public class ContractPopController {
         				attachForm_Conclusion01_2.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("option")) {
         				option.add(codeinfo);
+        			}else if(codeinfo.get("GROUP").equals("purchaseExplain")) {
+        				purchaseExplain.add(codeinfo);
         			}
-        			
         		}            	
             }
             
@@ -580,7 +584,7 @@ public class ContractPopController {
             mv.addObject("jointContractMethod", jointContractMethod);
             mv.addObject("contractForm1Code", contractForm1);
             mv.addObject("contractForm2Code", contractForm2);
-            
+            mv.addObject("purchaseExplainJson", new Gson().toJson(purchaseExplain));
             mv.addObject("option", option);
             
             mv.setViewName("/purchase/pop/ConclusionCreatePop");
@@ -621,6 +625,7 @@ public class ContractPopController {
             List<Map<String, Object>> contractYear = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> changeItem = new ArrayList<Map<String, Object>>();
             List<Map<String, Object>> attachForm_Conclusion02 = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> purchaseExplain = new ArrayList<Map<String, Object>>();
             
             if(codeList != null && codeList.size() > 0) {
             	
@@ -632,10 +637,9 @@ public class ContractPopController {
         				changeItem.add(codeinfo);
         			}else if(codeinfo.get("GROUP").equals("attachForm_Conclusion02")) {
         				attachForm_Conclusion02.add(codeinfo);
-        			}
-        			
-        			
-        			
+        			}else if(codeinfo.get("GROUP").equals("purchaseExplain")) {
+        				purchaseExplain.add(codeinfo);
+        			}        			
         		}            	
             }
             
@@ -847,6 +851,7 @@ public class ContractPopController {
             	return mv;
             }
             
+            mv.addObject("purchaseExplainJson", new Gson().toJson(purchaseExplain));
             mv.addObject("contractYearCode", contractYear);
             mv.addObject("changeItemCode", changeItem);
             
@@ -1370,7 +1375,13 @@ public class ContractPopController {
                 queryParam.put("useYn", "Y");
                 queryParam.put("group", "scoreType");
                 List<Map<String, Object>> scoreTypeCode = commonServiceDAO.SelectPurchaseDetailCodeList(queryParam);
+                
                 mv.addObject("scoreTypeCode", scoreTypeCode);
+                
+                queryParam.put("group", "purchaseExplain");
+                List<Map<String, Object>> purchaseExplain = commonServiceDAO.SelectPurchaseDetailCodeList(queryParam);
+                                
+                mv.addObject("purchaseExplainJson", new Gson().toJson(purchaseExplain));
         		
         		//경쟁방식 text 조회 
         		if(!detailInfo.get("compete_type").equals("")) {

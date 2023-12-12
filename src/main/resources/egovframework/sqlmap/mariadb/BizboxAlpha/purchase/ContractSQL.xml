@@ -773,6 +773,9 @@
 		SET
 		modify_dt=now()
 		,modify_by='$created_by$'
+		<isNotEmpty property="manage_no">
+		,manage_no='$manage_no$' 
+		</isNotEmpty>
 		<isNotEmpty property="contract_no">
 		,contract_no='$contract_no$' 
 		</isNotEmpty>
@@ -1088,7 +1091,10 @@
                    ,   concat(format(pdi.res_amt,0), ' 원') as P_RESAMT
                    ,   concat(format(
 						(select
-						ifnull(pc.contract_amt - sum(a.res_amt), pc.contract_amt) 
+						case 
+                        when  ch.contract_amt_after > 0 then ifnull(ch.contract_amt_after - sum(a.res_amt), ch.contract_amt_after) 
+						else ifnull(pc.contract_amt - sum(a.res_amt), pc.contract_amt)        
+                        end 
 						from cust_sto.t_purchase_payment_doc_info a
 						join $DB_NEOS$t_exnp_resdoc b on a.res_doc_seq = b.res_doc_seq and IFNULL(b.doc_seq, '') != '' and IFNULL(b.doc_status, '008') IN ( '001', '002', '003', '004', '006', '008', '009', '20', '30', '90' )
 						where a.outProcessCode = pdi.outProcessCode and a.seq = pdi.seq and cast(a.res_doc_seq as unsigned) <![CDATA[ <= ]]> cast(pdi.res_doc_seq as unsigned)
@@ -1101,6 +1107,7 @@
               
               INNER JOIN cust_sto.t_purchase_payment_doc_info pdi ON er.res_doc_seq  = pdi.res_doc_seq and pdi.outProcessCode = 'CONCLUSION'
               INNER JOIN cust_sto.t_purchase_contract pc on pdi.seq = pc.seq
+              INNER JOIN cust_sto.t_purchase_conclusion_change ch on pdi.seq = ch.seq
               
               where
               pdi.seq = '$seq$'

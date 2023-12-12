@@ -276,6 +276,17 @@
 						field : "manage_no"
 					,	title : "관리번호"
 					,	width : 130
+					,	content : {		
+						template : function(rowData) {
+							
+							<c:choose><c:when test="${authLevel=='admin'}">
+							return '<input onkeyup="fnSetChangeInfo(\''+rowData.seq+'\', \'manage_no\', \''+rowData.manage_no+'\', this.value)" type="text" pudd-style="width:100%;" class="puddSetup ac" value="' + rowData.manage_no + '" />';
+							</c:when><c:otherwise>
+							return rowData.manage_no;
+							</c:otherwise></c:choose>
+							
+						}
+					}
 					/*
 					,	content : {
 						// param : row에 해당되는 Data, td Node 객체, tr Node 객체, grid 객체
@@ -284,8 +295,7 @@
 						}
 					}
 					*/
-				}
-			,	{
+				},	{
 						field : "contract_no"
 					,	title : "계약번호"
 					,	width : 120

@@ -636,7 +636,7 @@
     
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
-  WHERE d.doc_seq IS NOT NULL  and ifnull(d.out_process_interface_id,'') not in ('CONCLUSION','PURCHASE')
+  WHERE d.doc_seq IS NOT NULL  
    
     
   <isNotEmpty property="docStatus">
@@ -742,7 +742,7 @@
   ON d.res_doc_seq = amt.res_doc_seq
    INNER JOIN $DB_NEOS$erpgwlink gwlink
          ON   gwlink.appr_dikey = d.doc_seq
-  WHERE d.doc_seq IS NOT NULL and ifnull(d.out_process_interface_id,'') not in ('CONCLUSION','PURCHASE')
+  WHERE d.doc_seq IS NOT NULL 
   
   <isNotEmpty property="docStatus">
    AND IFNULL(doc_status, '008') IN ($docStatus$)
@@ -847,7 +847,7 @@
   left join $DB_NEOS$t_exnp_restrade tr on tr.res_doc_seq = d.res_doc_seq
   left join cust_sto.t_purchase_contract c on c.seq = d.out_process_interface_m_id and out_process_interface_id = 'CONCLUSION'
   left join cust_sto.t_purchase_trade_info p on p.seq = d.out_process_interface_m_id and outProcessCode = 'Purchase01'
-  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq and hope.tr_seq = tr.tr_seq 
+  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq and (case when hope.trade_seq = '0' then (hope.tr_seq = tr.tr_seq) else (hope.trade_seq = tr.trade_seq) end)
   
     
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
@@ -984,7 +984,7 @@
   left join $DB_NEOS$t_exnp_restrade tr on tr.res_doc_seq = d.res_doc_seq
   left join cust_sto.t_purchase_contract c on c.seq = d.out_process_interface_m_id and out_process_interface_id = 'CONCLUSION'
   left join cust_sto.t_purchase_trade_info p on p.seq = d.out_process_interface_m_id and outProcessCode = 'Purchase01'
-  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq and hope.tr_seq = tr.tr_seq and (case when hope.trade_seq = '0' then (hope.tr_seq = tr.tr_seq) else (hope.trade_seq = tr.trade_seq) end)
+  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq and (case when hope.trade_seq = '0' then (hope.tr_seq = tr.tr_seq) else (hope.trade_seq = tr.trade_seq) end)
     
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
@@ -1119,7 +1119,7 @@
   left join $DB_NEOS$t_exnp_restrade tr on tr.res_doc_seq = d.res_doc_seq
   left join cust_sto.t_purchase_contract c on c.seq = d.out_process_interface_m_id and out_process_interface_id = 'CONCLUSION'
   left join cust_sto.t_purchase_trade_info p on p.seq = d.out_process_interface_m_id and outProcessCode = 'Purchase01'
-  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq and hope.tr_seq = tr.tr_seq 
+  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq and (case when hope.trade_seq = '0' then (hope.tr_seq = tr.tr_seq) else (hope.trade_seq = tr.trade_seq) end)
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
   INNER JOIN (
@@ -1257,7 +1257,7 @@
   left join $DB_NEOS$t_exnp_restrade tr on tr.res_doc_seq = d.res_doc_seq
   left join cust_sto.t_purchase_contract c on c.seq = d.out_process_interface_m_id and out_process_interface_id = 'CONCLUSION'
   left join cust_sto.t_purchase_trade_info p on p.seq = d.out_process_interface_m_id and outProcessCode = 'Purchase01'
-  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq and hope.tr_seq = tr.tr_seq and (case when hope.trade_seq = '0' then (hope.tr_seq = tr.tr_seq) else (hope.trade_seq = tr.trade_seq) end) 
+  left join cust_sto.t_purchase_res_hope_info hope on d.res_doc_seq = hope.res_doc_seq and (case when hope.trade_seq = '0' then (hope.tr_seq = tr.tr_seq) else (hope.trade_seq = tr.trade_seq) end) 
   INNER JOIN $DB_NEOS$a_recordinfo r ON d.doc_seq = r.c_dikeycode
   INNER JOIN $DB_NEOS$a_draftinfo i ON r.c_dikeycode = i.c_dikeycode and IFNULL(i.c_distatus, '008') != 'd'
   INNER JOIN (
@@ -1426,9 +1426,12 @@
   and  (green.item_green_class = '$itemGreenClass$' or m.item_green_class = '$itemGreenClass$')
   </isNotEmpty>
   
-  <isNotEmpty property="itemGreenCertType">    
-  and (green.item_green_cert_type like '%$itemGreenCertType$%' or m.item_green_cert_type like '%$itemGreenCertType$%')
-  </isNotEmpty>
+  <isNotEmpty property="itemGreenCertType">
+  and (case 
+		when green.item_green_cert_type != '' then green.item_green_cert_type REGEXP '$itemGreenCertType$' 
+        when m.item_green_cert_type != '' then m.item_green_cert_type REGEXP '$itemGreenCertType$' 
+        end)
+  </isNotEmpty>  
     
   <isNotEmpty property="docStatus">
    AND IFNULL(doc_status, '008') IN ($docStatus$)
@@ -1556,10 +1559,13 @@
    <isNotEmpty property="itemGreenClass">
   and green.item_green_class = '$itemGreenClass$'
   </isNotEmpty>
-  
-  <isNotEmpty property="itemGreenCertType">    
-  and green.item_green_cert_type like '%$itemGreenCertType$%' 
-  </isNotEmpty>
+
+  <isNotEmpty property="itemGreenCertType">
+  and (case 
+		when green.item_green_cert_type != '' then green.item_green_cert_type REGEXP '$itemGreenCertType$' 
+        when m.item_green_cert_type != '' then m.item_green_cert_type REGEXP '$itemGreenCertType$' 
+        end)
+  </isNotEmpty>  
     
   <isNotEmpty property="docStatus">
    AND IFNULL(doc_status, '008') IN ($docStatus$)
@@ -1688,9 +1694,12 @@
   and  (green.item_green_class = '$itemGreenClass$' or m.item_green_class = '$itemGreenClass$')
   </isNotEmpty>
   
-  <isNotEmpty property="itemGreenCertType">    
-  and (green.item_green_cert_type like '%$itemGreenCertType$%' or m.item_green_cert_type like '%$itemGreenCertType$%')
-  </isNotEmpty>
+  <isNotEmpty property="itemGreenCertType">
+  and (case 
+		when green.item_green_cert_type != '' then green.item_green_cert_type REGEXP '$itemGreenCertType$' 
+        when m.item_green_cert_type != '' then m.item_green_cert_type REGEXP '$itemGreenCertType$' 
+        end)
+  </isNotEmpty>  
   
   <isNotEmpty property="docStatus">
    AND IFNULL(doc_status, '008') IN ($docStatus$)
@@ -1819,9 +1828,12 @@
   and  green.item_green_class = '$itemGreenClass$' 
   </isNotEmpty>
   
-  <isNotEmpty property="itemGreenCertType">    
-  and green.item_green_cert_type like '%$itemGreenCertType$%' 
-  </isNotEmpty>
+  <isNotEmpty property="itemGreenCertType">
+  and (case 
+		when green.item_green_cert_type != '' then green.item_green_cert_type REGEXP '$itemGreenCertType$' 
+        when m.item_green_cert_type != '' then m.item_green_cert_type REGEXP '$itemGreenCertType$' 
+        end)
+  </isNotEmpty>  
   
   <isNotEmpty property="docStatus">
    AND IFNULL(doc_status, '008') IN ($docStatus$)

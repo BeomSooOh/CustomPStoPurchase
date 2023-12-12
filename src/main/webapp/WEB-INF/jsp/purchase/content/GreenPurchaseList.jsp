@@ -102,8 +102,17 @@
 					data.docNo = $("#txtDocNo").val();
 
 					data.itemGreenClass = $("#itemGreenClass").val();
-					data.itemGreenCertType = $("#itemGreenCertType").val();
+					/* data.itemGreenCertType = $("#itemGreenCertType").val(); */
 			
+					//녹색제품 인증구분 선택 데이터
+					var greenCdList = new Array();
+					$.each($("input[name='itemGreenCertType']:checked"), (index, item) => {
+						greenCdList.push($(item).val());
+					});
+			        var geenCd = greenCdList.join("|");
+			        
+			        data.itemGreenCertType = geenCd;
+					
 					
 					<c:if test="${authLevel!='admin'}">
 					data.deptName = "";
@@ -618,7 +627,17 @@
 					data.docNo = $("#txtDocNo").val();
 					
 					data.itemGreenClass = $("#itemGreenClass").val();
-					data.itemGreenCertType = $("#itemGreenCertType").val();
+					
+					// data.itemGreenCertType = $("#itemGreenCertType").val();
+					
+					//녹색제품 인증구분 선택 데이터
+					var greenCdList = new Array();
+					$.each($("input[name='itemGreenCertType']:checked"), (index, item) => {
+						greenCdList.push($(item).val());
+					});
+			        var geenCd = greenCdList.join("|");
+			        
+			        data.itemGreenCertType = geenCd;
 					
 					<c:if test="${authLevel!='admin'}">
 					data.deptName = "";
@@ -919,13 +938,16 @@
 		</c:if>
 				
 		<dt class="ar">녹색제품 인증구분</dt>
-		<dd>
-			<select id="itemGreenCertType" onchange="BindGrid();" style="text-align: center;">
+		<dd style="margin-top : 19px;">
+<%-- 			<select id="itemGreenCertType" onchange="BindGrid();" style="text-align: center;">
 				<option value="">전체</option>
 				<c:forEach var="items" items="${greenCertType}">
 				<option value="${items.CODE}">${items.NAME}</option>
 				</c:forEach>
-			</select>			
+			</select>	 --%>
+			<c:forEach var="items" items="${greenCertType}">
+			<input type="checkbox"  name="itemGreenCertType" value="${items.CODE}" class="puddSetup" pudd-label="${items.NAME}"/>
+			</c:forEach>		
 		</dd>
 		
 		<dt class="ar">제품분류</dt>

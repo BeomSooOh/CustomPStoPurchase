@@ -158,6 +158,20 @@
 			
 			amountInputSet();
 			
+			
+			$(".explain").mouseover(function(){
+				var exId = $(this).attr("id");
+				var list = JSON.parse('${purchaseExplainJson}');
+				
+				$(list).each(function(idx, item){
+					if(item.CODE == exId){
+						var exNote = (item.NOTE).replaceAll("<br>",'\r\n');
+						console.log(exNote);
+						$("#" + exId).attr("title",exNote);
+					}
+				});
+			});
+			
 		});
 		
 		
@@ -2193,7 +2207,9 @@
 						<c:if test="${ viewType == 'I' || (viewType == 'U' && ('▦▦').concat(contractDetailInfo.change_item_info.concat('▦▦')).indexOf('▦▦04▦') < 0 ) }">style="display:none;"</c:if>>
 						<th><img
 							src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_check01.png"
-							alt="" /> 금액변경</th>
+							alt="" /> 금액변경
+							<img class="explain" id="20" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+							</th>
 						<td colspan="3">
 
 

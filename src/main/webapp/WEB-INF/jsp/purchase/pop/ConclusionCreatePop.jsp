@@ -178,6 +178,20 @@
 				
 			});
 			
+			
+			$(".explain").mouseover(function(){
+				var exId = $(this).attr("id");
+				var list = JSON.parse('${purchaseExplainJson}');
+				
+				$(list).each(function(idx, item){
+					if(item.CODE == exId){
+						var exNote = (item.NOTE).replaceAll("<br>",'\r\n');
+						console.log(exNote);
+						$("#" + exId).attr("title",exNote);
+					}
+				});
+			});
+			
 		});
 		
 		
@@ -2615,7 +2629,9 @@
 					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약기간(1)</th>
 					<td objKey="c_contract_end_dt" objCheckFor="checkVal('date', 'contractEndDt', '계약기간(1)', 'selectDate(this)', '')" >계약체결일 ~ <input ${disabled} name="contractEndDt" type="text" value="${contractDetailInfo.c_contract_end_dt}" class="puddSetup" pudd-type="datepicker"/></td>
 					
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약기간(2)</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약기간(2)
+					<img class="explain" id="15" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td objKey="contract_term" objCheckFor="checkVal('radio', 'contractTerm', '계약기간(2)', '', '')" >
 						<c:forEach var="items" items="${contractTermCode}" varStatus="status">
 						<input ${disabled} type="radio" onclick="fnChangeEtc(this, 'amtInfoList')" name="contractTerm" class="puddSetup" pudd-label="${items.NAME}" value="${items.CODE}"  <c:if test="${ (viewType == 'I' && status.index == 0) || (viewType == 'U' && items.CODE == contractDetailInfo.contract_term)   }">checked</c:if> />
@@ -2623,7 +2639,9 @@
 					</td>					
 				</tr>
 				<tr>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약체결형태(1)</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" />계약체결형태(1)
+					<img class="explain" id="16" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td>
 						<select ${disabled} objKey="c_contract_form1" objCheckFor="checkVal('select', this, '계약체결형태(1)', '', '')" class="puddSetup" pudd-style="width:150px;">
 							<c:forEach var="items" items="${contractForm1Code}">
@@ -2631,7 +2649,9 @@
 							</c:forEach>							
 						</select>
 					</td>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약체결형태(2)</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" />계약체결형태(2)
+					<img class="explain" id="17" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td>
 						<select ${disabled} objKey="c_contract_form2" objCheckFor="checkVal('select', this, '계약체결형태(2)', '', '')" class="puddSetup" pudd-style="width:150px;">
 							<c:forEach var="items" items="${contractForm2Code}">
@@ -2641,7 +2661,9 @@
 					</td>
 				</tr>				
 				<tr>
-					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약내용</th>
+					<th><img src="<c:url value='/customStyle/Images/ico/ico_check01.png' />" alt="" /> 계약내용
+					<img class="explain" id="18" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 					<td colspan="3">
 					<textarea cols="170" rows="3" ${disabled} objKey="c_work_info" objCheckFor="checkVal('text', this, '계약내용', 'mustAlert', '')" class="puddSetup" >${contractDetailInfo.c_work_info}</textarea>
 					<%-- <input ${disabled} objKey="c_work_info" objCheckFor="checkVal('text', this, '계약내용', 'mustAlert', '')" type="text" pudd-style="width:100%;" class="puddSetup" value="${contractDetailInfo.c_work_info}" /> --%>
@@ -3015,7 +3037,9 @@
 					<th class="cen">사업장주소</th>
 					<th class="cen">담당자(PM) 성명</th>
 					<th class="cen">담당자(PM) 연락처</th>
-					<th class="cen">담당자(PM) 전자우편</th>
+					<th class="cen">담당자(PM) 전자우편
+					<img class="explain" id="19" title="" src="${pageContext.request.contextPath}/customStyle/Images/ico/ico_manual.png" alt="" />
+					</th>
 				</tr>
 				<tr name="dataBase" style="display:none;">
 					<c:if test="${disabledYn == 'N'}"> 
