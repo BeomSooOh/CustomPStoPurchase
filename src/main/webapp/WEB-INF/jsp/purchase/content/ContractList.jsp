@@ -52,7 +52,12 @@
 	var uploadPer = 0;
 	var selGroup;
 	
+	var formDate = new Date;
+	var todayDate = formDate.getFullYear()+"-"+"01"+"-"+"01";
+
 	$(document).ready(function() {
+		
+		Pudd("#searchFromDate").getPuddObject().setDate(todayDate);
 		
 		popUpResize();
 		
@@ -2262,10 +2267,8 @@
 	<dl>
 		<dt class="ar" style="width: 60px;">계약일</dt>
 		<dd>
-			<input type="text" id="searchFromDate" value="2023-01-01"
-				class="puddSetup" pudd-type="datepicker" /> ~ <input type="text"
-				id="searchToDate" value="2026-12-31" class="puddSetup"
-				pudd-type="datepicker" />
+			<input type="text" id="searchFromDate" value="" class="puddSetup" pudd-type="datepicker" /> ~ 
+			<input type="text" id="searchToDate" value="2026-12-31" class="puddSetup" pudd-type="datepicker" />
 			<%-- 		<input type="text" id="searchFromDate" value="${fromDate}" class="puddSetup" pudd-type="datepicker"/> ~
 			<input type="text" id="searchToDate" value="${toDate}" class="puddSetup" pudd-type="datepicker"/> --%>
 		</dd>
