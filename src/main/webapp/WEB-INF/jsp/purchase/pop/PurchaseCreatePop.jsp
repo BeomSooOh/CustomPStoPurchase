@@ -1905,6 +1905,74 @@
 			
 	}
 	
+	/** 예산 반환 **/
+	var modifyParam = {};
+
+	function fnReturn(){
+		
+	    var selectedList = [];
+	    
+	    var selectedInfo = {};
+		selectedInfo.seq = thisSeq;
+		selectedInfo.conffer_return_yn = "Y"; 
+		selectedInfo.out_process_interface_id = "Purchase01"
+		selectedList.push(selectedInfo);
+	    
+	    modifyParam = {};
+	    modifyParam.change_info_list = JSON.stringify(selectedList);		
+		
+		confirmAlert(350, 100, 'question', '예산반환 하시겠습니까?', '확인', 'fnReturnCancelProc()', '취소', '');			
+
+	}	
+	
+	
+	
+	
+	/** 예산 반환 취소 **/
+	function fnCancel(){
+		
+	    var selectedList = [];
+	    
+	    var selectedInfo = {};
+		selectedInfo.seq = thisSeq;
+		selectedInfo.conffer_return_yn = "N"; 
+		selectedInfo.out_process_interface_id = "Purchase01"
+		selectedList.push(selectedInfo);
+	    	
+	    
+	    modifyParam = {};
+	    modifyParam.change_info_list = JSON.stringify(selectedList);		
+		
+		confirmAlert(350, 100, 'question', '예산반환취소 하시겠습니까?', '확인', 'fnReturnCancelProc()', '취소', '');			
+
+	}	
+	
+	
+	function fnReturnCancelProc(){
+		
+		$.ajax({
+			type : 'post',
+			url : '<c:url value="/purchase/ReturnCancelContractList.do" />',
+    		datatype:"json",
+            data: modifyParam ,
+			async : false,
+			success : function(result) {
+				
+				if(result.resultCode == "success"){
+					
+					msgAlert("success", "완료되었습니다.", "self.close()");
+					
+				}else{
+					msgSnackbar("error", "예산반환할 수 없는 데이터가 있습니다.");
+					
+				}	
+			},
+			error : function(result) {
+				msgSnackbar("error", "실패했습니다.");
+			}
+		});		
+		
+	}
 	
 	
 	</script>
@@ -1917,7 +1985,12 @@
 		<div class="psh_btnbox">
 			<div class="psh_right">
 				<div class="btn_cen mt8">
-				
+					<c:if test="${btnAdminEditYn == 'Y'}">
+					<input type="button" class="psh_btn" onclick="fnReturn()"  value="예산반환" /> 
+					</c:if>
+					<c:if test="${btnAdminEditYn == 'Y'}">
+					<input type="button" class="psh_btn" onclick="fnCancel()"  value="예산반환취소" />
+					</c:if>
 					<c:if test="${btnAdminEditYn == 'Y'}">
 					<input type="button" class="psh_btn" onclick="fnCallBtn('save')" value="저장" />
 					</c:if>

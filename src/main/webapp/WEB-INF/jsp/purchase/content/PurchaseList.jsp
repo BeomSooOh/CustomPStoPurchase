@@ -157,6 +157,16 @@
 		}		
 		
 		,	columns : [
+			<c:if test="${authLevel=='admin'}">
+			{
+				field : "gridCheckBox",
+				width : 34,
+				editControl : {
+					type : "checkbox",
+					basicUse : true
+				}
+			},
+			</c:if>
 				{
 					field : "seq"
 				,	title : "연번"
@@ -901,6 +911,74 @@
     	excel.generate( fileName, saveCallback, stepCallback );
     }    
 	
+    
+    var delParam = {};
+	
+	function fnDel(){
+		
+		var dataCheckedRow = Pudd( "#grid1" ).getPuddObject().getGridCheckedRowData( "gridCheckBox" );
+		
+	    if(dataCheckedRow && dataCheckedRow.length == 0) {
+	    	msgSnackbar("error", "삭제할 데이터를 선택해 주세요.");
+			return;
+		}
+		
+	    var selectedList = [];
+	    
+	    $.each(dataCheckedRow, function (i, t) {
+	    	
+	    	var selectedInfo = {};
+	    	selectedInfo.type = 'purchase'
+			selectedInfo.seq = t.seq;
+			selectedList.push(selectedInfo);
+	    	
+	    });
+	    
+		delParam = {};
+		delParam.change_info_list = JSON.stringify(selectedList);		
+		
+		confirmAlert(350, 100, 'question', '삭제하시겠습니까?', '삭제', 'fnDelProc()', '취소', '');			
+
+	}		
+	
+	function fnDelProc(){
+		
+		$.ajax({
+			type : 'post',
+			url : '<c:url value="/purchase/deleteContractList.do" />',
+    		datatype:"json",
+            data: delParam ,
+			async : false,
+			success : function(result) {
+				
+				if(result.resultCode == "success"){
+					
+					msgSnackbar("success", "요청하신 삭제건 처리가 완료되었습니다.");
+					/* BindGrid(); */
+					gridReload();
+					
+				}else{
+					
+					msgSnackbar("error", "결재완료 또는 결재중인 데이터가 있습니다");
+					
+				}
+				
+			},
+			error : function(result) {
+				msgSnackbar("error", "삭제 실패했습니다.");
+			}
+		});		
+		
+	}
+	
+	function gridReload(){
+		var grid = Pudd("#grid1").getPuddObject();
+		if (!grid) return;
+		/* grid.page( 1 ); */
+		grid.refresh();
+
+	}
+    
 </script>
 
 
@@ -984,6 +1062,9 @@
 		</div>
 		<div class="right_div">
 			<div id="" class="controll_btn p0">
+				<c:if test="${authLevel=='admin'}">
+				<input type="button" onclick="fnDel();" class="puddSetup" value="삭제" />
+				</c:if>
 				<input type="button" onclick="excelDown();" class="puddSetup" value="엑셀다운로드" />
 			</div>
 		</div>		

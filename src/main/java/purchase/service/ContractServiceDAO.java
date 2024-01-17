@@ -24,6 +24,12 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 	}
 	
 	@SuppressWarnings ( "unchecked" )
+	public Map<String, Object> SelectPurchaseDetail ( Map<String, Object> params ) {
+		return (Map<String, Object>) select( "ContractSQL.SelectPurchaseDetail", params );
+	}
+	
+	
+	@SuppressWarnings ( "unchecked" )
 	public Map<String, Object> SelectConsdocDetail ( Map<String, Object> params ) {
 		return (Map<String, Object>) select( "ContractSQL.SelectConsdocDetail", params );
 	}
@@ -159,6 +165,12 @@ public class ContractServiceDAO extends EgovComAbstractDAO {
 	public void deleteContractList ( Map<String, Object> params ) {
 		
 		delete( "ContractSQL.deleteContractList", params );
+		
+	}
+	
+	public void deletePurchaseList ( Map<String, Object> params ) {
+		
+		delete( "ContractSQL.deletePurchaseList", params );
 		
 	}
 	

@@ -1885,6 +1885,7 @@
 	    $.each(dataCheckedRow, function (i, t) {
 	    	
 	    	var selectedInfo = {};
+	    	selectedInfo.type = 'contract'
 			selectedInfo.seq = t.seq;
 			selectedList.push(selectedInfo);
 	    	

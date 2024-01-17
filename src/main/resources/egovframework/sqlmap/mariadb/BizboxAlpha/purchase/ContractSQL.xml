@@ -402,6 +402,45 @@
 		limit 1;
 	</select>	
 	
+	<select id="ContractSQL.SelectPurchaseDetail" parameterClass="HashMap" resultClass="HashMap">
+  
+  SELECT 
+  a.seq, 
+  a.manage_no, 
+  a.write_comp_seq, 
+  a.write_dept_seq, ifnull(dm.dept_name,'') as write_dept_name, 
+  a.write_emp_seq, ifnull(em.emp_name,'') as write_emp_name, 
+  a.write_dt,
+  ifnull(a.title, '') as title,
+  ifnull(a.doc_sts,'') as doc_sts,
+  ifnull(a.approkey_purchase,'') as approkey_purchase, 
+  ifnull(a.approkey_check,'') as approkey_check, 
+  ifnull(a.purchase_method,'') as purchase_method,
+  ifnull(a.purchase_type,'') as purchase_type,
+  ifnull(a.pay_type_info,'') as pay_type_info,
+  ifnull(a.public_info,'') as public_info,
+  FORMAT(a.purchase_amt, 0) as purchase_amt,
+  a.purchase_amt_kor,
+  
+  ifnull(a.c_write_comp_seq,'') as c_write_comp_seq,
+  ifnull(a.c_write_dept_seq,'') as c_write_dept_seq,
+  ifnull(a.c_write_emp_seq,'') as c_write_emp_seq,
+  ifnull(a.c_write_dt,'') as c_write_dt,
+  ifnull(a.check_location,'') as check_location,
+  ifnull(a.release_dt,'') as release_dt,
+  
+  a.created_dt, 
+  a.created_by, 
+  a.modify_dt, 
+  a.modify_by
+  FROM cust_sto.t_purchase_purchase a
+  left join $DB_NEOS$t_co_dept_multi dm on a.write_dept_seq = dm.dept_seq and dm.lang_code = 'kr'
+  left join $DB_NEOS$t_co_emp_multi em on a.write_emp_seq = em.emp_seq and em.lang_code = 'kr'
+  
+  where a.seq = $seq$
+  limit 1;
+ </select>  	
+	
 	<select	id="ContractSQL.SelectConclusionChangeDetail" parameterClass="HashMap" resultClass="HashMap">
 	
 		SELECT 
@@ -1190,6 +1229,9 @@
 			delete from cust_sto.t_purchase_contract where seq = '$seq$' and (doc_sts is null  or doc_sts = '')
 	</delete>
 	
+	<delete id="ContractSQL.deletePurchaseList" parameterClass="HashMap">
+			delete from cust_sto.t_purchase_purchase where seq = '$seq$' and (doc_sts is null  or doc_sts = '')
+	</delete>
 	
 	 <select id="ContractSQL.SelectConclusionConsDocInfo" parameterClass="HashMap" resultClass="HashMap">
 	
@@ -1226,11 +1268,25 @@
 	</delete>
 		 
 	<delete id="ContractSQL.deleteConsDoc" parameterClass="HashMap">
-			delete from $DB_NEOS$t_exnp_consdoc where out_process_interface_m_id = '$seq$'
+			delete from $DB_NEOS$t_exnp_consdoc where cons_doc_seq = '$cons_doc_seq$'
 	</delete>
 	
 	<delete id="ContractSQL.deleteBudgetInfo" parameterClass="HashMap">
-			delete from cust_sto.t_purchase_budget_info where seq = '$seq$'
+			delete from cust_sto.t_purchase_budget_info where seq = '$seq$' 
+			
+			<isEqual property="type" compareValue="contract">
+			and outProcessCode != 'Purchase01'
+			</isEqual>
+			
+			<isEqual property="type" compareValue="purchase">
+			and outProcessCode = 'Purchase01'
+			</isEqual>
+			
+	</delete>
+	
+		<delete id="ContractSQL.deletePurchaseBudgetInfo" parameterClass="HashMap">
+			delete from cust_sto.t_purchase_budget_info where seq = '$seq$' 
+
 	</delete>
 	
 	<delete id="ContractSQL.deleteErpgwlink" parameterClass="HashMap">

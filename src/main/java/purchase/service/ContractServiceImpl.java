@@ -327,6 +327,7 @@ public class ContractServiceImpl implements ContractService {
 		changeInfoList = mapper.readValue(jsonStr, new TypeReference<List<Map<String, Object>>>(){});
 		
 		Map<String, Object> contractInfo;
+		Map<String, Object> purchaseInfo;
 		Map<String, Object> consDocInfo;
 		
 		
@@ -334,30 +335,58 @@ public class ContractServiceImpl implements ContractService {
 		
 			contractInfo = contractServiceDAO.SelectContractDetail(map);
 			
-			String doc_sts =  (String) contractInfo.get("doc_sts"); 
-			
-			if (!contractInfo.get("doc_sts").equals("")) {
+			if(map.get("type").equals("contract")) {
+				contractInfo = contractServiceDAO.SelectContractDetail(map);
+				
+				String doc_sts =  (String) contractInfo.get("doc_sts"); 
+				
+				if (!contractInfo.get("doc_sts").equals("")) {
+					params.put("resultCode", "error");
+					return params;	
+				}else {		
+					consDocInfo = contractServiceDAO.SelectConsDocInfo(map);
+					
+					contractServiceDAO.deleteConsDoc(consDocInfo);
+					
+					contractServiceDAO.deleteConsHead(consDocInfo);
+					
+					contractServiceDAO.deleteConsBudget(consDocInfo);
+					
+					contractServiceDAO.deleteContractList(map); 
+					
+					contractServiceDAO.deleteBudgetInfo(map);
+					
+					params.put("resultCode", "success");	
+				}
+			}else if(map.get("type").equals("purchase")) {
+				
+				purchaseInfo = contractServiceDAO.SelectPurchaseDetail(map);
+				
+				String doc_sts =  (String) purchaseInfo.get("doc_sts"); 
+				
+				if (!purchaseInfo.get("doc_sts").equals("")) {
+					params.put("resultCode", "error");
+					return params;	
+				}else {		
+					consDocInfo = contractServiceDAO.SelectConsDocInfo(map);
+					
+					contractServiceDAO.deleteConsDoc(consDocInfo);
+					
+					contractServiceDAO.deleteConsHead(consDocInfo);
+					
+					contractServiceDAO.deleteConsBudget(consDocInfo);
+					
+					contractServiceDAO.deletePurchaseList(map); 
+					
+					contractServiceDAO.deleteBudgetInfo(map);
+					
+					params.put("resultCode", "success");	
+				}
+
+			}else {
 				params.put("resultCode", "error");
 				return params;	
-			} 
-		}
-		for (Map<String, Object> map : changeInfoList) {
-			
-			contractInfo = contractServiceDAO.SelectContractDetail(map);
-			
-			consDocInfo = contractServiceDAO.SelectConsDocInfo(map);
-			
-			contractServiceDAO.deleteConsDoc(map);
-			
-			contractServiceDAO.deleteConsHead(consDocInfo);
-			
-			contractServiceDAO.deleteConsBudget(consDocInfo);
-			
-			contractServiceDAO.deleteContractList(map); 
-			
-			contractServiceDAO.deleteBudgetInfo(map);
-			
-			params.put("resultCode", "success");	
+			}
 		}
 		return params;
 	}	
