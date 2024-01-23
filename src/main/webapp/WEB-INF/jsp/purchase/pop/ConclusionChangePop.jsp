@@ -1995,6 +1995,91 @@
 			
 		}
 		
+		/*품의 반환*/
+		function fnReturn(){
+			
+		    var selectedList = [];
+		    
+		    var selectedInfo = {};
+			selectedInfo.seq = "${seq}";
+			selectedInfo.conffer_return_yn = "Y";
+			
+			var approkeyChange = "${contractDetailInfo.approkey_change}"; 
+			var changeResultAmtInfoHtml = $("#changeResultAmtInfoHtml").text();
+
+			if(approkeyChange != '' && changeResultAmtInfoHtml != ''){
+				selectedInfo.out_process_interface_id = "Conclu02"
+			}else {
+				alert("반환 할 예산이 없습니다.")
+				return false;	
+			}
+
+			selectedList.push(selectedInfo);
+		    
+		    modifyParam = {};
+		    modifyParam.change_info_list = JSON.stringify(selectedList);		
+			
+			confirmAlert(350, 100, 'question', '예산반환 하시겠습니까?', '확인', 'fnReturnCancelProc()', '취소', '');			
+
+		}	
+		
+		
+		/*품의 반환*/
+		function fnCancel(){
+			
+		    var selectedList = [];
+		    
+		    var selectedInfo = {};
+			selectedInfo.seq = "${seq}";
+			selectedInfo.conffer_return_yn = "N"; 
+			
+		    
+			var approkeyChange = "${contractDetailInfo.approkey_change}"; 
+			var changeResultAmtInfoHtml = $("#changeResultAmtInfoHtml").text();
+
+			
+			if(approkeyChange != '' && changeResultAmtInfoHtml != ''){
+				selectedInfo.out_process_interface_id = "Conclu02"
+			}else {
+				alert("반환 취소 할 예산이 없습니다.")
+				return false;	
+			}
+			
+			selectedList.push(selectedInfo);
+		    
+		    modifyParam = {};
+		    modifyParam.change_info_list = JSON.stringify(selectedList);		
+			
+			confirmAlert(350, 100, 'question', '예산반환취소 하시겠습니까?', '확인', 'fnReturnCancelProc()', '취소', '');			
+
+		}
+		
+		
+		function fnReturnCancelProc(){
+			
+			$.ajax({
+				type : 'post',
+				url : '<c:url value="/purchase/ReturnCancelContractList.do" />',
+	    		datatype:"json",
+	            data: modifyParam ,
+				async : false,
+				success : function(result) {
+					
+					if(result.resultCode == "success"){
+						
+						msgAlert("success", "완료되었습니다.", "self.close()");
+						
+					}else{
+						msgSnackbar("error", "예산반환할 수 없는 데이터가 있습니다.");
+						
+					}	
+				},
+				error : function(result) {
+					msgSnackbar("error", "반환 할 예산이 없습니다.");
+				}
+			});		
+			
+		}
 		
 	</script>
 </head>
@@ -2007,6 +2092,12 @@
 			<div class="psh_btnbox">
 				<div class="psh_right">
 					<div class="btn_cen mt8">
+						<c:if test="${btnApprYn == 'Y'}">
+							<input type="button" class="psh_btn" onclick="fnReturn();"  value="예산반환" /> 
+						</c:if>
+						<c:if test="${btnApprYn == 'Y'}">
+							<input type="button" class="psh_btn" onclick="fnCancel();"  value="예산반환취소" /> 
+						</c:if>
 						<c:if test="${btnSaveYn == 'Y'}">
 							<input type="button" class="psh_btn" onclick="fnCallBtn('save')"
 								value="임시저장" />
@@ -2036,6 +2127,7 @@
 			<div class="btn_div mt0">
 				<div class="left_div">
 					<p class="tit_p mt5 mb0">기본정보</p>
+					<textarea id="changeResultAmtInfoHtml" style="white-space:pre;display:none;"><c:out value="${contractDetailInfo.change_result_amt_info_html}" /></textarea>
 				</div>
 			</div>
 			<div class="com_ta mt10">
