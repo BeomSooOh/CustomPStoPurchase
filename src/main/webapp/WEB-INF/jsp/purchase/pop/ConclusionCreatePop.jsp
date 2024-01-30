@@ -940,7 +940,10 @@
 				insertDataObject.contract_amt = 0;
 				
 				$.each($("[name=amtInfoList] [name=addData] [amounttype=amt]"), function( key, objInfo ) {
-					insertDataObject.contract_amt += parseInt($(objInfo).val().replace(/,/g, ''));
+					if(key == 0){
+						insertDataObject.contract_amt += parseInt($(objInfo).val().replace(/,/g, ''));	
+					}
+					
 				});
 				
 				insertDataObject.contract_amt_kor = viewKorean(insertDataObject.contract_amt.toString());

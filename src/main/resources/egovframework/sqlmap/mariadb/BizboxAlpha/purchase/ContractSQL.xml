@@ -19,10 +19,10 @@
 		where 
 		1=1
 		<isNotEmpty property="searchFromDate">
-		and  ifnull(a.c_contract_end_dt, a.contract_end_dt) <![CDATA[ >= ]]> '$searchFromDate$'
+		and  ifnull(if(contract_term = '02' ,concat(left(c_write_dt,4),'-12-31') , a.c_contract_end_dt), a.contract_end_dt) <![CDATA[ >= ]]> '$searchFromDate$'
 		</isNotEmpty>
 		<isNotEmpty property="searchToDate">
-		and  ifnull(a.c_contract_end_dt, a.contract_end_dt) <![CDATA[ <= ]]> '$searchToDate$'
+		and  ifnull(if(contract_term = '02' ,concat(left(c_write_dt,4),'-12-31') , a.c_contract_end_dt), a.contract_end_dt) <![CDATA[ <= ]]> '$searchToDate$'
 		</isNotEmpty>
 		<isNotEmpty property="contractTitle">
 		and  ifnull(a.c_title, a.title) like concat('%', '$contractTitle$', '%')
@@ -78,7 +78,7 @@
 		cust_sto.fn_get_purchase_code_text('targetType', ifnull(a.c_target_type,a.target_type)) as target_type_name,
 		ifnull(a.c_title, a.title) as title, 
 		ifnull(a.contract_start_dt,'') as contract_start_dt, 
-		ifnull(a.c_contract_end_dt, a.contract_end_dt) as contract_end_dt, 
+		ifnull(if(contract_term = '02' ,CONCAT(left(c_write_dt,4),'-12-31') , a.c_contract_end_dt), a.contract_end_dt) as contract_end_dt, 
 		ifnull(FORMAT(ifnull(a.amt, 0), 0),'') as amt,
 		ifnull(FORMAT(ifnull(a.contract_amt, 0), 0),'') as contract_amt,
 		ifnull(FORMAT(ifnull(a.contract_amt, a.amt), 0),'') as dis_amt,
@@ -216,10 +216,10 @@
 		 
 		 
 		<isNotEmpty property="searchFromDate">
-		and  ifnull(a.c_contract_end_dt, a.contract_end_dt) <![CDATA[ >= ]]> '$searchFromDate$'
+		and  ifnull(if(contract_term = '02' ,CONCAT(left(c_write_dt,4),'-12-31') , a.c_contract_end_dt), a.contract_end_dt) <![CDATA[ >= ]]> '$searchFromDate$'
 		</isNotEmpty>
 		<isNotEmpty property="searchToDate">
-		and  ifnull(a.c_contract_end_dt, a.contract_end_dt) <![CDATA[ <= ]]> '$searchToDate$'
+		and  ifnull(if(contract_term = '02' ,CONCAT(left(c_write_dt,4),'-12-31') , a.c_contract_end_dt), a.contract_end_dt) <![CDATA[ <= ]]> '$searchToDate$'
 		</isNotEmpty>
 		<isNotEmpty property="contractTitle">
 		and  ifnull(a.c_title, a.title) like concat('%', '$contractTitle$', '%')
