@@ -149,7 +149,8 @@
 				
 			} 
 			
-			if("${items.hope_attach_info}" != ""){
+			if("${items.hope_company_info}".includes("00")  && "${items.hope_attach_info}" == ""){	
+			}else if("${items.hope_attach_info}" != ""){
 				
 				$.each("${items.hope_attach_info}".split("▦▦"), function( key, val ) {
 					
@@ -163,7 +164,33 @@
 					
 					$(cloneData).find("[name=hope_attach_info]").append(fileCloneData);						
 				});				
-			}		
+			}else if("${items.c_hope_attach_info}" != ""){
+				$.each("${items.c_hope_attach_info}".split("▦▦"), function( key, val ) {
+					
+					var valInfo =  val.split("▦");
+					
+					var fileCloneData = $(cloneData).find("[name=hope_attach_info] [name=attachBase]").clone();
+					$(fileCloneData).show().attr("name", "addFile");
+					$(fileCloneData).find('[name="attachFileName"]').attr("fileid", valInfo[0]);
+					$(fileCloneData).find('[name="attachFileName"]').text(valInfo[1]);
+					$(fileCloneData).find('[name="attachExtName"]').text(valInfo[2]);	
+					
+					$(cloneData).find("[name=hope_attach_info]").append(fileCloneData);						
+				});	
+			}else if("${items.p_hope_attach_info}" != ""){
+				$.each("${items.p_hope_attach_info}".split("▦▦"), function( key, val ) {
+					
+					var valInfo =  val.split("▦");
+					
+					var fileCloneData = $(cloneData).find("[name=hope_attach_info] [name=attachBase]").clone();
+					$(fileCloneData).show().attr("name", "addFile");
+					$(fileCloneData).find('[name="attachFileName"]').attr("fileid", valInfo[0]);
+					$(fileCloneData).find('[name="attachFileName"]').text(valInfo[1]);
+					$(fileCloneData).find('[name="attachExtName"]').text(valInfo[2]);	
+					
+					$(cloneData).find("[name=hope_attach_info]").append(fileCloneData);						
+				});	
+			}	
 			
 			$('[name="tradeList"]').append(cloneData);
 			

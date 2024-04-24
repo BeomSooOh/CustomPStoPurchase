@@ -1092,11 +1092,12 @@
 			sum(c.trade_amt)
 			from cust_sto.t_purchase_contract a
 			join $DB_NEOS$t_exnp_resdoc b on a.seq = b.out_process_interface_m_id and b.out_process_interface_id = 'CONCLUSION' and b.doc_status = '008'
-			join $DB_NEOS$t_exnp_restrade c on b.res_doc_seq = c.res_doc_seq 
+			join $DB_NEOS$t_exnp_restrade c on b.res_doc_seq = c.res_doc_seq
+			left join cust_sto.t_purchase_res_hope_info h on b.res_doc_seq = h.res_doc_seq 
 			<isNotEmpty property="deptSeq">
 			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
 			</isNotEmpty>				
-			where b.erp_expend_year = '$year$' 
+			where b.erp_expend_year = '$year$' and h.hope_company_info is null
 			<isNotEmpty property="deptSeq">
 			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 			</isNotEmpty>
@@ -1104,11 +1105,12 @@
 			(select count(distinct c.trade_seq)
 			from cust_sto.t_purchase_contract a
 			join $DB_NEOS$t_exnp_resdoc b on a.seq = b.out_process_interface_m_id and b.out_process_interface_id = 'CONCLUSION' and b.doc_status = '008'
-			join $DB_NEOS$t_exnp_restrade c on b.res_doc_seq = c.res_doc_seq 
+			join $DB_NEOS$t_exnp_restrade c on b.res_doc_seq = c.res_doc_seq
+			left join cust_sto.t_purchase_res_hope_info h on b.res_doc_seq = h.res_doc_seq 
 			<isNotEmpty property="deptSeq">
 			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
 			</isNotEmpty>
-			where b.erp_expend_year = '$year$'
+			where b.erp_expend_year = '$year$' and h.hope_company_info is null
 			<isNotEmpty property="deptSeq">
 			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 			</isNotEmpty>
@@ -1121,10 +1123,11 @@
 			join $DB_NEOS$t_exnp_resdoc b on a.seq  = b.out_process_interface_m_id and b.out_process_interface_id = 'PURCHASE' and b.doc_status = '008'
 			join cust_sto.t_purchase_trade_info c on a.seq = c.seq
 			join $DB_NEOS$t_exnp_restrade d on b.res_doc_seq = d.res_doc_seq and c.tr_seq = d.tr_seq
+			left join cust_sto.t_purchase_res_hope_info h on b.res_doc_seq = h.res_doc_seq
 			<isNotEmpty property="deptSeq">
 			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
 			</isNotEmpty>
-			where b.erp_expend_year = '$year$'
+			where b.erp_expend_year = '$year$' and h.hope_company_info is null
 			<isNotEmpty property="deptSeq">
 			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 			</isNotEmpty>
@@ -1133,11 +1136,12 @@
 			from cust_sto.t_purchase_purchase a
 			join $DB_NEOS$t_exnp_resdoc b on a.seq  = b.out_process_interface_m_id and b.out_process_interface_id = 'PURCHASE' and b.doc_status = '008'
 			join cust_sto.t_purchase_trade_info c on a.seq = c.seq
-			join $DB_NEOS$t_exnp_restrade d on b.res_doc_seq = d.res_doc_seq and c.tr_seq = d.tr_seq 
+			join $DB_NEOS$t_exnp_restrade d on b.res_doc_seq = d.res_doc_seq and c.tr_seq = d.tr_seq
+			left join cust_sto.t_purchase_res_hope_info h on b.res_doc_seq = h.res_doc_seq 
 			<isNotEmpty property="deptSeq">
 			left join $DB_NEOS$t_co_dept wdept on b.dept_seq = wdept.dept_seq 
 			</isNotEmpty>
-			where b.erp_expend_year = '$year$'
+			where b.erp_expend_year = '$year$' and h.hope_company_info is null
 			<isNotEmpty property="deptSeq">
 			and (concat('|',wdept.`path`,'|') like concat('%|','$deptSeq$','|%'))
 			</isNotEmpty>
