@@ -1985,12 +1985,8 @@
 		<div class="psh_btnbox">
 			<div class="psh_right">
 				<div class="btn_cen mt8">
-					<c:if test="${btnAdminEditYn == 'Y'}">
 					<input type="button" class="psh_btn" onclick="fnReturn()"  value="예산반환" /> 
-					</c:if>
-					<c:if test="${btnAdminEditYn == 'Y'}">
 					<input type="button" class="psh_btn" onclick="fnCancel()"  value="예산반환취소" />
-					</c:if>
 					<c:if test="${btnAdminEditYn == 'Y'}">
 					<input type="button" class="psh_btn" onclick="fnCallBtn('save')" value="저장" />
 					</c:if>
