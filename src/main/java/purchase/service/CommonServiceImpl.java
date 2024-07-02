@@ -166,14 +166,15 @@ public class CommonServiceImpl implements CommonService {
 			params.put("out_process_interface_id", "Conclu02");
 			params.put("out_process_interface_m_id", params.get("seq"));
 			params.put("out_process_interface_d_id", "DUPLICATE_TEMP");
+			commonServiceDAO.UpdateConsDocSts(params);
 			
-			if(params.get("docSts").equals("90")) {
-				commonServiceDAO.UpdateConsDocSts(params);
-				commonServiceDAO.ChangeConsDocSts(params);
-			} else {
-				commonServiceDAO.UpdateConsDocSts(params);
-			}
-			
+//			if(params.get("docSts").equals("90")) {
+//				commonServiceDAO.UpdateConsDocSts(params);
+//				commonServiceDAO.ChangeConsDocSts(params);
+//			} else {
+//				commonServiceDAO.UpdateConsDocSts(params);
+//			}
+//			
 			
 		}else if(params.get("processId").equals("Purchase01")) {
 			
